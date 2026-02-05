@@ -27,7 +27,7 @@ export TRANSFORMERS_CACHE="$HF_HOME"
 export HF_DATASETS_CACHE="$HF_HOME"
 
 # Select the 4 GPUs you want vLLM to use
-export CUDA_VISIBLE_DEVICES=6
+export CUDA_VISIBLE_DEVICES=5
 PORT=8001
 
 # If port is in use, optionally free it (e.g. ./run_vllm.sh --kill-port)
