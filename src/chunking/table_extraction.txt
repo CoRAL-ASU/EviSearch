@@ -1,0 +1,43 @@
+Task: Extract the table from the provided image.
+
+Instructions:
+- Identify the Table:
+- Carefully examine the image to locate the table. Consider visual cues like gridlines, borders, and consistent spacing to determine the table's boundaries.
+- Extract Headers: Identify Header Levels: Determine if the table has multiple levels of headers (e.g., main headers and subheaders).
+- Resolve Hierarchical Headers: If multiple levels exist, create a single-level header by combining hierarchial -subheaders under their main header (e.g., "High Volume - Darolutamide (n=497)" instead of "High Volume" as a main header and "Darolutamide (n=497)" as a subheader). Choose the approach that best represents the table's structure and improves readability.
+
+- Extract Data:
+    Accurately extract all data points within the table, including rows and columns.
+    Pay close attention to units of measurement, ranges, and any other relevant details.
+
+- Format as Markdown:
+    Present the extracted table in Markdown format using pipes (|) to create the table structure.
+    Ensure proper alignment of columns and rows.
+
+- Enrich the Caption:
+    1. Summarize the table's content in a concise and informative caption. Ensure the caption contains the following pieces of information:
+        - Caption and any other relevant details present in the image with the table.
+        - A list of row headers and column headers in the table.
+        - A description of the what all information is present in the table.
+        - Any other relevant information that provides context or clarifies the table's purpose.
+
+    2. If the table contains multiple levels of headers, include a brief explanation of the hierarchical structure in the caption.
+
+You are supposed to return different outputs in the following format:
+
+Output Format:
+
+##Markdown Table##
+
+[Markdown table content here]
+
+
+##Caption##
+
+[Extracted and enriched caption here]
+
+
+Important Notes:
+If the table has complex layouts, provide a detailed description of these aspects to assist in the extraction process.
+If the table is part of a larger document or image, clearly indicate the specific region containing the table.
+Don't return any additional commentory, return the table, caption and only in the given format. Think step by step and return the 3 outputs in the format mentioned above.
