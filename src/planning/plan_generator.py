@@ -353,7 +353,7 @@ Return ONLY valid JSON.
                         logger.info("Planned: %s", group.name)
                     except Exception as e:
                         logger.error("Failed group '%s': %s", group.name, e)
-                        # Continue with other groups (same as experiment-scripts/generate_extraction_plan_v2.py)
+                        # Continue with other groups (same as new_pipeline_outputs/generate_extraction_plan_v2.py)
             if plans:
                 compiled_path = output_dir / "plans_all_columns.json"
                 compiled_path.write_text(

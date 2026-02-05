@@ -567,11 +567,11 @@ if __name__ == "__main__":
     pdf_name = "NCT02799602_Hussain_ARASENS_JCO'23"
     
     evaluator = EvaluatorV2(
-        extraction_file=f"experiment-scripts/results/{pdf_name}/extractions/extraction_metadata.json",
+        extraction_file=f"new_pipeline_outputs/results/{pdf_name}/extractions/extraction_metadata.json",
         ground_truth_file="dataset/Manual_Benchmark_GoldTable_cleaned.json",
         definitions_file="src/table_definitions/Definitions_with_eval_category.csv",
         document_name=pdf_name,
-        output_dir=f"experiment-scripts/results/{pdf_name}/evaluation"
+        output_dir=f"new_pipeline_outputs/results/{pdf_name}/evaluation"
     )
     
     evaluator.run()

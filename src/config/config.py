@@ -117,7 +117,7 @@ EVALUATION_WORKERS = 5
 VERSION_OUTPUTS = True
 
 # Results base directory (pipeline writes to RESULTS_BASE_DIR / {pdf_name} / ...)
-RESULTS_BASE_DIR = PROJECT_ROOT / "experiment-scripts" / "results"
+RESULTS_BASE_DIR = PROJECT_ROOT / "new_pipeline_outputs" / "results"
 
 # Skip pipeline stages when output already exists (no re-run unless forced)
 SKIP_STAGE_IF_EXISTS = True
