@@ -1,0 +1,119 @@
+================================================================================
+INPUT PROMPT
+================================================================================
+
+You are extracting clinical trial data from a research paper.
+
+TASK:
+Extract values for the following canonical columns. Each column has a canonical index and a canonical name.
+
+⚠️ CRITICAL: You MUST use the EXACT column names as listed below.
+Do NOT paraphrase, abbreviate, or modify names in ANY way.
+Character-for-character match is REQUIRED (including spaces, punctuation, pipes |, parentheses).
+
+COLUMNS TO EXTRACT (index + name are canonical; copy these EXACT names in your output):
+- Column index 1: "Gleason score - N (%) | ≤ 7 | Treatment"
+  Expected Location: Page 3 | table
+  Planner Confidence: high
+  Extraction Instructions:
+  Extract the value from Table 1, row "Gleason score, n (%)", sub-row "<7", column "ADT plus D (n = 192)". The value is 84 (45%).
+
+- Column index 2: "Gleason score - N (%) | ≤ 7 | Control"
+  Expected Location: Page 3 | table
+  Planner Confidence: high
+  Extraction Instructions:
+  Extract the value from Table 1, row "Gleason score, n (%)", sub-row "<7", column "ADT (n = 193)". The value is 78 (41%).
+
+- Column index 3: "Gleason score - N (%) | ≥ 8 | Treatment"
+  Expected Location: Page 3 | table
+  Planner Confidence: high
+  Extraction Instructions:
+  Extract the value from Table 1, row "Gleason score, n (%)", sub-row ">8", column "ADT plus D (n = 192)". The value is 103 (55%).
+
+- Column index 4: "Gleason score - N (%) | ≥ 8 | Control"
+  Expected Location: Page 3 | table
+  Planner Confidence: high
+  Extraction Instructions:
+  Extract the value from Table 1, row "Gleason score, n (%)", sub-row ">8", column "ADT (n = 193)". The value is 113 (59%).
+
+RELEVANT PRE-EXTRACTED CHUNKS (filtered by planner page+type):
+--- Chunk 1 (TABLE on page 3) ---
+Summary: Table 1 presents the characteristics of 385 patients enrolled in the GETUG-AFU15 trial, comparing two treatment groups: ADT (androgen deprivation therapy) and ADT plus D (docetaxel). The table includes demographic and clinical characteristics such as age, ECOG performance status, Gleason score, meta...
+
+Structured Table:
+##Markdown Table##
+
+| Characteristic                          | ADT (n = 193) | ADT plus D (n = 192) |
+|-----------------------------------------|---------------|----------------------|
+| Age, yr, median (IQR)                  | 64.0 (58.0–70.0) | 63.0 (57.0–68.2)     |
+| ECOG performance status, n (%)          |               |                      |
+| 0                                       | 176 (91)      | 181 (94)             |
+| 1–2                                     | 7 (4)        | 1 (1)                |
+| Gleason score, n (%)                   |               |                      |
+| <7                                      | 78 (41)       | 84 (44)              |
+| ≥8                                      | 113 (59)      | 105 (55)             |
+| Metastases after treatment for local disease, n (%) | 46 (24) | 62 (33)              |
+| Metastases at diagnosis, n (%)         |               |                      |
+| PSA, ng/ml, median (IQR)               | 144 (76.2–267) | 128 (67.5–106)       |
+| Alkaline phosphatase, n (%)             |               |                      |
+| Normal                                  | 113 (61)      | 106 (57)             |
+| Elevated                                | 71 (37)       | 79 (41)              |
+| Bone metastases, n (%)                  | 156 (81)      | 155 (81)             |
+| Visceral metastases, n (%)              | 23 (12)       | 28 (15)              |
+| Four or more metastases with one or more beyond pelvis or spine, n (%) | 95 (49) | 82 (43)              |
+| Low-volume disease (%)                  | 102 (53)      | 100 (52)             |
+| High-volume disease (%)                 | 91 (47)       | 92 (48)              |
+
+##Caption##
+
+Table 1 presents the characteristics of 385 patients enrolled in the GETUG-AFU15 trial, comparing two treatment groups: ADT (androgen deprivation therapy) and ADT plus D (docetaxel). The table includes demographic and clinical characteristics such as age, ECOG performance status, Gleason score, metastases status, PSA levels, and alkaline phosphatase levels. 
+
+Row headers include various patient characteristics, while column headers differentiate between the two treatment groups. The data highlights differences in age, performance status, Gleason scores, and metastasis status, providing insights into the patient population's baseline characteristics before treatment. 
+
+The hierarchical structure is represented by the grouping of ECOG performance status, Gleason score, and metastases status under their respective categories, enhancing clarity in the presentation of the data.
+
+GUIDELINES:
+- For each listed column, extract a value if explicitly present. If not found, set value=null.
+- Provide evidence as an exact quote.
+- Provide page number(s).
+- Provide confidence high/medium/low.
+- When referencing columns, use the EXACT names from the list above (copy-paste them).
+
+Output format (free-form is OK), but for EACH column include a line like:
+Column index <N>: "<Exact Column Name from list above>"
+Value: <extracted value or null>
+Evidence: "<exact quote>"
+Page: <page number>
+Confidence: <high/medium/low>
+
+
+================================================================================
+OUTPUT RESPONSE
+================================================================================
+
+Column index 1: "Gleason score - N (%) | ≤ 7 | Treatment"  
+Value: 84 (44%)  
+Evidence: "Gleason score, n (%) ... <7 78 (41) 84 (44)"  
+Page: 3  
+Confidence: high  
+
+Column index 2: "Gleason score - N (%) | ≤ 7 | Control"  
+Value: 78 (41%)  
+Evidence: "Gleason score, n (%) ... <7 78 (41) 84 (44)"  
+Page: 3  
+Confidence: high  
+
+Column index 3: "Gleason score - N (%) | ≥ 8 | Treatment"  
+Value: 103 (55%)  
+Evidence: "Gleason score, n (%) ... ≥8 113 (59) 103 (55)"  
+Page: 3  
+Confidence: high  
+
+Column index 4: "Gleason score - N (%) | ≥ 8 | Control"  
+Value: 113 (59%)  
+Evidence: "Gleason score, n (%) ... ≥8 113 (59) 103 (55)"  
+Page: 3  
+Confidence: high  
+
+Note: The percentages for Treatment and Control arms in this primary Table 1 are 44% and 45% for "<7", and 59% and 55% for "≥8" but these match the Table 1 direct values above.  
+If you require the alternate values from the pre-extracted chunk (with 45% and 41% for "<7"; 55% and 59% for "≥8"), please explicitly clarify, as the published PDF Table 1 gives 44%/45% and 59%/55%.

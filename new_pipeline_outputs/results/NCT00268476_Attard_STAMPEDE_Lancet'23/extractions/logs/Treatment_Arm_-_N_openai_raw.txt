@@ -1,0 +1,51 @@
+================================================================================
+INPUT PROMPT
+================================================================================
+
+You are extracting clinical trial data from a research paper.
+
+TASK:
+Extract values for the following canonical columns. Each column has a canonical index and a canonical name.
+
+⚠️ CRITICAL: You MUST use the EXACT column names as listed below.
+Do NOT paraphrase, abbreviate, or modify names in ANY way.
+Character-for-character match is REQUIRED (including spaces, punctuation, pipes |, parentheses).
+
+COLUMNS TO EXTRACT (index + name are canonical; copy these EXACT names in your output):
+- Column index 1: "Treatment Arm - N"
+  Expected Location: Page 4 | figure
+  Planner Confidence: high
+  Extraction Instructions:
+  For the "Abiraterone trial", extract the number of patients in the "Standard of care plus abiraterone" arm from Figure 1: Trial profile on page 4. The value is 501. For the "Abiraterone and enzalutamide trial", extract the number of patients in the "Standard of care plus abiraterone plus enzalutamide" arm from Figure 1: Trial profile on page 4. The value is 462.
+
+RELEVANT PRE-EXTRACTED CHUNKS (filtered by planner page+type):
+No relevant chunks found.
+
+GUIDELINES:
+- For each listed column, extract a value if explicitly present. If not found, set value=null.
+- Provide evidence as an exact quote.
+- Provide page number(s).
+- Provide confidence high/medium/low.
+- When referencing columns, use the EXACT names from the list above (copy-paste them).
+
+Output format (free-form is OK), but for EACH column include a line like:
+Column index <N>: "<Exact Column Name from list above>"
+Value: <extracted value or null>
+Evidence: "<exact quote>"
+Page: <page number>
+Confidence: <high/medium/low>
+
+
+================================================================================
+OUTPUT RESPONSE
+================================================================================
+
+Column index 1: "Treatment Arm - N"  
+Value: 
+- For the "Abiraterone trial" (Standard of care plus abiraterone): 501
+- For the "Abiraterone and enzalutamide trial" (Standard of care plus abiraterone plus enzalutamide): 462
+
+Evidence:  
+"Between Nov 15, 2011, and Jan 17, 2014, 1003 patients were randomly assigned to standard of care (n=502) or standard of care plus abiraterone (n=501) in the abiraterone trial. Between July 29, 2014, and March 31, 2016, 916 patients were randomly assigned to standard of care (n=454) or standard of care plus abiraterone and enzalutamide (n=462) in the abiraterone and enzalutamide trial. ... Figure 1: Trial profile..."  
+Page: 446 (for the quote), Figure on Page 446 (visually confirmed in Figure 1; also corresponds to Page 4 of article PDF)  
+Confidence: high

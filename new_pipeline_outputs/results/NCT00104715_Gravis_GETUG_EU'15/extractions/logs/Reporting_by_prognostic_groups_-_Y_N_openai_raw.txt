@@ -1,0 +1,87 @@
+================================================================================
+INPUT PROMPT
+================================================================================
+
+You are extracting clinical trial data from a research paper.
+
+TASK:
+Extract values for the following canonical columns. Each column has a canonical index and a canonical name.
+
+⚠️ CRITICAL: You MUST use the EXACT column names as listed below.
+Do NOT paraphrase, abbreviate, or modify names in ANY way.
+Character-for-character match is REQUIRED (including spaces, punctuation, pipes |, parentheses).
+
+COLUMNS TO EXTRACT (index + name are canonical; copy these EXACT names in your output):
+- Column index 1: "Reporting by prognostic groups - Y/N | Synchronous"
+  Expected Location: Page 3 | text
+  Planner Confidence: high
+  Extraction Instructions:
+  The results are reported for patients with synchronous metastases. On page 3, section 3.1, under "Overall survival", the text states: "Patients with metastatic disease after failure of local treatment (28%) had a significantly longer median OS than those with metastases at diagnosis (72%) at 83.1 mo (95% CI, 68.6-NR) versus 46.5 mo (95% CI, 40.5-54.6)". This indicates that "metastases at diagnosis" (synchronous) is a reported prognostic group. Further confirmation is on page 5, section 4, which states: "But no significant difference in OS was observed between treatment arms (ADT plus D vs ADT) between patients with de novo and secondary metastatic diseases." "De novo" refers to synchronous.
+
+- Column index 2: "Reporting by prognostic groups - Y/N | Metachronous"
+  Expected Location: Page 3 | text
+  Planner Confidence: high
+  Extraction Instructions:
+  The results are reported for patients with metachronous metastases. On page 3, section 3.1, under "Overall survival", the text states: "Patients with metastatic disease after failure of local treatment (28%) had a significantly longer median OS than those with metastases at diagnosis (72%) at 83.1 mo (95% CI, 68.6-NR) versus 46.5 mo (95% CI, 40.5-54.6)". "Metastatic disease after failure of local treatment" refers to metachronous metastases. Further confirmation is on page 5, section 4, which states: "But no significant difference in OS was observed between treatment arms (ADT plus D vs ADT) between patients with de novo and secondary metastatic diseases." "Secondary metastatic diseases" refers to metachronous.
+
+- Column index 3: "Reporting by prognostic groups - Y/N | High volume"
+  Expected Location: Page 2 | text
+  Planner Confidence: high
+  Extraction Instructions:
+  The results are reported for patients with high volume metastases. On page 2, section 1, the text states: "We retrospectively retrieved data on metastatic volume from medical files of all patients included in the GETUG-AFU15 study, applying the CHAARTED definition of HVD and low-volume disease (LVD) and updated survival analyses. We present long-term outcomes in the overall population and in the HVD and LVD subgroups." HVD stands for high-volume disease. On page 3, section 3.1, the text explicitly states: "In patients with HVD, median OS was 4.7 mo longer in the ADT plus D arm...". Table 2 on page 4 also presents survival data under the "HVD" column.
+
+- Column index 4: "Reporting by prognostic groups - Y/N | Low volume"
+  Expected Location: Page 2 | text
+  Planner Confidence: high
+  Extraction Instructions:
+  The results are reported for patients with low volume metastases. On page 2, section 1, the text states: "We retrospectively retrieved data on metastatic volume from medical files of all patients included in the GETUG-AFU15 study, applying the CHAARTED definition of HVD and low-volume disease (LVD) and updated survival analyses. We present long-term outcomes in the overall population and in the HVD and LVD subgroups." LVD stands for low-volume disease. On page 3, section 3.1, the text explicitly states: "In patients with LVD, median OS was not reached (NR; 95% CI, 69.5-NR) in the ADT plus D arm...". Table 2 on page 4 also presents survival data under the "LVD" column.
+
+RELEVANT PRE-EXTRACTED CHUNKS (filtered by planner page+type):
+--- Chunk 4 (TEXT on page 1-3) ---
+Androgen Deprivation Therapy (ADT) Plus Docetaxel VersusADT Alone in Metastatic Non castrate Prostate Cancer:Impact of Metastatic Burden and Long-term SurvivalAnalysis of the Randomized Phase 3 GETUG-AFU15 Trial Gwenaelle Gravis a,*, Jean-Marie Boher b, Florence Joly c, Michel Soulie´ d, Laurence Albiges e,Franck Priou f, Igor Latorzeff g, Remy Delva h, Ivan Krakowski i, Brigitte Laguerre j,Fre´de´ric Rolland k, Christine The´odore l, Gael Deplanque m, Jean-Marc Ferrero n,Ste´phane Culine o, Loı...
+
+--- Chunk 5 (TEXT on page 3-5) ---
+alone [26]. Results indicate that D-based chemotherapy isassociated with improved relapse-free survival in high-risklocalized PCa [27]. A longer follow-up of this trial and otherongoing similar studies will be required to assess whetherthisbenefittranslatesintoimprovedmetastasis-freesurvival and, ultimately, OS.The main limitation of our study is that data on metastaticburden were collected retrospectively. The study was notinitially designed to show the benefits of chemotherapy inspecific subgr...
+
+GUIDELINES:
+- For each listed column, extract a value if explicitly present. If not found, set value=null.
+- Provide evidence as an exact quote.
+- Provide page number(s).
+- Provide confidence high/medium/low.
+- When referencing columns, use the EXACT names from the list above (copy-paste them).
+
+Output format (free-form is OK), but for EACH column include a line like:
+Column index <N>: "<Exact Column Name from list above>"
+Value: <extracted value or null>
+Evidence: "<exact quote>"
+Page: <page number>
+Confidence: <high/medium/low>
+
+
+================================================================================
+OUTPUT RESPONSE
+================================================================================
+
+Column index 1: "Reporting by prognostic groups - Y/N | Synchronous"  
+Value: Y  
+Evidence: "Patients with metastatic disease after failure of local treatment (28%) had a significantly longer median OS than those with metastases at diagnosis (72%) at 83.1 mo (95% CI, 68.6–NR) versus 46.5 mo (95% CI, 40.5–54.6)" and "In our study, this represented 28% of cases, and these patients had a significantly longer survival (83.1 vs 46.5 mo; HR: 1.57 [95% CI, 1.09–2.26]; p = 0.015). But no significant difference in OS was observed between treatment arms (ADT plus D vs ADT) between patients with de novo and secondary metastatic diseases." ("Metastases at diagnosis" and "de novo" refer to synchronous presentation.)  
+Page: 3, 5  
+Confidence: high  
+
+Column index 2: "Reporting by prognostic groups - Y/N | Metachronous"  
+Value: Y  
+Evidence: "Patients with metastatic disease after failure of local treatment (28%) had a significantly longer median OS than those with metastases at diagnosis (72%) at 83.1 mo (95% CI, 68.6–NR) versus 46.5 mo (95% CI, 40.5–54.6)" and "But no significant difference in OS was observed between treatment arms (ADT plus D vs ADT) between patients with de novo and secondary metastatic diseases." ("Metastatic disease after failure of local treatment" and "secondary metastatic diseases" refer to metachronous presentation.)  
+Page: 3, 5  
+Confidence: high  
+
+Column index 3: "Reporting by prognostic groups - Y/N | High volume"  
+Value: Y  
+Evidence: "We retrospectively retrieved data on metastatic volume from medical files of all patients included in the GETUG-AFU15 study, applying the CHAARTED definition of HVD and low-volume disease (LVD) and updated survival analyses. We present long-term outcomes in the overall population and in the HVD and LVD subgroups." and "In patients with HVD, median OS was 4.7 mo longer in the ADT plus D arm, but the difference was not statistically significant: 39.8 mo (95% CI, 28.0–53.4) versus 35.1 mo (95% CI, 29.9–43.6)"  
+Page: 2, 3  
+Confidence: high  
+
+Column index 4: "Reporting by prognostic groups - Y/N | Low volume"  
+Value: Y  
+Evidence: "We retrospectively retrieved data on metastatic volume from medical files of all patients included in the GETUG-AFU15 study, applying the CHAARTED definition of HVD and low-volume disease (LVD) and updated survival analyses. We present long-term outcomes in the overall population and in the HVD and LVD subgroups." and "In patients with LVD, median OS was not reached (NR; 95% CI, 69.5–NR) in the ADT plus D arm and 83.4 mo (95% CI, 61.8–NR) in the ADT arm (HR: 1.02 [95% CI, 0.67–1.55]; p = 0.9)"  
+Page: 2, 3  
+Confidence: high

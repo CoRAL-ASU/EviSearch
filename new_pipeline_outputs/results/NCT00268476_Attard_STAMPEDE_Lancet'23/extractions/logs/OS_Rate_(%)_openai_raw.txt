@@ -1,0 +1,59 @@
+================================================================================
+INPUT PROMPT
+================================================================================
+
+You are extracting clinical trial data from a research paper.
+
+TASK:
+Extract values for the following canonical columns. Each column has a canonical index and a canonical name.
+
+⚠️ CRITICAL: You MUST use the EXACT column names as listed below.
+Do NOT paraphrase, abbreviate, or modify names in ANY way.
+Character-for-character match is REQUIRED (including spaces, punctuation, pipes |, parentheses).
+
+COLUMNS TO EXTRACT (index + name are canonical; copy these EXACT names in your output):
+- Column index 1: "OS Rate (%) | Overall | Treatment"
+  Expected Location: Page 9 | text
+  Planner Confidence: high
+  Extraction Instructions:
+  The OS rate for the treatment arm (standard of care plus abiraterone) in the abiraterone trial is reported in the "Results" section on page 9. The OS rate for the treatment arm (standard of care plus abiraterone and enzalutamide) in the abiraterone and enzalutamide trial is not explicitly stated as a percentage in the text at a specific time point. Only median overall survival is provided.
+
+- Column index 2: "OS Rate (%) | Overall | Control"
+  Expected Location: Page 9 | text
+  Planner Confidence: high
+  Extraction Instructions:
+  The OS rate for the control arm (standard of care) in the abiraterone trial is reported in the "Results" section on page 9. The OS rate for the control arm (standard of care) in the abiraterone and enzalutamide trial is not explicitly stated as a percentage in the text at a specific time point. Only median overall survival is provided.
+
+RELEVANT PRE-EXTRACTED CHUNKS (filtered by planner page+type):
+No relevant chunks found.
+
+GUIDELINES:
+- For each listed column, extract a value if explicitly present. If not found, set value=null.
+- Provide evidence as an exact quote.
+- Provide page number(s).
+- Provide confidence high/medium/low.
+- When referencing columns, use the EXACT names from the list above (copy-paste them).
+
+Output format (free-form is OK), but for EACH column include a line like:
+Column index <N>: "<Exact Column Name from list above>"
+Value: <extracted value or null>
+Evidence: "<exact quote>"
+Page: <page number>
+Confidence: <high/medium/low>
+
+
+================================================================================
+OUTPUT RESPONSE
+================================================================================
+
+Column index 1: "OS Rate (%) | Overall | Treatment"  
+Value: 48  
+Evidence: "At 84 months in the abiraterone trial, overall survival was 30% (95% CI 26–34) with standard of care versus 48% (43–52) with standard of care plus abiraterone."  
+Page: 451  
+Confidence: high  
+
+Column index 2: "OS Rate (%) | Overall | Control"  
+Value: 30  
+Evidence: "At 84 months in the abiraterone trial, overall survival was 30% (95% CI 26–34) with standard of care versus 48% (43–52) with standard of care plus abiraterone."  
+Page: 451  
+Confidence: high

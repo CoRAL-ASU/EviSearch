@@ -1,0 +1,60 @@
+================================================================================
+INPUT PROMPT
+================================================================================
+
+You are extracting clinical trial data from a research paper.
+
+TASK:
+Extract values for the following canonical columns. Each column has a canonical index and a canonical name.
+
+⚠️ CRITICAL: You MUST use the EXACT column names as listed below.
+Do NOT paraphrase, abbreviate, or modify names in ANY way.
+Character-for-character match is REQUIRED (including spaces, punctuation, pipes |, parentheses).
+
+COLUMNS TO EXTRACT (index + name are canonical; copy these EXACT names in your output):
+- Column index 5: "Region - N (%) | Europe | Treatment"
+  Expected Location: Page 2 | text
+  Planner Confidence: high
+  Extraction Instructions:
+  The PDF states, "The GETUG-AFU15 trial is a French multicenter open-label randomized study [13]. From October 2004 to December 2008, 385 patients were enrolled including 193 in the ADT arm and 192 in the ADT plus D arm." (Chunk 4, page 2). Since it's a French multicenter study, all participants are from Europe. The treatment arm is "ADT plus D". Therefore, the value is 192 (100%).
+
+- Column index 6: "Region - N (%) | Europe | Control"
+  Expected Location: Page 2 | text
+  Planner Confidence: high
+  Extraction Instructions:
+  The PDF states, "The GETUG-AFU15 trial is a French multicenter open-label randomized study [13]. From October 2004 to December 2008, 385 patients were enrolled including 193 in the ADT arm and 192 in the ADT plus D arm." (Chunk 4, page 2). Since it's a French multicenter study, all participants are from Europe. The control arm is "ADT arm". Therefore, the value is 193 (100%).
+
+RELEVANT PRE-EXTRACTED CHUNKS (filtered by planner page+type):
+--- Chunk 4 (TEXT on page 1-3) ---
+Androgen Deprivation Therapy (ADT) Plus Docetaxel VersusADT Alone in Metastatic Non castrate Prostate Cancer:Impact of Metastatic Burden and Long-term SurvivalAnalysis of the Randomized Phase 3 GETUG-AFU15 Trial Gwenaelle Gravis a,*, Jean-Marie Boher b, Florence Joly c, Michel Soulie´ d, Laurence Albiges e,Franck Priou f, Igor Latorzeff g, Remy Delva h, Ivan Krakowski i, Brigitte Laguerre j,Fre´de´ric Rolland k, Christine The´odore l, Gael Deplanque m, Jean-Marc Ferrero n,Ste´phane Culine o, Loı...
+
+GUIDELINES:
+- For each listed column, extract a value if explicitly present. If not found, set value=null.
+- Provide evidence as an exact quote.
+- Provide page number(s).
+- Provide confidence high/medium/low.
+- When referencing columns, use the EXACT names from the list above (copy-paste them).
+
+Output format (free-form is OK), but for EACH column include a line like:
+Column index <N>: "<Exact Column Name from list above>"
+Value: <extracted value or null>
+Evidence: "<exact quote>"
+Page: <page number>
+Confidence: <high/medium/low>
+
+
+================================================================================
+OUTPUT RESPONSE
+================================================================================
+
+Column index 5: "Region - N (%) | Europe | Treatment"  
+Value: 192 (100%)  
+Evidence: "The GETUG-AFU15 trial is a French multicenter open-label randomized study [13]. From October 2004 to December 2008, 385 patients were enrolled including 193 in the ADT arm and 192 in the ADT plus D arm."  
+Page: 2  
+Confidence: high  
+
+Column index 6: "Region - N (%) | Europe | Control"  
+Value: 193 (100%)  
+Evidence: "The GETUG-AFU15 trial is a French multicenter open-label randomized study [13]. From October 2004 to December 2008, 385 patients were enrolled including 193 in the ADT arm and 192 in the ADT plus D arm."  
+Page: 2  
+Confidence: high

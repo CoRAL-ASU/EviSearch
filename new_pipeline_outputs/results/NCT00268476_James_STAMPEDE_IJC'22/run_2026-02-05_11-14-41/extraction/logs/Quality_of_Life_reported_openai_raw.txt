@@ -1,0 +1,35 @@
+INPUT PROMPT:
+You are extracting clinical trial data from a research paper.
+
+TASK: Extract values for the following canonical columns. Use EXACT column names as listed.
+
+COLUMNS TO EXTRACT:
+- Column index 1: "Quality of Life reported"
+  Definition: Does the clinical trial report results on the quality of life of participants? Answer Yes or No; use 'Not reported' if unclear.
+  Expected Location: Page 14 | text
+  Planner Confidence: high
+  Extraction Instructions:
+  The text states: "Direct comparison of patient-related QoL outcomes previously supported the use of abiraterone over docetaxel". Therefore, Quality of Life is reported.
+
+RELEVANT CHUNKS:
+No relevant chunks found.
+
+GUIDELINES:
+- For each listed column, extract a value if explicitly present; otherwise set value=null.
+- Provide evidence as an exact quote, page number(s), confidence (high/medium/low).
+- Use the EXACT column names from the list above.
+
+Output format (for each column):
+Column index <N>: "<Exact Column Name>"
+Value: <extracted value or null>
+Evidence: "<exact quote>"
+Page: <page number>
+Confidence: <high/medium/low>
+
+
+OUTPUT:
+Column index 1: "Quality of Life reported"  
+Value: Yes  
+Evidence: "Direct comparison of patient-related QoL outcomes previously supported the use of abiraterone over docetaxel"  
+Page: 432  
+Confidence: High

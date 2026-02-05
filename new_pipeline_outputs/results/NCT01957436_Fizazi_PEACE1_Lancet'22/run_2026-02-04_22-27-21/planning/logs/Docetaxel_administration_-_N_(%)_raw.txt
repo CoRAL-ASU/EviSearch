@@ -1,0 +1,26 @@
+Okay, I will create an extraction plan for the specified clinical trial data extraction task, focusing on the two canonical columns provided.
+
+1. Docetaxel administration - N (%) | Treatment
+   - found_in_pdf: true
+   - extraction_plan:
+     - page_number: 5
+     - source_type: text
+     - instruction: The text states "SOC was ADT alone in 462 patients and ADT with docetaxel in 710 patients (table 1)." The treatment arms include SOC plus abiraterone (n=292) and SOC plus radiotherapy plus abiraterone (n=291). Table 1 provides the number and percentage of patients in each arm who received docetaxel.
+     - page_number: 7
+     - source_type: table
+     - instruction: From Table 1, extract the number and percentage of patients who received docetaxel in the "SOC plus abiraterone groups" column. The table shows that in the SOC plus abiraterone group, 177 patients received docetaxel.
+     - page_number: 5
+     - source_type: figure
+     - instruction: Figure 1 shows that 177 patients in the SOC plus abiraterone arm received docetaxel.
+2. Docetaxel administration - N (%) | Control
+   - found_in_pdf: true
+   - extraction_plan:
+     - page_number: 5
+     - source_type: text
+     - instruction: The text states "SOC was ADT alone in 462 patients and ADT with docetaxel in 710 patients (table 1)." The control arms include SOC (n=296) and SOC plus radiotherapy (n=293). Table 1 provides the number and percentage of patients in each arm who received docetaxel.
+     - page_number: 7
+     - source_type: table
+     - instruction: From Table 1, extract the number and percentage of patients who received docetaxel in the "SOC without abiraterone groups" column. The table shows that in the SOC group, 178 patients received docetaxel.
+     - page_number: 5
+     - source_type: figure
+     - instruction: Figure 1 shows that 178 patients in the SOC arm received docetaxel.

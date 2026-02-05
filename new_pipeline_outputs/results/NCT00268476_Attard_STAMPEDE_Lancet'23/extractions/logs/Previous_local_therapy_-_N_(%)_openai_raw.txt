@@ -1,0 +1,81 @@
+================================================================================
+INPUT PROMPT
+================================================================================
+
+You are extracting clinical trial data from a research paper.
+
+TASK:
+Extract values for the following canonical columns. Each column has a canonical index and a canonical name.
+
+⚠️ CRITICAL: You MUST use the EXACT column names as listed below.
+Do NOT paraphrase, abbreviate, or modify names in ANY way.
+Character-for-character match is REQUIRED (including spaces, punctuation, pipes |, parentheses).
+
+COLUMNS TO EXTRACT (index + name are canonical; copy these EXACT names in your output):
+- Column index 3: "Previous local therapy - N (%) | Orchiectomy | Treatment"
+  Expected Location: Page 6 | table
+  Planner Confidence: high
+  Extraction Instructions:
+  Locate "Table 1: Baseline characteristics" on page 6. In the "Abiraterone trial" section, find the column "Standard of care plus abiraterone (n=501)". In the "Abiraterone and enzalutamide trial" section, find the column "Standard of care plus enzalutamide and abiraterone (n=462)". For both columns, read the value in the row "Orchiectomy" under "Planned or current hormone therapy".
+
+- Column index 4: "Previous local therapy - N (%) | Orchiectomy | Control"
+  Expected Location: Page 6 | table
+  Planner Confidence: high
+  Extraction Instructions:
+  Locate "Table 1: Baseline characteristics" on page 6. In the "Abiraterone trial" section, find the column "Standard of care (n=502)". In the "Abiraterone and enzalutamide trial" section, find the column "Standard of care (n=454)". For both columns, read the value in the row "Orchiectomy" under "Planned or current hormone therapy".
+
+RELEVANT PRE-EXTRACTED CHUNKS (filtered by planner page+type):
+--- Chunk 1 (TABLE on page 6) ---
+Summary: **Table 1: Baseline Characteristics of Patients in Abiraterone and Enzalutamide Trials**  This table summarizes the baseline characteristics of patients enrolled in the Abiraterone and Enzalutamide trials. It includes data on non-steroidal anti-inflammatory drug use, planned hormone therapy, palliat...
+
+Structured Table:
+##Markdown Table##
+
+| Baseline Characteristics                     | Abiraterone Trial (n=502) | Abiraterone Trial (n=501) | Abiraterone and Enzalutamide Trial (n=454) | Abiraterone and Enzalutamide Trial (n=462) |
+|----------------------------------------------|----------------------------|----------------------------|---------------------------------------------|---------------------------------------------|
+| Non-steroidal anti-inflammatory drug use     |                            |                            |                                             |                                             |
+| No                                           | 448 (89%)                  | 449 (90%)                  | 411 (91%)                                  | 419 (91%)                                  |
+| Yes                                          | 54 (11%)                   | 52 (10%)                   | 43 (9%)                                    | 43 (9%)                                    |
+| Planned or current hormone therapy            |                            |                            |                                             |                                             |
+| Orchiectomy                                  | 3 (1%)                     | 3 (1%)                     | 0 (1%)                                     | 1 (1%)                                     |
+| Luteinizing hormone-releasing hormone agonists or antagonists | 497 (99%)                  | 498 (99%)                  | 452 (100%)                                 | 460 (100%)                                 |
+| Bicalutamide                                 | 1 (<1%)                    | 0 (<1%)                    | 1 (<1%)                                    | 1 (<1%)                                    |
+| Maximum androgen blockade                     | 1 (<1%)                    | 0 (<1%)                    | 1 (<1%)                                    | 0 (<1%)                                    |
+| Palliative radiotherapy planned as standard of care |                            |                            |                                             |                                             |
+| No                                           | 479 (95%)                  | 480 (96%)                  | 454 (100%)                                 | 460 (100%)                                 |
+| Yes                                          | 23 (5%)                    | 21 (4%)                    | 2 (<1%)                                    | 2 (<1%)                                    |
+| Previous treatment to prostate               |                            |                            |                                             |                                             |
+| No                                           | 475 (95%)                  | 466 (93%)                  | 424 (93%)                                  | 432 (94%)                           
+
+GUIDELINES:
+- For each listed column, extract a value if explicitly present. If not found, set value=null.
+- Provide evidence as an exact quote.
+- Provide page number(s).
+- Provide confidence high/medium/low.
+- When referencing columns, use the EXACT names from the list above (copy-paste them).
+
+Output format (free-form is OK), but for EACH column include a line like:
+Column index <N>: "<Exact Column Name from list above>"
+Value: <extracted value or null>
+Evidence: "<exact quote>"
+Page: <page number>
+Confidence: <high/medium/low>
+
+
+================================================================================
+OUTPUT RESPONSE
+================================================================================
+
+Column index 3: "Previous local therapy - N (%) | Orchiectomy | Treatment"  
+Value: 3 (1%) [Abiraterone trial, Standard of care plus abiraterone (n=501)]  
+        1 (<1%) [Abiraterone and enzalutamide trial, Standard of care plus enzalutamide and abiraterone (n=462)]  
+Evidence: "Orchiectomy 3 (1%) 3 (1%) 0 1 (<1%)"  
+Page: 6  
+Confidence: high
+
+Column index 4: "Previous local therapy - N (%) | Orchiectomy | Control"  
+Value: 3 (1%) [Abiraterone trial, Standard of care (n=502)]  
+        0 [Abiraterone and enzalutamide trial, Standard of care (n=454)]  
+Evidence: "Orchiectomy 3 (1%) 3 (1%) 0 1 (<1%)"  
+Page: 6  
+Confidence: high

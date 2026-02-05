@@ -1,0 +1,107 @@
+================================================================================
+INPUT PROMPT
+================================================================================
+
+You are extracting clinical trial data from a research paper.
+
+TASK:
+Extract values for the following canonical columns. Each column has a canonical index and a canonical name.
+
+⚠️ CRITICAL: You MUST use the EXACT column names as listed below.
+Do NOT paraphrase, abbreviate, or modify names in ANY way.
+Character-for-character match is REQUIRED (including spaces, punctuation, pipes |, parentheses).
+
+COLUMNS TO EXTRACT (index + name are canonical; copy these EXACT names in your output):
+- Column index 1: "Median OS (mo) | Overall | Treatment"
+  Expected Location: Page 4 | table
+  Planner Confidence: high
+  Extraction Instructions:
+  The median OS for the overall population in the ADT plus D arm is reported in Table 2 on page 4, under the "GETUG-AFU 15" section, "All patients" column, row "ADT plus D, mo". The value is 62.1.
+
+- Column index 2: "Median OS (mo) | Overall | Control"
+  Expected Location: Page 4 | table
+  Planner Confidence: high
+  Extraction Instructions:
+  The median OS for the overall population in the ADT arm is reported in Table 2 on page 4, under the "GETUG-AFU 15" section, "All patients" column, row "ADT, mo". The value is 48.6.
+
+- Column index 3: "Median OS (mo) | High volume | Treatment"
+  Expected Location: Page 4 | table
+  Planner Confidence: high
+  Extraction Instructions:
+  The median OS for high-volume disease (HVD) patients in the ADT plus D arm is reported in Table 2 on page 4, under the "GETUG-AFU 15" section, "HVD" column, row "ADT plus D, mo". The value is 39.8.
+
+- Column index 4: "Median OS (mo) | High volume | Control"
+  Expected Location: Page 4 | table
+  Planner Confidence: high
+  Extraction Instructions:
+  The median OS for high-volume disease (HVD) patients in the ADT arm is reported in Table 2 on page 4, under the "GETUG-AFU 15" section, "HVD" column, row "ADT, mo". The value is 35.1.
+
+- Column index 5: "Median OS (mo) | Low volume | Treatment"
+  Expected Location: Page 4 | table
+  Planner Confidence: high
+  Extraction Instructions:
+  The median OS for low-volume disease (LVD) patients in the ADT plus D arm is reported in Table 2 on page 4, under the "GETUG-AFU 15" section, "LVD" column, row "ADT plus D, mo". The value is NR (Not Reached).
+
+- Column index 6: "Median OS (mo) | Low volume | Control"
+  Expected Location: Page 4 | table
+  Planner Confidence: high
+  Extraction Instructions:
+  The median OS for low-volume disease (LVD) patients in the ADT arm is reported in Table 2 on page 4, under the "GETUG-AFU 15" section, "LVD" column, row "ADT, mo". The value is 83.4.
+
+RELEVANT PRE-EXTRACTED CHUNKS (filtered by planner page+type):
+No relevant chunks found.
+
+GUIDELINES:
+- For each listed column, extract a value if explicitly present. If not found, set value=null.
+- Provide evidence as an exact quote.
+- Provide page number(s).
+- Provide confidence high/medium/low.
+- When referencing columns, use the EXACT names from the list above (copy-paste them).
+
+Output format (free-form is OK), but for EACH column include a line like:
+Column index <N>: "<Exact Column Name from list above>"
+Value: <extracted value or null>
+Evidence: "<exact quote>"
+Page: <page number>
+Confidence: <high/medium/low>
+
+
+================================================================================
+OUTPUT RESPONSE
+================================================================================
+
+Column index 1: "Median OS (mo) | Overall | Treatment"
+Value: 62.1
+Evidence: "In the overall population, the median OS was not significantly different between the two arms: 62.1 mo (95% CI, 49.5–73.7) in the ADT plus D arm and 48.6 mo (95% CI, 40.9–60.6) in the ADT arm (HR: 0.88 [95% CI, 0.68–1.14]; p = 0.3) (Fig. 1, Table 2)."
+Page: 258
+Confidence: high
+
+Column index 2: "Median OS (mo) | Overall | Control"
+Value: 48.6
+Evidence: "In the overall population, the median OS was not significantly different between the two arms: 62.1 mo (95% CI, 49.5–73.7) in the ADT plus D arm and 48.6 mo (95% CI, 40.9–60.6) in the ADT arm (HR: 0.88 [95% CI, 0.68–1.14]; p = 0.3) (Fig. 1, Table 2)."
+Page: 258
+Confidence: high
+
+Column index 3: "Median OS (mo) | High volume | Treatment"
+Value: 39.8
+Evidence: "In patients with HVD, median OS was 4.7 mo longer in the ADT plus D arm, but the difference was not statistically significant: 39.8 mo (95% CI, 28.0–53.4) versus 35.1 mo (95% CI, 29.9–43.6) (HR: 0.78 [95% CI, 0.56–1.09]; p = 0.14) (Fig. 2)."
+Page: 258
+Confidence: high
+
+Column index 4: "Median OS (mo) | High volume | Control"
+Value: 35.1
+Evidence: "In patients with HVD, median OS was 4.7 mo longer in the ADT plus D arm, but the difference was not statistically significant: 39.8 mo (95% CI, 28.0–53.4) versus 35.1 mo (95% CI, 29.9–43.6) (HR: 0.78 [95% CI, 0.56–1.09]; p = 0.14) (Fig. 2)."
+Page: 258
+Confidence: high
+
+Column index 5: "Median OS (mo) | Low volume | Treatment"
+Value: NR
+Evidence: "In patients with LVD, median OS was not reached (NR; 95% CI, 69.5–NR) in the ADT plus D arm and 83.4 mo (95% CI, 61.8–NR) in the ADT arm (HR: 1.02 [95% CI, 0.67–1.55]; p = 0.9) (Fig. 3)."
+Page: 258
+Confidence: high
+
+Column index 6: "Median OS (mo) | Low volume | Control"
+Value: 83.4
+Evidence: "In patients with LVD, median OS was not reached (NR; 95% CI, 69.5–NR) in the ADT plus D arm and 83.4 mo (95% CI, 61.8–NR) in the ADT arm (HR: 1.02 [95% CI, 0.67–1.55]; p = 0.9) (Fig. 3)."
+Page: 258
+Confidence: high

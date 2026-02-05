@@ -1,0 +1,119 @@
+INPUT PROMPT:
+You are extracting clinical trial data from a research paper.
+
+TASK: Extract values for the following canonical columns. Use EXACT column names as listed.
+
+COLUMNS TO EXTRACT:
+- Column index 1: "Median OS (mo) | Overall | Treatment"
+  Definition: What is the median overall survival (in months) for all patients in the experimental arm? If reported, include the value; use 'Not reported' if missing.
+  Expected Location: Page 3 | table
+  Planner Confidence: high
+  Extraction Instructions:
+  From Table 1, locate the 'Overall' subgroup and the 'ADT Plus Docetaxel' column. The 'Median OS (95% CI; months)' value is 57.6 (52.0 to 63.9).
+
+- Column index 2: "Median OS (mo) | Overall | Control"
+  Definition: What is the median overall survival (in months) for all patients in the control arm? If reported, include the value; use 'Not reported' if missing.
+  Expected Location: Page 3 | table
+  Planner Confidence: high
+  Extraction Instructions:
+  From Table 1, locate the 'Overall' subgroup and the 'ADT Alone' column. The 'Median OS (95% CI; months)' value is 47.2 (41.8 to 52.8).
+
+- Column index 3: "Median OS (mo) | High volume | Treatment"
+  Definition: What is the median overall survival (in months) for patients with high volume metastasis (by CHAARTED criteria) in the experimental arm? If reported, include the value; use 'Not reported' if missing.
+  Expected Location: Page 3 | table
+  Planner Confidence: high
+  Extraction Instructions:
+  From Table 1, locate the 'High volume' subgroup and the 'ADT Plus Docetaxel' column. The 'Median OS (95% CI; months)' value is 51.2 (45.2 to 58.1).
+
+- Column index 4: "Median OS (mo) | High volume | Control"
+  Definition: What is the median overall survival (in months) for patients with high volume metastasis (by CHAARTED criteria) in the control arm? If reported, include the value; use 'Not reported' if missing.
+  Expected Location: Page 3 | table
+  Planner Confidence: high
+  Extraction Instructions:
+  From Table 1, locate the 'High volume' subgroup and the 'ADT Alone' column. The 'Median OS (95% CI; months)' value is 34.4 (30.1 to 42.1).
+
+- Column index 5: "Median OS (mo) | Low volume | Treatment"
+  Definition: What is the median overall survival (in months) for patients with low volume metastasis (by CHAARTED criteria) in the experimental arm? If reported, include the value; use 'Not reported' if missing.
+  Expected Location: Page 3 | table
+  Planner Confidence: high
+  Extraction Instructions:
+  From Table 1, locate the 'Low volume' subgroup and the 'ADT Plus Docetaxel' column. The 'Median OS (95% CI; months)' value is 63.5 (58.3 to 78.5).
+
+- Column index 6: "Median OS (mo) | Low volume | Control"
+  Definition: What is the median overall survival (in months) for patients with low volume metastasis (by CHAARTED criteria) in the control arm? If reported, include the value; use 'Not reported' if missing.
+  Expected Location: Page 3 | table
+  Planner Confidence: high
+  Extraction Instructions:
+  From Table 1, locate the 'Low volume' subgroup and the 'ADT Alone' column. The 'Median OS (95% CI; months)' value is NR (59.8 to NR).
+
+RELEVANT CHUNKS:
+--- Chunk 1 (TABLE on page 3) ---
+Summary: Table 1 presents the overall survival (OS) and number of deaths by subgroup for patients receiving ADT plus docetaxel versus ADT alone. The table includes the following row headers: Overall, High volume, Low volume, High volume/ prior local therapy, Low volume/ de novo, and Low volume/ prior local t...
+
+Structured Table:
+##Markdown Table##
+
+| Subgroup                          | No. of Patients | No. of Deaths | Median OS (95% CI; months) | HR (95% CI) | P    |
+|-----------------------------------|------------------|----------------|-----------------------------|-------------|------|
+| Overall                           | 393              | 211            | 47.2 (41.8 to 52.8)         | 0.72 (0.50 to 0.89) | .018 |
+| High volume                       | 263              | 137            | 51.2 (45.2 to 58.1)         | 0.63 (0.50 to 0.79) | .001 |
+| Low volume                        | 143              | 49             | 34.4 (30.3 to 42.1)         | 1.04 (0.70 to 1.61) | .861 |
+| High volume/ prior local therapy  | 49               | 25             | 66.9 (11.9 to 76.9)         | 0.72 (0.36 to 1.46) | .37  |
+| Low volume/ de novo               | 75               | 34             | 58.9 (53.8 to 79.3)         | 0.86 (0.52 to 1.42) | .55  |
+| Low volume/ prior local therapy    | 59               | 18             | 69.6 (59.6 to NR)           | 1.25 (0.60 to 2.60) | .55  |
+
+##Caption##
+
+Table 1 presents the overall survival (OS) and number of deaths by subgroup for patients receiving ADT plus docetaxel versus ADT alone. The table includes the following row headers: Overall, High volume, Low volume, High volume/ prior local therapy, Low volume/ de novo, and Low volume/ prior local therapy. The column headers are: No. of Patients, No. of Deaths, Median OS (95% CI; months), HR (95% CI), and P. The data indicates the median overall survival times and hazard ratios for different patient subgroups, highlighting significant differences in outcomes based on treatment and disease volume. The hierarchical structure combines subheaders under main headers for clarity.
+
+GUIDELINES:
+- For each listed column, extract a value if explicitly present; otherwise set value=null.
+- Provide evidence as an exact quote, page number(s), confidence (high/medium/low).
+- Use the EXACT column names from the list above.
+
+Output format (for each column):
+Column index <N>: "<Exact Column Name>"
+Value: <extracted value or null>
+Evidence: "<exact quote>"
+Page: <page number>
+Confidence: <high/medium/low>
+
+
+OUTPUT:
+Below are the extracted values for each of the specified columns:
+
+Column index 1: "Median OS (mo) | Overall | Treatment"  
+Value: 57.6 (52.0 to 63.9)  
+Evidence: "For the overall population, the median OS was 10.4 months longer in the combination arm (57.6 v 47.2 months; HR for death in the combination arm, 0.72; 95% CI, 0.59 to 0.89; P = .0018; Table 1; Fig 2)."  
+Page: 3  
+Confidence: High
+
+Column index 2: "Median OS (mo) | Overall | Control"  
+Value: 47.2 (41.8 to 52.8)  
+Evidence: "For the overall population, the median OS was 10.4 months longer in the combination arm (57.6 v 47.2 months; HR for death in the combination arm, 0.72; 95% CI, 0.59 to 0.89; P = .0018; Table 1; Fig 2)."  
+Page: 3  
+Confidence: High
+
+Column index 3: "Median OS (mo) | High volume | Treatment"  
+Value: 51.2 (45.2 to 58.1)  
+Evidence: "In this prospectively defined subgroup, with a median follow-up of 53.7 months, there was a median OS benefit of 16.8 months (median OS, 51.2 v 34.4 months; HR for death in the combination arm, 0.63; 95% CI, 0.50 to 0.79; P , .001)."  
+Page: 3  
+Confidence: High
+
+Column index 4: "Median OS (mo) | High volume | Control"  
+Value: 34.4 (30.1 to 42.1)  
+Evidence: "In this prospectively defined subgroup, with a median follow-up of 53.7 months, there was a median OS benefit of 16.8 months (median OS, 51.2 v 34.4 months; HR for death in the combination arm, 0.63; 95% CI, 0.50 to 0.79; P , .001)."  
+Page: 3  
+Confidence: High
+
+Column index 5: "Median OS (mo) | Low volume | Treatment"  
+Value: 63.5 (58.3 to 78.5)  
+Evidence: "In contrast, in the low volume subgroup, with a median follow-up of 53.8 months, a survival benefit from docetaxel was not confirmed (median OS, 63.5 months for the chemohormonal arm v not reached for the ADT alone arm; HR for death in the combination arm, 1.04; 95% CI, 0.70 to 1.55; P = .86; Table 1; Fig 3)."  
+Page: 3  
+Confidence: High
+
+Column index 6: "Median OS (mo) | Low volume | Control"  
+Value: NR (59.8 to NR)  
+Evidence: "In contrast, in the low volume subgroup, with a median follow-up of 53.8 months, a survival benefit from docetaxel was not confirmed (median OS, 63.5 months for the chemohormonal arm v not reached for the ADT alone arm; HR for death in the combination arm, 1.04; 95% CI, 0.70 to 1.55; P = .86; Table 1; Fig 3)."  
+Page: 3  
+Confidence: High

@@ -1,0 +1,21 @@
+Okay, I will create an extraction plan for the specified clinical trial data extraction task. I will analyze the provided PDF and determine whether the values for the two canonical columns are reported. If reported, I will identify the location and provide extraction instructions. If not reported, I will state that it is not reported and provide a reason.
+
+Here's the extraction plan:
+
+**1. PFS Rate (%) | Overall | Treatment**
+
+*   found\_in\_pdf: true
+*   page\_number: 6
+*   source\_type: text
+*   extraction\_plan: "In the overall population, the addition of abiraterone to SOC (with or without docetaxel and with or without radiotherapy) decreased the number of radiographic progression events or deaths from 371 to 252, improved the median progression-free survival from 2.22 years (IQR 1.09–6.03) to 4.46 years (1.72-not reached), and reduced the relative risk of radiographic progression or death by 46% compared with patients who did not receive abiraterone (adjusted HR for radiographic progression-free survival 0.54, 99.9% CI 0.41-0.71; p<0.0001; figure 2A, table 2)."
+    *   Extract: "46% reduction in relative risk of radiographic progression or death"
+    *   Note: This is a relative risk reduction, not a direct PFS rate. The median PFS is also reported as 4.46 years (1.72-not reached).
+
+**2. PFS Rate (%) | Overall | Control**
+
+*   found\_in\_pdf: true
+*   page\_number: 6
+*   source\_type: text
+*   extraction\_plan: "In the overall population, the addition of abiraterone to SOC (with or without docetaxel and with or without radiotherapy) decreased the number of radiographic progression events or deaths from 371 to 252, improved the median progression-free survival from 2.22 years (IQR 1.09–6.03) to 4.46 years (1.72-not reached), and reduced the relative risk of radiographic progression or death by 46% compared with patients who did not receive abiraterone (adjusted HR for radiographic progression-free survival 0.54, 99.9% CI 0.41-0.71; p<0.0001; figure 2A, table 2)."
+    *   Extract: "median progression-free survival from 2.22 years (IQR 1.09–6.03)"
+    *   Note: This is the median PFS, not a direct PFS rate.

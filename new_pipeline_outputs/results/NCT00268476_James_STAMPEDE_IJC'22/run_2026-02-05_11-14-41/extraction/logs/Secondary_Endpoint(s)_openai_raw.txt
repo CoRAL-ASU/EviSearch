@@ -1,0 +1,36 @@
+INPUT PROMPT:
+You are extracting clinical trial data from a research paper.
+
+TASK: Extract values for the following canonical columns. Use EXACT column names as listed.
+
+COLUMNS TO EXTRACT:
+- Column index 1: "Secondary Endpoint(s)"
+  Definition: What the secondary outcome(s) or objective(s) of the clinical trial, in addition to the primary endpoint, that are being measured or evaluated?. If reported, provide the value; otherwise use 'Not reported'.
+  Expected Location: Page 4 | text
+  Planner Confidence: high
+  Extraction Instructions:
+  The secondary outcomes are explicitly mentioned in the text: "secondary outcomes of failure-free survival, progression-free survival, metastatic progression-free survival, skeletal-related events, disease- specific survival, toxicity and therapy for progression."
+
+RELEVANT CHUNKS:
+--- Chunk 6 (TEXT on page 3-5) ---
+apy (ADT) which had started no longer than 12 weeks prior to ran- domisation. There were no age restrictions, but patients were required to have no clinically significant cardiovascular history. For this analysis, patients had metastatic disease confirmed by scinti- within 12 weeks of starting ADT. 2.2|Randomisation and masking Patients were randomised centrally using a computerised algorithm, developed and maintained by the MRC Clinical Trials Unit at UCL. Minimisation with a random element of ...
+
+GUIDELINES:
+- For each listed column, extract a value if explicitly present; otherwise set value=null.
+- Provide evidence as an exact quote, page number(s), confidence (high/medium/low).
+- Use the EXACT column names from the list above.
+
+Output format (for each column):
+Column index <N>: "<Exact Column Name>"
+Value: <extracted value or null>
+Evidence: "<exact quote>"
+Page: <page number>
+Confidence: <high/medium/low>
+
+
+OUTPUT:
+Column index 1: "Secondary Endpoint(s)"  
+Value: failure-free survival, progression-free survival, metastatic progression-free survival, skeletal-related events, disease-specific survival, toxicity and therapy for progression.  
+Evidence: "secondary outcomes of failure-free survival, progression-free survival, metastatic progression-free survival, skeletal-related events, disease-specific survival, toxicity and therapy for progression."  
+Page: 4  
+Confidence: high

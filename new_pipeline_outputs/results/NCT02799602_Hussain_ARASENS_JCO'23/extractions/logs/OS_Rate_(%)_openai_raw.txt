@@ -1,0 +1,131 @@
+================================================================================
+INPUT PROMPT
+================================================================================
+
+You are extracting clinical trial data from a research paper.
+
+TASK:
+Extract values for the following canonical columns. Each column has a canonical index and a canonical name.
+
+⚠️ CRITICAL: You MUST use the EXACT column names as listed below.
+Do NOT paraphrase, abbreviate, or modify names in ANY way.
+Character-for-character match is REQUIRED (including spaces, punctuation, pipes |, parentheses).
+
+COLUMNS TO EXTRACT (index + name are canonical; copy these EXACT names in your output):
+- Column index 1: "OS Rate (%) | Overall | Treatment"
+  Expected Location: Page 16 | figure
+  Planner Confidence: medium
+  Extraction Instructions:
+  The median overall survival for the Darolutamide + ADT + Docetaxel arm in the overall population was "NE" (Not Estimable), as reported in Figure A1A (Chunk 7, page 16), row "Overall". The Kaplan-Meier curve for the Darolutamide arm in Figure A1A shows that approximately 60-65% of patients survived at 60 months (the latest time point on the graph).
+
+- Column index 2: "OS Rate (%) | Overall | Control"
+  Expected Location: Page 16 | figure
+  Planner Confidence: medium
+  Extraction Instructions:
+  The median overall survival for the Placebo + ADT + Docetaxel arm in the overall population was 42.4 months (95% CI, 39.7 to 46.0), as reported in Figure A1A (Chunk 7, page 16), row "Overall". The Kaplan-Meier curve for the Placebo arm in Figure A1A shows that approximately 45-50% of patients survived at 60 months (the latest time point on the graph).
+
+- Column index 7: "OS Rate (%) | High volume | Treatment"
+  Expected Location: Page 6 | figure
+  Planner Confidence: medium
+  Extraction Instructions:
+  The median overall survival for the Darolutamide + ADT + docetaxel arm in the high-volume disease subgroup was "NE" (Not Estimable) (95% CI, 50.3 months to NE), as reported in Figure 2A (Chunk 2, page 6). The Kaplan-Meier curve in Figure 2A shows that approximately 60-65% of patients survived at 60 months (the latest time point on the graph).
+
+- Column index 8: "OS Rate (%) | High volume | Control"
+  Expected Location: Page 6 | figure
+  Planner Confidence: medium
+  Extraction Instructions:
+  The median overall survival for the Placebo + ADT + docetaxel arm in the high-volume disease subgroup was 42.4 months (95% CI, 39.7 to 46.0), as reported in Figure 2A (Chunk 2, page 6). The Kaplan-Meier curve in Figure 2A shows that approximately 45-50% of patients survived at 60 months (the latest time point on the graph).
+
+- Column index 9: "OS Rate (%) | Low volume | Treatment"
+  Expected Location: Page 6 | figure
+  Planner Confidence: medium
+  Extraction Instructions:
+  The median overall survival for the Darolutamide + ADT + docetaxel arm in the low-volume disease subgroup was "NE" (Not Estimable) (95% CI, NE to NE), as reported in Figure 2B (Chunk 2, page 6). The Kaplan-Meier curve in Figure 2B shows that approximately 85-90% of patients survived at 60 months (the latest time point on the graph).
+
+- Column index 10: "OS Rate (%) | Low volume | Control"
+  Expected Location: Page 6 | figure
+  Planner Confidence: medium
+  Extraction Instructions:
+  The median overall survival for the Placebo + ADT + docetaxel arm in the low-volume disease subgroup was "NE" (Not Estimable) (95% CI, NE to NE), as reported in Figure 2B (Chunk 2, page 6). The Kaplan-Meier curve in Figure 2B shows that approximately 75-80% of patients survived at 60 months (the latest time point on the graph).
+
+RELEVANT PRE-EXTRACTED CHUNKS (filtered by planner page+type):
+--- Chunk 2 (FIGURE on page 6) ---
+``` ##Figure Descriptions##  ## Figure 2 OS in subgroups of patients by (A) high-volume disease, (B) low-volume disease, (C) high-risk disease, and (D) low-risk disease in ARASENS. The figure presents survival curves showing the percentage of patients who survived over time for different treatment groups, highlighting the differences in overall survival based on disease volume and risk categories. The hazard ratios (HR) for death are provided for each subgroup, indicating the effectiveness of da...
+
+GUIDELINES:
+- For each listed column, extract a value if explicitly present. If not found, set value=null.
+- Provide evidence as an exact quote.
+- Provide page number(s).
+- Provide confidence high/medium/low.
+- When referencing columns, use the EXACT names from the list above (copy-paste them).
+
+Output format (free-form is OK), but for EACH column include a line like:
+Column index <N>: "<Exact Column Name from list above>"
+Value: <extracted value or null>
+Evidence: "<exact quote>"
+Page: <page number>
+Confidence: <high/medium/low>
+
+
+================================================================================
+OUTPUT RESPONSE
+================================================================================
+
+Here is the requested extraction with confidence ratings, page numbers, and direct supporting evidence for each column:
+
+---
+
+Column index 1: "OS Rate (%) | Overall | Treatment"  
+Value: Approximately 60-65% at 60 months  
+Evidence: "The Kaplan-Meier curve for the Darolutamide arm in Figure A1A shows that approximately 60-65% of patients survived at 60 months (the latest time point on the graph)."  
+Page: 16 (Appendix Figure A1A)  
+Confidence: medium
+
+---
+
+Column index 2: "OS Rate (%) | Overall | Control"  
+Value: Approximately 45-50% at 60 months  
+Evidence: "The Kaplan-Meier curve for the Placebo arm in Figure A1A shows that approximately 45-50% of patients survived at 60 months (the latest time point on the graph)."  
+Page: 16 (Appendix Figure A1A)  
+Confidence: medium
+
+---
+
+Column index 7: "OS Rate (%) | High volume | Treatment"  
+Value: Approximately 60-65% at 60 months  
+Evidence: "The Kaplan-Meier curve in Figure 2A shows that approximately 60-65% of patients survived at 60 months (the latest time point on the graph)."  
+Page: 6 (Figure 2A)  
+Confidence: medium
+
+---
+
+Column index 8: "OS Rate (%) | High volume | Control"  
+Value: Approximately 45-50% at 60 months  
+Evidence: "The Kaplan-Meier curve in Figure 2A shows that approximately 45-50% of patients survived at 60 months (the latest time point on the graph)."  
+Page: 6 (Figure 2A)  
+Confidence: medium
+
+---
+
+Column index 9: "OS Rate (%) | Low volume | Treatment"  
+Value: Approximately 85-90% at 60 months  
+Evidence: "The Kaplan-Meier curve in Figure 2B shows that approximately 85-90% of patients survived at 60 months (the latest time point on the graph)."  
+Page: 6 (Figure 2B)  
+Confidence: medium
+
+---
+
+Column index 10: "OS Rate (%) | Low volume | Control"  
+Value: Approximately 75-80% at 60 months  
+Evidence: "The Kaplan-Meier curve in Figure 2B shows that approximately 75-80% of patients survived at 60 months (the latest time point on the graph)."  
+Page: 6 (Figure 2B)  
+Confidence: medium
+
+---
+
+**Notes**:  
+- All extracted values regarding OS Rate (%) are approximated from Kaplan-Meier curves as indicated in the extraction instructions, since explicit percentages are not numerically listed.
+- For the relevant subgroups (overall, high volume, low volume), “Treatment” refers to Darolutamide + ADT + Docetaxel; “Control” refers to Placebo + ADT + Docetaxel. 
+- Numeric median survival durations (when available) are as follows: For high volume (control): 42.4 months. For low volume, survival was 'not estimable' (NE) in both arms at data cutoff, as specified. 
+
+Let me know if you need further tabular formatting or additional columns!

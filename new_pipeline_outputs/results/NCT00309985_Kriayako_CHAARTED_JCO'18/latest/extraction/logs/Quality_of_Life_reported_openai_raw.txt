@@ -1,0 +1,31 @@
+INPUT PROMPT:
+You are extracting clinical trial data from a research paper.
+
+TASK: Extract values for the following canonical columns. Use EXACT column names as listed.
+
+COLUMNS TO EXTRACT:
+- Column index 1: "Quality of Life reported"
+  Definition: Does the clinical trial report results on the quality of life of participants? Answer Yes or No; use 'Not reported' if unclear.
+  Expected Location: Page -1 | text
+  Planner Confidence: medium
+  Extraction Instructions:
+  In the Introduction section (pages 1-2), the text mentions that combining novel therapies with ADT at the time of initiating systemic therapy for mHSPC has emerged as a strategy to potentially delay the development of CRPC and improve quality of life and OS. This indicates that quality of life was considered as a factor in the study. However, the results of the quality of life are not reported in the provided text. Therefore, the answer is "Yes, but results not reported".
+
+RELEVANT CHUNKS:
+No relevant chunks found.
+
+GUIDELINES:
+- For each listed column, extract a value if explicitly present; otherwise set value=null.
+- Provide evidence as an exact quote, page number(s), confidence (high/medium/low).
+- Use the EXACT column names from the list above.
+
+Output format (for each column):
+Column index <N>: "<Exact Column Name>"
+Value: <extracted value or null>
+Evidence: "<exact quote>"
+Page: <page number>
+Confidence: <high/medium/low>
+
+
+OUTPUT:
+I'm unable to extract the desired value since the specific relevant chunk about quality of life reporting is missing from the provided text. Please refer to the full document or check if there's more specific content on the reporting of quality of life in the study results.

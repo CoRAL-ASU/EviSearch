@@ -1,0 +1,60 @@
+================================================================================
+INPUT PROMPT
+================================================================================
+
+You are extracting clinical trial data from a research paper.
+
+TASK:
+Extract values for the following canonical columns. Each column has a canonical index and a canonical name.
+
+⚠️ CRITICAL: You MUST use the EXACT column names as listed below.
+Do NOT paraphrase, abbreviate, or modify names in ANY way.
+Character-for-character match is REQUIRED (including spaces, punctuation, pipes |, parentheses).
+
+COLUMNS TO EXTRACT (index + name are canonical; copy these EXACT names in your output):
+- Column index 1: "Docetaxel administration - N (%) | Treatment"
+  Expected Location: Page 2 | text
+  Planner Confidence: high
+  Extraction Instructions:
+  On page 2, in the "Trial Design" section, it states: "Enrolled patients were randomly assigned (1:1) to oral darolutamide 600 mg twice daily or matched placebo, in combination with ADT and docetaxel." This indicates that docetaxel was part of the assigned treatment for all patients in the darolutamide arm. Figure 1, "CONSORT flow diagram" on page 3, shows that "Darolutamide + docetaxel + ADT | Received allocated treatment (n = 651)". On page 6, in the "DISCUSSION" section, it further confirms: "...this post hoc analysis of the ARASENS trial, in which all patients received docetaxel...". Therefore, 651 patients (100%) in the darolutamide arm received docetaxel.
+
+- Column index 2: "Docetaxel administration - N (%) | Control"
+  Expected Location: Page 2 | text
+  Planner Confidence: high
+  Extraction Instructions:
+  On page 2, in the "Trial Design" section, it states: "Enrolled patients were randomly assigned (1:1) to oral darolutamide 600 mg twice daily or matched placebo, in combination with ADT and docetaxel." This indicates that docetaxel was part of the assigned treatment for all patients in the placebo arm. Figure 1, "CONSORT flow diagram" on page 3, shows that "Placebo + docetaxel + ADT | Received allocated treatment (n = 651)". On page 6, in the "DISCUSSION" section, it further confirms: "...this post hoc analysis of the ARASENS trial, in which all patients received docetaxel...". Therefore, 651 patients (100%) in the placebo arm received docetaxel.
+
+RELEVANT PRE-EXTRACTED CHUNKS (filtered by planner page+type):
+--- Chunk 8 (TEXT on page 1-4) ---
+Maha Hussain, MD1; Bertrand Tombal, MD, PhD2; Fred Saad, MD3; Karim Fizazi, MD, PhD4; Cora N. Sternberg, MD5;E. David Crawford, MD6; Neal Shore, MD7; Evgeny Kopyltsov, MD8; Arash Rezazadeh Kalebasty, MD9; Martin B¨ogemann, MD10;Dingwei Ye, MD11; Felipe Cruz, MD, PhD12; Hiroyoshi Suzuki, MD, PhD13; Shivani Kapur, MD14; Shankar Srinivasan, PhD15;Frank Verholen, MD16; Iris Kuss, MD17; Heikki Joensuu, MD18; and Matthew R. Smith, MD, PhD19 abstract PURPOSE For patients with metastatic hormone-sensiti...
+
+GUIDELINES:
+- For each listed column, extract a value if explicitly present. If not found, set value=null.
+- Provide evidence as an exact quote.
+- Provide page number(s).
+- Provide confidence high/medium/low.
+- When referencing columns, use the EXACT names from the list above (copy-paste them).
+
+Output format (free-form is OK), but for EACH column include a line like:
+Column index <N>: "<Exact Column Name from list above>"
+Value: <extracted value or null>
+Evidence: "<exact quote>"
+Page: <page number>
+Confidence: <high/medium/low>
+
+
+================================================================================
+OUTPUT RESPONSE
+================================================================================
+
+Column index 1: "Docetaxel administration - N (%) | Treatment"  
+Value: 651 (100%)  
+Evidence: "Enrolled patients were randomly assigned (1:1) to oral darolutamide 600 mg twice daily or matched placebo, in combination with ADT and docetaxel." (Trial Design, page 2); Figure 1 ("CONSORT flow diagram") shows: "Darolutamide + docetaxel + ADT | Received allocated treatment (n = 651)". In Discussion: "...this post hoc analysis of the ARASENS trial, in which all patients received docetaxel...".  
+Page: 2 (and figure on page 3), 6  
+Confidence: high  
+
+Column index 2: "Docetaxel administration - N (%) | Control"  
+Value: 651 (100%)  
+Evidence: "Enrolled patients were randomly assigned (1:1) to oral darolutamide 600 mg twice daily or matched placebo, in combination with ADT and docetaxel." (Trial Design, page 2); Figure 1 ("CONSORT flow diagram") shows: "Placebo + docetaxel + ADT | Received allocated treatment (n = 651)". In Discussion: "...this post hoc analysis of the ARASENS trial, in which all patients received docetaxel...".  
+Page: 2 (and figure on page 3), 6  
+Confidence: high

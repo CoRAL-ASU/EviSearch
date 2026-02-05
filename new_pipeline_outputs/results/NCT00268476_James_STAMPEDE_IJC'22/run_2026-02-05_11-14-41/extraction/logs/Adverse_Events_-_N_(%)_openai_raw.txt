@@ -1,0 +1,49 @@
+INPUT PROMPT:
+You are extracting clinical trial data from a research paper.
+
+TASK: Extract values for the following canonical columns. Use EXACT column names as listed.
+
+COLUMNS TO EXTRACT:
+- Column index 1: "Adverse Events - N (%) | All-Cause Grade 3 or Higher | Treatment"
+  Definition: What the number and percentage of patients experiencing adverse events of all causes with a grade of 3 or higher in the treatment arm of the trial? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.
+  Expected Location: Page 8 | text
+  Planner Confidence: high
+  Extraction Instructions:
+  Page 8, Text: "The worst reported grade of toxicity was similar between randomised groups (P = .29, Table S2) with grade 3 toxicity for 12 (9%) in the SOC-alone group patients and 20 (7%) in the SOC + AAP group, and no grade 4 or 5 toxicity." Extract 20 (7%) from the SOC + AAP group.
+
+- Column index 2: "Adverse Events - N (%) | All-Cause Grade 3 or Higher | Control"
+  Definition: What number and percentage of patients experiencing all-cause adverse events with a grade of 3 or higher in the control arm of the trial? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.
+  Expected Location: Page 8 | text
+  Planner Confidence: high
+  Extraction Instructions:
+  Page 8, Text: "The worst reported grade of toxicity was similar between randomised groups (P = .29, Table S2) with grade 3 toxicity for 12 (9%) in the SOC-alone group patients and 20 (7%) in the SOC + AAP group, and no grade 4 or 5 toxicity." Extract 12 (9%) from the SOC-alone group.
+
+RELEVANT CHUNKS:
+--- Chunk 8 (TEXT on page 7-10) ---
+William R Cross, David P Dearnaley, Johann S de Bono, Duncan Gil- bert, Silke Gillessen, Clare Gilson, Rob J Jones, Ruth E Langley, Zafar I Malik, David J Matheson, Robin Millman, Chris C Parker, Cheryl Pugh, Hannah Rush, J Martin Russell, Michelle L Buckner, Malcolm D Mason, Alastair WS Ritchie, Mahesh KB Parmar and Matthew R Sydes were members of the Trial Management Group. CA, Cheryl Pugh and MB were part of trial operations. All authors collated data. Adrian Cook, NJ, Noel W Clarke, Adnan Al...
+
+GUIDELINES:
+- For each listed column, extract a value if explicitly present; otherwise set value=null.
+- Provide evidence as an exact quote, page number(s), confidence (high/medium/low).
+- Use the EXACT column names from the list above.
+
+Output format (for each column):
+Column index <N>: "<Exact Column Name>"
+Value: <extracted value or null>
+Evidence: "<exact quote>"
+Page: <page number>
+Confidence: <high/medium/low>
+
+
+OUTPUT:
+Column index 1: "Adverse Events - N (%) | All-Cause Grade 3 or Higher | Treatment"  
+Value: 20 (7%)  
+Evidence: "The worst reported grade of toxicity was similar between randomised groups (P = .29, Table S2) with grade 3 toxicity for 12 (9%) in the SOC-alone group patients and 20 (7%) in the SOC + AAP group, and no grade 4 or 5 toxicity."  
+Page: 8  
+Confidence: high
+
+Column index 2: "Adverse Events - N (%) | All-Cause Grade 3 or Higher | Control"  
+Value: 12 (9%)  
+Evidence: "The worst reported grade of toxicity was similar between randomised groups (P = .29, Table S2) with grade 3 toxicity for 12 (9%) in the SOC-alone group patients and 20 (7%) in the SOC + AAP group, and no grade 4 or 5 toxicity."  
+Page: 8  
+Confidence: high

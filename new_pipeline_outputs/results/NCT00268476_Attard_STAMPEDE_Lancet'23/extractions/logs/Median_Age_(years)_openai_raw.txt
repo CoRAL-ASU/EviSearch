@@ -1,0 +1,89 @@
+================================================================================
+INPUT PROMPT
+================================================================================
+
+You are extracting clinical trial data from a research paper.
+
+TASK:
+Extract values for the following canonical columns. Each column has a canonical index and a canonical name.
+
+⚠️ CRITICAL: You MUST use the EXACT column names as listed below.
+Do NOT paraphrase, abbreviate, or modify names in ANY way.
+Character-for-character match is REQUIRED (including spaces, punctuation, pipes |, parentheses).
+
+COLUMNS TO EXTRACT (index + name are canonical; copy these EXACT names in your output):
+- Column index 1: "Median Age (years) | Treatment"
+  Expected Location: Page 5 | table
+  Planner Confidence: high
+  Extraction Instructions:
+  The median age for participants in the treatment arm (Standard of care plus enzalutamide and abiraterone) of the "Abiraterone and enzalutamide trial" is reported as 69 years. This can be found in Table 1, on page 5, under the "Abiraterone and enzalutamide trial" section, row "Age, years", sub-row "Median", column "Standard of care plus enzalutamide and abiraterone (n=462)".
+
+- Column index 2: "Median Age (years) | Control"
+  Expected Location: Page 5 | table
+  Planner Confidence: high
+  Extraction Instructions:
+  The median age for participants in the control arm (Standard of care) of the "Abiraterone and enzalutamide trial" is reported as 68 years. This can be found in Table 1, on page 5, under the "Abiraterone and enzalutamide trial" section, row "Age, years", sub-row "Median", column "Standard of care (n=454)".
+
+RELEVANT PRE-EXTRACTED CHUNKS (filtered by planner page+type):
+--- Chunk 0 (TABLE on page 5) ---
+Summary: This table summarizes the demographic and clinical characteristics of patients enrolled in two clinical trials: the Abiraterone trial and the Abiraterone and enzalutamide trial....
+
+Structured Table:
+##Markdown Table##
+
+| Age, years                                   | Abiraterone trial (n=502) | Abiraterone and enzalutamide trial (n=462) |
+|----------------------------------------------|----------------------------|---------------------------------------------|
+| Median                                       | 67 (62-72)                 | 68 (64-73)                                 |
+| Min-max                                      | 39-84                      | 42-85                                      |
+| Prostate-specific antigen before androgen deprivation therapy, ng/mL | Median: 97 (26-358)       | Median: 85 (26-337)                        |
+|                                              | Min-max: 1.050-3.000      | Min-max: 0.059-1.688                       |
+| Time from diagnosis to randomisation, days   | Median: 71 (51-95)         | Median: 78 (55-100)                        |
+|                                              | Min-max: 0-4866           | Min-max: 4-5346                            |
+| I stage                                      | T0-T2: 56 (11%)            | 42 (9%)                                    |
+|                                              | T3: 270 (54%)              | 252 (56%)                                  |
+|                                              | T4: 137 (27%)              | 117 (26%)                                  |
+|                                              | Tx: 8 (3%)                 | 43 (9%)                                    |
+| N stage (pelvic nodes)                      | N0: 175 (35%)              | 150 (33%)                                  |
+|                                              | N+: 291 (58%)              | 278 (60%)                                  |
+|                                              | NX: 36 (7%)                | 26 (6%)                                    |
+| Metastatic volume                            | Low: 204 (41%)             | 162 (36%)                                  |
+|                                              | High: 271 (54%)            | 239 (64%)                                  |
+|                                              | Missing: 27 (5%)           | 26 (6%)                                    |
+| Gleason Score                                | 7: 118 (24%)               | 92 (20%)                                   |
+|                                              | 8: 106 (21%)               | 88 (19%)                                   |
+|                                              | 9: 245 (49%)               | 239 (53%)                                  |
+|                                              | 10: 23 (5%)                | 18 (4%)                                    |
+|                                              | Unknown: 10 (2%)           | 21 (4%)                                    |
+| WHO performance status                       | 0: 370 (74%)               | 315 (69%)                                  |
+|       
+
+GUIDELINES:
+- For each listed column, extract a value if explicitly present. If not found, set value=null.
+- Provide evidence as an exact quote.
+- Provide page number(s).
+- Provide confidence high/medium/low.
+- When referencing columns, use the EXACT names from the list above (copy-paste them).
+
+Output format (free-form is OK), but for EACH column include a line like:
+Column index <N>: "<Exact Column Name from list above>"
+Value: <extracted value or null>
+Evidence: "<exact quote>"
+Page: <page number>
+Confidence: <high/medium/low>
+
+
+================================================================================
+OUTPUT RESPONSE
+================================================================================
+
+Column index 1: "Median Age (years) | Treatment"  
+Value: 69  
+Evidence: "Abiraterone and enzalutamide trial ... Median ... Standard of care plus enzalutamide and abiraterone (n=462): 69 (63–74)"  
+Page: 5  
+Confidence: high  
+
+Column index 2: "Median Age (years) | Control"  
+Value: 68  
+Evidence: "Abiraterone and enzalutamide trial ... Median ... Standard of care (n=454): 68 (64–73)"  
+Page: 5  
+Confidence: high

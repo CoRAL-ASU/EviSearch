@@ -1,0 +1,121 @@
+================================================================================
+INPUT PROMPT
+================================================================================
+
+You are extracting clinical trial data from a research paper.
+
+TASK:
+Extract values for the following canonical columns. Each column has a canonical index and a canonical name.
+
+⚠️ CRITICAL: You MUST use the EXACT column names as listed below.
+Do NOT paraphrase, abbreviate, or modify names in ANY way.
+Character-for-character match is REQUIRED (including spaces, punctuation, pipes |, parentheses).
+
+COLUMNS TO EXTRACT (index + name are canonical; copy these EXACT names in your output):
+- Column index 1: "Median OS (mo) | Overall | Treatment"
+  Expected Location: Page 4 | text
+  Planner Confidence: high
+  Extraction Instructions:
+  The median overall survival for all patients in the darolutamide group was not reached. This is reported in Chunk 9, page 4, in the "Primary End Point" section: "Median survival was not reached in the darolutamide group". It is also reported in Figure 2, page 6, panel A, in the description for "Darolutamide + ADT + docetaxel": "Median, NE (95% CI, 50.3 months to NE)". Additionally, Figure A1, page 16, panel A, in the "Overall" row under "Darolutamide + ADT + Docetaxel Median" column, states "NE".
+
+- Column index 2: "Median OS (mo) | Overall | Control"
+  Expected Location: Page 4 | text
+  Planner Confidence: high
+  Extraction Instructions:
+  The median overall survival for all patients in the control arm is 42.4 months. This is reported in Chunk 9, page 4, in the "Primary End Point" section: "...and was 42.4 months (95% CI, 39.7 to 46.0 months) in the placebo group." It is also reported in Figure 2, page 6, panel A, in the description for "Placebo + ADT + docetaxel": "Median, 42.4 months (95% CI, 39.7 to 46.0)". Additionally, Figure A1, page 16, panel A, in the "Overall" row under "Placebo + ADT + Docetaxel Median" column, states "42.4".
+
+- Column index 3: "Median OS (mo) | High volume | Treatment"
+  Expected Location: Page 4 | text
+  Planner Confidence: high
+  Extraction Instructions:
+  The median overall survival for patients with high volume metastasis in the darolutamide group was not reached. This is reported in Chunk 9, page 4, in the "Primary End Point" section: "Median survival was not reached in the darolutamide group and was 42.4 months (95% CI, 39.7 to 46.0 months) in the placebo group." (The "not reached" part refers to the darolutamide group for high-volume disease, as the subsequent sentence specifies the placebo group's median). It is also reported in Figure 2, page 6, panel A, in the description for "Darolutamide + ADT + docetaxel": "Median, NE (95% CI, 50.3 months to NE)".
+
+- Column index 4: "Median OS (mo) | High volume | Control"
+  Expected Location: Page 4 | text
+  Planner Confidence: high
+  Extraction Instructions:
+  The median overall survival for patients with high volume metastasis in the control arm is 42.4 months. This is reported in Chunk 9, page 4, in the "Primary End Point" section: "Median survival was not reached in the darolutamide group and was 42.4 months (95% CI, 39.7 to 46.0 months) in the placebo group." This value specifically refers to the high-volume placebo group. It is also reported in Figure 2, page 6, panel A, in the description for "Placebo + ADT + docetaxel": "Median, 42.4 months (95% CI, 39.7 to 46.0)".
+
+- Column index 5: "Median OS (mo) | Low volume | Treatment"
+  Expected Location: Page 4 | text
+  Planner Confidence: high
+  Extraction Instructions:
+  The median overall survival for patients with low volume metastasis in the darolutamide group was not reached. This is reported in Chunk 9, page 4, in the "Primary End Point" section: "Median survival was not reached in either treatment group for low-volume patients." It is also reported in Figure 2, page 6, panel B, in the description for "Darolutamide + ADT + docetaxel": "Median, NE (95% CI, NE to NE)". Additionally, Figure A1, page 17, panel B, in the "Overall" row under "Darolutamide + ADT + Docetaxel Median" column, states "NE".
+
+- Column index 6: "Median OS (mo) | Low volume | Control"
+  Expected Location: Page 4 | text
+  Planner Confidence: high
+  Extraction Instructions:
+  The median overall survival for patients with low volume metastasis in the control arm was not reached. This is reported in Chunk 9, page 4, in the "Primary End Point" section: "Median survival was not reached in either treatment group for low-volume patients." It is also reported in Figure 2, page 6, panel B, in the description for "Placebo + ADT + docetaxel": "Median, NE (95% CI, NE to NE)". Additionally, Figure A1, page 17, panel B, in the "Overall" row under "Placebo + ADT + Docetaxel Median" column, states "NE".
+
+RELEVANT PRE-EXTRACTED CHUNKS (filtered by planner page+type):
+--- Chunk 8 (TEXT on page 1-4) ---
+Maha Hussain, MD1; Bertrand Tombal, MD, PhD2; Fred Saad, MD3; Karim Fizazi, MD, PhD4; Cora N. Sternberg, MD5;E. David Crawford, MD6; Neal Shore, MD7; Evgeny Kopyltsov, MD8; Arash Rezazadeh Kalebasty, MD9; Martin B¨ogemann, MD10;Dingwei Ye, MD11; Felipe Cruz, MD, PhD12; Hiroyoshi Suzuki, MD, PhD13; Shivani Kapur, MD14; Shankar Srinivasan, PhD15;Frank Verholen, MD16; Iris Kuss, MD17; Heikki Joensuu, MD18; and Matthew R. Smith, MD, PhD19 abstract PURPOSE For patients with metastatic hormone-sensiti...
+
+--- Chunk 9 (TEXT on page 4-7) ---
+with high-volume disease, with a risk reduction of 28%(HR, 0.72; 95.1% CI, 0.55 to 0.95). The risk reduction inpatients with low-volume disease was 17% (HR, 0.83;95.1% CI, 0.50 to 1.39), and data are currently immaturefor this subgroup. The open-label ENZAMET trial allowedfor the use of docetaxel in patients with metastatichormone-sensitive prostate cancer as a protocol amend-ment.7 Among 503 of 1,125 (45%) patients who receiveddocetaxel, 359 (71%) patients had high-volume dis-ease.10 Explorator...
+
+GUIDELINES:
+- For each listed column, extract a value if explicitly present. If not found, set value=null.
+- Provide evidence as an exact quote.
+- Provide page number(s).
+- Provide confidence high/medium/low.
+- When referencing columns, use the EXACT names from the list above (copy-paste them).
+
+Output format (free-form is OK), but for EACH column include a line like:
+Column index <N>: "<Exact Column Name from list above>"
+Value: <extracted value or null>
+Evidence: "<exact quote>"
+Page: <page number>
+Confidence: <high/medium/low>
+
+
+================================================================================
+OUTPUT RESPONSE
+================================================================================
+
+Column index 1: "Median OS (mo) | Overall | Treatment"  
+Value: NE  
+Evidence: "Median survival was not reached in the darolutamide group" (Chunk 9, page 4, "Primary End Point" section); also, Figure 2 (page 6, panel A): "Median, NE (95% CI, 50.3 months to NE)" for "Darolutamide + ADT + docetaxel"; Figure A1, page 16, in the "Overall" row under "Darolutamide + ADT + Docetaxel Median": "NE".  
+Page: 4, 6, 16  
+Confidence: high  
+
+---
+
+Column index 2: "Median OS (mo) | Overall | Control"  
+Value: 42.4  
+Evidence: "...was 42.4 months (95% CI, 39.7 to 46.0 months) in the placebo group." (Chunk 9, page 4, "Primary End Point" section); also, Figure 2 (page 6, panel A): "Median, 42.4 months (95% CI, 39.7 to 46.0)" for "Placebo + ADT + docetaxel"; Figure A1, page 16, in the "Overall" row under "Placebo + ADT + Docetaxel Median": "42.4".  
+Page: 4, 6, 16  
+Confidence: high  
+
+---
+
+Column index 3: "Median OS (mo) | High volume | Treatment"  
+Value: NE  
+Evidence: "Median survival was not reached in the darolutamide group and was 42.4 months (95% CI, 39.7 to 46.0 months) in the placebo group." (Chunk 9, page 4, "Primary End Point" section); also, Figure 2 (page 6, panel A): "Median, NE (95% CI, 50.3 months to NE)" for "Darolutamide + ADT + docetaxel".  
+Page: 4, 6  
+Confidence: high  
+
+---
+
+Column index 4: "Median OS (mo) | High volume | Control"  
+Value: 42.4  
+Evidence: "Median survival was not reached in the darolutamide group and was 42.4 months (95% CI, 39.7 to 46.0 months) in the placebo group." (Chunk 9, page 4, "Primary End Point" section); also, Figure 2 (page 6, panel A): "Median, 42.4 months (95% CI, 39.7 to 46.0)" for "Placebo + ADT + docetaxel".  
+Page: 4, 6  
+Confidence: high  
+
+---
+
+Column index 5: "Median OS (mo) | Low volume | Treatment"  
+Value: NE  
+Evidence: "Median survival was not reached in either treatment group for low-volume patients." (Chunk 9, page 4, "Primary End Point" section); also, Figure 2 (page 6, panel B): "Median, NE (95% CI, NE to NE)" for "Darolutamide + ADT + docetaxel"; Figure A1, page 17, "Overall" row under "Darolutamide + ADT + Docetaxel Median": "NE".  
+Page: 4, 6, 17  
+Confidence: high  
+
+---
+
+Column index 6: "Median OS (mo) | Low volume | Control"  
+Value: NE  
+Evidence: "Median survival was not reached in either treatment group for low-volume patients." (Chunk 9, page 4, "Primary End Point" section); also, Figure 2 (page 6, panel B): "Median, NE (95% CI, NE to NE)" for "Placebo + ADT + docetaxel"; Figure A1, page 17, in the "Overall" row under "Placebo + ADT + Docetaxel Median": "NE".  
+Page: 4, 6, 17  
+Confidence: high

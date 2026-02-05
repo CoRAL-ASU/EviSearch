@@ -1,0 +1,15 @@
+Okay, I will analyze the provided PDF chunks and determine whether the specified column is reported and how to extract it.
+
+1. Treatment Arm 1 Regimen
+   Definition: What the specific treatment protocol or regimen used in the first experimental arm of the clinical trial?. If reported, provide the value; otherwise use 'Not reported'.
+
+```json
+{
+  "Treatment Arm 1 Regimen": {
+    "found_in_pdf": true,
+    "extraction_plan": "The treatment regimen for Arm 1 is reported in multiple locations within the text. Specifically, it is described as 'ADT plus docetaxel'.\n\n*   **Page 1, Abstract:** '...either ADT in combination with docetaxel 75 mg/m² for up to six cycles...'\n*   **Page 3, Procedures:** '...randomly assigned at a one-to-one ratio to ADT alone versus ADT plus docetaxel at a dose of 75 mg/m² every 3 weeks for up to six cycles without daily prednisone.'\n\nTo extract the value, look for instances of 'ADT plus docetaxel' or 'androgen-deprivation therapy (ADT) in combination with docetaxel'.",
+    "page_number": "1, 3",
+    "source_type": "text"
+  }
+}
+```

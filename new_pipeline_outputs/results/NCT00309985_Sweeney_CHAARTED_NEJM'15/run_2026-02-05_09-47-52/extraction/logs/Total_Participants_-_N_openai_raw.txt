@@ -1,0 +1,38 @@
+INPUT PROMPT:
+You are extracting clinical trial data from a research paper.
+
+TASK: Extract values for the following canonical columns. Use EXACT column names as listed.
+
+COLUMNS TO EXTRACT:
+- Column index 1: "Total Participants - N"
+  Definition: What are the total number of participants included in the clinical trial?. If reported, provide the value; otherwise use 'Not reported'.
+  Expected Location: Page 4 | text
+  Planner Confidence: high
+  Extraction Instructions:
+  The results section states: "From July 2006 through December 2012, a total of 790 patients were enrolled and underwent randomization."
+
+RELEVANT CHUNKS:
+--- Chunk 4 (TEXT on page 1-5) ---
+From the Department of Medicine (C.J.S.) and the Department of Biostatistics and Computational Biology (Y.-H.C.), Dana–Farber Cancer Institute, Boston; Harvard Medical School, Boston (C.J.S.); Johns Hopkins University, Baltimore (M.C., M.E.); University of Wisconsin Carbone Cancer Center (G.L., D.F.J.) and School of Medi-cine and Public Health (D.F.J.), Madison; Fox Chase Cancer Center, Temple Univer-sity Health System, Philadelphia (Y.-N.W.); Indiana University Melvin and Bren Simon Cancer Cent...
+
+GUIDELINES:
+- For each listed column, extract a value if explicitly present; otherwise set value=null.
+- Provide evidence as an exact quote, page number(s), confidence (high/medium/low).
+- Use the EXACT column names from the list above.
+
+Output format (for each column):
+Column index <N>: "<Exact Column Name>"
+Value: <extracted value or null>
+Evidence: "<exact quote>"
+Page: <page number>
+Confidence: <high/medium/low>
+
+
+OUTPUT:
+```plaintext
+Column index 1: "Total Participants - N"
+Value: 790
+Evidence: "From July 2006 through December 2012, a total of 790 patients were enrolled and underwent randomization."
+Page: 4
+Confidence: high
+```

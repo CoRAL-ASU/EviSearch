@@ -1,0 +1,51 @@
+================================================================================
+INPUT PROMPT
+================================================================================
+
+You are extracting clinical trial data from a research paper.
+
+TASK:
+Extract values for the following canonical columns. Each column has a canonical index and a canonical name.
+
+⚠️ CRITICAL: You MUST use the EXACT column names as listed below.
+Do NOT paraphrase, abbreviate, or modify names in ANY way.
+Character-for-character match is REQUIRED (including spaces, punctuation, pipes |, parentheses).
+
+COLUMNS TO EXTRACT (index + name are canonical; copy these EXACT names in your output):
+- Column index 1: "Primary Endpoint(s)"
+  Expected Location: Page 3 | text
+  Planner Confidence: high
+  Extraction Instructions:
+  The primary endpoint is reported in the "Methods" section on page 3, stating: "The primary outcome was overall survival assessed in the intention-to-treat population." It is reiterated on page 4 in the "Outcomes" section: "The primary outcome was overall survival for both trials (defined as the time from randomisation to death from any cause)."
+
+RELEVANT PRE-EXTRACTED CHUNKS (filtered by planner page+type):
+--- Chunk 6 (TEXT on page 2-3) ---
+Switzerland, Bellinzona, Switzerland (Prof S Gillessen MD); CH and Universita della Svizzera Italiana, Lugano, Switzerland (Prof S Gillessen); Guy’s and St Thomas’ NHS Foundation Trust, London, UK (H Rush, S Chowdhury PhD); Clatterbridge Cancer Centre NHS Foundation Trust, Wirral, UK (Z Malik FRCR, A H Montazeri FRCR); Singleton Hospital, Swansea, UK (C Pezaro DMedSc, J Wagstaff ChB); Gloucestershire Oncology Centre, Cheltenham, UK (W Grant FRCR); Torbay and South Devon NHS Foundation Trust, Tor...
+
+--- Chunk 7 (TEXT on page 3-5) ---
+for Adverse Events (version 3.0 updated to 4.0 in STAMPEDE protocol version 15; May 15, 2016). Serious adverse reactions were also reported. Race or ethnicity data were not collected. Pre-randomisation bone scans were retrieved to the Christie Hospital (Manchester, UK) central imaging repository after completion of accrual. Physicians (AS, CJ, AH, and YJ) classified patients by high-volume or low-volume disease using the CHAARTED trial criteria2,15 based on the number and site of bone metastases...
+
+GUIDELINES:
+- For each listed column, extract a value if explicitly present. If not found, set value=null.
+- Provide evidence as an exact quote.
+- Provide page number(s).
+- Provide confidence high/medium/low.
+- When referencing columns, use the EXACT names from the list above (copy-paste them).
+
+Output format (free-form is OK), but for EACH column include a line like:
+Column index <N>: "<Exact Column Name from list above>"
+Value: <extracted value or null>
+Evidence: "<exact quote>"
+Page: <page number>
+Confidence: <high/medium/low>
+
+
+================================================================================
+OUTPUT RESPONSE
+================================================================================
+
+Column index 1: "Primary Endpoint(s)"  
+Value: The primary outcome was overall survival assessed in the intention-to-treat population.
+Evidence: "The primary outcome was overall survival assessed in the intention-to-treat population." ... "The primary outcome was overall survival for both trials (defined as the time from randomisation to death from any cause)."
+Page: 3, 4 (explicitly on page 3 and reiterated in the "Outcomes" section which starts on page 4)
+Confidence: high

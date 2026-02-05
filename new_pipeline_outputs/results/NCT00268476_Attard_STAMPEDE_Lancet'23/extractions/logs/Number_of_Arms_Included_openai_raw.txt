@@ -1,0 +1,51 @@
+================================================================================
+INPUT PROMPT
+================================================================================
+
+You are extracting clinical trial data from a research paper.
+
+TASK:
+Extract values for the following canonical columns. Each column has a canonical index and a canonical name.
+
+⚠️ CRITICAL: You MUST use the EXACT column names as listed below.
+Do NOT paraphrase, abbreviate, or modify names in ANY way.
+Character-for-character match is REQUIRED (including spaces, punctuation, pipes |, parentheses).
+
+COLUMNS TO EXTRACT (index + name are canonical; copy these EXACT names in your output):
+- Column index 1: "Number of Arms Included"
+  Expected Location: Page 3 | text
+  Planner Confidence: high
+  Extraction Instructions:
+  The "Methods" section on page 3 states: "We analysed two open-label, randomised, controlled, phase 3 trials of the STAMPEDE platform protocol... Patients were randomly assigned (1:1) ... to either standard of care (control group) or standard of care plus abiraterone (in the abiraterone trial) or plus abiraterone and enzalutamide (in the abiraterone and enzalutamide trial). Each trial randomly assigned patients to its own control group; there were no overlapping controls." This indicates that there were two trials, and each trial had two distinct arms (one standard of care/control arm and one experimental arm). Since the control groups were non-overlapping, the total number of distinct arms across both trials is 2 + 2 = 4. This is further confirmed by Figure 1 (Trial profile) on page 4, which shows two arms for the abiraterone trial and two arms for the abiraterone and enzalutamide trial.
+
+RELEVANT PRE-EXTRACTED CHUNKS (filtered by planner page+type):
+--- Chunk 6 (TEXT on page 2-3) ---
+Switzerland, Bellinzona, Switzerland (Prof S Gillessen MD); CH and Universita della Svizzera Italiana, Lugano, Switzerland (Prof S Gillessen); Guy’s and St Thomas’ NHS Foundation Trust, London, UK (H Rush, S Chowdhury PhD); Clatterbridge Cancer Centre NHS Foundation Trust, Wirral, UK (Z Malik FRCR, A H Montazeri FRCR); Singleton Hospital, Swansea, UK (C Pezaro DMedSc, J Wagstaff ChB); Gloucestershire Oncology Centre, Cheltenham, UK (W Grant FRCR); Torbay and South Devon NHS Foundation Trust, Tor...
+
+--- Chunk 7 (TEXT on page 3-5) ---
+for Adverse Events (version 3.0 updated to 4.0 in STAMPEDE protocol version 15; May 15, 2016). Serious adverse reactions were also reported. Race or ethnicity data were not collected. Pre-randomisation bone scans were retrieved to the Christie Hospital (Manchester, UK) central imaging repository after completion of accrual. Physicians (AS, CJ, AH, and YJ) classified patients by high-volume or low-volume disease using the CHAARTED trial criteria2,15 based on the number and site of bone metastases...
+
+GUIDELINES:
+- For each listed column, extract a value if explicitly present. If not found, set value=null.
+- Provide evidence as an exact quote.
+- Provide page number(s).
+- Provide confidence high/medium/low.
+- When referencing columns, use the EXACT names from the list above (copy-paste them).
+
+Output format (free-form is OK), but for EACH column include a line like:
+Column index <N>: "<Exact Column Name from list above>"
+Value: <extracted value or null>
+Evidence: "<exact quote>"
+Page: <page number>
+Confidence: <high/medium/low>
+
+
+================================================================================
+OUTPUT RESPONSE
+================================================================================
+
+Column index 1: "Number of Arms Included"  
+Value: 4  
+Evidence: "Patients were randomly assigned (1:1) ... to either standard of care (control group) or standard of care plus abiraterone (in the abiraterone trial) or plus abiraterone and enzalutamide (in the abiraterone and enzalutamide trial). Each trial randomly assigned patients to its own control group; there were no overlapping controls." ... "Figure 1: Trial profile... 502 assigned to standard of care ... 501 assigned to standard of care plus abiraterone ... 454 assigned to standard of care ... 462 assigned to standard of care plus abiraterone plus enzalutamide"
+Page: 3 (text), 4 (Figure 1)
+Confidence: high

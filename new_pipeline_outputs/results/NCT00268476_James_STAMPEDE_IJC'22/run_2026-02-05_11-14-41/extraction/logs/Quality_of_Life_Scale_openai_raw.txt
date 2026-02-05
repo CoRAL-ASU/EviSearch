@@ -1,0 +1,36 @@
+INPUT PROMPT:
+You are extracting clinical trial data from a research paper.
+
+TASK: Extract values for the following canonical columns. Use EXACT column names as listed.
+
+COLUMNS TO EXTRACT:
+- Column index 1: "Quality of Life Scale"
+  Definition: What a measure of the participants' overall well-being and satisfaction with their health status, as assessed through a standardized questionnaire or survey, reflecting their perceived quality of life during the clinical trial?.
+  Expected Location: Page 10 | text
+  Planner Confidence: medium
+  Extraction Instructions:
+  Page 10, Text. The text mentions 'Direct comparison of patient-related QoL outcomes previously supported the use of abiraterone over docetaxel'. This indicates that Quality of Life was assessed and compared, but the specific scale used is not identified. Further details may be available in the cited references.
+
+RELEVANT CHUNKS:
+--- Chunk 8 (TEXT on page 7-10) ---
+William R Cross, David P Dearnaley, Johann S de Bono, Duncan Gil- bert, Silke Gillessen, Clare Gilson, Rob J Jones, Ruth E Langley, Zafar I Malik, David J Matheson, Robin Millman, Chris C Parker, Cheryl Pugh, Hannah Rush, J Martin Russell, Michelle L Buckner, Malcolm D Mason, Alastair WS Ritchie, Mahesh KB Parmar and Matthew R Sydes were members of the Trial Management Group. CA, Cheryl Pugh and MB were part of trial operations. All authors collated data. Adrian Cook, NJ, Noel W Clarke, Adnan Al...
+
+GUIDELINES:
+- For each listed column, extract a value if explicitly present; otherwise set value=null.
+- Provide evidence as an exact quote, page number(s), confidence (high/medium/low).
+- Use the EXACT column names from the list above.
+
+Output format (for each column):
+Column index <N>: "<Exact Column Name>"
+Value: <extracted value or null>
+Evidence: "<exact quote>"
+Page: <page number>
+Confidence: <high/medium/low>
+
+
+OUTPUT:
+Column index 1: "Quality of Life Scale"
+Value: null
+Evidence: "Direct comparison of patient-related QoL outcomes previously supported the use of abiraterone over docetaxel"
+Page: 10
+Confidence: medium

@@ -1,0 +1,49 @@
+INPUT PROMPT:
+You are extracting clinical trial data from a research paper.
+
+TASK: Extract values for the following canonical columns. Use EXACT column names as listed.
+
+COLUMNS TO EXTRACT:
+- Column index 1: "Median OS (mo) | Overall | Treatment"
+  Definition: What is the median overall survival (in months) for all patients in the experimental arm? If reported, include the value; use 'Not reported' if missing.
+  Expected Location: Page 6 | text
+  Planner Confidence: high
+  Extraction Instructions:
+  The text states "Median survival was 46 months (IQR 25, 92) in the SOC-alone group and 79 months (IQR 33, not reached) in the SOC + AAP group". Extract "79" from this sentence as the median OS for the treatment group (SOC + AAP).
+
+- Column index 2: "Median OS (mo) | Overall | Control"
+  Definition: What is the median overall survival (in months) for all patients in the control arm? If reported, include the value; use 'Not reported' if missing.
+  Expected Location: Page 6 | text
+  Planner Confidence: high
+  Extraction Instructions:
+  The text states "Median survival was 46 months (IQR 25, 92) in the SOC-alone group and 79 months (IQR 33, not reached) in the SOC + AAP group". Extract "46" from this sentence as the median OS for the control group (SOC-alone).
+
+RELEVANT CHUNKS:
+--- Chunk 7 (TEXT on page 5-7) ---
+patients with metastatic prostate cancer, not just those in the high- risk metastatic disease risk group defined for LATITUDE. Our long- term results are strikingly similar to those observed with both apalutamide1,2 and enzalutamide3 in trials with similar eligibility criteria to the metastatic population into STAMPEDE. While those agents are androgen receptor antagonists, all three drugs work by targeting the androgen receptor axis. This suggests that a choice of any of these agents may be clin...
+
+GUIDELINES:
+- For each listed column, extract a value if explicitly present; otherwise set value=null.
+- Provide evidence as an exact quote, page number(s), confidence (high/medium/low).
+- Use the EXACT column names from the list above.
+
+Output format (for each column):
+Column index <N>: "<Exact Column Name>"
+Value: <extracted value or null>
+Evidence: "<exact quote>"
+Page: <page number>
+Confidence: <high/medium/low>
+
+
+OUTPUT:
+Column index 1: "Median OS (mo) | Overall | Treatment"  
+Value: 79  
+Evidence: "Median survival was 46 months (IQR 25, 92) in the SOC-alone group and 79 months (IQR 33, not reached) in the SOC + AAP group."  
+Page: 6  
+Confidence: high  
+
+Column index 2: "Median OS (mo) | Overall | Control"  
+Value: 46  
+Evidence: "Median survival was 46 months (IQR 25, 92) in the SOC-alone group and 79 months (IQR 33, not reached) in the SOC + AAP group."  
+Page: 6  
+Confidence: high

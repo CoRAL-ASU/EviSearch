@@ -1,0 +1,106 @@
+INPUT PROMPT:
+You are extracting clinical trial data from a research paper.
+
+TASK: Extract values for the following canonical columns. Use EXACT column names as listed.
+
+COLUMNS TO EXTRACT:
+- Column index 1: "Reporting by prognostic groups - Y/N | Synchronous"
+  Definition: What indicates whether the results of the clinical trial were reported based on prognostic groups with synchronous metastases, where synchronous metastases refers to metastases present at the time of diagnosis of prostate cancer. with a response of either "yes" (Y) or "no" (N)? Answer Yes or No; use 'Not reported' if unclear.
+  Expected Location: Page 3 | text
+  Planner Confidence: high
+  Extraction Instructions:
+  The text states "94% newly-diagnosed; metastatic disease risk group: 48% high, 44% low, 8% unassessable". This indicates that the study includes patients with synchronous metastases (newly diagnosed with metastatic disease). Therefore, the answer is Yes.
+
+- Column index 2: "Reporting by prognostic groups - Y/N | Metachronous"
+  Definition: What indicates whether the results of the clinical trial were reported based on prognostic groups of patients with metachronous diseases (diseases that occur at different times). with a response of either "yes" (Y) or "no" (N)? Answer Yes or No; use 'Not reported' if unclear.
+  Expected Location: Page 3 | text
+  Planner Confidence: high
+  Extraction Instructions:
+  The text states "94% newly-diagnosed; metastatic disease risk group: 48% high, 44% low, 8% unassessable". The remaining 6% are relapsing, which indicates that the study includes patients with metachronous metastases. Therefore, the answer is Yes.
+
+- Column index 3: "Reporting by prognostic groups - Y/N | High volume"
+  Definition: What indicates whether the results of the clinical trial were reported based on prognostic groups with high volume/burden of metastases, with a response of either "yes" (Y) or "no" (N)? Answer Yes or No; use 'Not reported' if unclear.
+  Expected Location: Page 3 | text
+  Planner Confidence: high
+  Extraction Instructions:
+  The text states "94% newly-diagnosed; metastatic disease risk group: 48% high, 44% low, 8% unassessable". The study reports results based on metastatic disease risk groups, including a "high" risk group, which can be considered a proxy for high volume. Therefore, the answer is Yes.
+
+- Column index 4: "Reporting by prognostic groups - Y/N | Low volume"
+  Definition: What indicates whether the results were reported based on prognostic groups having a low volume of metastasis, with a yes or no response (Y/N)? Answer Yes or No; use 'Not reported' if unclear.
+  Expected Location: Page 3 | text
+  Planner Confidence: high
+  Extraction Instructions:
+  The text states "94% newly-diagnosed; metastatic disease risk group: 48% high, 44% low, 8% unassessable". The study reports results based on metastatic disease risk groups, including a "low" risk group, which can be considered a proxy for low volume. Therefore, the answer is Yes.
+
+RELEVANT CHUNKS:
+--- Chunk 5 (TEXT on page 1-3) ---
+C A N C E R T H E R A P Y A N D P R E V E N T I O N Abiraterone acetate plus prednisolone for metastatic patientsstarting hormone therapy: 5-year follow-up results from theSTAMPEDE randomised trial (NCT00268476) Nicholas D. James1|Noel W. Clarke2|Adrian Cook3|Adnan Ali4|Alex P. Hoyle5|Gerhardt Attard6|Christopher D. Brawley3| Simon Chowdhury7|William R. Cross8|David P. Dearnaley9|Johann S. de Bono1|Carlos Diaz-Montana3|Duncan Gilbert3| Silke Gillessen10|Clare Gilson3,11|Rob J. Jones12|Ruth E. La...
+
+--- Chunk 6 (TEXT on page 3-5) ---
+apy (ADT) which had started no longer than 12 weeks prior to ran- domisation. There were no age restrictions, but patients were required to have no clinically significant cardiovascular history. For this analysis, patients had metastatic disease confirmed by scinti- within 12 weeks of starting ADT. 2.2|Randomisation and masking Patients were randomised centrally using a computerised algorithm, developed and maintained by the MRC Clinical Trials Unit at UCL. Minimisation with a random element of ...
+
+GUIDELINES:
+- For each listed column, extract a value if explicitly present; otherwise set value=null.
+- Provide evidence as an exact quote, page number(s), confidence (high/medium/low).
+- Use the EXACT column names from the list above.
+
+Output format (for each column):
+Column index <N>: "<Exact Column Name>"
+Value: <extracted value or null>
+Evidence: "<exact quote>"
+Page: <page number>
+Confidence: <high/medium/low>
+
+
+OUTPUT:
+Certainly! Here’s the extracted data for the canonical columns:
+
+---
+
+Column index 1: "Reporting by prognostic groups - Y/N | Synchronous"
+
+Value: Yes
+
+Evidence: "94% newly-diagnosed; metastatic disease risk group: 48% high, 44% low, 8% unassessable."
+
+Page: 3
+
+Confidence: High
+
+---
+
+Column index 2: "Reporting by prognostic groups - Y/N | Metachronous"
+
+Value: Yes
+
+Evidence: "94% newly-diagnosed; metastatic disease risk group: 48% high, 44% low, 8% unassessable."
+
+Page: 3
+
+Confidence: High
+
+---
+
+Column index 3: "Reporting by prognostic groups - Y/N | High volume"
+
+Value: Yes
+
+Evidence: "94% newly-diagnosed; metastatic disease risk group: 48% high, 44% low, 8% unassessable."
+
+Page: 3
+
+Confidence: High
+
+---
+
+Column index 4: "Reporting by prognostic groups - Y/N | Low volume"
+
+Value: Yes
+
+Evidence: "94% newly-diagnosed; metastatic disease risk group: 48% high, 44% low, 8% unassessable."
+
+Page: 3
+
+Confidence: High
+
+---

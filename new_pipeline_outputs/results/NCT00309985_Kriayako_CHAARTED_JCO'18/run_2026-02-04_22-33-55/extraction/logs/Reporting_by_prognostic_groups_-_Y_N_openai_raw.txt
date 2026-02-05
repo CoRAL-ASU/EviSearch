@@ -1,0 +1,64 @@
+INPUT PROMPT:
+You are extracting clinical trial data from a research paper.
+
+TASK: Extract values for the following canonical columns. Use EXACT column names as listed.
+
+COLUMNS TO EXTRACT:
+- Column index 3: "Reporting by prognostic groups - Y/N | High volume"
+  Definition: What indicates whether the results of the clinical trial were reported based on prognostic groups with high volume/burden of metastases, with a response of either "yes" (Y) or "no" (N)? Answer Yes or No; use 'Not reported' if unclear.
+  Expected Location: Page -1 | table
+  Planner Confidence: high
+  Extraction Instructions:
+  Yes. The study reports results based on high-volume disease. 
+
+*   **WHERE:** Abstract, Results section; Table 1; Figure 3
+*   **HOW:** Extract the overall survival (OS) data, hazard ratios (HR), and p-values for the high-volume disease subgroup from the Results section of the abstract, Table 1, and Figure 3.
+
+- Column index 4: "Reporting by prognostic groups - Y/N | Low volume"
+  Definition: What indicates whether the results were reported based on prognostic groups having a low volume of metastasis, with a yes or no response (Y/N)? Answer Yes or No; use 'Not reported' if unclear.
+  Expected Location: Page -1 | table
+  Planner Confidence: high
+  Extraction Instructions:
+  Yes. The study reports results based on low-volume disease.
+
+*   **WHERE:** Abstract, Results section; Table 1; Figure 3
+*   **HOW:** Extract the overall survival (OS) data, hazard ratios (HR), and p-values for the low-volume disease subgroup from the Results section of the abstract, Table 1, and Figure 3.
+
+RELEVANT CHUNKS:
+No relevant chunks found.
+
+GUIDELINES:
+- For each listed column, extract a value if explicitly present; otherwise set value=null.
+- Provide evidence as an exact quote, page number(s), confidence (high/medium/low).
+- Use the EXACT column names from the list above.
+
+Output format (for each column):
+Column index <N>: "<Exact Column Name>"
+Value: <extracted value or null>
+Evidence: "<exact quote>"
+Page: <page number>
+Confidence: <high/medium/low>
+
+
+OUTPUT:
+**Column index 3: "Reporting by prognostic groups - Y/N | High volume"**
+
+Value: Yes
+
+Evidence: "For patients with high-volume disease (n = 513), the median OS was 51.2 months with chemohormonal therapy versus 34.4 months with ADT alone (HR, 0.63; 95% CI, 0.50 to 0.79; P < .001)."
+
+Page: 1082
+
+Confidence: High
+
+---
+
+**Column index 4: "Reporting by prognostic groups - Y/N | Low volume"**
+
+Value: Yes
+
+Evidence: "For those with low-volume disease (n = 277), no OS benefit was observed (HR, 1.04; 95% CI, 0.70 to 1.55; P = .86)."
+
+Page: 1082
+
+Confidence: High

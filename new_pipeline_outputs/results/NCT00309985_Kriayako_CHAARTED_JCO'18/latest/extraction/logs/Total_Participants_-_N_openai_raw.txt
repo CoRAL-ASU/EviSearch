@@ -1,0 +1,38 @@
+INPUT PROMPT:
+You are extracting clinical trial data from a research paper.
+
+TASK: Extract values for the following canonical columns. Use EXACT column names as listed.
+
+COLUMNS TO EXTRACT:
+- Column index 1: "Total Participants - N"
+  Definition: What are the total number of participants included in the clinical trial?. If reported, provide the value; otherwise use 'Not reported'.
+  Expected Location: Page 1 | text
+  Planner Confidence: high
+  Extraction Instructions:
+  The text in the abstract states, "In this phase III study, 790 patients with metastatic hormone-sensitive prostate cancer were equally randomly assigned to receive either ADT in combination with docetaxel 75 mg/m² for up to six cycles or ADT alone."
+
+RELEVANT CHUNKS:
+--- Chunk 6 (TEXT on page 1-3) ---
+Chemohormonal Therapy in Metastatic Hormone-SensitiveProstate Cancer: Long-Term Survival Analysis of theRandomized Phase III E3805 CHAARTED Trial Christos E. Kyriakopoulos, Yu-Hui Chen, Michael A. Carducci, Glenn Liu, David F. Jarrard, Noah M. Hahn,Daniel H. Shevrin, Robert Dreicer, Maha Hussain, Mario Eisenberger, Manish Kohli, Elizabeth R. Plimack,Nicholas J. Vogelzang, Joel Picus, Matthew M. Cooney, Jorge A. Garcia, Robert S. DiPaola, and Christopher J.Sweeney ABSTRACT PurposeDocetaxel added ...
+
+GUIDELINES:
+- For each listed column, extract a value if explicitly present; otherwise set value=null.
+- Provide evidence as an exact quote, page number(s), confidence (high/medium/low).
+- Use the EXACT column names from the list above.
+
+Output format (for each column):
+Column index <N>: "<Exact Column Name>"
+Value: <extracted value or null>
+Evidence: "<exact quote>"
+Page: <page number>
+Confidence: <high/medium/low>
+
+
+OUTPUT:
+Certainly! Here's the extracted information based on the task:
+
+Column index 1: "Total Participants - N"  
+Value: 790  
+Evidence: "In this phase III study, 790 patients with metastatic hormone-sensitive prostate cancer were equally randomly assigned to receive either ADT in combination with docetaxel 75 mg/m² for up to six cycles or ADT alone."  
+Page: 1  
+Confidence: High

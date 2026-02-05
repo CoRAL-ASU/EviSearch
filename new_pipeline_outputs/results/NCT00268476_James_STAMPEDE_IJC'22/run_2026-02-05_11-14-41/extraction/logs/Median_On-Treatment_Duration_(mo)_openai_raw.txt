@@ -1,0 +1,36 @@
+INPUT PROMPT:
+You are extracting clinical trial data from a research paper.
+
+TASK: Extract values for the following canonical columns. Use EXACT column names as listed.
+
+COLUMNS TO EXTRACT:
+- Column index 1: "Median On-Treatment Duration (mo) | Treatment"
+  Definition: What is the median duration in months that participants in the treatment arm of the trial received on-treatment therapy? If reported, include the value; use 'Not reported' if missing.
+  Expected Location: Page 6 | text
+  Planner Confidence: high
+  Extraction Instructions:
+  Extract "29 months (IQR 12-71)" from the text: "Median time on abiraterone in the SOC + AAP group was 29 months (IQR 12-71)..."
+
+RELEVANT CHUNKS:
+--- Chunk 7 (TEXT on page 5-7) ---
+patients with metastatic prostate cancer, not just those in the high- risk metastatic disease risk group defined for LATITUDE. Our long- term results are strikingly similar to those observed with both apalutamide1,2 and enzalutamide3 in trials with similar eligibility criteria to the metastatic population into STAMPEDE. While those agents are androgen receptor antagonists, all three drugs work by targeting the androgen receptor axis. This suggests that a choice of any of these agents may be clin...
+
+GUIDELINES:
+- For each listed column, extract a value if explicitly present; otherwise set value=null.
+- Provide evidence as an exact quote, page number(s), confidence (high/medium/low).
+- Use the EXACT column names from the list above.
+
+Output format (for each column):
+Column index <N>: "<Exact Column Name>"
+Value: <extracted value or null>
+Evidence: "<exact quote>"
+Page: <page number>
+Confidence: <high/medium/low>
+
+
+OUTPUT:
+Column index 1: "Median On-Treatment Duration (mo) | Treatment"  
+Value: 29 months (IQR 12-71)  
+Evidence: "Median time on abiraterone in the SOC + AAP group was 29 months (IQR 12-71)..."  
+Page: 6  
+Confidence: High

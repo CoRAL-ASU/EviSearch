@@ -1,0 +1,84 @@
+================================================================================
+INPUT PROMPT
+================================================================================
+
+You are extracting clinical trial data from a research paper.
+
+TASK:
+Extract values for the following canonical columns. Each column has a canonical index and a canonical name.
+
+⚠️ CRITICAL: You MUST use the EXACT column names as listed below.
+Do NOT paraphrase, abbreviate, or modify names in ANY way.
+Character-for-character match is REQUIRED (including spaces, punctuation, pipes |, parentheses).
+
+COLUMNS TO EXTRACT (index + name are canonical; copy these EXACT names in your output):
+- Column index 1: "Adverse Events - N (%) | All-Cause Grade 3 or Higher | Treatment"
+  Expected Location: Page 1 | text
+  Planner Confidence: high
+  Extraction Instructions:
+  Extract from Chunk 5 (page 1) or Chunk 7 (page 11), "In the first 5 years of treatment, grade 3-5 toxic effects were higher when abiraterone was added to standard of care (271 [54%] of 498...". Value: 271 (54%) of 498.
+
+- Column index 2: "Adverse Events - N (%) | All-Cause Grade 3 or Higher | Control"
+  Expected Location: Page 1 | text
+  Planner Confidence: high
+  Extraction Instructions:
+  Extract from Chunk 5 (page 1) or Chunk 7 (page 11), "...(271 [54%] of 498 vs 192 [38%] of 502 with standard of care)...". Value: 192 (38%) of 502.
+
+- Column index 5: "Adverse Events - N (%) | Treatment-related Grade 5 | Treatment"
+  Expected Location: Page 11 | text
+  Planner Confidence: medium
+  Extraction Instructions:
+  Extract from Chunk 7 (page 11), "Cardiac causes were the most common cause of death due to adverse events (five [1%] with standard of care plus abiraterone and enzalutamide [two attributed to treatment]...". The total number of patients in this arm is 445 (from the abstract). Value: 2 of 445.
+
+RELEVANT PRE-EXTRACTED CHUNKS (filtered by planner page+type):
+--- Chunk 5 (TEXT on page 1-2) ---
+Lancet Oncol 2023; 24: 443–56 *Retired †Contributed equally ‡Investigators listed in the appendix (p 217) Abiraterone acetate plus prednisolone with or without enzalutamide for patients with metastatic prostate cancer starting androgen deprivation therapy: final results from two randomised phase 3 trials of the STAMPEDE platform protocol Gerhardt Attard, Laura Murphy, Noel W Clarke, Ashwin Sachdeva, Craig Jones, Alex Hoyle, William Cross, Robert J Jones, Christopher C Parker, Silke Gillessen, Ad...
+
+GUIDELINES:
+- For each listed column, extract a value if explicitly present. If not found, set value=null.
+- Provide evidence as an exact quote.
+- Provide page number(s).
+- Provide confidence high/medium/low.
+- When referencing columns, use the EXACT names from the list above (copy-paste them).
+
+Output format (free-form is OK), but for EACH column include a line like:
+Column index <N>: "<Exact Column Name from list above>"
+Value: <extracted value or null>
+Evidence: "<exact quote>"
+Page: <page number>
+Confidence: <high/medium/low>
+
+
+================================================================================
+OUTPUT RESPONSE
+================================================================================
+
+Here is the extraction for each requested canonical column:
+
+---
+
+Column index 1: "Adverse Events - N (%) | All-Cause Grade 3 or Higher | Treatment"  
+Value: 271 (54%) of 498  
+Evidence: "In the first 5 years of treatment, grade 3–5 toxic effects were higher when abiraterone was added to standard of care (271 [54%] of 498 vs 192 [38%] of 502 with standard of care)..."  
+Page: 1  
+Confidence: high
+
+---
+
+Column index 2: "Adverse Events - N (%) | All-Cause Grade 3 or Higher | Control"  
+Value: 192 (38%) of 502  
+Evidence: "In the first 5 years of treatment, grade 3–5 toxic effects were higher when abiraterone was added to standard of care (271 [54%] of 498 vs 192 [38%] of 502 with standard of care)..."  
+Page: 1  
+Confidence: high
+
+---
+
+Column index 5: "Adverse Events - N (%) | Treatment-related Grade 5 | Treatment"  
+Value: 2 of 445  
+Evidence: "Cardiac causes were the most common cause of death due to adverse events (five [1%] with standard of care plus abiraterone and enzalutamide [two attributed to treatment]..."  
+Page: 1  
+Confidence: high
+
+---
+
+If you need evidence table snippets or more details, let me know!

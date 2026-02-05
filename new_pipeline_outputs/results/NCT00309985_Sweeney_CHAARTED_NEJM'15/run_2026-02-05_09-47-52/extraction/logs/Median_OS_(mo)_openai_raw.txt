@@ -1,0 +1,116 @@
+INPUT PROMPT:
+You are extracting clinical trial data from a research paper.
+
+TASK: Extract values for the following canonical columns. Use EXACT column names as listed.
+
+COLUMNS TO EXTRACT:
+- Column index 1: "Median OS (mo) | Overall | Treatment"
+  Definition: What is the median overall survival (in months) for all patients in the experimental arm? If reported, include the value; use 'Not reported' if missing.
+  Expected Location: Page 6 | text
+  Planner Confidence: high
+  Extraction Instructions:
+  Extract "57.6" from the sentence "the median overall survival was 13.6 months longer with the addition to ADT of early docetaxel than with ADT alone (57.6 months vs. 44.0 months...".
+
+- Column index 2: "Median OS (mo) | Overall | Control"
+  Definition: What is the median overall survival (in months) for all patients in the control arm? If reported, include the value; use 'Not reported' if missing.
+  Expected Location: Page 6 | text
+  Planner Confidence: high
+  Extraction Instructions:
+  Extract "44.0" from the sentence "the median overall survival was 13.6 months longer with the addition to ADT of early docetaxel than with ADT alone (57.6 months vs. 44.0 months...".
+
+- Column index 3: "Median OS (mo) | High volume | Treatment"
+  Definition: What is the median overall survival (in months) for patients with high volume metastasis (by CHAARTED criteria) in the experimental arm? If reported, include the value; use 'Not reported' if missing.
+  Expected Location: Page 6 | text
+  Planner Confidence: high
+  Extraction Instructions:
+  Extract "49.2" from the sentence "In the subgroup of patients with high-volume disease, the median overall survival was 17.0 months longer in the combination group than in the ADT-alone group (49.2 months vs. 32.2 months).".
+
+- Column index 4: "Median OS (mo) | High volume | Control"
+  Definition: What is the median overall survival (in months) for patients with high volume metastasis (by CHAARTED criteria) in the control arm? If reported, include the value; use 'Not reported' if missing.
+  Expected Location: Page 6 | text
+  Planner Confidence: high
+  Extraction Instructions:
+  Extract "32.2" from the sentence "In the subgroup of patients with high-volume disease, the median overall survival was 17.0 months longer in the combination group than in the ADT-alone group (49.2 months vs. 32.2 months).".
+
+- Column index 5: "Median OS (mo) | Low volume | Treatment"
+  Definition: What is the median overall survival (in months) for patients with low volume metastasis (by CHAARTED criteria) in the experimental arm? If reported, include the value; use 'Not reported' if missing.
+  Expected Location: Page 6 | text
+  Planner Confidence: high
+  Extraction Instructions:
+  Extract "NR" from the sentence "The median survival at the time of the analysis had not been reached in the subgroup with low-volume disease in either study group (Fig. 1C).". NR means Not Reached.
+
+- Column index 6: "Median OS (mo) | Low volume | Control"
+  Definition: What is the median overall survival (in months) for patients with low volume metastasis (by CHAARTED criteria) in the control arm? If reported, include the value; use 'Not reported' if missing.
+  Expected Location: Page 6 | text
+  Planner Confidence: high
+  Extraction Instructions:
+  Extract "NR" from the sentence "The median survival at the time of the analysis had not been reached in the subgroup with low-volume disease in either study group (Fig. 1C).". NR means Not Reached.
+
+RELEVANT CHUNKS:
+No relevant chunks found.
+
+GUIDELINES:
+- For each listed column, extract a value if explicitly present; otherwise set value=null.
+- Provide evidence as an exact quote, page number(s), confidence (high/medium/low).
+- Use the EXACT column names from the list above.
+
+Output format (for each column):
+Column index <N>: "<Exact Column Name>"
+Value: <extracted value or null>
+Evidence: "<exact quote>"
+Page: <page number>
+Confidence: <high/medium/low>
+
+
+OUTPUT:
+Here's the extracted data from the research paper:
+
+---
+
+Column index 1: "Median OS (mo) | Overall | Treatment"
+Value: 57.6
+Evidence: "the median overall survival was 13.6 months longer with the addition to ADT of early docetaxel than with ADT alone (57.6 months vs. 44.0 months...)."
+Page: 6
+Confidence: high
+
+---
+
+Column index 2: "Median OS (mo) | Overall | Control"
+Value: 44.0
+Evidence: "the median overall survival was 13.6 months longer with the addition to ADT of early docetaxel than with ADT alone (57.6 months vs. 44.0 months...)."
+Page: 6
+Confidence: high
+
+---
+
+Column index 3: "Median OS (mo) | High volume | Treatment"
+Value: 49.2
+Evidence: "In the subgroup of patients with high-volume disease, the median overall survival was 17.0 months longer in the combination group than in the ADT-alone group (49.2 months vs. 32.2 months)."
+Page: 6
+Confidence: high
+
+---
+
+Column index 4: "Median OS (mo) | High volume | Control"
+Value: 32.2
+Evidence: "In the subgroup of patients with high-volume disease, the median overall survival was 17.0 months longer in the combination group than in the ADT-alone group (49.2 months vs. 32.2 months)."
+Page: 6
+Confidence: high
+
+---
+
+Column index 5: "Median OS (mo) | Low volume | Treatment"
+Value: NR
+Evidence: "The median survival at the time of the analysis had not been reached in the subgroup with low-volume disease in either study group (Fig. 1C)."
+Page: 6
+Confidence: high
+
+---
+
+Column index 6: "Median OS (mo) | Low volume | Control"
+Value: NR
+Evidence: "The median survival at the time of the analysis had not been reached in the subgroup with low-volume disease in either study group (Fig. 1C)."
+Page: 6
+Confidence: high
+
+---

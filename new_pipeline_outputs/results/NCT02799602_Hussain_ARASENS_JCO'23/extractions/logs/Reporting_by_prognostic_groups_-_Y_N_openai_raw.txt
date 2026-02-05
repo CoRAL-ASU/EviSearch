@@ -1,0 +1,84 @@
+================================================================================
+INPUT PROMPT
+================================================================================
+
+You are extracting clinical trial data from a research paper.
+
+TASK:
+Extract values for the following canonical columns. Each column has a canonical index and a canonical name.
+
+⚠️ CRITICAL: You MUST use the EXACT column names as listed below.
+Do NOT paraphrase, abbreviate, or modify names in ANY way.
+Character-for-character match is REQUIRED (including spaces, punctuation, pipes |, parentheses).
+
+COLUMNS TO EXTRACT (index + name are canonical; copy these EXACT names in your output):
+- Column index 1: "Reporting by prognostic groups - Y/N | Synchronous"
+  Expected Location: Page 2 | text
+  Planner Confidence: high
+  Extraction Instructions:
+  The results are reported by synchronous metastases. Page 2, Text: The presence of metastatic disease at initial diagnosis (de novo or synchronous disease) is associated with poorer outcomes compared with developing metastases after local therapy (recurrent or metachronous disease). Page 4, Text: The effect of darolutamide treatment on OS across prespecified subgroups, including de novo and recurrent disease, was favorable across all subgroups of patients with high-volume and almost all subgroups with low-volume disease (Appendix Fig A1, online only). Page 5, Table 1: The table includes a row 'Metastasis stage at initial diagnosis, No. (%)' with subgroups 'De novo mHSPC' and 'Recurrent mHSPC'. Page 16, Table A1 (Appendix Fig A1): The table includes a row 'Metastatic stage at initial diagnosis' with subgroups 'De novo' and 'Recurrent'.
+
+- Column index 2: "Reporting by prognostic groups - Y/N | Metachronous"
+  Expected Location: Page 2 | text
+  Planner Confidence: high
+  Extraction Instructions:
+  The results are reported by metachronous metastases. Page 2, Text: The presence of metastatic disease at initial diagnosis (de novo or synchronous disease) is associated with poorer outcomes compared with developing metastases after local therapy (recurrent or metachronous disease). Page 4, Text: The effect of darolutamide treatment on OS across prespecified subgroups, including de novo and recurrent disease, was favorable across all subgroups of patients with high-volume and almost all subgroups with low-volume disease (Appendix Fig A1, online only). Page 5, Table 1: The table includes a row 'Metastasis stage at initial diagnosis, No. (%)' with subgroups 'De novo mHSPC' and 'Recurrent mHSPC'. Page 16, Table A1 (Appendix Fig A1): The table includes a row 'Metastatic stage at initial diagnosis' with subgroups 'De novo' and 'Recurrent'.
+
+- Column index 3: "Reporting by prognostic groups - Y/N | High volume"
+  Expected Location: Page 1 | text
+  Planner Confidence: high
+  Extraction Instructions:
+  The results are reported by high-volume disease. Page 1, Text (PURPOSE): We examined efficacy and safety from the ARASENS trial for subgroups by disease volume and risk. Page 2, Text (METHODS): High-volume disease was defined as visceral metastases and/or four or more bone metastases with one or more beyond the vertebral column and pelvis. Page 4, Text: Of them, 1,005 (77%) patients had high-volume disease and 300 (23%) had low-volume disease... Page 5, Table 1: The table presents 'Baseline Demographics and Patient Characteristics for the Subgroups of Patients by Disease Volume and Disease Risk in ARASENS' with a column for 'High Volume'. Page 6, Figure 2 (A): Shows 'OS in subgroups of patients by (A) high-volume disease'. Page 8, Table 2: The table presents 'Secondary Efficacy End Points for the Subgroups of Patients by Disease Volume and Disease Risk in ARASENS' with a column for 'High Volume'. Page 9, Table 3: The table presents 'Treatment-Emergent AEs in the Subgroups of Patients by Disease Volume and Disease Risk in ARASENS' with a column for 'High Volume'. Page 10, Table 4: The table presents 'AEs of Special Interest for the Subgroups of Patients by Disease Volume and Disease Risk in ARASENS' with a column for 'High Volume'.
+
+- Column index 4: "Reporting by prognostic groups - Y/N | Low volume"
+  Expected Location: Page 1 | text
+  Planner Confidence: high
+  Extraction Instructions:
+  The results are reported by low-volume disease. Page 1, Text (PURPOSE): We examined efficacy and safety from the ARASENS trial for subgroups by disease volume and risk. Page 2, Text (METHODS): Low-volume and low-risk disease were defined as not meeting the respective high-volume and high-risk criteria. Page 4, Text: Of them, 1,005 (77%) patients had high-volume disease and 300 (23%) had low-volume disease... Page 5, Table 1: The table presents 'Baseline Demographics and Patient Characteristics for the Subgroups of Patients by Disease Volume and Disease Risk in ARASENS' with a column for 'Low Volume'. Page 6, Figure 2 (B): Shows 'OS in subgroups of patients by (B) low-volume disease'. Page 8, Table 2: The table presents 'Secondary Efficacy End Points for the Subgroups of Patients by Disease Volume and Disease Risk in ARASENS' with a column for 'Low Volume'. Page 9, Table 3: The table presents 'Treatment-Emergent AEs in the Subgroups of Patients by Disease Volume and Disease Risk in ARASENS' with a column for 'Low Volume'. Page 10, Table 4: The table presents 'AEs of Special Interest for the Subgroups of Patients by Disease Volume and Disease Risk in ARASENS' with a column for 'Low Volume'.
+
+RELEVANT PRE-EXTRACTED CHUNKS (filtered by planner page+type):
+--- Chunk 8 (TEXT on page 1-4) ---
+Maha Hussain, MD1; Bertrand Tombal, MD, PhD2; Fred Saad, MD3; Karim Fizazi, MD, PhD4; Cora N. Sternberg, MD5;E. David Crawford, MD6; Neal Shore, MD7; Evgeny Kopyltsov, MD8; Arash Rezazadeh Kalebasty, MD9; Martin B¨ogemann, MD10;Dingwei Ye, MD11; Felipe Cruz, MD, PhD12; Hiroyoshi Suzuki, MD, PhD13; Shivani Kapur, MD14; Shankar Srinivasan, PhD15;Frank Verholen, MD16; Iris Kuss, MD17; Heikki Joensuu, MD18; and Matthew R. Smith, MD, PhD19 abstract PURPOSE For patients with metastatic hormone-sensiti...
+
+GUIDELINES:
+- For each listed column, extract a value if explicitly present. If not found, set value=null.
+- Provide evidence as an exact quote.
+- Provide page number(s).
+- Provide confidence high/medium/low.
+- When referencing columns, use the EXACT names from the list above (copy-paste them).
+
+Output format (free-form is OK), but for EACH column include a line like:
+Column index <N>: "<Exact Column Name from list above>"
+Value: <extracted value or null>
+Evidence: "<exact quote>"
+Page: <page number>
+Confidence: <high/medium/low>
+
+
+================================================================================
+OUTPUT RESPONSE
+================================================================================
+
+Column index 1: "Reporting by prognostic groups - Y/N | Synchronous"
+Value: Y
+Evidence: "The presence of metastatic disease at initial diagnosis (de novo or synchronous disease) is associated with poorer outcomes compared with developing metastases after local therapy (recurrent or metachronous disease)." Also, Table 1: "Metastasis stage at initial diagnosis, No. (%)" lists "De novo mHSPC" and "Recurrent mHSPC".
+Page: 2, 5, 16
+Confidence: high
+
+Column index 2: "Reporting by prognostic groups - Y/N | Metachronous"
+Value: Y
+Evidence: "The presence of metastatic disease at initial diagnosis (de novo or synchronous disease) is associated with poorer outcomes compared with developing metastases after local therapy (recurrent or metachronous disease)." Also, Table 1: "Metastasis stage at initial diagnosis, No. (%)" lists "De novo mHSPC" and "Recurrent mHSPC".
+Page: 2, 5, 16
+Confidence: high
+
+Column index 3: "Reporting by prognostic groups - Y/N | High volume"
+Value: Y
+Evidence: "We examined efficacy and safety from the ARASENS trial for subgroups by disease volume and risk." and "High-volume disease was defined as visceral metastases and/or four or more bone metastases with one or more beyond the vertebral column and pelvis." Also, on page 4: "Of them, 1,005 (77%) patients had high-volume disease and 300 (23%) had low-volume disease..." Table 1 and several other tables and figures split results by "High Volume".
+Page: 1, 2, 4, 5, 6, 8, 9, 10
+Confidence: high
+
+Column index 4: "Reporting by prognostic groups - Y/N | Low volume"
+Value: Y
+Evidence: "We examined efficacy and safety from the ARASENS trial for subgroups by disease volume and risk." and "Low-volume and low-risk disease were defined as not meeting the respective high-volume and high-risk criteria." Also, on page 4: "Of them, 1,005 (77%) patients had high-volume disease and 300 (23%) had low-volume disease..." Table 1 and several other tables and figures split results by "Low Volume".
+Page: 1, 2, 4, 5, 6, 8, 9, 10
+Confidence: high

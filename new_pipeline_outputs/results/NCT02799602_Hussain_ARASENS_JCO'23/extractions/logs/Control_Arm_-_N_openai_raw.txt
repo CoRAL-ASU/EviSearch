@@ -1,0 +1,50 @@
+================================================================================
+INPUT PROMPT
+================================================================================
+
+You are extracting clinical trial data from a research paper.
+
+TASK:
+Extract values for the following canonical columns. Each column has a canonical index and a canonical name.
+
+⚠️ CRITICAL: You MUST use the EXACT column names as listed below.
+Do NOT paraphrase, abbreviate, or modify names in ANY way.
+Character-for-character match is REQUIRED (including spaces, punctuation, pipes |, parentheses).
+
+COLUMNS TO EXTRACT (index + name are canonical; copy these EXACT names in your output):
+- Column index 1: "Control Arm - N"
+  Expected Location: Page 3 | figure
+  Planner Confidence: high
+  Extraction Instructions:
+  The total number of participants in the control arm is reported in the CONSORT flow diagram. Extract the numerical value associated with "Placebo + docetaxel + ADT" under "Patients randomly assigned".
+
+RELEVANT PRE-EXTRACTED CHUNKS (filtered by planner page+type):
+--- Chunk 0 (FIGURE on page 3) ---
+``` ##Figure Descriptions##  ## Figure 1 This figure presents a CONSORT flow diagram detailing the patient screening and assignment process in the study. It outlines the number of patients screened, those randomly assigned to treatment groups, and the reasons for discontinuation, including disease progression and adverse events. The diagram provides a clear overview of patient enrollment and the analysis conducted for the primary endpoint and safety. ```...
+
+GUIDELINES:
+- For each listed column, extract a value if explicitly present. If not found, set value=null.
+- Provide evidence as an exact quote.
+- Provide page number(s).
+- Provide confidence high/medium/low.
+- When referencing columns, use the EXACT names from the list above (copy-paste them).
+
+Output format (free-form is OK), but for EACH column include a line like:
+Column index <N>: "<Exact Column Name from list above>"
+Value: <extracted value or null>
+Evidence: "<exact quote>"
+Page: <page number>
+Confidence: <high/medium/low>
+
+
+================================================================================
+OUTPUT RESPONSE
+================================================================================
+
+Column index 1: "Control Arm - N"
+Value: 655
+Evidence: "Patients randomly assigned (N = 1,306)... Placebo + docetaxel + ADT (n = 655) Excluded for GCP violation (n = 1) Received allocated treatment (n = 651) Did not receive allocated treatment (n = 2) Withdrawal by patient (n = 1) Physician’s decision (n = 1)..."
+Page: 3
+Confidence: high
+
+Explanation: The CONSORT flow diagram on page 3 specifies that 655 patients were randomly assigned to the "Placebo + docetaxel + ADT" arm, which is the control arm as described in your instructions. This is the total number randomly assigned, as required.

@@ -1,0 +1,63 @@
+================================================================================
+INPUT PROMPT
+================================================================================
+
+You are extracting clinical trial data from a research paper.
+
+TASK:
+Extract values for the following canonical columns. Each column has a canonical index and a canonical name.
+
+⚠️ CRITICAL: You MUST use the EXACT column names as listed below.
+Do NOT paraphrase, abbreviate, or modify names in ANY way.
+Character-for-character match is REQUIRED (including spaces, punctuation, pipes |, parentheses).
+
+COLUMNS TO EXTRACT (index + name are canonical; copy these EXACT names in your output):
+- Column index 1: "No. of Deaths - N | Treatment"
+  Expected Location: Page 3 | text
+  Planner Confidence: high
+  Extraction Instructions:
+  The number of deaths in the treatment arm (ADT plus D) is reported in the text on page 3, within Chunk 4. The text states: "After a median follow-up of 83.9 mo (95% CI, 82.9-84.7), 242 patients had died (127 in the ADT arm and 115 in the ADT plus D arm; 147 and 95 in the HVD and LVD subgroups, respectively)." The value for the ADT plus D arm is 115.
+
+- Column index 2: "No. of Deaths - N | Control"
+  Expected Location: Page 3 | text
+  Planner Confidence: high
+  Extraction Instructions:
+  The number of deaths in the control arm (ADT) is reported in the text on page 3, within Chunk 4. The text states: "After a median follow-up of 83.9 mo (95% CI, 82.9-84.7), 242 patients had died (127 in the ADT arm and 115 in the ADT plus D arm; 147 and 95 in the HVD and LVD subgroups, respectively)." The value for the ADT arm is 127.
+
+RELEVANT PRE-EXTRACTED CHUNKS (filtered by planner page+type):
+--- Chunk 4 (TEXT on page 1-3) ---
+Androgen Deprivation Therapy (ADT) Plus Docetaxel VersusADT Alone in Metastatic Non castrate Prostate Cancer:Impact of Metastatic Burden and Long-term SurvivalAnalysis of the Randomized Phase 3 GETUG-AFU15 Trial Gwenaelle Gravis a,*, Jean-Marie Boher b, Florence Joly c, Michel Soulie´ d, Laurence Albiges e,Franck Priou f, Igor Latorzeff g, Remy Delva h, Ivan Krakowski i, Brigitte Laguerre j,Fre´de´ric Rolland k, Christine The´odore l, Gael Deplanque m, Jean-Marc Ferrero n,Ste´phane Culine o, Loı...
+
+--- Chunk 5 (TEXT on page 3-5) ---
+alone [26]. Results indicate that D-based chemotherapy isassociated with improved relapse-free survival in high-risklocalized PCa [27]. A longer follow-up of this trial and otherongoing similar studies will be required to assess whetherthisbenefittranslatesintoimprovedmetastasis-freesurvival and, ultimately, OS.The main limitation of our study is that data on metastaticburden were collected retrospectively. The study was notinitially designed to show the benefits of chemotherapy inspecific subgr...
+
+GUIDELINES:
+- For each listed column, extract a value if explicitly present. If not found, set value=null.
+- Provide evidence as an exact quote.
+- Provide page number(s).
+- Provide confidence high/medium/low.
+- When referencing columns, use the EXACT names from the list above (copy-paste them).
+
+Output format (free-form is OK), but for EACH column include a line like:
+Column index <N>: "<Exact Column Name from list above>"
+Value: <extracted value or null>
+Evidence: "<exact quote>"
+Page: <page number>
+Confidence: <high/medium/low>
+
+
+================================================================================
+OUTPUT RESPONSE
+================================================================================
+
+Column index 1: "No. of Deaths - N | Treatment"  
+Value: 115  
+Evidence: "After a median follow-up of 83.9 mo (95% CI, 82.9-84.7), 242 patients had died (127 in the ADT arm and 115 in the ADT plus D arm; 147 and 95 in the HVD and LVD subgroups, respectively)."  
+Page: 3  
+Confidence: high  
+
+Column index 2: "No. of Deaths - N | Control"  
+Value: 127  
+Evidence: "After a median follow-up of 83.9 mo (95% CI, 82.9-84.7), 242 patients had died (127 in the ADT arm and 115 in the ADT plus D arm; 147 and 95 in the HVD and LVD subgroups, respectively)."  
+Page: 3  
+Confidence: high

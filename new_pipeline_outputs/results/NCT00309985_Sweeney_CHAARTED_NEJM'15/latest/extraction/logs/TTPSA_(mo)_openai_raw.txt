@@ -1,0 +1,71 @@
+INPUT PROMPT:
+You are extracting clinical trial data from a research paper.
+
+TASK: Extract values for the following canonical columns. Use EXACT column names as listed.
+
+COLUMNS TO EXTRACT:
+- Column index 1: "TTPSA (mo) | Treatment"
+  Definition: What time To Progression of Serum Androgen (in months) in the treatment arm of the clinical trial? If reported, include the value; use 'Not reported' if missing.
+  Expected Location: Page 8 | table
+  Planner Confidence: high
+  Extraction Instructions:
+  Page 8, Table 2: Extract the 'Median' value from the row labeled 'Time to castration-resistant prostate cancer - mo*' under the column 'ADT plus Docetaxel (N=397)'. The value is 20.2.
+
+- Column index 2: "TTPSA (mo) | Control"
+  Definition: What time to Progressive Serum Androgen (TTPSA) in months for participants in the control arm of the clinical trial? If reported, include the value; use 'Not reported' if missing.
+  Expected Location: Page 8 | table
+  Planner Confidence: high
+  Extraction Instructions:
+  Page 8, Table 2: Extract the 'Median' value from the row labeled 'Time to castration-resistant prostate cancer - mo*' under the column 'ADT Alone (N=393)'. The value is 11.7.
+
+RELEVANT CHUNKS:
+--- Chunk 3 (TABLE on page 8) ---
+Summary: Table 2 summarizes secondary end points from a clinical trial comparing the efficacy of ADT plus Docetaxel versus ADT alone in patients with metastatic castration-resistant prostate cancer. The table includes key metrics such as PSA levels at 6 and 12 months, time to castration-resistant prostate ca...
+
+Structured Table:
+##Markdown Table##
+
+| End Point                                      | ADT plus Docetaxel (N=397) | ADT Alone (N=393) | P Value | Hazard Ratio (95% CI) |
+|------------------------------------------------|-----------------------------|-------------------|---------|-----------------------|
+| PSA level <0.2 ng/ml at 6 mo — no. (%)         | 127 (32.0)                  | 77 (19.6)         | <0.001  |                       |
+| PSA level <0.2 ng/ml at 12 mo — no. (%)        | 110 (27.7)                  | 66 (16.8)         | <0.001  |                       |
+| Time to castration-resistant prostate cancer — mo* |                             |                   |         |                       |
+| Median                                         | 20.2                        | 11.7              | <0.001  | 0.61 (0.51–0.72)     |
+| 95% CI                                        | 17.2–23.6                   | 10.8–14.7         |         |                       |
+| Time to clinical progression — mo†              |                             |                   |         |                       |
+| Median                                         | 33.0                        | 19.8              | <0.001  | 0.61 (0.50–0.75)     |
+| 95% CI                                        | 27.3–41.2                   | 17.9–22.8         |         |                       |
+
+##Caption##
+
+Table 2 summarizes secondary end points from a clinical trial comparing the efficacy of ADT plus Docetaxel versus ADT alone in patients with metastatic castration-resistant prostate cancer. The table includes key metrics such as PSA levels at 6 and 12 months, time to castration-resistant prostate cancer, and time to clinical progression. 
+
+Row headers include "End Point," "Median," and "95% CI," while column headers represent the treatment groups: "ADT plus Docetaxel" and "ADT Alone." The data indicates significant differences in PSA levels and time to progression between the two treatment regimens, highlighting the potential benefits of combining Docetaxel with ADT. 
+
+The hierarchical structure is evident in the "Time to castration-resistant prostate cancer" and "Time to clinical progression" sections, where median values and confidence intervals are provided for both treatment groups.
+
+GUIDELINES:
+- For each listed column, extract a value if explicitly present; otherwise set value=null.
+- Provide evidence as an exact quote, page number(s), confidence (high/medium/low).
+- Use the EXACT column names from the list above.
+
+Output format (for each column):
+Column index <N>: "<Exact Column Name>"
+Value: <extracted value or null>
+Evidence: "<exact quote>"
+Page: <page number>
+Confidence: <high/medium/low>
+
+
+OUTPUT:
+Column index 1: "TTPSA (mo) | Treatment"  
+Value: 20.2  
+Evidence: "Median value from the row labeled 'Time to castration-resistant prostate cancer - mo*' under the column 'ADT plus Docetaxel (N=397)' is 20.2."  
+Page: 8  
+Confidence: high  
+
+Column index 2: "TTPSA (mo) | Control"  
+Value: 11.7  
+Evidence: "Median value from the row labeled 'Time to castration-resistant prostate cancer - mo*' under the column 'ADT Alone (N=393)' is 11.7."  
+Page: 8  
+Confidence: high

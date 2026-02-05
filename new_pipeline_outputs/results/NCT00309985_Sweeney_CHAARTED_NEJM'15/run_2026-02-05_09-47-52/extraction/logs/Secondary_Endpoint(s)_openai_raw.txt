@@ -1,0 +1,38 @@
+INPUT PROMPT:
+You are extracting clinical trial data from a research paper.
+
+TASK: Extract values for the following canonical columns. Use EXACT column names as listed.
+
+COLUMNS TO EXTRACT:
+- Column index 1: "Secondary Endpoint(s)"
+  Definition: What the secondary outcome(s) or objective(s) of the clinical trial, in addition to the primary endpoint, that are being measured or evaluated?. If reported, provide the value; otherwise use 'Not reported'.
+  Expected Location: Page 1 | text
+  Planner Confidence: high
+  Extraction Instructions:
+  The abstract mentions a secondary objective: 'The median time to biochemical, symptomatic, or radiographic progression was 20.2 months in the combination group, as compared with 11.7 months in the ADT-alone group (hazard ratio, 0.61; 95% CI, 0.51 to 0.72; P<0.001). The rate of a prostate-specific antigen level of less than 0.2 ng per milliliter at 12 months was 27.7% in the combination group versus 16.8% in the ADT-alone group (P<0.001).'
+
+RELEVANT CHUNKS:
+--- Chunk 4 (TEXT on page 1-5) ---
+From the Department of Medicine (C.J.S.) and the Department of Biostatistics and Computational Biology (Y.-H.C.), Dana–Farber Cancer Institute, Boston; Harvard Medical School, Boston (C.J.S.); Johns Hopkins University, Baltimore (M.C., M.E.); University of Wisconsin Carbone Cancer Center (G.L., D.F.J.) and School of Medi-cine and Public Health (D.F.J.), Madison; Fox Chase Cancer Center, Temple Univer-sity Health System, Philadelphia (Y.-N.W.); Indiana University Melvin and Bren Simon Cancer Cent...
+
+GUIDELINES:
+- For each listed column, extract a value if explicitly present; otherwise set value=null.
+- Provide evidence as an exact quote, page number(s), confidence (high/medium/low).
+- Use the EXACT column names from the list above.
+
+Output format (for each column):
+Column index <N>: "<Exact Column Name>"
+Value: <extracted value or null>
+Evidence: "<exact quote>"
+Page: <page number>
+Confidence: <high/medium/low>
+
+
+OUTPUT:
+Certainly! Here's the extracted information:
+
+Column index 1: "Secondary Endpoint(s)"
+Value: The median time to biochemical, symptomatic, or radiographic progression was 20.2 months in the combination group, as compared with 11.7 months in the ADT-alone group (hazard ratio, 0.61; 95% CI, 0.51 to 0.72; P<0.001). The rate of a prostate-specific antigen level of less than 0.2 ng per milliliter at 12 months was 27.7% in the combination group versus 16.8% in the ADT-alone group (P<0.001).
+Evidence: "The median time to biochemical, symptomatic, or radiographic progression was 20.2 months in the combination group, as compared with 11.7 months in the ADT-alone group (hazard ratio, 0.61; 95% CI, 0.51 to 0.72; P<0.001). The rate of a prostate-specific antigen level of less than 0.2 ng per milliliter at 12 months was 27.7% in the combination group versus 16.8% in the ADT-alone group (P<0.001)."
+Page: 740
+Confidence: high

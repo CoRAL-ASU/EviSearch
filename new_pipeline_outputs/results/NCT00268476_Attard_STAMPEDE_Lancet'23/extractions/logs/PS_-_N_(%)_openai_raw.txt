@@ -1,0 +1,145 @@
+================================================================================
+INPUT PROMPT
+================================================================================
+
+You are extracting clinical trial data from a research paper.
+
+TASK:
+Extract values for the following canonical columns. Each column has a canonical index and a canonical name.
+
+⚠️ CRITICAL: You MUST use the EXACT column names as listed below.
+Do NOT paraphrase, abbreviate, or modify names in ANY way.
+Character-for-character match is REQUIRED (including spaces, punctuation, pipes |, parentheses).
+
+COLUMNS TO EXTRACT (index + name are canonical; copy these EXACT names in your output):
+- Column index 1: "PS - N (%) | 0 | Treatment"
+  Expected Location: Page 5 | table
+  Planner Confidence: high
+  Extraction Instructions:
+  Extract the value from Table 1, page 5, under the "Abiraterone trial | Standard of care plus abiraterone (n=501)" column, row "WHO performance status | 0". The value is "376 (75%)". Extract the value from Table 1, page 5, under the "Abiraterone and enzalutamide trial | Standard of care plus enzalutamide and abiraterone (n=462)" column, row "WHO performance status | 0". The value is "325 (70%)".
+
+- Column index 2: "PS - N (%) | 0 | Control"
+  Expected Location: Page 5 | table
+  Planner Confidence: high
+  Extraction Instructions:
+  Extract the value from Table 1, page 5, under the "Abiraterone trial | Standard of care (n=502)" column, row "WHO performance status | 0". The value is "370 (74%)". Extract the value from Table 1, page 5, under the "Abiraterone and enzalutamide trial | Standard of care (n=454)" column, row "WHO performance status | 0". The value is "315 (69%)".
+
+- Column index 3: "PS - N (%) | 1-2 | Treatment"
+  Expected Location: Page 5 | table
+  Planner Confidence: high
+  Extraction Instructions:
+  Sum the values from Table 1, page 5, under the "Abiraterone trial | Standard of care plus abiraterone (n=501)" column, for rows "WHO performance status | 1" and "WHO performance status | 2". For "1": "118 (24%)". For "2": "7 (1%)". Combined: "125 (25%)". Sum the values from Table 1, page 5, under the "Abiraterone and enzalutamide trial | Standard of care plus enzalutamide and abiraterone (n=462)" column, for rows "WHO performance status | 1" and "WHO performance status | 2". For "1": "129 (28%)". For "2": "8 (2%)". Combined: "137 (30%)".
+
+- Column index 4: "PS - N (%) | 1-2 | Control"
+  Expected Location: Page 5 | table
+  Planner Confidence: high
+  Extraction Instructions:
+  Sum the values from Table 1, page 5, under the "Abiraterone trial | Standard of care (n=502)" column, for rows "WHO performance status | 1" and "WHO performance status | 2". For "1": "125 (25%)". For "2": "7 (1%)". Combined: "132 (26%)". Sum the values from Table 1, page 5, under the "Abiraterone and enzalutamide trial | Standard of care (n=454)" column, for rows "WHO performance status | 1" and "WHO performance status | 2". For "1": "134 (30%)". For "2": "5 (1%)". Combined: "139 (31%)".
+
+RELEVANT PRE-EXTRACTED CHUNKS (filtered by planner page+type):
+--- Chunk 0 (TABLE on page 5) ---
+Summary: This table summarizes the demographic and clinical characteristics of patients enrolled in two clinical trials: the Abiraterone trial and the Abiraterone and enzalutamide trial....
+
+Structured Table:
+##Markdown Table##
+
+| Age, years                                   | Abiraterone trial (n=502) | Abiraterone and enzalutamide trial (n=462) |
+|----------------------------------------------|----------------------------|---------------------------------------------|
+| Median                                       | 67 (62-72)                 | 68 (64-73)                                 |
+| Min-max                                      | 39-84                      | 42-85                                      |
+| Prostate-specific antigen before androgen deprivation therapy, ng/mL | Median: 97 (26-358)       | Median: 85 (26-337)                        |
+|                                              | Min-max: 1.050-3.000      | Min-max: 0.059-1.688                       |
+| Time from diagnosis to randomisation, days   | Median: 71 (51-95)         | Median: 78 (55-100)                        |
+|                                              | Min-max: 0-4866           | Min-max: 4-5346                            |
+| I stage                                      | T0-T2: 56 (11%)            | 42 (9%)                                    |
+|                                              | T3: 270 (54%)              | 252 (56%)                                  |
+|                                              | T4: 137 (27%)              | 117 (26%)                                  |
+|                                              | Tx: 8 (3%)                 | 43 (9%)                                    |
+| N stage (pelvic nodes)                      | N0: 175 (35%)              | 150 (33%)                                  |
+|                                              | N+: 291 (58%)              | 278 (60%)                                  |
+|                                              | NX: 36 (7%)                | 26 (6%)                                    |
+| Metastatic volume                            | Low: 204 (41%)             | 162 (36%)                                  |
+|                                              | High: 271 (54%)            | 239 (64%)                                  |
+|                                              | Missing: 27 (5%)           | 26 (6%)                                    |
+| Gleason Score                                | 7: 118 (24%)               | 92 (20%)                                   |
+|                                              | 8: 106 (21%)               | 88 (19%)                                   |
+|                                              | 9: 245 (49%)               | 239 (53%)                                  |
+|                                              | 10: 23 (5%)                | 18 (4%)                                    |
+|                                              | Unknown: 10 (2%)           | 21 (4%)                                    |
+| WHO performance status                       | 0: 370 (74%)               | 315 (69%)                                  |
+|       
+
+GUIDELINES:
+- For each listed column, extract a value if explicitly present. If not found, set value=null.
+- Provide evidence as an exact quote.
+- Provide page number(s).
+- Provide confidence high/medium/low.
+- When referencing columns, use the EXACT names from the list above (copy-paste them).
+
+Output format (free-form is OK), but for EACH column include a line like:
+Column index <N>: "<Exact Column Name from list above>"
+Value: <extracted value or null>
+Evidence: "<exact quote>"
+Page: <page number>
+Confidence: <high/medium/low>
+
+
+================================================================================
+OUTPUT RESPONSE
+================================================================================
+
+Here is the extraction for the requested columns, using the provided table data (Table 1, page 5):
+
+---
+
+Column index 1: "PS - N (%) | 0 | Treatment"  
+Value: 
+- Abiraterone trial | Standard of care plus abiraterone (n=501): 376 (75%)
+- Abiraterone and enzalutamide trial | Standard of care plus enzalutamide and abiraterone (n=462): 325 (70%)
+Evidence: 
+- "WHO performance status
+  0 370 (74%) 376 (75%) 315 (69%) 325 (70%)"
+Page: 5
+Confidence: high
+
+---
+
+Column index 2: "PS - N (%) | 0 | Control"  
+Value: 
+- Abiraterone trial | Standard of care (n=502): 370 (74%)
+- Abiraterone and enzalutamide trial | Standard of care (n=454): 315 (69%)
+Evidence: 
+- "WHO performance status
+  0 370 (74%) 376 (75%) 315 (69%) 325 (70%)"
+Page: 5
+Confidence: high
+
+---
+
+Column index 3: "PS - N (%) | 1-2 | Treatment"  
+Value: 
+- Abiraterone trial | Standard of care plus abiraterone (n=501): 125 (25%)  (calculated: 118 (24%) + 7 (1%))
+- Abiraterone and enzalutamide trial | Standard of care plus enzalutamide and abiraterone (n=462): 137 (30%) (calculated: 129 (28%) + 8 (2%))
+Evidence: 
+- "WHO performance status
+  1 125 (25%) 118 (24%) 134 (30%) 129 (28%)
+  2 7 (1%) 7 (1%) 5 (1%) 8 (2%)"
+Page: 5
+Confidence: high
+
+---
+
+Column index 4: "PS - N (%) | 1-2 | Control"  
+Value: 
+- Abiraterone trial | Standard of care (n=502): 132 (26%) (calculated: 125 (25%) + 7 (1%))
+- Abiraterone and enzalutamide trial | Standard of care (n=454): 139 (31%) (calculated: 134 (30%) + 5 (1%))
+Evidence: 
+- "WHO performance status
+  1 125 (25%) 118 (24%) 134 (30%) 129 (28%)
+  2 7 (1%) 7 (1%) 5 (1%) 8 (2%)"
+Page: 5
+Confidence: high
+
+---
+
+All extractions are based on explicit tabular values, and their sums, as directed.

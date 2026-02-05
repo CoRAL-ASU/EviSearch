@@ -1,0 +1,48 @@
+================================================================================
+INPUT PROMPT
+================================================================================
+
+You are extracting clinical trial data from a research paper.
+
+TASK:
+Extract values for the following canonical columns. Each column has a canonical index and a canonical name.
+
+⚠️ CRITICAL: You MUST use the EXACT column names as listed below.
+Do NOT paraphrase, abbreviate, or modify names in ANY way.
+Character-for-character match is REQUIRED (including spaces, punctuation, pipes |, parentheses).
+
+COLUMNS TO EXTRACT (index + name are canonical; copy these EXACT names in your output):
+- Column index 1: "Type of Therapy"
+  Expected Location: Page 2 | text
+  Planner Confidence: high
+  Extraction Instructions:
+  Locate the "Patients and methods" section. In the first paragraph, find the sentence: "Eligible patients were randomized in a 1:1 ratio to ADT plus D (75 mg/m² for 21 d, up to nine cycles) or ADT alone." and the subsequent sentence: "ADT consisted of orchiectomy or luteinizing hormone-releasing hormone agonists, alone or combined with nonsteroidal androgen receptor inhibitors."
+
+RELEVANT PRE-EXTRACTED CHUNKS (filtered by planner page+type):
+--- Chunk 4 (TEXT on page 1-3) ---
+Androgen Deprivation Therapy (ADT) Plus Docetaxel VersusADT Alone in Metastatic Non castrate Prostate Cancer:Impact of Metastatic Burden and Long-term SurvivalAnalysis of the Randomized Phase 3 GETUG-AFU15 Trial Gwenaelle Gravis a,*, Jean-Marie Boher b, Florence Joly c, Michel Soulie´ d, Laurence Albiges e,Franck Priou f, Igor Latorzeff g, Remy Delva h, Ivan Krakowski i, Brigitte Laguerre j,Fre´de´ric Rolland k, Christine The´odore l, Gael Deplanque m, Jean-Marc Ferrero n,Ste´phane Culine o, Loı...
+
+GUIDELINES:
+- For each listed column, extract a value if explicitly present. If not found, set value=null.
+- Provide evidence as an exact quote.
+- Provide page number(s).
+- Provide confidence high/medium/low.
+- When referencing columns, use the EXACT names from the list above (copy-paste them).
+
+Output format (free-form is OK), but for EACH column include a line like:
+Column index <N>: "<Exact Column Name from list above>"
+Value: <extracted value or null>
+Evidence: "<exact quote>"
+Page: <page number>
+Confidence: <high/medium/low>
+
+
+================================================================================
+OUTPUT RESPONSE
+================================================================================
+
+Column index 1: "Type of Therapy"  
+Value: ADT plus docetaxel or ADT alone  
+Evidence: "Eligible patients were randomized in a 1:1 ratio to ADT plus D (75 mg/m² for 21 d, up to nine cycles) or ADT alone. ADT consisted of orchiectomy or luteinizing hormone-releasing hormone agonists, alone or combined with nonsteroidal androgen receptor inhibitors."  
+Page: 2  
+Confidence: high

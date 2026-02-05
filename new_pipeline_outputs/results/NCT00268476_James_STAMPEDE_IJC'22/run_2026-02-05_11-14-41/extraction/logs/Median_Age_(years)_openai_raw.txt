@@ -1,0 +1,81 @@
+INPUT PROMPT:
+You are extracting clinical trial data from a research paper.
+
+TASK: Extract values for the following canonical columns. Use EXACT column names as listed.
+
+COLUMNS TO EXTRACT:
+- Column index 1: "Median Age (years) | Treatment"
+  Definition: What median age in years of participants included in the treatment arm of the clinical trial? If reported, include the value; use 'Not reported' if missing.
+  Expected Location: Page 5 | table
+  Planner Confidence: high
+  Extraction Instructions:
+  Extract the value from Table 1, row "Age (years)", sub-row "Median (IQR)", column "SOC + AAP n = 501". The value is 67 (62-71).
+
+- Column index 2: "Median Age (years) | Control"
+  Definition: What the median age of participants included in the control arm of the clinical trial? If reported, include the value; use 'Not reported' if missing.
+  Expected Location: Page 5 | table
+  Planner Confidence: high
+  Extraction Instructions:
+  Extract the value from Table 1, row "Age (years)", sub-row "Median (IQR)", column "SOC-alone n = 502". The value is 67 (62-72).
+
+RELEVANT CHUNKS:
+--- Chunk 0 (TABLE on page 5) ---
+Summary: Table 1 presents the baseline characteristics of participants in the study, categorized by treatment group: SOC-alone and SOC + AAP. The table includes the following row headers: Age (years), Eligibility category, PSA (ng/mL), Metastatic disease risk group, and Site of metastases.   The column heade...
+
+Structured Table:
+##Markdown Table##
+
+| Age (years)          | SOC-alone (n=502) | SOC + AAP (n=501) | All (n=1003)  |
+|----------------------|--------------------|--------------------|----------------|
+| Median (IQR)         | 67 (62-72)         | 67 (62-71)         | 67 (62-71)     |
+| Range                 | 39-84              | 42-85              | 39-85          |
+| Eligibility category  |                    |                    |                |
+| Newly diagnosed       | 475 (95%)          | 466 (93%)          | 941 (94%)      |
+| Relapsing             | 27 (5%)            | 35 (7%)            | 62 (6%)        |
+| PSA (ng/mL)          |                    |                    |                |
+| Median (IQR)         | 97.2 (26.0-358)    | 96.3 (29-371)      | 96.9 (27.3-363)|
+| Range                 | 0.6-10 530         | 0.1-21 460         | 0.1-21 460     |
+| Metastatic disease risk group |           |                    |                |
+| Low-risk             | 220 (44%)          | 208 (42%)          | 428 (43%)      |
+| High-risk            | 232 (46%)          | 241 (48%)          | 473 (47%)      |
+| Unclassified          | 50 (10%)           | 52 (10%)           | 102 (10%)      |
+| Site of metastases    |                    |                    |                |
+| Bone                 | 448 (89%)          | 434 (87%)          | 882 (88%)      |
+| Liver                | 8 (2%)             | 7 (1%)             | 15 (2%)        |
+| Lung                 | 21 (4%)            | 21 (4%)            | 42 (4%)        |
+| Distant lymph nodes   | 150 (30%)          | 143 (29%)          | 293 (29%)      |
+| Other                | 26 (5%)            | 23 (5%)            | 49 (5%)        |
+
+##Caption##
+
+Table 1 presents the baseline characteristics of participants in the study, categorized by treatment group: SOC-alone and SOC + AAP. The table includes the following row headers: Age (years), Eligibility category, PSA (ng/mL), Metastatic disease risk group, and Site of metastases. 
+
+The column headers indicate the treatment groups and the total number of participants. Key information includes median ages, eligibility categories (newly diagnosed and relapsing), PSA levels, risk group classifications (low-risk, high-risk, unclassified), and the distribution of metastases by site. 
+
+The hierarchical structure is evident in the eligibility category and metastatic disease risk group, where subcategories are combined under their respective main headers for clarity.
+
+GUIDELINES:
+- For each listed column, extract a value if explicitly present; otherwise set value=null.
+- Provide evidence as an exact quote, page number(s), confidence (high/medium/low).
+- Use the EXACT column names from the list above.
+
+Output format (for each column):
+Column index <N>: "<Exact Column Name>"
+Value: <extracted value or null>
+Evidence: "<exact quote>"
+Page: <page number>
+Confidence: <high/medium/low>
+
+
+OUTPUT:
+Column index 1: "Median Age (years) | Treatment"  
+Value: 67 (62-71)  
+Evidence: "Age (years)... SOC + AAP (n=501)... Median (IQR) 67 (62-71)"  
+Page: 5  
+Confidence: high  
+
+Column index 2: "Median Age (years) | Control"  
+Value: 67 (62-72)  
+Evidence: "Age (years)... SOC-alone (n=502)... Median (IQR) 67 (62-72)"  
+Page: 5  
+Confidence: high

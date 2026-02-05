@@ -1,0 +1,85 @@
+INPUT PROMPT:
+You are extracting clinical trial data from a research paper.
+
+TASK: Extract values for the following canonical columns. Use EXACT column names as listed.
+
+COLUMNS TO EXTRACT:
+- Column index 1: "Median Age (years) | Treatment"
+  Definition: What median age in years of participants included in the treatment arm of the clinical trial? If reported, include the value; use 'Not reported' if missing.
+  Expected Location: Page 5 | table
+  Planner Confidence: high
+  Extraction Instructions:
+  Extract the value '64' from Table 1, row 'Age - yr', column 'ADT plus Docetaxel (N=397)'.
+
+- Column index 2: "Median Age (years) | Control"
+  Definition: What the median age of participants included in the control arm of the clinical trial? If reported, include the value; use 'Not reported' if missing.
+  Expected Location: Page 5 | table
+  Planner Confidence: high
+  Extraction Instructions:
+  Extract the value '63' from Table 1, row 'Age - yr', column 'ADT Alone (N=393)'.
+
+RELEVANT CHUNKS:
+--- Chunk 0 (TABLE on page 5) ---
+Summary: Table 1 summarizes the baseline characteristics of patients in a study comparing two treatment regimens for prostate cancer: ADT plus Docetaxel and ADT Alone. The table includes the following row headers: Age, Race, ECOG performance status, Volume of metastases, Visceral metastases, Gleason score, P...
+
+Structured Table:
+##Markdown Table##
+
+| Characteristic                          | ADT plus Docetaxel (N=397) | ADT Alone (N=393) |
+|-----------------------------------------|-----------------------------|--------------------|
+| Age — yr                                |                             |                    |
+| Median                                  | 64                          | 63                 |
+| Range                                   | 36–88                       | 39–91              |
+| Race — no. (%)†                        |                             |                    |
+| White                                   | 344 (86.6)                  | 330 (84.0)         |
+| Black                                   | 39 (9.8)                    | 37 (9.4)           |
+| Other                                   | 4 (1.0)                     | 6 (1.5)            |
+| Unknown                                 | 10 (2.5)                    | 20 (5.1)           |
+| ECOG performance status — no. (%)‡     |                             |                    |
+| 0                                       | 277 (69.8)                  | 272 (69.2)         |
+| 1                                       | 114 (28.7)                  | 115 (29.3)         |
+| 2                                       | 6 (1.5)                     | 6 (1.5)            |
+| Volume of metastases — no. (%)         |                             |                    |
+| Low                                     | 134 (33.8)                  | 143 (36.4)         |
+| High                                    | 263 (66.2)                  | 250 (63.6)         |
+| Visceral metastases — no. (%)          |                             |                    |
+| Gleason score — no. (%)¶               |                             |                    |
+| 4–6                                     | 21 (5.3)                    | 21 (5.3)           |
+| 7                                       | 96 (24.2)                   | 83 (21.1)          |
+| 8–10                                    | 241 (60.7)                  | 243 (61.8)         |
+| Unknown                                 | 39 (9.8)                    | 46 (11.7)          |
+| PSA level at start of ADT — ng/ml     |                             |                    |
+| Median                                  | 50.9                        | 52.1               |
+| Range                                   | 0.2–854.0                   | 0.1–806.0          |
+| Prior treatment for prostate cancer — no. (%) |                       |                    |
+| No local therapy                        | 289 (72.8)                  | 286 (72.8)         |
+| Primary radiation                       | 27 (6.8)                    | 33 (8.4)           |
+| Prostatectomy                           | 81 (20.4)                   | 73 (18.6)          |
+| Missing data                            | 0                           | 1 (0.3)            |
+| Adjuvant ADT — no. (%)                 | 1
+
+GUIDELINES:
+- For each listed column, extract a value if explicitly present; otherwise set value=null.
+- Provide evidence as an exact quote, page number(s), confidence (high/medium/low).
+- Use the EXACT column names from the list above.
+
+Output format (for each column):
+Column index <N>: "<Exact Column Name>"
+Value: <extracted value or null>
+Evidence: "<exact quote>"
+Page: <page number>
+Confidence: <high/medium/low>
+
+
+OUTPUT:
+Column index 1: "Median Age (years) | Treatment"  
+Value: 64  
+Evidence: "Age — yr... Median | 64"  
+Page: 5  
+Confidence: high
+
+Column index 2: "Median Age (years) | Control"  
+Value: 63  
+Evidence: "Age — yr... Median | 63"  
+Page: 5  
+Confidence: high

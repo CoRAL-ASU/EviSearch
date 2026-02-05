@@ -1,0 +1,51 @@
+================================================================================
+INPUT PROMPT
+================================================================================
+
+You are extracting clinical trial data from a research paper.
+
+TASK:
+Extract values for the following canonical columns. Each column has a canonical index and a canonical name.
+
+⚠️ CRITICAL: You MUST use the EXACT column names as listed below.
+Do NOT paraphrase, abbreviate, or modify names in ANY way.
+Character-for-character match is REQUIRED (including spaces, punctuation, pipes |, parentheses).
+
+COLUMNS TO EXTRACT (index + name are canonical; copy these EXACT names in your output):
+- Column index 1: "Control Arm - N"
+  Expected Location: Page 4 | text
+  Planner Confidence: high
+  Extraction Instructions:
+  Extract from text on page 4, 5, 6. The value is mentioned in the 'Results' section on page 6, Table 1 on page 5, and Figure 1 on page 4.
+
+RELEVANT PRE-EXTRACTED CHUNKS (filtered by planner page+type):
+--- Chunk 7 (TEXT on page 3-5) ---
+for Adverse Events (version 3.0 updated to 4.0 in STAMPEDE protocol version 15; May 15, 2016). Serious adverse reactions were also reported. Race or ethnicity data were not collected. Pre-randomisation bone scans were retrieved to the Christie Hospital (Manchester, UK) central imaging repository after completion of accrual. Physicians (AS, CJ, AH, and YJ) classified patients by high-volume or low-volume disease using the CHAARTED trial criteria2,15 based on the number and site of bone metastases...
+
+GUIDELINES:
+- For each listed column, extract a value if explicitly present. If not found, set value=null.
+- Provide evidence as an exact quote.
+- Provide page number(s).
+- Provide confidence high/medium/low.
+- When referencing columns, use the EXACT names from the list above (copy-paste them).
+
+Output format (free-form is OK), but for EACH column include a line like:
+Column index <N>: "<Exact Column Name from list above>"
+Value: <extracted value or null>
+Evidence: "<exact quote>"
+Page: <page number>
+Confidence: <high/medium/low>
+
+
+================================================================================
+OUTPUT RESPONSE
+================================================================================
+
+Column index 1: "Control Arm - N"  
+Value: 502  
+Evidence: 
+- "Between Nov 15, 2011, and Jan 17, 2014, 1003 patients were randomly assigned to standard of care (n=502) or standard of care plus abiraterone (n=501) in the abiraterone trial."  
+- Figure 1 (Trial profile): "502 assigned to standard of care"  
+- Table 1: "Standard of care (n=502)"  
+Page: 4, 5, 6  
+Confidence: high

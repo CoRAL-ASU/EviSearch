@@ -1,0 +1,83 @@
+INPUT PROMPT:
+You are extracting clinical trial data from a research paper.
+
+TASK: Extract values for the following canonical columns. Use EXACT column names as listed.
+
+COLUMNS TO EXTRACT:
+- Column index 1: "Mode of metastases - N (%) | Synchronous | Treatment"
+  Definition: What the number and percentage of participants with synchronous metastases (metastases at the time of diagnosis of prostate cancer) in the treatment arm of the clinical trial? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.
+  Expected Location: Page 3 | text
+  Planner Confidence: high
+  Extraction Instructions:
+  The text states "94% newly-diagnosed". This implies that 94% of patients had synchronous metastases. Therefore, for the SOC + AAP treatment arm, it can be inferred that 466 patients (93%) had synchronous metastases (Table 1, page 5).
+
+- Column index 2: "Mode of metastases - N (%) | Synchronous | Control"
+  Definition: What the number and percentage of participants with synchronous metastases (metastases at the time of diagnosis of prostate cancer) in the control arm of the clinical trial? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.
+  Expected Location: Page 3 | text
+  Planner Confidence: high
+  Extraction Instructions:
+  The text states "94% newly-diagnosed". This implies that 94% of patients had synchronous metastases. Therefore, for the SOC-alone control arm, it can be inferred that 475 patients (95%) had synchronous metastases (Table 1, page 5).
+
+- Column index 3: "Mode of metastases - N (%) | Metachronous | Treatment"
+  Definition: What number and percentage of participants with metachronous metastases (metastases that occur after the diagnosis of prostate cancer) in the treatment arm of the clinical trial? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.
+  Expected Location: Page 5 | text
+  Planner Confidence: high
+  Extraction Instructions:
+  The text states "Relapsing 27 (5%)" for the SOC-alone group and "Relapsing 35 (7%)" for the SOC + AAP group. This implies that 5% and 7% of patients had metachronous metastases. Therefore, for the SOC + AAP treatment arm, 35 patients (7%) had metachronous metastases (Table 1, page 5).
+
+- Column index 4: "Mode of metastases - N (%) | Metachronous | Control"
+  Definition: What the number and percentage of patients with metachronous metastases (metastases that occur after the diagnosis of prostate cancer) in the control arm of the clinical trial? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.
+  Expected Location: Page 5 | text
+  Planner Confidence: high
+  Extraction Instructions:
+  The text states "Relapsing 27 (5%)" for the SOC-alone group and "Relapsing 35 (7%)" for the SOC + AAP group. This implies that 5% and 7% of patients had metachronous metastases. Therefore, for the SOC-alone control arm, 27 patients (5%) had metachronous metastases (Table 1, page 5).
+
+RELEVANT CHUNKS:
+--- Chunk 5 (TEXT on page 1-3) ---
+C A N C E R T H E R A P Y A N D P R E V E N T I O N Abiraterone acetate plus prednisolone for metastatic patientsstarting hormone therapy: 5-year follow-up results from theSTAMPEDE randomised trial (NCT00268476) Nicholas D. James1|Noel W. Clarke2|Adrian Cook3|Adnan Ali4|Alex P. Hoyle5|Gerhardt Attard6|Christopher D. Brawley3| Simon Chowdhury7|William R. Cross8|David P. Dearnaley9|Johann S. de Bono1|Carlos Diaz-Montana3|Duncan Gilbert3| Silke Gillessen10|Clare Gilson3,11|Rob J. Jones12|Ruth E. La...
+
+--- Chunk 6 (TEXT on page 3-5) ---
+apy (ADT) which had started no longer than 12 weeks prior to ran- domisation. There were no age restrictions, but patients were required to have no clinically significant cardiovascular history. For this analysis, patients had metastatic disease confirmed by scinti- within 12 weeks of starting ADT. 2.2|Randomisation and masking Patients were randomised centrally using a computerised algorithm, developed and maintained by the MRC Clinical Trials Unit at UCL. Minimisation with a random element of ...
+
+--- Chunk 7 (TEXT on page 5-7) ---
+patients with metastatic prostate cancer, not just those in the high- risk metastatic disease risk group defined for LATITUDE. Our long- term results are strikingly similar to those observed with both apalutamide1,2 and enzalutamide3 in trials with similar eligibility criteria to the metastatic population into STAMPEDE. While those agents are androgen receptor antagonists, all three drugs work by targeting the androgen receptor axis. This suggests that a choice of any of these agents may be clin...
+
+GUIDELINES:
+- For each listed column, extract a value if explicitly present; otherwise set value=null.
+- Provide evidence as an exact quote, page number(s), confidence (high/medium/low).
+- Use the EXACT column names from the list above.
+
+Output format (for each column):
+Column index <N>: "<Exact Column Name>"
+Value: <extracted value or null>
+Evidence: "<exact quote>"
+Page: <page number>
+Confidence: <high/medium/low>
+
+
+OUTPUT:
+Here’s the extracted clinical trial data:
+
+Column index 1: "Mode of metastases - N (%) | Synchronous | Treatment"
+Value: 466 (93%)
+Evidence: "Newly diagnosed 475 (95%) 466 (93%) 941 (94%)"
+Page: 5
+Confidence: High
+
+Column index 2: "Mode of metastases - N (%) | Synchronous | Control"
+Value: 475 (95%)
+Evidence: "Newly diagnosed 475 (95%) 466 (93%) 941 (94%)"
+Page: 5
+Confidence: High
+
+Column index 3: "Mode of metastases - N (%) | Metachronous | Treatment"
+Value: 35 (7%)
+Evidence: "Relapsing 27 (5%) 35 (7%) 62 (6%)"
+Page: 5
+Confidence: High
+
+Column index 4: "Mode of metastases - N (%) | Metachronous | Control"
+Value: 27 (5%)
+Evidence: "Relapsing 27 (5%) 35 (7%) 62 (6%)"
+Page: 5
+Confidence: High

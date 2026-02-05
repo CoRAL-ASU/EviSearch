@@ -1,0 +1,97 @@
+================================================================================
+INPUT PROMPT
+================================================================================
+
+You are extracting clinical trial data from a research paper.
+
+TASK:
+Extract values for the following canonical columns. Each column has a canonical index and a canonical name.
+
+⚠️ CRITICAL: You MUST use the EXACT column names as listed below.
+Do NOT paraphrase, abbreviate, or modify names in ANY way.
+Character-for-character match is REQUIRED (including spaces, punctuation, pipes |, parentheses).
+
+COLUMNS TO EXTRACT (index + name are canonical; copy these EXACT names in your output):
+- Column index 1: "PS - N (%) | 0 | Treatment"
+  Expected Location: Page 1 | table
+  Planner Confidence: high
+  Extraction Instructions:
+  Extract the number and percentage from Table 1, under the "All Patients (N = 1,305)" column, specifically in the "Darolutamide (n = 651)" sub-column, for the "ECOG PS, No. (%)", row "0".
+
+- Column index 2: "PS - N (%) | 0 | Control"
+  Expected Location: Page 1 | table
+  Planner Confidence: high
+  Extraction Instructions:
+  Extract the number and percentage from Table 1, under the "All Patients (N = 1,305)" column, specifically in the "Placebo (n = 654)" sub-column, for the "ECOG PS, No. (%)", row "0".
+
+- Column index 3: "PS - N (%) | 1-2 | Treatment"
+  Expected Location: Page 1 | table
+  Planner Confidence: medium
+  Extraction Instructions:
+  Extract the number and percentage from Table 1, under the "All Patients (N = 1,305)" column, specifically in the "Darolutamide (n = 651)" sub-column, for the "ECOG PS, No. (%)", row "1". The table only reports ECOG PS 0 and 1, and the sum of these categories (plus 0 missing) accounts for all patients in the Darolutamide arm (466 + 185 = 651). This implies no patients had ECOG PS 2 or higher. Therefore, the value for PS 1-2 is equivalent to PS 1.
+
+- Column index 4: "PS - N (%) | 1-2 | Control"
+  Expected Location: Page 1 | table
+  Planner Confidence: medium
+  Extraction Instructions:
+  Extract the number and percentage from Table 1, under the "All Patients (N = 1,305)" column, specifically in the "Placebo (n = 654)" sub-column, for the "ECOG PS, No. (%)", row "1". The table only reports ECOG PS 0 and 1, and the sum of these categories (plus 2 missing) accounts for all patients in the Placebo arm (462 + 190 + 2 = 654). This implies no patients had ECOG PS 2 or higher. Therefore, the value for PS 1-2 is equivalent to PS 1.
+
+RELEVANT PRE-EXTRACTED CHUNKS (filtered by planner page+type):
+No relevant chunks found.
+
+GUIDELINES:
+- For each listed column, extract a value if explicitly present. If not found, set value=null.
+- Provide evidence as an exact quote.
+- Provide page number(s).
+- Provide confidence high/medium/low.
+- When referencing columns, use the EXACT names from the list above (copy-paste them).
+
+Output format (free-form is OK), but for EACH column include a line like:
+Column index <N>: "<Exact Column Name from list above>"
+Value: <extracted value or null>
+Evidence: "<exact quote>"
+Page: <page number>
+Confidence: <high/medium/low>
+
+
+================================================================================
+OUTPUT RESPONSE
+================================================================================
+
+Column index 1: "PS - N (%) | 0 | Treatment"  
+Value: 466 (71.6%)  
+Evidence:  
+From Table 1: "ECOG PS,c No. (%)  
+0   466 (71.6)" [this is the value from the "Darolutamide (n = 651)" sub-column]  
+Page: 2  
+Confidence: high
+
+---
+
+Column index 2: "PS - N (%) | 0 | Control"  
+Value: 462 (70.6%)  
+Evidence:  
+From Table 1: "ECOG PS,c No. (%)  
+0   462 (70.6)" [this is the value from the "Placebo (n = 654)" sub-column]  
+Page: 2  
+Confidence: high
+
+---
+
+Column index 3: "PS - N (%) | 1-2 | Treatment"  
+Value: 185 (28.4%)  
+Evidence:  
+From Table 1: "ECOG PS,c No. (%)  
+1   185 (28.4)" [for "Darolutamide (n = 651)", noting that only 0 and 1 are reported (sum = 651, no 2 or higher PS present)]  
+Page: 2  
+Confidence: high
+
+---
+
+Column index 4: "PS - N (%) | 1-2 | Control"  
+Value: 190 (29.0%)  
+Evidence:  
+From Table 1: "ECOG PS,c No. (%)  
+1   190 (29.0)" [for "Placebo (n = 654)", noting that only 0 and 1 are reported (sum = 654 with 2 missing, no 2 or higher PS present)]  
+Page: 2  
+Confidence: high

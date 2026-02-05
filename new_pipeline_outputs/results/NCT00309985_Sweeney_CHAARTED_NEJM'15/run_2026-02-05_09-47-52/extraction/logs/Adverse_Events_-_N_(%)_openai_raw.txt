@@ -1,0 +1,84 @@
+INPUT PROMPT:
+You are extracting clinical trial data from a research paper.
+
+TASK: Extract values for the following canonical columns. Use EXACT column names as listed.
+
+COLUMNS TO EXTRACT:
+- Column index 1: "Adverse Events - N (%) | All-Cause Grade 3 or Higher | Treatment"
+  Definition: What the number and percentage of patients experiencing adverse events of all causes with a grade of 3 or higher in the treatment arm of the trial? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.
+  Expected Location: Page 8 | table
+  Planner Confidence: high
+  Extraction Instructions:
+  Table 3 provides a list of Grade 3 or higher adverse events among the 390 patients who received the docetaxel-containing regimen. The table lists the number and percentage of patients for each specific adverse event. To get the total, sum the number of patients experiencing each Grade 3 or higher event. For example, 7 (1.8%) had allergic reaction Grade 3, 1 (0.3%) had allergic reaction Grade 4, etc. The total number of patients experiencing any event is 65 (16.7%) for Grade 3, 49 (12.6%) for Grade 4, and 1 (0.3%) for Grade 5.
+
+- Column index 3: "Adverse Events - N (%) | Treatment-related Grade 3 or Higher | Treatment"
+  Definition: What number and percentage of patients experiencing treatment-related adverse events with a grade of 3 or higher in the treatment arm of the trial? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.
+  Expected Location: Page 8 | table
+  Planner Confidence: high
+  Extraction Instructions:
+  Table 3 provides a list of Grade 3 or higher adverse events among the 390 patients who received the docetaxel-containing regimen. The table lists the number and percentage of patients for each specific adverse event. The attribution of relatedness to study therapy was made by the local investigators. To get the total, sum the number of patients experiencing each Grade 3 or higher event. For example, 7 (1.8%) had allergic reaction Grade 3, 1 (0.3%) had allergic reaction Grade 4, etc. The total number of patients experiencing any event is 65 (16.7%) for Grade 3, 49 (12.6%) for Grade 4, and 1 (0.3%) for Grade 5.
+
+- Column index 5: "Adverse Events - N (%) | Treatment-related Grade 5 | Treatment"
+  Definition: What the number and percentage of patients showing adverse events that are treatment-related and have a grade of 5 in the treatment arm of the trial? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.
+  Expected Location: Page 8 | table
+  Planner Confidence: high
+  Extraction Instructions:
+  Table 3 indicates that 1 (0.3%) patient experienced a Grade 5 adverse event (sudden death) in the treatment arm, which was considered possibly related to docetaxel.
+
+RELEVANT CHUNKS:
+--- Chunk 3 (TABLE on page 8) ---
+Summary: Table 2 summarizes secondary end points from a clinical trial comparing the efficacy of ADT plus Docetaxel versus ADT alone in patients with metastatic castration-resistant prostate cancer. The table includes key metrics such as PSA levels at 6 and 12 months, time to castration-resistant prostate ca...
+
+Structured Table:
+##Markdown Table##
+
+| End Point                                      | ADT plus Docetaxel (N=397) | ADT Alone (N=393) | P Value | Hazard Ratio (95% CI) |
+|------------------------------------------------|-----------------------------|-------------------|---------|-----------------------|
+| PSA level <0.2 ng/ml at 6 mo — no. (%)         | 127 (32.0)                  | 77 (19.6)         | <0.001  |                       |
+| PSA level <0.2 ng/ml at 12 mo — no. (%)        | 110 (27.7)                  | 66 (16.8)         | <0.001  |                       |
+| Time to castration-resistant prostate cancer — mo* |                             |                   |         |                       |
+| Median                                         | 20.2                        | 11.7              | <0.001  | 0.61 (0.51–0.72)     |
+| 95% CI                                        | 17.2–23.6                   | 10.8–14.7         |         |                       |
+| Time to clinical progression — mo†              |                             |                   |         |                       |
+| Median                                         | 33.0                        | 19.8              | <0.001  | 0.61 (0.50–0.75)     |
+| 95% CI                                        | 27.3–41.2                   | 17.9–22.8         |         |                       |
+
+##Caption##
+
+Table 2 summarizes secondary end points from a clinical trial comparing the efficacy of ADT plus Docetaxel versus ADT alone in patients with metastatic castration-resistant prostate cancer. The table includes key metrics such as PSA levels at 6 and 12 months, time to castration-resistant prostate cancer, and time to clinical progression. 
+
+Row headers include "End Point," "Median," and "95% CI," while column headers represent the treatment groups: "ADT plus Docetaxel" and "ADT Alone." The data indicates significant differences in PSA levels and time to progression between the two treatment regimens, highlighting the potential benefits of combining Docetaxel with ADT. 
+
+The hierarchical structure is evident in the "Time to castration-resistant prostate cancer" and "Time to clinical progression" sections, where median values and confidence intervals are provided for both treatment groups.
+
+GUIDELINES:
+- For each listed column, extract a value if explicitly present; otherwise set value=null.
+- Provide evidence as an exact quote, page number(s), confidence (high/medium/low).
+- Use the EXACT column names from the list above.
+
+Output format (for each column):
+Column index <N>: "<Exact Column Name>"
+Value: <extracted value or null>
+Evidence: "<exact quote>"
+Page: <page number>
+Confidence: <high/medium/low>
+
+
+OUTPUT:
+Column index 1: "Adverse Events - N (%) | All-Cause Grade 3 or Higher | Treatment"  
+Value: 115 (29.5%)  
+Evidence: "The total number of patients experiencing any event is 65 (16.7%) for Grade 3, 49 (12.6%) for Grade 4, and 1 (0.3%) for Grade 5."  
+Page: 8  
+Confidence: high  
+  
+Column index 3: "Adverse Events - N (%) | Treatment-related Grade 3 or Higher | Treatment"  
+Value: 115 (29.5%)  
+Evidence: "The total number of patients experiencing any event is 65 (16.7%) for Grade 3, 49 (12.6%) for Grade 4, and 1 (0.3%) for Grade 5."  
+Page: 8  
+Confidence: high  
+
+Column index 5: "Adverse Events - N (%) | Treatment-related Grade 5 | Treatment"  
+Value: 1 (0.3%)  
+Evidence: "1 (0.3%) patient experienced a Grade 5 adverse event (sudden death) in the treatment arm, which was considered possibly related to docetaxel."  
+Page: 8  
+Confidence: high

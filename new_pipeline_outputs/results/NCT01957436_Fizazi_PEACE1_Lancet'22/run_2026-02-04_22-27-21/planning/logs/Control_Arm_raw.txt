@@ -1,0 +1,13 @@
+Okay, I'm ready to create the extraction plan. I will go through each canonical column, determine if the value is reported in the PDF, and if so, identify where and how to extract it.
+
+**1. Control Arm**
+*   found_in_pdf: True
+*   page_number: 1, 5, 6, 7, 9, 11
+*   source_type: text, table
+*   extraction_plan: The control arm is referred to as "standard of care" (SOC) throughout the document. The specific composition of the SOC varies depending on the context (ADT alone or ADT with docetaxel).
+    *   Page 1: "Current standard of care for metastatic castration-sensitive prostate cancer supplements androgen deprivation therapy with either docetaxel, second-generation hormonal therapy, or radiotherapy."
+    *   Page 5: "SOC (n=296), SOC plus radiotherapy (n=293), SOC plus abiraterone (n=292), or SOC plus radiotherapy plus abiraterone (n=291; figure 1)."
+    *   Page 6: "In the overall population, the addition of abiraterone to SOC (with or without docetaxel and with or without radiotherapy) decreased the number of radiographic progression events or deaths..."
+    *   Page 7: "Therefore, the addition of docetaxel to abiraterone did not increase the incidence of severe or fatal adverse events."
+    *   Page 9: "Table 2: Efficacy outcomes in the intention-to-treat population" lists "SOC with abiraterone groups" and "SOC without abiraterone groups"
+    *   Page 11: "Table 3: Adverse events in the safety population" lists "ADT with docetaxel population" and "ADT without docetaxel population"

@@ -1,0 +1,123 @@
+================================================================================
+INPUT PROMPT
+================================================================================
+
+You are extracting clinical trial data from a research paper.
+
+TASK:
+Extract values for the following canonical columns. Each column has a canonical index and a canonical name.
+
+⚠️ CRITICAL: You MUST use the EXACT column names as listed below.
+Do NOT paraphrase, abbreviate, or modify names in ANY way.
+Character-for-character match is REQUIRED (including spaces, punctuation, pipes |, parentheses).
+
+COLUMNS TO EXTRACT (index + name are canonical; copy these EXACT names in your output):
+- Column index 1: "NCT"
+  Expected Location: Page 12 | text
+  Planner Confidence: high
+  Extraction Instructions:
+  The NCT identifier is reported on page 12 under the "CLINICAL TRIAL INFORMATION" heading. Extract the value "NCT02799602".
+
+- Column index 3: "Trial Name"
+  Expected Location: Page 1 | text
+  Planner Confidence: high
+  Extraction Instructions:
+  The trial name is "ARASENS" and is explicitly mentioned in the title of the article on page 1.
+
+- Column index 4: "Author"
+  Expected Location: Page 1 | text
+  Planner Confidence: high
+  Extraction Instructions:
+  The authors are listed on page 1 at the beginning of the article. Extract "Maha Hussain et al.".
+
+- Column index 5: "Year"
+  Expected Location: Page 1 | text
+  Planner Confidence: high
+  Extraction Instructions:
+  The publication year is reported on page 1 at the bottom: "J Clin Oncol 00.© 2023 by American Society of Clinical Oncology". Extract "2023".
+
+- Column index 6: "Full Pub or Abstract"
+  Expected Location: Page 1 | text
+  Planner Confidence: high
+  Extraction Instructions:
+  This document is a full publication, indicated by its length, detailed methodology, results, discussion, and references. The abstract is a section within the full publication on page 1.
+
+- Column index 7: "Phase"
+  Expected Location: Page 1 | text
+  Planner Confidence: high
+  Extraction Instructions:
+  The phase of the trial is reported in the title on page 1: "in the Phase III ARASENS Trial". Extract "III".
+
+- Column index 8: "Original/Follow Up"
+  Expected Location: Page 1 | text
+  Planner Confidence: high
+  Extraction Instructions:
+  The document is an "original report" as indicated by the section title on page 1: "original reports".
+
+RELEVANT PRE-EXTRACTED CHUNKS (filtered by planner page+type):
+--- Chunk 11 (TEXT on page 10-13) ---
+The following represents disclosure information provided by authors of this manuscript. All relationships are considered compensated unless otherwise noted.Relationships are self-held unless noted. I 5 Immediate Family Member, Inst 5 My Institution. Relationships may not relate to the subject matter of this manuscript.For more information about ASCO’s conﬂict of interest policy, please refer to www.asco.org/rwc or ascopubs.org/jco/authors/author-center. Open Payments is a public database contain...
+
+--- Chunk 8 (TEXT on page 1-4) ---
+Maha Hussain, MD1; Bertrand Tombal, MD, PhD2; Fred Saad, MD3; Karim Fizazi, MD, PhD4; Cora N. Sternberg, MD5;E. David Crawford, MD6; Neal Shore, MD7; Evgeny Kopyltsov, MD8; Arash Rezazadeh Kalebasty, MD9; Martin B¨ogemann, MD10;Dingwei Ye, MD11; Felipe Cruz, MD, PhD12; Hiroyoshi Suzuki, MD, PhD13; Shivani Kapur, MD14; Shankar Srinivasan, PhD15;Frank Verholen, MD16; Iris Kuss, MD17; Heikki Joensuu, MD18; and Matthew R. Smith, MD, PhD19 abstract PURPOSE For patients with metastatic hormone-sensiti...
+
+GUIDELINES:
+- For each listed column, extract a value if explicitly present. If not found, set value=null.
+- Provide evidence as an exact quote.
+- Provide page number(s).
+- Provide confidence high/medium/low.
+- When referencing columns, use the EXACT names from the list above (copy-paste them).
+
+Output format (free-form is OK), but for EACH column include a line like:
+Column index <N>: "<Exact Column Name from list above>"
+Value: <extracted value or null>
+Evidence: "<exact quote>"
+Page: <page number>
+Confidence: <high/medium/low>
+
+
+================================================================================
+OUTPUT RESPONSE
+================================================================================
+
+Column index 1: "NCT"
+Value: NCT02799602
+Evidence: "CLINICAL TRIAL INFORMATION NCT02799602"
+Page: 12
+Confidence: high
+
+Column index 3: "Trial Name"
+Value: ARASENS
+Evidence: "Darolutamide Plus Androgen-Deprivation Therapy and Docetaxel in Metastatic Hormone-Sensitive Prostate Cancer by Disease Volume and Risk Subgroups in the Phase III ARASENS Trial"
+Page: 1
+Confidence: high
+
+Column index 4: "Author"
+Value: Maha Hussain et al.
+Evidence: "Maha Hussain, MD1; Bertrand Tombal, MD, PhD2; Fred Saad, MD3; Karim Fizazi, MD, PhD4; Cora N. Sternberg, MD5; ... and Matthew R. Smith, MD, PhD19"
+Page: 1
+Confidence: high
+
+Column index 5: "Year"
+Value: 2023
+Evidence: "J Clin Oncol 00. © 2023 by American Society of Clinical Oncology"
+Page: 1
+Confidence: high
+
+Column index 6: "Full Pub or Abstract"
+Value: Full publication
+Evidence: "This document is a full publication, indicated by its length, detailed methodology, results, discussion, and references. The abstract is a section within the full publication on page 1."
+Page: 1
+Confidence: high
+
+Column index 7: "Phase"
+Value: III
+Evidence: "in the Phase III ARASENS Trial"
+Page: 1
+Confidence: high
+
+Column index 8: "Original/Follow Up"
+Value: original report
+Evidence: 'as indicated by the section title on page 1: "original reports"'
+Page: 1
+Confidence: high

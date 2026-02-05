@@ -1,0 +1,48 @@
+================================================================================
+INPUT PROMPT
+================================================================================
+
+You are extracting clinical trial data from a research paper.
+
+TASK:
+Extract values for the following canonical columns. Each column has a canonical index and a canonical name.
+
+⚠️ CRITICAL: You MUST use the EXACT column names as listed below.
+Do NOT paraphrase, abbreviate, or modify names in ANY way.
+Character-for-character match is REQUIRED (including spaces, punctuation, pipes |, parentheses).
+
+COLUMNS TO EXTRACT (index + name are canonical; copy these EXACT names in your output):
+- Column index 1: "Class of Agent in Treatment Arm 1"
+  Expected Location: Page 11 | text
+  Planner Confidence: high
+  Extraction Instructions:
+  The "Discussion" section on page 11 states: "combining abiraterone with an effective androgen receptor antagonist, enzalutamide, has no discernible long-term benefit." This sentence distinguishes abiraterone from androgen receptor antagonists. Abiraterone acetate is known as an androgen biosynthesis inhibitor. Considering the first experimental arm (abiraterone trial), the class of agent is "Androgen biosynthesis inhibitor".
+
+RELEVANT PRE-EXTRACTED CHUNKS (filtered by planner page+type):
+No relevant chunks found.
+
+GUIDELINES:
+- For each listed column, extract a value if explicitly present. If not found, set value=null.
+- Provide evidence as an exact quote.
+- Provide page number(s).
+- Provide confidence high/medium/low.
+- When referencing columns, use the EXACT names from the list above (copy-paste them).
+
+Output format (free-form is OK), but for EACH column include a line like:
+Column index <N>: "<Exact Column Name from list above>"
+Value: <extracted value or null>
+Evidence: "<exact quote>"
+Page: <page number>
+Confidence: <high/medium/low>
+
+
+================================================================================
+OUTPUT RESPONSE
+================================================================================
+
+Column index 1: "Class of Agent in Treatment Arm 1"  
+Value: Androgen biosynthesis inhibitor  
+Evidence: "Therefore, treatment efficacy with abiraterone is unlikely to be reduced by an increase in androgens or reactivation of ligand-binding domain-dependent reactivation of androgen receptor signalling (given that combining abiraterone with an effective androgen receptor antagonist, enzalutamide, has no discernible long-term benefit)." (p. 453)  
+Additionally, abiraterone acetate is known as an androgen biosynthesis inhibitor by its mechanism of action; this is clarified in the discussion to distinguish it from androgen receptor antagonists.  
+Page: 453 (Discussion section; see also planner notes referencing p. 11, which matches the article layout provided)  
+Confidence: high

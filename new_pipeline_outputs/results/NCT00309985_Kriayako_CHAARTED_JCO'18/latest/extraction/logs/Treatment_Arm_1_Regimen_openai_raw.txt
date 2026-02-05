@@ -1,0 +1,41 @@
+INPUT PROMPT:
+You are extracting clinical trial data from a research paper.
+
+TASK: Extract values for the following canonical columns. Use EXACT column names as listed.
+
+COLUMNS TO EXTRACT:
+- Column index 1: "Treatment Arm 1 Regimen"
+  Definition: What the specific treatment protocol or regimen used in the first experimental arm of the clinical trial?. If reported, provide the value; otherwise use 'Not reported'.
+  Expected Location: Page 1 | text
+  Planner Confidence: high
+  Extraction Instructions:
+  The treatment regimen for Arm 1 is reported in multiple locations within the text. Specifically, it is described as 'ADT plus docetaxel'.
+
+*   **Page 1, Abstract:** '...either ADT in combination with docetaxel 75 mg/m² for up to six cycles...'
+*   **Page 3, Procedures:** '...randomly assigned at a one-to-one ratio to ADT alone versus ADT plus docetaxel at a dose of 75 mg/m² every 3 weeks for up to six cycles without daily prednisone.'
+
+To extract the value, look for instances of 'ADT plus docetaxel' or 'androgen-deprivation therapy (ADT) in combination with docetaxel'.
+
+RELEVANT CHUNKS:
+--- Chunk 6 (TEXT on page 1-3) ---
+Chemohormonal Therapy in Metastatic Hormone-SensitiveProstate Cancer: Long-Term Survival Analysis of theRandomized Phase III E3805 CHAARTED Trial Christos E. Kyriakopoulos, Yu-Hui Chen, Michael A. Carducci, Glenn Liu, David F. Jarrard, Noah M. Hahn,Daniel H. Shevrin, Robert Dreicer, Maha Hussain, Mario Eisenberger, Manish Kohli, Elizabeth R. Plimack,Nicholas J. Vogelzang, Joel Picus, Matthew M. Cooney, Jorge A. Garcia, Robert S. DiPaola, and Christopher J.Sweeney ABSTRACT PurposeDocetaxel added ...
+
+GUIDELINES:
+- For each listed column, extract a value if explicitly present; otherwise set value=null.
+- Provide evidence as an exact quote, page number(s), confidence (high/medium/low).
+- Use the EXACT column names from the list above.
+
+Output format (for each column):
+Column index <N>: "<Exact Column Name>"
+Value: <extracted value or null>
+Evidence: "<exact quote>"
+Page: <page number>
+Confidence: <high/medium/low>
+
+
+OUTPUT:
+Column index 1: "Treatment Arm 1 Regimen"  
+Value: ADT plus docetaxel  
+Evidence: "...either ADT in combination with docetaxel 75 mg/m² for up to six cycles..."  
+Page: 1  
+Confidence: high

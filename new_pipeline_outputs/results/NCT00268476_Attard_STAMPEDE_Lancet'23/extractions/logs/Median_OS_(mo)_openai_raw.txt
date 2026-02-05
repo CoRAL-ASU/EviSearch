@@ -1,0 +1,150 @@
+================================================================================
+INPUT PROMPT
+================================================================================
+
+You are extracting clinical trial data from a research paper.
+
+TASK:
+Extract values for the following canonical columns. Each column has a canonical index and a canonical name.
+
+⚠️ CRITICAL: You MUST use the EXACT column names as listed below.
+Do NOT paraphrase, abbreviate, or modify names in ANY way.
+Character-for-character match is REQUIRED (including spaces, punctuation, pipes |, parentheses).
+
+COLUMNS TO EXTRACT (index + name are canonical; copy these EXACT names in your output):
+- Column index 1: "Median OS (mo) | Overall | Treatment"
+  Expected Location: Page 1 | text
+  Planner Confidence: high
+  Extraction Instructions:
+  For the Abiraterone trial: '76.6 months' is reported in the 'Summary' section of the abstract on page 1, and in the 'Results' section on page 6. For the Abiraterone and enzalutamide trial: '73.1 months' is reported in the 'Summary' section of the abstract on page 1, and in the 'Results' section on page 6.
+
+- Column index 2: "Median OS (mo) | Overall | Control"
+  Expected Location: Page 1 | text
+  Planner Confidence: high
+  Extraction Instructions:
+  For the Abiraterone trial: '45.7 months' is reported in the 'Summary' section of the abstract on page 1, and in the 'Results' section on page 6. For the Abiraterone and enzalutamide trial: '51.8 months' is reported in the 'Summary' section of the abstract on page 1, and in the 'Results' section on page 6.
+
+- Column index 3: "Median OS (mo) | High volume | Treatment"
+  Expected Location: Page 6 | figure
+  Planner Confidence: high
+  Extraction Instructions:
+  For the Abiraterone trial: '56 months' is reported in Figure 3E, under the 'High-volume disease' subgroup, in the row 'Abiraterone trial' and column 'Median overall survival, months (95% CI)' for 'Study drug treatment'. For the Abiraterone and enzalutamide trial: '54 months' is reported in Figure 3E, under the 'High-volume disease' subgroup, in the row 'Abiraterone and enzalutamide trial' and column 'Median overall survival, months (95% CI)' for 'Study drug treatment'.
+
+- Column index 4: "Median OS (mo) | High volume | Control"
+  Expected Location: Page 6 | figure
+  Planner Confidence: high
+  Extraction Instructions:
+  For the Abiraterone trial: '36 months' is reported in Figure 3E, under the 'High-volume disease' subgroup, in the row 'Abiraterone trial' and column 'Median overall survival, months (95% CI)' for 'Standard of care'. For the Abiraterone and enzalutamide trial: '38 months' is reported in Figure 3E, under the 'High-volume disease' subgroup, in the row 'Abiraterone and enzalutamide trial' and column 'Median overall survival, months (95% CI)' for 'Standard of care'.
+
+- Column index 5: "Median OS (mo) | Low volume | Treatment"
+  Expected Location: Page 6 | figure
+  Planner Confidence: high
+  Extraction Instructions:
+  For the Abiraterone trial: '100 months' is reported in Figure 3D, under the 'Low-volume disease' subgroup, in the row 'Abiraterone trial' and column 'Median overall survival, months (95% CI)' for 'Study drug treatment'. For the Abiraterone and enzalutamide trial: '80 months' is reported in Figure 3D, under the 'Low-volume disease' subgroup, in the row 'Abiraterone and enzalutamide trial' and column 'Median overall survival, months (95% CI)' for 'Study drug treatment'.
+
+- Column index 6: "Median OS (mo) | Low volume | Control"
+  Expected Location: Page 6 | figure
+  Planner Confidence: high
+  Extraction Instructions:
+  For the Abiraterone trial: '68 months' is reported in Figure 3D, under the 'Low-volume disease' subgroup, in the row 'Abiraterone trial' and column 'Median overall survival, months (95% CI)' for 'Standard of care'. For the Abiraterone and enzalutamide trial: '64 months' is reported in Figure 3D, under the 'Low-volume disease' subgroup, in the row 'Abiraterone and enzalutamide trial' and column 'Median overall survival, months (95% CI)' for 'Standard of care'.
+
+RELEVANT PRE-EXTRACTED CHUNKS (filtered by planner page+type):
+--- Chunk 5 (TEXT on page 1-2) ---
+Lancet Oncol 2023; 24: 443–56 *Retired †Contributed equally ‡Investigators listed in the appendix (p 217) Abiraterone acetate plus prednisolone with or without enzalutamide for patients with metastatic prostate cancer starting androgen deprivation therapy: final results from two randomised phase 3 trials of the STAMPEDE platform protocol Gerhardt Attard, Laura Murphy, Noel W Clarke, Ashwin Sachdeva, Craig Jones, Alex Hoyle, William Cross, Robert J Jones, Christopher C Parker, Silke Gillessen, Ad...
+
+GUIDELINES:
+- For each listed column, extract a value if explicitly present. If not found, set value=null.
+- Provide evidence as an exact quote.
+- Provide page number(s).
+- Provide confidence high/medium/low.
+- When referencing columns, use the EXACT names from the list above (copy-paste them).
+
+Output format (free-form is OK), but for EACH column include a line like:
+Column index <N>: "<Exact Column Name from list above>"
+Value: <extracted value or null>
+Evidence: "<exact quote>"
+Page: <page number>
+Confidence: <high/medium/low>
+
+
+================================================================================
+OUTPUT RESPONSE
+================================================================================
+
+Here is the extraction for each column as specified:
+
+---
+
+Column index 1: "Median OS (mo) | Overall | Treatment"  
+Value: 
+- Abiraterone trial: 76.6 months
+- Abiraterone and enzalutamide trial: 73.1 months
+Evidence: 
+- "In the abiraterone trial, median overall survival was 76·6 months (95% CI 67·8–86·9) in the abiraterone group..." 
+- "In the abiraterone and enzalutamide trial, median overall survival was 73·1 months (61·9–81·3) in the abiraterone and enzalutamide group..."
+Page: 1 (also repeated on page 6 in the Results section)
+Confidence: high
+
+---
+
+Column index 2: "Median OS (mo) | Overall | Control"  
+Value:
+- Abiraterone trial: 45.7 months
+- Abiraterone and enzalutamide trial: 51.8 months
+Evidence:
+- "...median overall survival was 76·6 months (95% CI 67·8–86·9) in the abiraterone group versus 45·7 months (41·6–52·0) in the standard of care group..."
+- "...median overall survival was 73·1 months (61·9–81·3) in the abiraterone and enzalutamide group versus 51·8 months (45·3–59·0) in the standard of care group..." 
+Page: 1 (also repeated on page 6 in the Results section)
+Confidence: high
+
+---
+
+Column index 3: "Median OS (mo) | High volume | Treatment"  
+Value:
+- Abiraterone trial: 56 months
+- Abiraterone and enzalutamide trial: 54 months
+Evidence: 
+- Figure 3E, Table (page 450): "High-volume disease", Abiraterone trial, Study drug treatment: "56 (45–66)".
+- Same table: Abiraterone and enzalutamide trial, Study drug treatment: "54 (41–70)".
+Page: 6 (figure/table presenting subgroup analysis)
+Confidence: high
+
+---
+
+Column index 4: "Median OS (mo) | High volume | Control"  
+Value:
+- Abiraterone trial: 36 months
+- Abiraterone and enzalutamide trial: 38 months
+Evidence:
+- Figure 3E, Table (page 450): "High-volume disease", Abiraterone trial, Standard of care: "36 (32–42)".
+- Same table: Abiraterone and enzalutamide trial, Standard of care: "38 (35–47)".
+Page: 6 (figure/table presenting subgroup analysis)
+Confidence: high
+
+---
+
+Column index 5: "Median OS (mo) | Low volume | Treatment"  
+Value:
+- Abiraterone trial: 100 months
+- Abiraterone and enzalutamide trial: 80 months
+Evidence:
+- Figure 3D, Table (page 450): "Low-volume disease", Abiraterone trial, Study drug treatment: "100 (95–NR)".
+- Same table: Abiraterone and enzalutamide trial, Study drug treatment: "80 (74–NR)".
+Page: 6 (figure/table presenting subgroup analysis)
+Confidence: high
+
+---
+
+Column index 6: "Median OS (mo) | Low volume | Control"  
+Value:
+- Abiraterone trial: 68 months
+- Abiraterone and enzalutamide trial: 64 months
+Evidence:
+- Figure 3D, Table (page 450): "Low-volume disease", Abiraterone trial, Standard of care: "68 (57–84)".
+- Same table: Abiraterone and enzalutamide trial, Standard of care: "64 (54–76)".
+Page: 6 (figure/table presenting subgroup analysis)
+Confidence: high
+
+---
+
+If you require results for only one of the two trials (Abiraterone OR Abiraterone and Enzalutamide), please specify. All extracted values are clearly present and referenced.

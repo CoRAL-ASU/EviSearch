@@ -1,0 +1,49 @@
+================================================================================
+INPUT PROMPT
+================================================================================
+
+You are extracting clinical trial data from a research paper.
+
+TASK:
+Extract values for the following canonical columns. Each column has a canonical index and a canonical name.
+
+⚠️ CRITICAL: You MUST use the EXACT column names as listed below.
+Do NOT paraphrase, abbreviate, or modify names in ANY way.
+Character-for-character match is REQUIRED (including spaces, punctuation, pipes |, parentheses).
+
+COLUMNS TO EXTRACT (index + name are canonical; copy these EXACT names in your output):
+- Column index 5: "Adverse Events - N (%) | Treatment-related Grade 5 | Treatment"
+  Expected Location: Page 4 | text
+  Planner Confidence: high
+  Extraction Instructions:
+  Locate the sentence in section 3.1, "Four treatment-related deaths occurred during the course of chemotherapy in the ADT plus D arm including two neutropenia-related deaths (both in the HVD subgroup)." The number of patients in the ADT plus D arm is 192 (from Table 1 on page 3).
+
+RELEVANT PRE-EXTRACTED CHUNKS (filtered by planner page+type):
+--- Chunk 5 (TEXT on page 3-5) ---
+alone [26]. Results indicate that D-based chemotherapy isassociated with improved relapse-free survival in high-risklocalized PCa [27]. A longer follow-up of this trial and otherongoing similar studies will be required to assess whetherthisbenefittranslatesintoimprovedmetastasis-freesurvival and, ultimately, OS.The main limitation of our study is that data on metastaticburden were collected retrospectively. The study was notinitially designed to show the benefits of chemotherapy inspecific subgr...
+
+GUIDELINES:
+- For each listed column, extract a value if explicitly present. If not found, set value=null.
+- Provide evidence as an exact quote.
+- Provide page number(s).
+- Provide confidence high/medium/low.
+- When referencing columns, use the EXACT names from the list above (copy-paste them).
+
+Output format (free-form is OK), but for EACH column include a line like:
+Column index <N>: "<Exact Column Name from list above>"
+Value: <extracted value or null>
+Evidence: "<exact quote>"
+Page: <page number>
+Confidence: <high/medium/low>
+
+
+================================================================================
+OUTPUT RESPONSE
+================================================================================
+
+Column index 5: "Adverse Events - N (%) | Treatment-related Grade 5 | Treatment"
+Value: 4 (2.1%)
+Evidence: "Four treatment-related deaths occurred during the course of chemotherapy in the ADT plus D arm including two neutropenia-related deaths (both in the HVD subgroup)." The number of patients in the ADT plus D arm is 192 (from Table 1 on page 3).
+Calculation: 4/192 = 0.0208, or approximately 2.1%
+Page: 4
+Confidence: high

@@ -1,0 +1,56 @@
+================================================================================
+INPUT PROMPT
+================================================================================
+
+You are extracting clinical trial data from a research paper.
+
+TASK:
+Extract values for the following canonical columns. Each column has a canonical index and a canonical name.
+
+⚠️ CRITICAL: You MUST use the EXACT column names as listed below.
+Do NOT paraphrase, abbreviate, or modify names in ANY way.
+Character-for-character match is REQUIRED (including spaces, punctuation, pipes |, parentheses).
+
+COLUMNS TO EXTRACT (index + name are canonical; copy these EXACT names in your output):
+- Column index 1: "Trial"
+  Expected Location: Page 1 | text
+  Planner Confidence: high
+  Extraction Instructions:
+  The document reports on two distinct randomized phase 3 trials conducted under the STAMPEDE platform protocol. These trials are consistently named throughout the paper. 'Abiraterone trial' is found in the title on page 1 (text), in the 'Background' section on page 1 (text), in the 'Methods' section on page 3 (text), and as a column header in Table 1 on pages 5 and 6, and as a figure title in Figure 2 (A, C, E) on page 7 and Figure 4 (A, C, E) on page 9. 'Abiraterone and enzalutamide trial' is found in the title on page 1 (text), in the 'Background' section on page 1 (text), in the 'Methods' section on page 3 (text), and as a column header in Table 1 on pages 5 and 6, and as a figure title in Figure 2 (B, D, F) on page 7 and Figure 4 (B, D, F) on page 9.
+
+RELEVANT PRE-EXTRACTED CHUNKS (filtered by planner page+type):
+--- Chunk 5 (TEXT on page 1-2) ---
+Lancet Oncol 2023; 24: 443–56 *Retired †Contributed equally ‡Investigators listed in the appendix (p 217) Abiraterone acetate plus prednisolone with or without enzalutamide for patients with metastatic prostate cancer starting androgen deprivation therapy: final results from two randomised phase 3 trials of the STAMPEDE platform protocol Gerhardt Attard, Laura Murphy, Noel W Clarke, Ashwin Sachdeva, Craig Jones, Alex Hoyle, William Cross, Robert J Jones, Christopher C Parker, Silke Gillessen, Ad...
+
+GUIDELINES:
+- For each listed column, extract a value if explicitly present. If not found, set value=null.
+- Provide evidence as an exact quote.
+- Provide page number(s).
+- Provide confidence high/medium/low.
+- When referencing columns, use the EXACT names from the list above (copy-paste them).
+
+Output format (free-form is OK), but for EACH column include a line like:
+Column index <N>: "<Exact Column Name from list above>"
+Value: <extracted value or null>
+Evidence: "<exact quote>"
+Page: <page number>
+Confidence: <high/medium/low>
+
+
+================================================================================
+OUTPUT RESPONSE
+================================================================================
+
+Column index 1: "Trial"
+Value: 
+- "Abiraterone trial"
+- "Abiraterone and enzalutamide trial"
+
+Evidence: 
+1. “Abiraterone acetate plus prednisolone with or without enzalutamide for patients with metastatic prostate cancer starting androgen deprivation therapy: final results from two randomised phase 3 trials of the STAMPEDE platform protocol” (title)
+2. “We analysed two open-label, randomised, controlled, phase 3 trials of the STAMPEDE platform protocol, with no overlapping controls… Patients were randomly assigned… to either standard of care… or standard of care plus abiraterone acetate 1000 mg and prednisolone 5 mg (in the abiraterone trial) orally or abiraterone acetate and prednisolone plus enzalutamide 160 mg orally once a day (in the abiraterone and enzalutamide trial).” (Methods)
+3. “In the abiraterone trial, median overall survival was 76·6 months… In the abiraterone and enzalutamide trial, median overall survival was 73·1 months…” (Summary/Findings)
+4. Table 1 headline columns: “Abiraterone trial” and “Abiraterone and enzalutamide trial” (Page 449, Table 1, Page 450, Figure 3).
+
+Page: 1 (title and background), 3 (methods), 5–6 (Table 1), 7 (Figure 2), 9 (Figure 4)
+Confidence: high

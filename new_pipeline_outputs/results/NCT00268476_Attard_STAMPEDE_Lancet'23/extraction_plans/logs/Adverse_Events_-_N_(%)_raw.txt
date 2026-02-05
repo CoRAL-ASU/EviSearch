@@ -1,0 +1,39 @@
+Here's the extraction plan for each canonical column:
+
+1.  **Adverse Events - N (%) | All-Cause Grade 3 or Higher | Treatment**
+    *   **found_in_pdf**: true
+    *   **extraction_plan**:
+        *   **Abiraterone trial (Abiraterone treatment arm)**: Extract from Chunk 5 (page 1) or Chunk 7 (page 11), "In the first 5 years of treatment, grade 3-5 toxic effects were higher when abiraterone was added to standard of care (271 [54%] of 498...". Value: 271 (54%) of 498.
+        *   **Abiraterone and Enzalutamide trial (Abiraterone + Enzalutamide treatment arm)**: Extract from Chunk 5 (page 1) or Chunk 7 (page 11), "...and the highest toxic effects were seen when abiraterone and enzalutamide were added to standard of care (302 [68%] of 445...". Value: 302 (68%) of 445.
+    *   **page_number**: 1, 11
+    *   **source_type**: text
+
+2.  **Adverse Events - N (%) | All-Cause Grade 3 or Higher | Control**
+    *   **found_in_pdf**: true
+    *   **extraction_plan**:
+        *   **Abiraterone trial (Standard of care control arm)**: Extract from Chunk 5 (page 1) or Chunk 7 (page 11), "...(271 [54%] of 498 vs 192 [38%] of 502 with standard of care)...". Value: 192 (38%) of 502.
+        *   **Abiraterone and Enzalutamide trial (Standard of care control arm)**: Extract from Chunk 5 (page 1) or Chunk 7 (page 11), "...(302 [68%] of 445 vs 204 [45%] of 454 with standard of care)." Value: 204 (45%) of 454.
+    *   **page_number**: 1, 11
+    *   **source_type**: text
+
+3.  **Adverse Events - N (%) | Treatment-related Grade 3 or Higher | Treatment**
+    *   **found_in_pdf**: false
+    *   **extraction_plan**: The document provides overall "grade 3-5 toxic effects" but does not specify the percentage or count of these that are *treatment-related* for Grade 3 or higher across all causes.
+
+4.  **Adverse Events - N (%) | Treatment-related Grade 3 or Higher | Control**
+    *   **found_in_pdf**: false
+    *   **extraction_plan**: The document provides overall "grade 3-5 toxic effects" but does not specify the percentage or count of these that are *treatment-related* for Grade 3 or higher across all causes in the control arm.
+
+5.  **Adverse Events - N (%) | Treatment-related Grade 5 | Treatment**
+    *   **found_in_pdf**: true
+    *   **extraction_plan**:
+        *   **Abiraterone and Enzalutamide trial (Abiraterone + Enzalutamide treatment arm)**: Extract from Chunk 7 (page 11), "Cardiac causes were the most common cause of death due to adverse events (five [1%] with standard of care plus abiraterone and enzalutamide [two attributed to treatment]...". The total number of patients in this arm is 445 (from the abstract). Value: 2 of 445.
+        *   **Abiraterone trial (Abiraterone treatment arm)**: Not reported. The text only mentions treatment-related Grade 5 deaths for the Abiraterone and Enzalutamide treatment arm and all-cause Grade 5 deaths for the Abiraterone trial control arm.
+    *   **page_number**: 11
+    *   **source_type**: text
+
+6.  **Adverse Events - N (%) | Treatment-related Grade 5 | Control**
+    *   **found_in_pdf**: false
+    *   **extraction_plan**: The document mentions "one (<1%) with standard of care in the abiraterone trial" for cardiac deaths (Grade 5) in the control arm of the abiraterone trial, but it does not specify if this death was *treatment-related*. For the control arm of the abiraterone and enzalutamide trial, Table 2 (page 10) reports 0 Grade 5 cardiac events, and no other Grade 5 events are specified as treatment-related.
+    *   **page_number**: 10, 11
+    *   **source_type**: text, table

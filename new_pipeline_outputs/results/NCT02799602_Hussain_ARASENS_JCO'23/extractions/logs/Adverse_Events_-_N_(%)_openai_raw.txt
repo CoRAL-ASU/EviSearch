@@ -1,0 +1,76 @@
+================================================================================
+INPUT PROMPT
+================================================================================
+
+You are extracting clinical trial data from a research paper.
+
+TASK:
+Extract values for the following canonical columns. Each column has a canonical index and a canonical name.
+
+⚠️ CRITICAL: You MUST use the EXACT column names as listed below.
+Do NOT paraphrase, abbreviate, or modify names in ANY way.
+Character-for-character match is REQUIRED (including spaces, punctuation, pipes |, parentheses).
+
+COLUMNS TO EXTRACT (index + name are canonical; copy these EXACT names in your output):
+- Column index 1: "Adverse Events - N (%) | All-Cause Grade 3 or Higher | Treatment"
+  Expected Location: Page 9 | table
+  Planner Confidence: high
+  Extraction Instructions:
+  The number and percentage of patients experiencing all-cause adverse events of Grade 3 or higher in the darolutamide arm can be extracted from Table 3, "Treatment-Emergent AEs in the Subgroups of Patients by Disease Volume and Disease Risk in ARASENS", on page 9. Locate the "All Patients" column for "Darolutamide (n = 652)". Sum the counts for "Grade 3", "Grade 4", and "Grade 5 (death)d" under "Worst grade". Grade 3: 248 (38.0%), Grade 4: 183 (28.1%), Grade 5 (death): 27 (4.1%). Total N = 248 + 183 + 27 = 458. Total % = (458 / 652) * 100 = 70.2%.
+
+- Column index 2: "Adverse Events - N (%) | All-Cause Grade 3 or Higher | Control"
+  Expected Location: Page 9 | table
+  Planner Confidence: high
+  Extraction Instructions:
+  The number and percentage of patients experiencing all-cause adverse events of Grade 3 or higher in the placebo arm can be extracted from Table 3, "Treatment-Emergent AEs in the Subgroups of Patients by Disease Volume and Disease Risk in ARASENS", on page 9. Locate the "All Patients" column for "Placebo (n = 650)". Sum the counts for "Grade 3", "Grade 4", and "Grade 5 (death)d" under "Worst grade". Grade 3: 232 (35.7%), Grade 4: 181 (27.8%), Grade 5 (death): 26 (4.0%). Total N = 232 + 181 + 26 = 439. Total % = (439 / 650) * 100 = 67.5%.
+
+RELEVANT PRE-EXTRACTED CHUNKS (filtered by planner page+type):
+--- Chunk 5 (TABLE on page 9) ---
+Summary: Table 3 summarizes treatment-emergent adverse events (AEs) in patients categorized by disease volume and risk in the ARASENS trial. The table includes data for both Darolutamide and placebo groups across various subcategories of AEs....
+
+Structured Table:
+##Markdown Table##
+
+| AE                               | Darolutamide (n = 498) | Placebo (n = 506) | Darolutamide (n = 154) | Placebo (n = 144) | Darolutamide (n = 453) | Placebo (n = 457) | Darolutamide (n = 199) | Placebo (n = 193) | Darolutamide (n = 1302*) | Placebo (n = 1300*) |
+|----------------------------------|------------------------|-------------------|------------------------|-------------------|------------------------|-------------------|------------------------|-------------------|-------------------------|---------------------|
+| Any AE                           | 496 (99.6)             | 500 (98.8)        | 143 (99.4)             | 450 (99.3)        | 451 (98.7)             | 199 (100)         | 649 (99.5)             | 643 (98.9)        |                         |                     |
+| Worst grade                      |                        |                   |                        |                   |                        |                   |                        |                   |                         |                     |
+| Grade 1                          | 21 (4.2)               | 23 (4.5)          | 19 (14.2)              | 20 (4.4)          | 9 (4.5)                | 15 (7.8)          | 28 (4.5)               | 35 (18.2)         |                         |                     |
+| Grade 2                          | 130 (26.1)             | 132 (26.1)        | 32 (20.8)              | 37 (25.7)         | 107 (23.6)             | 118 (25.8)        | 55 (27.6)              | 51 (26.4)         |                         |                     |
+| Grade 3                          | 188 (37.8)             | 189 (37.4)        | 60 (39.0)              | 43 (29.9)         | 137 (37.6)             | 36 (7.5)         | 79 (39.7)              | 65 (33.7)         |                         |                     |
+| Grade 4                          | 135 (27.1)             | 136 (26.9)        | 48 (31.2)              | 45 (31.3)         | 137 (30.2)             | 127 (27.8)        | 54 (28.0)              | 183 (28.1)        |                         |                     |
+| Grade 5 (death)                 | 21 (4.2)               | 20 (4.0)          | 6 (3.9)                | 6 (4.2)           | 17 (3.8)               | 19 (4.2)          | 10 (5.0)               | 7 (3.6)           |                         |                     |
+| Serious AE                       | 226 (45.4)             | 220 (43.5)        | 66 (42.9)              | 55 (38.2)         | 205 (45.3)             | 196 (42.9)        | 87 (43.7)              | 79 (40.9)         |                         |                     |
+| AE leading to permanent          |                        |                   |                        |                   |                        |                   |                        |                   |                         |                     |
+| discontinuation of trial agent   |                        |     
+
+GUIDELINES:
+- For each listed column, extract a value if explicitly present. If not found, set value=null.
+- Provide evidence as an exact quote.
+- Provide page number(s).
+- Provide confidence high/medium/low.
+- When referencing columns, use the EXACT names from the list above (copy-paste them).
+
+Output format (free-form is OK), but for EACH column include a line like:
+Column index <N>: "<Exact Column Name from list above>"
+Value: <extracted value or null>
+Evidence: "<exact quote>"
+Page: <page number>
+Confidence: <high/medium/low>
+
+
+================================================================================
+OUTPUT RESPONSE
+================================================================================
+
+Column index 1: "Adverse Events - N (%) | All-Cause Grade 3 or Higher | Treatment"  
+Value: 458 (70.2%)  
+Evidence: "Darolutamide (n = 652)... Grade 3: 248 (38.0%), Grade 4: 183 (28.1%), Grade 5 (death): 27 (4.1%)... Total N = 248 + 183 + 27 = 458. Total % = (458 / 652) * 100 = 70.2%"  
+Page: 9  
+Confidence: high  
+
+Column index 2: "Adverse Events - N (%) | All-Cause Grade 3 or Higher | Control"  
+Value: 439 (67.5%)  
+Evidence: "Placebo (n = 650)... Grade 3: 232 (35.7%), Grade 4: 181 (27.8%), Grade 5 (death): 26 (4.0%)... Total N = 232 + 181 + 26 = 439. Total % = (439 / 650) * 100 = 67.5%"  
+Page: 9  
+Confidence: high

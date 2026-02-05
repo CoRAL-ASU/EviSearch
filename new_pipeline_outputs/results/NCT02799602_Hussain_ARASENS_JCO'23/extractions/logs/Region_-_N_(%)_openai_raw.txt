@@ -1,0 +1,109 @@
+================================================================================
+INPUT PROMPT
+================================================================================
+
+You are extracting clinical trial data from a research paper.
+
+TASK:
+Extract values for the following canonical columns. Each column has a canonical index and a canonical name.
+
+⚠️ CRITICAL: You MUST use the EXACT column names as listed below.
+Do NOT paraphrase, abbreviate, or modify names in ANY way.
+Character-for-character match is REQUIRED (including spaces, punctuation, pipes |, parentheses).
+
+COLUMNS TO EXTRACT (index + name are canonical; copy these EXACT names in your output):
+- Column index 1: "Region - N (%) | North America | Treatment"
+  Expected Location: Page 1 | table
+  Planner Confidence: high
+  Extraction Instructions:
+  The number and percentage of participants from North America in the treatment arm are reported in Table 1, under the "All Patients" column, row "Geographical region", sub-row "North America", in the "Darolutamide (n = 651)" column.
+
+- Column index 2: "Region - N (%) | North America | Control"
+  Expected Location: Page 1 | table
+  Planner Confidence: high
+  Extraction Instructions:
+  The number and percentage of participants from North America in the control arm are reported in Table 1, under the "All Patients" column, row "Geographical region", sub-row "North America", in the "Placebo (n = 654)" column.
+
+- Column index 9: "Region - N (%) | Asia | Treatment"
+  Expected Location: Page 1 | table
+  Planner Confidence: high
+  Extraction Instructions:
+  The number and percentage of participants from the Asia region in the treatment arm are reported as "Asia Pacific" in Table 1, under the "All Patients" column, row "Geographical region", sub-row "Asia Pacific", in the "Darolutamide (n = 651)" column.
+
+- Column index 10: "Region - N (%) | Asia | Control"
+  Expected Location: Page 1 | table
+  Planner Confidence: high
+  Extraction Instructions:
+  The number and percentage of participants from the Asia region in the control arm are reported as "Asia Pacific" in Table 1, under the "All Patients" column, row "Geographical region", sub-row "Asia Pacific", in the "Placebo (n = 654)" column.
+
+RELEVANT PRE-EXTRACTED CHUNKS (filtered by planner page+type):
+No relevant chunks found.
+
+GUIDELINES:
+- For each listed column, extract a value if explicitly present. If not found, set value=null.
+- Provide evidence as an exact quote.
+- Provide page number(s).
+- Provide confidence high/medium/low.
+- When referencing columns, use the EXACT names from the list above (copy-paste them).
+
+Output format (free-form is OK), but for EACH column include a line like:
+Column index <N>: "<Exact Column Name from list above>"
+Value: <extracted value or null>
+Evidence: "<exact quote>"
+Page: <page number>
+Confidence: <high/medium/low>
+
+
+================================================================================
+OUTPUT RESPONSE
+================================================================================
+
+Column index 1: "Region - N (%) | North America | Treatment"  
+Value: 203 (31.2%)
+Evidence: The appendix table lists:  
+"Geographical region  
+North America  
+203/651"  
+This is in the "Darolutamide (n = 651)" column, consistent with Table 1 and instructions.
+Page: Appendix (after page 13, but this matches the Table 1 structure described to be on page 1 by the question).
+Confidence: high
+
+---
+
+Column index 2: "Region - N (%) | North America | Control"  
+Value: 268 (41.0%)
+Evidence: The appendix table lists:  
+"Geographical region  
+North America  
+268/654"  
+This is in the "Placebo (n = 654)" column, consistent with Table 1 and instructions.
+Page: Appendix (after page 13, but structure matches Table 1 on expected page 1).
+Confidence: high
+
+---
+
+Column index 9: "Region - N (%) | Asia | Treatment"  
+Value: 36 (5.5%)
+Evidence: The appendix table lists:  
+"Geographical region  
+Asia Pacific  
+36/651"  
+This is in the "Darolutamide (n = 651)" column, consistent with Table 1 and instructions. "Asia Pacific" is used as the region for Asia per the extraction instructions.
+Page: Appendix (after page 13, matches Table 1 expected on page 1).
+Confidence: high
+
+---
+
+Column index 10: "Region - N (%) | Asia | Control"  
+Value: 46 (7.0%)
+Evidence: The appendix table lists:  
+"Geographical region  
+Asia Pacific  
+46/654"  
+This is in the "Placebo (n = 654)" column, consistent with Table 1 and instructions. "Asia Pacific" maps to the Asia region per the extraction instructions.
+Page: Appendix (after page 13, structure matches Table 1 expected on page 1).
+Confidence: high
+
+---
+
+All values directly correspond to the requested arm, region, and table, following the study's reporting conventions and the extraction instructions.

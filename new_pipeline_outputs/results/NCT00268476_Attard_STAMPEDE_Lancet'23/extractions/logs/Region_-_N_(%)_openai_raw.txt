@@ -1,0 +1,67 @@
+================================================================================
+INPUT PROMPT
+================================================================================
+
+You are extracting clinical trial data from a research paper.
+
+TASK:
+Extract values for the following canonical columns. Each column has a canonical index and a canonical name.
+
+⚠️ CRITICAL: You MUST use the EXACT column names as listed below.
+Do NOT paraphrase, abbreviate, or modify names in ANY way.
+Character-for-character match is REQUIRED (including spaces, punctuation, pipes |, parentheses).
+
+COLUMNS TO EXTRACT (index + name are canonical; copy these EXACT names in your output):
+- Column index 5: "Region - N (%) | Europe | Treatment"
+  Expected Location: Page 1 | table
+  Planner Confidence: high
+  Extraction Instructions:
+  All participants were from Europe, as the study was conducted at 117 sites in the UK and Switzerland (page 1, Methods).
+- Abiraterone trial | Standard of care plus abiraterone: 501 (100%)
+- Abiraterone and enzalutamide trial | Standard of care plus abiraterone and enzalutamide: 462 (100%)
+
+- Column index 6: "Region - N (%) | Europe | Control"
+  Expected Location: Page 1 | table
+  Planner Confidence: high
+  Extraction Instructions:
+  All participants were from Europe, as the study was conducted at 117 sites in the UK and Switzerland (page 1, Methods).
+- Abiraterone trial | Standard of care: 502 (100%)
+- Abiraterone and enzalutamide trial | Standard of care: 454 (100%)
+
+RELEVANT PRE-EXTRACTED CHUNKS (filtered by planner page+type):
+No relevant chunks found.
+
+GUIDELINES:
+- For each listed column, extract a value if explicitly present. If not found, set value=null.
+- Provide evidence as an exact quote.
+- Provide page number(s).
+- Provide confidence high/medium/low.
+- When referencing columns, use the EXACT names from the list above (copy-paste them).
+
+Output format (free-form is OK), but for EACH column include a line like:
+Column index <N>: "<Exact Column Name from list above>"
+Value: <extracted value or null>
+Evidence: "<exact quote>"
+Page: <page number>
+Confidence: <high/medium/low>
+
+
+================================================================================
+OUTPUT RESPONSE
+================================================================================
+
+Column index 5: "Region - N (%) | Europe | Treatment"  
+Value:  
+- Abiraterone trial | Standard of care plus abiraterone: 501 (100%)  
+- Abiraterone and enzalutamide trial | Standard of care plus abiraterone and enzalutamide: 462 (100%)  
+Evidence: "Methods We analysed two open-label, randomised, controlled, phase 3 trials of the STAMPEDE platform protocol, with no overlapping controls, conducted at 117 sites in the UK and Switzerland." and “Between Nov 15, 2011, and Jan 17, 2014, 1003 patients with metastatic prostate cancer were randomly assigned to standard of care (n=502) or standard of care plus abiraterone (n=501) in the abiraterone trial. Between July 29, 2014, and March 31, 2016, 916 patients were randomly assigned to standard of care (n=454) or standard of care plus abiraterone and enzalutamide (n=462) in the abiraterone and enzalutamide trial.”  
+Page: 443, 448  
+Confidence: high  
+
+Column index 6: "Region - N (%) | Europe | Control"  
+Value:  
+- Abiraterone trial | Standard of care: 502 (100%)  
+- Abiraterone and enzalutamide trial | Standard of care: 454 (100%)  
+Evidence: "Methods We analysed two open-label, randomised, controlled, phase 3 trials of the STAMPEDE platform protocol, with no overlapping controls, conducted at 117 sites in the UK and Switzerland." and “Between Nov 15, 2011, and Jan 17, 2014, 1003 patients with metastatic prostate cancer were randomly assigned to standard of care (n=502) or standard of care plus abiraterone (n=501) in the abiraterone trial. Between July 29, 2014, and March 31, 2016, 916 patients were randomly assigned to standard of care (n=454) or standard of care plus abiraterone and enzalutamide (n=462) in the abiraterone and enzalutamide trial.”  
+Page: 443, 448  
+Confidence: high

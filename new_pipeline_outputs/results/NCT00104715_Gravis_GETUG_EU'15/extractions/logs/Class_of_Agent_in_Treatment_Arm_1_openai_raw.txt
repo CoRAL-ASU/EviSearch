@@ -1,0 +1,49 @@
+================================================================================
+INPUT PROMPT
+================================================================================
+
+You are extracting clinical trial data from a research paper.
+
+TASK:
+Extract values for the following canonical columns. Each column has a canonical index and a canonical name.
+
+⚠️ CRITICAL: You MUST use the EXACT column names as listed below.
+Do NOT paraphrase, abbreviate, or modify names in ANY way.
+Character-for-character match is REQUIRED (including spaces, punctuation, pipes |, parentheses).
+
+COLUMNS TO EXTRACT (index + name are canonical; copy these EXACT names in your output):
+- Column index 1: "Class of Agent in Treatment Arm 1"
+  Expected Location: Page 1 | text
+  Planner Confidence: high
+  Extraction Instructions:
+  The class of agent for Docetaxel (D), which is part of Treatment Arm 1 (ADT plus D), is chemotherapy. This is explicitly stated and implied throughout the text. For example, on page 1, in the abstract, it mentions 'Survival benefits of docetaxel (D) added to androgen-deprivation therapy (ADT) were shown in the CHAARTED trial in patients with metastatic high-volume disease (HVD).' and 'The role of chemotherapy in metastatic non castrate prostate cancer (mNCPC) is debated.' On page 2, in the 'Patient summary', it states 'early chemotherapy should be discussed with all patients...'.
+
+RELEVANT PRE-EXTRACTED CHUNKS (filtered by planner page+type):
+--- Chunk 4 (TEXT on page 1-3) ---
+Androgen Deprivation Therapy (ADT) Plus Docetaxel VersusADT Alone in Metastatic Non castrate Prostate Cancer:Impact of Metastatic Burden and Long-term SurvivalAnalysis of the Randomized Phase 3 GETUG-AFU15 Trial Gwenaelle Gravis a,*, Jean-Marie Boher b, Florence Joly c, Michel Soulie´ d, Laurence Albiges e,Franck Priou f, Igor Latorzeff g, Remy Delva h, Ivan Krakowski i, Brigitte Laguerre j,Fre´de´ric Rolland k, Christine The´odore l, Gael Deplanque m, Jean-Marc Ferrero n,Ste´phane Culine o, Loı...
+
+GUIDELINES:
+- For each listed column, extract a value if explicitly present. If not found, set value=null.
+- Provide evidence as an exact quote.
+- Provide page number(s).
+- Provide confidence high/medium/low.
+- When referencing columns, use the EXACT names from the list above (copy-paste them).
+
+Output format (free-form is OK), but for EACH column include a line like:
+Column index <N>: "<Exact Column Name from list above>"
+Value: <extracted value or null>
+Evidence: "<exact quote>"
+Page: <page number>
+Confidence: <high/medium/low>
+
+
+================================================================================
+OUTPUT RESPONSE
+================================================================================
+
+Column index 1: "Class of Agent in Treatment Arm 1"  
+Value: chemotherapy  
+Evidence: 
+- Page 1: "The role of chemotherapy in metastatic non castrate prostate cancer (mNCPC) is debated. Survival benefits of docetaxel (D) added to androgen-deprivation therapy (ADT) were shown in the CHAARTED trial in patients with metastatic high-volume disease (HVD)."
+- Page 1 (“Patient summary”): "However, early chemotherapy should be discussed with all patients, given the data of three randomized trials including GETUG-AFU15."  
+Confidence: high

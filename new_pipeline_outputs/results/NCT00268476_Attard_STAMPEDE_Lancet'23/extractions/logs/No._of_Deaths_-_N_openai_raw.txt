@@ -1,0 +1,61 @@
+================================================================================
+INPUT PROMPT
+================================================================================
+
+You are extracting clinical trial data from a research paper.
+
+TASK:
+Extract values for the following canonical columns. Each column has a canonical index and a canonical name.
+
+⚠️ CRITICAL: You MUST use the EXACT column names as listed below.
+Do NOT paraphrase, abbreviate, or modify names in ANY way.
+Character-for-character match is REQUIRED (including spaces, punctuation, pipes |, parentheses).
+
+COLUMNS TO EXTRACT (index + name are canonical; copy these EXACT names in your output):
+- Column index 1: "No. of Deaths - N | Treatment"
+  Expected Location: Page 4 | figure
+  Planner Confidence: high
+  Extraction Instructions:
+  In Figure 1: Trial profile on page 4, locate the section for the "abiraterone trial". Under "501 assigned to standard of care plus abiraterone", the number of deaths is "293 died". For the "abiraterone and enzalutamide trial", under "462 assigned to standard of care plus abiraterone plus enzalutamide", the number of deaths is "228 died".
+
+- Column index 2: "No. of Deaths - N | Control"
+  Expected Location: Page 4 | figure
+  Planner Confidence: high
+  Extraction Instructions:
+  In Figure 1: Trial profile on page 4, locate the section for the "abiraterone trial". Under "502 assigned to standard of care", the number of deaths is "371 died". For the "abiraterone and enzalutamide trial", under "454 assigned to standard of care", the number of deaths is "292 died".
+
+RELEVANT PRE-EXTRACTED CHUNKS (filtered by planner page+type):
+No relevant chunks found.
+
+GUIDELINES:
+- For each listed column, extract a value if explicitly present. If not found, set value=null.
+- Provide evidence as an exact quote.
+- Provide page number(s).
+- Provide confidence high/medium/low.
+- When referencing columns, use the EXACT names from the list above (copy-paste them).
+
+Output format (free-form is OK), but for EACH column include a line like:
+Column index <N>: "<Exact Column Name from list above>"
+Value: <extracted value or null>
+Evidence: "<exact quote>"
+Page: <page number>
+Confidence: <high/medium/low>
+
+
+================================================================================
+OUTPUT RESPONSE
+================================================================================
+
+Column index 1: "No. of Deaths - N | Treatment"  
+Value: For the abiraterone trial: 293; For the abiraterone and enzalutamide trial: 228  
+Evidence:  
+- "In Figure 1: Trial profile on page 4, locate the section for the 'abiraterone trial'. Under '501 assigned to standard of care plus abiraterone', the number of deaths is '293 died'. For the 'abiraterone and enzalutamide trial', under '462 assigned to standard of care plus abiraterone plus enzalutamide', the number of deaths is '228 died'."  
+Page: 4  
+Confidence: high  
+
+Column index 2: "No. of Deaths - N | Control"  
+Value: For the abiraterone trial: 371; For the abiraterone and enzalutamide trial: 292  
+Evidence:  
+- "In Figure 1: Trial profile on page 4, locate the section for the 'abiraterone trial'. Under '502 assigned to standard of care', the number of deaths is '371 died'. For the 'abiraterone and enzalutamide trial', under '454 assigned to standard of care', the number of deaths is '292 died'."  
+Page: 4  
+Confidence: high

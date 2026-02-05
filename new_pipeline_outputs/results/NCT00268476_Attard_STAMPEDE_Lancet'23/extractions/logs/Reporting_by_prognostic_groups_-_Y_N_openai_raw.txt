@@ -1,0 +1,96 @@
+================================================================================
+INPUT PROMPT
+================================================================================
+
+You are extracting clinical trial data from a research paper.
+
+TASK:
+Extract values for the following canonical columns. Each column has a canonical index and a canonical name.
+
+⚠️ CRITICAL: You MUST use the EXACT column names as listed below.
+Do NOT paraphrase, abbreviate, or modify names in ANY way.
+Character-for-character match is REQUIRED (including spaces, punctuation, pipes |, parentheses).
+
+COLUMNS TO EXTRACT (index + name are canonical; copy these EXACT names in your output):
+- Column index 1: "Reporting by prognostic groups - Y/N | Synchronous"
+  Expected Location: Page 3 | text
+  Planner Confidence: high
+  Extraction Instructions:
+  The study population is defined as patients with metastatic prostate cancer starting androgen deprivation therapy. This implies synchronous metastases, as patients were recruited based on the presence or absence of distant metastases at the start of treatment. This is stated in the "Methods" section on page 3, column 1: "The protocol recruited patients with advanced prostate cancer starting androgen deprivation therapy stratified by the presence or absence of distant metastases on conventional imaging... within 8 weeks of random assignment." The entire reporting of outcomes is for this synchronously metastatic population.
+
+- Column index 3: "Reporting by prognostic groups - Y/N | High volume"
+  Expected Location: Page 5 | text
+  Planner Confidence: high
+  Extraction Instructions:
+  Results are reported based on prognostic groups with high volume of metastases. This is explicitly stated in the "Statistical analysis" section on page 5, column 1: "Given that metastatic volume is prognostic, outcomes split by low-volume and high-volume disease are of interest and were included as an additional prespecified subgroup analysis, in line with other trials of combination therapies in this setting." Figure 3E on page 8 presents the overall survival subgroup analysis for high-volume disease.
+
+- Column index 4: "Reporting by prognostic groups - Y/N | Low volume"
+  Expected Location: Page 5 | text
+  Planner Confidence: high
+  Extraction Instructions:
+  Results are reported based on prognostic groups with low volume of metastases. This is explicitly stated in the "Statistical analysis" section on page 5, column 1: "Given that metastatic volume is prognostic, outcomes split by low-volume and high-volume disease are of interest and were included as an additional prespecified subgroup analysis, in line with other trials of combination therapies in this setting." Figure 3D on page 8 presents the overall survival subgroup analysis for low-volume disease.
+
+RELEVANT PRE-EXTRACTED CHUNKS (filtered by planner page+type):
+--- Chunk 6 (TEXT on page 2-3) ---
+Switzerland, Bellinzona, Switzerland (Prof S Gillessen MD); CH and Universita della Svizzera Italiana, Lugano, Switzerland (Prof S Gillessen); Guy’s and St Thomas’ NHS Foundation Trust, London, UK (H Rush, S Chowdhury PhD); Clatterbridge Cancer Centre NHS Foundation Trust, Wirral, UK (Z Malik FRCR, A H Montazeri FRCR); Singleton Hospital, Swansea, UK (C Pezaro DMedSc, J Wagstaff ChB); Gloucestershire Oncology Centre, Cheltenham, UK (W Grant FRCR); Torbay and South Devon NHS Foundation Trust, Tor...
+
+--- Chunk 7 (TEXT on page 3-5) ---
+for Adverse Events (version 3.0 updated to 4.0 in STAMPEDE protocol version 15; May 15, 2016). Serious adverse reactions were also reported. Race or ethnicity data were not collected. Pre-randomisation bone scans were retrieved to the Christie Hospital (Manchester, UK) central imaging repository after completion of accrual. Physicians (AS, CJ, AH, and YJ) classified patients by high-volume or low-volume disease using the CHAARTED trial criteria2,15 based on the number and site of bone metastases...
+
+GUIDELINES:
+- For each listed column, extract a value if explicitly present. If not found, set value=null.
+- Provide evidence as an exact quote.
+- Provide page number(s).
+- Provide confidence high/medium/low.
+- When referencing columns, use the EXACT names from the list above (copy-paste them).
+
+Output format (free-form is OK), but for EACH column include a line like:
+Column index <N>: "<Exact Column Name from list above>"
+Value: <extracted value or null>
+Evidence: "<exact quote>"
+Page: <page number>
+Confidence: <high/medium/low>
+
+
+================================================================================
+OUTPUT RESPONSE
+================================================================================
+
+Here is the extraction for the specified canonical columns:
+
+---
+
+Column index 1: "Reporting by prognostic groups - Y/N | Synchronous"  
+Value: Y  
+Evidence:  
+"The protocol recruited patients with advanced prostate cancer starting androgen deprivation therapy stratified by the presence or absence of distant metastases on conventional imaging (whole body bone scintigraphy or equivalent; CT or MRI of the pelvis, abdomen, and chest; and a chest x-ray if the chest was omitted) within 8 weeks of random assignment. Following a prespecified plan approved by the trial steering committee ... patients with non-metastatic and metastatic disease were separated for the reporting of long-term outcomes. ... Outcomes for patients with metastatic disease in the abiraterone trial after 5 years of follow-up ... and for those with non-metastatic disease ... have been published.14 Trial data for patients with metastatic disease in the abiraterone and enzalutamide trial have not been reported previously. All patients classified as metastatic based on updated information at final database locking are included here."  
+Page: 3  
+Confidence: high  
+
+---
+
+Column index 3: "Reporting by prognostic groups - Y/N | High volume"  
+Value: Y  
+Evidence:  
+"Physicians (AS, CJ, AH, and YJ) classified patients by high-volume or low-volume disease using the CHAARTED trial criteria2,15 based on the number and site of bone metastases and whether local sites stated at randomisation that visceral disease was present on CT scan."  
+AND  
+"Given that metastatic volume is prognostic, outcomes split by low-volume and high-volume disease are of interest and were included as an additional prespecified subgroup analysis, in line with other trials of combination therapies in this setting.8,9,12"  
+AND  
+Figure 3E on page 8 (450 in original, figure labeled "High-volume disease") provides overall survival analysis for high-volume metastatic disease subgroups.  
+Page: 5 (and also page 8 for visual evidence)  
+Confidence: high  
+
+---
+
+Column index 4: "Reporting by prognostic groups - Y/N | Low volume"  
+Value: Y  
+Evidence:  
+"Physicians (AS, CJ, AH, and YJ) classified patients by high-volume or low-volume disease using the CHAARTED trial criteria2,15 based on the number and site of bone metastases and whether local sites stated at randomisation that visceral disease was present on CT scan."  
+AND  
+"Given that metastatic volume is prognostic, outcomes split by low-volume and high-volume disease are of interest and were included as an additional prespecified subgroup analysis, in line with other trials of combination therapies in this setting.8,9,12"  
+AND  
+Figure 3D on page 8 (450 in original, figure labeled "Low-volume disease") provides overall survival analysis for low-volume metastatic disease subgroups.  
+Page: 5 (and also page 8 for visual evidence)  
+Confidence: high  
+
+---

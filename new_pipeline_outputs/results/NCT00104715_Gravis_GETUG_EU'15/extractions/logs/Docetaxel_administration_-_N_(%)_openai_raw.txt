@@ -1,0 +1,51 @@
+================================================================================
+INPUT PROMPT
+================================================================================
+
+You are extracting clinical trial data from a research paper.
+
+TASK:
+Extract values for the following canonical columns. Each column has a canonical index and a canonical name.
+
+⚠️ CRITICAL: You MUST use the EXACT column names as listed below.
+Do NOT paraphrase, abbreviate, or modify names in ANY way.
+Character-for-character match is REQUIRED (including spaces, punctuation, pipes |, parentheses).
+
+COLUMNS TO EXTRACT (index + name are canonical; copy these EXACT names in your output):
+- Column index 2: "Docetaxel administration - N (%) | Control"
+  Expected Location: Page 5 | text
+  Planner Confidence: high
+  Extraction Instructions:
+  In the control arm (ADT arm), 152 patients (79%) received docetaxel as salvage therapy. Locate the paragraph on page 5 that states: "In the GETUG-AFU15 study, in contrast, the vast majority of patients (79%) in the ADT arm received so-called salvage D within a median time of 18.5 mo (95% CI, 2.9-179) indicating that this trial was more a trial of early versus delayed D." The number of patients in the ADT arm is 193 (page 2, text). Calculate 79% of 193 to get the count (0.79 * 193 = 152.47, rounded to 152).
+
+RELEVANT PRE-EXTRACTED CHUNKS (filtered by planner page+type):
+--- Chunk 5 (TEXT on page 3-5) ---
+alone [26]. Results indicate that D-based chemotherapy isassociated with improved relapse-free survival in high-risklocalized PCa [27]. A longer follow-up of this trial and otherongoing similar studies will be required to assess whetherthisbenefittranslatesintoimprovedmetastasis-freesurvival and, ultimately, OS.The main limitation of our study is that data on metastaticburden were collected retrospectively. The study was notinitially designed to show the benefits of chemotherapy inspecific subgr...
+
+GUIDELINES:
+- For each listed column, extract a value if explicitly present. If not found, set value=null.
+- Provide evidence as an exact quote.
+- Provide page number(s).
+- Provide confidence high/medium/low.
+- When referencing columns, use the EXACT names from the list above (copy-paste them).
+
+Output format (free-form is OK), but for EACH column include a line like:
+Column index <N>: "<Exact Column Name from list above>"
+Value: <extracted value or null>
+Evidence: "<exact quote>"
+Page: <page number>
+Confidence: <high/medium/low>
+
+
+================================================================================
+OUTPUT RESPONSE
+================================================================================
+
+Column index 2: "Docetaxel administration - N (%) | Control"  
+Value: 152 (79%)  
+Evidence: "In the GETUG-AFU15 study, in contrast, the vast majority of patients (79%) in the ADT arm received so-called salvage D within a median time of 18.5 mo (95% CI, 2.9-179) indicating that this trial was more a trial of early versus delayed D."  
+AND  
+"The GETUG-AFU15 trial randomized 385 patients including 193 in the ADT arm and 192 in the ADT plus D arm."  
+(Calculation: 0.79 × 193 = 152.47, rounded to 152)  
+Page: 5  
+Confidence: high

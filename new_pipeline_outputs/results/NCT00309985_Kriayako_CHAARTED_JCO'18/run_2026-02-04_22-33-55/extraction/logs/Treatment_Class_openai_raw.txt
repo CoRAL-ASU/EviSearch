@@ -1,0 +1,36 @@
+INPUT PROMPT:
+You are extracting clinical trial data from a research paper.
+
+TASK: Extract values for the following canonical columns. Use EXACT column names as listed.
+
+COLUMNS TO EXTRACT:
+- Column index 1: "Treatment Class"
+  Definition: What is the categorization or classification of the treatment or therapy received by participants in the clinical trial?. If reported, provide the value; otherwise use 'Not reported'.
+  Expected Location: Page 1 | text
+  Planner Confidence: high
+  Extraction Instructions:
+  The study investigates "Chemohormonal Therapy Versus Androgen Ablation Randomized Trial for Extensive Disease in Prostate Cancer". This indicates two treatment classes: chemohormonal therapy (ADT + docetaxel) and androgen deprivation therapy (ADT) alone.
+
+RELEVANT CHUNKS:
+--- Chunk 6 (TEXT on page 1-3) ---
+Chemohormonal Therapy in Metastatic Hormone-SensitiveProstate Cancer: Long-Term Survival Analysis of theRandomized Phase III E3805 CHAARTED Trial Christos E. Kyriakopoulos, Yu-Hui Chen, Michael A. Carducci, Glenn Liu, David F. Jarrard, Noah M. Hahn,Daniel H. Shevrin, Robert Dreicer, Maha Hussain, Mario Eisenberger, Manish Kohli, Elizabeth R. Plimack,Nicholas J. Vogelzang, Joel Picus, Matthew M. Cooney, Jorge A. Garcia, Robert S. DiPaola, and Christopher J.Sweeney ABSTRACT PurposeDocetaxel added ...
+
+GUIDELINES:
+- For each listed column, extract a value if explicitly present; otherwise set value=null.
+- Provide evidence as an exact quote, page number(s), confidence (high/medium/low).
+- Use the EXACT column names from the list above.
+
+Output format (for each column):
+Column index <N>: "<Exact Column Name>"
+Value: <extracted value or null>
+Evidence: "<exact quote>"
+Page: <page number>
+Confidence: <high/medium/low>
+
+
+OUTPUT:
+Column index 1: "Treatment Class"
+Value: "chemohormonal therapy (ADT + docetaxel) and androgen deprivation therapy (ADT) alone"
+Evidence: "The study investigates 'Chemohormonal Therapy Versus Androgen Ablation Randomized Trial for Extensive Disease in Prostate Cancer'. This indicates two treatment classes: chemohormonal therapy (ADT + docetaxel) and androgen deprivation therapy (ADT) alone."
+Page: 1
+Confidence: high

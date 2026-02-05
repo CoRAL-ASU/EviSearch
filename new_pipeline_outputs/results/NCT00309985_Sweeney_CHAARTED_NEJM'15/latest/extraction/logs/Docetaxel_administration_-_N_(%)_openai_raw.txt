@@ -1,0 +1,48 @@
+INPUT PROMPT:
+You are extracting clinical trial data from a research paper.
+
+TASK: Extract values for the following canonical columns. Use EXACT column names as listed.
+
+COLUMNS TO EXTRACT:
+- Column index 1: "Docetaxel administration - N (%) | Treatment"
+  Definition: What percentage of participants in the treatment arm of the clinical trial who received docetaxel before or during the trial? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.
+  Expected Location: Page 8 | text
+  Planner Confidence: high
+  Extraction Instructions:
+  Approximately 86% of the 390 patients in the combination group who started the assigned therapy completed six cycles of docetaxel therapy (Table S2 in the Supplementary Appendix), and approximately 74% of all the treated patients received all planned cycles without dose modifications. Extract "86% of the 390 patients"
+
+- Column index 2: "Docetaxel administration - N (%) | Control"
+  Definition: What number and percentage of participants who received docetaxel before or during the trial in the control arm of the clinical trial? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.
+  Expected Location: Page 8 | text
+  Planner Confidence: high
+  Extraction Instructions:
+  At the time of this analysis, castration-resistant prostate cancer with at least biochemical progression had developed in 287 patients assigned to ADT alone; 137 patients of these patients had received docetaxel for castration-resistant prostate cancer, and another 10 patients had received docetaxel before castration resistance was confirmed. Extract "137 patients of these patients had received docetaxel for castration-resistant prostate cancer, and another 10 patients had received docetaxel before castration resistance was confirmed"
+
+RELEVANT CHUNKS:
+No relevant chunks found.
+
+GUIDELINES:
+- For each listed column, extract a value if explicitly present; otherwise set value=null.
+- Provide evidence as an exact quote, page number(s), confidence (high/medium/low).
+- Use the EXACT column names from the list above.
+
+Output format (for each column):
+Column index <N>: "<Exact Column Name>"
+Value: <extracted value or null>
+Evidence: "<exact quote>"
+Page: <page number>
+Confidence: <high/medium/low>
+
+
+OUTPUT:
+Column index 1: "Docetaxel administration - N (%) | Treatment"  
+Value: 86% of the 390 patients  
+Evidence: "Approximately 86% of the 390 patients in the combination group who started the assigned therapy completed six cycles of docetaxel therapy."  
+Page: 744  
+Confidence: high  
+
+Column index 2: "Docetaxel administration - N (%) | Control"  
+Value: 137 patients of these patients had received docetaxel for castration-resistant prostate cancer, and another 10 patients had received docetaxel before castration resistance was confirmed  
+Evidence: "At the time of this analysis, castration-resistant prostate cancer with at least biochemical progression had developed in 287 patients assigned to ADT alone; 137 patients of these patients had received docetaxel for castration-resistant prostate cancer, and another 10 patients had received docetaxel before castration resistance was confirmed."  
+Page: 744  
+Confidence: high

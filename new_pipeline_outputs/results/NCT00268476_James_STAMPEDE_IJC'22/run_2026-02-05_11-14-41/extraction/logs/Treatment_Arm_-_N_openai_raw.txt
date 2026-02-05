@@ -1,0 +1,36 @@
+INPUT PROMPT:
+You are extracting clinical trial data from a research paper.
+
+TASK: Extract values for the following canonical columns. Use EXACT column names as listed.
+
+COLUMNS TO EXTRACT:
+- Column index 1: "Treatment Arm - N"
+  Definition: What are the total number of participants included in the experimental arm of the clinical trial?. If reported, provide the value; otherwise use 'Not reported'. If the trial contains multiple treatment arms, report for all separately
+  Expected Location: Page 4 | text
+  Planner Confidence: high
+  Extraction Instructions:
+  The text states "Between 15 November 2011 and 17 January 2014, 1917 patients were randomised to the arms of STAMPEDE constituting the 'abiraterone comparison'. Of these, all 1003 patients with metastatic disease were analysed here: 502 (50%) allocated to standard treatment (SOC-alone group) and 501 (50%) to standard treatment plus abiraterone and prednisolone (SOC + AAP group)". Therefore: Treatment Arm: SOC-alone group, N = 502; Treatment Arm: SOC + AAP group, N = 501
+
+RELEVANT CHUNKS:
+--- Chunk 6 (TEXT on page 3-5) ---
+apy (ADT) which had started no longer than 12 weeks prior to ran- domisation. There were no age restrictions, but patients were required to have no clinically significant cardiovascular history. For this analysis, patients had metastatic disease confirmed by scinti- within 12 weeks of starting ADT. 2.2|Randomisation and masking Patients were randomised centrally using a computerised algorithm, developed and maintained by the MRC Clinical Trials Unit at UCL. Minimisation with a random element of ...
+
+GUIDELINES:
+- For each listed column, extract a value if explicitly present; otherwise set value=null.
+- Provide evidence as an exact quote, page number(s), confidence (high/medium/low).
+- Use the EXACT column names from the list above.
+
+Output format (for each column):
+Column index <N>: "<Exact Column Name>"
+Value: <extracted value or null>
+Evidence: "<exact quote>"
+Page: <page number>
+Confidence: <high/medium/low>
+
+
+OUTPUT:
+Column index 1: "Treatment Arm - N"  
+Value: Treatment Arm: SOC-alone group, N = 502; Treatment Arm: SOC + AAP group, N = 501  
+Evidence: "Between 15 November 2011 and 17 January 2014, 1917 patients were randomised to the arms of STAMPEDE constituting the 'abiraterone comparison'. Of these, all 1003 patients with metastatic disease were analysed here: 502 (50%) allocated to standard treatment (SOC-alone group) and 501 (50%) to standard treatment plus abiraterone and prednisolone (SOC + AAP group)"  
+Page: 4  
+Confidence: High

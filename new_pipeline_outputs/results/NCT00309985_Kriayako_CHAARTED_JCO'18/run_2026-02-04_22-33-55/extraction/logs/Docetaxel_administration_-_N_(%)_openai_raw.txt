@@ -1,0 +1,36 @@
+INPUT PROMPT:
+You are extracting clinical trial data from a research paper.
+
+TASK: Extract values for the following canonical columns. Use EXACT column names as listed.
+
+COLUMNS TO EXTRACT:
+- Column index 1: "Docetaxel administration - N (%) | Treatment"
+  Definition: What percentage of participants in the treatment arm of the clinical trial who received docetaxel before or during the trial? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.
+  Expected Location: Page 4 | text
+  Planner Confidence: medium
+  Extraction Instructions:
+  The study abstract states that 790 patients were equally randomized to receive either ADT in combination with docetaxel 75 mg/m² for up to six cycles or ADT alone. This implies that approximately half of the patients (397) were assigned to the docetaxel arm. The full number and percentage is not explicitly stated in the abstract, but can be calculated from the total number of patients and the study design. Page 4 states that 397 patients were in the ADT plus docetaxel arm. Page 4 also states that 263 patients (66.2%) in the combination arm had high-volume disease.
+
+RELEVANT CHUNKS:
+--- Chunk 7 (TEXT on page 3-6) ---
+function suitable for docetaxel. All patients provided written informedconsent before study entry. The study was conducted in accordance withthe Declaration of Helsinki for human subject protection. ProceduresEligible patients were randomly assigned at a one-to-one ratio toADTalone versus ADT plus docetaxel at a dose of 75 mg/m2 every 3 weeksfor up to six cycles without daily prednisone. Randomization was stratiﬁedaccording to age (, 70 v $ 70 years), Eastern Cooperative OncologyGroup performanc...
+
+GUIDELINES:
+- For each listed column, extract a value if explicitly present; otherwise set value=null.
+- Provide evidence as an exact quote, page number(s), confidence (high/medium/low).
+- Use the EXACT column names from the list above.
+
+Output format (for each column):
+Column index <N>: "<Exact Column Name>"
+Value: <extracted value or null>
+Evidence: "<exact quote>"
+Page: <page number>
+Confidence: <high/medium/low>
+
+
+OUTPUT:
+Column index 1: "Docetaxel administration - N (%) | Treatment"
+Value: 397 (100%)
+Evidence: "397 in the ADT plus docetaxel arm."
+Page: 4
+Confidence: High

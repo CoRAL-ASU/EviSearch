@@ -1,0 +1,62 @@
+INPUT PROMPT:
+You are extracting clinical trial data from a research paper.
+
+TASK: Extract values for the following canonical columns. Use EXACT column names as listed.
+
+COLUMNS TO EXTRACT:
+- Column index 1: "TTPSA (mo) | Treatment"
+  Definition: What time To Progression of Serum Androgen (in months) in the treatment arm of the clinical trial? If reported, include the value; use 'Not reported' if missing.
+  Expected Location: Page 6 | table
+  Planner Confidence: high
+  Extraction Instructions:
+  This value is reported as "Median Time (95% Cl; months)" under the "ADT Plus Docetaxel" column in Table 2. Extract the value from the row labeled "Overall," which is 19.4 (16.8 to 22.6).
+
+- Column index 2: "TTPSA (mo) | Control"
+  Definition: What time to Progressive Serum Androgen (TTPSA) in months for participants in the control arm of the clinical trial? If reported, include the value; use 'Not reported' if missing.
+  Expected Location: Page 6 | table
+  Planner Confidence: high
+  Extraction Instructions:
+  This value is reported as "Median Time (95% CI; months)" under the "ADT Alone" column in Table 2. Extract the value from the row labeled "Overall," which is 11.7 (10.8 to 14.4).
+
+RELEVANT CHUNKS:
+--- Chunk 5 (TABLE on page 6) ---
+Summary: Table 2 presents data on the time to clinical progression (CRPC) for patients undergoing ADT plus docetaxel versus ADT alone in the CHAARTED trial. The table includes three subgroups based on disease volume: Overall, High volume, and Low volume. Each row lists the number of patients, the number of c...
+
+Structured Table:
+##Markdown Table##
+
+| Subgroup      | No. of Patients | No. of CRPCs | Median Time to CRPC (95% CI; months) | HR (95% CI) | P    |
+|---------------|------------------|---------------|--------------------------------------|-------------|------|
+| Overall       | 397              | 257           | 19.4 (16.8 to 22.6)                  | 1.11 (0.80 to 1.44) | < .001 |
+| High volume   | 263              | 190           | 14.9 (12.4 to 17.2)                  | 0.58 (0.47 to 0.71) | < .001 |
+| Low volume    | 134              | 67            | 31.0 (23.1 to 51.1)                  | 0.72 (0.60 to 0.96) | .03   |
+
+##Caption##
+
+Table 2 presents data on the time to clinical progression (CRPC) for patients undergoing ADT plus docetaxel versus ADT alone in the CHAARTED trial. The table includes three subgroups based on disease volume: Overall, High volume, and Low volume. Each row lists the number of patients, the number of cases of CRPC, the median time to CRPC with 95% confidence intervals, hazard ratios (HR) with 95% confidence intervals, and p-values indicating statistical significance. The hierarchical structure is simplified, combining the main header "ADT Plus Docetaxel" with the subheader "ADT Alone" to enhance clarity. The data indicates that high-volume patients benefit more from ADT plus docetaxel compared to low-volume patients, as reflected in the lower median time to CRPC and significant hazard ratios.
+
+GUIDELINES:
+- For each listed column, extract a value if explicitly present; otherwise set value=null.
+- Provide evidence as an exact quote, page number(s), confidence (high/medium/low).
+- Use the EXACT column names from the list above.
+
+Output format (for each column):
+Column index <N>: "<Exact Column Name>"
+Value: <extracted value or null>
+Evidence: "<exact quote>"
+Page: <page number>
+Confidence: <high/medium/low>
+
+
+OUTPUT:
+Column index 1: "TTPSA (mo) | Treatment"  
+Value: 19.4 (16.8 to 22.6)  
+Evidence: "This value is reported as 'Median Time (95% CI; months)' under the 'ADT Plus Docetaxel' column in Table 2. Extract the value from the row labeled 'Overall,' which is 19.4 (16.8 to 22.6)."  
+Page: 6  
+Confidence: High  
+
+Column index 2: "TTPSA (mo) | Control"  
+Value: 11.7 (10.8 to 14.4)  
+Evidence: "This value is reported as 'Median Time (95% CI; months)' under the 'ADT Alone' column in Table 2. Extract the value from the row labeled 'Overall,' which is 11.7 (10.8 to 14.4)."  
+Page: 6  
+Confidence: High

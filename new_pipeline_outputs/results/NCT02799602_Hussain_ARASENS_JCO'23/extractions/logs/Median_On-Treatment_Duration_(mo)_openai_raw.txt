@@ -1,0 +1,48 @@
+================================================================================
+INPUT PROMPT
+================================================================================
+
+You are extracting clinical trial data from a research paper.
+
+TASK:
+Extract values for the following canonical columns. Each column has a canonical index and a canonical name.
+
+⚠️ CRITICAL: You MUST use the EXACT column names as listed below.
+Do NOT paraphrase, abbreviate, or modify names in ANY way.
+Character-for-character match is REQUIRED (including spaces, punctuation, pipes |, parentheses).
+
+COLUMNS TO EXTRACT (index + name are canonical; copy these EXACT names in your output):
+- Column index 1: "Median On-Treatment Duration (mo) | Treatment"
+  Expected Location: Page 11 | text
+  Planner Confidence: high
+  Extraction Instructions:
+  The value is reported in the text. Extract "41" from Chunk 10, page 11, under the "DISCUSSION" section, which states: "median treatment duration in ARASENS was 41 months for darolutamide plus ADT and docetaxel".
+
+RELEVANT PRE-EXTRACTED CHUNKS (filtered by planner page+type):
+--- Chunk 11 (TEXT on page 10-13) ---
+The following represents disclosure information provided by authors of this manuscript. All relationships are considered compensated unless otherwise noted.Relationships are self-held unless noted. I 5 Immediate Family Member, Inst 5 My Institution. Relationships may not relate to the subject matter of this manuscript.For more information about ASCO’s conﬂict of interest policy, please refer to www.asco.org/rwc or ascopubs.org/jco/authors/author-center. Open Payments is a public database contain...
+
+GUIDELINES:
+- For each listed column, extract a value if explicitly present. If not found, set value=null.
+- Provide evidence as an exact quote.
+- Provide page number(s).
+- Provide confidence high/medium/low.
+- When referencing columns, use the EXACT names from the list above (copy-paste them).
+
+Output format (free-form is OK), but for EACH column include a line like:
+Column index <N>: "<Exact Column Name from list above>"
+Value: <extracted value or null>
+Evidence: "<exact quote>"
+Page: <page number>
+Confidence: <high/medium/low>
+
+
+================================================================================
+OUTPUT RESPONSE
+================================================================================
+
+Column index 1: "Median On-Treatment Duration (mo) | Treatment"
+Value: 41
+Evidence: "median treatment duration in ARASENS was 41 months for darolutamide plus ADT and docetaxel"
+Page: 11
+Confidence: high

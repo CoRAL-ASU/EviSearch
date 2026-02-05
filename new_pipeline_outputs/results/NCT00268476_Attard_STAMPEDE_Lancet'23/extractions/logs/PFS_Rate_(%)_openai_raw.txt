@@ -1,0 +1,59 @@
+================================================================================
+INPUT PROMPT
+================================================================================
+
+You are extracting clinical trial data from a research paper.
+
+TASK:
+Extract values for the following canonical columns. Each column has a canonical index and a canonical name.
+
+⚠️ CRITICAL: You MUST use the EXACT column names as listed below.
+Do NOT paraphrase, abbreviate, or modify names in ANY way.
+Character-for-character match is REQUIRED (including spaces, punctuation, pipes |, parentheses).
+
+COLUMNS TO EXTRACT (index + name are canonical; copy these EXACT names in your output):
+- Column index 1: "PFS Rate (%) | Overall | Treatment"
+  Expected Location: Page 9 | figure
+  Planner Confidence: high
+  Extraction Instructions:
+  The hazard ratio (HR) with 95% confidence intervals (CI) for progression-free survival (defined as failure-free survival) for the treatment arms compared to their respective control arms is reported. - For the abiraterone trial (Standard of care plus abiraterone vs Standard of care): HR 0.34 (95% CI 0.29–0.39); p<0.0001. - For the abiraterone and enzalutamide trial (Standard of care plus abiraterone plus enzalutamide vs Standard of care): HR 0.36 (95% CI 0.31–0.43); p<0.0001.
+
+RELEVANT PRE-EXTRACTED CHUNKS (filtered by planner page+type):
+--- Chunk 3 (FIGURE on page 9) ---
+``` ##Figure Descriptions##  ## Figure 4 This figure presents secondary efficacy endpoint analyses for the abiraterone and enzalutamide trials, showing survival curves for various treatment groups over time. Each panel (A-F) illustrates the progression-free survival and overall survival rates, comparing standard care with combinations of standard care plus abiraterone or enzalutamide, highlighting significant differences in outcomes. ```...
+
+GUIDELINES:
+- For each listed column, extract a value if explicitly present. If not found, set value=null.
+- Provide evidence as an exact quote.
+- Provide page number(s).
+- Provide confidence high/medium/low.
+- When referencing columns, use the EXACT names from the list above (copy-paste them).
+
+Output format (free-form is OK), but for EACH column include a line like:
+Column index <N>: "<Exact Column Name from list above>"
+Value: <extracted value or null>
+Evidence: "<exact quote>"
+Page: <page number>
+Confidence: <high/medium/low>
+
+
+================================================================================
+OUTPUT RESPONSE
+================================================================================
+
+Column index 1: "PFS Rate (%) | Overall | Treatment"  
+Value: 
+- Abiraterone trial (Standard of care plus abiraterone vs Standard of care): HR 0.34 (95% CI 0.29–0.39); p<0.0001.
+- Abiraterone and enzalutamide trial (Standard of care plus abiraterone plus enzalutamide vs Standard of care): HR 0.36 (95% CI 0.31–0.43); p<0.0001.
+
+Evidence:  
+- "In terms of failure-free survival (HR 0·34 [0·29–0·39]; p<0·0001 vs HR 0·36 [0·31–0·43]; p<0·0001; figure 4C, D; appendix pp 5, 18)"  
+- See Figure 4 legend and referenced curves: "Failure free survival (C, D)... HR 0·34 (95% CI 0·29–0·39); p<0·0001 [abiraterone trial] ... HR 0·36 (95% CI 0·31–0·43); p<0·0001 [abiraterone and enzalutamide trial]" (Page 451, Figure 4, curves C and D)
+
+Page: 451 (and confirmed in figure description on page 9 per planner)
+
+Confidence: high
+
+Notes:
+- The text and figure both explicitly provide the needed HR and CI for "progression-free survival" (defined as failure-free survival here) for both relevant arms. This is the requested endpoint for "PFS Rate (%) | Overall | Treatment".
+- No absolute percentage at a specific time point is reported for PFS—values are in the form of hazard ratios with confidence intervals, as instructed.

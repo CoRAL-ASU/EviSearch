@@ -1,0 +1,25 @@
+Okay, I will create an extraction plan for the requested clinical trial data extraction task. I will analyze the PDF and determine whether the values for the specified canonical columns are reported. If reported, I will identify the location and provide extraction instructions. If not reported, I will state that and explain why.
+
+Here's the extraction plan:
+
+1. Mode of metastases - N (%) | Synchronous | Treatment
+   - found_in_pdf: true
+   - page_number: 1
+   - source_type: text
+   - extraction_plan: The study focuses on "de novo metastatic castration-sensitive prostate cancer," which is synonymous with synchronous metastases. However, the exact N (%) for each treatment arm is not explicitly stated. The study includes four arms: SOC (n=296), SOC plus radiotherapy (n=293), SOC plus abiraterone (n=292), and SOC plus radiotherapy plus abiraterone (n=291). All patients in these arms have synchronous metastases by definition of the inclusion criteria.
+   - refinement_needed: The exact N (%) for each treatment arm is not explicitly stated but can be derived from the arm sizes.
+
+2. Mode of metastases - N (%) | Synchronous | Control
+   - found_in_pdf: true
+   - page_number: 1
+   - source_type: text
+   - extraction_plan: The study focuses on "de novo metastatic castration-sensitive prostate cancer," which is synonymous with synchronous metastases. However, the exact N (%) for each control arm is not explicitly stated. The study includes two control arms: SOC (n=296) and SOC plus radiotherapy (n=293). All patients in these arms have synchronous metastases by definition of the inclusion criteria.
+   - refinement_needed: The exact N (%) for each control arm is not explicitly stated but can be derived from the arm sizes.
+
+3. Mode of metastases - N (%) | Metachronous | Treatment
+   - found_in_pdf: false
+   - extraction_plan: The study specifically includes patients with de novo (synchronous) metastatic prostate cancer. Therefore, patients with metachronous metastases are excluded.
+
+4. Mode of metastases - N (%) | Metachronous | Control
+   - found_in_pdf: false
+   - extraction_plan: The study specifically includes patients with de novo (synchronous) metastatic prostate cancer. Therefore, patients with metachronous metastases are excluded.

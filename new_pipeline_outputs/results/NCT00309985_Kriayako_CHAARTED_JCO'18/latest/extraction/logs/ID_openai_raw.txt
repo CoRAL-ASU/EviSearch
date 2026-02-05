@@ -1,0 +1,154 @@
+INPUT PROMPT:
+You are extracting clinical trial data from a research paper.
+
+TASK: Extract values for the following canonical columns. Use EXACT column names as listed.
+
+COLUMNS TO EXTRACT:
+- Column index 1: "NCT"
+  Definition: What national Clinical Trial identifier, a unique identification number assigned to a clinical trial?. If reported, provide the value; otherwise use 'Not reported'.
+  Expected Location: Page 1 | text
+  Planner Confidence: high
+  Extraction Instructions:
+  Extract "NCT00309985" from the "Clinical trial information" section in the left column.
+
+- Column index 3: "Trial Name"
+  Definition: What the title or identifier of the clinical trial being referred to in the study?. If reported, provide the value; otherwise use 'Not reported'.
+  Expected Location: Page 1 | text
+  Planner Confidence: high
+  Extraction Instructions:
+  Extract "E3805 CHAARTED Trial" from the title of the article.
+
+- Column index 4: "Author"
+  Definition: What the name of the person or people responsible for writing or publishing the clinical trial study? Your answer should be a name/ list of names (you can use th et al. format )or 'NA'. If reported, provide the value; otherwise use 'Not reported'.
+  Expected Location: Page 1 | text
+  Planner Confidence: high
+  Extraction Instructions:
+  Extract the list of authors: "Christos E. Kyriakopoulos, Yu-Hui Chen, Michael A. Carducci, Glenn Liu, David F. Jarrard, Noah M. Hahn, Daniel H. Shevrin, Robert Dreicer, Maha Hussain, Mario Eisenberger, Manish Kohli, Elizabeth R. Plimack, Nicholas J. Vogelzang, Joel Picus, Matthew M. Cooney, Jorge A. Garcia, Robert S. DiPaola, and Christopher J. Sweeney" from the author list below the title.
+
+- Column index 5: "Year"
+  Definition: Publication year of the clinical trial. Use 'Not reported' if unclear.
+  Expected Location: Page 1 | text
+  Planner Confidence: high
+  Extraction Instructions:
+  Extract "2018" from the top of the page.
+
+- Column index 6: "Full Pub or Abstract"
+  Definition: Indicates whether results are fully published or only an abstract is available. Use 'Full Pub' or 'Abstract'; use 'Not reported' if unclear.
+  Expected Location: Page 1 | text
+  Planner Confidence: high
+  Extraction Instructions:
+  "Full Pub" because it is an "Original Report" published in the "Journal of Clinical Oncology".
+
+- Column index 7: "Phase"
+  Definition: Clinical trial phase (e.g., I, II, III, IV) as reported. Use 'Not reported' if unclear.
+  Expected Location: Page 1 | text
+  Planner Confidence: high
+  Extraction Instructions:
+  Extract "III" from "Randomized Phase III E3805 CHAARTED Trial" in the title.
+
+- Column index 8: "Original/Follow Up"
+  Definition: Whether the study is an original report or a follow-up analysis. Use Original or Follow up; use 'Not reported' if unclear.
+  Expected Location: Page 1 | text
+  Planner Confidence: high
+  Extraction Instructions:
+  "Follow up" because it is a "Long-Term Survival Analysis" of a previously published trial.
+
+RELEVANT CHUNKS:
+--- Chunk 6 (TEXT on page 1-3) ---
+Chemohormonal Therapy in Metastatic Hormone-SensitiveProstate Cancer: Long-Term Survival Analysis of theRandomized Phase III E3805 CHAARTED Trial Christos E. Kyriakopoulos, Yu-Hui Chen, Michael A. Carducci, Glenn Liu, David F. Jarrard, Noah M. Hahn,Daniel H. Shevrin, Robert Dreicer, Maha Hussain, Mario Eisenberger, Manish Kohli, Elizabeth R. Plimack,Nicholas J. Vogelzang, Joel Picus, Matthew M. Cooney, Jorge A. Garcia, Robert S. DiPaola, and Christopher J.Sweeney ABSTRACT PurposeDocetaxel added ...
+
+GUIDELINES:
+- For each listed column, extract a value if explicitly present; otherwise set value=null.
+- Provide evidence as an exact quote, page number(s), confidence (high/medium/low).
+- Use the EXACT column names from the list above.
+
+Output format (for each column):
+Column index <N>: "<Exact Column Name>"
+Value: <extracted value or null>
+Evidence: "<exact quote>"
+Page: <page number>
+Confidence: <high/medium/low>
+
+
+OUTPUT:
+Column index 1: "NCT"
+
+Value: NCT00309985
+
+Evidence: "Clinical trial information: NCT00309985."
+
+Page: 1
+
+Confidence: High
+
+---
+
+Column index 3: "Trial Name"
+
+Value: E3805 CHAARTED Trial
+
+Evidence: "Chemohormonal Therapy in Metastatic Hormone-Sensitive Prostate Cancer: Long-Term Survival Analysis of the Randomized Phase III E3805 CHAARTED Trial."
+
+Page: 1
+
+Confidence: High
+
+---
+
+Column index 4: "Author"
+
+Value: Christos E. Kyriakopoulos, Yu-Hui Chen, Michael A. Carducci, Glenn Liu, David F. Jarrard, Noah M. Hahn, Daniel H. Shevrin, Robert Dreicer, Maha Hussain, Mario Eisenberger, Manish Kohli, Elizabeth R. Plimack, Nicholas J. Vogelzang, Joel Picus, Matthew M. Cooney, Jorge A. Garcia, Robert S. DiPaola, and Christopher J. Sweeney
+
+Evidence: "Christos E. Kyriakopoulos, Yu-Hui Chen, Michael A. Carducci, Glenn Liu, David F. Jarrard, Noah M. Hahn, Daniel H. Shevrin, Robert Dreicer, Maha Hussain, Mario Eisenberger, Manish Kohli, Elizabeth R. Plimack, Nicholas J. Vogelzang, Joel Picus, Matthew M. Cooney, Jorge A. Garcia, Robert S. DiPaola, and Christopher J. Sweeney."
+
+Page: 1
+
+Confidence: High
+
+---
+
+Column index 5: "Year"
+
+Value: 2018
+
+Evidence: "© 2018 by American Society of Clinical Oncology."
+
+Page: 1
+
+Confidence: High
+
+---
+
+Column index 6: "Full Pub or Abstract"
+
+Value: Full Pub
+
+Evidence: "ORIGINAL REPORT - Journal of Clinical Oncology."
+
+Page: 1
+
+Confidence: High
+
+---
+
+Column index 7: "Phase"
+
+Value: III
+
+Evidence: "Randomized Phase III E3805 CHAARTED Trial."
+
+Page: 1
+
+Confidence: High
+
+---
+
+Column index 8: "Original/Follow Up"
+
+Value: Follow up
+
+Evidence: "Long-Term Survival Analysis of the Randomized Phase III E3805 CHAARTED Trial."
+
+Page: 1
+
+Confidence: High

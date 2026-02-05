@@ -1,0 +1,125 @@
+================================================================================
+INPUT PROMPT
+================================================================================
+
+You are extracting clinical trial data from a research paper.
+
+TASK:
+Extract values for the following canonical columns. Each column has a canonical index and a canonical name.
+
+⚠️ CRITICAL: You MUST use the EXACT column names as listed below.
+Do NOT paraphrase, abbreviate, or modify names in ANY way.
+Character-for-character match is REQUIRED (including spaces, punctuation, pipes |, parentheses).
+
+COLUMNS TO EXTRACT (index + name are canonical; copy these EXACT names in your output):
+- Column index 1: "Mode of metastases - N (%) | Synchronous | Treatment"
+  Expected Location: Page 5 | table
+  Planner Confidence: high
+  Extraction Instructions:
+  Extract the count and percentage for "De novo mHSPC" from Table 1, summing the values for "Darolutamide (n = 497)" under "High Volume" and "Darolutamide (n = 154)" under "Low Volume". - Darolutamide (High Volume): 432 patients - Darolutamide (Low Volume): 126 patients - Total Darolutamide patients with synchronous metastases = 432 + 126 = 558. - Total Darolutamide patients in the arm = 497 (High Volume) + 154 (Low Volume) = 651. - Percentage = (558 / 651) * 100 = 85.7%.
+
+- Column index 2: "Mode of metastases - N (%) | Synchronous | Control"
+  Expected Location: Page 5 | table
+  Planner Confidence: high
+  Extraction Instructions:
+  Extract the count and percentage for "De novo mHSPC" from Table 1, summing the values for "Placebo (n = 508)" under "High Volume" and "Placebo (n = 146)" under "Low Volume". - Placebo (High Volume): 445 patients - Placebo (Low Volume): 121 patients - Total Placebo patients with synchronous metastases = 445 + 121 = 566. - Total Placebo patients in the arm = 508 (High Volume) + 146 (Low Volume) = 654. - Percentage = (566 / 654) * 100 = 86.5%.
+
+- Column index 3: "Mode of metastases - N (%) | Metachronous | Treatment"
+  Expected Location: Page 5 | table
+  Planner Confidence: high
+  Extraction Instructions:
+  Extract the count and percentage for "Recurrent mHSPC" from Table 1, summing the values for "Darolutamide (n = 497)" under "High Volume" and "Darolutamide (n = 154)" under "Low Volume". - Darolutamide (High Volume): 58 patients - Darolutamide (Low Volume): 28 patients - Total Darolutamide patients with metachronous metastases = 58 + 28 = 86. - Total Darolutamide patients in the arm = 651. - Percentage = (86 / 651) * 100 = 13.2%.
+
+- Column index 4: "Mode of metastases - N (%) | Metachronous | Control"
+  Expected Location: Page 5 | table
+  Planner Confidence: high
+  Extraction Instructions:
+  Extract the count and percentage for "Recurrent mHSPC" from Table 1, summing the values for "Placebo (n = 508)" under "High Volume" and "Placebo (n = 146)" under "Low Volume". - Placebo (High Volume): 59 patients - Placebo (Low Volume): 23 patients - Total Placebo patients with metachronous metastases = 59 + 23 = 82. - Total Placebo patients in the arm = 654. - Percentage = (82 / 654) * 100 = 12.5%.
+
+RELEVANT PRE-EXTRACTED CHUNKS (filtered by planner page+type):
+--- Chunk 1 (TABLE on page 5) ---
+Summary: **Table 1.** Baseline Demographics and Patient Characteristics for the Subgroups of Patients by Disease Volume and Disease Risk in ARASENS. The table presents data on various characteristics at baseline for patients receiving Darolutamide or placebo, categorized by high and low disease volume and ri...
+
+Structured Table:
+##Markdown Table##
+
+| Characteristic at Baseline                     | Darolutamide (n = 497) | Placebo (n = 508) | Darolutamide (n = 154) | Placebo (n = 146) | Darolutamide (n = 452) | Placebo (n = 460) | All Patients (N = 1,305) |
+|------------------------------------------------|------------------------|-------------------|------------------------|-------------------|------------------------|-------------------|--------------------------|
+| Age, median, years (range)                    | 67.0 (41-89)           | 67.0 (44-86)      | 67.0 (41-84)           | 67.5 (42-81)      | 67.0 (41-86)           | 67.0 (44-85)      | 67.0 (42-85)             |
+| ECOG PS*, No. (%)                              |                        |                   |                        |                   |                        |                   |                          |
+| 0                                              | 343 (69.0)             | 349 (68.7)        | 123 (79.9)             | 113 (77.4)        | 317 (70.1)             | 318 (69.1)        | 149 (74.2)               |
+| 1                                              | 154 (31.0)             | 157 (30.9)        | 31 (20.1)              | 33 (22.6)         | 135 (29.9)             | 140 (30.4)        | 50 (25.1)                |
+| Missing                                        | 2 (0.4)                | 2 (0.4)           | 0                      | 2 (0.4)           | 2 (0.4)                | 2 (0.4)           | 2 (0.2)                  |
+| Gleason score at initial diagnosis,† No. (%)   |                        |                   |                        |                   |                        |                   |                          |
+| < 8                                           | 96 (19.3)              | 87 (17.1)         | 26 (16.9)              | 31 (21.2)         | 16 (3.5)               | 106 (53.3)        | 240 (18.4)               |
+| ≥ 8                                           | 381 (76.7)             | 403 (79.3)        | 124 (80.5)             | 113 (77.4)        | 428 (94.7)             | 440 (95.7)        | 77 (39.2)                |
+| Missing                                        | 20 (4.0)               | 18 (3.5)          | 3 (2.4)                | 2 (1.4)           | 1 (0.8)                | 16 (8.0)          | 44 (4.3)                 |
+| Metastasis stage at initial diagnosis, No. (%) |                        |                   |                        |                   |                        |                   |                          |
+| De novo mHSPC                                 | 432 (86.9)             | 445 (87.6)        | 126 (81.8)             | 416 (92.0)        | 419 (91.1)             | 142 (71.4)        | 147 (75.3)               |
+| Recurrent mHSPC                               | 58 (11.7)              | 59 (11.6)         | 28 (18.2)              | 33 (15.8)         | 33 (7.3)               | 39 (8.5)          | 53 (26.6)                |
+| M
+
+GUIDELINES:
+- For each listed column, extract a value if explicitly present. If not found, set value=null.
+- Provide evidence as an exact quote.
+- Provide page number(s).
+- Provide confidence high/medium/low.
+- When referencing columns, use the EXACT names from the list above (copy-paste them).
+
+Output format (free-form is OK), but for EACH column include a line like:
+Column index <N>: "<Exact Column Name from list above>"
+Value: <extracted value or null>
+Evidence: "<exact quote>"
+Page: <page number>
+Confidence: <high/medium/low>
+
+
+================================================================================
+OUTPUT RESPONSE
+================================================================================
+
+Column index 1: "Mode of metastases - N (%) | Synchronous | Treatment"
+Value: 558 (85.7%)
+Evidence: 
+From the table: "De novo mHSPC 432 (86.9)" for Darolutamide (n = 497) | "De novo mHSPC 126 (81.8)" for Darolutamide (n = 154).
+Sum: 432 + 126 = 558 patients with synchronous metastases in the Treatment arm.  
+Total Darolutamide patients: 497 + 154 = 651.  
+Percentage: (558 / 651) * 100 = 85.7%
+Page: 5
+Confidence: high
+
+---
+
+Column index 2: "Mode of metastases - N (%) | Synchronous | Control"
+Value: 566 (86.5%)
+Evidence: 
+From the table: "De novo mHSPC 445 (87.6)" for Placebo (n = 508) | "De novo mHSPC 121 (82.9)" for Placebo (n = 146).
+Sum: 445 + 121 = 566 patients with synchronous metastases in the Control arm.
+Total Placebo patients: 508 + 146 = 654.
+Percentage: (566 / 654) * 100 = 86.5%
+Page: 5
+Confidence: high
+
+---
+
+Column index 3: "Mode of metastases - N (%) | Metachronous | Treatment"
+Value: 86 (13.2%)
+Evidence: 
+From the table: "Recurrent mHSPC 58 (11.7)" for Darolutamide (n = 497) | "Recurrent mHSPC 28 (18.2)" for Darolutamide (n = 154).
+Sum: 58 + 28 = 86 patients with metachronous metastases in the Treatment arm.
+Total Darolutamide patients: 497 + 154 = 651.
+Percentage: (86 / 651) * 100 = 13.2%
+Page: 5
+Confidence: high
+
+---
+
+Column index 4: "Mode of metastases - N (%) | Metachronous | Control"
+Value: 82 (12.5%)
+Evidence: 
+From the table: "Recurrent mHSPC 59 (11.6)" for Placebo (n = 508) | "Recurrent mHSPC 23 (15.8)" for Placebo (n = 146).
+Sum: 59 + 23 = 82 patients with metachronous metastases in the Control arm.
+Total Placebo patients: 508 + 146 = 654.
+Percentage: (82 / 654) * 100 = 12.5%
+Page: 5
+Confidence: high

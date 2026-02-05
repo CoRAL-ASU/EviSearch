@@ -1,0 +1,120 @@
+================================================================================
+INPUT PROMPT
+================================================================================
+
+You are extracting clinical trial data from a research paper.
+
+TASK:
+Extract values for the following canonical columns. Each column has a canonical index and a canonical name.
+
+⚠️ CRITICAL: You MUST use the EXACT column names as listed below.
+Do NOT paraphrase, abbreviate, or modify names in ANY way.
+Character-for-character match is REQUIRED (including spaces, punctuation, pipes |, parentheses).
+
+COLUMNS TO EXTRACT (index + name are canonical; copy these EXACT names in your output):
+- Column index 1: "NCT"
+  Expected Location: Page 1 | text
+  Planner Confidence: high
+  Extraction Instructions:
+  The NCT identifier is reported in the "Background" section of the abstract on page 1: "STAMPEDE is registered with ClinicalTrials.gov (NCT00268476)". It is also mentioned in the "Methods" section on page 3 and in the "Role of the funding source" section on page 6.
+
+- Column index 3: "Trial Name"
+  Expected Location: Page 1 | text
+  Planner Confidence: high
+  Extraction Instructions:
+  The trial name is mentioned in the title of the article on page 1: "Abiraterone acetate plus prednisolone with or without enzalutamide for patients with metastatic prostate cancer starting androgen deprivation therapy: final results from two randomised phase 3 trials of the STAMPEDE platform protocol". The STAMPEDE platform protocol is also frequently referenced throughout the text.
+
+- Column index 4: "Author"
+  Expected Location: Page 1 | text
+  Planner Confidence: high
+  Extraction Instructions:
+  The authors are listed on page 1 at the beginning of the article: "Gerhardt Attard, Laura Murphy, Noel W Clarke, Ashwin Sachdeva, Craig Jones, Alex Hoyle, William Cross, Robert J Jones, Christopher C Parker, Silke Gillessen, Adrian Cook, Chris Brawley, Clare Gilson, Hannah Rush, Hoda Abdel-Aty, Claire L Amos, Claire Murphy, Simon Chowdhury, Zafar Malik, J Martin Russell, Nazia Parkar, Cheryl Pugh, Carlos Diaz-Montana, Carmel Pezaro, Warren Grant, Helen Saxby, Ian Pedley, Joe O'Sullivan, Alison Birtle, Joanna Gale, Narayanan Srihari, Carys Thomas, Jacob Tanguay, John Wagstaff, Prantik Das, Emma Gray, Mymoona Alzouebi, Omi Parikh, Angus Robinson, Amir H Montazeri, James Wylie, Anjali Zarkar, Richard Cathomas, Michael D Brown, Yatin Jain, David P Dearnaley, Malcolm D Mason, Duncan Gilbert, Ruth E Langley, Robin Millman, David Matheson, Matthew R Sydes, Louise C Brown, Mahesh K B Parmar, Nicholas D James, for the STAMPEDE investigators".
+
+- Column index 5: "Year"
+  Expected Location: Page 1 | text
+  Planner Confidence: high
+  Extraction Instructions:
+  The publication year is stated in the footer of page 1: "Lancet Oncol 2023".
+
+- Column index 6: "Full Pub or Abstract"
+  Expected Location: Page 1 | text
+  Planner Confidence: high
+  Extraction Instructions:
+  The document contains a detailed "Methods," "Findings," "Discussion," and "References" section, indicating it is a full publication rather than just an abstract.
+
+- Column index 7: "Phase"
+  Expected Location: Page 1 | text
+  Planner Confidence: high
+  Extraction Instructions:
+  The phase is mentioned in the title on page 1: "final results from two randomised phase 3 trials". It is also stated in the "Methods" section on page 3: "We analysed two open-label, randomised, controlled, phase 3 trials of the STAMPEDE platform protocol".
+
+- Column index 8: "Original/Follow Up"
+  Expected Location: Page 1 | text
+  Planner Confidence: high
+  Extraction Instructions:
+  The title on page 1 states "final results from two randomised phase 3 trials". The "Background" section on page 1 also mentions "Here, we aimed to evaluate long-term outcomes..." and "The STAMPEDE abiraterone trial has now closed, 10 years after initiation of accrual, providing the opportunity to assess new data on long-term efficacy of intensified hormone treatment...". The "Methods" section on page 3 states "Here, we report long-term outcomes of patients in the abiraterone trial and primary results from the abiraterone and enzalutamide trial."
+
+RELEVANT PRE-EXTRACTED CHUNKS (filtered by planner page+type):
+--- Chunk 5 (TEXT on page 1-2) ---
+Lancet Oncol 2023; 24: 443–56 *Retired †Contributed equally ‡Investigators listed in the appendix (p 217) Abiraterone acetate plus prednisolone with or without enzalutamide for patients with metastatic prostate cancer starting androgen deprivation therapy: final results from two randomised phase 3 trials of the STAMPEDE platform protocol Gerhardt Attard, Laura Murphy, Noel W Clarke, Ashwin Sachdeva, Craig Jones, Alex Hoyle, William Cross, Robert J Jones, Christopher C Parker, Silke Gillessen, Ad...
+
+GUIDELINES:
+- For each listed column, extract a value if explicitly present. If not found, set value=null.
+- Provide evidence as an exact quote.
+- Provide page number(s).
+- Provide confidence high/medium/low.
+- When referencing columns, use the EXACT names from the list above (copy-paste them).
+
+Output format (free-form is OK), but for EACH column include a line like:
+Column index <N>: "<Exact Column Name from list above>"
+Value: <extracted value or null>
+Evidence: "<exact quote>"
+Page: <page number>
+Confidence: <high/medium/low>
+
+
+================================================================================
+OUTPUT RESPONSE
+================================================================================
+
+Column index 1: "NCT"
+Value: NCT00268476
+Evidence: "STAMPEDE is registered with ClinicalTrials.gov (NCT00268476) and ISRCTN (ISRCTN78818544)."
+Page: 1
+Confidence: high
+
+Column index 3: "Trial Name"
+Value: STAMPEDE platform protocol
+Evidence: Title: "Abiraterone acetate plus prednisolone with or without enzalutamide for patients with metastatic prostate cancer starting androgen deprivation therapy: final results from two randomised phase 3 trials of the STAMPEDE platform protocol"
+Page: 1
+Confidence: high
+
+Column index 4: "Author"
+Value: Gerhardt Attard, Laura Murphy, Noel W Clarke, Ashwin Sachdeva, Craig Jones, Alex Hoyle, William Cross, Robert J Jones, Christopher C Parker, Silke Gillessen, Adrian Cook, Chris Brawley, Clare Gilson, Hannah Rush, Hoda Abdel-Aty, Claire L Amos, Claire Murphy, Simon Chowdhury, Zafar Malik, J Martin Russell, Nazia Parkar, Cheryl Pugh, Carlos Diaz-Montana, Carmel Pezaro, Warren Grant, Helen Saxby, Ian Pedley, Joe M O’Sullivan, Alison Birtle, Joanna Gale, Narayanan Srihari, Carys Thomas, Jacob Tanguay, John Wagstaff, Prantik Das, Emma Gray, Mymoona Alzouebi, Omi Parikh, Angus Robinson, Amir H Montazeri, James Wylie, Anjali Zarkar, Richard Cathomas, Michael D Brown, Yatin Jain, David P Dearnaley, Malcolm D Mason, Duncan Gilbert, Ruth E Langley, Robin Millman, David Matheson, Matthew R Sydes, Louise C Brown, Mahesh K B Parmar, Nicholas D James, for the STAMPEDE investigators
+Evidence: "Gerhardt Attard, Laura Murphy, Noel W Clarke, Ashwin Sachdeva, Craig Jones, Alex Hoyle, William Cross, Robert J Jones, Christopher C Parker, Silke Gillessen, Adrian Cook, Chris Brawley, Clare Gilson, Hannah Rush, Hoda Abdel-Aty, Claire L Amos, Claire Murphy, Simon Chowdhury, Zafar Malik, J Martin Russell, Nazia Parkar, Cheryl Pugh, Carlos Diaz-Montana, Carmel Pezaro, Warren Grant, Helen Saxby, Ian Pedley, Joe M O’Sullivan, Alison Birtle, Joanna Gale, Narayanan Srihari, Carys Thomas, Jacob Tanguay, John Wagstaff, Prantik Das, Emma Gray, Mymoona Alzouebi, Omi Parikh, Angus Robinson, Amir H Montazeri, James Wylie, Anjali Zarkar, Richard Cathomas, Michael D Brown, Yatin Jain, David P Dearnaley*, Malcolm D Mason*, Duncan Gilbert, Ruth E Langley, Robin Millman, David Matheson, Matthew R Sydes†, Louise C Brown†, Mahesh K B Parmar†, Nicholas D James†, for the STAMPEDE investigators‡"
+Page: 1
+Confidence: high
+
+Column index 5: "Year"
+Value: 2023
+Evidence: "Lancet Oncol 2023; 24: 443–56"
+Page: 1
+Confidence: high
+
+Column index 6: "Full Pub or Abstract"
+Value: Full Pub
+Evidence: "The document contains a detailed 'Methods,' 'Findings,' 'Discussion,' and 'References' section, indicating it is a full publication rather than just an abstract."
+Page: 1
+Confidence: high
+
+Column index 7: "Phase"
+Value: Phase 3
+Evidence: "final results from two randomised phase 3 trials of the STAMPEDE platform protocol" (title); "We analysed two open-label, randomised, controlled, phase 3 trials of the STAMPEDE platform protocol," (methods section)
+Page: 1
+Confidence: high
+
+Column index 8: "Original/Follow Up"
+Value: Follow Up
+Evidence: "final results from two randomised phase 3 trials", "Here, we aimed to evaluate long-term outcomes...", "The STAMPEDE abiraterone trial has now closed, 10 years after initiation of accrual, providing the opportunity to assess new data on long-term efficacy..." and "Here, we report long-term outcomes of patients in the abiraterone trial and primary results from the abiraterone and enzalutamide trial."
+Page: 1
+Confidence: high

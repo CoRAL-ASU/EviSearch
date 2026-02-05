@@ -1,0 +1,49 @@
+================================================================================
+INPUT PROMPT
+================================================================================
+
+You are extracting clinical trial data from a research paper.
+
+TASK:
+Extract values for the following canonical columns. Each column has a canonical index and a canonical name.
+
+⚠️ CRITICAL: You MUST use the EXACT column names as listed below.
+Do NOT paraphrase, abbreviate, or modify names in ANY way.
+Character-for-character match is REQUIRED (including spaces, punctuation, pipes |, parentheses).
+
+COLUMNS TO EXTRACT (index + name are canonical; copy these EXACT names in your output):
+- Column index 1: "Median On-Treatment Duration (mo) | Treatment"
+  Expected Location: Page 5 | text
+  Planner Confidence: high
+  Extraction Instructions:
+  The median number of docetaxel (D) cycles for patients in the GETUG-AFU15 trial's ADT plus D arm was 8 cycles. Docetaxel was administered in 21-day cycles. Calculate the total duration: 8 cycles * 21 days/cycle = 168 days. Convert days to months (assuming 30.4375 days/month for an average month): 168 days / 30.4375 days/month ≈ 5.5 months.
+
+RELEVANT PRE-EXTRACTED CHUNKS (filtered by planner page+type):
+--- Chunk 5 (TEXT on page 3-5) ---
+alone [26]. Results indicate that D-based chemotherapy isassociated with improved relapse-free survival in high-risklocalized PCa [27]. A longer follow-up of this trial and otherongoing similar studies will be required to assess whetherthisbenefittranslatesintoimprovedmetastasis-freesurvival and, ultimately, OS.The main limitation of our study is that data on metastaticburden were collected retrospectively. The study was notinitially designed to show the benefits of chemotherapy inspecific subgr...
+
+GUIDELINES:
+- For each listed column, extract a value if explicitly present. If not found, set value=null.
+- Provide evidence as an exact quote.
+- Provide page number(s).
+- Provide confidence high/medium/low.
+- When referencing columns, use the EXACT names from the list above (copy-paste them).
+
+Output format (free-form is OK), but for EACH column include a line like:
+Column index <N>: "<Exact Column Name from list above>"
+Value: <extracted value or null>
+Evidence: "<exact quote>"
+Page: <page number>
+Confidence: <high/medium/low>
+
+
+================================================================================
+OUTPUT RESPONSE
+================================================================================
+
+Column index 1: "Median On-Treatment Duration (mo) | Treatment"  
+Value: 5.5  
+Evidence: "Discrepancies between the GETUG-AFU15 and the CHAARTED studies cannot be explained by treatment exposure because patients received a median number of eight and six cycles of D, respectively." ... "Docetaxel (D) ... 75 mg/m2 for 21 d, up to nine cycles."  
+Calculation: 8 cycles × 21 days = 168 days. 168 days / 30.4375 days/month ≈ 5.5 months.  
+Page: 260 (8 cycles quote), 257 (cycle duration quote)  
+Confidence: high
