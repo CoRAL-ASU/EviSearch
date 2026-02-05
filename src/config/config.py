@@ -100,7 +100,7 @@ EXTRACTION_MODE = "plan"  # "plan" (V2) or "rag" (legacy)
 
 # Planning stage (multimodal: PDF + chunks)
 PLANNING_PROVIDER = "gemini"
-PLANNING_MODEL = "gemini-2.0-flash-001"
+PLANNING_MODEL = "gemini-2.5-flash"
 PLANNING_WORKERS = 10
 
 # Extraction stage (execute plans)
@@ -110,7 +110,7 @@ EXTRACTION_WORKERS = 10
 
 # Evaluation stage (category-aware)
 EVALUATION_PROVIDER_V2 = "gemini"
-EVALUATION_MODEL_V2 = "gemini-2.0-flash-001"
+EVALUATION_MODEL_V2 = "gemini-2.5-flash"
 EVALUATION_WORKERS = 5
 
 # Output versioning (timestamped run directories)
