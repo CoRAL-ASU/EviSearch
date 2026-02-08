@@ -99,7 +99,7 @@ class OutputStructurer:
                     messages=[
                         {
                             "role": "system",
-                            "content": "You are a JSON structuring assistant. Extract and structure information from the given text into valid JSON matching the provided schema. Output ONLY valid JSON, no explanations."
+                            "content": "You are a JSON structuring assistant. Extract and structure information from the given text into valid JSON matching the provided schema. Output ONLY valid JSON - no markdown code blocks (no ```json or ```), no explanations, no extra text. Just the raw JSON object."
                         },
                         {
                             "role": "user",
@@ -229,7 +229,13 @@ SCHEMA:
 TEXT TO STRUCTURE:
 {text}
 
-Output ONLY valid JSON matching the schema above. No explanations, no markdown formatting, no extra text."""
+{"="*60}
+IMPORTANT OUTPUT REQUIREMENTS:
+- Output ONLY valid JSON matching the schema above
+- Do NOT use markdown code blocks (no ```json or ```)
+- Do NOT add any explanations or extra text
+- Output ONLY the raw JSON object, nothing else
+{"="*60}"""
     
     def _format_schema_for_prompt(self, json_schema: dict) -> str:
         """Format JSON schema into a readable prompt description."""

@@ -18,14 +18,15 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 from src.LLMProvider.provider import LLMProvider
 from src.LLMProvider.structurer import OutputStructurer
 from src.utils.logging_utils import setup_logger
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
+from typing import Literal
 
 logger = setup_logger("evaluator_v2")
 
 
 class ColumnEvaluationResult(BaseModel):
     """Schema for individual column evaluation result."""
-    column: str
+    column: str = Field(..., description="The EXACT column name as provided, without any numbering prefix")
     correctness: float
     completeness: float
     reason: str
@@ -253,7 +254,10 @@ Columns to evaluate:\n"""
             prompt += f"   Pred: {pred_val}\n\n"
         
         prompt += """\nFor each column, provide your evaluation with reasoning, then output the final scores.
-Be thorough in your reasoning but concise."""
+Be thorough in your reasoning but concise.
+
+IMPORTANT: When returning results, use the EXACT column name shown above (without the number prefix).
+For example, if the column is shown as "1. Control Arm - N:", you must return column name as "Control Arm - N"."""
         
         return prompt
     
@@ -446,7 +450,7 @@ Return ONLY the JSON array, no other text."""
                     
                     # Store results with full context (thread-safe as we're collecting sequentially)
                     for result in batch_results:
-                        # Strip trailing colon from column name (added in prompt formatting)
+                        # Get the column name and strip trailing colon (added in prompt for readability)
                         col_name = result['column'].rstrip(':').strip()
                         self.results[col_name] = {
                             'correctness': result['correctness'],
