@@ -1,0 +1,59 @@
+INPUT PROMPT:
+You are extracting clinical trial data from a research paper.
+
+TASK: Extract values for the following canonical columns. Use EXACT column names as listed.
+
+COLUMNS TO EXTRACT:
+- Column index 1: "Median Follow-Up Duration (mo)"
+  Definition: What the median length of time, measured in months, that participants in the clinical trial were followed up or monitored after the start of the trial? If reported, include the value; use 'Not reported' if missing.
+  Expected Location: Page 4 | table
+  Planner Confidence: high
+  Extraction Instructions:
+  The median follow-up duration is reported in Table 2 on page 4. Extract the value from the row "Median follow-up, mo" and the column "All patients" under "GETUG-AFU 15". The value is 83.9.
+
+RELEVANT CHUNKS:
+--- Chunk 2 (TABLE on page 4) ---
+Summary: **Table 2 – Survival data in the GETUG-AFU 15 and CHAARTED studies by treatment arm and metastatic burden**  This table presents survival outcomes from two major studies (GETUG-AFU 15 and CHAARTED) comparing androgen deprivation therapy (ADT) alone versus ADT plus docetaxel (D) in patients with meta...
+
+Structured Table:
+##Markdown Table##
+
+| Median follow-up, mo | GETUG-AFU 15 |  |  | CHAARTED [15] |  |  |
+|----------------------|--------------|------------------|------------------|----------------|------------------|------------------|
+|                      | All patients n = 385 | HVD n = 183 | LVD n = 202 | All patients n = 790 | HVD n = 513 | LVD n = 277 |
+| ADT, mo              | 48.6         | 35.1            | 83.4            | 44.0           | 32.2            | NR              |
+| ADT plus D, mo       | 62.1         | 39.8            | NR              | 57.6           | 49.2            | NR              |
+| HR                   | 0.88         | 0.78            | 1.02            | 0.61           | 0.6             | 0.6             |
+| 95% CI               | 0.68–1.14    | 0.56–1.09       | 0.67–1.55       | 0.47–0.80      | 0.45–0.81       | 0.32–1.13       |
+| p value              | 0.3          | 0.14            | 0.9             | <0.001         | <0.001          | 0.11            |
+
+**Abbreviations:**  
+ADT = androgen deprivation therapy; CI = confidence interval; HR = hazard ratio; HVD = high-volume disease; LVD = low-volume disease; NR = not reached; D = docetaxel.
+
+##Caption##
+
+**Table 2 – Survival data in the GETUG-AFU 15 and CHAARTED studies by treatment arm and metastatic burden**
+
+This table presents survival outcomes from two major studies (GETUG-AFU 15 and CHAARTED) comparing androgen deprivation therapy (ADT) alone versus ADT plus docetaxel (D) in patients with metastatic prostate cancer, stratified by metastatic burden (high-volume disease [HVD] and low-volume disease [LVD]). The table includes the following row headers: ADT, mo; ADT plus D, mo; HR (hazard ratio); 95% CI (confidence interval); and p value. The column headers are: All patients, HVD, and LVD for both GETUG-AFU 15 and CHAARTED studies, with sample sizes indicated.
+
+The table provides median follow-up times, median overall survival (in months) for each treatment arm, hazard ratios with confidence intervals, and p values for statistical significance. For columns with hierarchical headers (e.g., "GETUG-AFU 15" with subcolumns "All patients," "HVD," and "LVD"), the headers have been combined for clarity in the Markdown table. The table helps compare the efficacy of adding docetaxel to ADT in different patient subgroups, highlighting differences in survival outcomes based on metastatic burden.
+
+GUIDELINES:
+- For each listed column, extract a value if explicitly present; otherwise set value=null.
+- Provide evidence as an exact quote, page number(s), confidence (high/medium/low).
+- Use the EXACT column names from the list above.
+
+Output format (for each column):
+Column index <N>: "<Exact Column Name>"
+Value: <extracted value or null>
+Evidence: "<exact quote>"
+Page: <page number>
+Confidence: <high/medium/low>
+
+
+OUTPUT:
+Column index 1: "Median Follow-Up Duration (mo)"
+Value: 83.9
+Evidence: "83.9"
+Page: 4
+Confidence: high

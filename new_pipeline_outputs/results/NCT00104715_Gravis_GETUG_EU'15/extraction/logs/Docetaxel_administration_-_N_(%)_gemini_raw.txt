@@ -1,0 +1,51 @@
+INPUT PROMPT:
+You are extracting clinical trial data from a research paper.
+
+TASK: Extract values for the following canonical columns. Use EXACT column names as listed.
+
+COLUMNS TO EXTRACT:
+- Column index 1: "Docetaxel administration - N (%) | Treatment"
+  Definition: What percentage of participants in the treatment arm of the clinical trial who received docetaxel before or during the trial? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.
+  Expected Location: Page 3 | text
+  Planner Confidence: high
+  Extraction Instructions:
+  The "Results" section specifies that 192 patients were in the "ADT plus D arm" (page 3, Chunk 5). As per the trial design, all patients randomized to the ADT plus D arm were intended to receive docetaxel. Therefore, 192 patients (100%) in the treatment arm received docetaxel.
+
+- Column index 2: "Docetaxel administration - N (%) | Control"
+  Definition: What number and percentage of participants who received docetaxel before or during the trial in the control arm of the clinical trial? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.
+  Expected Location: Page 5 | text
+  Planner Confidence: medium
+  Extraction Instructions:
+  The "Results" section states: "In the GETUG-AFU15 study, in contrast, the vast majority of patients (79%) in the ADT arm received so-called salvage D within a median time of 18.5 mo (95% CI, 2.9-179)" (page 5, Chunk 5). The total number of patients in the ADT arm was 193 (page 3, Chunk 5). Calculating 79% of 193 gives approximately 152 patients (0.79 * 193 = 152.47).
+
+RELEVANT CHUNKS:
+--- Chunk 4 (TEXT on page 1-3) ---
+Androgen Deprivation Therapy (ADT) Plus Docetaxel VersusADT Alone in Metastatic Non castrate Prostate Cancer:Impact of Metastatic Burden and Long-term SurvivalAnalysis of the Randomized Phase 3 GETUG-AFU15 Trial Gwenaelle Gravis a,*, Jean-Marie Boher b, Florence Joly c, Michel Soulie´ d, Laurence Albiges e,Franck Priou f, Igor Latorzeff g, Remy Delva h, Ivan Krakowski i, Brigitte Laguerre j,Fre´de´ric Rolland k, Christine The´odore l, Gael Deplanque m, Jean-Marc Ferrero n,Ste´phane Culine o, Loı...
+
+--- Chunk 5 (TEXT on page 3-5) ---
+alone [26]. Results indicate that D-based chemotherapy isassociated with improved relapse-free survival in high-risklocalized PCa [27]. A longer follow-up of this trial and otherongoing similar studies will be required to assess whetherthisbenefittranslatesintoimprovedmetastasis-freesurvival and, ultimately, OS.The main limitation of our study is that data on metastaticburden were collected retrospectively. The study was notinitially designed to show the benefits of chemotherapy inspecific subgr...
+
+GUIDELINES:
+- For each listed column, extract a value if explicitly present; otherwise set value=null.
+- Provide evidence as an exact quote, page number(s), confidence (high/medium/low).
+- Use the EXACT column names from the list above.
+
+Output format (for each column):
+Column index <N>: "<Exact Column Name>"
+Value: <extracted value or null>
+Evidence: "<exact quote>"
+Page: <page number>
+Confidence: <high/medium/low>
+
+
+OUTPUT:
+Column index 1: "Docetaxel administration - N (%) | Treatment"
+Value: 192 (100%)
+Evidence: "Eligible patients were randomized in a 1:1 ratio to ADT plus D (75 mg/m² for 21 d, up to nine cycles) or ADT alone."
+Page: 2
+Confidence: high
+Column index 2: "Docetaxel administration - N (%) | Control"
+Value: 152 (79%)
+Evidence: "In the GETUG-AFU15 study, in contrast, the vast majority of patients (79%) in the ADT arm received so-called salvage D within a median time of 18.5 mo (95% CI, 2.9-179)"
+Page: 5
+Confidence: medium

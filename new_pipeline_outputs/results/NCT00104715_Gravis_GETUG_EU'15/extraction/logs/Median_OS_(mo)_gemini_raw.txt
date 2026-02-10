@@ -1,0 +1,119 @@
+INPUT PROMPT:
+You are extracting clinical trial data from a research paper.
+
+TASK: Extract values for the following canonical columns. Use EXACT column names as listed.
+
+COLUMNS TO EXTRACT:
+- Column index 1: "Median OS (mo) | Overall | Treatment"
+  Definition: What is the median overall survival (in months) for all patients in the experimental arm? If reported, include the value; use 'Not reported' if missing.
+  Expected Location: Page 4 | table
+  Planner Confidence: high
+  Extraction Instructions:
+  The value is reported as "62.1" in Table 2, page 4, under the "GETUG-AFU 15" section, row "ADT plus D, mo", column "All patients". It is also stated in the Abstract on page 1 and in the "Overall survival" section on page 2: "62.1 mo (95% CI, 49.5–73.7) in the ADT plus D arm".
+
+- Column index 2: "Median OS (mo) | Overall | Control"
+  Definition: What is the median overall survival (in months) for all patients in the control arm? If reported, include the value; use 'Not reported' if missing.
+  Expected Location: Page 4 | table
+  Planner Confidence: high
+  Extraction Instructions:
+  The value is reported as "48.6" in Table 2, page 4, under the "GETUG-AFU 15" section, row "ADT, mo", column "All patients". It is also stated in the Abstract on page 1 and in the "Overall survival" section on page 2: "48.6 mo (95% CI, 40.9–60.6) for ADT arms".
+
+- Column index 3: "Median OS (mo) | High volume | Treatment"
+  Definition: What is the median overall survival (in months) for patients with high volume metastasis (by CHAARTED criteria) in the experimental arm? If reported, include the value; use 'Not reported' if missing.
+  Expected Location: Page 4 | table
+  Planner Confidence: high
+  Extraction Instructions:
+  The value is reported as "39.8" in Table 2, page 4, under the "GETUG-AFU 15" section, row "ADT plus D, mo", column "HVD". It is also stated in the Abstract on page 1 and in the "Overall survival" section on page 2: "39.8 mo (95% CI, 28.0–53.4) versus 35.1 mo (95% CI, 29.9–43.6) (HR: 0.78 [95% CI, 0.56–1.09]; p = 0.14), for low-volume disease (LVD) patients; median was not reached (NR; 95% CI, 69.5-NR) and 83.4 mo (95% CI, 61.8-NR) (HR: 1.02 [95% CI, 0.67-1.55]; p = 0.9)."
+
+- Column index 4: "Median OS (mo) | High volume | Control"
+  Definition: What is the median overall survival (in months) for patients with high volume metastasis (by CHAARTED criteria) in the control arm? If reported, include the value; use 'Not reported' if missing.
+  Expected Location: Page 4 | table
+  Planner Confidence: high
+  Extraction Instructions:
+  The value is reported as "35.1" in Table 2, page 4, under the "GETUG-AFU 15" section, row "ADT, mo", column "HVD". It is also stated in the Abstract on page 1 and in the "Overall survival" section on page 2: "39.8 mo (95% CI, 28.0–53.4) versus 35.1 mo (95% CI, 29.9–43.6) (HR: 0.78 [95% CI, 0.56–1.09]; p = 0.14)".
+
+- Column index 5: "Median OS (mo) | Low volume | Treatment"
+  Definition: What is the median overall survival (in months) for patients with low volume metastasis (by CHAARTED criteria) in the experimental arm? If reported, include the value; use 'Not reported' if missing.
+  Expected Location: Page 4 | table
+  Planner Confidence: high
+  Extraction Instructions:
+  The value is reported as "NR" (Not Reached) in Table 2, page 4, under the "GETUG-AFU 15" section, row "ADT plus D, mo", column "LVD". It is also stated in the Abstract on page 1 and in the "Overall survival" section on page 2: "median was not reached (NR; 95% CI, 69.5-NR)".
+
+- Column index 6: "Median OS (mo) | Low volume | Control"
+  Definition: What is the median overall survival (in months) for patients with low volume metastasis (by CHAARTED criteria) in the control arm? If reported, include the value; use 'Not reported' if missing.
+  Expected Location: Page 4 | table
+  Planner Confidence: high
+  Extraction Instructions:
+  The value is reported as "83.4" in Table 2, page 4, under the "GETUG-AFU 15" section, row "ADT, mo", column "LVD". It is also stated in the Abstract on page 1 and in the "Overall survival" section on page 2: "83.4 mo (95% CI, 61.8-NR)".
+
+RELEVANT CHUNKS:
+--- Chunk 2 (TABLE on page 4) ---
+Summary: **Table 2 – Survival data in the GETUG-AFU 15 and CHAARTED studies by treatment arm and metastatic burden**  This table presents survival outcomes from two major studies (GETUG-AFU 15 and CHAARTED) comparing androgen deprivation therapy (ADT) alone versus ADT plus docetaxel (D) in patients with meta...
+
+Structured Table:
+##Markdown Table##
+
+| Median follow-up, mo | GETUG-AFU 15 |  |  | CHAARTED [15] |  |  |
+|----------------------|--------------|------------------|------------------|----------------|------------------|------------------|
+|                      | All patients n = 385 | HVD n = 183 | LVD n = 202 | All patients n = 790 | HVD n = 513 | LVD n = 277 |
+| ADT, mo              | 48.6         | 35.1            | 83.4            | 44.0           | 32.2            | NR              |
+| ADT plus D, mo       | 62.1         | 39.8            | NR              | 57.6           | 49.2            | NR              |
+| HR                   | 0.88         | 0.78            | 1.02            | 0.61           | 0.6             | 0.6             |
+| 95% CI               | 0.68–1.14    | 0.56–1.09       | 0.67–1.55       | 0.47–0.80      | 0.45–0.81       | 0.32–1.13       |
+| p value              | 0.3          | 0.14            | 0.9             | <0.001         | <0.001          | 0.11            |
+
+**Abbreviations:**  
+ADT = androgen deprivation therapy; CI = confidence interval; HR = hazard ratio; HVD = high-volume disease; LVD = low-volume disease; NR = not reached; D = docetaxel.
+
+##Caption##
+
+**Table 2 – Survival data in the GETUG-AFU 15 and CHAARTED studies by treatment arm and metastatic burden**
+
+This table presents survival outcomes from two major studies (GETUG-AFU 15 and CHAARTED) comparing androgen deprivation therapy (ADT) alone versus ADT plus docetaxel (D) in patients with metastatic prostate cancer, stratified by metastatic burden (high-volume disease [HVD] and low-volume disease [LVD]). The table includes the following row headers: ADT, mo; ADT plus D, mo; HR (hazard ratio); 95% CI (confidence interval); and p value. The column headers are: All patients, HVD, and LVD for both GETUG-AFU 15 and CHAARTED studies, with sample sizes indicated.
+
+The table provides median follow-up times, median overall survival (in months) for each treatment arm, hazard ratios with confidence intervals, and p values for statistical significance. For columns with hierarchical headers (e.g., "GETUG-AFU 15" with subcolumns "All patients," "HVD," and "LVD"), the headers have been combined for clarity in the Markdown table. The table helps compare the efficacy of adding docetaxel to ADT in different patient subgroups, highlighting differences in survival outcomes based on metastatic burden.
+
+GUIDELINES:
+- For each listed column, extract a value if explicitly present; otherwise set value=null.
+- Provide evidence as an exact quote, page number(s), confidence (high/medium/low).
+- Use the EXACT column names from the list above.
+
+Output format (for each column):
+Column index <N>: "<Exact Column Name>"
+Value: <extracted value or null>
+Evidence: "<exact quote>"
+Page: <page number>
+Confidence: <high/medium/low>
+
+
+OUTPUT:
+Column index 1: "Median OS (mo) | Overall | Treatment"
+Value: 62.1
+Evidence: "62.1"
+Page: 4
+Confidence: high
+Column index 2: "Median OS (mo) | Overall | Control"
+Value: 48.6
+Evidence: "48.6"
+Page: 4
+Confidence: high
+Column index 3: "Median OS (mo) | High volume | Treatment"
+Value: 39.8
+Evidence: "39.8"
+Page: 4
+Confidence: high
+Column index 4: "Median OS (mo) | High volume | Control"
+Value: 35.1
+Evidence: "35.1"
+Page: 4
+Confidence: high
+Column index 5: "Median OS (mo) | Low volume | Treatment"
+Value: NR
+Evidence: "NR"
+Page: 4
+Confidence: high
+Column index 6: "Median OS (mo) | Low volume | Control"
+Value: 83.4
+Evidence: "83.4"
+Page: 4
+Confidence: high

@@ -1,0 +1,107 @@
+INPUT PROMPT:
+You are extracting clinical trial data from a research paper.
+
+TASK: Extract values for the following canonical columns. Use EXACT column names as listed.
+
+COLUMNS TO EXTRACT:
+- Column index 1: "Mode of metastases - N (%) | Synchronous | Treatment"
+  Definition: What the number and percentage of participants with synchronous metastases (metastases at the time of diagnosis of prostate cancer) in the treatment arm of the clinical trial? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.
+  Expected Location: Page 3 | table
+  Planner Confidence: high
+  Extraction Instructions:
+  The number and percentage of participants with synchronous metastases in the treatment arm (ADT plus D) are reported in Table 1, page 3, under "Metastases at diagnosis, n (%)". The value is 128 (67%).
+
+- Column index 2: "Mode of metastases - N (%) | Synchronous | Control"
+  Definition: What the number and percentage of participants with synchronous metastases (metastases at the time of diagnosis of prostate cancer) in the control arm of the clinical trial? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.
+  Expected Location: Page 3 | table
+  Planner Confidence: high
+  Extraction Instructions:
+  The number and percentage of participants with synchronous metastases in the control arm (ADT) are reported in Table 1, page 3, under "Metastases at diagnosis, n (%)". The value is 144 (76%).
+
+- Column index 3: "Mode of metastases - N (%) | Metachronous | Treatment"
+  Definition: What number and percentage of participants with metachronous metastases (metastases that occur after the diagnosis of prostate cancer) in the treatment arm of the clinical trial? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.
+  Expected Location: Page 3 | table
+  Planner Confidence: high
+  Extraction Instructions:
+  The number and percentage of participants with metachronous metastases in the treatment arm (ADT plus D) are reported in Table 1, page 3, under "Metastases after treatment for local disease, n (%)". The value is 62 (33%).
+
+- Column index 4: "Mode of metastases - N (%) | Metachronous | Control"
+  Definition: What the number and percentage of patients with metachronous metastases (metastases that occur after the diagnosis of prostate cancer) in the control arm of the clinical trial? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.
+  Expected Location: Page 3 | table
+  Planner Confidence: high
+  Extraction Instructions:
+  The number and percentage of participants with metachronous metastases in the control arm (ADT) are reported in Table 1, page 3, under "Metastases after treatment for local disease, n (%)". The value is 46 (24%).
+
+RELEVANT CHUNKS:
+--- Chunk 0 (TABLE on page 3) ---
+Summary: **Table 1 – Characteristics of the patients (n = 385)**  This table presents the baseline characteristics of patients enrolled in the GETUG-AFU15 trial, comparing those who received androgen-deprivation therapy (ADT, n = 193) with those who received ADT plus docetaxel (ADT plus D, n = 192). The tabl...
+
+Structured Table:
+##Markdown Table##
+
+| Characteristic                                 | ADT (n = 193)      | ADT plus D (n = 192) |
+|------------------------------------------------|--------------------|----------------------|
+| Age, yr, median (IQR)                          | 64.0 (58.0–70.0)   | 63.0 (57.0–68.2)     |
+| ECOG performance status, n (%)                 |                    |                      |
+| 0                                              | 176 (91)           | 181 (94)             |
+| 1–2                                            | 7 (4)              | 2 (1)                |
+| Gleason score, n (%)                           |                    |                      |
+| ≤7                                             | 78 (41)            | 84 (45)              |
+| ≥8                                             | 113 (59)           | 103 (55)             |
+| Metastases after treatment for local disease, n (%) | 46 (24)        | 62 (33)              |
+| Metastases at diagnosis, n (%)                 | 144 (76)           | 128 (67)             |
+| PSA, ng/ml, median (IQR)                       | 258.5 (50–1266)    | 267.5 (50–1066)      |
+| Alkaline phosphatase, n (%)                    |                    |                      |
+| Normal                                         | 113 (61)           | 106 (57)             |
+| Elevated                                       | 71 (37)            | 79 (41)              |
+| Bone metastases, n (%)                         | 156 (81)           | 155 (81)             |
+| Visceral metastases, n (%)                     | 23 (12)            | 28 (15)              |
+| Four or more bone metastases with one or more beyond pelvis or spine, n (%) | 95 (49) | 82 (43)  |
+| Low-volume disease (%)                         | 102 (53)           | 100 (52)             |
+| High-volume disease (%)                        | 91 (47)            | 92 (48)              |
+
+##Caption##
+
+**Table 1 – Characteristics of the patients (n = 385)**
+
+This table presents the baseline characteristics of patients enrolled in the GETUG-AFU15 trial, comparing those who received androgen-deprivation therapy (ADT, n = 193) with those who received ADT plus docetaxel (ADT plus D, n = 192). The table includes the following row headers: Age (median, IQR), ECOG performance status (0, 1–2), Gleason score (≤7, ≥8), Metastases after treatment for local disease, Metastases at diagnosis, PSA (ng/ml, median, IQR), Alkaline phosphatase (Normal, Elevated), Bone metastases, Visceral metastases, Four or more bone metastases with one or more beyond pelvis or spine, Low-volume disease, and High-volume disease. The column headers are "ADT (n = 193)" and "ADT plus D (n = 192)".
+
+The table provides detailed demographic and clinical information, including age distribution, performance status, disease characteristics (such as Gleason score and presence of metastases), and laboratory values (PSA and alkaline phosphatase). Disease volume is also categorized as low
+
+GUIDELINES:
+- For each listed column, extract a value if explicitly present; otherwise set value=null.
+- Provide evidence as an exact quote, page number(s), confidence (high/medium/low).
+- Use the EXACT column names from the list above.
+
+Output format (for each column):
+Column index <N>: "<Exact Column Name>"
+Value: <extracted value or null>
+Evidence: "<exact quote>"
+Page: <page number>
+Confidence: <high/medium/low>
+
+
+OUTPUT:
+Column index 1: "Mode of metastases - N (%) | Synchronous | Treatment"
+Value: 128 (67%)
+Evidence: "Metastases at diagnosis, n (%)                 | 144 (76)           | 128 (67)"
+Page: 3
+Confidence: high
+
+Column index 2: "Mode of metastases - N (%) | Synchronous | Control"
+Value: 144 (76%)
+Evidence: "Metastases at diagnosis, n (%)                 | 144 (76)           | 128 (67)"
+Page: 3
+Confidence: high
+
+Column index 3: "Mode of metastases - N (%) | Metachronous | Treatment"
+Value: 62 (33%)
+Evidence: "Metastases after treatment for local disease, n (%) | 46 (24)        | 62 (33)"
+Page: 3
+Confidence: high
+
+Column index 4: "Mode of metastases - N (%) | Metachronous | Control"
+Value: 46 (24%)
+Evidence: "Metastases after treatment for local disease, n (%) | 46 (24)        | 62 (33)"
+Page: 3
+Confidence: high

@@ -229,14 +229,14 @@ def format_chunks(chunks: list) -> str:
     for c in chunks:
         chunk_id, chunk_type, page = c["chunk_id"], c["type"].upper(), c["page"]
         if chunk_type == "TABLE" and c.get("table_content"):
-            content_summary = (c.get("content", "") or "")[:300].replace("\n", " ")
+            content_summary = (c.get("content", "") or "").replace("\n", " ")
             parts.append(
                 f"--- Chunk {chunk_id} ({chunk_type} on page {page}) ---\n"
-                f"Summary: {content_summary}...\n\nStructured Table:\n{c['table_content'][:3000]}"
+                f"Summary: {content_summary}\n\nStructured Table:\n{c['table_content']}"
             )
         else:
-            content_preview = (c.get("content", "") or "")[:500].replace("\n", " ")
-            parts.append(f"--- Chunk {chunk_id} ({chunk_type} on page {page}) ---\n{content_preview}...")
+            content = (c.get("content", "") or "")
+            parts.append(f"--- Chunk {chunk_id} ({chunk_type} on page {page}) ---\n{content}")
     return "\n\n".join(parts)
 
 
@@ -257,9 +257,7 @@ def format_columns_for_prompt(
                 [
                     f'- Column index {plan.column_index}: "{plan.column_name}"',
                     f"  Definition: {definition}",
-                    f"  Expected Location: Page {plan.page} | {plan.source_type}",
-                    f"  Planner Confidence: {plan.confidence}",
-                    "  Extraction Instructions:",
+                    "  Extraction Plan:",
                     f"  {plan.extraction_plan}",
                 ]
             )
@@ -370,7 +368,7 @@ def _extract_group(
 
     prompt = f"""You are extracting clinical trial data from a research paper.
 
-TASK: Extract values for the following canonical columns. Use EXACT column names as listed.
+TASK: Extract values for the following columns using the provided extraction plans.
 
 COLUMNS TO EXTRACT:
 {columns_block}
@@ -379,9 +377,11 @@ RELEVANT CHUNKS:
 {chunks_block}
 
 GUIDELINES:
-- For each listed column, extract a value if explicitly present; otherwise set value=null.
-- Provide evidence as an exact quote, page number(s), confidence (high/medium/low).
-- Use the EXACT column names from the list above.
+- Follow the extraction plan for each column precisely
+- If the value cannot be extracted as described in the plan, set value=null
+- Provide evidence as an exact quote from the PDF
+- Include page number(s) and confidence level (high/medium/low)
+- Use the EXACT column names from the list above
 
 Output format (for each column):
 Column index <N>: "<Exact Column Name>"
@@ -516,6 +516,12 @@ def _generate_outputs(
             meta.setdefault("plan_extraction_plan", p.extraction_plan)
             meta.setdefault("column_index", p.column_index)
             meta.setdefault("group_name", group_name)
+            
+            # If column was not found in PDF and value is still None, set to "Not reported"
+            if not p.found_in_pdf and meta.get("value") is None:
+                meta["value"] = "Not reported"
+                csv_row[canonical_name] = "Not reported"
+            
             metadata[canonical_name] = meta
 
     meta_path = output_dir / "extraction_metadata.json"

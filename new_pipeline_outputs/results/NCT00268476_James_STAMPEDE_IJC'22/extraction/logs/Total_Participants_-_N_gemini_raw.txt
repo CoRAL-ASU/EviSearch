@@ -1,0 +1,36 @@
+INPUT PROMPT:
+You are extracting clinical trial data from a research paper.
+
+TASK: Extract values for the following canonical columns. Use EXACT column names as listed.
+
+COLUMNS TO EXTRACT:
+- Column index 1: "Total Participants - N"
+  Definition: What are the total number of participants included in the clinical trial?. If reported, provide the value; otherwise use 'Not reported'.
+  Expected Location: Page 5 | figure
+  Planner Confidence: high
+  Extraction Instructions:
+  The total number of participants is reported in the CONSORT diagram. Extract the numerical value associated with "Joined STAMPEDE while 'Abiraterone comparison' was open to recruitment".
+
+RELEVANT CHUNKS:
+--- Chunk 1 (FIGURE on page 5) ---
+``` ##Figure Descriptions##  ## Figure 1 This is a CONSORT diagram illustrating the flow of participants in a clinical trial comparing standard-of-care (SOC) with and without abiraterone acetate plus prednisolone/prednisone (AAP) in metastatic prostate cancer. The diagram details the number of patients recruited, allocated to each group, and their status at datalock, including those in follow-up, deceased, or who stopped participation.  ## Table 1 Baseline characteristics. |                     ...
+
+GUIDELINES:
+- For each listed column, extract a value if explicitly present; otherwise set value=null.
+- Provide evidence as an exact quote, page number(s), confidence (high/medium/low).
+- Use the EXACT column names from the list above.
+
+Output format (for each column):
+Column index <N>: "<Exact Column Name>"
+Value: <extracted value or null>
+Evidence: "<exact quote>"
+Page: <page number>
+Confidence: <high/medium/low>
+
+
+OUTPUT:
+Column index 1: "Total Participants - N"
+Value: 2752
+Evidence: "Joined STAMPEDE while 'Abiraterone comparison' was open to recruitment\nN = 2752"
+Page: 5
+Confidence: high

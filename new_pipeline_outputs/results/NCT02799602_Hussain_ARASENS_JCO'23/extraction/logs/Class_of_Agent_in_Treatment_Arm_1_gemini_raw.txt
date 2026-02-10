@@ -1,0 +1,39 @@
+INPUT PROMPT:
+You are extracting clinical trial data from a research paper.
+
+TASK: Extract values for the following columns using the provided extraction plans.
+
+COLUMNS TO EXTRACT:
+- Column index 1: "Class of Agent in Treatment Arm 1"
+  Definition: What the type or category of therapeutic agent used in the first experimental arm of the clinical trial?. If reported, provide the value; otherwise use 'Not reported'.
+  Extraction Plan:
+  The class of agents in Treatment Arm 1 (Darolutamide + ADT + Docetaxel) is reported in the abstract and introduction. Darolutamide is an androgen receptor pathway inhibitor, ADT is androgen-deprivation therapy (a type of hormonal therapy), and docetaxel is a chemotherapy agent.
+
+RELEVANT CHUNKS:
+--- Chunk 8 (TEXT on page 1-4) ---
+Maha Hussain, MD1; Bertrand Tombal, MD, PhD2; Fred Saad, MD3; Karim Fizazi, MD, PhD4; Cora N. Sternberg, MD5;E. David Crawford, MD6; Neal Shore, MD7; Evgeny Kopyltsov, MD8; Arash Rezazadeh Kalebasty, MD9; Martin B¨ogemann, MD10;Dingwei Ye, MD11; Felipe Cruz, MD, PhD12; Hiroyoshi Suzuki, MD, PhD13; Shivani Kapur, MD14; Shankar Srinivasan, PhD15;Frank Verholen, MD16; Iris Kuss, MD17; Heikki Joensuu, MD18; and Matthew R. Smith, MD, PhD19
+abstract
+PURPOSE For patients with metastatic hormone-sensitive prostate cancer, metastatic burden affects outcome.We examined efﬁcacy and safety from the ARASENS trial for subgroups by disease volume and risk.
+METHODS Patients with metastatic hormone-sensitive prostate cancer were randomly assigned to darolutamide orplacebo plus androgen-deprivation therapy and docetaxel. High-volume disease was deﬁned as visceral me-tastases and/or $ 4 bone metastases with $ 1 beyond the vertebral column/pelvis. High-risk disease was deﬁnedas $ 2 risk factors: Gleason s
+
+GUIDELINES:
+- Follow the extraction plan for each column precisely
+- If the value cannot be extracted as described in the plan, set value=null
+- Provide evidence as an exact quote from the PDF
+- Include page number(s) and confidence level (high/medium/low)
+- Use the EXACT column names from the list above
+
+Output format (for each column):
+Column index <N>: "<Exact Column Name>"
+Value: <extracted value or null>
+Evidence: "<exact quote>"
+Page: <page number>
+Confidence: <high/medium/low>
+
+
+OUTPUT:
+Column index 1: "Class of Agent in Treatment Arm 1"
+Value: androgen receptor pathway inhibitor, hormonal therapy, chemotherapy
+Evidence: "Patients with metastatic hormone-sensitive prostate cancer were randomly assigned to darolutamide orplacebo plus androgen-deprivation therapy and docetaxel."
+Page: 1
+Confidence: high

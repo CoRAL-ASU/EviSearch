@@ -1,532 +1,572 @@
 {
   "document_name": "NCT02799602_Hussain_ARASENS_JCO'23.pdf",
-  "evaluation_timestamp": "2026-02-04T17:54:03.081276",
+  "evaluation_timestamp": "2026-02-09T18:34:39.433221",
   "columns": {
     "Control Arm - N": {
       "correctness": 1.0,
       "completeness": 1.0,
       "overall": 1.0,
-      "reason": "The GT contains a single number (655), and the Pred contains a single number (655). The numbers match exactly. Therefore, correctness and completeness are both 1.0.",
+      "reason": "The predicted number matches the ground truth within tolerance",
       "category": "numeric_tolerance",
       "definition": "What the total number of participants included in the control arm of the clinical trial?. If reported, provide the value; otherwise use 'Not reported'. If the trial contains multiple control arms, report for all separately",
       "ground_truth": "655",
-      "predicted": 655
-    },
-    "Docetaxel administration - N (%) | Treatment": {
-      "correctness": 0.0,
-      "completeness": 0.0,
-      "overall": 0.0,
-      "reason": "The predicted number 651 does not match the GT number 100.",
-      "category": "numeric_tolerance",
-      "definition": "What percentage of participants in the treatment arm of the clinical trial who received docetaxel before or during the trial? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.",
-      "ground_truth": "All patients received docetaxel (100%)",
-      "predicted": 651
+      "predicted": 654
     },
     "Docetaxel administration - N (%) | Control": {
-      "correctness": 0.0,
-      "completeness": 0.0,
-      "overall": 0.0,
-      "reason": "The predicted number 651 does not match the GT number 100.",
+      "correctness": 0.5,
+      "completeness": 0.5,
+      "overall": 0.5,
+      "reason": "The predicted count (651) is within the tolerance of +/- 0.1 of the ground truth count (654) is false. The predicted percentage (100) matches the ground truth percentage (100). Correctness: 0.5 (One number matches, one doesn't). Completeness: 0.5 (One number is captured, one isn't).",
       "category": "numeric_tolerance",
-      "definition": "What number and percentage of participants who received docetaxel before or during the trial in the control arm of the clinical trial? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.",
-      "ground_truth": "All patients received docetaxel (100%)",
-      "predicted": 651
+      "definition": "What number and percentage of participants who received docetaxel before or during the trial in the control arm of the clinical trial? If reported, include count and percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.",
+      "ground_truth": "All patients received docetaxel 654(100%)",
+      "predicted": "651 (100%)"
+    },
+    "Docetaxel administration - N (%) | Treatment": {
+      "correctness": 1.0,
+      "completeness": 1.0,
+      "overall": 1.0,
+      "reason": "The predicted count (651) matches the ground truth count (651). The predicted percentage (100) matches the ground truth percentage (100). Correctness: 1.0 (All predicted numbers match GT). Completeness: 1.0 (All GT numbers are in prediction).",
+      "category": "numeric_tolerance",
+      "definition": "What percentage of participants in the treatment arm of the clinical trial who received docetaxel before or during the trial? If reported, include count and percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.",
+      "ground_truth": "All patients received docetaxel 651(100%)",
+      "predicted": "651 (100%)"
+    },
+    "Median Age (years) | Control": {
+      "correctness": 1.0,
+      "completeness": 1.0,
+      "overall": 1.0,
+      "reason": "The GT has one number (67.0) and the Pred has one number (67.0). The numbers match exactly. Therefore, correctness and completeness are both 1.0.",
+      "category": "numeric_tolerance",
+      "definition": "What the median age of participants included in the control arm of the clinical trial? If reported, include the value; use 'Not reported' if missing.",
+      "ground_truth": "67.0",
+      "predicted": 67.0
+    },
+    "Median Age (years) | Treatment": {
+      "correctness": 1.0,
+      "completeness": 1.0,
+      "overall": 1.0,
+      "reason": "The GT has one number (67.0) and the Pred has one number (67.0). The numbers match exactly. Therefore, correctness and completeness are both 1.0.",
+      "category": "numeric_tolerance",
+      "definition": "What median age in years of participants included in the treatment arm of the clinical trial? If reported, include the value; use 'Not reported' if missing.",
+      "ground_truth": "67.0",
+      "predicted": 67.0
     },
     "Median Follow-Up Duration (mo)": {
       "correctness": 1.0,
       "completeness": 1.0,
       "overall": 1.0,
-      "reason": "Since both GT and Pred are empty, according to the rule, correctness = 1.0 and completeness = 1.0.",
+      "reason": "Since the GT is empty and the predicted value is \"Not reported\", this indicates that the value is missing. According to the instructions, if both are empty, correctness=1.0 and completeness=1.0.",
       "category": "numeric_tolerance",
       "definition": "What the median length of time, measured in months, that participants in the clinical trial were followed up or monitored after the start of the trial? If reported, include the value; use 'Not reported' if missing.",
       "ground_truth": "",
-      "predicted": ""
+      "predicted": "Not reported"
     },
-    "Median Age (years) | Control": {
-      "correctness": 1.0,
-      "completeness": 0.0,
-      "overall": 0.5,
-      "reason": "The predicted value 67.0 appears in the GT. Correctness: 1.0 (The predicted number matches a number in GT). Completeness: 0.0 (Only one of the numbers in GT is captured in Pred).",
-      "category": "numeric_tolerance",
-      "definition": "What the median age of participants included in the control arm of the clinical trial? If reported, include the value; use 'Not reported' if missing.",
-      "ground_truth": "High-volume: 67.0 (44\u201386) Low-volume: 67.5 (42\u201381) High-risk: 67.0 (44\u201386) Low-risk: 67.0 (42\u201385)",
-      "predicted": 67.0
-    },
-    "Median Age (years) | Treatment": {
-      "correctness": 1.0,
-      "completeness": 0.0,
-      "overall": 0.5,
-      "reason": "The predicted value 67.0 appears in the GT. Correctness: 1.0 (The predicted number matches a number in GT). Completeness: 0.0 (Only one of the numbers in GT is captured in Pred).",
-      "category": "numeric_tolerance",
-      "definition": "What median age in years of participants included in the treatment arm of the clinical trial? If reported, include the value; use 'Not reported' if missing.",
-      "ground_truth": "High-volume: 67.0 (range 41\u201389) Low-volume: 67.0 (41\u201384) High-risk: 67.0 (41\u201386) Low-risk: 67.0 (41\u201389)",
-      "predicted": 67.0
-    },
-    "Adverse Events - N (%) | All-Cause Grade 3 or Higher | Treatment": {
+    "Gleason score - N (%) | \u2264 7 | Treatment": {
       "correctness": 0.0,
       "completeness": 0.0,
       "overall": 0.0,
-      "reason": "GT contains two percentages: 64.9 and 70.1. Pred contains the number 458. None of the predicted numbers match the ground truth numbers.",
+      "reason": "GT contains two numbers: 122 and 18.7. Pred is \"Not reported,\" which means it contains no numbers. Since GT has numbers and Pred has none, correctness and completeness are both 0.",
       "category": "numeric_tolerance",
-      "definition": "What the number and percentage of patients experiencing adverse events of all causes with a grade of 3 or higher in the treatment arm of the trial? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.",
-      "ground_truth": "High-volume: 64.9% (grade 3 or 4 AEs) Low-volume: 70.1% (grade 3 or 4 AEs)",
+      "definition": "What number and percentage of participants included in the treatment arm of the clinical trial with a Gleason score of 7 or less? If reported, include count and percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.",
+      "ground_truth": "122(18.7%)",
+      "predicted": "Not reported"
+    },
+    "Gleason score - N (%) | \u2265 8 | Treatment": {
+      "correctness": 0.0,
+      "completeness": 0.0,
+      "overall": 0.0,
+      "reason": "GT contains two numbers: 505 and 77.6. Pred is \"Not reported,\" which means it contains no numbers. Since GT has numbers and Pred has none, correctness and completeness are both 0.",
+      "category": "numeric_tolerance",
+      "definition": "What number and percentage of participants in the treatment arm of the clinical trial with a Gleason score of 8 or higher? If reported, include count and percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.",
+      "ground_truth": "505(77.6%)",
+      "predicted": "Not reported"
+    },
+    "Gleason score - N (%) | \u2264 7 | Control": {
+      "correctness": 0.0,
+      "completeness": 0.0,
+      "overall": 0.0,
+      "reason": "GT contains two numbers: 118 and 18.0. Pred is \"Not reported,\" which means it contains no numbers. Since GT has numbers and Pred has none, correctness and completeness are both 0.",
+      "category": "numeric_tolerance",
+      "definition": "What number and percentage of patients with a Gleason score of 7 or less in the control arm of the trial? If reported, include count and percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.",
+      "ground_truth": "118(18.0%)",
+      "predicted": "Not reported"
+    },
+    "Gleason score - N (%) | \u2265 8 | Control": {
+      "correctness": 0.0,
+      "completeness": 0.0,
+      "overall": 0.0,
+      "reason": "GT contains two numbers: 516 and 78.9. Pred is \"Not reported,\" which means it contains no numbers. Since GT has numbers and Pred has none, correctness and completeness are both 0.",
+      "category": "numeric_tolerance",
+      "definition": "What number and percentage of patients in the control arm of the clinical trial with a Gleason score of 8 or higher? If reported, include count and percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.",
+      "ground_truth": "516(78.9%)",
+      "predicted": "Not reported"
+    },
+    "Adverse Events - N (%) | Treatment-related Grade 5 | Control": {
+      "correctness": 1.0,
+      "completeness": 1.0,
+      "overall": 1.0,
+      "reason": "Both GT and Pred are effectively empty (since \"Not reported\" implies no numerical data).",
+      "category": "numeric_tolerance",
+      "definition": "What the number and percentage of patients experiencing treatment-related adverse events with a grade of 5 in the control arm of the clinical trial? If reported, include count and percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.",
+      "ground_truth": "",
+      "predicted": "Not reported"
+    },
+    "Adverse Events - N (%) | Treatment-related Grade 5 | Treatment": {
+      "correctness": 1.0,
+      "completeness": 1.0,
+      "overall": 1.0,
+      "reason": "Both GT and Pred are effectively empty (since \"Not reported\" implies no numerical data).",
+      "category": "numeric_tolerance",
+      "definition": "What the number and percentage of patients showing adverse events that are treatment-related and have a grade of 5 in the treatment arm of the trial? If reported, include count and percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.",
+      "ground_truth": "",
+      "predicted": "Not reported"
+    },
+    "Adverse Events - N (%) | Treatment-related Grade 3 or Higher | Treatment": {
+      "correctness": 1.0,
+      "completeness": 1.0,
+      "overall": 1.0,
+      "reason": "Both GT and Pred are effectively empty (since \"Not reported\" implies no numerical data).",
+      "category": "numeric_tolerance",
+      "definition": "What number and percentage of patients experiencing treatment-related adverse events with a grade of 3 or higher in the treatment arm of the trial? If reported, include count and percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.",
+      "ground_truth": "",
+      "predicted": "Not reported"
+    },
+    "Adverse Events - N (%) | All-Cause Grade 3 or Higher | Control": {
+      "correctness": 1.0,
+      "completeness": 0.5,
+      "overall": 0.75,
+      "reason": "GT has two numbers: 439 and 67.5. Pred has only 439. 439 matches. 67.5 is missing.",
+      "category": "numeric_tolerance",
+      "definition": "What number and percentage of patients experiencing all-cause adverse events with a grade of 3 or higher in the control arm of the trial? If reported, include count and percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.",
+      "ground_truth": "439(67.5%)",
+      "predicted": 439
+    },
+    "Adverse Events - N (%) | All-Cause Grade 3 or Higher | Treatment": {
+      "correctness": 1.0,
+      "completeness": 0.5,
+      "overall": 0.75,
+      "reason": "GT has two numbers: 458 and 70.3. Pred has only 458. 458 matches. 70.3 is missing.",
+      "category": "numeric_tolerance",
+      "definition": "What the number and percentage of patients experiencing adverse events of all causes with a grade of 3 or higher in the treatment arm of the trial? If reported, include count and percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.",
+      "ground_truth": "458(70.3%)",
       "predicted": 458
     },
     "Adverse Events - N (%) | Treatment-related Grade 3 or Higher | Control": {
       "correctness": 1.0,
       "completeness": 1.0,
       "overall": 1.0,
-      "reason": "Both GT and Pred are empty.",
+      "reason": "Both GT and Pred are effectively empty (since \"Not reported\" implies no numerical data).",
       "category": "numeric_tolerance",
-      "definition": "What the number and percentage of patients experiencing adverse events that are related to the treatment and have a severity grade of 3 or higher in the control arm of the clinical trial? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.",
+      "definition": "What the number and percentage of patients experiencing adverse events that are related to the treatment and have a severity grade of 3 or higher in the control arm of the clinical trial? If reported, include count and percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.",
       "ground_truth": "",
-      "predicted": ""
-    },
-    "Adverse Events - N (%) | Treatment-related Grade 5 | Treatment": {
-      "correctness": 1.0,
-      "completeness": 1.0,
-      "overall": 1.0,
-      "reason": "Both GT and Pred are empty.",
-      "category": "numeric_tolerance",
-      "definition": "What the number and percentage of patients showing adverse events that are treatment-related and have a grade of 5 in the treatment arm of the trial? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.",
-      "ground_truth": "",
-      "predicted": ""
-    },
-    "Adverse Events - N (%) | Treatment-related Grade 5 | Control": {
-      "correctness": 1.0,
-      "completeness": 1.0,
-      "overall": 1.0,
-      "reason": "Both GT and Pred are empty.",
-      "category": "numeric_tolerance",
-      "definition": "What the number and percentage of patients experiencing treatment-related adverse events with a grade of 5 in the control arm of the clinical trial? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.",
-      "ground_truth": "",
-      "predicted": ""
-    },
-    "Adverse Events - N (%) | Treatment-related Grade 3 or Higher | Treatment": {
-      "correctness": 1.0,
-      "completeness": 1.0,
-      "overall": 1.0,
-      "reason": "Both GT and Pred are empty.",
-      "category": "numeric_tolerance",
-      "definition": "What number and percentage of patients experiencing treatment-related adverse events with a grade of 3 or higher in the treatment arm of the trial? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.",
-      "ground_truth": "",
-      "predicted": ""
-    },
-    "Adverse Events - N (%) | All-Cause Grade 3 or Higher | Control": {
-      "correctness": 0.0,
-      "completeness": 0.0,
-      "overall": 0.0,
-      "reason": "GT contains two percentages: 64.2 and 61.1. Pred contains the number 439. None of the predicted numbers match the ground truth numbers.",
-      "category": "numeric_tolerance",
-      "definition": "What number and percentage of patients experiencing all-cause adverse events with a grade of 3 or higher in the control arm of the trial? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.",
-      "ground_truth": "High-volume: 64.2% (grade 3 or 4 AEs) Low-volume: 61.1% (grade 3 or 4 AEs)",
-      "predicted": 439
-    },
-    "Gleason score - N (%) | \u2265 8 | Treatment": {
-      "correctness": 0.0,
-      "completeness": 0.0,
-      "overall": 0.0,
-      "reason": "GT contains the numbers 381, 76.7, 124, 80.5, 428, 94.7, 77, and 38.7. Pred is empty. Since one is empty, correctness and completeness are 0.",
-      "category": "numeric_tolerance",
-      "definition": "What number and percentage of participants in the treatment arm of the clinical trial with a Gleason score of 8 or higher? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.",
-      "ground_truth": "High-volume: 381 (76.7) Low-volume: 124 (80.5) High-risk: 428 (94.7) Low-risk: 77 (38.7)",
-      "predicted": ""
-    },
-    "Gleason score - N (%) | \u2264 7 | Control": {
-      "correctness": 0.0,
-      "completeness": 0.0,
-      "overall": 0.0,
-      "reason": "GT contains the numbers 87, 17.1, 31, 21.2, 16, 3.5, 102, and 52.6. Pred is empty. Since one is empty, correctness and completeness are 0.",
-      "category": "numeric_tolerance",
-      "definition": "What number and percentage of patients with a Gleason score of 7 or less in the control arm of the trial? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.",
-      "ground_truth": "High-volume: 87 (17.1) Low-volume: 31 (21.2) High-risk: 16 (3.5) Low-risk: 102 (52.6)",
-      "predicted": ""
-    },
-    "Gleason score - N (%) | \u2265 8 | Control": {
-      "correctness": 0.0,
-      "completeness": 0.0,
-      "overall": 0.0,
-      "reason": "GT contains the numbers 403, 79.3, 113, 77.4, 440, 95.7, 76, and 39.2. Pred is empty. Since one is empty, correctness and completeness are 0.",
-      "category": "numeric_tolerance",
-      "definition": "What number and percentage of patients in the control arm of the clinical trial with a Gleason score of 8 or higher? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.",
-      "ground_truth": "High-volume: 403 (79.3) Low-volume: 113 (77.4) High-risk: 440 (95.7) Low-risk: 76 (39.2)",
-      "predicted": ""
-    },
-    "Gleason score - N (%) | \u2264 7 | Treatment": {
-      "correctness": 0.0,
-      "completeness": 0.0,
-      "overall": 0.0,
-      "reason": "GT contains the numbers 96, 19.3, 26, 16.9, 16, 3.5, 106, and 53.3. Pred is empty. Since one is empty, correctness and completeness are 0.",
-      "category": "numeric_tolerance",
-      "definition": "What number and percentage of participants included in the treatment arm of the clinical trial with a Gleason score of 7 or less? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.",
-      "ground_truth": "High-volume: 96 (19.3) Low-volume: 26 (16.9) High-risk: 16 (3.5) Low-risk: 106 (53.3)",
-      "predicted": ""
+      "predicted": "Not reported"
     },
     "Median On-Treatment Duration (mo) | Control": {
-      "correctness": 0.0,
-      "completeness": 0.0,
-      "overall": 0.0,
-      "reason": "GT contains four numbers: 15.3, 26.5, 15.2, and 22.5. Pred is empty. Since one is empty, correctness and completeness are 0.",
+      "correctness": 1.0,
+      "completeness": 1.0,
+      "overall": 1.0,
+      "reason": "Both GT and Pred indicate the absence of a numerical value.",
       "category": "numeric_tolerance",
       "definition": "What is the median duration in months of participants receiving treatment in the control arm of the clinical trial? If reported, include the value; use 'Not reported' if missing.",
-      "ground_truth": "High-volume: 15.3 months (placebo) Low-volume: 26.5 months (placebo) High-risk: 15.2 months (placebo) Low-risk: 22.5 months (placebo)",
-      "predicted": ""
+      "ground_truth": "",
+      "predicted": "Not reported"
     },
     "Median On-Treatment Duration (mo) | Treatment": {
-      "correctness": 1.0,
+      "correctness": 0.0,
       "completeness": 0.0,
-      "overall": 0.5,
-      "reason": "GT contains four numbers: 32.9, 43.6, 33.1, and 43.3. Pred contains one number: 41. 41 is within tolerance of 43.6 and 43.3. correctness: 1/1 = 1.0, since the predicted number is close to at least one GT number. completeness: 1/4 = 0.25, rounded to 0.0 since only one GT number is captured.",
+      "overall": 0.0,
+      "reason": "GT has a numerical value (41), but Pred is empty, indicating no value was extracted.",
       "category": "numeric_tolerance",
       "definition": "What is the median duration in months that participants in the treatment arm of the trial received on-treatment therapy? If reported, include the value; use 'Not reported' if missing.",
-      "ground_truth": "High-volume: 32.9 months (darolutamide) Low-volume: 43.6 months (darolutamide) High-risk: 33.1 months (darolutamide) Low-risk: 43.3 months (darolutamide)",
-      "predicted": 41
-    },
-    "Year": {
-      "correctness": 1.0,
-      "completeness": 1.0,
-      "overall": 1.0,
-      "reason": "Exact match.",
-      "category": "exact_match",
-      "definition": "Publication year of the clinical trial. Use 'Not reported' if unclear.",
-      "ground_truth": "2023",
-      "predicted": "2023"
-    },
-    "Trial Name": {
-      "correctness": 0.0,
-      "completeness": 0.0,
-      "overall": 0.0,
-      "reason": "Not an exact match.",
-      "category": "exact_match",
-      "definition": "What the title or identifier of the clinical trial being referred to in the study?. If reported, provide the value; otherwise use 'Not reported'.",
-      "ground_truth": "ARASENS (subgroup analysis: disease volume/risk subgroups)",
-      "predicted": "ARASENS"
-    },
-    "Original/Follow Up": {
-      "correctness": 0.0,
-      "completeness": 0.0,
-      "overall": 0.0,
-      "reason": "Not equivalent.",
-      "category": "exact_match",
-      "definition": "Whether the study is an original report or a follow-up analysis. Use Original or Follow up; use 'Not reported' if unclear.",
-      "ground_truth": "Follow Up",
-      "predicted": "original report"
-    },
-    "Number of Arms Included": {
-      "correctness": 0.0,
-      "completeness": 0.0,
-      "overall": 0.0,
-      "reason": "Not an exact match.",
-      "category": "exact_match",
-      "definition": "What is the total count of experimental treatment arms and control arms included in the clinical trial?. If reported, provide the value; otherwise use 'Not reported'.",
-      "ground_truth": "2 arms (darolutamide vs placebo; both with ADT + docetaxel)",
-      "predicted": 2
-    },
-    "Author": {
-      "correctness": 1.0,
-      "completeness": 1.0,
-      "overall": 1.0,
-      "reason": "Equivalent (slight punctuation difference is acceptable).",
-      "category": "exact_match",
-      "definition": "What the name of the person or people responsible for writing or publishing the clinical trial study? Your answer should be a name/ list of names (you can use th et al. format )or 'NA'. If reported, provide the value; otherwise use 'Not reported'.",
-      "ground_truth": "Maha Hussain et al",
-      "predicted": "Maha Hussain et al."
-    },
-    "Quality of Life reported": {
-      "correctness": 0.0,
-      "completeness": 0.0,
-      "overall": 0.0,
-      "reason": "Not equivalent.",
-      "category": "exact_match",
-      "definition": "Does the clinical trial report results on the quality of life of participants? Answer Yes or No; use 'Not reported' if unclear.",
-      "ground_truth": "YesYes (pain + symptom/physical-function instruments listed as secondary endpoints)",
-      "predicted": "time to worsening of disease-related physical symptoms as measured by the Functional Assessment of Cancer Therapy\u2013Prostate (National Comprehensive Cancer Network) symptom index 17-item questionnaire"
-    },
-    "PubMed ID": {
-      "correctness": 1.0,
-      "completeness": 1.0,
-      "overall": 1.0,
-      "reason": "Both are empty, therefore equivalent.",
-      "category": "exact_match",
-      "definition": "What a unique identifier assigned to a clinical trial publication in the PubMed database?. If reported, provide the value; otherwise use 'Not reported'.",
-      "ground_truth": "",
+      "ground_truth": "Median treatment duration in ARASENS was 41 months",
       "predicted": ""
-    },
-    "NCT": {
-      "correctness": 1.0,
-      "completeness": 1.0,
-      "overall": 1.0,
-      "reason": "Exact match.",
-      "category": "exact_match",
-      "definition": "What national Clinical Trial identifier, a unique identification number assigned to a clinical trial?. If reported, provide the value; otherwise use 'Not reported'.",
-      "ground_truth": "NCT02799602",
-      "predicted": "NCT02799602"
-    },
-    "Phase": {
-      "correctness": 1.0,
-      "completeness": 1.0,
-      "overall": 1.0,
-      "reason": "Equivalent (3.0 and III are synonyms).",
-      "category": "exact_match",
-      "definition": "Clinical trial phase (e.g., I, II, III, IV) as reported. Use 'Not reported' if unclear.",
-      "ground_truth": "3.0",
-      "predicted": "III"
     },
     "Full Pub or Abstract": {
       "correctness": 1.0,
       "completeness": 1.0,
       "overall": 1.0,
-      "reason": "Equivalent (\"Full publication\" and \"Full Pub\" are synonyms).",
+      "reason": "\"Full publication\" and \"Full Pub\" are considered synonyms.",
       "category": "exact_match",
       "definition": "Indicates whether results are fully published or only an abstract is available. Use 'Full Pub' or 'Abstract'; use 'Not reported' if unclear.",
       "ground_truth": "Full publication (journal article PDF)",
-      "predicted": "Full publication"
+      "predicted": "Full Pub"
+    },
+    "Phase": {
+      "correctness": 1.0,
+      "completeness": 1.0,
+      "overall": 1.0,
+      "reason": "\"3.0\" and \"III\" are considered synonyms for Phase 3.",
+      "category": "exact_match",
+      "definition": "Clinical trial phase (e.g., I, II, III, IV) as reported. Use 'Not reported' if unclear.",
+      "ground_truth": "3.0",
+      "predicted": "III"
+    },
+    "PubMed ID": {
+      "correctness": 1.0,
+      "completeness": 1.0,
+      "overall": 1.0,
+      "reason": "GT is empty, and Pred is \"Not reported\", which are considered equivalent.",
+      "category": "exact_match",
+      "definition": "What a unique identifier assigned to a clinical trial publication in the PubMed database?. If reported, provide the value; otherwise use 'Not reported'.",
+      "ground_truth": "",
+      "predicted": "Not reported"
+    },
+    "Original/Follow Up": {
+      "correctness": 0.0,
+      "completeness": 0.0,
+      "overall": 0.0,
+      "reason": "The values are different.",
+      "category": "exact_match",
+      "definition": "Whether the study is an original report or a follow-up analysis. Use Original or Follow up; use 'Not reported' if unclear.",
+      "ground_truth": "Follow Up",
+      "predicted": "Original"
+    },
+    "Year": {
+      "correctness": 1.0,
+      "completeness": 1.0,
+      "overall": 1.0,
+      "reason": "The values are identical.",
+      "category": "exact_match",
+      "definition": "Publication year of the clinical trial. Use 'Not reported' if unclear.",
+      "ground_truth": "2023",
+      "predicted": "2023"
+    },
+    "Author": {
+      "correctness": 0.0,
+      "completeness": 0.0,
+      "overall": 0.0,
+      "reason": "The values are similar, but not exactly the same. The addition of \"MD\" is not an exact match.",
+      "category": "exact_match",
+      "definition": "What the name of the person or people responsible for writing or publishing the clinical trial study? Your answer should be a name/ list of names (you can use th et al. format )or 'NA'. If reported, provide the value; otherwise use 'Not reported'.",
+      "ground_truth": "Maha Hussain et al",
+      "predicted": "Maha Hussain, MD et al."
     },
     "Reporting by prognostic groups - Y/N | Metachronous": {
       "correctness": 1.0,
       "completeness": 1.0,
       "overall": 1.0,
-      "reason": "Equivalent (\"Yes\" and \"Y\" are synonyms).",
+      "reason": "Both values are \"Yes\". The additional information in GT is not relevant for this evaluation.",
       "category": "exact_match",
       "definition": "What indicates whether the results of the clinical trial were reported based on prognostic groups of patients with metachronous diseases (diseases that occur at different times). with a response of either \"yes\" (Y) or \"no\" (N)? Answer Yes or No; use 'Not reported' if unclear.",
       "ground_truth": "Yes (recurrent/metachronous described; recurrent counts shown in Table 1)",
-      "predicted": "Y"
+      "predicted": "Yes"
     },
-    "Reporting by prognostic groups - Y/N | High volume": {
+    "Quality of Life reported": {
       "correctness": 1.0,
       "completeness": 1.0,
       "overall": 1.0,
-      "reason": "Equivalent (\"Yes\" and \"Y\" are synonyms).",
+      "reason": "Both values are \"Yes\". The additional information in GT is not relevant for this evaluation.",
       "category": "exact_match",
-      "definition": "What indicates whether the results of the clinical trial were reported based on prognostic groups with high volume/burden of metastases, with a response of either \"yes\" (Y) or \"no\" (N)? Answer Yes or No; use 'Not reported' if unclear.",
-      "ground_truth": "Yes",
-      "predicted": "Y"
-    },
-    "Reporting by prognostic groups - Y/N | Low volume": {
-      "correctness": 1.0,
-      "completeness": 1.0,
-      "overall": 1.0,
-      "reason": "Equivalent (\"Yes\" and \"Y\" are synonyms).",
-      "category": "exact_match",
-      "definition": "What indicates whether the results were reported based on prognostic groups having a low volume of metastasis, with a yes or no response (Y/N)? Answer Yes or No; use 'Not reported' if unclear.",
-      "ground_truth": "Yes",
-      "predicted": "Y"
+      "definition": "Does the clinical trial report results on the quality of life of participants? Answer Yes or No; use 'Not reported' if unclear.",
+      "ground_truth": "Yes (pain + symptom/physical-function instruments listed as secondary endpoints)",
+      "predicted": "Yes"
     },
     "Reporting by prognostic groups - Y/N | Synchronous": {
       "correctness": 1.0,
       "completeness": 1.0,
       "overall": 1.0,
-      "reason": "Equivalent (\"Yes\" and \"Y\" are synonyms).",
+      "reason": "Both values are \"Yes\". The additional information in GT is not relevant for this evaluation.",
       "category": "exact_match",
       "definition": "What indicates whether the results of the clinical trial were reported based on prognostic groups with synchronous metastases, where synchronous metastases refers to metastases present at the time of diagnosis of prostate cancer. with a response of either \"yes\" (Y) or \"no\" (N)? Answer Yes or No; use 'Not reported' if unclear.",
       "ground_truth": "Yes (de novo/synchronous described; de novo counts shown in Table 1)",
-      "predicted": "Y"
+      "predicted": "Yes"
     },
-    "Median OS (mo) | High volume | Treatment": {
+    "Reporting by prognostic groups - Y/N | High volume": {
       "correctness": 1.0,
       "completeness": 1.0,
       "overall": 1.0,
-      "reason": "Both GT and Pred indicate that the value was not reached/estimable. Since the column definition asks for a numeric value or 'Not reported', and both GT and Pred are non-numeric, I will consider them as matching.",
-      "category": "numeric_tolerance",
-      "definition": "What is the median overall survival (in months) for patients with high volume metastasis (by CHAARTED criteria) in the experimental arm? If reported, include the value; use 'Not reported' if missing.",
-      "ground_truth": "Not reached (pg4, text",
-      "predicted": "NE"
+      "reason": "The values are identical.",
+      "category": "exact_match",
+      "definition": "What indicates whether the results of the clinical trial were reported based on prognostic groups with high volume/burden of metastases, with a response of either \"yes\" (Y) or \"no\" (N)? Answer Yes or No; use 'Not reported' if unclear.",
+      "ground_truth": "Yes",
+      "predicted": "Yes"
     },
-    "Median OS (mo) | Low volume | Treatment": {
+    "NCT": {
       "correctness": 1.0,
       "completeness": 1.0,
       "overall": 1.0,
-      "reason": "Similar to Column 1, both GT and Pred indicate that the value was not reached/estimable.",
-      "category": "numeric_tolerance",
-      "definition": "What is the median overall survival (in months) for patients with low volume metastasis (by CHAARTED criteria) in the experimental arm? If reported, include the value; use 'Not reported' if missing.",
-      "ground_truth": "Not reached",
-      "predicted": "NE"
+      "reason": "The values are identical.",
+      "category": "exact_match",
+      "definition": "What national Clinical Trial identifier, a unique identification number assigned to a clinical trial?. If reported, provide the value; otherwise use 'Not reported'.",
+      "ground_truth": "NCT02799602",
+      "predicted": "NCT02799602"
     },
-    "Median OS (mo) | Overall | Control": {
+    "Trial Name": {
       "correctness": 0.0,
       "completeness": 0.0,
       "overall": 0.0,
-      "reason": "GT is empty, and Pred has a numeric value.",
+      "reason": "The values are different.",
+      "category": "exact_match",
+      "definition": "What the title or identifier of the clinical trial being referred to in the study?. If reported, provide the value; otherwise use 'Not reported'.",
+      "ground_truth": "ARASENS (subgroup analysis: disease volume/risk subgroups)",
+      "predicted": "ARASENS Trial"
+    },
+    "Number of Arms Included": {
+      "correctness": 0.0,
+      "completeness": 0.0,
+      "overall": 0.0,
+      "reason": "The values are different.",
+      "category": "exact_match",
+      "definition": "What is the total count of experimental treatment arms and control arms included in the clinical trial?. If reported, provide the value; otherwise use 'Not reported'.",
+      "ground_truth": "2 arms (darolutamide vs placebo; both with ADT + docetaxel)",
+      "predicted": 2
+    },
+    "Reporting by prognostic groups - Y/N | Low volume": {
+      "correctness": 1.0,
+      "completeness": 1.0,
+      "overall": 1.0,
+      "reason": "The values are identical.",
+      "category": "exact_match",
+      "definition": "What indicates whether the results were reported based on prognostic groups having a low volume of metastasis, with a yes or no response (Y/N)? Answer Yes or No; use 'Not reported' if unclear.",
+      "ground_truth": "Yes",
+      "predicted": "Yes"
+    },
+    "Metastases - N (%) | Lungs | Treatment": {
+      "correctness": 1.0,
+      "completeness": 1.0,
+      "overall": 1.0,
+      "reason": "Both GT and Pred indicate the absence of numerical data.",
+      "category": "numeric_tolerance",
+      "definition": "What the number and percentage of participants in the treatment arm of the trial who had lungs as the metastatic site? If reported, include count and percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.",
+      "ground_truth": "",
+      "predicted": "Not reported"
+    },
+    "Metastases - N (%) | Nodal | Treatment": {
+      "correctness": 0.0,
+      "completeness": 0.0,
+      "overall": 0.0,
+      "reason": "GT has no numbers, while Pred has a number, indicating a mismatch.",
+      "category": "numeric_tolerance",
+      "definition": "What the number and percentage of participants in the treatment arm of the clinical trial who have metastases in the lymph nodes? If reported, include count and percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.",
+      "ground_truth": "",
+      "predicted": 23
+    },
+    "Median PFS (mo) | Overall | Treatment": {
+      "correctness": 1.0,
+      "completeness": 1.0,
+      "overall": 1.0,
+      "reason": "Both are effectively empty (Not Reported).",
+      "category": "numeric_tolerance",
+      "definition": "What is the median progression free survival (in months) for all patients in the experimental arm? If reported, include the value; use 'Not reported' if missing.",
+      "ground_truth": "",
+      "predicted": "NR"
+    },
+    "Median PFS (mo) | High volume | Treatment": {
+      "correctness": 1.0,
+      "completeness": 1.0,
+      "overall": 1.0,
+      "reason": "Both are effectively empty (Not Reported).",
+      "category": "numeric_tolerance",
+      "definition": "What is the median progression free survival (in months) for patients with high volume metastasis (by CHAARTED criteria) in the experimental arm? If reported, include the value; use 'Not reported' if missing.",
+      "ground_truth": "",
+      "predicted": "NR"
+    },
+    "Median PFS (mo) | Low volume | Treatment": {
+      "correctness": 1.0,
+      "completeness": 1.0,
+      "overall": 1.0,
+      "reason": "Both are effectively empty (Not Reported).",
+      "category": "numeric_tolerance",
+      "definition": "What is the median progression free survival (in months) for patients with low volume metastasis (by CHAARTED criteria) in the experimental arm? If reported, include the value; use 'Not reported' if missing.",
+      "ground_truth": "",
+      "predicted": "NR"
+    },
+    "Median PFS (mo) | Low volume | Control": {
+      "correctness": 0.0,
+      "completeness": 0.0,
+      "overall": 0.0,
+      "reason": "GT is empty, Pred has a value.",
+      "category": "numeric_tolerance",
+      "definition": "What is the median progression free survival (in months) for patients with low volume metastasis (by CHAARTED criteria) in the control arm? If reported, include the value; use 'Not reported' if missing.",
+      "ground_truth": "",
+      "predicted": "25.8"
+    },
+    "Median PFS (mo) | Overall | Control": {
+      "correctness": 0.0,
+      "completeness": 0.0,
+      "overall": 0.0,
+      "reason": "GT is empty, Pred has a value.",
+      "category": "numeric_tolerance",
+      "definition": "What is the median progression free survival (in months) for all patients in the control arm? If reported, include the value; use 'Not reported' if missing.",
+      "ground_truth": "",
+      "predicted": "19.1"
+    },
+    "Median PFS (mo) | High volume | Control": {
+      "correctness": 0.0,
+      "completeness": 0.0,
+      "overall": 0.0,
+      "reason": "GT is empty, Pred has a value.",
+      "category": "numeric_tolerance",
+      "definition": "What is the median progression free survival (in months) for patients with high volume metastasis (by CHAARTED criteria) in the control arm? If reported, include the value; use 'Not reported' if missing.",
+      "ground_truth": "",
+      "predicted": "16.4"
+    },
+    "Median OS (mo) | Low volume | Control": {
+      "correctness": 1.0,
+      "completeness": 1.0,
+      "overall": 1.0,
+      "reason": "Both GT and Pred indicate that the value is not available as a number. Since both are effectively empty for numeric extraction, correctness=1.0 and completeness=1.0.",
+      "category": "numeric_tolerance",
+      "definition": "What is the median overall survival (in months) for patients with low volume metastasis (by CHAARTED criteria) in the control arm? If reported, include the value; use 'Not reported' if missing.",
+      "ground_truth": "Not reached",
+      "predicted": "Not estimable"
+    },
+    "Median OS (mo) | Overall | Control": {
+      "correctness": 1.0,
+      "completeness": 1.0,
+      "overall": 1.0,
+      "reason": "GT has 42.4, and Pred has 42.4. They match within the tolerance.",
       "category": "numeric_tolerance",
       "definition": "What is the median overall survival (in months) for all patients in the control arm? If reported, include the value; use 'Not reported' if missing.",
-      "ground_truth": "",
+      "ground_truth": "42.4 months",
       "predicted": "42.4"
     },
     "Median OS (mo) | Overall | Treatment": {
       "correctness": 0.0,
       "completeness": 0.0,
       "overall": 0.0,
-      "reason": "GT is empty, and Pred has a non-numeric value.",
+      "reason": "GT is empty, and Pred is \"Not estimable\". Since GT is empty, and Pred is not a number, correctness=0.0 and completeness=0.0.",
       "category": "numeric_tolerance",
       "definition": "What is the median overall survival (in months) for all patients in the experimental arm? If reported, include the value; use 'Not reported' if missing.",
       "ground_truth": "",
-      "predicted": "NE"
+      "predicted": "Not estimable"
     },
-    "Median OS (mo) | Low volume | Control": {
+    "Median OS (mo) | High volume | Treatment": {
       "correctness": 1.0,
       "completeness": 1.0,
       "overall": 1.0,
-      "reason": "Both GT and Pred indicate that the value was not reached/estimable.",
+      "reason": "Both GT and Pred indicate that the value is not available as a number. Since both are effectively empty for numeric extraction, correctness=1.0 and completeness=1.0.",
       "category": "numeric_tolerance",
-      "definition": "What is the median overall survival (in months) for patients with low volume metastasis (by CHAARTED criteria) in the control arm? If reported, include the value; use 'Not reported' if missing.",
+      "definition": "What is the median overall survival (in months) for patients with high volume metastasis (by CHAARTED criteria) in the experimental arm? If reported, include the value; use 'Not reported' if missing.",
+      "ground_truth": "Not reached (pg4, text)",
+      "predicted": "Not estimable"
+    },
+    "Median OS (mo) | Low volume | Treatment": {
+      "correctness": 1.0,
+      "completeness": 1.0,
+      "overall": 1.0,
+      "reason": "Both GT and Pred indicate that the value is not available as a number. Since both are effectively empty for numeric extraction, correctness=1.0 and completeness=1.0.",
+      "category": "numeric_tolerance",
+      "definition": "What is the median overall survival (in months) for patients with low volume metastasis (by CHAARTED criteria) in the experimental arm? If reported, include the value; use 'Not reported' if missing.",
       "ground_truth": "Not reached",
-      "predicted": "NE"
+      "predicted": "Not estimable"
     },
     "Median OS (mo) | High volume | Control": {
       "correctness": 1.0,
       "completeness": 1.0,
       "overall": 1.0,
-      "reason": "GT has '42.4', and Pred has '42.4'. These match within the tolerance.",
+      "reason": "GT has 42.4, and Pred has 42.4. They match within the tolerance.",
       "category": "numeric_tolerance",
       "definition": "What is the median overall survival (in months) for patients with high volume metastasis (by CHAARTED criteria) in the control arm? If reported, include the value; use 'Not reported' if missing.",
       "ground_truth": "42.4 months",
       "predicted": "42.4"
     },
-    "1": {
-      "correctness": 1.0,
-      "completeness": 1.0,
-      "overall": 1.0,
-      "reason": "Both GT and Pred are effectively \"Not Reported\".",
-      "category": "numeric_tolerance",
-      "definition": "",
-      "ground_truth": "",
-      "predicted": ""
-    },
-    "2": {
-      "correctness": 0.0,
-      "completeness": 0.0,
-      "overall": 0.0,
-      "reason": "GT is empty, but Pred has a value.",
-      "category": "numeric_tolerance",
-      "definition": "",
-      "ground_truth": "",
-      "predicted": ""
-    },
-    "3": {
-      "correctness": 0.0,
-      "completeness": 0.0,
-      "overall": 0.0,
-      "reason": "GT is empty, but Pred has a value.",
-      "category": "numeric_tolerance",
-      "definition": "",
-      "ground_truth": "",
-      "predicted": ""
-    },
-    "4": {
-      "correctness": 0.0,
-      "completeness": 0.0,
-      "overall": 0.0,
-      "reason": "GT is empty, but Pred has a value.",
-      "category": "numeric_tolerance",
-      "definition": "",
-      "ground_truth": "",
-      "predicted": ""
-    },
-    "5": {
-      "correctness": 1.0,
-      "completeness": 1.0,
-      "overall": 1.0,
-      "reason": "Both GT and Pred are effectively \"Not Reported\".",
-      "category": "numeric_tolerance",
-      "definition": "",
-      "ground_truth": "",
-      "predicted": ""
-    },
-    "6": {
-      "correctness": 1.0,
-      "completeness": 1.0,
-      "overall": 1.0,
-      "reason": "Both GT and Pred are effectively \"Not Reported\".",
-      "category": "numeric_tolerance",
-      "definition": "",
-      "ground_truth": "",
-      "predicted": ""
-    },
-    "Metastases - N (%) | Bone | Control": {
-      "correctness": 1.0,
-      "completeness": 1.0,
-      "overall": 1.0,
-      "reason": "Both GT and Pred are empty. Therefore, correctness and completeness are both 1.0.",
-      "category": "numeric_tolerance",
-      "definition": "What the number and percentage of patients showing metastases in the bone in the control arm of the trial? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.",
-      "ground_truth": "",
-      "predicted": 527
-    },
-    "Metastases - N (%) | Lungs | Treatment": {
-      "correctness": 1.0,
-      "completeness": 1.0,
-      "overall": 1.0,
-      "reason": "Both GT and Pred are empty. Therefore, correctness and completeness are both 1.0.",
-      "category": "numeric_tolerance",
-      "definition": "What the number and percentage of participants in the treatment arm of the trial who had lungs as the metastatic site? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.",
-      "ground_truth": "",
-      "predicted": ""
-    },
-    "Metastases - N (%) | Lungs | Control": {
-      "correctness": 1.0,
-      "completeness": 1.0,
-      "overall": 1.0,
-      "reason": "Both GT and Pred are empty. Therefore, correctness and completeness are both 1.0.",
-      "category": "numeric_tolerance",
-      "definition": "What the number and percentage of participants in the control arm of the trial who had lungs as the metastatic site? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.",
-      "ground_truth": "",
-      "predicted": ""
-    },
     "Metastases - N (%) | Liver | Treatment": {
       "correctness": 1.0,
       "completeness": 1.0,
       "overall": 1.0,
-      "reason": "Both GT and Pred are empty. Therefore, correctness and completeness are both 1.0.",
+      "reason": "Both GT and Pred indicate that the information is not reported/available.",
       "category": "numeric_tolerance",
-      "definition": "What the number and percentage of participants in the treatment of the trial who had liver as the metastatic site? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.",
+      "definition": "What the number and percentage of participants in the treatment of the trial who had liver as the metastatic site? If reported, include count and percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.",
       "ground_truth": "",
-      "predicted": ""
+      "predicted": "Not reported"
     },
     "Metastases - N (%) | Liver | Control": {
       "correctness": 1.0,
       "completeness": 1.0,
       "overall": 1.0,
-      "reason": "Both GT and Pred are empty. Therefore, correctness and completeness are both 1.0.",
+      "reason": "Both GT and Pred indicate that the information is not reported/available.",
       "category": "numeric_tolerance",
-      "definition": "What the number and percentage of participants in the control arm of the trial who had liver as the metastatic site? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.",
+      "definition": "What the number and percentage of participants in the control arm of the trial who had liver as the metastatic site? If reported, include count and percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.",
       "ground_truth": "",
-      "predicted": ""
+      "predicted": "Not reported"
+    },
+    "Metastases - N (%) | Bone | Control": {
+      "correctness": 0.0,
+      "completeness": 0.0,
+      "overall": 0.0,
+      "reason": "GT is empty, but Pred has a number. This indicates an error.",
+      "category": "numeric_tolerance",
+      "definition": "What the number and percentage of patients showing metastases in the bone in the control arm of the trial? If reported, include count and percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.",
+      "ground_truth": "",
+      "predicted": 521
     },
     "Metastases - N (%) | Bone | Treatment": {
       "correctness": 0.0,
       "completeness": 0.0,
       "overall": 0.0,
-      "reason": "GT is empty, and Pred has a value. Therefore, correctness and completeness are both 0.0.",
+      "reason": "GT is empty, but Pred has a number. This indicates an error.",
       "category": "numeric_tolerance",
-      "definition": "What number and percentage of participants in the treatment arm of the clinical trial who have metastases in the bone? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.",
+      "definition": "What number and percentage of participants in the treatment arm of the clinical trial who have metastases in the bone? If reported, include count and percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.",
       "ground_truth": "",
       "predicted": 517
+    },
+    "Metastases - N (%) | Lungs | Control": {
+      "correctness": 1.0,
+      "completeness": 1.0,
+      "overall": 1.0,
+      "reason": "Both GT and Pred indicate that the information is not reported/available.",
+      "category": "numeric_tolerance",
+      "definition": "What the number and percentage of participants in the control arm of the trial who had lungs as the metastatic site? If reported, include count and percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.",
+      "ground_truth": "",
+      "predicted": "Not reported"
     },
     "Metastases - N (%) | Nodal | Control": {
       "correctness": 0.0,
       "completeness": 0.0,
       "overall": 0.0,
-      "reason": "Since the GT is empty and the prediction is not, both correctness and completeness are 0.",
+      "reason": "GT is empty, but Pred has a number. This indicates an error.",
       "category": "numeric_tolerance",
-      "definition": "What the number and percentage of patients showing metastases in the nodal region in the control arm of the trial? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.",
+      "definition": "What the number and percentage of patients showing metastases in the nodal region in the control arm of the trial? If reported, include count and percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.",
       "ground_truth": "",
-      "predicted": 23
+      "predicted": 15
     },
-    "Metastases - N (%) | Nodal | Treatment": {
-      "correctness": 0.0,
-      "completeness": 0.0,
-      "overall": 0.0,
-      "reason": "Since the GT is empty and the prediction is not, both correctness and completeness are 0.",
+    "Mode of metastases - N (%) | Synchronous | Control": {
+      "correctness": 1.0,
+      "completeness": 1.0,
+      "overall": 1.0,
+      "reason": "Both numbers match within the tolerance.",
       "category": "numeric_tolerance",
-      "definition": "What the number and percentage of participants in the treatment arm of the clinical trial who have metastases in the lymph nodes? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.",
-      "ground_truth": "",
-      "predicted": 23
+      "definition": "What the number and percentage of participants with synchronous metastases (metastases at the time of diagnosis of prostate cancer) in the control arm of the clinical trial? If reported, include count and percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.",
+      "ground_truth": "566(86.5%)",
+      "predicted": "566 (86.5%)"
+    },
+    "Mode of metastases - N (%) | Synchronous | Treatment": {
+      "correctness": 1.0,
+      "completeness": 1.0,
+      "overall": 1.0,
+      "reason": "Both numbers match within the tolerance.",
+      "category": "numeric_tolerance",
+      "definition": "What the number and percentage of participants with synchronous metastases (metastases at the time of diagnosis of prostate cancer) in the treatment arm of the clinical trial? If reported, include count and percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.",
+      "ground_truth": "558(85.7%)",
+      "predicted": "558 (85.7%)"
+    },
+    "Mode of metastases - N (%) | Metachronous | Control": {
+      "correctness": 1.0,
+      "completeness": 1.0,
+      "overall": 1.0,
+      "reason": "Both numbers match within the tolerance.",
+      "category": "numeric_tolerance",
+      "definition": "What the number and percentage of patients with metachronous metastases (metastases that occur after the diagnosis of prostate cancer) in the control arm of the clinical trial? If reported, include count and percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.",
+      "ground_truth": "82(12.5%)",
+      "predicted": "82 (12.5%)"
+    },
+    "Mode of metastases - N (%) | Metachronous | Treatment": {
+      "correctness": 1.0,
+      "completeness": 1.0,
+      "overall": 1.0,
+      "reason": "Both numbers match within the tolerance.",
+      "category": "numeric_tolerance",
+      "definition": "What number and percentage of participants with metachronous metastases (metastases that occur after the diagnosis of prostate cancer) in the treatment arm of the clinical trial? If reported, include count and percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.",
+      "ground_truth": "86(13.2%)",
+      "predicted": "86 (13.2%)"
     },
     "No. of Deaths - N | Control": {
       "correctness": 1.0,
       "completeness": 1.0,
       "overall": 1.0,
-      "reason": "The GT contains \"304\". The Pred contains \"304\". The numbers match exactly.",
+      "reason": "The GT contains the number 304. The Pred contains the number 304. The numbers match exactly.",
       "category": "numeric_tolerance",
       "definition": "What number of deaths that occurred in the control arm of the clinical trial?.",
       "ground_truth": "304 deaths (at primary OS analysis)",
@@ -536,801 +576,751 @@
       "correctness": 1.0,
       "completeness": 1.0,
       "overall": 1.0,
-      "reason": "The GT contains \"229\". The Pred contains \"229\". The numbers match exactly.",
+      "reason": "The GT contains the number 229. The Pred contains the number 229. The numbers match exactly.",
       "category": "numeric_tolerance",
       "definition": "What the number of participants who died in the treatment arm of the clinical trial?.",
       "ground_truth": "229 deaths (at primary OS analysis)",
       "predicted": 229
     },
-    "ORR - N (%) | Control | PD": {
-      "correctness": 1.0,
-      "completeness": 1.0,
-      "overall": 1.0,
-      "reason": "Both GT and Pred are empty.",
-      "category": "numeric_tolerance",
-      "definition": "What percentage of total patients in the control arm showed progression of metastatic disease? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.",
-      "ground_truth": "",
-      "predicted": ""
-    },
-    "ORR - N (%) | Treatment | SD": {
-      "correctness": 1.0,
-      "completeness": 1.0,
-      "overall": 1.0,
-      "reason": "Both GT and Pred are empty.",
-      "category": "numeric_tolerance",
-      "definition": "What percentage of total patients in the experimental arm showed stable metastatic disease? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.",
-      "ground_truth": "",
-      "predicted": ""
-    },
-    "PFS Rate (%) | Overall | Treatment": {
-      "correctness": 1.0,
-      "completeness": 1.0,
-      "overall": 1.0,
-      "reason": "Both GT and Pred are empty. According to the rules, correctness and completeness should be 1.0.",
-      "category": "numeric_tolerance",
-      "definition": "What the hazard ratio with confidence intervals of progression-free survival (PFS) of all comparisons in all participants, regardless of metastasis type or volume, in the treatment arm of the trial? If reported, include the rate (percentage) and any accompanying details. If multiple arms are reported, list each arm separately. Use 'Not reported' if missing.",
-      "ground_truth": "",
-      "predicted": ""
-    },
-    "PFS Rate (%) | Overall | Control": {
-      "correctness": 1.0,
-      "completeness": 1.0,
-      "overall": 1.0,
-      "reason": "Both GT and Pred are empty. According to the rules, correctness and completeness should be 1.0.",
-      "category": "numeric_tolerance",
-      "definition": "What hazard ratio with confidence intervals of Progression-Free Survival (PFS) of all comparisons in all participants in the control arm of the trial? If reported, include the rate (percentage) and any accompanying details. If multiple arms are reported, list each arm separately. Use 'Not reported' if missing.",
-      "ground_truth": "",
-      "predicted": ""
-    },
     "ORR - N (%) | Control | SD": {
       "correctness": 1.0,
       "completeness": 1.0,
       "overall": 1.0,
-      "reason": "Both GT and Pred are empty.",
+      "reason": "Both GT and Pred correctly indicate that the information is not reported.",
       "category": "numeric_tolerance",
-      "definition": "What percentage of total patients in the control arm showed stable metastatic disease? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.",
+      "definition": "What percentage of total patients in the control arm showed stable metastatic disease? If reported, include count and percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.",
       "ground_truth": "",
-      "predicted": ""
-    },
-    "ORR - N (%) | Control | Overall": {
-      "correctness": 1.0,
-      "completeness": 1.0,
-      "overall": 1.0,
-      "reason": "Both GT and Pred are empty.",
-      "category": "numeric_tolerance",
-      "definition": "What percentage of total patients in the control arm showed overall response (complete or partial response) of metastatic disease? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.",
-      "ground_truth": "",
-      "predicted": ""
-    },
-    "ORR - N (%) | Treatment | CR": {
-      "correctness": 1.0,
-      "completeness": 1.0,
-      "overall": 1.0,
-      "reason": "Both GT and Pred are empty.",
-      "category": "numeric_tolerance",
-      "definition": "What percentage of total patients in the experimental arm showed complete response of metastatic disease? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.",
-      "ground_truth": "",
-      "predicted": ""
+      "predicted": "Not reported"
     },
     "ORR - N (%) | Treatment | PD": {
       "correctness": 1.0,
       "completeness": 1.0,
       "overall": 1.0,
-      "reason": "Both GT and Pred are empty.",
+      "reason": "Both GT and Pred correctly indicate that the information is not reported.",
       "category": "numeric_tolerance",
-      "definition": "What percentage of total patients in the experimental arm showed progression of metastatic disease? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.",
+      "definition": "What percentage of total patients in the experimental arm showed progression of metastatic disease? If reported, include count and percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.",
       "ground_truth": "",
-      "predicted": ""
+      "predicted": "Not reported"
     },
-    "ORR - N (%) | Treatment | Overall": {
+    "PFS Rate (%) | Overall | Control": {
       "correctness": 1.0,
       "completeness": 1.0,
       "overall": 1.0,
-      "reason": "Both GT and Pred are empty.",
+      "reason": "Both GT and Pred indicate the absence of numerical data.",
       "category": "numeric_tolerance",
-      "definition": "What percentage of total patients in the experimental arm showed overall response (complete or partial response) of metastatic disease? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.",
+      "definition": "What hazard ratio with confidence intervals of Progression-Free Survival (PFS) of all comparisons in all participants in the control arm of the trial? If reported, include the rate (percentage) and any accompanying details. If multiple arms are reported, list each arm separately. Use 'Not reported' if missing.",
       "ground_truth": "",
-      "predicted": ""
+      "predicted": "Not reported"
+    },
+    "PFS Rate (%) | Overall | Treatment": {
+      "correctness": 1.0,
+      "completeness": 1.0,
+      "overall": 1.0,
+      "reason": "Both GT and Pred indicate the absence of numerical data.",
+      "category": "numeric_tolerance",
+      "definition": "What the hazard ratio with confidence intervals of progression-free survival (PFS) of all comparisons in all participants, regardless of metastasis type or volume, in the treatment arm of the trial? If reported, include the rate (percentage) and any accompanying details. If multiple arms are reported, list each arm separately. Use 'Not reported' if missing.",
+      "ground_truth": "",
+      "predicted": "Not reported"
+    },
+    "ORR - N (%) | Treatment | SD": {
+      "correctness": 1.0,
+      "completeness": 1.0,
+      "overall": 1.0,
+      "reason": "Both GT and Pred are effectively empty (Pred is \"Not reported\", which implies no numerical data).",
+      "category": "numeric_tolerance",
+      "definition": "What percentage of total patients in the experimental arm showed stable metastatic disease? If reported, include count and percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.",
+      "ground_truth": "",
+      "predicted": "Not reported"
     },
     "ORR - N (%) | Control | CR": {
       "correctness": 1.0,
       "completeness": 1.0,
       "overall": 1.0,
-      "reason": "Both GT and Pred are empty.",
+      "reason": "Both GT and Pred are effectively empty (Pred is \"Not reported\", which implies no numerical data).",
       "category": "numeric_tolerance",
-      "definition": "What percentage of total patients in the control arm showed complete response of metastatic disease? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.",
+      "definition": "What percentage of total patients in the control arm showed complete response of metastatic disease? If reported, include count and percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.",
       "ground_truth": "",
-      "predicted": ""
+      "predicted": "Not reported"
+    },
+    "ORR - N (%) | Treatment | Overall": {
+      "correctness": 1.0,
+      "completeness": 1.0,
+      "overall": 1.0,
+      "reason": "Both GT and Pred are effectively empty (Pred is \"Not reported\", which implies no numerical data).",
+      "category": "numeric_tolerance",
+      "definition": "What percentage of total patients in the experimental arm showed overall response (complete or partial response) of metastatic disease? If reported, include count and percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.",
+      "ground_truth": "",
+      "predicted": "Not reported"
+    },
+    "ORR - N (%) | Treatment | CR": {
+      "correctness": 1.0,
+      "completeness": 1.0,
+      "overall": 1.0,
+      "reason": "Both GT and Pred are effectively empty (Pred is \"Not reported\", which implies no numerical data).",
+      "category": "numeric_tolerance",
+      "definition": "What percentage of total patients in the experimental arm showed complete response of metastatic disease? If reported, include count and percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.",
+      "ground_truth": "",
+      "predicted": "Not reported"
+    },
+    "ORR - N (%) | Control | PD": {
+      "correctness": 1.0,
+      "completeness": 1.0,
+      "overall": 1.0,
+      "reason": "Both GT and Pred are effectively empty (Pred is \"Not reported\", which implies no numerical data).",
+      "category": "numeric_tolerance",
+      "definition": "What percentage of total patients in the control arm showed progression of metastatic disease? If reported, include count and percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.",
+      "ground_truth": "",
+      "predicted": "Not reported"
+    },
+    "ORR - N (%) | Control | Overall": {
+      "correctness": 1.0,
+      "completeness": 1.0,
+      "overall": 1.0,
+      "reason": "Both GT and Pred are effectively empty (Pred is \"Not reported\", which implies no numerical data).",
+      "category": "numeric_tolerance",
+      "definition": "What percentage of total patients in the control arm showed overall response (complete or partial response) of metastatic disease? If reported, include count and percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.",
+      "ground_truth": "",
+      "predicted": "Not reported"
+    },
+    "OS Rate (%) | Synchronous | Control": {
+      "correctness": 0.0,
+      "completeness": 0.0,
+      "overall": 0.0,
+      "reason": "GT is empty and Pred has a value. Therefore, correctness and completeness are both 0.0.",
+      "category": "numeric_tolerance",
+      "definition": "What percentage of patients with metastasis at the time of diagnosis (synchronous metastasis) in the control arm survived at the latest follow-up? If reported, include the rate (percentage) and any accompanying details. If multiple arms are reported, list each arm separately. Use 'Not reported' if missing.",
+      "ground_truth": "",
+      "predicted": 52.12
     },
     "OS Rate (%) | High volume | Control": {
       "correctness": 0.0,
       "completeness": 0.0,
       "overall": 0.0,
-      "reason": "GT is empty, and Pred contains numbers. Therefore, correctness and completeness are both 0.0.",
+      "reason": "GT is empty and Pred has a value. Therefore, correctness and completeness are both 0.0.",
       "category": "numeric_tolerance",
       "definition": "What percentage of patients with high volume metastasis (by CHAARTED criteria) in the control arm survived at the latest follow-up? If reported, include the rate (percentage) and any accompanying details. If multiple arms are reported, list each arm separately. Use 'Not reported' if missing.",
       "ground_truth": "",
-      "predicted": "Approximately 45-50%"
-    },
-    "OS Rate (%) | Low volume | Control": {
-      "correctness": 0.0,
-      "completeness": 0.0,
-      "overall": 0.0,
-      "reason": "GT is empty, and Pred contains numbers. Therefore, correctness and completeness are both 0.0.",
-      "category": "numeric_tolerance",
-      "definition": "What percentage of patients with low volume metastasis (by CHAARTED criteria) in the control arm survived at the latest follow-up? If reported, include the rate (percentage) and any accompanying details. If multiple arms are reported, list each arm separately. Use 'Not reported' if missing.",
-      "ground_truth": "",
-      "predicted": "Approximately 75-80%"
-    },
-    "OS Rate (%) | Synchronous | Control": {
-      "correctness": 1.0,
-      "completeness": 1.0,
-      "overall": 1.0,
-      "reason": "Both GT and Pred are empty. Therefore, correctness and completeness are both 1.0.",
-      "category": "numeric_tolerance",
-      "definition": "What percentage of patients with metastasis at the time of diagnosis (synchronous metastasis) in the control arm survived at the latest follow-up? If reported, include the rate (percentage) and any accompanying details. If multiple arms are reported, list each arm separately. Use 'Not reported' if missing.",
-      "ground_truth": "",
-      "predicted": ""
-    },
-    "OS Rate (%) | High volume | Treatment": {
-      "correctness": 0.0,
-      "completeness": 0.0,
-      "overall": 0.0,
-      "reason": "GT is empty, and Pred contains numbers. Therefore, correctness and completeness are both 0.0.",
-      "category": "numeric_tolerance",
-      "definition": "What percentage of patients with high volume metastasis (by CHAARTED criteria) in the experimental arm survived at the latest follow-up? If reported, include the rate (percentage) and any accompanying details. If multiple arms are reported, list each arm separately. Use 'Not reported' if missing.",
-      "ground_truth": "",
-      "predicted": "Approximately 60-65%"
-    },
-    "OS Rate (%) | Overall | Control": {
-      "correctness": 0.0,
-      "completeness": 0.0,
-      "overall": 0.0,
-      "reason": "GT is empty, and Pred has a value. Therefore, correctness and completeness are both 0.0.",
-      "category": "numeric_tolerance",
-      "definition": "What percentage of total patients in the control arm survived at the latest follow-up? If reported, include the rate (percentage) and any accompanying details. If multiple arms are reported, list each arm separately. Use 'Not reported' if missing.",
-      "ground_truth": "",
-      "predicted": "Approximately 45-50%"
-    },
-    "OS Rate (%) | Overall | Treatment": {
-      "correctness": 0.0,
-      "completeness": 0.0,
-      "overall": 0.0,
-      "reason": "GT is empty, and Pred has a value. Therefore, correctness and completeness are both 0.0.",
-      "category": "numeric_tolerance",
-      "definition": "What percentage of total patients in the experimental arm survived at the latest follow-up? If reported, include the rate (percentage) and any accompanying details. If multiple arms are reported, list each arm separately. Use 'Not reported' if missing.",
-      "ground_truth": "",
-      "predicted": "Approximately 60-65%"
-    },
-    "OS Rate (%) | Metachronous | Control": {
-      "correctness": 1.0,
-      "completeness": 1.0,
-      "overall": 1.0,
-      "reason": "Both GT and Pred are empty. Therefore, correctness and completeness are both 1.0.",
-      "category": "numeric_tolerance",
-      "definition": "What percentage of patients with metastasis after diagnosis (metachronous metastasis) in the control arm survived at the latest follow-up? If reported, include the rate (percentage) and any accompanying details. If multiple arms are reported, list each arm separately. Use 'Not reported' if missing.",
-      "ground_truth": "",
-      "predicted": ""
-    },
-    "OS Rate (%) | Synchronous | Treatment": {
-      "correctness": 1.0,
-      "completeness": 1.0,
-      "overall": 1.0,
-      "reason": "Both GT and Pred are empty. Therefore, correctness and completeness are both 1.0.",
-      "category": "numeric_tolerance",
-      "definition": "What percentage of patients with metastasis at the time of diagnosis (synchronous metastasis) in the experimental arm survived at the latest follow-up? If reported, include the rate (percentage) and any accompanying details. If multiple arms are reported, list each arm separately. Use 'Not reported' if missing.",
-      "ground_truth": "",
-      "predicted": ""
+      "predicted": 51.3
     },
     "OS Rate (%) | Low volume | Treatment": {
       "correctness": 0.0,
       "completeness": 0.0,
       "overall": 0.0,
-      "reason": "GT is empty, and Pred has a value. Therefore, correctness and completeness are both 0.0.",
+      "reason": "GT is empty and Pred has a value. Therefore, correctness and completeness are both 0.0.",
       "category": "numeric_tolerance",
       "definition": "What percentage of patients with low volume metastasis (by CHAARTED criteria) in the experimental arm survived at the latest follow-up? If reported, include the rate (percentage) and any accompanying details. If multiple arms are reported, list each arm separately. Use 'Not reported' if missing.",
       "ground_truth": "",
-      "predicted": "Approximately 85-90%"
+      "predicted": 83.12
     },
-    "OS Rate (%) | Metachronous | Treatment": {
-      "correctness": 1.0,
-      "completeness": 1.0,
-      "overall": 1.0,
-      "reason": "Both GT and Pred are empty. Therefore, correctness and completeness are both 1.0.",
-      "category": "numeric_tolerance",
-      "definition": "What percentage of patients with metastasis after diagnosis (metachronous metastasis) in the experimental arm survived at the latest follow-up? If reported, include the rate (percentage) and any accompanying details. If multiple arms are reported, list each arm separately. Use 'Not reported' if missing.",
-      "ground_truth": "",
-      "predicted": ""
-    },
-    "Mode of metastases - N (%) | Synchronous | Treatment": {
+    "OS Rate (%) | Metachronous | Control": {
       "correctness": 0.0,
       "completeness": 0.0,
       "overall": 0.0,
-      "reason": "The prediction contains two numbers, 558 and 85.7. Neither of these numbers are present in the GT.",
+      "reason": "GT is empty and Pred has a value. Therefore, correctness and completeness are both 0.0.",
       "category": "numeric_tolerance",
-      "definition": "What the number and percentage of participants with synchronous metastases (metastases at the time of diagnosis of prostate cancer) in the treatment arm of the clinical trial? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.",
-      "ground_truth": "High-volume: 432 (86.9) Low-volume: 126 (81.8) High-risk: 416 (92.0) Low-risk: 142 (71.4)",
-      "predicted": "558 (85.7%)"
+      "definition": "What percentage of patients with metastasis after diagnosis (metachronous metastasis) in the control arm survived at the latest follow-up? If reported, include the rate (percentage) and any accompanying details. If multiple arms are reported, list each arm separately. Use 'Not reported' if missing.",
+      "ground_truth": "",
+      "predicted": 63.41
     },
-    "Mode of metastases - N (%) | Metachronous | Treatment": {
-      "correctness": 0.5,
-      "completeness": 0.5,
-      "overall": 0.5,
-      "reason": "The prediction contains two numbers, 86 and 13.2. 13.2 is within tolerance of 11.7 and 18.2. 86 is not present in the GT.",
+    "OS Rate (%) | Overall | Treatment": {
+      "correctness": 0.0,
+      "completeness": 0.0,
+      "overall": 0.0,
+      "reason": "Since GT is empty and Pred is not",
       "category": "numeric_tolerance",
-      "definition": "What number and percentage of participants with metachronous metastases (metastases that occur after the diagnosis of prostate cancer) in the treatment arm of the clinical trial? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.",
-      "ground_truth": "High-volume: 58 (11.7) Low-volume: 28 (18.2) High-risk: 33 (7.3) Low-risk: 53 (26.6)",
-      "predicted": "86 (13.2%)"
+      "definition": "What percentage of total patients in the experimental arm survived at the latest follow-up? If reported, include the rate (percentage) and any accompanying details. If multiple arms are reported, list each arm separately. Use 'Not reported' if missing.",
+      "ground_truth": "",
+      "predicted": 64.82
     },
-    "Mode of metastases - N (%) | Metachronous | Control": {
-      "correctness": 0.5,
-      "completeness": 0.5,
-      "overall": 0.5,
-      "reason": "The prediction contains two numbers, 82 and 12.5. 12.5 is within tolerance of 11.6 and 15.8. 82 is not present in the GT.",
+    "OS Rate (%) | Synchronous | Treatment": {
+      "correctness": 0.0,
+      "completeness": 0.0,
+      "overall": 0.0,
+      "reason": "Since GT is empty and Pred is not",
       "category": "numeric_tolerance",
-      "definition": "What the number and percentage of patients with metachronous metastases (metastases that occur after the diagnosis of prostate cancer) in the control arm of the clinical trial? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.",
-      "ground_truth": "High-volume: 59 (11.6) Low-volume: 23 (15.8) High-risk: 39 (8.5) Low-risk: 43 (22.2)",
-      "predicted": "82 (12.5%)"
+      "definition": "What percentage of patients with metastasis at the time of diagnosis (synchronous metastasis) in the experimental arm survived at the latest follow-up? If reported, include the rate (percentage) and any accompanying details. If multiple arms are reported, list each arm separately. Use 'Not reported' if missing.",
+      "ground_truth": "",
+      "predicted": 63.08
     },
-    "Mode of metastases - N (%) | Synchronous | Control": {
-      "correctness": 0.5,
-      "completeness": 0.5,
-      "overall": 0.5,
-      "reason": "The prediction contains two numbers, 566 and 86.5. 86.5 is within tolerance of 87.6 and 82.9. 566 is not present in the GT.",
+    "OS Rate (%) | Metachronous | Treatment": {
+      "correctness": 0.0,
+      "completeness": 0.0,
+      "overall": 0.0,
+      "reason": "Since GT is empty and Pred is not",
       "category": "numeric_tolerance",
-      "definition": "What the number and percentage of participants with synchronous metastases (metastases at the time of diagnosis of prostate cancer) in the control arm of the clinical trial? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.",
-      "ground_truth": "High-volume: 445 (87.6) Low-volume: 121 (82.9) High-risk: 419 (91.1) Low-risk: 147 (75.8)",
-      "predicted": "566 (86.5%)"
+      "definition": "What percentage of patients with metastasis after diagnosis (metachronous metastasis) in the experimental arm survived at the latest follow-up? If reported, include the rate (percentage) and any accompanying details. If multiple arms are reported, list each arm separately. Use 'Not reported' if missing.",
+      "ground_truth": "",
+      "predicted": 74.42
     },
-    "Race - N (%) | Other | Treatment": {
+    "OS Rate (%) | Low volume | Control": {
+      "correctness": 0.0,
+      "completeness": 0.0,
+      "overall": 0.0,
+      "reason": "Since GT is empty and Pred is not",
+      "category": "numeric_tolerance",
+      "definition": "What percentage of patients with low volume metastasis (by CHAARTED criteria) in the control arm survived at the latest follow-up? If reported, include the rate (percentage) and any accompanying details. If multiple arms are reported, list each arm separately. Use 'Not reported' if missing.",
+      "ground_truth": "",
+      "predicted": 75.0
+    },
+    "OS Rate (%) | High volume | Treatment": {
+      "correctness": 0.0,
+      "completeness": 0.0,
+      "overall": 0.0,
+      "reason": "Since GT is empty and Pred is not",
+      "category": "numeric_tolerance",
+      "definition": "What percentage of patients with high volume metastasis (by CHAARTED criteria) in the experimental arm survived at the latest follow-up? If reported, include the rate (percentage) and any accompanying details. If multiple arms are reported, list each arm separately. Use 'Not reported' if missing.",
+      "ground_truth": "",
+      "predicted": 59.1
+    },
+    "OS Rate (%) | Overall | Control": {
+      "correctness": 0.0,
+      "completeness": 0.0,
+      "overall": 0.0,
+      "reason": "Since GT is empty and Pred is not",
+      "category": "numeric_tolerance",
+      "definition": "What percentage of total patients in the control arm survived at the latest follow-up? If reported, include the rate (percentage) and any accompanying details. If multiple arms are reported, list each arm separately. Use 'Not reported' if missing.",
+      "ground_truth": "",
+      "predicted": 53.52
+    },
+    "PS - N (%) | 1-2 | Treatment": {
       "correctness": 1.0,
       "completeness": 1.0,
       "overall": 1.0,
-      "reason": "Both GT and Pred are empty.",
+      "reason": "GT has two numbers: 185 and 28.4. Pred also has two numbers: 185 and 28.4. Both numbers match exactly.",
       "category": "numeric_tolerance",
-      "definition": "What the number and percentage of participants in the treatment arm of the clinical trial who identified as \"other\" in terms of race? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.",
-      "ground_truth": "",
-      "predicted": ""
+      "definition": "What number and percentage of participants with a Performance Status (PS) score of 1-2 in the treatment arm of the clinical trial? If reported, include count and percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.",
+      "ground_truth": "185(28.4%)",
+      "predicted": "185 (28.4%)"
     },
-    "Race - N (%) | Black or African American | Control": {
+    "PS - N (%) | 0 | Control": {
       "correctness": 1.0,
       "completeness": 1.0,
       "overall": 1.0,
-      "reason": "Both GT and Pred are empty.",
+      "reason": "GT has two numbers: 462 and 70.6. Pred also has two numbers: 462 and 70.6. Both numbers match exactly.",
       "category": "numeric_tolerance",
-      "definition": "What number and percentage of participants identified as Black or African American in the control arm of the clinical trial? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.",
-      "ground_truth": "",
-      "predicted": ""
+      "definition": "What the number and percentage of patients with a Performance Status (PS) score of 0 in the control arm of the trial? If reported, include count and percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.",
+      "ground_truth": "462(70.6%)",
+      "predicted": "462 (70.6%)"
     },
-    "Previous local therapy - N (%) | Prostatectomy | Treatment": {
+    "PS - N (%) | 1-2 | Control": {
       "correctness": 1.0,
       "completeness": 1.0,
       "overall": 1.0,
-      "reason": "Both GT and Pred are empty.",
+      "reason": "GT has two numbers: 190 and 29.1. Pred has two numbers: 190 and 29.0. 190 matches exactly. 29.1 and 29.0 are within the tolerance of 0.1.",
       "category": "numeric_tolerance",
-      "definition": "What the number and percentage of participants in the treatment arm of the trial who received prostatectomy as a previous local therapy? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.",
-      "ground_truth": "",
-      "predicted": ""
+      "definition": "What number and percentage of patients with performance status (PS) score of 1-2 in the control arm of the clinical trial? If reported, include count and percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.",
+      "ground_truth": "190(29.1%)",
+      "predicted": "190 (29.0%)"
     },
-    "Previous local therapy - N (%) | Radiotherapy | Control": {
+    "PS - N (%) | 0 | Treatment": {
       "correctness": 1.0,
       "completeness": 1.0,
       "overall": 1.0,
-      "reason": "Both GT and Pred are empty.",
+      "reason": "GT has two numbers: 466 and 71.6. Pred also has two numbers: 466 and 71.6. Both numbers match exactly.",
       "category": "numeric_tolerance",
-      "definition": "What number and percentage of patients in the control arm of the trial who received previous local radiotherapy? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.",
-      "ground_truth": "",
-      "predicted": ""
-    },
-    "Previous local therapy - N (%) | Prostatectomy | Control": {
-      "correctness": 1.0,
-      "completeness": 1.0,
-      "overall": 1.0,
-      "reason": "Both GT and Pred are empty.",
-      "category": "numeric_tolerance",
-      "definition": "What number and percentage of patients in the control arm of the trial who received previous local therapy in the form of prostatectomy? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.",
-      "ground_truth": "",
-      "predicted": ""
-    },
-    "Previous local therapy - N (%) | Orchiectomy | Treatment": {
-      "correctness": 1.0,
-      "completeness": 1.0,
-      "overall": 1.0,
-      "reason": "Both GT and Pred are empty.",
-      "category": "numeric_tolerance",
-      "definition": "What number and percentage of participants who received orchiectomy as a previous local therapy in the treatment arm of the clinical trial? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.",
-      "ground_truth": "",
-      "predicted": ""
-    },
-    "Previous local therapy - N (%) | Radiotherapy | Treatment": {
-      "correctness": 1.0,
-      "completeness": 1.0,
-      "overall": 1.0,
-      "reason": "Both GT and Pred are empty.",
-      "category": "numeric_tolerance",
-      "definition": "What number and percentage of participants in the treatment arm who received radiotherapy as previous local therapy? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.",
-      "ground_truth": "",
-      "predicted": ""
-    },
-    "Previous local therapy - N (%) | Orchiectomy | Control": {
-      "correctness": 1.0,
-      "completeness": 1.0,
-      "overall": 1.0,
-      "reason": "Both GT and Pred are empty.",
-      "category": "numeric_tolerance",
-      "definition": "What the number and percentage of patients in the control arm of the trial who received previous local orchiectomy therapy? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.",
-      "ground_truth": "",
-      "predicted": ""
-    },
-    "Race - N (%) | White | Treatment": {
-      "correctness": 1.0,
-      "completeness": 1.0,
-      "overall": 1.0,
-      "reason": "Both GT and Pred are empty.",
-      "category": "numeric_tolerance",
-      "definition": "What number and percentage of participants of White race included in the treatment arm of the clinical trial? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.",
-      "ground_truth": "",
-      "predicted": ""
-    },
-    "Race - N (%) | Black or African American | Treatment": {
-      "correctness": 1.0,
-      "completeness": 1.0,
-      "overall": 1.0,
-      "reason": "Both GT and Pred are empty.",
-      "category": "numeric_tolerance",
-      "definition": "What number and percentage of participants identifying as Black or African American in the treatment arm of the clinical trial? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.",
-      "ground_truth": "",
-      "predicted": ""
-    },
-    "Race - N (%) | Other | Control": {
-      "correctness": 1.0,
-      "completeness": 1.0,
-      "overall": 1.0,
-      "reason": "Both GT and Pred are empty.",
-      "category": "numeric_tolerance",
-      "definition": "What number and percentage of participants with 'Other' race included in the control arm of the clinical trial? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.",
-      "ground_truth": "",
-      "predicted": ""
-    },
-    "Race - N (%) | Unknown | Control": {
-      "correctness": 1.0,
-      "completeness": 1.0,
-      "overall": 1.0,
-      "reason": "Both GT and Pred are empty.",
-      "category": "numeric_tolerance",
-      "definition": "What number and percentage of participants in the control arm of the trial with unknown race? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.",
-      "ground_truth": "",
-      "predicted": ""
-    },
-    "Race - N (%) | Amer. Indian or Alaska Nat. | Treatment": {
-      "correctness": 1.0,
-      "completeness": 1.0,
-      "overall": 1.0,
-      "reason": "Both GT and Pred are empty.",
-      "category": "numeric_tolerance",
-      "definition": "What number and percentage of participants in the treatment arm of the clinical trial who identify as American Indian or Alaska Native by race? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.",
-      "ground_truth": "",
-      "predicted": ""
-    },
-    "Race - N (%) | Nat. Hawaiian or Pac. Islander | Control": {
-      "correctness": 1.0,
-      "completeness": 1.0,
-      "overall": 1.0,
-      "reason": "Both GT and Pred are empty.",
-      "category": "numeric_tolerance",
-      "definition": "What number and percentage of patients in the control arm of the trial who identify as Native Hawaiian or Pacific Islander by race? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.",
-      "ground_truth": "",
-      "predicted": ""
-    },
-    "Race - N (%) | Asian | Treatment": {
-      "correctness": 1.0,
-      "completeness": 1.0,
-      "overall": 1.0,
-      "reason": "Both GT and Pred are empty.",
-      "category": "numeric_tolerance",
-      "definition": "What the number and percentage of participants in the treatment arm of the clinical trial who are of Asian race? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.",
-      "ground_truth": "",
-      "predicted": ""
+      "definition": "What number and percentage of participants included in the treatment arm with a Performance Status (PS) score of 0? If reported, include count and percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.",
+      "ground_truth": "466(71.6%)",
+      "predicted": "466 (71.6%)"
     },
     "Race - N (%) | Nat. Hawaiian or Pac. Islander | Treatment": {
       "correctness": 1.0,
       "completeness": 1.0,
       "overall": 1.0,
-      "reason": "Both GT and Pred are empty.",
+      "reason": "Since both GT and Pred indicate that the information is not available, I will consider this a match.",
       "category": "numeric_tolerance",
-      "definition": "What number and percentage of participants identifying as Native Hawaiian or Pacific Islander in the treatment arm of the clinical trial? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.",
+      "definition": "What number and percentage of participants identifying as Native Hawaiian or Pacific Islander in the treatment arm of the clinical trial? If reported, include count and percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.",
       "ground_truth": "",
-      "predicted": ""
+      "predicted": "Not reported"
     },
-    "Race - N (%) | Amer. Indian or Alaska Nat. | Control": {
+    "Race - N (%) | White | Treatment": {
+      "correctness": 0.0,
+      "completeness": 0.0,
+      "overall": 0.0,
+      "reason": "GT is empty, but Pred contains a number. This indicates an error.",
+      "category": "numeric_tolerance",
+      "definition": "What number and percentage of participants of White race included in the treatment arm of the clinical trial? If reported, include count and percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.",
+      "ground_truth": "",
+      "predicted": 258
+    },
+    "Previous local therapy - N (%) | Prostatectomy | Control": {
       "correctness": 1.0,
       "completeness": 1.0,
       "overall": 1.0,
-      "reason": "Both GT and Pred are empty.",
+      "reason": "Both are effectively empty.",
       "category": "numeric_tolerance",
-      "definition": "What number and percentage of participants in the control arm of the trial who identified as American Indian or Alaska Native by race? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.",
+      "definition": "What number and percentage of patients in the control arm of the trial who received previous local therapy in the form of prostatectomy? If reported, include count and percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.",
       "ground_truth": "",
-      "predicted": ""
+      "predicted": "Not reported"
     },
-    "Race - N (%) | White | Control": {
+    "Previous local therapy - N (%) | Radiotherapy | Treatment": {
       "correctness": 1.0,
       "completeness": 1.0,
       "overall": 1.0,
-      "reason": "Both GT and Pred are empty.",
+      "reason": "Both are effectively empty.",
       "category": "numeric_tolerance",
-      "definition": "What number and percentage of control arm participants who identified as White in terms of their racial background? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.",
+      "definition": "What number and percentage of participants in the treatment arm who received radiotherapy as previous local therapy? If reported, include count and percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.",
       "ground_truth": "",
-      "predicted": ""
+      "predicted": "Not reported"
+    },
+    "Previous local therapy - N (%) | Radiotherapy | Control": {
+      "correctness": 1.0,
+      "completeness": 1.0,
+      "overall": 1.0,
+      "reason": "Both are effectively empty.",
+      "category": "numeric_tolerance",
+      "definition": "What number and percentage of patients in the control arm of the trial who received previous local radiotherapy? If reported, include count and percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.",
+      "ground_truth": "",
+      "predicted": "Not reported"
+    },
+    "Previous local therapy - N (%) | Orchiectomy | Treatment": {
+      "correctness": 1.0,
+      "completeness": 1.0,
+      "overall": 1.0,
+      "reason": "Both are effectively empty.",
+      "category": "numeric_tolerance",
+      "definition": "What number and percentage of participants who received orchiectomy as a previous local therapy in the treatment arm of the clinical trial? If reported, include count and percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.",
+      "ground_truth": "",
+      "predicted": "Not reported"
+    },
+    "Previous local therapy - N (%) | Prostatectomy | Treatment": {
+      "correctness": 1.0,
+      "completeness": 1.0,
+      "overall": 1.0,
+      "reason": "Both are effectively empty.",
+      "category": "numeric_tolerance",
+      "definition": "What the number and percentage of participants in the treatment arm of the trial who received prostatectomy as a previous local therapy? If reported, include count and percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.",
+      "ground_truth": "",
+      "predicted": "Not reported"
+    },
+    "Previous local therapy - N (%) | Orchiectomy | Control": {
+      "correctness": 1.0,
+      "completeness": 1.0,
+      "overall": 1.0,
+      "reason": "Both are effectively empty.",
+      "category": "numeric_tolerance",
+      "definition": "What the number and percentage of patients in the control arm of the trial who received previous local orchiectomy therapy? If reported, include count and percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.",
+      "ground_truth": "",
+      "predicted": "Not reported"
     },
     "Race - N (%) | Asian | Control": {
+      "correctness": 0.0,
+      "completeness": 0.0,
+      "overall": 0.0,
+      "reason": "GT is empty, and Pred has a value. Therefore, correctness and completeness are both 0.0.",
+      "category": "numeric_tolerance",
+      "definition": "What the number and percentage of participants in the control arm of the trial who identify as Asian? If reported, include count and percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.",
+      "ground_truth": "",
+      "predicted": 193
+    },
+    "Race - N (%) | Other | Treatment": {
+      "correctness": 0.0,
+      "completeness": 0.0,
+      "overall": 0.0,
+      "reason": "GT is empty, and Pred has a value. Therefore, correctness and completeness are both 0.0.",
+      "category": "numeric_tolerance",
+      "definition": "What the number and percentage of participants in the treatment arm of the clinical trial who identified as \"other\" in terms of race? If reported, include count and percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.",
+      "ground_truth": "",
+      "predicted": 40
+    },
+    "Race - N (%) | Nat. Hawaiian or Pac. Islander | Control": {
       "correctness": 1.0,
       "completeness": 1.0,
       "overall": 1.0,
-      "reason": "Both GT and Pred are empty.",
+      "reason": "GT is empty, and Pred is \"Not reported\". Based on the instructions, this is equivalent to both being empty. Therefore, correctness and completeness are both 1.0.",
       "category": "numeric_tolerance",
-      "definition": "What the number and percentage of participants in the control arm of the trial who identify as Asian? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.",
+      "definition": "What number and percentage of patients in the control arm of the trial who identify as Native Hawaiian or Pacific Islander by race? If reported, include count and percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.",
       "ground_truth": "",
-      "predicted": ""
+      "predicted": "Not reported"
+    },
+    "Race - N (%) | Asian | Treatment": {
+      "correctness": 0.0,
+      "completeness": 0.0,
+      "overall": 0.0,
+      "reason": "GT is empty, and Pred has a value. Therefore, correctness and completeness are both 0.0.",
+      "category": "numeric_tolerance",
+      "definition": "What the number and percentage of participants in the treatment arm of the clinical trial who are of Asian race? If reported, include count and percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.",
+      "ground_truth": "",
+      "predicted": 177
+    },
+    "Race - N (%) | Amer. Indian or Alaska Nat. | Treatment": {
+      "correctness": 1.0,
+      "completeness": 1.0,
+      "overall": 1.0,
+      "reason": "GT is empty, and Pred is \"Not reported\". Based on the instructions, this is equivalent to both being empty. Therefore, correctness and completeness are both 1.0.",
+      "category": "numeric_tolerance",
+      "definition": "What number and percentage of participants in the treatment arm of the clinical trial who identify as American Indian or Alaska Native by race? If reported, include count and percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.",
+      "ground_truth": "",
+      "predicted": "Not reported"
     },
     "Race - N (%) | Unknown | Treatment": {
       "correctness": 1.0,
       "completeness": 1.0,
       "overall": 1.0,
-      "reason": "Both GT and Pred are empty.",
+      "reason": "GT is empty, and Pred is \"Not reported\". Based on the instructions, this is equivalent to both being empty. Therefore, correctness and completeness are both 1.0.",
       "category": "numeric_tolerance",
-      "definition": "What number and percentage of participants with unknown race included in the treatment arm of the clinical trial? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.",
+      "definition": "What number and percentage of participants with unknown race included in the treatment arm of the clinical trial? If reported, include count and percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.",
       "ground_truth": "",
-      "predicted": ""
+      "predicted": "Not reported"
     },
-    "TTPSA (mo) | Control": {
+    "TTPSA (mo)": {
       "correctness": 1.0,
       "completeness": 1.0,
       "overall": 1.0,
-      "reason": "Both GT and Pred are empty.",
+      "reason": "The ground truth is empty, and the prediction contains \"NR\" which is interpreted as \"Not Reported\". According to the instructions, if both are empty, correctness=1.0, completeness=1.0.",
       "category": "numeric_tolerance",
-      "definition": "What time to Progressive Serum Androgen (TTPSA) in months for participants in the control arm of the clinical trial? If reported, include the value; use 'Not reported' if missing.",
+      "definition": "",
       "ground_truth": "",
       "predicted": ""
     },
-    "TTPSA (mo) | Treatment": {
+    "Race - N (%) | Other | Control": {
+      "correctness": 0.0,
+      "completeness": 0.0,
+      "overall": 0.0,
+      "reason": "GT is empty, and Pred has a value. Therefore, correctness and completeness are both 0.",
+      "category": "numeric_tolerance",
+      "definition": "What number and percentage of participants with 'Other' race included in the control arm of the clinical trial? If reported, include count and percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.",
+      "ground_truth": "",
+      "predicted": 35
+    },
+    "Race - N (%) | Black or African American | Control": {
+      "correctness": 0.0,
+      "completeness": 0.0,
+      "overall": 0.0,
+      "reason": "GT is empty, and Pred has a value. Therefore, correctness and completeness are both 0.",
+      "category": "numeric_tolerance",
+      "definition": "What number and percentage of participants identified as Black or African American in the control arm of the clinical trial? If reported, include count and percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.",
+      "ground_truth": "",
+      "predicted": 21
+    },
+    "Race - N (%) | White | Control": {
+      "correctness": 0.0,
+      "completeness": 0.0,
+      "overall": 0.0,
+      "reason": "GT is empty, and Pred has a value. Therefore, correctness and completeness are both 0.",
+      "category": "numeric_tolerance",
+      "definition": "What number and percentage of control arm participants who identified as White in terms of their racial background? If reported, include count and percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.",
+      "ground_truth": "",
+      "predicted": 259
+    },
+    "Race - N (%) | Unknown | Control": {
       "correctness": 1.0,
       "completeness": 1.0,
       "overall": 1.0,
-      "reason": "Both GT and Pred are empty.",
+      "reason": "GT is empty, and Pred is \"Not reported\". Since the definition allows \"Not reported\" when missing, this is considered a match. Both are effectively empty.",
       "category": "numeric_tolerance",
-      "definition": "What time To Progression of Serum Androgen (in months) in the treatment arm of the clinical trial? If reported, include the value; use 'Not reported' if missing.",
+      "definition": "What number and percentage of participants in the control arm of the trial with unknown race? If reported, include count and percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.",
       "ground_truth": "",
-      "predicted": ""
+      "predicted": "Not reported"
     },
-    "PS - N (%) | 0 | Treatment": {
+    "Race - N (%) | Amer. Indian or Alaska Nat. | Control": {
+      "correctness": 1.0,
+      "completeness": 1.0,
+      "overall": 1.0,
+      "reason": "GT is empty, and Pred is \"Not reported\". Since the definition allows \"Not reported\" when missing, this is considered a match. Both are effectively empty.",
+      "category": "numeric_tolerance",
+      "definition": "What number and percentage of participants in the control arm of the trial who identified as American Indian or Alaska Native by race? If reported, include count and percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.",
+      "ground_truth": "",
+      "predicted": "Not reported"
+    },
+    "Race - N (%) | Black or African American | Treatment": {
       "correctness": 0.0,
       "completeness": 0.0,
       "overall": 0.0,
-      "reason": "The prediction only contains one number, 466, which does not match any of the numbers in the ground truth within the allowed tolerance.",
+      "reason": "GT is empty, and Pred has a value. Therefore, correctness and completeness are both 0.",
       "category": "numeric_tolerance",
-      "definition": "What number and percentage of participants included in the treatment arm with a Performance Status (PS) score of 0? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.",
-      "ground_truth": "High-volume: 343 (69.0) Low-volume: 123 (79.9) High-risk: 317 (70.1) Low-risk: 149 (74.9)",
-      "predicted": 466
-    },
-    "PS - N (%) | 1-2 | Control": {
-      "correctness": 0.0,
-      "completeness": 0.0,
-      "overall": 0.0,
-      "reason": "The prediction only contains one number, 190, which does not match any of the numbers in the ground truth within the allowed tolerance.",
-      "category": "numeric_tolerance",
-      "definition": "What number and percentage of patients with performance status (PS) score of 1-2 in the control arm of the clinical trial? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.",
-      "ground_truth": "High-volume: 157 (30.9) Low-volume: 33 (22.6) High-risk: 140 (30.4) Low-risk: 50 (25.8)",
-      "predicted": 190
-    },
-    "PS - N (%) | 0 | Control": {
-      "correctness": 0.0,
-      "completeness": 0.0,
-      "overall": 0.0,
-      "reason": "The prediction only contains one number, 462, which does not match any of the numbers in the ground truth within the allowed tolerance.",
-      "category": "numeric_tolerance",
-      "definition": "What the number and percentage of patients with a Performance Status (PS) score of 0 in the control arm of the trial? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.",
-      "ground_truth": "High-volume: 349 (68.7) Low-volume: 113 (77.4) High-risk: 318 (69.1) Low-risk: 144 (74.2)",
-      "predicted": 462
-    },
-    "PS - N (%) | 1-2 | Treatment": {
-      "correctness": 0.0,
-      "completeness": 0.0,
-      "overall": 0.0,
-      "reason": "The prediction only contains one number, 185, which does not match any of the numbers in the ground truth within the allowed tolerance.",
-      "category": "numeric_tolerance",
-      "definition": "What number and percentage of participants with a Performance Status (PS) score of 1-2 in the treatment arm of the clinical trial? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.",
-      "ground_truth": "High-volume: 154 (31.0) Low-volume: 31 (20.1) High-risk: 135 (29.9) Low-risk: 50 (25.1)",
-      "predicted": 185
+      "definition": "What number and percentage of participants identifying as Black or African American in the treatment arm of the clinical trial? If reported, include count and percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.",
+      "ground_truth": "",
+      "predicted": 22
     },
     "Total Participants - N": {
       "correctness": 1.0,
       "completeness": 1.0,
       "overall": 1.0,
-      "reason": "The ground truth contains the number 1,306. The prediction also contains the number 1306. These match exactly. Therefore, correctness and completeness are both 1.0.",
+      "reason": "The predicted number matches the ground truth number.",
       "category": "numeric_tolerance",
       "definition": "What are the total number of participants included in the clinical trial?. If reported, provide the value; otherwise use 'Not reported'.",
       "ground_truth": "1,306 randomized",
       "predicted": 1306
     },
-    "Treatment Arm - N": {
+    "Region - N (%) | South America | Treatment": {
       "correctness": 1.0,
       "completeness": 1.0,
       "overall": 1.0,
-      "reason": "The GT contains one number (651) and the Pred contains one number (651). The numbers match exactly. Therefore, correctness and completeness are both 1.0.",
+      "reason": "Since both are effectively empty, the correctness and completeness are 1.0.",
       "category": "numeric_tolerance",
-      "definition": "What are the total number of participants included in the experimental arm of the clinical trial?. If reported, provide the value; otherwise use 'Not reported'. If the trial contains multiple treatment arms, report for all separately",
-      "ground_truth": "651",
-      "predicted": 651
-    },
-    "Region - N (%) | Oceania | Treatment": {
-      "correctness": 1.0,
-      "completeness": 1.0,
-      "overall": 1.0,
-      "reason": "Both GT and Pred are empty.",
-      "category": "numeric_tolerance",
-      "definition": "What number and percentage of participants in the treatment arm of the clinical trial who are from the Oceania region? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.",
+      "definition": "What number and percentage of participants in the treatment arm of the clinical trial from the South America region? If reported, include count and percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.",
       "ground_truth": "",
-      "predicted": ""
+      "predicted": "Not reported"
     },
-    "Region - N (%) | Europe | Treatment": {
+    "Region - N (%) | Africa | Control": {
       "correctness": 1.0,
       "completeness": 1.0,
       "overall": 1.0,
-      "reason": "Both GT and Pred are empty.",
+      "reason": "Since both are effectively empty, the correctness and completeness are 1.0.",
       "category": "numeric_tolerance",
-      "definition": "What number and percentage of participants included in the treatment arm of the clinical trial from the Europe region? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.",
+      "definition": "What number and percentage of participants in the control arm of the trial from the Africa region? If reported, include count and percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.",
       "ground_truth": "",
-      "predicted": ""
+      "predicted": "Not reported"
     },
     "Region - N (%) | Asia | Treatment": {
       "correctness": 0.0,
       "completeness": 0.0,
       "overall": 0.0,
-      "reason": "GT is empty, but Pred has a value.",
+      "reason": "GT is empty, and Pred contains a number. Therefore, correctness and completeness are 0.0.",
       "category": "numeric_tolerance",
-      "definition": "What the number and percentage of participants in the treatment arm of the clinical trial who are from the Asia region? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.",
+      "definition": "What the number and percentage of participants in the treatment arm of the clinical trial who are from the Asia region? If reported, include count and percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.",
       "ground_truth": "",
-      "predicted": 36
+      "predicted": 175
     },
-    "Region - N (%) | North America | Treatment": {
-      "correctness": 0.0,
-      "completeness": 0.0,
-      "overall": 0.0,
-      "reason": "GT is empty, but Pred has a value.",
+    "Region - N (%) | Oceania | Treatment": {
+      "correctness": 1.0,
+      "completeness": 1.0,
+      "overall": 1.0,
+      "reason": "Since both are effectively empty, the correctness and completeness are 1.0.",
       "category": "numeric_tolerance",
-      "definition": "What number and percentage of participants from North America included in the treatment arm of the clinical trial? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.",
+      "definition": "What number and percentage of participants in the treatment arm of the clinical trial who are from the Oceania region? If reported, include count and percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.",
       "ground_truth": "",
-      "predicted": 203
+      "predicted": "Not reported"
     },
-    "Region - N (%) | Asia | Control": {
-      "correctness": 0.0,
-      "completeness": 0.0,
-      "overall": 0.0,
-      "reason": "GT is empty, but Pred has a value.",
+    "Region - N (%) | Africa | Treatment": {
+      "correctness": 1.0,
+      "completeness": 1.0,
+      "overall": 1.0,
+      "reason": "Since both are effectively empty, the correctness and completeness are 1.0.",
       "category": "numeric_tolerance",
-      "definition": "What number and percentage of patients in the control arm of the trial from the Asian region? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.",
+      "definition": "What number and percentage of participants in the treatment arm of the trial who were from the Africa region? If reported, include count and percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.",
       "ground_truth": "",
-      "predicted": 46
+      "predicted": "Not reported"
     },
     "Region - N (%) | North America | Control": {
       "correctness": 0.0,
       "completeness": 0.0,
       "overall": 0.0,
-      "reason": "GT is empty, but Pred has a value.",
+      "reason": "GT is empty, and Pred contains a number. Therefore, correctness and completeness are 0.0.",
       "category": "numeric_tolerance",
-      "definition": "What number and percentage of participants in the control arm of the trial who were from the North America region? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.",
+      "definition": "What number and percentage of participants in the control arm of the trial who were from the North America region? If reported, include count and percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.",
       "ground_truth": "",
-      "predicted": 268
+      "predicted": 88
     },
-    "Column 1: Region - N (%) | Africa | Control": {
-      "correctness": 1.0,
-      "completeness": 1.0,
-      "overall": 1.0,
-      "reason": "Both GT and Pred are empty.",
-      "category": "numeric_tolerance",
-      "definition": "",
-      "ground_truth": "",
-      "predicted": ""
-    },
-    "Column 2: Region - N (%) | Europe | Control": {
-      "correctness": 1.0,
-      "completeness": 1.0,
-      "overall": 1.0,
-      "reason": "Both GT and Pred are empty.",
-      "category": "numeric_tolerance",
-      "definition": "",
-      "ground_truth": "",
-      "predicted": ""
-    },
-    "Column 3: Region - N (%) | Africa | Treatment": {
-      "correctness": 1.0,
-      "completeness": 1.0,
-      "overall": 1.0,
-      "reason": "Both GT and Pred are empty.",
-      "category": "numeric_tolerance",
-      "definition": "",
-      "ground_truth": "",
-      "predicted": ""
-    },
-    "Column 4: Region - N (%) | South America | Treatment": {
-      "correctness": 1.0,
-      "completeness": 1.0,
-      "overall": 1.0,
-      "reason": "Both GT and Pred are empty.",
-      "category": "numeric_tolerance",
-      "definition": "",
-      "ground_truth": "",
-      "predicted": ""
-    },
-    "Column 5: Region - N (%) | Oceania | Control": {
-      "correctness": 1.0,
-      "completeness": 1.0,
-      "overall": 1.0,
-      "reason": "Both GT and Pred are empty.",
-      "category": "numeric_tolerance",
-      "definition": "",
-      "ground_truth": "",
-      "predicted": ""
-    },
-    "Column 6: Region - N (%) | South America | Control": {
-      "correctness": 1.0,
-      "completeness": 1.0,
-      "overall": 1.0,
-      "reason": "Both GT and Pred are empty.",
-      "category": "numeric_tolerance",
-      "definition": "",
-      "ground_truth": "",
-      "predicted": ""
-    },
-    "Add-on Treatment": {
-      "correctness": 1.0,
-      "completeness": 1.0,
-      "overall": 1.0,
-      "reason": "The prediction correctly identifies Darolutamide as the add-on treatment. The GT provides additional context, but the core information is present in the prediction.",
-      "category": "structured_text",
-      "definition": "What is the name of additional therapy or intervention given in combination with the primary treatment in the clinical trial?. If reported, provide the value; otherwise use 'Not reported'.",
-      "ground_truth": "Darolutamide (added to ADT + docetaxel backbone)",
-      "predicted": "Darolutamide"
-    },
-    "Quality of Life Scale": {
-      "correctness": 1.0,
-      "completeness": 0.5,
-      "overall": 0.75,
-      "reason": "The prediction only captures one of the two scales mentioned in the GT, and rephrases it. While the rephrasing is acceptable, it misses the Brief Pain Inventory Short-Form.",
-      "category": "structured_text",
-      "definition": "What a measure of the participants' overall well-being and satisfaction with their health status, as assessed through a standardized questionnaire or survey, reflecting their perceived quality of life during the clinical trial?.",
-      "ground_truth": "Brief Pain Inventory Short-Form; FACT\u2013Prostate (NCCN symptom index 17-item)",
-      "predicted": "Functional Assessment of Cancer Therapy\u2013Prostate (National Comprehensive Cancer Network) symptom index 17-item questionnaire"
-    },
-    "Secondary Endpoint(s)": {
-      "correctness": 1.0,
-      "completeness": 1.0,
-      "overall": 1.0,
-      "reason": "The prediction accurately captures all the secondary endpoints listed in the GT, with acceptable rephrasing and expansion of abbreviations.",
-      "category": "structured_text",
-      "definition": "What the secondary outcome(s) or objective(s) of the clinical trial, in addition to the primary endpoint, that are being measured or evaluated?. If reported, provide the value; otherwise use 'Not reported'.",
-      "ground_truth": "Time to CRPC; time to pain progression (BPI-SF); symptomatic skeletal event\u2013free survival; time to first symptomatic skeletal event; time to subsequent systemic antineoplastic therapy; symptom worsening (FACT-P/NCCN SI-17); time to opioid initiation",
-      "predicted": "time to castration-resistant prostate cancer, time to pain progression on the basis of the Brief Pain Inventory Short-Form questionnaire, symptomatic skeletal event-free survival, time to first symptomatic-skeletal event, time to initiation of subsequent systemic antineoplastic therapy, time to worsening of disease-related physical symptoms as measured by the Functional Assessment of Cancer Therapy\u2013Prostate (National Comprehensive Cancer Network) symptom index 17-item questionnaire, and time to initiation of opioid use for 7 or more days"
-    },
-    "Treatment Class": {
+    "Treatment Arm - N": {
       "correctness": 0.0,
       "completeness": 0.0,
       "overall": 0.0,
-      "reason": "The prediction provides a different classification than the GT. While \"triplet therapy\" might be true in the context of the trial, it's not the specific treatment class of Darolutamide itself.",
-      "category": "structured_text",
-      "definition": "What is the categorization or classification of the treatment or therapy received by participants in the clinical trial?. If reported, provide the value; otherwise use 'Not reported'.",
-      "ground_truth": "Androgen receptor pathway inhibitor (AR antagonist)",
-      "predicted": "Triplet therapy"
+      "reason": "The predicted number does not match the ground truth within the allowed tolerance. The ground truth number is not captured in the prediction within the allowed tolerance.",
+      "category": "numeric_tolerance",
+      "definition": "What are the total number of participants included in the experimental arm of the clinical trial?. If reported, provide the value; otherwise use 'Not reported'. If the trial contains multiple treatment arms, report for all separately",
+      "ground_truth": "651",
+      "predicted": 652
     },
-    "Treatment Arm 1 Regimen": {
-      "correctness": 1.0,
-      "completeness": 0.5,
-      "overall": 0.75,
-      "reason": "The prediction correctly identifies the drugs used in the regimen but misses the dosage and schedule of Darolutamide.",
-      "category": "structured_text",
-      "definition": "What the specific treatment protocol or regimen used in the first experimental arm of the clinical trial?. If reported, provide the value; otherwise use 'Not reported'.",
-      "ground_truth": "Darolutamide 600 mg orally twice daily + ADT + docetaxel",
-      "predicted": "Darolutamide + ADT + docetaxel"
-    },
-    "COE_RCT_IND_OVERALL_RJ": {
+    "Region - N (%) | Europe | Treatment": {
       "correctness": 1.0,
       "completeness": 1.0,
       "overall": 1.0,
-      "reason": "Both are empty.",
-      "category": "structured_text",
-      "definition": "What is the overall risk judgment of individual criteria of evidence (COE) in randomized controlled trials (RCT)?.",
+      "reason": "Since both GT and Pred are effectively empty (GT is truly empty, Pred is \"Not reported\" which implies no data), the correctness and completeness are both 1.0.",
+      "category": "numeric_tolerance",
+      "definition": "What number and percentage of participants included in the treatment arm of the clinical trial from the Europe region? If reported, include count and percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.",
       "ground_truth": "",
-      "predicted": ""
+      "predicted": "Not reported"
+    },
+    "Region - N (%) | North America | Treatment": {
+      "correctness": 0.0,
+      "completeness": 0.0,
+      "overall": 0.0,
+      "reason": "Since GT is empty and Pred has a value, both correctness and completeness are 0.0.",
+      "category": "numeric_tolerance",
+      "definition": "What number and percentage of participants from North America included in the treatment arm of the clinical trial? If reported, include count and percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.",
+      "ground_truth": "",
+      "predicted": 95
+    },
+    "Region - N (%) | Oceania | Control": {
+      "correctness": 1.0,
+      "completeness": 1.0,
+      "overall": 1.0,
+      "reason": "Since both GT and Pred are effectively empty, the correctness and completeness are both 1.0.",
+      "category": "numeric_tolerance",
+      "definition": "What number and percentage of participants in the control arm of the trial from the Oceania region? If reported, include count and percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.",
+      "ground_truth": "",
+      "predicted": "Not reported"
+    },
+    "Region - N (%) | Europe | Control": {
+      "correctness": 1.0,
+      "completeness": 1.0,
+      "overall": 1.0,
+      "reason": "Since both GT and Pred are effectively empty, the correctness and completeness are both 1.0.",
+      "category": "numeric_tolerance",
+      "definition": "What number and percentage of patients in the control arm of the trial from the Europe region? If reported, include count and percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.",
+      "ground_truth": "",
+      "predicted": "Not reported"
+    },
+    "Region - N (%) | Asia | Control": {
+      "correctness": 0.0,
+      "completeness": 0.0,
+      "overall": 0.0,
+      "reason": "Since GT is empty and Pred has a value, both correctness and completeness are 0.0.",
+      "category": "numeric_tolerance",
+      "definition": "What number and percentage of patients in the control arm of the trial from the Asian region? If reported, include count and percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.",
+      "ground_truth": "",
+      "predicted": 191
+    },
+    "Region - N (%) | South America | Control": {
+      "correctness": 1.0,
+      "completeness": 1.0,
+      "overall": 1.0,
+      "reason": "Since both GT and Pred are effectively empty, the correctness and completeness are both 1.0.",
+      "category": "numeric_tolerance",
+      "definition": "What number and percentage of patients in the control arm of the trial from the South America region? If reported, include count and percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.",
+      "ground_truth": "",
+      "predicted": "Not reported"
     },
     "Volume of disease - N (%) | High | Control": {
-      "correctness": 0.5,
+      "correctness": 1.0,
       "completeness": 1.0,
-      "overall": 0.75,
-      "reason": "The GT contains \"508\". The Pred contains \"508\" and \"77.7%\". 508 in Pred matches 508 in GT. Since the definition asks for number and percentage, the prediction is trying to provide both. However, the GT only provides the number. Correctness: 508 matches, but 77.7 is not in GT. Thus, correctness is 0.5. Completeness: 508 in GT is captured in Pred. Thus, completeness is 1.0.",
+      "overall": 1.0,
+      "reason": "GT numbers: 508, 77.6\nPred numbers: 508, 77.7\n508 matches 508.\n|77.7 - 77.6| = 0.1, which is within the tolerance of \u00b10.1.\nBoth numbers in GT are present in Pred, and both numbers in Pred are present in GT.",
       "category": "numeric_tolerance",
-      "definition": "What the number and percentage of participants in the control arm of the clinical trial with high volume/burden metastasis? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.",
-      "ground_truth": "High-volume subgroup n=508",
+      "definition": "What the number and percentage of participants in the control arm of the clinical trial with high volume/burden metastasis? If reported, include count and percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.",
+      "ground_truth": "508 (77.6%)",
       "predicted": "508 (77.7%)"
     },
     "Volume of disease - N (%) | High | Treatment": {
-      "correctness": 0.5,
+      "correctness": 1.0,
       "completeness": 1.0,
-      "overall": 0.75,
-      "reason": "The GT contains \"497\". The Pred contains \"497\" and \"76.3%\". 497 in Pred matches 497 in GT. Since the definition asks for number and percentage, the prediction is trying to provide both. However, the GT only provides the number. Correctness: 497 matches, but 76.3 is not in GT. Thus, correctness is 0.5. Completeness: 497 in GT is captured in Pred. Thus, completeness is 1.0.",
+      "overall": 1.0,
+      "reason": "GT numbers: 497, 76.3\nPred numbers: 497, 76.3\n497 matches 497.\n76.3 matches 76.3.\nBoth numbers in GT are present in Pred, and both numbers in Pred are present in GT.",
       "category": "numeric_tolerance",
-      "definition": "What the number and percentage of participants in the treatment arm of the clinical trial with a high volume or burden of metastatic disease? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.",
-      "ground_truth": "High-volume subgroup n=497",
+      "definition": "What the number and percentage of participants in the treatment arm of the clinical trial with a high volume or burden of metastatic disease? If reported, include count and percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.",
+      "ground_truth": "497 (76.3%)",
       "predicted": "497 (76.3%)"
     },
     "Volume of disease - N (%) | Low | Control": {
-      "correctness": 0.5,
+      "correctness": 1.0,
       "completeness": 1.0,
-      "overall": 0.75,
-      "reason": "The GT contains \"146\". The Pred contains \"146\" and \"22.3%\". 146 in Pred matches 146 in GT. Since the definition asks for number and percentage, the prediction is trying to provide both. However, the GT only provides the number. Correctness: 146 matches, but 22.3 is not in GT. Thus, correctness is 0.5. Completeness: 146 in GT is captured in Pred. Thus, completeness is 1.0.",
+      "overall": 1.0,
+      "reason": "GT numbers: 146, 22.3\nPred numbers: 146, 22.3\n146 matches 146.\n22.3 matches 22.3.\nBoth numbers in GT are present in Pred, and both numbers in Pred are present in GT.",
       "category": "numeric_tolerance",
-      "definition": "What the number and percentage of participants in the control arm of the trial with low volume/burden metastases? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.",
-      "ground_truth": "Low-volume subgroup n=146",
+      "definition": "What the number and percentage of participants in the control arm of the trial with low volume/burden metastases? If reported, include count and percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.",
+      "ground_truth": "146 (22.3%)",
       "predicted": "146 (22.3%)"
     },
     "Control Arm": {
       "correctness": 1.0,
       "completeness": 1.0,
       "overall": 1.0,
-      "reason": "The prediction accurately captures the components of the control arm. \"ADT\" is correctly interpreted as \"androgen-deprivation therapy\". The rephrasing \"plus\" is acceptable.",
+      "reason": "The prediction correctly identifies the components of the control arm. \"ADT\" is correctly interpreted as \"androgen-deprivation therapy\". The rephrasing with \"plus\" is acceptable.",
       "category": "structured_text",
       "definition": "What the name of the arm in the clinical trial that does not receive the experimental treatment, serving as a comparison group?. If reported, provide the value; otherwise use 'Not reported'.",
       "ground_truth": "Placebo + ADT + docetaxel",
       "predicted": "placebo plus androgen-deprivation therapy and docetaxel"
     },
+    "Treatment Arm 1 Regimen": {
+      "correctness": 1.0,
+      "completeness": 0.5,
+      "overall": 0.75,
+      "reason": "The prediction is missing the dosage and schedule of darolutamide (600 mg orally twice daily). The rest is correct.",
+      "category": "structured_text",
+      "definition": "What the specific treatment protocol or regimen used in the first experimental arm of the clinical trial?. If reported, provide the value; otherwise use 'Not reported'.",
+      "ground_truth": "Darolutamide 600 mg orally twice daily + ADT + docetaxel",
+      "predicted": "darolutamide plus androgen-deprivation therapy and docetaxel"
+    },
     "Primary Endpoint(s)": {
       "correctness": 1.0,
       "completeness": 1.0,
       "overall": 1.0,
-      "reason": "The prediction perfectly matches the ground truth, including the abbreviation.",
+      "reason": "The prediction correctly identifies the primary endpoint.",
       "category": "structured_text",
       "definition": "What the main outcome(s) or objective(s) that the clinical trial is designed to measure or achieve?. If reported, provide the value; otherwise use 'Not reported'.",
       "ground_truth": "Overall survival (OS)",
-      "predicted": "Overall Survival (OS)"
-    },
-    "Class of Agent in Treatment Arm 1": {
-      "correctness": 1.0,
-      "completeness": 0.5,
-      "overall": 0.75,
-      "reason": "The prediction correctly identifies the class of agent but misses the specific drug name (darolutamide).",
-      "category": "structured_text",
-      "definition": "What the type or category of therapeutic agent used in the first experimental arm of the clinical trial?. If reported, provide the value; otherwise use 'Not reported'.",
-      "ground_truth": "Androgen receptor pathway inhibitor / androgen receptor antagonist (darolutamide)",
-      "predicted": "Androgen receptor pathway inhibitor"
-    },
-    "Type of Therapy": {
-      "correctness": 0.5,
-      "completeness": 0.5,
-      "overall": 0.5,
-      "reason": "The prediction lists the components of both the treatment and control arms, but doesn't explicitly state \"triplet therapy\" or the categories of each component (hormonal, ADT, chemotherapy). It also includes information from both arms when the column definition doesn't specify which arm to extract from.",
-      "category": "structured_text",
-      "definition": "What is the description of the type of treatment or intervention provided to participants in the clinical trial?. If reported, provide the value; otherwise use 'Not reported'.",
-      "ground_truth": "Triplet therapy: hormonal (AR inhibitor) + ADT + chemotherapy (docetaxel)",
-      "predicted": "Darolutamide + androgen-deprivation therapy (ADT) + docetaxel, Placebo + androgen-deprivation therapy (ADT) + docetaxel"
+      "predicted": "OS"
     },
     "Treatment Arm(s)": {
       "correctness": 1.0,
-      "completeness": 1.0,
-      "overall": 1.0,
-      "reason": "The prediction accurately captures the components of the treatment arm. \"ADT\" is correctly interpreted as \"androgen-deprivation therapy\". The rephrasing \"plus\" is acceptable.",
+      "completeness": 0.5,
+      "overall": 0.75,
+      "reason": "The prediction only identifies darolutamide, missing ADT and docetaxel.",
       "category": "structured_text",
       "definition": "What name of the experimental arm or arms in the clinical trial?. If reported, provide the value; otherwise use 'Not reported'.",
       "ground_truth": "Darolutamide + ADT + docetaxel",
-      "predicted": "darolutamide plus androgen-deprivation therapy and docetaxel"
+      "predicted": "darolutamide"
+    },
+    "Add-on Treatment": {
+      "correctness": 1.0,
+      "completeness": 1.0,
+      "overall": 1.0,
+      "reason": "The prediction correctly identifies Darolutamide as the add-on treatment. The additional context in GT is not essential for this column.",
+      "category": "structured_text",
+      "definition": "What is the name of additional therapy or intervention given in combination with the primary treatment in the clinical trial?. If reported, provide the value; otherwise use 'Not reported'.",
+      "ground_truth": "Darolutamide (added to ADT + docetaxel backbone)",
+      "predicted": "Darolutamide"
+    },
+    "COE_RCT_IND_OVERALL_RJ": {
+      "correctness": 1.0,
+      "completeness": 1.0,
+      "overall": 1.0,
+      "reason": "Both are effectively empty.",
+      "category": "structured_text",
+      "definition": "What is the overall risk judgment of individual criteria of evidence (COE) in randomized controlled trials (RCT)?.",
+      "ground_truth": "",
+      "predicted": "Not reported"
+    },
+    "Type of Therapy": {
+      "correctness": 1.0,
+      "completeness": 1.0,
+      "overall": 1.0,
+      "reason": "The prediction captures the key components of the triplet therapy: ADT, docetaxel, and an AR inhibitor (Darolutamide). The GT specifies \"hormonal (AR inhibitor)\" which is essentially the same as \"Darolutamide\". The prediction is a more specific and accurate representation of the therapy.",
+      "category": "structured_text",
+      "definition": "What is the description of the type of treatment or intervention provided to participants in the clinical trial?. If reported, provide the value; otherwise use 'Not reported'.",
+      "ground_truth": "Triplet therapy: hormonal (AR inhibitor) + ADT + chemotherapy (docetaxel)",
+      "predicted": "Darolutamide plus androgen-deprivation therapy (ADT) and docetaxel"
     },
     "Trial": {
       "correctness": 1.0,
       "completeness": 1.0,
       "overall": 1.0,
-      "reason": "The prediction perfectly matches the ground truth.",
+      "reason": "The prediction matches the ground truth exactly.",
       "category": "structured_text",
       "definition": "What name of the clinical study or experiment being referenced?. If reported, provide the value; otherwise use 'Not reported'.",
       "ground_truth": "ARASENS",
       "predicted": "ARASENS"
+    },
+    "Class of Agent in Treatment Arm 1": {
+      "correctness": 0.5,
+      "completeness": 1.0,
+      "overall": 0.75,
+      "reason": "The prediction correctly identifies \"androgen receptor pathway inhibitor\". However, \"hormonal therapy\" and \"chemotherapy\" are too broad and not specific to the *class of agent* in the treatment arm.",
+      "category": "structured_text",
+      "definition": "What the type or category of therapeutic agent used in the first experimental arm of the clinical trial?. If reported, provide the value; otherwise use 'Not reported'.",
+      "ground_truth": "Androgen receptor pathway inhibitor / androgen receptor antagonist (darolutamide)",
+      "predicted": "androgen receptor pathway inhibitor, hormonal therapy, chemotherapy"
+    },
+    "Treatment Class": {
+      "correctness": 0.5,
+      "completeness": 0.0,
+      "overall": 0.25,
+      "reason": "The prediction lists the specific treatments used, but the ground truth asks for the *class* of treatment. While darolutamide is an androgen receptor pathway inhibitor, ADT and docetaxel are different classes of treatment.",
+      "category": "structured_text",
+      "definition": "What is the categorization or classification of the treatment or therapy received by participants in the clinical trial?. If reported, provide the value; otherwise use 'Not reported'.",
+      "ground_truth": "Androgen receptor pathway inhibitor (AR antagonist)",
+      "predicted": "Androgen-deprivation therapy, docetaxel, darolutamide"
+    },
+    "Quality of Life Scale": {
+      "correctness": 0.0,
+      "completeness": 0.0,
+      "overall": 0.0,
+      "reason": "The prediction is \"Not reported\" while the ground truth has values.",
+      "category": "structured_text",
+      "definition": "What a measure of the participants' overall well-being and satisfaction with their health status, as assessed through a standardized questionnaire or survey, reflecting their perceived quality of life during the clinical trial?.",
+      "ground_truth": "Brief Pain Inventory Short-Form; FACT\u2013Prostate (NCCN symptom index 17-item)",
+      "predicted": "Not reported"
+    },
+    "Secondary Endpoint(s)": {
+      "correctness": 1.0,
+      "completeness": 1.0,
+      "overall": 1.0,
+      "reason": "The prediction accurately captures all the secondary endpoints listed in the ground truth, with some rephrasing and expansion of abbreviations (e.g., CRPC to castration-resistant prostate cancer, FACT-P/NCCN SI-17 to Functional Assessment of Cancer Therapy-Prostate (National Comprehensive Cancer Network) symptom index 17-item questionnaire). The \"7 or more days\" in the prediction for opioid use is not in the GT, but it doesn't change the meaning.",
+      "category": "structured_text",
+      "definition": "What the secondary outcome(s) or objective(s) of the clinical trial, in addition to the primary endpoint, that are being measured or evaluated?. If reported, provide the value; otherwise use 'Not reported'.",
+      "ground_truth": "Time to CRPC; time to pain progression (BPI-SF); symptomatic skeletal event\u2013free survival; time to first symptomatic skeletal event; time to subsequent systemic antineoplastic therapy; symptom worsening (FACT-P/NCCN SI-17); time to opioid initiation",
+      "predicted": "Time to castration-resistant prostate cancer, Time to pain progression on the basis of the Brief Pain Inventory Short-Form questionnaire, Symptomatic skeletal event-free survival, Time to first symptomatic-skeletal event, Time to initiation of subsequent systemic antineoplastic therapy, Time to worsening of disease-related physical symptoms as measured by the Functional Assessment of Cancer Therapy-Prostate (National Comprehensive Cancer Network) symptom index 17-item questionnaire, Time to initiation of opioid use for 7 or more days"
     }
   }
 }

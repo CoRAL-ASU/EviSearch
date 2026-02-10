@@ -1,0 +1,78 @@
+INPUT PROMPT:
+You are extracting clinical trial data from a research paper.
+
+TASK: Extract values for the following canonical columns. Use EXACT column names as listed.
+
+COLUMNS TO EXTRACT:
+- Column index 1: "Reporting by prognostic groups - Y/N | Synchronous"
+  Definition: What indicates whether the results of the clinical trial were reported based on prognostic groups with synchronous metastases, where synchronous metastases refers to metastases present at the time of diagnosis of prostate cancer. with a response of either "yes" (Y) or "no" (N)? Answer Yes or No; use 'Not reported' if unclear.
+  Expected Location: Page 4 | text
+  Planner Confidence: high
+  Extraction Instructions:
+  The results are reported for patients with synchronous metastases. This is indicated in the text on page 4, section 3.1 "Overall survival", which states: "In patients with metastases at diagnosis, median OS was 11.1 mo longer in the ADT plus D arm compared with the ADT arm, without a statistically significant difference, at 52.6 mo (95% CI, 43.3-66.8) versus 41.5 mo (95% CI, 36.3–54.5) (HR: 0.93 [95% CI, 0.69-1.25]; p = 0.6)." Table 1 on page 3 also includes a row for "Metastases at diagnosis, n (%)".
+
+- Column index 2: "Reporting by prognostic groups - Y/N | Metachronous"
+  Definition: What indicates whether the results of the clinical trial were reported based on prognostic groups of patients with metachronous diseases (diseases that occur at different times). with a response of either "yes" (Y) or "no" (N)? Answer Yes or No; use 'Not reported' if unclear.
+  Expected Location: Page 4 | text
+  Planner Confidence: high
+  Extraction Instructions:
+  The results are reported for patients with metachronous disease. This is indicated in the text on page 4, section 3.1 "Overall survival", which states: "For patients with metastases after failure of local treatment, median OS was not reached (95% CI, 69.5–NR) in the ADT plus D arm and was 69.8 mo (95% CI, 62.2-NR) in the ADT arm (HR: 0.83 [95% CI, 0.47-1.47]; p = 0.5) (Supplementary Table 2)." Table 1 on page 3 also includes a row for "Metastases after treatment for local disease, n (%)".
+
+- Column index 3: "Reporting by prognostic groups - Y/N | High volume"
+  Definition: What indicates whether the results of the clinical trial were reported based on prognostic groups with high volume/burden of metastases, with a response of either "yes" (Y) or "no" (N)? Answer Yes or No; use 'Not reported' if unclear.
+  Expected Location: Page 1 | text
+  Planner Confidence: high
+  Extraction Instructions:
+  The results are reported for patients with high volume disease (HVD). This is indicated in the Abstract on page 1, which states: "Median OS in ADT plus D and ADT arms, respectively, was for HVD patients: 39.8 mo (95% CI, 28.0–53.4) versus 35.1 mo (95% CI, 29.9–43.6) (HR: 0.78 [95% CI, 0.56–1.09]; p = 0.14)". Table 2 on page 4 provides "Survival data... by treatment arm and metastatic burden" including a column for "HVD". Table 1 on page 3 also includes a row for "High-volume disease (%)".
+
+- Column index 4: "Reporting by prognostic groups - Y/N | Low volume"
+  Definition: What indicates whether the results were reported based on prognostic groups having a low volume of metastasis, with a yes or no response (Y/N)? Answer Yes or No; use 'Not reported' if unclear.
+  Expected Location: Page 1 | text
+  Planner Confidence: high
+  Extraction Instructions:
+  The results are reported for patients with low volume disease (LVD). This is indicated in the Abstract on page 1, which states: "for low-volume disease (LVD) patients; median was not reached (NR; 95% CI, 69.5-NR) and 83.4 mo (95% CI, 61.8-NR) (HR: 1.02 [95% CI, 0.67-1.55]; p = 0.9)". Table 2 on page 4 provides "Survival data... by treatment arm and metastatic burden" including a column for "LVD". Table 1 on page 3 also includes a row for "Low-volume disease (%)".
+
+RELEVANT CHUNKS:
+--- Chunk 5 (TEXT on page 3-5) ---
+alone [26]. Results indicate that D-based chemotherapy isassociated with improved relapse-free survival in high-risklocalized PCa [27]. A longer follow-up of this trial and otherongoing similar studies will be required to assess whetherthisbenefittranslatesintoimprovedmetastasis-freesurvival and, ultimately, OS.The main limitation of our study is that data on metastaticburden were collected retrospectively. The study was notinitially designed to show the benefits of chemotherapy inspecific subgr...
+
+--- Chunk 4 (TEXT on page 1-3) ---
+Androgen Deprivation Therapy (ADT) Plus Docetaxel VersusADT Alone in Metastatic Non castrate Prostate Cancer:Impact of Metastatic Burden and Long-term SurvivalAnalysis of the Randomized Phase 3 GETUG-AFU15 Trial Gwenaelle Gravis a,*, Jean-Marie Boher b, Florence Joly c, Michel Soulie´ d, Laurence Albiges e,Franck Priou f, Igor Latorzeff g, Remy Delva h, Ivan Krakowski i, Brigitte Laguerre j,Fre´de´ric Rolland k, Christine The´odore l, Gael Deplanque m, Jean-Marc Ferrero n,Ste´phane Culine o, Loı...
+
+GUIDELINES:
+- For each listed column, extract a value if explicitly present; otherwise set value=null.
+- Provide evidence as an exact quote, page number(s), confidence (high/medium/low).
+- Use the EXACT column names from the list above.
+
+Output format (for each column):
+Column index <N>: "<Exact Column Name>"
+Value: <extracted value or null>
+Evidence: "<exact quote>"
+Page: <page number>
+Confidence: <high/medium/low>
+
+
+OUTPUT:
+Column index 1: "Reporting by prognostic groups - Y/N | Synchronous"
+Value: Y
+Evidence: "In patients with metastases at diagnosis, median OS was 11.1 mo longer in the ADT plus D arm compared with the ADT arm, without a statistically significant difference, at 52.6 mo (95% CI, 43.3-66.8) versus 41.5 mo (95% CI, 36.3–54.5) (HR: 0.93 [95% CI, 0.69-1.25]; p = 0.6)."
+Page: 4
+Confidence: high
+
+Column index 2: "Reporting by prognostic groups - Y/N | Metachronous"
+Value: Y
+Evidence: "For patients with metastases after failure of local treatment, median OS was not reached (95% CI, 69.5–NR) in the ADT plus D arm and was 69.8 mo (95% CI, 62.2-NR) in the ADT arm (HR: 0.83 [95% CI, 0.47-1.47]; p = 0.5) (Supplementary Table 2)."
+Page: 4
+Confidence: high
+
+Column index 3: "Reporting by prognostic groups - Y/N | High volume"
+Value: Y
+Evidence: "Median OS in ADT plus D and ADT arms, respectively, was for HVD patients: 39.8 mo (95% CI, 28.0–53.4) versus 35.1 mo (95% CI, 29.9–43.6) (HR: 0.78 [95% CI, 0.56–1.09]; p = 0.14)"
+Page: 1
+Confidence: high
+
+Column index 4: "Reporting by prognostic groups - Y/N | Low volume"
+Value: Y
+Evidence: "for low-volume disease (LVD) patients; median was not reached (NR; 95% CI, 69.5-NR) and 83.4 mo (95% CI, 61.8-NR) (HR: 1.02 [95% CI, 0.67-1.55]; p = 0.9)"
+Page: 1
+Confidence: high

@@ -1,0 +1,49 @@
+INPUT PROMPT:
+You are extracting clinical trial data from a research paper.
+
+TASK: Extract values for the following canonical columns. Use EXACT column names as listed.
+
+COLUMNS TO EXTRACT:
+- Column index 1: "TTPSA (mo) | Treatment"
+  Definition: What time To Progression of Serum Androgen (in months) in the treatment arm of the clinical trial? If reported, include the value; use 'Not reported' if missing.
+  Expected Location: Page 4 | text
+  Planner Confidence: high
+  Extraction Instructions:
+  The value is reported in the text on page 4, under the "3.2. Biochemical and radiographic progression-free survival" section, and also in Table 2 on page 4. Page 4, Text: "The bPFS was significantly longer for patients randomized in the ADT plus D arm in the overall population at 22.9 mo (95% CI, 19.5–28.4)". Page 4, Table 2: In the "GETUG-AFU 15" section, under "All patients", locate the row "bPFS, mo". The value for "ADT plus D, mo" is 22.9. Value: 22.9
+
+- Column index 2: "TTPSA (mo) | Control"
+  Definition: What time to Progressive Serum Androgen (TTPSA) in months for participants in the control arm of the clinical trial? If reported, include the value; use 'Not reported' if missing.
+  Expected Location: Page 4 | text
+  Planner Confidence: high
+  Extraction Instructions:
+  The value is reported in the text on page 4, under the "3.2. Biochemical and radiographic progression-free survival" section, and also in Table 2 on page 4. Page 4, Text: "...versus 12.9 mo (95% CI, 11.9–17.7) (HR: 0.67 [95% CI, 0.54–0.84]; p < 0.001) (Fig. 4)". Page 4, Table 2: In the "GETUG-AFU 15" section, under "All patients", locate the row "bPFS, mo". The value for "ADT, mo" is 12.9. Value: 12.9
+
+RELEVANT CHUNKS:
+--- Chunk 5 (TEXT on page 3-5) ---
+alone [26]. Results indicate that D-based chemotherapy isassociated with improved relapse-free survival in high-risklocalized PCa [27]. A longer follow-up of this trial and otherongoing similar studies will be required to assess whetherthisbenefittranslatesintoimprovedmetastasis-freesurvival and, ultimately, OS.The main limitation of our study is that data on metastaticburden were collected retrospectively. The study was notinitially designed to show the benefits of chemotherapy inspecific subgr...
+
+GUIDELINES:
+- For each listed column, extract a value if explicitly present; otherwise set value=null.
+- Provide evidence as an exact quote, page number(s), confidence (high/medium/low).
+- Use the EXACT column names from the list above.
+
+Output format (for each column):
+Column index <N>: "<Exact Column Name>"
+Value: <extracted value or null>
+Evidence: "<exact quote>"
+Page: <page number>
+Confidence: <high/medium/low>
+
+
+OUTPUT:
+Column index 1: "TTPSA (mo) | Treatment"
+Value: 22.9
+Evidence: "The bPFS was significantly longer for patients randomized in the ADT plus D arm in the overall population at 22.9 mo (95% CI, 19.5-28.4) versus 12.9 mo (95% CI, 11.9–17.7) (HR: 0.67 [95% CI, 0.54–0.84]; p < 0.001) (Fig. 4)"
+Page: 4
+Confidence: high
+
+Column index 2: "TTPSA (mo) | Control"
+Value: 12.9
+Evidence: "The bPFS was significantly longer for patients randomized in the ADT plus D arm in the overall population at 22.9 mo (95% CI, 19.5-28.4) versus 12.9 mo (95% CI, 11.9–17.7) (HR: 0.67 [95% CI, 0.54–0.84]; p < 0.001) (Fig. 4)"
+Page: 4
+Confidence: high

@@ -1,0 +1,114 @@
+INPUT PROMPT:
+You are extracting clinical trial data from a research paper.
+
+TASK: Extract values for the following canonical columns. Use EXACT column names as listed.
+
+COLUMNS TO EXTRACT:
+- Column index 1: "NCT"
+  Definition: What national Clinical Trial identifier, a unique identification number assigned to a clinical trial?. If reported, provide the value; otherwise use 'Not reported'.
+  Expected Location: Page 2 | text
+  Planner Confidence: high
+  Extraction Instructions:
+  The NCT identifier is reported in Chunk 4, on page 2, in the "Patients and methods" section. Extract the value "NCT00104715" from the sentence: "The trial is registered with ClinicalTrials.gov (NCT00104715)."
+
+- Column index 3: "Trial Name"
+  Definition: What the title or identifier of the clinical trial being referred to in the study?. If reported, provide the value; otherwise use 'Not reported'.
+  Expected Location: Page 1 | text
+  Planner Confidence: high
+  Extraction Instructions:
+  The trial name is reported in Chunk 4, on page 1, in the title of the article. Extract "GETUG-AFU15 Trial". It is also mentioned in the abstract and body of the text.
+
+- Column index 4: "Author"
+  Definition: What the name of the person or people responsible for writing or publishing the clinical trial study? Your answer should be a name/ list of names (you can use th et al. format )or 'NA'. If reported, provide the value; otherwise use 'Not reported'.
+  Expected Location: Page 1 | text
+  Planner Confidence: high
+  Extraction Instructions:
+  The author list is reported in Chunk 4, on page 1, at the beginning of the article. Extract "Gwenaelle Gravis, Jean-Marie Boher, Florence Joly, Michel Soulié, Laurence Albiges, Franck Priou, Igor Latorzeff, Remy Delva, Ivan Krakowski, Brigitte Laguerre, Frédéric Rolland, Christine Théodore, Gael Deplanque, Jean-Marc Ferrero, Stéphane Culine, Loïc Mourey, Philippe Beuzeboc, Muriel Habibian, Stéphane Oudard, Karim Fizazi, on behalf of the GETUG".
+
+- Column index 5: "Year"
+  Definition: Publication year of the clinical trial. Use 'Not reported' if unclear.
+  Expected Location: Page 1 | text
+  Planner Confidence: high
+  Extraction Instructions:
+  The publication year is reported on page 1, in the header of the journal. Extract "2016".
+
+- Column index 6: "Full Pub or Abstract"
+  Definition: Indicates whether results are fully published or only an abstract is available. Use 'Full Pub' or 'Abstract'; use 'Not reported' if unclear.
+  Expected Location: Page -1 | not_applicable
+  Planner Confidence: high
+  Extraction Instructions:
+  This is a full publication. The document contains multiple pages of detailed methods, results, and discussion sections, which is characteristic of a full publication.
+
+- Column index 7: "Phase"
+  Definition: Clinical trial phase (e.g., I, II, III, IV) as reported. Use 'Not reported' if unclear.
+  Expected Location: Page 1 | text
+  Planner Confidence: high
+  Extraction Instructions:
+  The phase is reported in Chunk 4, on page 1, in the title and abstract. Extract "Phase 3".
+
+- Column index 8: "Original/Follow Up"
+  Definition: Whether the study is an original report or a follow-up analysis. Use Original or Follow up; use 'Not reported' if unclear.
+  Expected Location: Page 1 | text
+  Planner Confidence: high
+  Extraction Instructions:
+  The study is a follow-up analysis. In Chunk 4, on page 1, the abstract states: "to update overall survival (OS) data of the GETUG-AFU15 study." Also, in Chunk 4, on page 2, under "Introduction", it mentions "updated survival analyses." Extract "Follow Up".
+
+RELEVANT CHUNKS:
+--- Chunk 4 (TEXT on page 1-3) ---
+Androgen Deprivation Therapy (ADT) Plus Docetaxel VersusADT Alone in Metastatic Non castrate Prostate Cancer:Impact of Metastatic Burden and Long-term SurvivalAnalysis of the Randomized Phase 3 GETUG-AFU15 Trial Gwenaelle Gravis a,*, Jean-Marie Boher b, Florence Joly c, Michel Soulie´ d, Laurence Albiges e,Franck Priou f, Igor Latorzeff g, Remy Delva h, Ivan Krakowski i, Brigitte Laguerre j,Fre´de´ric Rolland k, Christine The´odore l, Gael Deplanque m, Jean-Marc Ferrero n,Ste´phane Culine o, Loı...
+
+GUIDELINES:
+- For each listed column, extract a value if explicitly present; otherwise set value=null.
+- Provide evidence as an exact quote, page number(s), confidence (high/medium/low).
+- Use the EXACT column names from the list above.
+
+Output format (for each column):
+Column index <N>: "<Exact Column Name>"
+Value: <extracted value or null>
+Evidence: "<exact quote>"
+Page: <page number>
+Confidence: <high/medium/low>
+
+
+OUTPUT:
+Column index 1: "NCT"
+Value: NCT00104715
+Evidence: "The trial is registered with ClinicalTrials.gov (NCT00104715)."
+Page: 2
+Confidence: high
+
+Column index 3: "Trial Name"
+Value: GETUG-AFU15 Trial
+Evidence: "Androgen Deprivation Therapy (ADT) Plus Docetaxel VersusADT Alone in Metastatic Non castrate Prostate Cancer:Impact of Metastatic Burden and Long-term SurvivalAnalysis of the Randomized Phase 3 GETUG-AFU15 Trial"
+Page: 1
+Confidence: high
+
+Column index 4: "Author"
+Value: Gwenaelle Gravis, Jean-Marie Boher, Florence Joly, Michel Soulié, Laurence Albiges, Franck Priou, Igor Latorzeff, Remy Delva, Ivan Krakowski, Brigitte Laguerre, Frédéric Rolland, Christine Théodore, Gael Deplanque, Jean-Marc Ferrero, Stéphane Culine, Loïc Mourey, Philippe Beuzeboc, Muriel Habibian, Stéphane Oudard, Karim Fizazi, on behalf of the GETUG
+Evidence: "Gwenaelle Gravis a,*, Jean-Marie Boher b, Florence Joly c, Michel Soulié d, Laurence Albiges e,Franck Priou f, Igor Latorzeff g, Remy Delva h, Ivan Krakowski i, Brigitte Laguerre j,Frédéric Rolland k, Christine Théodore l, Gael Deplanque m, Jean-Marc Ferrero n,Stéphane Culine o, Loïc Mourey p, Philippe Beuzeboc q, Muriel Habibian r,Stéphane Oudard s, Karim Fizazi t,on behalf of the GETUG"
+Page: 1
+Confidence: high
+
+Column index 5: "Year"
+Value: 2016
+Evidence: "EUROPEAN UROLOGY 70 (2016)256-262"
+Page: 1
+Confidence: high
+
+Column index 6: "Full Pub or Abstract"
+Value: Full Pub
+Evidence: "not_applicable"
+Page: -1
+Confidence: high
+
+Column index 7: "Phase"
+Value: Phase 3
+Evidence: "Randomized phase 3 trial of ADT plus D versus ADT"
+Page: 1
+Confidence: high
+
+Column index 8: "Original/Follow Up"
+Value: Follow Up
+Evidence: "To assess the impact of metastatic burden and to update overall survival (OS) data of the GETUG-AFU15 study."
+Page: 1
+Confidence: high

@@ -314,15 +314,7 @@ def main():
     pdf_name = pdf_path.stem
 
     base_output = RESULTS_BASE_DIR / pdf_name
-    if VERSION_OUTPUTS:
-        run_dir, latest_link = create_versioned_output_dir(base_output)
-        print("\nOutput directory:", run_dir)
-        if latest_link.exists():
-            print("Latest link:", latest_link, "->", run_dir.name)
-    else:
-        run_dir = base_output
-        run_dir.mkdir(parents=True, exist_ok=True)
-        latest_link = None
+    base_output.mkdir(parents=True, exist_ok=True)
 
     print("\nSelect pipeline stage to run:")
     print("  1. Chunking only")
@@ -332,6 +324,26 @@ def main():
     print("  5. Complete pipeline (all stages)")
     print("  6. Planning -> Extraction -> Evaluation (resume from chunks)")
     choice = input("\nEnter choice (1-6): ").strip()
+
+    # Option A: For evaluation-only, use existing run (latest); don't create a new versioned run.
+    if VERSION_OUTPUTS:
+        if choice == "4":
+            latest_dir = base_output / "latest"
+            if latest_dir.exists() and latest_dir.is_symlink():
+                run_dir = latest_dir.resolve()
+                print("\nOutput directory (evaluation only, using existing run):", run_dir)
+            else:
+                run_dir = base_output
+                print("\nOutput directory (evaluation only, no latest run):", run_dir)
+            latest_link = base_output / "latest"
+        else:
+            run_dir, latest_link = create_versioned_output_dir(base_output)
+            print("\nOutput directory:", run_dir)
+            if latest_link.exists():
+                print("Latest link:", latest_link, "->", run_dir.name)
+    else:
+        run_dir = base_output
+        latest_link = None
 
     chunk_file = None
     plan_dir = None

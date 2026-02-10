@@ -1,0 +1,77 @@
+INPUT PROMPT:
+You are extracting clinical trial data from a research paper.
+
+TASK: Extract values for the following canonical columns. Use EXACT column names as listed.
+
+COLUMNS TO EXTRACT:
+- Column index 1: "No. of Deaths - N | Treatment"
+  Definition: What the number of participants who died in the treatment arm of the clinical trial?.
+  Expected Location: Page 6 | table
+  Planner Confidence: high
+  Extraction Instructions:
+  Extract the value from Table 2, under the "SOC + AAP" column, row "Overall survival" and sub-row "Events". The value is 244.
+
+- Column index 2: "No. of Deaths - N | Control"
+  Definition: What number of deaths that occurred in the control arm of the clinical trial?.
+  Expected Location: Page 6 | table
+  Planner Confidence: high
+  Extraction Instructions:
+  Extract the value from Table 2, under the "SOC-alone" column, row "Overall survival" and sub-row "Events". The value is 329.
+
+RELEVANT CHUNKS:
+--- Chunk 2 (TABLE on page 6) ---
+Summary: **Table 2. Primary and secondary outcome measure**  This table presents the primary and secondary outcome measures for patients in two groups: those receiving standard-of-care alone (SOC-alone, n = 502) and those receiving standard-of-care plus abiraterone acetate + prednisone/prednisolone (SOC + AA...
+
+Structured Table:
+##Markdown Table##
+
+| Outcome                        |                | SOC-alone (n = 502) | SOC + AAP (n = 501) | P        |
+|---------------------------------|----------------|---------------------|---------------------|----------|
+| **Overall survival**            | Events         | 329                 | 244                 |          |
+|                                 | % alive at 5 years (95% CI) | 41% (37-45)          | 60% (55-64)          |          |
+|                                 | HR = vs SOC-alone (95% CI), P | (Reference)           | 0.60 (0.50-0.71)      | <.0001   |
+|                                 | RMST (months), P (proportional hazards) | 54 (51-57)            | 66 (63-69)            | .78      |
+| **Failure-free survival**       | Events         | 329                 | 282                 |          |
+|                                 | % event-free at 5 years (95% CI) | 13% (11-17)           | 45% (41-50)           |          |
+|                                 | HR = vs SOC-alone (95% CI), P | (Reference)           | 0.34 (0.29-0.40)      | <.0001   |
+|                                 | RMST (months), P (proportional hazards) | 24 (21-27)            | 55 (51-59)            | .0001    |
+| **Progression-free survival**   | Events         | 323                 | 241                 |          |
+|                                 | % event-free at 5 years (95% CI) | 37% (33-42)           | 54% (50-59)           |          |
+|                                 | HR = vs SOC-alone (95% CI), P | (Reference)           | 0.58 (0.49-0.69)      | <.0001   |
+|                                 | RMST (months), P (proportional hazards) | 47 (43-51)            | 62 (59-66)            | .038     |
+| **Metastatic PFS**              | Events         | 309                 | 230                 |          |
+|                                 | % event-free at 5 years (95% CI) | 40% (36-45)           | 56% (52-61)           |          |
+|                                 | HR = vs SOC-alone (95% CI), P | (Reference)           | 0.60 (0.50-0.71)      | <.0001   |
+|                                 | RMST (months), P (proportional hazards) | 50 (46-53)            | 64 (60-67)            | .13      |
+| **Skeletal-related events**     | Events         | 100                 | 76                  |          |
+|                                 | % event-free at 5 years (95% CI) | 76% (71-80)           | 82% (78-86)           |          |
+|                                 | HR = vs SOC-alone (95% CI), P | (Reference)           | 0.56 (0.41-0.76)      | .0008    |
+|                                 | RMST (months), P (proportional hazards) | 78 (74-81)            | 84 (82-87)            | .33      |
+| **Disease-specific survival**   | Events         | 255                 | 156                 |          |
+|                                 | % event-free at 5 years (95% CI) | 50% (45-55)           | 72% (67-76)           |          |
+|                       
+
+GUIDELINES:
+- For each listed column, extract a value if explicitly present; otherwise set value=null.
+- Provide evidence as an exact quote, page number(s), confidence (high/medium/low).
+- Use the EXACT column names from the list above.
+
+Output format (for each column):
+Column index <N>: "<Exact Column Name>"
+Value: <extracted value or null>
+Evidence: "<exact quote>"
+Page: <page number>
+Confidence: <high/medium/low>
+
+
+OUTPUT:
+Column index 1: "No. of Deaths - N | Treatment"
+Value: 244
+Evidence: "244"
+Page: 6
+Confidence: high
+Column index 2: "No. of Deaths - N | Control"
+Value: 329
+Evidence: "329"
+Page: 6
+Confidence: high

@@ -1,0 +1,36 @@
+INPUT PROMPT:
+You are extracting clinical trial data from a research paper.
+
+TASK: Extract values for the following canonical columns. Use EXACT column names as listed.
+
+COLUMNS TO EXTRACT:
+- Column index 1: "Treatment Arm 1 Regimen"
+  Definition: What the specific treatment protocol or regimen used in the first experimental arm of the clinical trial?. If reported, provide the value; otherwise use 'Not reported'.
+  Expected Location: Page 2 | text
+  Planner Confidence: high
+  Extraction Instructions:
+  The value is reported in Chunk 4, specifically in the "Patients and methods" section on page 2. Extract the regimen described for the "ADT plus D" arm: "ADT plus D (75 mg/m² for 21 d, up to nine cycles)".
+
+RELEVANT CHUNKS:
+--- Chunk 4 (TEXT on page 1-3) ---
+Androgen Deprivation Therapy (ADT) Plus Docetaxel VersusADT Alone in Metastatic Non castrate Prostate Cancer:Impact of Metastatic Burden and Long-term SurvivalAnalysis of the Randomized Phase 3 GETUG-AFU15 Trial Gwenaelle Gravis a,*, Jean-Marie Boher b, Florence Joly c, Michel Soulie´ d, Laurence Albiges e,Franck Priou f, Igor Latorzeff g, Remy Delva h, Ivan Krakowski i, Brigitte Laguerre j,Fre´de´ric Rolland k, Christine The´odore l, Gael Deplanque m, Jean-Marc Ferrero n,Ste´phane Culine o, Loı...
+
+GUIDELINES:
+- For each listed column, extract a value if explicitly present; otherwise set value=null.
+- Provide evidence as an exact quote, page number(s), confidence (high/medium/low).
+- Use the EXACT column names from the list above.
+
+Output format (for each column):
+Column index <N>: "<Exact Column Name>"
+Value: <extracted value or null>
+Evidence: "<exact quote>"
+Page: <page number>
+Confidence: <high/medium/low>
+
+
+OUTPUT:
+Column index 1: "Treatment Arm 1 Regimen"
+Value: ADT plus D (75 mg/m² for 21 d, up to nine cycles)
+Evidence: "Eligible patients were randomized in a 1:1 ratio to ADT plus D (75 mg/m² for 21 d, up to nine cycles) or ADT alone."
+Page: 2
+Confidence: high

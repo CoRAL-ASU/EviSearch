@@ -1,0 +1,36 @@
+INPUT PROMPT:
+You are extracting clinical trial data from a research paper.
+
+TASK: Extract values for the following canonical columns. Use EXACT column names as listed.
+
+COLUMNS TO EXTRACT:
+- Column index 5: "Adverse Events - N (%) | Treatment-related Grade 5 | Treatment"
+  Definition: What the number and percentage of patients showing adverse events that are treatment-related and have a grade of 5 in the treatment arm of the trial? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.
+  Expected Location: Page 4 | text
+  Planner Confidence: high
+  Extraction Instructions:
+  Four treatment-related deaths occurred during the course of chemotherapy in the ADT plus D arm including two neutropenia-related deaths (both in the HVD subgroup). The total number of patients in the ADT plus D arm is 192 (from Table 1 on page 3). Therefore, 4/192 patients experienced treatment-related Grade 5 adverse events.
+
+RELEVANT CHUNKS:
+--- Chunk 5 (TEXT on page 3-5) ---
+alone [26]. Results indicate that D-based chemotherapy isassociated with improved relapse-free survival in high-risklocalized PCa [27]. A longer follow-up of this trial and otherongoing similar studies will be required to assess whetherthisbenefittranslatesintoimprovedmetastasis-freesurvival and, ultimately, OS.The main limitation of our study is that data on metastaticburden were collected retrospectively. The study was notinitially designed to show the benefits of chemotherapy inspecific subgr...
+
+GUIDELINES:
+- For each listed column, extract a value if explicitly present; otherwise set value=null.
+- Provide evidence as an exact quote, page number(s), confidence (high/medium/low).
+- Use the EXACT column names from the list above.
+
+Output format (for each column):
+Column index <N>: "<Exact Column Name>"
+Value: <extracted value or null>
+Evidence: "<exact quote>"
+Page: <page number>
+Confidence: <high/medium/low>
+
+
+OUTPUT:
+Column index 5: "Adverse Events - N (%) | Treatment-related Grade 5 | Treatment"
+Value: 4/192
+Evidence: "Four treatment-related deaths occurred during the course of chemotherapy in the ADT plus D arm including two neutropenia-related deaths (both in the HVD subgroup)."
+Page: 4
+Confidence: high

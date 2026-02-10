@@ -1,0 +1,107 @@
+INPUT PROMPT:
+You are extracting clinical trial data from a research paper.
+
+TASK: Extract values for the following canonical columns. Use EXACT column names as listed.
+
+COLUMNS TO EXTRACT:
+- Column index 1: "Adverse Events - N (%) | All-Cause Grade 3 or Higher | Treatment"
+  Definition: What the number and percentage of patients experiencing adverse events of all causes with a grade of 3 or higher in the treatment arm of the trial? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.
+  Expected Location: Page 3 | text
+  Planner Confidence: medium
+  Extraction Instructions:
+  Locate the sentence in Section 2.4 "Outcome measures and statistical analysis" that states: "Toxicity at 4 years postrandomisation was similar, with 16% patients in each group reporting grade 3 or higher toxicity." The text reports "16% patients in each group reporting grade 3 or higher toxicity" at 4 years postrandomisation. It does not explicitly distinguish between "all-cause" and "treatment-related" adverse events. The count (N) is not provided.
+
+- Column index 2: "Adverse Events - N (%) | All-Cause Grade 3 or Higher | Control"
+  Definition: What number and percentage of patients experiencing all-cause adverse events with a grade of 3 or higher in the control arm of the trial? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.
+  Expected Location: Page 3 | text
+  Planner Confidence: medium
+  Extraction Instructions:
+  Locate the sentence in Section 2.4 "Outcome measures and statistical analysis" that states: "Toxicity at 4 years postrandomisation was similar, with 16% patients in each group reporting grade 3 or higher toxicity." The text reports "16% patients in each group reporting grade 3 or higher toxicity" at 4 years postrandomisation. It does not explicitly distinguish between "all-cause" and "treatment-related" adverse events. The count (N) is not provided.
+
+- Column index 3: "Adverse Events - N (%) | Treatment-related Grade 3 or Higher | Treatment"
+  Definition: What number and percentage of patients experiencing treatment-related adverse events with a grade of 3 or higher in the treatment arm of the trial? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.
+  Expected Location: Page 3 | text
+  Planner Confidence: medium
+  Extraction Instructions:
+  Locate the sentence in Section 2.4 "Outcome measures and statistical analysis" that states: "Toxicity at 4 years postrandomisation was similar, with 16% patients in each group reporting grade 3 or higher toxicity." The text reports "16% patients in each group reporting grade 3 or higher toxicity" at 4 years postrandomisation. While "toxicity" in a clinical trial context often implies treatment-related adverse events, it is not explicitly stated as "treatment-related". The count (N) is not provided.
+
+- Column index 4: "Adverse Events - N (%) | Treatment-related Grade 3 or Higher | Control"
+  Definition: What the number and percentage of patients experiencing adverse events that are related to the treatment and have a severity grade of 3 or higher in the control arm of the clinical trial? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.
+  Expected Location: Page 3 | text
+  Planner Confidence: medium
+  Extraction Instructions:
+  Locate the sentence in Section 2.4 "Outcome measures and statistical analysis" that states: "Toxicity at 4 years postrandomisation was similar, with 16% patients in each group reporting grade 3 or higher toxicity." The text reports "16% patients in each group reporting grade 3 or higher toxicity" at 4 years postrandomisation. While "toxicity" in a clinical trial context often implies treatment-related adverse events, it is not explicitly stated as "treatment-related". The count (N) is not provided.
+
+- Column index 5: "Adverse Events - N (%) | Treatment-related Grade 5 | Treatment"
+  Definition: What the number and percentage of patients showing adverse events that are treatment-related and have a grade of 5 in the treatment arm of the trial? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.
+  Expected Location: Page 8 | text
+  Planner Confidence: high
+  Extraction Instructions:
+  In Section 4 "DISCUSSION", locate the sentence: "...and no grade 4 or 5 toxicity." This statement refers to the "worst reported grade of toxicity" for patients in the SOC + AAP group (treatment arm) at 2 years after randomisation. The text explicitly states "no grade 4 or 5 toxicity" for a subset of patients at 2 years. While not explicitly stated as "treatment-related", "toxicity" in this context is generally understood to refer to adverse effects of the treatment.
+
+- Column index 6: "Adverse Events - N (%) | Treatment-related Grade 5 | Control"
+  Definition: What the number and percentage of patients experiencing treatment-related adverse events with a grade of 5 in the control arm of the clinical trial? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.
+  Expected Location: Page 8 | text
+  Planner Confidence: high
+  Extraction Instructions:
+  In Section 4 "DISCUSSION", locate the sentence: "...and no grade 4 or 5 toxicity." This statement refers to the "worst reported grade of toxicity" for patients in the SOC-alone group (control arm) at 2 years after randomisation. The text explicitly states "no grade 4 or 5 toxicity" for a subset of patients at 2 years. While not explicitly stated as "treatment-related", "toxicity" in this context is generally understood to refer to adverse effects of the treatment.
+
+RELEVANT CHUNKS:
+--- Chunk 5 (TEXT on page 1-3) ---
+C A N C E R T H E R A P Y A N D P R E V E N T I O N Abiraterone acetate plus prednisolone for metastatic patientsstarting hormone therapy: 5-year follow-up results from theSTAMPEDE randomised trial (NCT00268476) Nicholas D. James1|Noel W. Clarke2|Adrian Cook3|Adnan Ali4|Alex P. Hoyle5|Gerhardt Attard6|Christopher D. Brawley3| Simon Chowdhury7|William R. Cross8|David P. Dearnaley9|Johann S. de Bono1|Carlos Diaz-Montana3|Duncan Gilbert3| Silke Gillessen10|Clare Gilson3,11|Rob J. Jones12|Ruth E. La...
+
+--- Chunk 6 (TEXT on page 3-5) ---
+apy (ADT) which had started no longer than 12 weeks prior to ran- domisation. There were no age restrictions, but patients were required to have no clinically significant cardiovascular history. For this analysis, patients had metastatic disease confirmed by scinti- within 12 weeks of starting ADT. 2.2|Randomisation and masking Patients were randomised centrally using a computerised algorithm, developed and maintained by the MRC Clinical Trials Unit at UCL. Minimisation with a random element of ...
+
+--- Chunk 8 (TEXT on page 7-10) ---
+William R Cross, David P Dearnaley, Johann S de Bono, Duncan Gil- bert, Silke Gillessen, Clare Gilson, Rob J Jones, Ruth E Langley, Zafar I Malik, David J Matheson, Robin Millman, Chris C Parker, Cheryl Pugh, Hannah Rush, J Martin Russell, Michelle L Buckner, Malcolm D Mason, Alastair WS Ritchie, Mahesh KB Parmar and Matthew R Sydes were members of the Trial Management Group. CA, Cheryl Pugh and MB were part of trial operations. All authors collated data. Adrian Cook, NJ, Noel W Clarke, Adnan Al...
+
+GUIDELINES:
+- For each listed column, extract a value if explicitly present; otherwise set value=null.
+- Provide evidence as an exact quote, page number(s), confidence (high/medium/low).
+- Use the EXACT column names from the list above.
+
+Output format (for each column):
+Column index <N>: "<Exact Column Name>"
+Value: <extracted value or null>
+Evidence: "<exact quote>"
+Page: <page number>
+Confidence: <high/medium/low>
+
+
+OUTPUT:
+Column index 1: "Adverse Events - N (%) | All-Cause Grade 3 or Higher | Treatment"
+Value: 16%
+Evidence: "Toxicity at 4 years postrandomisation was similar, with 16% patients in each group reporting grade 3 or higher toxicity."
+Page: 3
+Confidence: medium
+
+Column index 2: "Adverse Events - N (%) | All-Cause Grade 3 or Higher | Control"
+Value: 16%
+Evidence: "Toxicity at 4 years postrandomisation was similar, with 16% patients in each group reporting grade 3 or higher toxicity."
+Page: 3
+Confidence: medium
+
+Column index 3: "Adverse Events - N (%) | Treatment-related Grade 3 or Higher | Treatment"
+Value: 16%
+Evidence: "Toxicity at 4 years postrandomisation was similar, with 16% patients in each group reporting grade 3 or higher toxicity."
+Page: 3
+Confidence: medium
+
+Column index 4: "Adverse Events - N (%) | Treatment-related Grade 3 or Higher | Control"
+Value: 16%
+Evidence: "Toxicity at 4 years postrandomisation was similar, with 16% patients in each group reporting grade 3 or higher toxicity."
+Page: 3
+Confidence: medium
+
+Column index 5: "Adverse Events - N (%) | Treatment-related Grade 5 | Treatment"
+Value: Not reported
+Evidence: "...and no grade 4 or 5 toxicity."
+Page: 8
+Confidence: high
+
+Column index 6: "Adverse Events - N (%) | Treatment-related Grade 5 | Control"
+Value: Not reported
+Evidence: "...and no grade 4 or 5 toxicity."
+Page: 8
+Confidence: high

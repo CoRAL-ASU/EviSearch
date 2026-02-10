@@ -1,0 +1,1141 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Comparison: Gemini 2.0, Gemini 2.5, Our Pipeline</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            padding: 20px;
+            min-height: 100vh;
+            color: #eee;
+        }
+        .container { max-width: 1800px; margin: 0 auto; }
+        h1 {
+            text-align: center;
+            padding: 24px;
+            color: white;
+            font-size: 28px;
+        }
+        .doc-section {
+            background: #0f3460;
+            border-radius: 12px;
+            margin-bottom: 32px;
+            overflow: hidden;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+        }
+        .doc-header {
+            background: linear-gradient(90deg, #e94560 0%, #0f3460 100%);
+            color: white;
+            padding: 20px 24px;
+            font-size: 20px;
+            font-weight: 600;
+        }
+        .score-cards {
+            display: flex;
+            gap: 20px;
+            padding: 24px;
+            flex-wrap: wrap;
+        }
+        .score-card {
+            flex: 1;
+            min-width: 200px;
+            background: #1a1a2e;
+            border-radius: 10px;
+            padding: 20px;
+            border: 2px solid #e94560;
+        }
+        .score-card h3 {
+            font-size: 14px;
+            color: #e94560;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+        }
+        .score-card .correctness, .score-card .completeness, .score-card .overall {
+            font-size: 13px;
+            margin-bottom: 4px;
+        }
+        .score-card .overall { font-size: 18px; font-weight: bold; color: #4ecca3; margin-top: 8px; }
+        .score-card.na { border-color: #555; opacity: 0.7; }
+        .score-card.na h3 { color: #888; }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+        th, td {
+            border: 1px solid #333;
+            padding: 10px 12px;
+            text-align: left;
+            vertical-align: top;
+        }
+        th {
+            background: #16213e;
+            color: #4ecca3;
+            position: sticky;
+            top: 0;
+        }
+        .col-name { max-width: 220px; word-break: break-word; }
+        .gt-cell { background: #1a1a2e; max-width: 180px; word-break: break-word; }
+        .source-cell {
+            max-width: 200px;
+            word-break: break-word;
+        }
+        .value { font-family: 'Consolas', monospace; font-size: 12px; }
+        .score-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: bold;
+            margin-top: 4px;
+        }
+        .score-badge.correct { background: #28a745; color: white; }
+        .score-badge.partial { background: #ffc107; color: #000; }
+        .score-badge.wrong { background: #dc3545; color: white; }
+        .score-badge.na { background: #6c757d; color: white; }
+        .source-cell.correct { background: rgba(40, 167, 69, 0.2); }
+        .source-cell.partial { background: rgba(255, 193, 7, 0.2); }
+        .source-cell.wrong { background: rgba(220, 53, 69, 0.2); }
+        .table-wrap { overflow-x: auto; padding: 0 24px 24px; }
+        .filter-bar {
+            padding: 16px 24px;
+            background: #16213e;
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .filter-bar button {
+            padding: 8px 16px;
+            border: 2px solid #e94560;
+            background: transparent;
+            color: #e94560;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 13px;
+        }
+        .filter-bar button:hover, .filter-bar button.active {
+            background: #e94560;
+            color: white;
+        }
+        .nav-docs {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+            justify-content: center;
+        }
+        .nav-docs a {
+            color: #4ecca3;
+            padding: 8px 14px;
+            background: #16213e;
+            border-radius: 8px;
+            text-decoration: none;
+            font-size: 13px;
+        }
+        .nav-docs a:hover { background: #e94560; color: white; }
+        .null-val { color: #888; font-style: italic; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Comparison: Gemini 2.0 Flash, Gemini 2.5 Flash, Our Pipeline</h1>
+        <div class="nav-docs">
+            <a href="#doc-NCT02799602_Hussain_ARASENS_JCO23">NCT02799602_Hussain_ARASENS_JCO'23</a>
+        </div>
+        <div class="doc-section" id="doc-NCT02799602_Hussain_ARASENS_JCO23">
+            <div class="doc-header">NCT02799602_Hussain_ARASENS_JCO'23</div>
+            <div class="score-cards">
+                <div class="score-card">
+                    <h3>Gemini 2.0 Flash</h3>
+                    <div class="correctness">Correctness: 61.7%</div>
+                    <div class="completeness">Completeness: 61.3%</div>
+                    <div class="overall">Overall: 61.5%</div>
+                    <div class="correctness">Columns: 133</div>
+                </div>
+                <div class="score-card">
+                    <h3>Gemini 2.5 Flash</h3>
+                    <div class="correctness">Correctness: 83.5%</div>
+                    <div class="completeness">Completeness: 83.5%</div>
+                    <div class="overall">Overall: 83.5%</div>
+                    <div class="correctness">Columns: 133</div>
+                </div>
+                <div class="score-card">
+                    <h3>Our Pipeline</h3>
+                    <div class="correctness">Correctness: 67.8%</div>
+                    <div class="completeness">Completeness: 66.3%</div>
+                    <div class="overall">Overall: 67.0%</div>
+                    <div class="correctness">Columns: 132</div>
+                </div>
+            </div>
+            <div class="filter-bar">
+                <strong>Filter:</strong>
+                <button class="active" onclick="filterRows(this, 'all')">All</button>
+                <button onclick="filterRows(this, 'correct')">Correct</button>
+                <button onclick="filterRows(this, 'partial')">Partial</button>
+                <button onclick="filterRows(this, 'wrong')">Wrong</button>
+            </div>
+            <div class="table-wrap">
+                <table>
+                    <thead><tr><th>Column</th><th>Ground truth</th><th>Gemini 2.0 Flash<br/><small>value & score</small></th><th>Gemini 2.5 Flash<br/><small>value & score</small></th><th>Our Pipeline<br/><small>value & score</small></th></tr></thead>
+<tbody>
+                    <tr data-row-class="wrong correct">
+                        <td class="col-name">Add-on Treatment</td>
+                        <td class="gt-cell value">Darolutamide (added to ADT + docetaxel backbone)</td>
+                        <td class="source-cell wrong"><div class="value">androgen-deprivation therapy and docetaxel</div><span class="score-badge wrong">0%</span></td>
+                        <td class="source-cell correct"><div class="value">Darolutamide</div><span class="score-badge correct">100%</span></td>
+                        <td class="source-cell correct"><div class="value">Darolutamide</div><span class="score-badge correct">100%</span></td>
+                    </tr>
+                    <tr data-row-class="wrong correct partial">
+                        <td class="col-name">Adverse Events - N (%) | All-Cause Grade 3 or Higher | Control</td>
+                        <td class="gt-cell value">439(67.5%)</td>
+                        <td class="source-cell wrong"><div class="value">Not reported</div><span class="score-badge wrong">0%</span></td>
+                        <td class="source-cell correct"><div class="value">439 (67.5%)</div><span class="score-badge correct">100%</span></td>
+                        <td class="source-cell partial"><div class="value">439</div><span class="score-badge partial">75%</span></td>
+                    </tr>
+                    <tr data-row-class="wrong correct partial">
+                        <td class="col-name">Adverse Events - N (%) | All-Cause Grade 3 or Higher | Treatment</td>
+                        <td class="gt-cell value">458(70.3%)</td>
+                        <td class="source-cell wrong"><div class="value">Not reported</div><span class="score-badge wrong">0%</span></td>
+                        <td class="source-cell correct"><div class="value">458 (70.2%)</div><span class="score-badge correct">100%</span></td>
+                        <td class="source-cell partial"><div class="value">458</div><span class="score-badge partial">75%</span></td>
+                    </tr>
+                    <tr data-row-class="correct">
+                        <td class="col-name">Adverse Events - N (%) | Treatment-related Grade 3 or Higher | Control</td>
+                        <td class="gt-cell value">—</td>
+                        <td class="source-cell correct"><div class="value">Not reported</div><span class="score-badge correct">100%</span></td>
+                        <td class="source-cell correct"><div class="value">not found</div><span class="score-badge correct">100%</span></td>
+                        <td class="source-cell correct"><div class="value">Not reported</div><span class="score-badge correct">100%</span></td>
+                    </tr>
+                    <tr data-row-class="correct">
+                        <td class="col-name">Adverse Events - N (%) | Treatment-related Grade 3 or Higher | Treatment</td>
+                        <td class="gt-cell value">—</td>
+                        <td class="source-cell correct"><div class="value">Not reported</div><span class="score-badge correct">100%</span></td>
+                        <td class="source-cell correct"><div class="value">not found</div><span class="score-badge correct">100%</span></td>
+                        <td class="source-cell correct"><div class="value">Not reported</div><span class="score-badge correct">100%</span></td>
+                    </tr>
+                    <tr data-row-class="correct">
+                        <td class="col-name">Adverse Events - N (%) | Treatment-related Grade 5 | Control</td>
+                        <td class="gt-cell value">—</td>
+                        <td class="source-cell correct"><div class="value">not found</div><span class="score-badge correct">100%</span></td>
+                        <td class="source-cell correct"><div class="value">not found</div><span class="score-badge correct">100%</span></td>
+                        <td class="source-cell correct"><div class="value">Not reported</div><span class="score-badge correct">100%</span></td>
+                    </tr>
+                    <tr data-row-class="correct">
+                        <td class="col-name">Adverse Events - N (%) | Treatment-related Grade 5 | Treatment</td>
+                        <td class="gt-cell value">—</td>
+                        <td class="source-cell correct"><div class="value">not found</div><span class="score-badge correct">100%</span></td>
+                        <td class="source-cell correct"><div class="value">not found</div><span class="score-badge correct">100%</span></td>
+                        <td class="source-cell correct"><div class="value">Not reported</div><span class="score-badge correct">100%</span></td>
+                    </tr>
+                    <tr data-row-class="wrong correct">
+                        <td class="col-name">Author</td>
+                        <td class="gt-cell value">Maha Hussain et al</td>
+                        <td class="source-cell correct"><div class="value">Hussain et al.</div><span class="score-badge correct">100%</span></td>
+                        <td class="source-cell correct"><div class="value">Maha Hussain et al.</div><span class="score-badge correct">100%</span></td>
+                        <td class="source-cell wrong"><div class="value">Maha Hussain, MD et al.</div><span class="score-badge wrong">0%</span></td>
+                    </tr>
+                    <tr data-row-class="correct">
+                        <td class="col-name">COE_RCT_IND_OVERALL_RJ</td>
+                        <td class="gt-cell value">—</td>
+                        <td class="source-cell correct"><div class="value">not found</div><span class="score-badge correct">100%</span></td>
+                        <td class="source-cell correct"><div class="value">not found</div><span class="score-badge correct">100%</span></td>
+                        <td class="source-cell correct"><div class="value">Not reported</div><span class="score-badge correct">100%</span></td>
+                    </tr>
+                    <tr data-row-class="correct partial">
+                        <td class="col-name">Class of Agent in Treatment Arm 1</td>
+                        <td class="gt-cell value">Androgen receptor pathway inhibitor / androgen receptor antagonist (darolutamide)</td>
+                        <td class="source-cell correct"><div class="value">Darolutamide</div><span class="score-badge correct">100%</span></td>
+                        <td class="source-cell partial"><div class="value">Androgen receptor pathway inhibitor</div><span class="score-badge partial">75%</span></td>
+                        <td class="source-cell partial"><div class="value">androgen receptor pathway inhibitor, hormonal therapy, chemotherapy</div><span class="score-badge partial">75%</span></td>
+                    </tr>
+                    <tr data-row-class="correct partial">
+                        <td class="col-name">Control Arm</td>
+                        <td class="gt-cell value">Placebo + ADT + docetaxel</td>
+                        <td class="source-cell partial"><div class="value">placebo</div><span class="score-badge partial">50%</span></td>
+                        <td class="source-cell correct"><div class="value">placebo plus androgen-deprivation therapy and docetaxel</div><span class="score-badge correct">100%</span></td>
+                        <td class="source-cell correct"><div class="value">placebo plus androgen-deprivation therapy and docetaxel</div><span class="score-badge correct">100%</span></td>
+                    </tr>
+                    <tr data-row-class="wrong correct">
+                        <td class="col-name">Control Arm - N</td>
+                        <td class="gt-cell value">655</td>
+                        <td class="source-cell wrong"><div class="value">508</div><span class="score-badge wrong">0%</span></td>
+                        <td class="source-cell correct"><div class="value">Placebo + docetaxel + ADT: 655</div><span class="score-badge correct">100%</span></td>
+                        <td class="source-cell correct"><div class="value">654</div><span class="score-badge correct">100%</span></td>
+                    </tr>
+                    <tr data-row-class="wrong correct partial">
+                        <td class="col-name">Docetaxel administration - N (%) | Control</td>
+                        <td class="gt-cell value">All patients received docetaxel 654(100%)</td>
+                        <td class="source-cell wrong"><div class="value">Not reported</div><span class="score-badge wrong">0%</span></td>
+                        <td class="source-cell correct"><div class="value">651 (99.4%)</div><span class="score-badge correct">100%</span></td>
+                        <td class="source-cell partial"><div class="value">651 (100%)</div><span class="score-badge partial">50%</span></td>
+                    </tr>
+                    <tr data-row-class="wrong correct">
+                        <td class="col-name">Docetaxel administration - N (%) | Treatment</td>
+                        <td class="gt-cell value">All patients received docetaxel 651(100%)</td>
+                        <td class="source-cell wrong"><div class="value">Not reported</div><span class="score-badge wrong">0%</span></td>
+                        <td class="source-cell correct"><div class="value">651 (100%)</div><span class="score-badge correct">100%</span></td>
+                        <td class="source-cell correct"><div class="value">651 (100%)</div><span class="score-badge correct">100%</span></td>
+                    </tr>
+                    <tr data-row-class="wrong correct">
+                        <td class="col-name">Full Pub or Abstract</td>
+                        <td class="gt-cell value">Full publication (journal article PDF)</td>
+                        <td class="source-cell wrong"><div class="value">Abstract</div><span class="score-badge wrong">0%</span></td>
+                        <td class="source-cell correct"><div class="value">Full Pub</div><span class="score-badge correct">100%</span></td>
+                        <td class="source-cell correct"><div class="value">Full Pub</div><span class="score-badge correct">100%</span></td>
+                    </tr>
+                    <tr data-row-class="wrong correct">
+                        <td class="col-name">Gleason score - N (%) | ≤ 7 | Control</td>
+                        <td class="gt-cell value">118(18.0%)</td>
+                        <td class="source-cell wrong"><div class="value">Not reported</div><span class="score-badge wrong">0%</span></td>
+                        <td class="source-cell correct"><div class="value">118 (18.04%)</div><span class="score-badge correct">100%</span></td>
+                        <td class="source-cell wrong"><div class="value">Not reported</div><span class="score-badge wrong">0%</span></td>
+                    </tr>
+                    <tr data-row-class="wrong correct">
+                        <td class="col-name">Gleason score - N (%) | ≤ 7 | Treatment</td>
+                        <td class="gt-cell value">122(18.7%)</td>
+                        <td class="source-cell wrong"><div class="value">Not reported</div><span class="score-badge wrong">0%</span></td>
+                        <td class="source-cell correct"><div class="value">122 (18.74%)</div><span class="score-badge correct">100%</span></td>
+                        <td class="source-cell wrong"><div class="value">Not reported</div><span class="score-badge wrong">0%</span></td>
+                    </tr>
+                    <tr data-row-class="wrong correct">
+                        <td class="col-name">Gleason score - N (%) | ≥ 8 | Control</td>
+                        <td class="gt-cell value">516(78.9%)</td>
+                        <td class="source-cell wrong"><div class="value">Not reported</div><span class="score-badge wrong">0%</span></td>
+                        <td class="source-cell correct"><div class="value">516 (78.90%)</div><span class="score-badge correct">100%</span></td>
+                        <td class="source-cell wrong"><div class="value">Not reported</div><span class="score-badge wrong">0%</span></td>
+                    </tr>
+                    <tr data-row-class="wrong correct">
+                        <td class="col-name">Gleason score - N (%) | ≥ 8 | Treatment</td>
+                        <td class="gt-cell value">505(77.6%)</td>
+                        <td class="source-cell wrong"><div class="value">Not reported</div><span class="score-badge wrong">0%</span></td>
+                        <td class="source-cell correct"><div class="value">505 (77.57%)</div><span class="score-badge correct">100%</span></td>
+                        <td class="source-cell wrong"><div class="value">Not reported</div><span class="score-badge wrong">0%</span></td>
+                    </tr>
+                    <tr data-row-class="wrong correct">
+                        <td class="col-name">Median Age (years) | Control</td>
+                        <td class="gt-cell value">67.0</td>
+                        <td class="source-cell wrong"><div class="value">Not reported</div><span class="score-badge wrong">0%</span></td>
+                        <td class="source-cell correct"><div class="value">67.0</div><span class="score-badge correct">100%</span></td>
+                        <td class="source-cell correct"><div class="value">67.0</div><span class="score-badge correct">100%</span></td>
+                    </tr>
+                    <tr data-row-class="wrong correct">
+                        <td class="col-name">Median Age (years) | Treatment</td>
+                        <td class="gt-cell value">67.0</td>
+                        <td class="source-cell wrong"><div class="value">Not reported</div><span class="score-badge wrong">0%</span></td>
+                        <td class="source-cell correct"><div class="value">67.0</div><span class="score-badge correct">100%</span></td>
+                        <td class="source-cell correct"><div class="value">67.0</div><span class="score-badge correct">100%</span></td>
+                    </tr>
+                    <tr data-row-class="correct">
+                        <td class="col-name">Median Follow-Up Duration (mo)</td>
+                        <td class="gt-cell value">—</td>
+                        <td class="source-cell correct"><div class="value">Not reported</div><span class="score-badge correct">100%</span></td>
+                        <td class="source-cell correct"><div class="value">Not reported</div><span class="score-badge correct">100%</span></td>
+                        <td class="source-cell correct"><div class="value">Not reported</div><span class="score-badge correct">100%</span></td>
+                    </tr>
+                    <tr data-row-class="correct">
+                        <td class="col-name">Median OS (mo) | High volume | Control</td>
+                        <td class="gt-cell value">42.4 months</td>
+                        <td class="source-cell correct"><div class="value">42.4</div><span class="score-badge correct">100%</span></td>
+                        <td class="source-cell correct"><div class="value">42.4</div><span class="score-badge correct">100%</span></td>
+                        <td class="source-cell correct"><div class="value">42.4</div><span class="score-badge correct">100%</span></td>
+                    </tr>
+                    <tr data-row-class="correct">
+                        <td class="col-name">Median OS (mo) | High volume | Treatment</td>
+                        <td class="gt-cell value">Not reached (pg4, text)</td>
+                        <td class="source-cell correct"><div class="value">Not reported</div><span class="score-badge correct">100%</span></td>
+                        <td class="source-cell correct"><div class="value">Not reached</div><span class="score-badge correct">100%</span></td>
+                        <td class="source-cell correct"><div class="value">Not estimable</div><span class="score-badge correct">100%</span></td>
+                    </tr>
+                    <tr data-row-class="correct">
+                        <td class="col-name">Median OS (mo) | Low volume | Control</td>
+                        <td class="gt-cell value">Not reached</td>
+                        <td class="source-cell correct"><div class="value">Not reported</div><span class="score-badge correct">100%</span></td>
+                        <td class="source-cell correct"><div class="value">Not reached</div><span class="score-badge correct">100%</span></td>
+                        <td class="source-cell correct"><div class="value">Not estimable</div><span class="score-badge correct">100%</span></td>
+                    </tr>
+                    <tr data-row-class="correct">
+                        <td class="col-name">Median OS (mo) | Low volume | Treatment</td>
+                        <td class="gt-cell value">Not reached</td>
+                        <td class="source-cell correct"><div class="value">Not reported</div><span class="score-badge correct">100%</span></td>
+                        <td class="source-cell correct"><div class="value">Not reached</div><span class="score-badge correct">100%</span></td>
+                        <td class="source-cell correct"><div class="value">Not estimable</div><span class="score-badge correct">100%</span></td>
+                    </tr>
+                    <tr data-row-class="correct">
+                        <td class="col-name">Median OS (mo) | Overall | Control</td>
+                        <td class="gt-cell value">42.4 months</td>
+                        <td class="source-cell correct"><div class="value">42.4</div><span class="score-badge correct">100%</span></td>
+                        <td class="source-cell correct"><div class="value">42.4</div><span class="score-badge correct">100%</span></td>
+                        <td class="source-cell correct"><div class="value">42.4</div><span class="score-badge correct">100%</span></td>
+                    </tr>
+                    <tr data-row-class="wrong correct">
+                        <td class="col-name">Median OS (mo) | Overall | Treatment</td>
+                        <td class="gt-cell value">—</td>
+                        <td class="source-cell correct"><div class="value">Not reported</div><span class="score-badge correct">100%</span></td>
+                        <td class="source-cell wrong"><div class="value">Not reached</div><span class="score-badge wrong">0%</span></td>
+                        <td class="source-cell wrong"><div class="value">Not estimable</div><span class="score-badge wrong">0%</span></td>
+                    </tr>
+                    <tr data-row-class="correct">
+                        <td class="col-name">Median On-Treatment Duration (mo) | Control</td>
+                        <td class="gt-cell value">—</td>
+                        <td class="source-cell correct"><div class="value">Not reported</div><span class="score-badge correct">100%</span></td>
+                        <td class="source-cell correct"><div class="value">Not reported</div><span class="score-badge correct">100%</span></td>
+                        <td class="source-cell correct"><div class="value">Not reported</div><span class="score-badge correct">100%</span></td>
+                    </tr>
+                    <tr data-row-class="wrong correct">
+                        <td class="col-name">Median On-Treatment Duration (mo) | Treatment</td>
+                        <td class="gt-cell value">Median treatment duration in ARASENS was 41 months</td>
+                        <td class="source-cell wrong"><div class="value">Not reported</div><span class="score-badge wrong">0%</span></td>
+                        <td class="source-cell correct"><div class="value">41 months</div><span class="score-badge correct">100%</span></td>
+                        <td class="source-cell wrong"><div class="value">—</div><span class="score-badge wrong">0%</span></td>
+                    </tr>
+                    <tr data-row-class="wrong correct">
+                        <td class="col-name">Median PFS (mo) | High volume | Control</td>
+                        <td class="gt-cell value">—</td>
+                        <td class="source-cell correct"><div class="value">not found</div><span class="score-badge correct">100%</span></td>
+                        <td class="source-cell wrong"><div class="value">16.4</div><span class="score-badge wrong">0%</span></td>
+                        <td class="source-cell wrong"><div class="value">16.4</div><span class="score-badge wrong">0%</span></td>
+                    </tr>
+                    <tr data-row-class="correct">
+                        <td class="col-name">Median PFS (mo) | High volume | Treatment</td>
+                        <td class="gt-cell value">—</td>
+                        <td class="source-cell correct"><div class="value">not found</div><span class="score-badge correct">100%</span></td>
+                        <td class="source-cell correct"><div class="value">Not reported</div><span class="score-badge correct">100%</span></td>
+                        <td class="source-cell correct"><div class="value">NR</div><span class="score-badge correct">100%</span></td>
+                    </tr>
+                    <tr data-row-class="wrong correct">
+                        <td class="col-name">Median PFS (mo) | Low volume | Control</td>
+                        <td class="gt-cell value">—</td>
+                        <td class="source-cell correct"><div class="value">not found</div><span class="score-badge correct">100%</span></td>
+                        <td class="source-cell wrong"><div class="value">25.8</div><span class="score-badge wrong">0%</span></td>
+                        <td class="source-cell wrong"><div class="value">25.8</div><span class="score-badge wrong">0%</span></td>
+                    </tr>
+                    <tr data-row-class="correct">
+                        <td class="col-name">Median PFS (mo) | Low volume | Treatment</td>
+                        <td class="gt-cell value">—</td>
+                        <td class="source-cell correct"><div class="value">not found</div><span class="score-badge correct">100%</span></td>
+                        <td class="source-cell correct"><div class="value">Not reported</div><span class="score-badge correct">100%</span></td>
+                        <td class="source-cell correct"><div class="value">NR</div><span class="score-badge correct">100%</span></td>
+                    </tr>
+                    <tr data-row-class="wrong correct">
+                        <td class="col-name">Median PFS (mo) | Overall | Control</td>
+                        <td class="gt-cell value">—</td>
+                        <td class="source-cell correct"><div class="value">Not reported</div><span class="score-badge correct">100%</span></td>
+                        <td class="source-cell wrong"><div class="value">19.1</div><span class="score-badge wrong">0%</span></td>
+                        <td class="source-cell wrong"><div class="value">19.1</div><span class="score-badge wrong">0%</span></td>
+                    </tr>
+                    <tr data-row-class="correct">
+                        <td class="col-name">Median PFS (mo) | Overall | Treatment</td>
+                        <td class="gt-cell value">—</td>
+                        <td class="source-cell correct"><div class="value">Not reported</div><span class="score-badge correct">100%</span></td>
+                        <td class="source-cell correct"><div class="value">Not reported</div><span class="score-badge correct">100%</span></td>
+                        <td class="source-cell correct"><div class="value">NR</div><span class="score-badge correct">100%</span></td>
+                    </tr>
+                    <tr data-row-class="wrong">
+                        <td class="col-name">Metastases - N (%) | Bone | Control</td>
+                        <td class="gt-cell value">—</td>
+                        <td class="source-cell wrong"><div class="value">Most had bone metastases in high-volume disease. High-volume is defined as visceral metastases and/or ≥ 4 bone metastases with ≥ 1 beyond the vertebral column/pelvis.</div><span class="score-badge wrong">0%</span></td>
+                        <td class="source-cell wrong"><div class="value">521 (79.7%)</div><span class="score-badge wrong">0%</span></td>
+                        <td class="source-cell wrong"><div class="value">521</div><span class="score-badge wrong">0%</span></td>
+                    </tr>
+                    <tr data-row-class="wrong correct">
+                        <td class="col-name">Metastases - N (%) | Bone | Treatment</td>
+                        <td class="gt-cell value">—</td>
+                        <td class="source-cell correct"><div class="value">Most had bone metastases in high-volume disease. High-volume is defined as visceral metastases and/or ≥ 4 bone metastases with ≥ 1 beyond the vertebral column/pelvis.</div><span class="score-badge correct">100%</span></td>
+                        <td class="source-cell wrong"><div class="value">517 (79.4%)</div><span class="score-badge wrong">0%</span></td>
+                        <td class="source-cell wrong"><div class="value">517</div><span class="score-badge wrong">0%</span></td>
+                    </tr>
+                    <tr data-row-class="correct">
+                        <td class="col-name">Metastases - N (%) | Liver | Control</td>
+                        <td class="gt-cell value">—</td>
+                        <td class="source-cell correct"><div class="value">Not reported</div><span class="score-badge correct">100%</span></td>
+                        <td class="source-cell correct"><div class="value">not found</div><span class="score-badge correct">100%</span></td>
+                        <td class="source-cell correct"><div class="value">Not reported</div><span class="score-badge correct">100%</span></td>
+                    </tr>
+                    <tr data-row-class="correct">
+                        <td class="col-name">Metastases - N (%) | Liver | Treatment</td>
+                        <td class="gt-cell value">—</td>
+                        <td class="source-cell correct"><div class="value">Not reported</div><span class="score-badge correct">100%</span></td>
+                        <td class="source-cell correct"><div class="value">not found</div><span class="score-badge correct">100%</span></td>
+                        <td class="source-cell correct"><div class="value">Not reported</div><span class="score-badge correct">100%</span></td>
+                    </tr>
+                    <tr data-row-class="correct">
+                        <td class="col-name">Metastases - N (%) | Lungs | Control</td>
+                        <td class="gt-cell value">—</td>
+                        <td class="source-cell correct"><div class="value">Not reported</div><span class="score-badge correct">100%</span></td>
+                        <td class="source-cell correct"><div class="value">not found</div><span class="score-badge correct">100%</span></td>
+                        <td class="source-cell correct"><div class="value">Not reported</div><span class="score-badge correct">100%</span></td>
+                    </tr>
+                    <tr data-row-class="correct">
+                        <td class="col-name">Metastases - N (%) | Lungs | Treatment</td>
+                        <td class="gt-cell value">—</td>
+                        <td class="source-cell correct"><div class="value">Not reported</div><span class="score-badge correct">100%</span></td>
+                        <td class="source-cell correct"><div class="value">not found</div><span class="score-badge correct">100%</span></td>
+                        <td class="source-cell correct"><div class="value">Not reported</div><span class="score-badge correct">100%</span></td>
+                    </tr>
+                    <tr data-row-class="wrong correct">
+                        <td class="col-name">Metastases - N (%) | Nodal | Control</td>
+                        <td class="gt-cell value">—</td>
+                        <td class="source-cell correct"><div class="value">not found</div><span class="score-badge correct">100%</span></td>
+                        <td class="source-cell wrong"><div class="value">15 (2.3%)</div><span class="score-badge wrong">0%</span></td>
+                        <td class="source-cell wrong"><div class="value">15</div><span class="score-badge wrong">0%</span></td>
+                    </tr>
+                    <tr data-row-class="wrong correct">
+                        <td class="col-name">Metastases - N (%) | Nodal | Treatment</td>
+                        <td class="gt-cell value">—</td>
+                        <td class="source-cell correct"><div class="value">not found</div><span class="score-badge correct">100%</span></td>
+                        <td class="source-cell wrong"><div class="value">23 (3.5%)</div><span class="score-badge wrong">0%</span></td>
+                        <td class="source-cell wrong"><div class="value">23</div><span class="score-badge wrong">0%</span></td>
+                    </tr>
+                    <tr data-row-class="wrong correct">
+                        <td class="col-name">Mode of metastases - N (%) | Metachronous | Control</td>
+                        <td class="gt-cell value">82(12.5%)</td>
+                        <td class="source-cell wrong"><div class="value">Not reported</div><span class="score-badge wrong">0%</span></td>
+                        <td class="source-cell correct"><div class="value">82 (12.5%)</div><span class="score-badge correct">100%</span></td>
+                        <td class="source-cell correct"><div class="value">82 (12.5%)</div><span class="score-badge correct">100%</span></td>
+                    </tr>
+                    <tr data-row-class="wrong correct">
+                        <td class="col-name">Mode of metastases - N (%) | Metachronous | Treatment</td>
+                        <td class="gt-cell value">86(13.2%)</td>
+                        <td class="source-cell wrong"><div class="value">Not reported</div><span class="score-badge wrong">0%</span></td>
+                        <td class="source-cell correct"><div class="value">86 (13.2%)</div><span class="score-badge correct">100%</span></td>
+                        <td class="source-cell correct"><div class="value">86 (13.2%)</div><span class="score-badge correct">100%</span></td>
+                    </tr>
+                    <tr data-row-class="wrong correct">
+                        <td class="col-name">Mode of metastases - N (%) | Synchronous | Control</td>
+                        <td class="gt-cell value">566(86.5%)</td>
+                        <td class="source-cell wrong"><div class="value">Not reported</div><span class="score-badge wrong">0%</span></td>
+                        <td class="source-cell correct"><div class="value">566 (86.5%)</div><span class="score-badge correct">100%</span></td>
+                        <td class="source-cell correct"><div class="value">566 (86.5%)</div><span class="score-badge correct">100%</span></td>
+                    </tr>
+                    <tr data-row-class="wrong correct">
+                        <td class="col-name">Mode of metastases - N (%) | Synchronous | Treatment</td>
+                        <td class="gt-cell value">558(85.7%)</td>
+                        <td class="source-cell wrong"><div class="value">Not reported</div><span class="score-badge wrong">0%</span></td>
+                        <td class="source-cell correct"><div class="value">558 (85.7%)</div><span class="score-badge correct">100%</span></td>
+                        <td class="source-cell correct"><div class="value">558 (85.7%)</div><span class="score-badge correct">100%</span></td>
+                    </tr>
+                    <tr data-row-class="correct">
+                        <td class="col-name">NCT</td>
+                        <td class="gt-cell value">NCT02799602</td>
+                        <td class="source-cell correct"><div class="value">NCT02799602</div><span class="score-badge correct">100%</span></td>
+                        <td class="source-cell correct"><div class="value">NCT02799602</div><span class="score-badge correct">100%</span></td>
+                        <td class="source-cell correct"><div class="value">NCT02799602</div><span class="score-badge correct">100%</span></td>
+                    </tr>
+                    <tr data-row-class="wrong correct">
+                        <td class="col-name">No. of Deaths - N | Control</td>
+                        <td class="gt-cell value">304 deaths (at primary OS analysis)</td>
+                        <td class="source-cell wrong"><div class="value">not found</div><span class="score-badge wrong">0%</span></td>
+                        <td class="source-cell correct"><div class="value">304</div><span class="score-badge correct">100%</span></td>
+                        <td class="source-cell correct"><div class="value">304</div><span class="score-badge correct">100%</span></td>
+                    </tr>
+                    <tr data-row-class="wrong correct">
+                        <td class="col-name">No. of Deaths - N | Treatment</td>
+                        <td class="gt-cell value">229 deaths (at primary OS analysis)</td>
+                        <td class="source-cell wrong"><div class="value">not found</div><span class="score-badge wrong">0%</span></td>
+                        <td class="source-cell correct"><div class="value">229</div><span class="score-badge correct">100%</span></td>
+                        <td class="source-cell correct"><div class="value">229</div><span class="score-badge correct">100%</span></td>
+                    </tr>
+                    <tr data-row-class="wrong correct">
+                        <td class="col-name">Number of Arms Included</td>
+                        <td class="gt-cell value">2 arms (darolutamide vs placebo; both with ADT + docetaxel)</td>
+                        <td class="source-cell wrong"><div class="value">Patients were randomly assigned to darolutamide or placebo plus androgen-deprivation therapy and docetaxel.</div><span class="score-badge wrong">0%</span></td>
+                        <td class="source-cell correct"><div class="value">2</div><span class="score-badge correct">100%</span></td>
+                        <td class="source-cell wrong"><div class="value">2</div><span class="score-badge wrong">0%</span></td>
+                    </tr>
+                    <tr data-row-class="correct">
+                        <td class="col-name">ORR - N (%) | Control | CR</td>
+                        <td class="gt-cell value">—</td>
+                        <td class="source-cell correct"><div class="value">Not reported</div><span class="score-badge correct">100%</span></td>
+                        <td class="source-cell correct"><div class="value">not found</div><span class="score-badge correct">100%</span></td>
+                        <td class="source-cell correct"><div class="value">Not reported</div><span class="score-badge correct">100%</span></td>
+                    </tr>
+                    <tr data-row-class="correct">
+                        <td class="col-name">ORR - N (%) | Control | Overall</td>
+                        <td class="gt-cell value">—</td>
+                        <td class="source-cell correct"><div class="value">Not reported</div><span class="score-badge correct">100%</span></td>
+                        <td class="source-cell correct"><div class="value">not found</div><span class="score-badge correct">100%</span></td>
+                        <td class="source-cell correct"><div class="value">Not reported</div><span class="score-badge correct">100%</span></td>
+                    </tr>
+                    <tr data-row-class="correct">
+                        <td class="col-name">ORR - N (%) | Control | PD</td>
+                        <td class="gt-cell value">—</td>
+                        <td class="source-cell correct"><div class="value">Not reported</div><span class="score-badge correct">100%</span></td>
+                        <td class="source-cell correct"><div class="value">not found</div><span class="score-badge correct">100%</span></td>
+                        <td class="source-cell correct"><div class="value">Not reported</div><span class="score-badge correct">100%</span></td>
+                    </tr>
+                    <tr data-row-class="correct">
+                        <td class="col-name">ORR - N (%) | Control | SD</td>
+                        <td class="gt-cell value">—</td>
+                        <td class="source-cell correct"><div class="value">Not reported</div><span class="score-badge correct">100%</span></td>
+                        <td class="source-cell correct"><div class="value">not found</div><span class="score-badge correct">100%</span></td>
+                        <td class="source-cell correct"><div class="value">Not reported</div><span class="score-badge correct">100%</span></td>
+                    </tr>
+                    <tr data-row-class="correct">
+                        <td class="col-name">ORR - N (%) | Treatment | CR</td>
+                        <td class="gt-cell value">—</td>
+                        <td class="source-cell correct"><div class="value">Not reported</div><span class="score-badge correct">100%</span></td>
+                        <td class="source-cell correct"><div class="value">not found</div><span class="score-badge correct">100%</span></td>
+                        <td class="source-cell correct"><div class="value">Not reported</div><span class="score-badge correct">100%</span></td>
+                    </tr>
+                    <tr data-row-class="correct">
+                        <td class="col-name">ORR - N (%) | Treatment | Overall</td>
+                        <td class="gt-cell value">—</td>
+                        <td class="source-cell correct"><div class="value">Not reported</div><span class="score-badge correct">100%</span></td>
+                        <td class="source-cell correct"><div class="value">not found</div><span class="score-badge correct">100%</span></td>
+                        <td class="source-cell correct"><div class="value">Not reported</div><span class="score-badge correct">100%</span></td>
+                    </tr>
+                    <tr data-row-class="correct">
+                        <td class="col-name">ORR - N (%) | Treatment | PD</td>
+                        <td class="gt-cell value">—</td>
+                        <td class="source-cell correct"><div class="value">Not reported</div><span class="score-badge correct">100%</span></td>
+                        <td class="source-cell correct"><div class="value">not found</div><span class="score-badge correct">100%</span></td>
+                        <td class="source-cell correct"><div class="value">Not reported</div><span class="score-badge correct">100%</span></td>
+                    </tr>
+                    <tr data-row-class="correct">
+                        <td class="col-name">ORR - N (%) | Treatment | SD</td>
+                        <td class="gt-cell value">—</td>
+                        <td class="source-cell correct"><div class="value">Not reported</div><span class="score-badge correct">100%</span></td>
+                        <td class="source-cell correct"><div class="value">not found</div><span class="score-badge correct">100%</span></td>
+                        <td class="source-cell correct"><div class="value">Not reported</div><span class="score-badge correct">100%</span></td>
+                    </tr>
+                    <tr data-row-class="wrong correct">
+                        <td class="col-name">OS Rate (%) | High volume | Control</td>
+                        <td class="gt-cell value">—</td>
+                        <td class="source-cell wrong"><div class="value">Median survival was 42.4 months (95% CI, 39.7 to 46.0 months)</div><span class="score-badge wrong">0%</span></td>
+                        <td class="source-cell correct"><div class="value">Not reported</div><span class="score-badge correct">100%</span></td>
+                        <td class="source-cell wrong"><div class="value">51.3</div><span class="score-badge wrong">0%</span></td>
+                    </tr>
+                    <tr data-row-class="wrong correct">
+                        <td class="col-name">OS Rate (%) | High volume | Treatment</td>
+                        <td class="gt-cell value">—</td>
+                        <td class="source-cell wrong"><div class="value">HR, 0.69; 95% CI, 0.57 to 0.82</div><span class="score-badge wrong">0%</span></td>
+                        <td class="source-cell correct"><div class="value">Not reported</div><span class="score-badge correct">100%</span></td>
+                        <td class="source-cell wrong"><div class="value">59.1</div><span class="score-badge wrong">0%</span></td>
+                    </tr>
+                    <tr data-row-class="wrong correct">
+                        <td class="col-name">OS Rate (%) | Low volume | Control</td>
+                        <td class="gt-cell value">—</td>
+                        <td class="source-cell correct"><div class="value">Median survival was not reached</div><span class="score-badge correct">100%</span></td>
+                        <td class="source-cell correct"><div class="value">Not reported</div><span class="score-badge correct">100%</span></td>
+                        <td class="source-cell wrong"><div class="value">75.0</div><span class="score-badge wrong">0%</span></td>
+                    </tr>
+                    <tr data-row-class="wrong correct">
+                        <td class="col-name">OS Rate (%) | Low volume | Treatment</td>
+                        <td class="gt-cell value">—</td>
+                        <td class="source-cell wrong"><div class="value">HR, 0.68; 95% CI, 0.41 to 1.13</div><span class="score-badge wrong">0%</span></td>
+                        <td class="source-cell correct"><div class="value">Not reported</div><span class="score-badge correct">100%</span></td>
+                        <td class="source-cell wrong"><div class="value">83.12</div><span class="score-badge wrong">0%</span></td>
+                    </tr>
+                    <tr data-row-class="wrong correct">
+                        <td class="col-name">OS Rate (%) | Metachronous | Control</td>
+                        <td class="gt-cell value">—</td>
+                        <td class="source-cell correct"><div class="value">not found</div><span class="score-badge correct">100%</span></td>
+                        <td class="source-cell correct"><div class="value">Not reported</div><span class="score-badge correct">100%</span></td>
+                        <td class="source-cell wrong"><div class="value">63.41</div><span class="score-badge wrong">0%</span></td>
+                    </tr>
+                    <tr data-row-class="wrong correct">
+                        <td class="col-name">OS Rate (%) | Metachronous | Treatment</td>
+                        <td class="gt-cell value">—</td>
+                        <td class="source-cell correct"><div class="value">not found</div><span class="score-badge correct">100%</span></td>
+                        <td class="source-cell correct"><div class="value">Not reported</div><span class="score-badge correct">100%</span></td>
+                        <td class="source-cell wrong"><div class="value">74.42</div><span class="score-badge wrong">0%</span></td>
+                    </tr>
+                    <tr data-row-class="wrong correct">
+                        <td class="col-name">OS Rate (%) | Overall | Control</td>
+                        <td class="gt-cell value">—</td>
+                        <td class="source-cell correct"><div class="value">not found</div><span class="score-badge correct">100%</span></td>
+                        <td class="source-cell correct"><div class="value">Not reported</div><span class="score-badge correct">100%</span></td>
+                        <td class="source-cell wrong"><div class="value">53.52</div><span class="score-badge wrong">0%</span></td>
+                    </tr>
+                    <tr data-row-class="wrong correct">
+                        <td class="col-name">OS Rate (%) | Overall | Treatment</td>
+                        <td class="gt-cell value">—</td>
+                        <td class="source-cell wrong"><div class="value">Darolutamide group had a significant reduction in the risk of death by 32.5% (HR, 0.68; 95% CI, 0.57 to 0.80; P<.0001) compared with the placebo group.</div><span class="score-badge wrong">0%</span></td>
+                        <td class="source-cell correct"><div class="value">Not reported</div><span class="score-badge correct">100%</span></td>
+                        <td class="source-cell wrong"><div class="value">64.82</div><span class="score-badge wrong">0%</span></td>
+                    </tr>
+                    <tr data-row-class="wrong correct">
+                        <td class="col-name">OS Rate (%) | Synchronous | Control</td>
+                        <td class="gt-cell value">—</td>
+                        <td class="source-cell correct"><div class="value">not found</div><span class="score-badge correct">100%</span></td>
+                        <td class="source-cell correct"><div class="value">Not reported</div><span class="score-badge correct">100%</span></td>
+                        <td class="source-cell wrong"><div class="value">52.12</div><span class="score-badge wrong">0%</span></td>
+                    </tr>
+                    <tr data-row-class="wrong correct">
+                        <td class="col-name">OS Rate (%) | Synchronous | Treatment</td>
+                        <td class="gt-cell value">—</td>
+                        <td class="source-cell correct"><div class="value">not found</div><span class="score-badge correct">100%</span></td>
+                        <td class="source-cell correct"><div class="value">Not reported</div><span class="score-badge correct">100%</span></td>
+                        <td class="source-cell wrong"><div class="value">63.08</div><span class="score-badge wrong">0%</span></td>
+                    </tr>
+                    <tr data-row-class="wrong correct">
+                        <td class="col-name">Original/Follow Up</td>
+                        <td class="gt-cell value">Follow Up</td>
+                        <td class="source-cell wrong"><div class="value">Original</div><span class="score-badge wrong">0%</span></td>
+                        <td class="source-cell correct"><div class="value">Follow up</div><span class="score-badge correct">100%</span></td>
+                        <td class="source-cell wrong"><div class="value">Original</div><span class="score-badge wrong">0%</span></td>
+                    </tr>
+                    <tr data-row-class="wrong correct">
+                        <td class="col-name">PFS Rate (%) | Overall | Control</td>
+                        <td class="gt-cell value">—</td>
+                        <td class="source-cell correct"><div class="value">Not reported</div><span class="score-badge correct">100%</span></td>
+                        <td class="source-cell wrong"><div class="value">Not reported. Median PFS: 19.1 months. Hazard Ratio (Darolutamide vs. Placebo): 0.36 (95% CI, 0.30 to 0.42).</div><span class="score-badge wrong">0%</span></td>
+                        <td class="source-cell correct"><div class="value">Not reported</div><span class="score-badge correct">100%</span></td>
+                    </tr>
+                    <tr data-row-class="wrong correct">
+                        <td class="col-name">PFS Rate (%) | Overall | Treatment</td>
+                        <td class="gt-cell value">—</td>
+                        <td class="source-cell correct"><div class="value">Not reported</div><span class="score-badge correct">100%</span></td>
+                        <td class="source-cell wrong"><div class="value">Not reported. Median PFS: Not Reached. Hazard Ratio (Darolutamide vs. Placebo): 0.36 (95% CI, 0.30 to 0.42).</div><span class="score-badge wrong">0%</span></td>
+                        <td class="source-cell correct"><div class="value">Not reported</div><span class="score-badge correct">100%</span></td>
+                    </tr>
+                    <tr data-row-class="wrong correct">
+                        <td class="col-name">PS - N (%) | 0 | Control</td>
+                        <td class="gt-cell value">462(70.6%)</td>
+                        <td class="source-cell wrong"><div class="value">349 (68.7)</div><span class="score-badge wrong">0%</span></td>
+                        <td class="source-cell correct"><div class="value">462 (70.6%)</div><span class="score-badge correct">100%</span></td>
+                        <td class="source-cell correct"><div class="value">462 (70.6%)</div><span class="score-badge correct">100%</span></td>
+                    </tr>
+                    <tr data-row-class="wrong correct">
+                        <td class="col-name">PS - N (%) | 0 | Treatment</td>
+                        <td class="gt-cell value">466(71.6%)</td>
+                        <td class="source-cell wrong"><div class="value">343 (69.0)</div><span class="score-badge wrong">0%</span></td>
+                        <td class="source-cell correct"><div class="value">466 (71.6%)</div><span class="score-badge correct">100%</span></td>
+                        <td class="source-cell correct"><div class="value">466 (71.6%)</div><span class="score-badge correct">100%</span></td>
+                    </tr>
+                    <tr data-row-class="wrong correct">
+                        <td class="col-name">PS - N (%) | 1-2 | Control</td>
+                        <td class="gt-cell value">190(29.1%)</td>
+                        <td class="source-cell wrong"><div class="value">157 (30.9)</div><span class="score-badge wrong">0%</span></td>
+                        <td class="source-cell correct"><div class="value">190 (29.1%)</div><span class="score-badge correct">100%</span></td>
+                        <td class="source-cell correct"><div class="value">190 (29.0%)</div><span class="score-badge correct">100%</span></td>
+                    </tr>
+                    <tr data-row-class="wrong correct">
+                        <td class="col-name">PS - N (%) | 1-2 | Treatment</td>
+                        <td class="gt-cell value">185(28.4%)</td>
+                        <td class="source-cell wrong"><div class="value">154 (31.0)</div><span class="score-badge wrong">0%</span></td>
+                        <td class="source-cell correct"><div class="value">185 (28.4%)</div><span class="score-badge correct">100%</span></td>
+                        <td class="source-cell correct"><div class="value">185 (28.4%)</div><span class="score-badge correct">100%</span></td>
+                    </tr>
+                    <tr data-row-class="correct">
+                        <td class="col-name">Phase</td>
+                        <td class="gt-cell value">3.0</td>
+                        <td class="source-cell correct"><div class="value">III</div><span class="score-badge correct">100%</span></td>
+                        <td class="source-cell correct"><div class="value">III</div><span class="score-badge correct">100%</span></td>
+                        <td class="source-cell correct"><div class="value">III</div><span class="score-badge correct">100%</span></td>
+                    </tr>
+                    <tr data-row-class="correct">
+                        <td class="col-name">Previous local therapy - N (%) | Orchiectomy | Control</td>
+                        <td class="gt-cell value">—</td>
+                        <td class="source-cell correct"><div class="value">Not reported</div><span class="score-badge correct">100%</span></td>
+                        <td class="source-cell correct"><div class="value">not found</div><span class="score-badge correct">100%</span></td>
+                        <td class="source-cell correct"><div class="value">Not reported</div><span class="score-badge correct">100%</span></td>
+                    </tr>
+                    <tr data-row-class="correct">
+                        <td class="col-name">Previous local therapy - N (%) | Orchiectomy | Treatment</td>
+                        <td class="gt-cell value">—</td>
+                        <td class="source-cell correct"><div class="value">Not reported</div><span class="score-badge correct">100%</span></td>
+                        <td class="source-cell correct"><div class="value">not found</div><span class="score-badge correct">100%</span></td>
+                        <td class="source-cell correct"><div class="value">Not reported</div><span class="score-badge correct">100%</span></td>
+                    </tr>
+                    <tr data-row-class="correct">
+                        <td class="col-name">Previous local therapy - N (%) | Prostatectomy | Control</td>
+                        <td class="gt-cell value">—</td>
+                        <td class="source-cell correct"><div class="value">Not reported</div><span class="score-badge correct">100%</span></td>
+                        <td class="source-cell correct"><div class="value">not found</div><span class="score-badge correct">100%</span></td>
+                        <td class="source-cell correct"><div class="value">Not reported</div><span class="score-badge correct">100%</span></td>
+                    </tr>
+                    <tr data-row-class="correct">
+                        <td class="col-name">Previous local therapy - N (%) | Prostatectomy | Treatment</td>
+                        <td class="gt-cell value">—</td>
+                        <td class="source-cell correct"><div class="value">Not reported</div><span class="score-badge correct">100%</span></td>
+                        <td class="source-cell correct"><div class="value">not found</div><span class="score-badge correct">100%</span></td>
+                        <td class="source-cell correct"><div class="value">Not reported</div><span class="score-badge correct">100%</span></td>
+                    </tr>
+                    <tr data-row-class="correct">
+                        <td class="col-name">Previous local therapy - N (%) | Radiotherapy | Control</td>
+                        <td class="gt-cell value">—</td>
+                        <td class="source-cell correct"><div class="value">Not reported</div><span class="score-badge correct">100%</span></td>
+                        <td class="source-cell correct"><div class="value">not found</div><span class="score-badge correct">100%</span></td>
+                        <td class="source-cell correct"><div class="value">Not reported</div><span class="score-badge correct">100%</span></td>
+                    </tr>
+                    <tr data-row-class="correct">
+                        <td class="col-name">Previous local therapy - N (%) | Radiotherapy | Treatment</td>
+                        <td class="gt-cell value">—</td>
+                        <td class="source-cell correct"><div class="value">Not reported</div><span class="score-badge correct">100%</span></td>
+                        <td class="source-cell correct"><div class="value">not found</div><span class="score-badge correct">100%</span></td>
+                        <td class="source-cell correct"><div class="value">Not reported</div><span class="score-badge correct">100%</span></td>
+                    </tr>
+                    <tr data-row-class="correct">
+                        <td class="col-name">Primary Endpoint(s)</td>
+                        <td class="gt-cell value">Overall survival (OS)</td>
+                        <td class="source-cell correct"><div class="value">Overall survival (OS)</div><span class="score-badge correct">100%</span></td>
+                        <td class="source-cell correct"><div class="value">Overall Survival (OS)</div><span class="score-badge correct">100%</span></td>
+                        <td class="source-cell correct"><div class="value">OS</div><span class="score-badge correct">100%</span></td>
+                    </tr>
+                    <tr data-row-class="correct">
+                        <td class="col-name">PubMed ID</td>
+                        <td class="gt-cell value">—</td>
+                        <td class="source-cell correct"><div class="value">Not reported</div><span class="score-badge correct">100%</span></td>
+                        <td class="source-cell correct"><div class="value">Not reported</div><span class="score-badge correct">100%</span></td>
+                        <td class="source-cell correct"><div class="value">Not reported</div><span class="score-badge correct">100%</span></td>
+                    </tr>
+                    <tr data-row-class="wrong partial">
+                        <td class="col-name">Quality of Life Scale</td>
+                        <td class="gt-cell value">Brief Pain Inventory Short-Form; FACT–Prostate (NCCN symptom index 17-item)</td>
+                        <td class="source-cell wrong"><div class="value">What a measure of the participants' overall well-being and satisfaction with their health status, as assessed through a standardized questionnaire or survey, reflecting their perceived quality of life…</div><span class="score-badge wrong">0%</span></td>
+                        <td class="source-cell partial"><div class="value">Functional Assessment of Cancer Therapy-Prostate (National Comprehensive Cancer Network) symptom index 17-item questionnaire</div><span class="score-badge partial">50%</span></td>
+                        <td class="source-cell wrong"><div class="value">Not reported</div><span class="score-badge wrong">0%</span></td>
+                    </tr>
+                    <tr data-row-class="wrong correct">
+                        <td class="col-name">Quality of Life reported</td>
+                        <td class="gt-cell value">Yes (pain + symptom/physical-function instruments listed as secondary endpoints)</td>
+                        <td class="source-cell wrong"><div class="value">Not reported</div><span class="score-badge wrong">0%</span></td>
+                        <td class="source-cell correct"><div class="value">Yes</div><span class="score-badge correct">100%</span></td>
+                        <td class="source-cell correct"><div class="value">Yes</div><span class="score-badge correct">100%</span></td>
+                    </tr>
+                    <tr data-row-class="correct">
+                        <td class="col-name">Race - N (%) | Amer. Indian or Alaska Nat. | Control</td>
+                        <td class="gt-cell value">—</td>
+                        <td class="source-cell correct"><div class="value">not found</div><span class="score-badge correct">100%</span></td>
+                        <td class="source-cell correct"><div class="value">not found</div><span class="score-badge correct">100%</span></td>
+                        <td class="source-cell correct"><div class="value">Not reported</div><span class="score-badge correct">100%</span></td>
+                    </tr>
+                    <tr data-row-class="correct">
+                        <td class="col-name">Race - N (%) | Amer. Indian or Alaska Nat. | Treatment</td>
+                        <td class="gt-cell value">—</td>
+                        <td class="source-cell correct"><div class="value">not found</div><span class="score-badge correct">100%</span></td>
+                        <td class="source-cell correct"><div class="value">not found</div><span class="score-badge correct">100%</span></td>
+                        <td class="source-cell correct"><div class="value">Not reported</div><span class="score-badge correct">100%</span></td>
+                    </tr>
+                    <tr data-row-class="wrong correct">
+                        <td class="col-name">Race - N (%) | Asian | Control</td>
+                        <td class="gt-cell value">—</td>
+                        <td class="source-cell wrong"><div class="value">86/193 (NE)</div><span class="score-badge wrong">0%</span></td>
+                        <td class="source-cell correct"><div class="value">not found</div><span class="score-badge correct">100%</span></td>
+                        <td class="source-cell wrong"><div class="value">193</div><span class="score-badge wrong">0%</span></td>
+                    </tr>
+                    <tr data-row-class="wrong correct">
+                        <td class="col-name">Race - N (%) | Asian | Treatment</td>
+                        <td class="gt-cell value">—</td>
+                        <td class="source-cell wrong"><div class="value">65/177 (NE)</div><span class="score-badge wrong">0%</span></td>
+                        <td class="source-cell correct"><div class="value">not found</div><span class="score-badge correct">100%</span></td>
+                        <td class="source-cell wrong"><div class="value">177</div><span class="score-badge wrong">0%</span></td>
+                    </tr>
+                    <tr data-row-class="wrong correct">
+                        <td class="col-name">Race - N (%) | Black or African American | Control</td>
+                        <td class="gt-cell value">—</td>
+                        <td class="source-cell wrong"><div class="value">14/21 patients</div><span class="score-badge wrong">0%</span></td>
+                        <td class="source-cell correct"><div class="value">not found</div><span class="score-badge correct">100%</span></td>
+                        <td class="source-cell wrong"><div class="value">21</div><span class="score-badge wrong">0%</span></td>
+                    </tr>
+                    <tr data-row-class="wrong correct">
+                        <td class="col-name">Race - N (%) | Black or African American | Treatment</td>
+                        <td class="gt-cell value">—</td>
+                        <td class="source-cell wrong"><div class="value">6/22 patients</div><span class="score-badge wrong">0%</span></td>
+                        <td class="source-cell correct"><div class="value">not found</div><span class="score-badge correct">100%</span></td>
+                        <td class="source-cell wrong"><div class="value">22</div><span class="score-badge wrong">0%</span></td>
+                    </tr>
+                    <tr data-row-class="wrong correct">
+                        <td class="col-name">Race - N (%) | Nat. Hawaiian or Pac. Islander | Control</td>
+                        <td class="gt-cell value">—</td>
+                        <td class="source-cell wrong"><div class="value">not found</div><span class="score-badge wrong">0%</span></td>
+                        <td class="source-cell correct"><div class="value">not found</div><span class="score-badge correct">100%</span></td>
+                        <td class="source-cell correct"><div class="value">Not reported</div><span class="score-badge correct">100%</span></td>
+                    </tr>
+                    <tr data-row-class="wrong correct">
+                        <td class="col-name">Race - N (%) | Nat. Hawaiian or Pac. Islander | Treatment</td>
+                        <td class="gt-cell value">—</td>
+                        <td class="source-cell wrong"><div class="value">not found</div><span class="score-badge wrong">0%</span></td>
+                        <td class="source-cell correct"><div class="value">not found</div><span class="score-badge correct">100%</span></td>
+                        <td class="source-cell correct"><div class="value">Not reported</div><span class="score-badge correct">100%</span></td>
+                    </tr>
+                    <tr data-row-class="wrong correct">
+                        <td class="col-name">Race - N (%) | Other | Control</td>
+                        <td class="gt-cell value">—</td>
+                        <td class="source-cell wrong"><div class="value">17/35 NE</div><span class="score-badge wrong">0%</span></td>
+                        <td class="source-cell correct"><div class="value">not found</div><span class="score-badge correct">100%</span></td>
+                        <td class="source-cell wrong"><div class="value">35</div><span class="score-badge wrong">0%</span></td>
+                    </tr>
+                    <tr data-row-class="wrong correct">
+                        <td class="col-name">Race - N (%) | Other | Treatment</td>
+                        <td class="gt-cell value">—</td>
+                        <td class="source-cell wrong"><div class="value">14/40 NE</div><span class="score-badge wrong">0%</span></td>
+                        <td class="source-cell correct"><div class="value">not found</div><span class="score-badge correct">100%</span></td>
+                        <td class="source-cell wrong"><div class="value">40</div><span class="score-badge wrong">0%</span></td>
+                    </tr>
+                    <tr data-row-class="correct">
+                        <td class="col-name">Race - N (%) | Unknown | Control</td>
+                        <td class="gt-cell value">—</td>
+                        <td class="source-cell correct"><div class="value">not found</div><span class="score-badge correct">100%</span></td>
+                        <td class="source-cell correct"><div class="value">not found</div><span class="score-badge correct">100%</span></td>
+                        <td class="source-cell correct"><div class="value">Not reported</div><span class="score-badge correct">100%</span></td>
+                    </tr>
+                    <tr data-row-class="correct">
+                        <td class="col-name">Race - N (%) | Unknown | Treatment</td>
+                        <td class="gt-cell value">—</td>
+                        <td class="source-cell correct"><div class="value">not found</div><span class="score-badge correct">100%</span></td>
+                        <td class="source-cell correct"><div class="value">not found</div><span class="score-badge correct">100%</span></td>
+                        <td class="source-cell correct"><div class="value">Not reported</div><span class="score-badge correct">100%</span></td>
+                    </tr>
+                    <tr data-row-class="wrong correct">
+                        <td class="col-name">Race - N (%) | White | Control</td>
+                        <td class="gt-cell value">—</td>
+                        <td class="source-cell wrong"><div class="value">151/259 (39.4%)</div><span class="score-badge wrong">0%</span></td>
+                        <td class="source-cell correct"><div class="value">not found</div><span class="score-badge correct">100%</span></td>
+                        <td class="source-cell wrong"><div class="value">259</div><span class="score-badge wrong">0%</span></td>
+                    </tr>
+                    <tr data-row-class="wrong correct">
+                        <td class="col-name">Race - N (%) | White | Treatment</td>
+                        <td class="gt-cell value">—</td>
+                        <td class="source-cell wrong"><div class="value">Treatment: 118/258 (50.3%) patients</div><span class="score-badge wrong">0%</span></td>
+                        <td class="source-cell correct"><div class="value">not found</div><span class="score-badge correct">100%</span></td>
+                        <td class="source-cell wrong"><div class="value">258</div><span class="score-badge wrong">0%</span></td>
+                    </tr>
+                    <tr data-row-class="wrong correct">
+                        <td class="col-name">Region - N (%) | Africa | Control</td>
+                        <td class="gt-cell value">—</td>
+                        <td class="source-cell correct"><div class="value">Not reported</div><span class="score-badge correct">100%</span></td>
+                        <td class="source-cell wrong"><div class="value">not found</div><span class="score-badge wrong">0%</span></td>
+                        <td class="source-cell correct"><div class="value">Not reported</div><span class="score-badge correct">100%</span></td>
+                    </tr>
+                    <tr data-row-class="wrong correct">
+                        <td class="col-name">Region - N (%) | Africa | Treatment</td>
+                        <td class="gt-cell value">—</td>
+                        <td class="source-cell correct"><div class="value">Not reported</div><span class="score-badge correct">100%</span></td>
+                        <td class="source-cell wrong"><div class="value">not found</div><span class="score-badge wrong">0%</span></td>
+                        <td class="source-cell correct"><div class="value">Not reported</div><span class="score-badge correct">100%</span></td>
+                    </tr>
+                    <tr data-row-class="wrong correct">
+                        <td class="col-name">Region - N (%) | Asia | Control</td>
+                        <td class="gt-cell value">—</td>
+                        <td class="source-cell correct"><div class="value">Not reported</div><span class="score-badge correct">100%</span></td>
+                        <td class="source-cell wrong"><div class="value">244 (37.31%)</div><span class="score-badge wrong">0%</span></td>
+                        <td class="source-cell wrong"><div class="value">191</div><span class="score-badge wrong">0%</span></td>
+                    </tr>
+                    <tr data-row-class="wrong correct">
+                        <td class="col-name">Region - N (%) | Asia | Treatment</td>
+                        <td class="gt-cell value">—</td>
+                        <td class="source-cell correct"><div class="value">Not reported</div><span class="score-badge correct">100%</span></td>
+                        <td class="source-cell wrong"><div class="value">229 (35.18%)</div><span class="score-badge wrong">0%</span></td>
+                        <td class="source-cell wrong"><div class="value">175</div><span class="score-badge wrong">0%</span></td>
+                    </tr>
+                    <tr data-row-class="correct">
+                        <td class="col-name">Region - N (%) | Europe | Control</td>
+                        <td class="gt-cell value">—</td>
+                        <td class="source-cell correct"><div class="value">Not reported</div><span class="score-badge correct">100%</span></td>
+                        <td class="source-cell correct"><div class="value">not found</div><span class="score-badge correct">100%</span></td>
+                        <td class="source-cell correct"><div class="value">Not reported</div><span class="score-badge correct">100%</span></td>
+                    </tr>
+                    <tr data-row-class="wrong correct">
+                        <td class="col-name">Region - N (%) | Europe | Treatment</td>
+                        <td class="gt-cell value">—</td>
+                        <td class="source-cell correct"><div class="value">Not reported</div><span class="score-badge correct">100%</span></td>
+                        <td class="source-cell wrong"><div class="value">not found</div><span class="score-badge wrong">0%</span></td>
+                        <td class="source-cell correct"><div class="value">Not reported</div><span class="score-badge correct">100%</span></td>
+                    </tr>
+                    <tr data-row-class="wrong correct">
+                        <td class="col-name">Region - N (%) | North America | Control</td>
+                        <td class="gt-cell value">—</td>
+                        <td class="source-cell correct"><div class="value">Not reported</div><span class="score-badge correct">100%</span></td>
+                        <td class="source-cell wrong"><div class="value">119 (18.19%)</div><span class="score-badge wrong">0%</span></td>
+                        <td class="source-cell wrong"><div class="value">88</div><span class="score-badge wrong">0%</span></td>
+                    </tr>
+                    <tr data-row-class="wrong correct">
+                        <td class="col-name">Region - N (%) | North America | Treatment</td>
+                        <td class="gt-cell value">—</td>
+                        <td class="source-cell correct"><div class="value">Not reported</div><span class="score-badge correct">100%</span></td>
+                        <td class="source-cell wrong"><div class="value">125 (19.20%)</div><span class="score-badge wrong">0%</span></td>
+                        <td class="source-cell wrong"><div class="value">95</div><span class="score-badge wrong">0%</span></td>
+                    </tr>
+                    <tr data-row-class="wrong correct">
+                        <td class="col-name">Region - N (%) | Oceania | Control</td>
+                        <td class="gt-cell value">—</td>
+                        <td class="source-cell correct"><div class="value">Not reported</div><span class="score-badge correct">100%</span></td>
+                        <td class="source-cell wrong"><div class="value">not found</div><span class="score-badge wrong">0%</span></td>
+                        <td class="source-cell correct"><div class="value">Not reported</div><span class="score-badge correct">100%</span></td>
+                    </tr>
+                    <tr data-row-class="correct">
+                        <td class="col-name">Region - N (%) | Oceania | Treatment</td>
+                        <td class="gt-cell value">—</td>
+                        <td class="source-cell correct"><div class="value">Not reported</div><span class="score-badge correct">100%</span></td>
+                        <td class="source-cell correct"><div class="value">not found</div><span class="score-badge correct">100%</span></td>
+                        <td class="source-cell correct"><div class="value">Not reported</div><span class="score-badge correct">100%</span></td>
+                    </tr>
+                    <tr data-row-class="correct">
+                        <td class="col-name">Region - N (%) | South America | Control</td>
+                        <td class="gt-cell value">—</td>
+                        <td class="source-cell correct"><div class="value">Not reported</div><span class="score-badge correct">100%</span></td>
+                        <td class="source-cell correct"><div class="value">not found</div><span class="score-badge correct">100%</span></td>
+                        <td class="source-cell correct"><div class="value">Not reported</div><span class="score-badge correct">100%</span></td>
+                    </tr>
+                    <tr data-row-class="correct">
+                        <td class="col-name">Region - N (%) | South America | Treatment</td>
+                        <td class="gt-cell value">—</td>
+                        <td class="source-cell correct"><div class="value">Not reported</div><span class="score-badge correct">100%</span></td>
+                        <td class="source-cell correct"><div class="value">not found</div><span class="score-badge correct">100%</span></td>
+                        <td class="source-cell correct"><div class="value">Not reported</div><span class="score-badge correct">100%</span></td>
+                    </tr>
+                    <tr data-row-class="correct">
+                        <td class="col-name">Reporting by prognostic groups - Y/N | High volume</td>
+                        <td class="gt-cell value">Yes</td>
+                        <td class="source-cell correct"><div class="value">Yes</div><span class="score-badge correct">100%</span></td>
+                        <td class="source-cell correct"><div class="value">Yes</div><span class="score-badge correct">100%</span></td>
+                        <td class="source-cell correct"><div class="value">Yes</div><span class="score-badge correct">100%</span></td>
+                    </tr>
+                    <tr data-row-class="correct">
+                        <td class="col-name">Reporting by prognostic groups - Y/N | Low volume</td>
+                        <td class="gt-cell value">Yes</td>
+                        <td class="source-cell correct"><div class="value">Yes</div><span class="score-badge correct">100%</span></td>
+                        <td class="source-cell correct"><div class="value">Yes</div><span class="score-badge correct">100%</span></td>
+                        <td class="source-cell correct"><div class="value">Yes</div><span class="score-badge correct">100%</span></td>
+                    </tr>
+                    <tr data-row-class="wrong correct">
+                        <td class="col-name">Reporting by prognostic groups - Y/N | Metachronous</td>
+                        <td class="gt-cell value">Yes (recurrent/metachronous described; recurrent counts shown in Table 1)</td>
+                        <td class="source-cell wrong"><div class="value">Not reported</div><span class="score-badge wrong">0%</span></td>
+                        <td class="source-cell correct"><div class="value">Yes</div><span class="score-badge correct">100%</span></td>
+                        <td class="source-cell correct"><div class="value">Yes</div><span class="score-badge correct">100%</span></td>
+                    </tr>
+                    <tr data-row-class="wrong correct">
+                        <td class="col-name">Reporting by prognostic groups - Y/N | Synchronous</td>
+                        <td class="gt-cell value">Yes (de novo/synchronous described; de novo counts shown in Table 1)</td>
+                        <td class="source-cell wrong"><div class="value">Not reported</div><span class="score-badge wrong">0%</span></td>
+                        <td class="source-cell correct"><div class="value">Yes</div><span class="score-badge correct">100%</span></td>
+                        <td class="source-cell correct"><div class="value">Yes</div><span class="score-badge correct">100%</span></td>
+                    </tr>
+                    <tr data-row-class="correct partial">
+                        <td class="col-name">Secondary Endpoint(s)</td>
+                        <td class="gt-cell value">Time to CRPC; time to pain progression (BPI-SF); symptomatic skeletal event–free survival; time to first symptomatic skeletal event; time to subsequent systemic antineoplastic therapy; symptom worseni…</td>
+                        <td class="source-cell partial"><div class="value">Darolutamide prolonged time to castration resistance compared with placebo in patients with high-volume (HR, 0.41; 95% CI, 0.34 to 0.49) and low-volume metastatic hormone-sensitive prostate cancer (HR…</div><span class="score-badge partial">50%</span></td>
+                        <td class="source-cell correct"><div class="value">Time to castration-resistant prostate cancer, time to pain progression on the basis of the Brief Pain Inventory Short-Form questionnaire, symptomatic skeletal event-free survival, time to first sympto…</div><span class="score-badge correct">100%</span></td>
+                        <td class="source-cell correct"><div class="value">Time to castration-resistant prostate cancer, Time to pain progression on the basis of the Brief Pain Inventory Short-Form questionnaire, Symptomatic skeletal event-free survival, Time to first sympto…</div><span class="score-badge correct">100%</span></td>
+                    </tr>
+                    <tr data-row-class="correct">
+                        <td class="col-name">TTPSA (mo)</td>
+                        <td class="gt-cell value">—</td>
+                        <td class="source-cell na"><div class="value">—</div><span class="score-badge na">—</span></td>
+                        <td class="source-cell na"><div class="value">—</div><span class="score-badge na">—</span></td>
+                        <td class="source-cell correct"><div class="value">—</div><span class="score-badge correct">100%</span></td>
+                    </tr>
+                    <tr data-row-class="wrong correct">
+                        <td class="col-name">TTPSA (mo) | Control</td>
+                        <td class="gt-cell value">—</td>
+                        <td class="source-cell correct"><div class="value">Not reported</div><span class="score-badge correct">100%</span></td>
+                        <td class="source-cell wrong"><div class="value">19.1</div><span class="score-badge wrong">0%</span></td>
+                        <td class="source-cell na"><div class="value">19.1</div><span class="score-badge na">—</span></td>
+                    </tr>
+                    <tr data-row-class="correct">
+                        <td class="col-name">TTPSA (mo) | Treatment</td>
+                        <td class="gt-cell value">—</td>
+                        <td class="source-cell correct"><div class="value">Not reported</div><span class="score-badge correct">100%</span></td>
+                        <td class="source-cell correct"><div class="value">Not reported</div><span class="score-badge correct">100%</span></td>
+                        <td class="source-cell na"><div class="value">NR</div><span class="score-badge na">—</span></td>
+                    </tr>
+                    <tr data-row-class="correct">
+                        <td class="col-name">Total Participants - N</td>
+                        <td class="gt-cell value">1,306 randomized</td>
+                        <td class="source-cell correct"><div class="value">1,305</div><span class="score-badge correct">100%</span></td>
+                        <td class="source-cell correct"><div class="value">1,305</div><span class="score-badge correct">100%</span></td>
+                        <td class="source-cell correct"><div class="value">1306</div><span class="score-badge correct">100%</span></td>
+                    </tr>
+                    <tr data-row-class="wrong correct">
+                        <td class="col-name">Treatment Arm - N</td>
+                        <td class="gt-cell value">651</td>
+                        <td class="source-cell correct"><div class="value">Darolutamide + docetaxel + ADT (n = 651)</div><span class="score-badge correct">100%</span></td>
+                        <td class="source-cell correct"><div class="value">Darolutamide + docetaxel + ADT: 651</div><span class="score-badge correct">100%</span></td>
+                        <td class="source-cell wrong"><div class="value">652</div><span class="score-badge wrong">0%</span></td>
+                    </tr>
+                    <tr data-row-class="correct partial">
+                        <td class="col-name">Treatment Arm 1 Regimen</td>
+                        <td class="gt-cell value">Darolutamide 600 mg orally twice daily + ADT + docetaxel</td>
+                        <td class="source-cell partial"><div class="value">darolutamide or placebo, in combination with ADT and docetaxel</div><span class="score-badge partial">50%</span></td>
+                        <td class="source-cell correct"><div class="value">oral darolutamide 600 mg twice daily in combination with ADT and docetaxel</div><span class="score-badge correct">100%</span></td>
+                        <td class="source-cell partial"><div class="value">darolutamide plus androgen-deprivation therapy and docetaxel</div><span class="score-badge partial">75%</span></td>
+                    </tr>
+                    <tr data-row-class="correct partial">
+                        <td class="col-name">Treatment Arm(s)</td>
+                        <td class="gt-cell value">Darolutamide + ADT + docetaxel</td>
+                        <td class="source-cell partial"><div class="value">darolutamide</div><span class="score-badge partial">75%</span></td>
+                        <td class="source-cell correct"><div class="value">Darolutamide Plus Androgen-Deprivation Therapy and Docetaxel</div><span class="score-badge correct">100%</span></td>
+                        <td class="source-cell partial"><div class="value">darolutamide</div><span class="score-badge partial">75%</span></td>
+                    </tr>
+                    <tr data-row-class="wrong partial">
+                        <td class="col-name">Treatment Class</td>
+                        <td class="gt-cell value">Androgen receptor pathway inhibitor (AR antagonist)</td>
+                        <td class="source-cell wrong"><div class="value">darolutamide or placebo plus androgen-deprivation therapy and docetaxel</div><span class="score-badge wrong">0%</span></td>
+                        <td class="source-cell partial"><div class="value">Triplet therapy (androgen-deprivation therapy, androgen receptor pathway inhibitor, and docetaxel)</div><span class="score-badge partial">75%</span></td>
+                        <td class="source-cell wrong"><div class="value">Androgen-deprivation therapy, docetaxel, darolutamide</div><span class="score-badge wrong">25%</span></td>
+                    </tr>
+                    <tr data-row-class="correct">
+                        <td class="col-name">Trial</td>
+                        <td class="gt-cell value">ARASENS</td>
+                        <td class="source-cell correct"><div class="value">ARASENS Trial</div><span class="score-badge correct">100%</span></td>
+                        <td class="source-cell correct"><div class="value">ARASENS</div><span class="score-badge correct">100%</span></td>
+                        <td class="source-cell correct"><div class="value">ARASENS</div><span class="score-badge correct">100%</span></td>
+                    </tr>
+                    <tr data-row-class="wrong">
+                        <td class="col-name">Trial Name</td>
+                        <td class="gt-cell value">ARASENS (subgroup analysis: disease volume/risk subgroups)</td>
+                        <td class="source-cell wrong"><div class="value">ARASENS</div><span class="score-badge wrong">0%</span></td>
+                        <td class="source-cell wrong"><div class="value">ARASENS Trial</div><span class="score-badge wrong">0%</span></td>
+                        <td class="source-cell wrong"><div class="value">ARASENS Trial</div><span class="score-badge wrong">0%</span></td>
+                    </tr>
+                    <tr data-row-class="wrong correct">
+                        <td class="col-name">Type of Therapy</td>
+                        <td class="gt-cell value">Triplet therapy: hormonal (AR inhibitor) + ADT + chemotherapy (docetaxel)</td>
+                        <td class="source-cell correct"><div class="value">darolutamide or placebo plus androgen-deprivation therapy and docetaxel</div><span class="score-badge correct">100%</span></td>
+                        <td class="source-cell wrong"><div class="value">oral darolutamide 600 mg twice daily</div><span class="score-badge wrong">0%</span></td>
+                        <td class="source-cell correct"><div class="value">Darolutamide plus androgen-deprivation therapy (ADT) and docetaxel</div><span class="score-badge correct">100%</span></td>
+                    </tr>
+                    <tr data-row-class="correct partial">
+                        <td class="col-name">Volume of disease - N (%) | High | Control</td>
+                        <td class="gt-cell value">508 (77.6%)</td>
+                        <td class="source-cell partial"><div class="value">306 (76.1)</div><span class="score-badge partial">50%</span></td>
+                        <td class="source-cell correct"><div class="value">508 (78.0%)</div><span class="score-badge correct">100%</span></td>
+                        <td class="source-cell correct"><div class="value">508 (77.7%)</div><span class="score-badge correct">100%</span></td>
+                    </tr>
+                    <tr data-row-class="wrong correct">
+                        <td class="col-name">Volume of disease - N (%) | High | Treatment</td>
+                        <td class="gt-cell value">497 (76.3%)</td>
+                        <td class="source-cell wrong"><div class="value">162 (59.8)</div><span class="score-badge wrong">0%</span></td>
+                        <td class="source-cell correct"><div class="value">497 (76.3%)</div><span class="score-badge correct">100%</span></td>
+                        <td class="source-cell correct"><div class="value">497 (76.3%)</div><span class="score-badge correct">100%</span></td>
+                    </tr>
+                    <tr data-row-class="wrong correct">
+                        <td class="col-name">Volume of disease - N (%) | Low | Control</td>
+                        <td class="gt-cell value">146 (22.3%)</td>
+                        <td class="source-cell wrong"><div class="value">68 (73.1)</div><span class="score-badge wrong">0%</span></td>
+                        <td class="source-cell correct"><div class="value">146 (22.4%)</div><span class="score-badge correct">100%</span></td>
+                        <td class="source-cell correct"><div class="value">146 (22.3%)</div><span class="score-badge correct">100%</span></td>
+                    </tr>
+                    <tr data-row-class="correct">
+                        <td class="col-name">Year</td>
+                        <td class="gt-cell value">2023</td>
+                        <td class="source-cell correct"><div class="value">2023</div><span class="score-badge correct">100%</span></td>
+                        <td class="source-cell correct"><div class="value">2023</div><span class="score-badge correct">100%</span></td>
+                        <td class="source-cell correct"><div class="value">2023</div><span class="score-badge correct">100%</span></td>
+                    </tr>
+                </tbody></table>
+            </div>
+        </div>
+
+        <script>
+        function filterRows(btn, kind) {
+            document.querySelectorAll('.filter-bar button').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            document.querySelectorAll('.doc-section tbody tr').forEach(tr => {
+                const c = tr.getAttribute('data-row-class') || '';
+                const show = kind === 'all' || c.includes(kind);
+                tr.style.display = show ? '' : 'none';
+            });
+        }
+        </script>
+    </div>
+</body>
+</html>

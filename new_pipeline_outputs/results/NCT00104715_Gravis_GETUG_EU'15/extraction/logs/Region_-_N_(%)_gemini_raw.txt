@@ -1,0 +1,48 @@
+INPUT PROMPT:
+You are extracting clinical trial data from a research paper.
+
+TASK: Extract values for the following canonical columns. Use EXACT column names as listed.
+
+COLUMNS TO EXTRACT:
+- Column index 5: "Region - N (%) | Europe | Treatment"
+  Definition: What number and percentage of participants included in the treatment arm of the clinical trial from the Europe region? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.
+  Expected Location: Page 2 | text
+  Planner Confidence: high
+  Extraction Instructions:
+  Reported. The study explicitly states it was a 'French multicenter open-label randomized study'. Therefore, all participants are from Europe (France). From Chunk 4, page 2, under '2. Patients and methods', it states: '385 patients were enrolled including 193 in the ADT arm and 192 in the ADT plus D arm.' The 'ADT plus D arm' is the treatment arm.
+
+- Column index 6: "Region - N (%) | Europe | Control"
+  Definition: What number and percentage of patients in the control arm of the trial from the Europe region? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.
+  Expected Location: Page 2 | text
+  Planner Confidence: high
+  Extraction Instructions:
+  Reported. The study explicitly states it was a 'French multicenter open-label randomized study'. Therefore, all participants are from Europe (France). From Chunk 4, page 2, under '2. Patients and methods', it states: '385 patients were enrolled including 193 in the ADT arm and 192 in the ADT plus D arm.' The 'ADT arm' is the control arm.
+
+RELEVANT CHUNKS:
+--- Chunk 4 (TEXT on page 1-3) ---
+Androgen Deprivation Therapy (ADT) Plus Docetaxel VersusADT Alone in Metastatic Non castrate Prostate Cancer:Impact of Metastatic Burden and Long-term SurvivalAnalysis of the Randomized Phase 3 GETUG-AFU15 Trial Gwenaelle Gravis a,*, Jean-Marie Boher b, Florence Joly c, Michel Soulie´ d, Laurence Albiges e,Franck Priou f, Igor Latorzeff g, Remy Delva h, Ivan Krakowski i, Brigitte Laguerre j,Fre´de´ric Rolland k, Christine The´odore l, Gael Deplanque m, Jean-Marc Ferrero n,Ste´phane Culine o, Loı...
+
+GUIDELINES:
+- For each listed column, extract a value if explicitly present; otherwise set value=null.
+- Provide evidence as an exact quote, page number(s), confidence (high/medium/low).
+- Use the EXACT column names from the list above.
+
+Output format (for each column):
+Column index <N>: "<Exact Column Name>"
+Value: <extracted value or null>
+Evidence: "<exact quote>"
+Page: <page number>
+Confidence: <high/medium/low>
+
+
+OUTPUT:
+Column index 5: "Region - N (%) | Europe | Treatment"
+Value: 192
+Evidence: "From October 2004 to December 2008, 385 patients were enrolled including 193 in the ADT arm and 192 in the ADT plus D arm."
+Page: 2
+Confidence: high
+Column index 6: "Region - N (%) | Europe | Control"
+Value: 193
+Evidence: "From October 2004 to December 2008, 385 patients were enrolled including 193 in the ADT arm and 192 in the ADT plus D arm."
+Page: 2
+Confidence: high

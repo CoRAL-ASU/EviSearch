@@ -25,15 +25,7 @@ GCP_LOCATION = os.getenv("GCP_LOCATION", "")
 
 # Chunking (image/table analysis - requires multimodal)
 CHUNKING_PROVIDER = "openai"
-CHUNKING_MODEL = "gpt-4o-mini"
-
-# Extraction (data extraction from text chunks)
-EXTRACTION_PROVIDER = "openai"
-EXTRACTION_MODEL = "gpt-4o-mini"
-
-# Evaluation (LLM-as-judge)
-EVALUATION_PROVIDER = "gemini"
-EVALUATION_MODEL = "gemini-2.5-flash"
+CHUNKING_MODEL = "gpt-4.1"
 
 # ============== PATHS ==============
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
@@ -76,14 +68,6 @@ RETRIEVAL_SEMANTIC_WEIGHT = 0.3
 # Set to None to combine all retrieved chunks
 RETRIEVAL_MAX_COMBINED_CHUNKS = None
 
-# ============== CONTEXT GENERATION CONFIGS (deprecated)==============
-# Context generation settings for extraction guide
-USE_FILE_API_CONTEXT = True  # Use Gemini File API for context (vs old 2-page text)
-CONTEXT_GENERATION_PROVIDER = "gemini"  # Provider for context generation
-CONTEXT_GENERATION_MODEL = "gemini-2.5-flash"  # Model for context generation
-CONTEXT_MAX_RETRIES = 3  # Retry attempts for context generation
-
-
 ## Table Filling Configs
 MAX_WORKERS = 8
 
@@ -104,24 +88,26 @@ PLANNING_MODEL = "gemini-2.5-flash"
 PLANNING_WORKERS = 10
 
 # Extraction stage (execute plans)
-EXTRACTION_PROVIDER_V2 = "openai"
-EXTRACTION_MODEL_V2 = "gpt-4o"
+EXTRACTION_PROVIDER_V2 = "gemini"
+EXTRACTION_MODEL_V2 = "gemini-2.0-flash-001"
 EXTRACTION_WORKERS = 10
 
 # Evaluation stage (category-aware)
 EVALUATION_PROVIDER_V2 = "gemini"
-EVALUATION_MODEL_V2 = "gemini-2.5-flash"
+EVALUATION_MODEL_V2 = "gemini-2.0-flash-001"
 EVALUATION_WORKERS = 5
 
 # Output versioning (timestamped run directories)
-VERSION_OUTPUTS = True
+VERSION_OUTPUTS = False
 
 # Results base directory (pipeline writes to RESULTS_BASE_DIR / {pdf_name} / ...)
 RESULTS_BASE_DIR = PROJECT_ROOT / "new_pipeline_outputs" / "results"
 
 # Skip pipeline stages when output already exists (no re-run unless forced)
-SKIP_STAGE_IF_EXISTS = True
+SKIP_STAGE_IF_EXISTS = False
 
 # Ground truth for V2 evaluation
 GOLD_TABLE_JSON_PATH = PROJECT_ROOT / "dataset" / "Manual_Benchmark_GoldTable_cleaned.json"
 DEFINITIONS_EVAL_CATEGORY_PATH = PROJECT_ROOT / "src" / "table_definitions" / "Definitions_with_eval_category.csv"
+
+

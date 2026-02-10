@@ -1,0 +1,52 @@
+INPUT PROMPT:
+You are extracting clinical trial data from a research paper.
+
+TASK: Extract values for the following columns using the provided extraction plans.
+
+COLUMNS TO EXTRACT:
+- Column index 1: "No. of Deaths - N | Treatment"
+  Definition: What the number of participants who died in the treatment arm of the clinical trial?.
+  Extraction Plan:
+  Extract the number of deaths for the darolutamide group from the caption of Figure 1. The caption states: "The primary end point (OS) was assessed after 533 patients had died (229 in the darolutamide group and 304 in the placebo group)." The value for the darolutamide (treatment) group is 229.
+
+- Column index 2: "No. of Deaths - N | Control"
+  Definition: What number of deaths that occurred in the control arm of the clinical trial?.
+  Extraction Plan:
+  Extract the number of deaths for the placebo group from the caption of Figure 1. The caption states: "The primary end point (OS) was assessed after 533 patients had died (229 in the darolutamide group and 304 in the placebo group)." The value for the placebo (control) group is 304.
+
+RELEVANT CHUNKS:
+--- Chunk 0 (FIGURE on page 3) ---
+```
+##Figure Descriptions##
+
+## Figure 1
+This figure is a CONSORT flow diagram depicting the screening, randomization, allocation, and analysis of patients in a clinical trial comparing darolutamide + docetaxel + ADT versus placebo + docetaxel + ADT in metastatic hormone-sensitive prostate cancer. It details the number of patients screened, reasons for exclusion, allocation to treatment arms, reasons for discontinuation, and the numbers analyzed for primary and safety endpoints in each group.
+```
+
+GUIDELINES:
+- Follow the extraction plan for each column precisely
+- If the value cannot be extracted as described in the plan, set value=null
+- Provide evidence as an exact quote from the PDF
+- Include page number(s) and confidence level (high/medium/low)
+- Use the EXACT column names from the list above
+
+Output format (for each column):
+Column index <N>: "<Exact Column Name>"
+Value: <extracted value or null>
+Evidence: "<exact quote>"
+Page: <page number>
+Confidence: <high/medium/low>
+
+
+OUTPUT:
+Column index 1: "No. of Deaths - N | Treatment"
+Value: 229
+Evidence: "The primary end point (OS) was assessed after 533 patients had died (229 in the darolutamide group and 304 in the placebo group)."
+Page: 3
+Confidence: high
+
+Column index 2: "No. of Deaths - N | Control"
+Value: 304
+Evidence: "The primary end point (OS) was assessed after 533 patients had died (229 in the darolutamide group and 304 in the placebo group)."
+Page: 3
+Confidence: high

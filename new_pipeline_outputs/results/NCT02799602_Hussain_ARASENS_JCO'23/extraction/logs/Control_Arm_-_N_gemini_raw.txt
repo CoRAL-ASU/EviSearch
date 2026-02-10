@@ -1,0 +1,35 @@
+INPUT PROMPT:
+You are extracting clinical trial data from a research paper.
+
+TASK: Extract values for the following columns using the provided extraction plans.
+
+COLUMNS TO EXTRACT:
+- Column index 1: "Control Arm - N"
+  Definition: What the total number of participants included in the control arm of the clinical trial?. If reported, provide the value; otherwise use 'Not reported'. If the trial contains multiple control arms, report for all separately
+  Extraction Plan:
+  On page 3, refer to the CONSORT flow diagram (Figure 1). Locate the box for "Placebo + docetaxel + ADT" and find the number of patients "Analyzed for primary end point", which is n = 654. Alternatively, on page 5, refer to Table 1, "Baseline Demographics and Patient Characteristics for the Subgroups of Patients by Disease Volume and Disease Risk in ARASENS". In the "All Patients (N = 1,305)" column, under the "Placebo" sub-column, the total number of patients is 654.
+
+RELEVANT CHUNKS:
+No relevant chunks found.
+
+GUIDELINES:
+- Follow the extraction plan for each column precisely
+- If the value cannot be extracted as described in the plan, set value=null
+- Provide evidence as an exact quote from the PDF
+- Include page number(s) and confidence level (high/medium/low)
+- Use the EXACT column names from the list above
+
+Output format (for each column):
+Column index <N>: "<Exact Column Name>"
+Value: <extracted value or null>
+Evidence: "<exact quote>"
+Page: <page number>
+Confidence: <high/medium/low>
+
+
+OUTPUT:
+Column index 1: "Control Arm - N"
+Value: 654
+Evidence: "As previously reported, a total of 1,306 patients were randomly assigned, and 1,305 patients were included in the full analysis set of ARASENS (Fig 1). Of them, 1,005\n(77%) patients had high-volume disease and 300 (23%) had low-volume disease; 912 (70%) patients had high-risk\ndisease, and 393 (30%) had low-risk disease (Table 1)."
+Page: 4
+Confidence: high

@@ -1,0 +1,36 @@
+INPUT PROMPT:
+You are extracting clinical trial data from a research paper.
+
+TASK: Extract values for the following canonical columns. Use EXACT column names as listed.
+
+COLUMNS TO EXTRACT:
+- Column index 1: "Treatment Class"
+  Definition: What is the categorization or classification of the treatment or therapy received by participants in the clinical trial?. If reported, provide the value; otherwise use 'Not reported'.
+  Expected Location: Page 5 | text
+  Planner Confidence: high
+  Extraction Instructions:
+  The treatment classes for the two arms of the trial are "Hormonal therapy" and "Chemohormonal therapy". This classification is explicitly used in the discussion section when referring to the CHAARTED trial, which had a similar design.
+
+RELEVANT CHUNKS:
+--- Chunk 5 (TEXT on page 3-5) ---
+alone [26]. Results indicate that D-based chemotherapy isassociated with improved relapse-free survival in high-risklocalized PCa [27]. A longer follow-up of this trial and otherongoing similar studies will be required to assess whetherthisbenefittranslatesintoimprovedmetastasis-freesurvival and, ultimately, OS.The main limitation of our study is that data on metastaticburden were collected retrospectively. The study was notinitially designed to show the benefits of chemotherapy inspecific subgr...
+
+GUIDELINES:
+- For each listed column, extract a value if explicitly present; otherwise set value=null.
+- Provide evidence as an exact quote, page number(s), confidence (high/medium/low).
+- Use the EXACT column names from the list above.
+
+Output format (for each column):
+Column index <N>: "<Exact Column Name>"
+Value: <extracted value or null>
+Evidence: "<exact quote>"
+Page: <page number>
+Confidence: <high/medium/low>
+
+
+OUTPUT:
+Column index 1: "Treatment Class"
+Value: Chemohormonal therapy
+Evidence: "Impact on overall survival (OS) with chemohormonal therapy versus hormonal therapy"
+Page: 4
+Confidence: high

@@ -1,0 +1,72 @@
+INPUT PROMPT:
+You are extracting clinical trial data from a research paper.
+
+TASK: Extract values for the following columns using the provided extraction plans.
+
+COLUMNS TO EXTRACT:
+- Column index 1: "Reporting by prognostic groups - Y/N | Synchronous"
+  Definition: What indicates whether the results of the clinical trial were reported based on prognostic groups with synchronous metastases, where synchronous metastases refers to metastases present at the time of diagnosis of prostate cancer. with a response of either "yes" (Y) or "no" (N)? Answer Yes or No; use 'Not reported' if unclear.
+  Extraction Plan:
+  Yes. The text on page 2, in the "METHODS" section, states: "In ARASENS, the treatment effect of darolutamide on OS was favorable in patients with de novo (HR, 0.71; 95% CI, 0.59 to 0.85) and recurrent (HR, 0.61; 95% CI, 0.35 to 1.05) metastatic hormone-sensitive prostate cancer." "De novo" refers to synchronous disease. Additionally, Table 1 on page 5, under "Metastasis stage at initial diagnosis, No. (%)", includes "De novo mHSPC" as a subgroup. Figure A1 on page 16 also presents OS results for the "De novo" subgroup under "Metastatic stage at initial diagnosis".
+
+- Column index 2: "Reporting by prognostic groups - Y/N | Metachronous"
+  Definition: What indicates whether the results of the clinical trial were reported based on prognostic groups of patients with metachronous diseases (diseases that occur at different times). with a response of either "yes" (Y) or "no" (N)? Answer Yes or No; use 'Not reported' if unclear.
+  Extraction Plan:
+  Yes. The text on page 2, in the "METHODS" section, states: "In ARASENS, the treatment effect of darolutamide on OS was favorable in patients with de novo (HR, 0.71; 95% CI, 0.59 to 0.85) and recurrent (HR, 0.61; 95% CI, 0.35 to 1.05) metastatic hormone-sensitive prostate cancer." "Recurrent" refers to metachronous disease. Additionally, Table 1 on page 5, under "Metastasis stage at initial diagnosis, No. (%)", includes "Recurrent mHSPC" as a subgroup. Figure A1 on page 16 also presents OS results for the "Recurrent" subgroup under "Metastatic stage at initial diagnosis".
+
+- Column index 3: "Reporting by prognostic groups - Y/N | High volume"
+  Definition: What indicates whether the results of the clinical trial were reported based on prognostic groups with high volume/burden of metastases, with a response of either "yes" (Y) or "no" (N)? Answer Yes or No; use 'Not reported' if unclear.
+  Extraction Plan:
+  Yes. The "PURPOSE" and "RESULTS" sections on page 1 explicitly mention reporting by disease volume. The "METHODS" section on page 2 defines "High-volume disease". Table 1 on page 5 is titled "Baseline Demographics and Patient Characteristics for the Subgroups of Patients by Disease Volume and Disease Risk in ARASENS" and includes a "High Volume" column. Figure 2A on page 6 shows OS for "high-volume disease". Table 2 on page 8, Table 3 on page 9, and Table 4 on page 10 all present data for the "High Volume" subgroup. Figure A1 on page 16 also presents OS results for the "High Volume" subgroup.
+
+- Column index 4: "Reporting by prognostic groups - Y/N | Low volume"
+  Definition: What indicates whether the results were reported based on prognostic groups having a low volume of metastasis, with a yes or no response (Y/N)? Answer Yes or No; use 'Not reported' if unclear.
+  Extraction Plan:
+  Yes. The "PURPOSE" and "RESULTS" sections on page 1 explicitly mention reporting by disease volume. The "METHODS" section on page 2 defines "Low-volume and low-risk disease". Table 1 on page 5 is titled "Baseline Demographics and Patient Characteristics for the Subgroups of Patients by Disease Volume and Disease Risk in ARASENS" and includes a "Low Volume" column. Figure 2B on page 6 shows OS for "low-volume disease". Table 2 on page 8, Table 3 on page 9, and Table 4 on page 10 all present data for the "Low Volume" subgroup. Figure A1 on page 17 also presents OS results for the "Low Volume" subgroup.
+
+RELEVANT CHUNKS:
+--- Chunk 8 (TEXT on page 1-4) ---
+Maha Hussain, MD1; Bertrand Tombal, MD, PhD2; Fred Saad, MD3; Karim Fizazi, MD, PhD4; Cora N. Sternberg, MD5;E. David Crawford, MD6; Neal Shore, MD7; Evgeny Kopyltsov, MD8; Arash Rezazadeh Kalebasty, MD9; Martin B¨ogemann, MD10;Dingwei Ye, MD11; Felipe Cruz, MD, PhD12; Hiroyoshi Suzuki, MD, PhD13; Shivani Kapur, MD14; Shankar Srinivasan, PhD15;Frank Verholen, MD16; Iris Kuss, MD17; Heikki Joensuu, MD18; and Matthew R. Smith, MD, PhD19
+abstract
+PURPOSE For patients with metastatic hormone-sensitive prostate cancer, metastatic burden affects outcome.We examined efﬁcacy and safety from the ARASENS trial for subgroups by disease volume and risk.
+METHODS Patients with metastatic hormone-sensitive prostate cancer were randomly assigned to darolutamide orplacebo plus androgen-deprivation therapy and docetaxel. High-volume disease was deﬁned as visceral me-tastases and/or $ 4 bone metastases with $ 1 beyond the vertebral column/pelvis. High-risk disease was deﬁnedas $ 2 risk factors: Gleason s
+
+GUIDELINES:
+- Follow the extraction plan for each column precisely
+- If the value cannot be extracted as described in the plan, set value=null
+- Provide evidence as an exact quote from the PDF
+- Include page number(s) and confidence level (high/medium/low)
+- Use the EXACT column names from the list above
+
+Output format (for each column):
+Column index <N>: "<Exact Column Name>"
+Value: <extracted value or null>
+Evidence: "<exact quote>"
+Page: <page number>
+Confidence: <high/medium/low>
+
+
+OUTPUT:
+Column index 1: "Reporting by prognostic groups - Y/N | Synchronous"
+Value: Yes
+Evidence: "In ARASENS, the treatment effect of darolutamide on OS was favorable in patients with de novo (HR, 0.71; 95% CI, 0.59 to 0.85) and recurrent (HR, 0.61; 95% CI, 0.35 to 1.05) metastatic hormone-sensitive prostate cancer."
+Page: 2
+Confidence: high
+
+Column index 2: "Reporting by prognostic groups - Y/N | Metachronous"
+Value: Yes
+Evidence: "In ARASENS, the treatment effect of darolutamide on OS was favorable in patients with de novo (HR, 0.71; 95% CI, 0.59 to 0.85) and recurrent (HR, 0.61; 95% CI, 0.35 to 1.05) metastatic hormone-sensitive prostate cancer."
+Page: 2
+Confidence: high
+
+Column index 3: "Reporting by prognostic groups - Y/N | High volume"
+Value: Yes
+Evidence: "We examined efﬁcacy and safety from the ARASENS trial for subgroups by disease volume and risk."
+Page: 1
+Confidence: high
+
+Column index 4: "Reporting by prognostic groups - Y/N | Low volume"
+Value: Yes
+Evidence: "We examined efﬁcacy and safety from the ARASENS trial for subgroups by disease volume and risk."
+Page: 1
+Confidence: high

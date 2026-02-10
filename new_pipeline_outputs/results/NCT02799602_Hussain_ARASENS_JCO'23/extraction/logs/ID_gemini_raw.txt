@@ -1,0 +1,122 @@
+INPUT PROMPT:
+You are extracting clinical trial data from a research paper.
+
+TASK: Extract values for the following columns using the provided extraction plans.
+
+COLUMNS TO EXTRACT:
+- Column index 1: "NCT"
+  Definition: What national Clinical Trial identifier, a unique identification number assigned to a clinical trial?. If reported, provide the value; otherwise use 'Not reported'.
+  Extraction Plan:
+  Extract the alphanumeric code following "NCT" from the "CLINICAL TRIAL INFORMATION" section on page 12.
+
+- Column index 3: "Trial Name"
+  Definition: What the title or identifier of the clinical trial being referred to in the study?. If reported, provide the value; otherwise use 'Not reported'.
+  Extraction Plan:
+  Extract the trial name "ARASENS Trial" from the title of the article on page 1.
+
+- Column index 4: "Author"
+  Definition: What the name of the person or people responsible for writing or publishing the clinical trial study? Your answer should be a name/ list of names (you can use th et al. format )or 'NA'. If reported, provide the value; otherwise use 'Not reported'.
+  Extraction Plan:
+  Extract the full list of authors from the top of page 1.
+
+- Column index 5: "Year"
+  Definition: Publication year of the clinical trial. Use 'Not reported' if unclear.
+  Extraction Plan:
+  Extract the year "2023" from the copyright information at the bottom of page 1 ("© 2023 by American Society of Clinical Oncology") or from the publication date in the abstract section ("published at ascopubs.org/journal/jco on February 16, 2023").
+
+- Column index 6: "Full Pub or Abstract"
+  Definition: Indicates whether results are fully published or only an abstract is available. Use 'Full Pub' or 'Abstract'; use 'Not reported' if unclear.
+  Extraction Plan:
+  The document is labeled "original reports" on page 1 and contains a comprehensive structure including abstract, introduction, methods, results, discussion, tables, and figures, indicating it is a full publication.
+
+- Column index 7: "Phase"
+  Definition: Clinical trial phase (e.g., I, II, III, IV) as reported. Use 'Not reported' if unclear.
+  Extraction Plan:
+  Extract "III" from the title of the article on page 1 ("Phase III ARASENS Trial") or from the abstract on page 1 ("Phase III trial").
+
+- Column index 8: "Original/Follow Up"
+  Definition: Whether the study is an original report or a follow-up analysis. Use Original or Follow up; use 'Not reported' if unclear.
+  Extraction Plan:
+  The document is explicitly labeled "original reports" on the top left of page 1. The abstract and introduction describe it as an analysis of subgroups from the ARASENS trial, which is presented as a primary report of this specific subgroup analysis.
+
+RELEVANT CHUNKS:
+--- Chunk 11 (TEXT on page 10-13) ---
+The following represents disclosure information provided by authors of this manuscript. All relationships are considered compensated unless otherwise noted.Relationships are self-held unless noted. I 5 Immediate Family Member, Inst 5 My Institution. Relationships may not relate to the subject matter of this manuscript.For more information about ASCO’s conﬂict of interest policy, please refer to www.asco.org/rwc or ascopubs.org/jco/authors/author-center.
+Open Payments is a public database containing information reported by companies about payments made to US-licensed physicians (Open Payments).
+Maha HussainHonoraria: UroToday, Merck, Astellas Pharma, AstraZeneca, Precisca,Medscape Zero, Targeted Oncology, Great Debates and Updates in GUOncology, Clinical Care OptionsConsulting or Advisory Role: Pﬁzer, Novartis, Merck, Janssen, Tempus, Bayer,AstraZeneca, GlaxoSmithKline, Convergent TherapeuticsResearch Funding: Genentech (Inst), Pﬁzer (Inst), PCCTC (Inst), AstraZeneca(Inst), Bayer (Inst)
+
+--- Chunk 8 (TEXT on page 1-4) ---
+Maha Hussain, MD1; Bertrand Tombal, MD, PhD2; Fred Saad, MD3; Karim Fizazi, MD, PhD4; Cora N. Sternberg, MD5;E. David Crawford, MD6; Neal Shore, MD7; Evgeny Kopyltsov, MD8; Arash Rezazadeh Kalebasty, MD9; Martin B¨ogemann, MD10;Dingwei Ye, MD11; Felipe Cruz, MD, PhD12; Hiroyoshi Suzuki, MD, PhD13; Shivani Kapur, MD14; Shankar Srinivasan, PhD15;Frank Verholen, MD16; Iris Kuss, MD17; Heikki Joensuu, MD18; and Matthew R. Smith, MD, PhD19
+abstract
+PURPOSE For patients with metastatic hormone-sensitive prostate cancer, metastatic burden affects outcome.We examined efﬁcacy and safety from the ARASENS trial for subgroups by disease volume and risk.
+METHODS Patients with metastatic hormone-sensitive prostate cancer were randomly assigned to darolutamide orplacebo plus androgen-deprivation therapy and docetaxel. High-volume disease was deﬁned as visceral me-tastases and/or $ 4 bone metastases with $ 1 beyond the vertebral column/pelvis. High-risk disease was deﬁnedas $ 2 risk factors: Gleason s
+
+GUIDELINES:
+- Follow the extraction plan for each column precisely
+- If the value cannot be extracted as described in the plan, set value=null
+- Provide evidence as an exact quote from the PDF
+- Include page number(s) and confidence level (high/medium/low)
+- Use the EXACT column names from the list above
+
+Output format (for each column):
+Column index <N>: "<Exact Column Name>"
+Value: <extracted value or null>
+Evidence: "<exact quote>"
+Page: <page number>
+Confidence: <high/medium/low>
+
+
+OUTPUT:
+```json
+[
+  {
+    "Column index 1": "NCT",
+    "Value": "NCT02799602",
+    "Evidence": "NCT02799602",
+    "Page": "12",
+    "Confidence": "high"
+  },
+  {
+    "Column index 3": "Trial Name",
+    "Value": "ARASENS Trial",
+    "Evidence": "ARASENS Trial",
+    "Page": "1",
+    "Confidence": "high"
+  },
+  {
+    "Column index 4": "Author",
+    "Value": "Maha Hussain, MD et al.",
+    "Evidence": "Maha Hussain, MD1; Bertrand Tombal, MD, PhD2; Fred Saad, MD3; Karim Fizazi, MD, PhD4; Cora N. Sternberg, MD5;\nE. David Crawford, MD6; Neal Shore, MD7; Evgeny Kopyltsov, MD8; Arash Rezazadeh Kalebasty, MD9; Martin Bögemann, MD10;\nDingwei Ye, MD11; Felipe Cruz, MD, PhD12; Hiroyoshi Suzuki, MD, PhD13; Shivani Kapur, MD14; Shankar Srinivasan, PhD15;\nFrank Verholen, MD16; Iris Kuss, MD17; Heikki Joensuu, MD18; and Matthew R. Smith, MD, PhD19",
+    "Page": "1",
+    "Confidence": "high"
+  },
+  {
+    "Column index 5": "Year",
+    "Value": "2023",
+    "Evidence": "© 2023 by American Society of Clinical Oncology",
+    "Page": "1",
+    "Confidence": "high"
+  },
+  {
+    "Column index 6": "Full Pub or Abstract",
+    "Value": "Full Pub",
+    "Evidence": "original reports",
+    "Page": "1",
+    "Confidence": "high"
+  },
+  {
+    "Column index 7": "Phase",
+    "Value": "III",
+    "Evidence": "Phase III ARASENS Trial",
+    "Page": "1",
+    "Confidence": "high"
+  },
+  {
+    "Column index 8": "Original/Follow Up",
+    "Value": "Original",
+    "Evidence": "original reports",
+    "Page": "1",
+    "Confidence": "high"
+  }
+]
+```

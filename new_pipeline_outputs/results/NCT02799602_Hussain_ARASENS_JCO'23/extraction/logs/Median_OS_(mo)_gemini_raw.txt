@@ -1,0 +1,91 @@
+INPUT PROMPT:
+You are extracting clinical trial data from a research paper.
+
+TASK: Extract values for the following columns using the provided extraction plans.
+
+COLUMNS TO EXTRACT:
+- Column index 1: "Median OS (mo) | Overall | Treatment"
+  Definition: What is the median overall survival (in months) for all patients in the experimental arm? If reported, include the value; use 'Not reported' if missing.
+  Extraction Plan:
+  The value is reported in Appendix Figure A1 on page 16. Locate the "Overall" row and extract the value from the "Darolutamide + ADT + Docetaxel Median" column.
+
+- Column index 2: "Median OS (mo) | Overall | Control"
+  Definition: What is the median overall survival (in months) for all patients in the control arm? If reported, include the value; use 'Not reported' if missing.
+  Extraction Plan:
+  The value is reported in Appendix Figure A1 on page 16. Locate the "Overall" row and extract the value from the "Placebo + ADT + Docetaxel Median" column.
+
+- Column index 3: "Median OS (mo) | High volume | Treatment"
+  Definition: What is the median overall survival (in months) for patients with high volume metastasis (by CHAARTED criteria) in the experimental arm? If reported, include the value; use 'Not reported' if missing.
+  Extraction Plan:
+  The value is reported in Figure 2A on page 6. Locate the Kaplan-Meier curve for "Darolutamide + ADT + docetaxel" under "High-volume disease" and extract the median OS. This is also stated in the "Primary End Point" section of the text on page 4.
+
+- Column index 4: "Median OS (mo) | High volume | Control"
+  Definition: What is the median overall survival (in months) for patients with high volume metastasis (by CHAARTED criteria) in the control arm? If reported, include the value; use 'Not reported' if missing.
+  Extraction Plan:
+  The value is reported in Figure 2A on page 6. Locate the Kaplan-Meier curve for "Placebo + ADT + docetaxel" under "High-volume disease" and extract the median OS. This is also stated in the "Primary End Point" section of the text on page 4.
+
+- Column index 5: "Median OS (mo) | Low volume | Treatment"
+  Definition: What is the median overall survival (in months) for patients with low volume metastasis (by CHAARTED criteria) in the experimental arm? If reported, include the value; use 'Not reported' if missing.
+  Extraction Plan:
+  The value is reported in Figure 2B on page 6. Locate the Kaplan-Meier curve for "Darolutamide + ADT + docetaxel" under "Low-volume disease" and extract the median OS. This is also stated in the "Primary End Point" section of the text on page 4.
+
+- Column index 6: "Median OS (mo) | Low volume | Control"
+  Definition: What is the median overall survival (in months) for patients with low volume metastasis (by CHAARTED criteria) in the control arm? If reported, include the value; use 'Not reported' if missing.
+  Extraction Plan:
+  The value is reported in Figure 2B on page 6. Locate the Kaplan-Meier curve for "Placebo + ADT + docetaxel" under "Low-volume disease" and extract the median OS. This is also stated in the "Primary End Point" section of the text on page 4.
+
+RELEVANT CHUNKS:
+--- Chunk 2 (FIGURE on page 6) ---
+```
+##Figure Descriptions##
+
+## Figure 2
+This figure presents Kaplan-Meier survival curves for overall survival (OS) in subgroups of patients with metastatic hormone-sensitive prostate cancer treated with darolutamide + ADT + docetaxel versus placebo + ADT + docetaxel. The subgroups analyzed are: (A) high-volume disease, (B) low-volume disease, (C) high-risk disease, and (D) low-risk disease. Each panel shows improved survival for the darolutamide group, with hazard ratios (HRs) and median survival times indicated for each subgroup.
+```
+
+GUIDELINES:
+- Follow the extraction plan for each column precisely
+- If the value cannot be extracted as described in the plan, set value=null
+- Provide evidence as an exact quote from the PDF
+- Include page number(s) and confidence level (high/medium/low)
+- Use the EXACT column names from the list above
+
+Output format (for each column):
+Column index <N>: "<Exact Column Name>"
+Value: <extracted value or null>
+Evidence: "<exact quote>"
+Page: <page number>
+Confidence: <high/medium/low>
+
+
+OUTPUT:
+Column index 1: "Median OS (mo) | Overall | Treatment"
+Value: Not estimable
+Evidence: "Darolutamide + ADT + Docetaxel\nMedian, NE"
+Page: 16
+Confidence: high
+Column index 2: "Median OS (mo) | Overall | Control"
+Value: 42.4
+Evidence: "Placebo + ADT + Docetaxel\nMedian, 42.4"
+Page: 16
+Confidence: high
+Column index 3: "Median OS (mo) | High volume | Treatment"
+Value: Not estimable
+Evidence: "Darolutamide + ADT + docetaxel\nMedian, NE (95% CI, 50.3 months to NE)"
+Page: 6
+Confidence: high
+Column index 4: "Median OS (mo) | High volume | Control"
+Value: 42.4
+Evidence: "Placebo + ADT + docetaxel\nMedian, 42.4 months (95% CI, 39.7 to 46.0)"
+Page: 6
+Confidence: high
+Column index 5: "Median OS (mo) | Low volume | Treatment"
+Value: Not estimable
+Evidence: "Darolutamide + ADT + docetaxel\nMedian, NE (95% CI, NE to NE)"
+Page: 6
+Confidence: high
+Column index 6: "Median OS (mo) | Low volume | Control"
+Value: Not estimable
+Evidence: "Placebo + ADT + docetaxel\nMedian, NE (95% CI, NE to NE)"
+Page: 6
+Confidence: high

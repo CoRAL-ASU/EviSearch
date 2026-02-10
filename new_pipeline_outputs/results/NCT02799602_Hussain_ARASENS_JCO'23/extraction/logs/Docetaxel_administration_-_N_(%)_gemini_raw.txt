@@ -1,0 +1,51 @@
+INPUT PROMPT:
+You are extracting clinical trial data from a research paper.
+
+TASK: Extract values for the following columns using the provided extraction plans.
+
+COLUMNS TO EXTRACT:
+- Column index 1: "Docetaxel administration - N (%) | Treatment"
+  Definition: What percentage of participants in the treatment arm of the clinical trial who received docetaxel before or during the trial? If reported, include count and percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.
+  Extraction Plan:
+  The abstract on page 1 (Chunk 8) states, "Patients with metastatic hormone-sensitive prostate cancer were randomly assigned to darolutamide or placebo plus androgen-deprivation therapy and docetaxel." The Methods section on page 2 (Chunk 8) further clarifies, "Enrolled patients were randomly assigned (1:1) to oral darolutamide 600 mg twice daily or matched placebo, in combination with ADT and docetaxel." The Discussion section on page 6 (Chunk 9) explicitly confirms, "The results of this post hoc analysis of the ARASENS trial, in which all patients received docetaxel, show that darolutamide in combination with ADT and docetaxel increases OS in patients with metastatic hormone-sensitive prostate cancer." Figure 1 (Chunk 0) on page 3 shows that 651 patients in the Darolutamide + docetaxel + ADT arm received allocated treatment. Therefore, 651 patients (100%) in the treatment arm received docetaxel.
+
+- Column index 2: "Docetaxel administration - N (%) | Control"
+  Definition: What number and percentage of participants who received docetaxel before or during the trial in the control arm of the clinical trial? If reported, include count and percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.
+  Extraction Plan:
+  The abstract on page 1 (Chunk 8) states, "Patients with metastatic hormone-sensitive prostate cancer were randomly assigned to darolutamide or placebo plus androgen-deprivation therapy and docetaxel." The Methods section on page 2 (Chunk 8) further clarifies, "Enrolled patients were randomly assigned (1:1) to oral darolutamide 600 mg twice daily or matched placebo, in combination with ADT and docetaxel." The Discussion section on page 6 (Chunk 9) explicitly confirms, "The results of this post hoc analysis of the ARASENS trial, in which all patients received docetaxel, show that darolutamide in combination with ADT and docetaxel increases OS in patients with metastatic hormone-sensitive prostate cancer." Figure 1 (Chunk 0) on page 3 shows that 651 patients in the Placebo + docetaxel + ADT arm received allocated treatment. Therefore, 651 patients (100%) in the control arm received docetaxel.
+
+RELEVANT CHUNKS:
+--- Chunk 0 (FIGURE on page 3) ---
+```
+##Figure Descriptions##
+
+## Figure 1
+This figure is a CONSORT flow diagram depicting the screening, randomization, allocation, and analysis of patients in a clinical trial comparing darolutamide + docetaxel + ADT versus placebo + docetaxel + ADT in metastatic hormone-sensitive prostate cancer. It details the number of patients screened, reasons for exclusion, allocation to treatment arms, reasons for discontinuation, and the numbers analyzed for primary and safety endpoints in each group.
+```
+
+GUIDELINES:
+- Follow the extraction plan for each column precisely
+- If the value cannot be extracted as described in the plan, set value=null
+- Provide evidence as an exact quote from the PDF
+- Include page number(s) and confidence level (high/medium/low)
+- Use the EXACT column names from the list above
+
+Output format (for each column):
+Column index <N>: "<Exact Column Name>"
+Value: <extracted value or null>
+Evidence: "<exact quote>"
+Page: <page number>
+Confidence: <high/medium/low>
+
+
+OUTPUT:
+Column index 1: "Docetaxel administration - N (%) | Treatment"
+Value: 651 (100%)
+Evidence: "Figure 1 (Chunk 0) on page 3 shows that 651 patients in the Darolutamide + docetaxel + ADT arm received allocated treatment."
+Page: 3
+Confidence: high
+Column index 2: "Docetaxel administration - N (%) | Control"
+Value: 651 (100%)
+Evidence: "Figure 1 (Chunk 0) on page 3 shows that 651 patients in the Placebo + docetaxel + ADT arm received allocated treatment."
+Page: 3
+Confidence: high

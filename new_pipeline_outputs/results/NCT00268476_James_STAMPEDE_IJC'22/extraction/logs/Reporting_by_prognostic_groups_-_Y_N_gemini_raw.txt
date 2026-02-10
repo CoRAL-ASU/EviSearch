@@ -1,0 +1,149 @@
+INPUT PROMPT:
+You are extracting clinical trial data from a research paper.
+
+TASK: Extract values for the following canonical columns. Use EXACT column names as listed.
+
+COLUMNS TO EXTRACT:
+- Column index 1: "Reporting by prognostic groups - Y/N | Synchronous"
+  Definition: What indicates whether the results of the clinical trial were reported based on prognostic groups with synchronous metastases, where synchronous metastases refers to metastases present at the time of diagnosis of prostate cancer. with a response of either "yes" (Y) or "no" (N)? Answer Yes or No; use 'Not reported' if unclear.
+  Expected Location: Page 3 | text
+  Planner Confidence: high
+  Extraction Instructions:
+  The study reports on "newly diagnosed" patients, which is synonymous with synchronous metastases. This is stated in the text in Chunk 5 on page 3: "94% newly-diagnosed" and in Chunk 6 on page 4: "For this comparison in STAMPEDE, eligible patients had metastatic prostate cancer that was newly-diagnosed or relapsing after previous local therapy". Also, in Chunk 7 on page 10: "Most patients in STAMPEDE had de novo metastatic disease".
+
+- Column index 2: "Reporting by prognostic groups - Y/N | Metachronous"
+  Definition: What indicates whether the results of the clinical trial were reported based on prognostic groups of patients with metachronous diseases (diseases that occur at different times). with a response of either "yes" (Y) or "no" (N)? Answer Yes or No; use 'Not reported' if unclear.
+  Expected Location: Page 5 | table
+  Planner Confidence: high
+  Extraction Instructions:
+  The study reports on "relapsing" patients, which indicates metachronous disease. This is stated in Table 1 (Chunk 0) on page 5 under "Eligibility category": "Relapsing" (5% in SOC-alone, 7% in SOC + AAP, 6% overall).
+
+- Column index 3: "Reporting by prognostic groups - Y/N | High volume"
+  Definition: What indicates whether the results of the clinical trial were reported based on prognostic groups with high volume/burden of metastases, with a response of either "yes" (Y) or "no" (N)? Answer Yes or No; use 'Not reported' if unclear.
+  Expected Location: Page 8 | table
+  Planner Confidence: high
+  Extraction Instructions:
+  The study reports results by "high-risk" metastatic disease group, which is defined using criteria (≥3 bone metastases; visceral metastases; Gleason score ≥8) that indicate high volume/burden. This is found in Table 3 (Chunk 3) on page 8, which presents "Primary and Secondary outcomes, by metastatic disease risk group using LATITUDE criteria" for the "High-risk" group. The definition is in Chunk 6 on page 4: "high-risk disease defined as at least two of: ≥3 bone metastases; visceral metastases; Gleason score ≥8."
+
+- Column index 4: "Reporting by prognostic groups - Y/N | Low volume"
+  Definition: What indicates whether the results were reported based on prognostic groups having a low volume of metastasis, with a yes or no response (Y/N)? Answer Yes or No; use 'Not reported' if unclear.
+  Expected Location: Page 8 | table
+  Planner Confidence: high
+  Extraction Instructions:
+  The study reports results by "low-risk" metastatic disease group, which is defined using criteria that indicate low volume/burden. This is found in Table 3 (Chunk 3) on page 8, which presents "Primary and Secondary outcomes, by metastatic disease risk group using LATITUDE criteria" for the "Low-risk" group. The definition is in Chunk 6 on page 4: "high-risk disease defined as at least two of: ≥3 bone metastases; visceral metastases; Gleason score ≥8." (implying low-risk is less than these criteria).
+
+RELEVANT CHUNKS:
+--- Chunk 5 (TEXT on page 1-3) ---
+C A N C E R T H E R A P Y A N D P R E V E N T I O N Abiraterone acetate plus prednisolone for metastatic patientsstarting hormone therapy: 5-year follow-up results from theSTAMPEDE randomised trial (NCT00268476) Nicholas D. James1|Noel W. Clarke2|Adrian Cook3|Adnan Ali4|Alex P. Hoyle5|Gerhardt Attard6|Christopher D. Brawley3| Simon Chowdhury7|William R. Cross8|David P. Dearnaley9|Johann S. de Bono1|Carlos Diaz-Montana3|Duncan Gilbert3| Silke Gillessen10|Clare Gilson3,11|Rob J. Jones12|Ruth E. La...
+
+--- Chunk 6 (TEXT on page 3-5) ---
+apy (ADT) which had started no longer than 12 weeks prior to ran- domisation. There were no age restrictions, but patients were required to have no clinically significant cardiovascular history. For this analysis, patients had metastatic disease confirmed by scinti- within 12 weeks of starting ADT. 2.2|Randomisation and masking Patients were randomised centrally using a computerised algorithm, developed and maintained by the MRC Clinical Trials Unit at UCL. Minimisation with a random element of ...
+
+--- Chunk 0 (TABLE on page 5) ---
+Summary: **Table 1: Baseline characteristics of patients with metastatic disease at randomisation in the STAMPEDE trial, comparing SOC-alone (n=502), SOC + AAP (n=501), and all patients (n=1003).**  **Row headers:**   - Age (years): Median (IQR), Range   - Eligibility category: Newly diagnosed, Relapsing   -...
+
+Structured Table:
+##Markdown Table##
+
+|                          | SOC-alone n = 502 | SOC + AAP n = 501 | All n = 1003 |
+|--------------------------|------------------|-------------------|--------------|
+| **Age (years)**          |                  |                   |              |
+| Median (IQR)             | 67 (62-72)       | 67 (62-71)        | 67 (62-71)   |
+| Range                    | 39-84            | 42-85             | 39-85        |
+| **Eligibility category**  |                  |                   |              |
+| Newly diagnosed          | 475 (95%)        | 466 (93%)         | 941 (94%)    |
+| Relapsing                | 27 (5%)          | 35 (7%)           | 62 (6%)      |
+| **PSA (ng/mL)**          |                  |                   |              |
+| Median (IQR)             | 97.2 (26.0-358)  | 96.3 (29-371)     | 96.9 (27.3-363) |
+| Range                    | 0.6-10 530       | 0.1-21 460        | 0.1-21 460   |
+| **Metastatic disease risk group** |         |                   |              |
+| Low-risk                 | 220 (44%)        | 208 (42%)         | 428 (43%)    |
+| High-risk                | 232 (46%)        | 241 (48%)         | 473 (47%)    |
+| Unclassified             | 50 (10%)         | 52 (10%)          | 102* (10%)   |
+| **Site of metastases**ᵇ  |                  |                   |              |
+| Bone                     | 448 (89%)        | 434 (87%)         | 882 (88%)    |
+| Liver                    | 8 (2%)           | 7 (1%)            | 15 (2%)      |
+| Lung                     | 21 (4%)          | 21 (4%)           | 42 (4%)      |
+| Distant lymph nodes      | 150 (30%)        | 143 (29%)         | 293 (29%)    |
+| Other                    | 26 (5%)          | 23 (5%)           | 49 (5%)      |
+
+*Includes 14 patients at Swiss sites for whom imaging could not be obtained.  
+ᵇPatients can be in multiple categories.
+
+##Caption##
+
+**Table 1: Baseline characteristics of patients with metastatic disease at randomisation in the STAMPEDE trial, comparing SOC-alone (n=502), SOC + AAP (n=501), and all patients (n=1003).**
+
+**Row headers:**  
+- Age (years): Median (IQR), Range  
+- Eligibility category: Newly diagnosed, Relapsing  
+- PSA (ng/mL): Median (IQR), Range  
+- Metastatic disease risk group: Low-risk, High-risk, Unclassified  
+- Site of metastases: Bone, Liver, Lung, Distant lymph nodes, Other  
+
+**Column headers:**  
+- SOC-alone n = 502  
+- SOC + AAP n = 501  
+- All n = 1003  
+
+**Description:**  
+This table presents the baseline characteristics of patients with metastatic disease at randomisation in the STAMPEDE trial, divided into those allocated to standard-of-care (SOC) alone, SOC plus abiraterone acetate and prednisolone/prednisone (AAP), and the total cohort. The table includes patient age (median, IQR, and range), eligibility category (newly diagnosed or relapsing), PSA levels (median, IQR, and range), metastatic disease risk group (low-risk, high-risk, unclassified), and site of metastases (bone, l
+
+--- Chunk 3 (TABLE on page 8) ---
+Summary: **Table 3: Primary and Secondary outcomes, by metastatic disease risk group using LATITUDE criteria**  This table presents the outcomes of patients with metastatic prostate cancer, stratified by metastatic disease risk group (Low-risk, High-risk, and Unclassified) and treatment arm (SOC-alone vs. SO...
+
+Structured Table:
+##Markdown Table##
+
+| Metastatic disease risk group | Low-risk SOC-alone (n=220) | Low-risk SOC + AAP (n=208) | High-risk SOC-alone (n=232) | High-risk SOC + AAP (n=241) | Unclassified SOC-alone (n=45) | Unclassified SOC + AAP (n=43) |
+|------------------------------|----------------------------|----------------------------|-----------------------------|-----------------------------|-------------------------------|-------------------------------|
+| **Overall survival**          |                            |                            |                             |                             |                               |                               |
+| Events                       | 118                        | 75                         | 178                         | 145                         | 29                            | 22                            |
+| % alive at 5 years (95% CI)  | 55% (48-61)                | 72% (65-77)                | 28% (22-34)                 | 49% (43-55)                 | 40% (26-54)                   | 59% (42-72)                   |
+| HR vs SOC-alone (95% CI), P  | 0.54 (0.40-0.74), <.0001   |                            | 0.54 (0.43-0.69), <.0001    |                             | 0.63 (0.33-1.23), .180        |                               |
+| **Failure-free survival**     |                            |                            |                             |                             |                               |                               |
+| Events                       | 178                        | 92                         | 215                         | 165                         | 40                            | 22                            |
+| % event-free at 5 years (95% CI) | 21% (16-26)            | 61% (54-67)                | 6% (3-9)                    | 31% (25-37)                 | 18% (8-30)                    | 44% (29-59)                   |
+| HR vs SOC-alone (95% CI), P  | 0.32 (0.25-0.42), <.0001   |                            | 0.28 (0.22-0.36), <.0001    |                             | 0.33 (0.17-0.64), .0002       |                               |
+| **Progression-free survival** |                            |                            |                             |                             |                               |                               |
+| Events                       | 118                        | 73                         | 169                         | 146                         | 32                            | 19                            |
+| % event-free at 5 years (95% CI) | 50% (43-57)            | 70% (63-76)                | 25% (19-31)                 | 39% (33-46)                 | 36% (22-49)                   | 59% (42-73)                   |
+| HR vs SOC-alone (95% CI), P  | 0.55 (0.40-0.75), <.0001   |                            | 0.56 (0.46-0.72), <.0001    |                             | 0.38 (0.19-0.75), .007        
+
+GUIDELINES:
+- For each listed column, extract a value if explicitly present; otherwise set value=null.
+- Provide evidence as an exact quote, page number(s), confidence (high/medium/low).
+- Use the EXACT column names from the list above.
+
+Output format (for each column):
+Column index <N>: "<Exact Column Name>"
+Value: <extracted value or null>
+Evidence: "<exact quote>"
+Page: <page number>
+Confidence: <high/medium/low>
+
+
+OUTPUT:
+Column index 1: "Reporting by prognostic groups - Y/N | Synchronous"
+Value: Yes
+Evidence: "94% newly-diagnosed"
+Page: 3
+Confidence: high
+
+Column index 2: "Reporting by prognostic groups - Y/N | Metachronous"
+Value: Yes
+Evidence: "Relapsing 27 (5%)"
+Page: 5
+Confidence: high
+
+Column index 3: "Reporting by prognostic groups - Y/N | High volume"
+Value: Yes
+Evidence: "Table 3: Primary and Secondary outcomes, by metastatic disease risk group using LATITUDE criteria"
+Page: 8
+Confidence: high
+
+Column index 4: "Reporting by prognostic groups - Y/N | Low volume"
+Value: Yes
+Evidence: "Table 3: Primary and Secondary outcomes, by metastatic disease risk group using LATITUDE criteria"
+Page: 8
+Confidence: high

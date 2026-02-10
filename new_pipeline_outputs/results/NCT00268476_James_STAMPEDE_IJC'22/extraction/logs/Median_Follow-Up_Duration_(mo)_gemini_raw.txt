@@ -1,0 +1,36 @@
+INPUT PROMPT:
+You are extracting clinical trial data from a research paper.
+
+TASK: Extract values for the following canonical columns. Use EXACT column names as listed.
+
+COLUMNS TO EXTRACT:
+- Column index 1: "Median Follow-Up Duration (mo)"
+  Definition: What the median length of time, measured in months, that participants in the clinical trial were followed up or monitored after the start of the trial? If reported, include the value; use 'Not reported' if missing.
+  Expected Location: Page 6 | text
+  Planner Confidence: high
+  Extraction Instructions:
+  The median follow-up duration is reported in the "RESULTS" section. Extract the value "73" from the sentence: "The database was locked for this analysis on 3 April 2020. Median follow-up was 73 months (6.1 years)."
+
+RELEVANT CHUNKS:
+--- Chunk 7 (TEXT on page 5-7) ---
+patients with metastatic prostate cancer, not just those in the high- risk metastatic disease risk group defined for LATITUDE. Our long- term results are strikingly similar to those observed with both apalutamide1,2 and enzalutamide3 in trials with similar eligibility criteria to the metastatic population into STAMPEDE. While those agents are androgen receptor antagonists, all three drugs work by targeting the androgen receptor axis. This suggests that a choice of any of these agents may be clin...
+
+GUIDELINES:
+- For each listed column, extract a value if explicitly present; otherwise set value=null.
+- Provide evidence as an exact quote, page number(s), confidence (high/medium/low).
+- Use the EXACT column names from the list above.
+
+Output format (for each column):
+Column index <N>: "<Exact Column Name>"
+Value: <extracted value or null>
+Evidence: "<exact quote>"
+Page: <page number>
+Confidence: <high/medium/low>
+
+
+OUTPUT:
+Column index 1: "Median Follow-Up Duration (mo)"
+Value: 73
+Evidence: "The database was locked for this analysis on 3 April 2020. Median follow-up was 73 months (6.1 years)."
+Page: 6
+Confidence: high

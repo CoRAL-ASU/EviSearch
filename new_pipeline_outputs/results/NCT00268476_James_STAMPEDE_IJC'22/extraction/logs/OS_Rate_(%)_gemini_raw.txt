@@ -1,0 +1,95 @@
+INPUT PROMPT:
+You are extracting clinical trial data from a research paper.
+
+TASK: Extract values for the following canonical columns. Use EXACT column names as listed.
+
+COLUMNS TO EXTRACT:
+- Column index 1: "OS Rate (%) | Overall | Treatment"
+  Definition: What percentage of total patients in the experimental arm survived at the latest follow-up? If reported, include the rate (percentage) and any accompanying details. If multiple arms are reported, list each arm separately. Use 'Not reported' if missing.
+  Expected Location: Page 2 | table
+  Planner Confidence: high
+  Extraction Instructions:
+  The value is reported in Table 2, under the "Overall survival" section, in the row "SOC + AAP" and column "% alive at 5 years (95% CI)".
+
+- Column index 2: "OS Rate (%) | Overall | Control"
+  Definition: What percentage of total patients in the control arm survived at the latest follow-up? If reported, include the rate (percentage) and any accompanying details. If multiple arms are reported, list each arm separately. Use 'Not reported' if missing.
+  Expected Location: Page 2 | table
+  Planner Confidence: high
+  Extraction Instructions:
+  The value is reported in Table 2, under the "Overall survival" section, in the row "SOC-alone" and column "% alive at 5 years (95% CI)".
+
+- Column index 7: "OS Rate (%) | High volume | Treatment"
+  Definition: What percentage of patients with high volume metastasis (by CHAARTED criteria) in the experimental arm survived at the latest follow-up? If reported, include the rate (percentage) and any accompanying details. If multiple arms are reported, list each arm separately. Use 'Not reported' if missing.
+  Expected Location: Page 3 | table
+  Planner Confidence: high
+  Extraction Instructions:
+  The document classifies patients into "High-risk" and "Low-risk" groups using LATITUDE criteria (page 4, section 2.3). The text on page 8 states that the LATITUDE and CHAARTED systems for defining metastatic disease risk group "largely coincided" and that "There was no evidence that the classifier used affected the overall conclusion". Therefore, the "High-risk" data from Table 3 is used. The value is reported in Table 3, under the "Overall survival" section, in the "High-risk" column, row "SOC + AAP" and column "% alive at 5 years, (95% CI)".
+
+- Column index 8: "OS Rate (%) | High volume | Control"
+  Definition: What percentage of patients with high volume metastasis (by CHAARTED criteria) in the control arm survived at the latest follow-up? If reported, include the rate (percentage) and any accompanying details. If multiple arms are reported, list each arm separately. Use 'Not reported' if missing.
+  Expected Location: Page 3 | table
+  Planner Confidence: high
+  Extraction Instructions:
+  The document classifies patients into "High-risk" and "Low-risk" groups using LATITUDE criteria (page 4, section 2.3). The text on page 8 states that the LATITUDE and CHAARTED systems for defining metastatic disease risk group "largely coincided" and that "There was no evidence that the classifier used affected the overall conclusion". Therefore, the "High-risk" data from Table 3 is used. The value is reported in Table 3, under the "Overall survival" section, in the "High-risk" column, row "SOC-alone" and column "% alive at 5 years, (95% CI)".
+
+- Column index 9: "OS Rate (%) | Low volume | Treatment"
+  Definition: What percentage of patients with low volume metastasis (by CHAARTED criteria) in the experimental arm survived at the latest follow-up? If reported, include the rate (percentage) and any accompanying details. If multiple arms are reported, list each arm separately. Use 'Not reported' if missing.
+  Expected Location: Page 3 | table
+  Planner Confidence: high
+  Extraction Instructions:
+  The document classifies patients into "High-risk" and "Low-risk" groups using LATITUDE criteria (page 4, section 2.3). The text on page 8 states that the LATITUDE and CHAARTED systems for defining metastatic disease risk group "largely coincided" and that "There was no evidence that the classifier used affected the overall conclusion". Therefore, the "Low-risk" data from Table 3 is used. The value is reported in Table 3, under the "Overall survival" section, in the "Low-risk" column, row "SOC + AAP" and column "% alive at 5 years, (95% CI)".
+
+- Column index 10: "OS Rate (%) | Low volume | Control"
+  Definition: What percentage of patients with low volume metastasis (by CHAARTED criteria) in the control arm survived at the latest follow-up? If reported, include the rate (percentage) and any accompanying details. If multiple arms are reported, list each arm separately. Use 'Not reported' if missing.
+  Expected Location: Page 3 | table
+  Planner Confidence: high
+  Extraction Instructions:
+  The document classifies patients into "High-risk" and "Low-risk" groups using LATITUDE criteria (page 4, section 2.3). The text on page 8 states that the LATITUDE and CHAARTED systems for defining metastatic disease risk group "largely coincided" and that "There was no evidence that the classifier used affected the overall conclusion". Therefore, the "Low-risk" data from Table 3 is used. The value is reported in Table 3, under the "Overall survival" section, in the "Low-risk" column, row "SOC-alone" and column "% alive at 5 years, (95% CI)".
+
+RELEVANT CHUNKS:
+No relevant chunks found.
+
+GUIDELINES:
+- For each listed column, extract a value if explicitly present; otherwise set value=null.
+- Provide evidence as an exact quote, page number(s), confidence (high/medium/low).
+- Use the EXACT column names from the list above.
+
+Output format (for each column):
+Column index <N>: "<Exact Column Name>"
+Value: <extracted value or null>
+Evidence: "<exact quote>"
+Page: <page number>
+Confidence: <high/medium/low>
+
+
+OUTPUT:
+Column index 1: "OS Rate (%) | Overall | Treatment"
+Value: 60% (55-64)
+Evidence: "60% (55-64)"
+Page: 6
+Confidence: high
+Column index 2: "OS Rate (%) | Overall | Control"
+Value: 41% (37-45)
+Evidence: "41% (37-45)"
+Page: 6
+Confidence: high
+Column index 7: "OS Rate (%) | High volume | Treatment"
+Value: 55% (43-65)
+Evidence: "55% (43-65)"
+Page: 8
+Confidence: high
+Column index 8: "OS Rate (%) | High volume | Control"
+Value: 72% (65-77)
+Evidence: "72% (65-77)"
+Page: 8
+Confidence: high
+Column index 9: "OS Rate (%) | Low volume | Treatment"
+Value: 73% (66-79)
+Evidence: "73% (66-79)"
+Page: 8
+Confidence: high
+Column index 10: "OS Rate (%) | Low volume | Control"
+Value: 55% (48-61)
+Evidence: "55% (48-61)"
+Page: 8
+Confidence: high

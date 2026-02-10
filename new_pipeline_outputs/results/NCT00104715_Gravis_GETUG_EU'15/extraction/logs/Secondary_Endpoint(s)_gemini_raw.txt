@@ -1,0 +1,36 @@
+INPUT PROMPT:
+You are extracting clinical trial data from a research paper.
+
+TASK: Extract values for the following canonical columns. Use EXACT column names as listed.
+
+COLUMNS TO EXTRACT:
+- Column index 1: "Secondary Endpoint(s)"
+  Definition: What the secondary outcome(s) or objective(s) of the clinical trial, in addition to the primary endpoint, that are being measured or evaluated?. If reported, provide the value; otherwise use 'Not reported'.
+  Expected Location: Page 1 | text
+  Planner Confidence: high
+  Extraction Instructions:
+  The secondary endpoints are biochemical progression-free survival (bPFS) and radiographic progression-free survival (rPFS). This information can be found in Chunk 4, on page 1, in the "Abstract" section under "Outcome measurements and statistical analysis". It is also reiterated in Chunk 4, on page 2, in the "Patients and methods" section under "2.1. Statistics".
+
+RELEVANT CHUNKS:
+--- Chunk 4 (TEXT on page 1-3) ---
+Androgen Deprivation Therapy (ADT) Plus Docetaxel VersusADT Alone in Metastatic Non castrate Prostate Cancer:Impact of Metastatic Burden and Long-term SurvivalAnalysis of the Randomized Phase 3 GETUG-AFU15 Trial Gwenaelle Gravis a,*, Jean-Marie Boher b, Florence Joly c, Michel Soulie´ d, Laurence Albiges e,Franck Priou f, Igor Latorzeff g, Remy Delva h, Ivan Krakowski i, Brigitte Laguerre j,Fre´de´ric Rolland k, Christine The´odore l, Gael Deplanque m, Jean-Marc Ferrero n,Ste´phane Culine o, Loı...
+
+GUIDELINES:
+- For each listed column, extract a value if explicitly present; otherwise set value=null.
+- Provide evidence as an exact quote, page number(s), confidence (high/medium/low).
+- Use the EXACT column names from the list above.
+
+Output format (for each column):
+Column index <N>: "<Exact Column Name>"
+Value: <extracted value or null>
+Evidence: "<exact quote>"
+Page: <page number>
+Confidence: <high/medium/low>
+
+
+OUTPUT:
+Column index 1: "Secondary Endpoint(s)"
+Value: biochemical progression-free survival (bPFS) and radiographic progression-free survival (rPFS)
+Evidence: "Secondaryend points were biochemical progression-free survival (bPFS) and radiographic progres-sion-free survival (rPFS)."
+Page: 1
+Confidence: high

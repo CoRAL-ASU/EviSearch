@@ -1,0 +1,36 @@
+INPUT PROMPT:
+You are extracting clinical trial data from a research paper.
+
+TASK: Extract values for the following canonical columns. Use EXACT column names as listed.
+
+COLUMNS TO EXTRACT:
+- Column index 1: "Median On-Treatment Duration (mo) | Treatment"
+  Definition: What is the median duration in months that participants in the treatment arm of the trial received on-treatment therapy? If reported, include the value; use 'Not reported' if missing.
+  Expected Location: Page 11 | text
+  Planner Confidence: high
+  Extraction Instructions:
+  The median on-treatment duration for the darolutamide treatment arm is reported in the "DISCUSSION" section on page 11.
+
+RELEVANT CHUNKS:
+--- Chunk 11 (TEXT on page 10-13) ---
+The following represents disclosure information provided by authors of this manuscript. All relationships are considered compensated unless otherwise noted.Relationships are self-held unless noted. I 5 Immediate Family Member, Inst 5 My Institution. Relationships may not relate to the subject matter of this manuscript.For more information about ASCO’s conﬂict of interest policy, please refer to www.asco.org/rwc or ascopubs.org/jco/authors/author-center. Open Payments is a public database contain...
+
+GUIDELINES:
+- For each listed column, extract a value if explicitly present; otherwise set value=null.
+- Provide evidence as an exact quote, page number(s), confidence (high/medium/low).
+- Use the EXACT column names from the list above.
+
+Output format (for each column):
+Column index <N>: "<Exact Column Name>"
+Value: <extracted value or null>
+Evidence: "<exact quote>"
+Page: <page number>
+Confidence: <high/medium/low>
+
+
+OUTPUT:
+Column index 1: "Median On-Treatment Duration (mo) | Treatment"
+Value: 41
+Evidence: "median treatment duration in ARASENS was 41 months for darolutamide plus ADT and docetaxel versus 34.1 months in the docetaxel subgroup of the abiraterone group in PEACE-1"
+Page: 11
+Confidence: high

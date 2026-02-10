@@ -1,0 +1,49 @@
+INPUT PROMPT:
+You are extracting clinical trial data from a research paper.
+
+TASK: Extract values for the following canonical columns. Use EXACT column names as listed.
+
+COLUMNS TO EXTRACT:
+- Column index 1: "Docetaxel administration - N (%) | Treatment"
+  Definition: What percentage of participants in the treatment arm of the clinical trial who received docetaxel before or during the trial? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.
+  Expected Location: Page 8 | text
+  Planner Confidence: high
+  Extraction Instructions:
+  On page 8, in the "DISCUSSION" section, the text states: "Reported use of docetaxel within 1 year after first progression was higher among patients allocated to SOC + AAP (32% SOC-alone and 40% SOC + AAP, Chi-square P = .048)." The treatment arm is "SOC + AAP".
+
+- Column index 2: "Docetaxel administration - N (%) | Control"
+  Definition: What number and percentage of participants who received docetaxel before or during the trial in the control arm of the clinical trial? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.
+  Expected Location: Page 8 | text
+  Planner Confidence: high
+  Extraction Instructions:
+  On page 8, in the "DISCUSSION" section, the text states: "Reported use of docetaxel within 1 year after first progression was higher among patients allocated to SOC + AAP (32% SOC-alone and 40% SOC + AAP, Chi-square P = .048)." The control arm is "SOC-alone".
+
+RELEVANT CHUNKS:
+--- Chunk 8 (TEXT on page 7-10) ---
+William R Cross, David P Dearnaley, Johann S de Bono, Duncan Gil- bert, Silke Gillessen, Clare Gilson, Rob J Jones, Ruth E Langley, Zafar I Malik, David J Matheson, Robin Millman, Chris C Parker, Cheryl Pugh, Hannah Rush, J Martin Russell, Michelle L Buckner, Malcolm D Mason, Alastair WS Ritchie, Mahesh KB Parmar and Matthew R Sydes were members of the Trial Management Group. CA, Cheryl Pugh and MB were part of trial operations. All authors collated data. Adrian Cook, NJ, Noel W Clarke, Adnan Al...
+
+GUIDELINES:
+- For each listed column, extract a value if explicitly present; otherwise set value=null.
+- Provide evidence as an exact quote, page number(s), confidence (high/medium/low).
+- Use the EXACT column names from the list above.
+
+Output format (for each column):
+Column index <N>: "<Exact Column Name>"
+Value: <extracted value or null>
+Evidence: "<exact quote>"
+Page: <page number>
+Confidence: <high/medium/low>
+
+
+OUTPUT:
+Column index 1: "Docetaxel administration - N (%) | Treatment"
+Value: 40% SOC + AAP
+Evidence: "Reported use of docetaxel within 1 year after first progression was higher among patients allocated to SOC + AAP (32% SOC-alone and 40% SOC + AAP, Chi-square P = .048)."
+Page: 8
+Confidence: high
+
+Column index 2: "Docetaxel administration - N (%) | Control"
+Value: 32% SOC-alone
+Evidence: "Reported use of docetaxel within 1 year after first progression was higher among patients allocated to SOC + AAP (32% SOC-alone and 40% SOC + AAP, Chi-square P = .048)."
+Page: 8
+Confidence: high

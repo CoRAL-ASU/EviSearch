@@ -1,0 +1,138 @@
+INPUT PROMPT:
+You are extracting clinical trial data from a research paper.
+
+TASK: Extract values for the following columns using the provided extraction plans.
+
+COLUMNS TO EXTRACT:
+- Column index 1: "OS Rate (%) | Overall | Treatment"
+  Definition: What percentage of total patients in the experimental arm survived at the latest follow-up? If reported, include the rate (percentage) and any accompanying details. If multiple arms are reported, list each arm separately. Use 'Not reported' if missing.
+  Extraction Plan:
+  Page: 3. Source: Figure 1, text below the diagram. "The primary end point (OS) was assessed after 533 patients had died (229 in the darolutamide group and 304 in the placebo group)." The total number of patients analyzed for the primary endpoint in the darolutamide group was 651 (from Figure 1, "Analyzed for primary end point"). Value: Calculate as (Total patients - Number of deaths) / Total patients * 100 = (651 - 229) / 651 * 100 = 64.82%.
+
+- Column index 2: "OS Rate (%) | Overall | Control"
+  Definition: What percentage of total patients in the control arm survived at the latest follow-up? If reported, include the rate (percentage) and any accompanying details. If multiple arms are reported, list each arm separately. Use 'Not reported' if missing.
+  Extraction Plan:
+  Page: 3. Source: Figure 1, text below the diagram. "The primary end point (OS) was assessed after 533 patients had died (229 in the darolutamide group and 304 in the placebo group)." The total number of patients analyzed for the primary endpoint in the placebo group was 654 (from Figure 1, "Analyzed for primary end point"). Value: Calculate as (Total patients - Number of deaths) / Total patients * 100 = (654 - 304) / 654 * 100 = 53.52%.
+
+- Column index 3: "OS Rate (%) | Synchronous | Treatment"
+  Definition: What percentage of patients with metastasis at the time of diagnosis (synchronous metastasis) in the experimental arm survived at the latest follow-up? If reported, include the rate (percentage) and any accompanying details. If multiple arms are reported, list each arm separately. Use 'Not reported' if missing.
+  Extraction Plan:
+  Page: 16. Source: Figure A1, Panel A, row "Metastatic stage at initial diagnosis - De novo", Darolutamide column ("No. of Events/No. of Patients": 181/432). This represents the high-volume synchronous subgroup. Page: 17. Source: Figure A1, Panel B, row "Metastatic stage at initial diagnosis - De novo", Darolutamide column ("No. of Events/No. of Patients": 25/126). This represents the low-volume synchronous subgroup. Value: Combine data from both subgroups. Total patients = 432 + 126 = 558. Total events = 181 + 25 = 206. Calculate as (Total patients - Total events) / Total patients * 100 = (558 - 206) / 558 * 100 = 63.08%.
+
+- Column index 4: "OS Rate (%) | Synchronous | Control"
+  Definition: What percentage of patients with metastasis at the time of diagnosis (synchronous metastasis) in the control arm survived at the latest follow-up? If reported, include the rate (percentage) and any accompanying details. If multiple arms are reported, list each arm separately. Use 'Not reported' if missing.
+  Extraction Plan:
+  Page: 16. Source: Figure A1, Panel A, row "Metastatic stage at initial diagnosis - De novo", Placebo column ("No. of Events/No. of Patients": 239/445). This represents the high-volume synchronous subgroup. Page: 17. Source: Figure A1, Panel B, row "Metastatic stage at initial diagnosis - De novo", Placebo column ("No. of Events/No. of Patients": 32/121). This represents the low-volume synchronous subgroup. Value: Combine data from both subgroups. Total patients = 445 + 121 = 566. Total events = 239 + 32 = 271. Calculate as (Total patients - Total events) / Total patients * 100 = (566 - 271) / 566 * 100 = 52.12%.
+
+- Column index 5: "OS Rate (%) | Metachronous | Treatment"
+  Definition: What percentage of patients with metastasis after diagnosis (metachronous metastasis) in the experimental arm survived at the latest follow-up? If reported, include the rate (percentage) and any accompanying details. If multiple arms are reported, list each arm separately. Use 'Not reported' if missing.
+  Extraction Plan:
+  Page: 16. Source: Figure A1, Panel A, row "Metastatic stage at initial diagnosis - Recurrent", Darolutamide column ("No. of Events/No. of Patients": 21/58). This represents the high-volume metachronous subgroup. Page: 17. Source: Figure A1, Panel B, row "Metastatic stage at initial diagnosis - Recurrent", Darolutamide column ("No. of Events/No. of Patients": 1/28). This represents the low-volume metachronous subgroup. Value: Combine data from both subgroups. Total patients = 58 + 28 = 86. Total events = 21 + 1 = 22. Calculate as (Total patients - Total events) / Total patients * 100 = (86 - 22) / 86 * 100 = 74.42%.
+
+- Column index 6: "OS Rate (%) | Metachronous | Control"
+  Definition: What percentage of patients with metastasis after diagnosis (metachronous metastasis) in the control arm survived at the latest follow-up? If reported, include the rate (percentage) and any accompanying details. If multiple arms are reported, list each arm separately. Use 'Not reported' if missing.
+  Extraction Plan:
+  Page: 16. Source: Figure A1, Panel A, row "Metastatic stage at initial diagnosis - Recurrent", Placebo column ("No. of Events/No. of Patients": 26/59). This represents the high-volume metachronous subgroup. Page: 17. Source: Figure A1, Panel B, row "Metastatic stage at initial diagnosis - Recurrent", Placebo column ("No. of Events/No. of Patients": 4/23). This represents the low-volume metachronous subgroup. Value: Combine data from both subgroups. Total patients = 59 + 23 = 82. Total events = 26 + 4 = 30. Calculate as (Total patients - Total events) / Total patients * 100 = (82 - 30) / 82 * 100 = 63.41%.
+
+- Column index 7: "OS Rate (%) | High volume | Treatment"
+  Definition: What percentage of patients with high volume metastasis (by CHAARTED criteria) in the experimental arm survived at the latest follow-up? If reported, include the rate (percentage) and any accompanying details. If multiple arms are reported, list each arm separately. Use 'Not reported' if missing.
+  Extraction Plan:
+  Page: 16. Source: Figure A1, Panel A, row "Overall", Darolutamide column ("No. of Events/No. of Patients": 203/497). As per the caption, Panel A is for high-volume disease, so this "Overall" row refers to the high-volume subgroup. Value: Calculate as (Total patients - Number of events) / Total patients * 100 = (497 - 203) / 497 * 100 = 59.10%.
+
+- Column index 8: "OS Rate (%) | High volume | Control"
+  Definition: What percentage of patients with high volume metastasis (by CHAARTED criteria) in the control arm survived at the latest follow-up? If reported, include the rate (percentage) and any accompanying details. If multiple arms are reported, list each arm separately. Use 'Not reported' if missing.
+  Extraction Plan:
+  Page: 16. Source: Figure A1, Panel A, row "Overall", Placebo column ("No. of Events/No. of Patients": 245/503). As per the caption, Panel A is for high-volume disease, so this "Overall" row refers to the high-volume subgroup. Value: Calculate as (Total patients - Number of events) / Total patients * 100 = (503 - 245) / 503 * 100 = 51.30%.
+
+- Column index 9: "OS Rate (%) | Low volume | Treatment"
+  Definition: What percentage of patients with low volume metastasis (by CHAARTED criteria) in the experimental arm survived at the latest follow-up? If reported, include the rate (percentage) and any accompanying details. If multiple arms are reported, list each arm separately. Use 'Not reported' if missing.
+  Extraction Plan:
+  Page: 17. Source: Figure A1, Panel B, row "Metastatic stage at initial diagnosis - De novo", Darolutamide column ("No. of Events/No. of Patients": 25/126). This represents the low-volume synchronous subgroup. Page: 17. Source: Figure A1, Panel B, row "Metastatic stage at initial diagnosis - Recurrent", Darolutamide column ("No. of Events/No. of Patients": 1/28). This represents the low-volume metachronous subgroup. Value: Combine data from both subgroups. Total patients = 126 + 28 = 154. Total events = 25 + 1 = 26. Calculate as (Total patients - Total events) / Total patients * 100 = (154 - 26) / 154 * 100 = 83.12%.
+
+- Column index 10: "OS Rate (%) | Low volume | Control"
+  Definition: What percentage of patients with low volume metastasis (by CHAARTED criteria) in the control arm survived at the latest follow-up? If reported, include the rate (percentage) and any accompanying details. If multiple arms are reported, list each arm separately. Use 'Not reported' if missing.
+  Extraction Plan:
+  Page: 17. Source: Figure A1, Panel B, row "Metastatic stage at initial diagnosis - De novo", Placebo column ("No. of Events/No. of Patients": 32/121). This represents the low-volume synchronous subgroup. Page: 17. Source: Figure A1, Panel B, row "Metastatic stage at initial diagnosis - Recurrent", Placebo column ("No. of Events/No. of Patients": 4/23). This represents the low-volume metachronous subgroup. Value: Combine data from both subgroups. Total patients = 121 + 23 = 144. Total events = 32 + 4 = 36. Calculate as (Total patients - Total events) / Total patients * 100 = (144 - 36) / 144 * 100 = 75.00%.
+
+RELEVANT CHUNKS:
+--- Chunk 8 (TEXT on page 1-4) ---
+Maha Hussain, MD1; Bertrand Tombal, MD, PhD2; Fred Saad, MD3; Karim Fizazi, MD, PhD4; Cora N. Sternberg, MD5;E. David Crawford, MD6; Neal Shore, MD7; Evgeny Kopyltsov, MD8; Arash Rezazadeh Kalebasty, MD9; Martin B¨ogemann, MD10;Dingwei Ye, MD11; Felipe Cruz, MD, PhD12; Hiroyoshi Suzuki, MD, PhD13; Shivani Kapur, MD14; Shankar Srinivasan, PhD15;Frank Verholen, MD16; Iris Kuss, MD17; Heikki Joensuu, MD18; and Matthew R. Smith, MD, PhD19
+abstract
+PURPOSE For patients with metastatic hormone-sensitive prostate cancer, metastatic burden affects outcome.We examined efﬁcacy and safety from the ARASENS trial for subgroups by disease volume and risk.
+METHODS Patients with metastatic hormone-sensitive prostate cancer were randomly assigned to darolutamide orplacebo plus androgen-deprivation therapy and docetaxel. High-volume disease was deﬁned as visceral me-tastases and/or $ 4 bone metastases with $ 1 beyond the vertebral column/pelvis. High-risk disease was deﬁnedas $ 2 risk factors: Gleason s
+
+GUIDELINES:
+- Follow the extraction plan for each column precisely
+- If the value cannot be extracted as described in the plan, set value=null
+- Provide evidence as an exact quote from the PDF
+- Include page number(s) and confidence level (high/medium/low)
+- Use the EXACT column names from the list above
+
+Output format (for each column):
+Column index <N>: "<Exact Column Name>"
+Value: <extracted value or null>
+Evidence: "<exact quote>"
+Page: <page number>
+Confidence: <high/medium/low>
+
+
+OUTPUT:
+Column index 1: "OS Rate (%) | Overall | Treatment"
+Value: 64.82
+Evidence: "The primary end point (OS) was assessed after 533 patients had died (229 in the darolutamide group and 304 in the placebo group)."
+Page: 3
+Confidence: high
+
+Column index 2: "OS Rate (%) | Overall | Control"
+Value: 53.52
+Evidence: "The primary end point (OS) was assessed after 533 patients had died (229 in the darolutamide group and 304 in the placebo group)."
+Page: 3
+Confidence: high
+
+Column index 3: "OS Rate (%) | Synchronous | Treatment"
+Value: 63.08
+Evidence: "181/432"
+Page: 16
+Confidence: high
+
+Column index 4: "OS Rate (%) | Synchronous | Control"
+Value: 52.12
+Evidence: "239/445"
+Page: 16
+Confidence: high
+
+Column index 5: "OS Rate (%) | Metachronous | Treatment"
+Value: 74.42
+Evidence: "21/58"
+Page: 16
+Confidence: high
+
+Column index 6: "OS Rate (%) | Metachronous | Control"
+Value: 63.41
+Evidence: "26/59"
+Page: 16
+Confidence: high
+
+Column index 7: "OS Rate (%) | High volume | Treatment"
+Value: 59.10
+Evidence: "203/497"
+Page: 16
+Confidence: high
+
+Column index 8: "OS Rate (%) | High volume | Control"
+Value: 51.30
+Evidence: "245/503"
+Page: 16
+Confidence: high
+
+Column index 9: "OS Rate (%) | Low volume | Treatment"
+Value: 83.12
+Evidence: "25/126"
+Page: 17
+Confidence: high
+
+Column index 10: "OS Rate (%) | Low volume | Control"
+Value: 75.00
+Evidence: "32/121"
+Page: 17
+Confidence: high

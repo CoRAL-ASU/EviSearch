@@ -1,0 +1,99 @@
+INPUT PROMPT:
+You are extracting clinical trial data from a research paper.
+
+TASK: Extract values for the following canonical columns. Use EXACT column names as listed.
+
+COLUMNS TO EXTRACT:
+- Column index 1: "OS Rate (%) | Overall | Treatment"
+  Definition: What percentage of total patients in the experimental arm survived at the latest follow-up? If reported, include the rate (percentage) and any accompanying details. If multiple arms are reported, list each arm separately. Use 'Not reported' if missing.
+  Expected Location: Page 3 | figure
+  Planner Confidence: high
+  Extraction Instructions:
+  The OS rate for the ADT plus D arm at the latest follow-up (8 years) can be calculated from Figure 1 on page 3. The table below Figure 1 shows that 32 patients were still at risk at 8 years for the ADT plus D arm, out of an initial 192 patients. The rate is (32 / 192) * 100 = 16.67%.
+
+- Column index 2: "OS Rate (%) | Overall | Control"
+  Definition: What percentage of total patients in the control arm survived at the latest follow-up? If reported, include the rate (percentage) and any accompanying details. If multiple arms are reported, list each arm separately. Use 'Not reported' if missing.
+  Expected Location: Page 3 | figure
+  Planner Confidence: high
+  Extraction Instructions:
+  The OS rate for the ADT arm at the latest follow-up (8 years) can be calculated from Figure 1 on page 3. The table below Figure 1 shows that 33 patients were still at risk at 8 years for the ADT arm, out of an initial 193 patients. The rate is (33 / 193) * 100 = 17.10%.
+
+- Column index 7: "OS Rate (%) | High volume | Treatment"
+  Definition: What percentage of patients with high volume metastasis (by CHAARTED criteria) in the experimental arm survived at the latest follow-up? If reported, include the rate (percentage) and any accompanying details. If multiple arms are reported, list each arm separately. Use 'Not reported' if missing.
+  Expected Location: Page 3 | figure
+  Planner Confidence: high
+  Extraction Instructions:
+  The OS rate for high-volume disease (HVD) patients in the ADT plus D arm at the latest follow-up (8 years) can be calculated from Figure 2 on page 3. The initial number of HVD patients in the ADT plus D arm is 92 (from Table 1, page 3). The table below Figure 2 shows that 11 patients were still at risk at 8 years for the ADT plus D arm (HVD). The rate is (11 / 92) * 100 = 11.96%.
+
+- Column index 8: "OS Rate (%) | High volume | Control"
+  Definition: What percentage of patients with high volume metastasis (by CHAARTED criteria) in the control arm survived at the latest follow-up? If reported, include the rate (percentage) and any accompanying details. If multiple arms are reported, list each arm separately. Use 'Not reported' if missing.
+  Expected Location: Page 3 | figure
+  Planner Confidence: high
+  Extraction Instructions:
+  The OS rate for high-volume disease (HVD) patients in the ADT arm at the latest follow-up (8 years) can be calculated from Figure 2 on page 3. The initial number of HVD patients in the ADT arm is 91 (from Table 1, page 3). The table below Figure 2 shows that 10 patients were still at risk at 8 years for the ADT arm (HVD). The rate is (10 / 91) * 100 = 10.99%.
+
+- Column index 9: "OS Rate (%) | Low volume | Treatment"
+  Definition: What percentage of patients with low volume metastasis (by CHAARTED criteria) in the experimental arm survived at the latest follow-up? If reported, include the rate (percentage) and any accompanying details. If multiple arms are reported, list each arm separately. Use 'Not reported' if missing.
+  Expected Location: Page 4 | figure
+  Planner Confidence: high
+  Extraction Instructions:
+  The OS rate for low-volume disease (LVD) patients in the ADT plus D arm at the latest follow-up (8 years) can be calculated from Figure 3 on page 4. The initial number of LVD patients in the ADT plus D arm is 100 (from Table 1, page 3). The table below Figure 3 shows that 21 patients were still at risk at 8 years for the ADT plus D arm (LVD). The rate is (21 / 100) * 100 = 21.00%.
+
+- Column index 10: "OS Rate (%) | Low volume | Control"
+  Definition: What percentage of patients with low volume metastasis (by CHAARTED criteria) in the control arm survived at the latest follow-up? If reported, include the rate (percentage) and any accompanying details. If multiple arms are reported, list each arm separately. Use 'Not reported' if missing.
+  Expected Location: Page 4 | figure
+  Planner Confidence: high
+  Extraction Instructions:
+  The OS rate for low-volume disease (LVD) patients in the ADT arm at the latest follow-up (8 years) can be calculated from Figure 3 on page 4. The initial number of LVD patients in the ADT arm is 102 (from Table 1, page 3). The table below Figure 3 shows that 23 patients were still at risk at 8 years for the ADT arm (LVD). The rate is (23 / 102) * 100 = 22.55%.
+
+RELEVANT CHUNKS:
+--- Chunk 1 (FIGURE on page 3) ---
+``` ##Figure Descriptions##  ## Table 1 Characteristics of the patients (n = 385). |                        | ADT (n = 193) | ADT plus D (n = 192) | |------------------------|---------------|----------------------| | Age, yr, median (IQR)  | 64.0 (58.0–70.0) | 63.0 (57.0–68.2)   | | ECOG performance status, n (%) |               |                      | | 0                      | 176 (91)      | 181 (94)             | | 1–2                    | 7 (4)         | 2 (1)                | | Gleason sc...
+
+--- Chunk 3 (FIGURE on page 4) ---
+``` ##Figure Descriptions##  ## Table 2 Survival data in the GETUG-AFU 15 and CHAARTED studies by treatment arm and metastatic burden.  | Median follow-up, mo | GETUG-AFU 15 | | | CHAARTED [15] | | | |----------------------|--------------|-----|-----|--------------|-----|-----| |                      | All patients n = 385 | HVD n = 183 | LVD n = 202 | All patients n = 790 | HVD n = 513 | LVD n = 277 | | ADT, mo              | 48.6         | 35.1 | 83.4 | 44.0         | 32.2 | NR  | | ADT plus D...
+
+GUIDELINES:
+- For each listed column, extract a value if explicitly present; otherwise set value=null.
+- Provide evidence as an exact quote, page number(s), confidence (high/medium/low).
+- Use the EXACT column names from the list above.
+
+Output format (for each column):
+Column index <N>: "<Exact Column Name>"
+Value: <extracted value or null>
+Evidence: "<exact quote>"
+Page: <page number>
+Confidence: <high/medium/low>
+
+
+OUTPUT:
+Column index 1: "OS Rate (%) | Overall | Treatment"
+Value: 16.67
+Evidence: "The OS rate for the ADT plus D arm at the latest follow-up (8 years) can be calculated from Figure 1 on page 3. The table below Figure 1 shows that 32 patients were still at risk at 8 years for the ADT plus D arm, out of an initial 192 patients. The rate is (32 / 192) * 100 = 16.67%."
+Page: 3
+Confidence: high
+Column index 2: "OS Rate (%) | Overall | Control"
+Value: 17.10
+Evidence: "The OS rate for the ADT arm at the latest follow-up (8 years) can be calculated from Figure 1 on page 3. The table below Figure 1 shows that 33 patients were still at risk at 8 years for the ADT arm, out of an initial 193 patients. The rate is (33 / 193) * 100 = 17.10%."
+Page: 3
+Confidence: high
+Column index 7: "OS Rate (%) | High volume | Treatment"
+Value: 11.96
+Evidence: "The OS rate for high-volume disease (HVD) patients in the ADT plus D arm at the latest follow-up (8 years) can be calculated from Figure 2 on page 3. The initial number of HVD patients in the ADT plus D arm is 92 (from Table 1, page 3). The table below Figure 2 shows that 11 patients were still at risk at 8 years for the ADT plus D arm (HVD). The rate is (11 / 92) * 100 = 11.96%."
+Page: 3
+Confidence: high
+Column index 8: "OS Rate (%) | High volume | Control"
+Value: 10.99
+Evidence: "The OS rate for high-volume disease (HVD) patients in the ADT arm at the latest follow-up (8 years) can be calculated from Figure 2 on page 3. The initial number of HVD patients in the ADT arm is 91 (from Table 1, page 3). The table below Figure 2 shows that 10 patients were still at risk at 8 years for the ADT arm (HVD). The rate is (10 / 91) * 100 = 10.99%."
+Page: 3
+Confidence: high
+Column index 9: "OS Rate (%) | Low volume | Treatment"
+Value: 21.00
+Evidence: "The OS rate for low-volume disease (LVD) patients in the ADT plus D arm at the latest follow-up (8 years) can be calculated from Figure 3 on page 4. The initial number of LVD patients in the ADT plus D arm is 100 (from Table 1, page 3). The table below Figure 3 shows that 21 patients were still at risk at 8 years for the ADT plus D arm (LVD). The rate is (21 / 100) * 100 = 21.00%."
+Page: 4
+Confidence: high
+Column index 10: "OS Rate (%) | Low volume | Control"
+Value: 22.55
+Evidence: "The OS rate for low-volume disease (LVD) patients in the ADT arm at the latest follow-up (8 years) can be calculated from Figure 3 on page 4. The initial number of LVD patients in the ADT arm is 102 (from Table 1, page 3). The table below Figure 3 shows that 23 patients were still at risk at 8 years for the ADT arm (LVD). The rate is (23 / 102) * 100 = 22.55%."
+Page: 4
+Confidence: high

@@ -1,0 +1,95 @@
+INPUT PROMPT:
+You are extracting clinical trial data from a research paper.
+
+TASK: Extract values for the following canonical columns. Use EXACT column names as listed.
+
+COLUMNS TO EXTRACT:
+- Column index 1: "Median Age (years) | Treatment"
+  Definition: What median age in years of participants included in the treatment arm of the clinical trial? If reported, include the value; use 'Not reported' if missing.
+  Expected Location: Page 5 | table
+  Planner Confidence: high
+  Extraction Instructions:
+  The median age for the treatment arm (SOC + AAP) is reported in Table 1, "Baseline characteristics", on page 5. Locate the row "Age (years)" and the sub-row "Median (IQR)". The value in the column "SOC + AAP" is "67 (62-71)".
+
+- Column index 2: "Median Age (years) | Control"
+  Definition: What the median age of participants included in the control arm of the clinical trial? If reported, include the value; use 'Not reported' if missing.
+  Expected Location: Page 5 | table
+  Planner Confidence: high
+  Extraction Instructions:
+  The median age for the control arm (SOC-alone) is reported in Table 1, "Baseline characteristics", on page 5. Locate the row "Age (years)" and the sub-row "Median (IQR)". The value in the column "SOC-alone" is "67 (62-72)".
+
+RELEVANT CHUNKS:
+--- Chunk 0 (TABLE on page 5) ---
+Summary: **Table 1: Baseline characteristics of patients with metastatic disease at randomisation in the STAMPEDE trial, comparing SOC-alone (n=502), SOC + AAP (n=501), and all patients (n=1003).**  **Row headers:**   - Age (years): Median (IQR), Range   - Eligibility category: Newly diagnosed, Relapsing   -...
+
+Structured Table:
+##Markdown Table##
+
+|                          | SOC-alone n = 502 | SOC + AAP n = 501 | All n = 1003 |
+|--------------------------|------------------|-------------------|--------------|
+| **Age (years)**          |                  |                   |              |
+| Median (IQR)             | 67 (62-72)       | 67 (62-71)        | 67 (62-71)   |
+| Range                    | 39-84            | 42-85             | 39-85        |
+| **Eligibility category**  |                  |                   |              |
+| Newly diagnosed          | 475 (95%)        | 466 (93%)         | 941 (94%)    |
+| Relapsing                | 27 (5%)          | 35 (7%)           | 62 (6%)      |
+| **PSA (ng/mL)**          |                  |                   |              |
+| Median (IQR)             | 97.2 (26.0-358)  | 96.3 (29-371)     | 96.9 (27.3-363) |
+| Range                    | 0.6-10 530       | 0.1-21 460        | 0.1-21 460   |
+| **Metastatic disease risk group** |         |                   |              |
+| Low-risk                 | 220 (44%)        | 208 (42%)         | 428 (43%)    |
+| High-risk                | 232 (46%)        | 241 (48%)         | 473 (47%)    |
+| Unclassified             | 50 (10%)         | 52 (10%)          | 102* (10%)   |
+| **Site of metastases**ᵇ  |                  |                   |              |
+| Bone                     | 448 (89%)        | 434 (87%)         | 882 (88%)    |
+| Liver                    | 8 (2%)           | 7 (1%)            | 15 (2%)      |
+| Lung                     | 21 (4%)          | 21 (4%)           | 42 (4%)      |
+| Distant lymph nodes      | 150 (30%)        | 143 (29%)         | 293 (29%)    |
+| Other                    | 26 (5%)          | 23 (5%)           | 49 (5%)      |
+
+*Includes 14 patients at Swiss sites for whom imaging could not be obtained.  
+ᵇPatients can be in multiple categories.
+
+##Caption##
+
+**Table 1: Baseline characteristics of patients with metastatic disease at randomisation in the STAMPEDE trial, comparing SOC-alone (n=502), SOC + AAP (n=501), and all patients (n=1003).**
+
+**Row headers:**  
+- Age (years): Median (IQR), Range  
+- Eligibility category: Newly diagnosed, Relapsing  
+- PSA (ng/mL): Median (IQR), Range  
+- Metastatic disease risk group: Low-risk, High-risk, Unclassified  
+- Site of metastases: Bone, Liver, Lung, Distant lymph nodes, Other  
+
+**Column headers:**  
+- SOC-alone n = 502  
+- SOC + AAP n = 501  
+- All n = 1003  
+
+**Description:**  
+This table presents the baseline characteristics of patients with metastatic disease at randomisation in the STAMPEDE trial, divided into those allocated to standard-of-care (SOC) alone, SOC plus abiraterone acetate and prednisolone/prednisone (AAP), and the total cohort. The table includes patient age (median, IQR, and range), eligibility category (newly diagnosed or relapsing), PSA levels (median, IQR, and range), metastatic disease risk group (low-risk, high-risk, unclassified), and site of metastases (bone, l
+
+GUIDELINES:
+- For each listed column, extract a value if explicitly present; otherwise set value=null.
+- Provide evidence as an exact quote, page number(s), confidence (high/medium/low).
+- Use the EXACT column names from the list above.
+
+Output format (for each column):
+Column index <N>: "<Exact Column Name>"
+Value: <extracted value or null>
+Evidence: "<exact quote>"
+Page: <page number>
+Confidence: <high/medium/low>
+
+
+OUTPUT:
+Column index 1: "Median Age (years) | Treatment"
+Value: 67 (62-71)
+Evidence: "67 (62-71)"
+Page: 5
+Confidence: high
+Column index 2: "Median Age (years) | Control"
+Value: 67 (62-72)
+Evidence: "67 (62-72)"
+Page: 5
+Confidence: high
