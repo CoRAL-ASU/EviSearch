@@ -4,11 +4,13 @@ Model definitions and pricing per 1K tokens.
 Prices are approximate and should be updated as needed.
 """
 
+# Pricing: USD per 1K tokens (input, output). Update as provider pricing changes.
 SUPPORTED_MODELS = {
     "gemini": {
         "gemini-2.5-flash": {"input": 0.00015, "output": 0.0006},
         "gemini-2.5-pro": {"input": 0.00125, "output": 0.005},
         "gemini-2.0-flash": {"input": 0.0001, "output": 0.0004},
+        "gemini-2.0-flash-001": {"input": 0.0001, "output": 0.0004},
         "gemini-1.5-flash": {"input": 0.000075, "output": 0.0003},
         "gemini-1.5-pro": {"input": 0.00125, "output": 0.005},
     },
@@ -16,6 +18,7 @@ SUPPORTED_MODELS = {
         "gpt-4o": {"input": 0.005, "output": 0.015},
         "gpt-4o-mini": {"input": 0.00015, "output": 0.0006},
         "gpt-4-turbo": {"input": 0.01, "output": 0.03},
+        "gpt-4.1": {"input": 0.01, "output": 0.03},
         "gpt-3.5-turbo": {"input": 0.0005, "output": 0.0015},
     },
     "novita": {
@@ -38,6 +41,7 @@ SUPPORTED_MODELS = {
     },
     "local": {
         "Qwen3-8B": {"input": 0.0, "output": 0.0},  # Local model, no API costs
+        "Qwen/Qwen3-8B": {"input": 0.0, "output": 0.0},
     }
 }
 

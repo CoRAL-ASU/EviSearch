@@ -1,55 +1,25 @@
-Here's the extraction plan for the requested adverse event data:
+1. **Adverse Events - N (%) | All-Cause Grade 3 or Higher | Treatment**
+   * **found_in_pdf**: true
+   * **extraction_plan**: The number and percentage of patients experiencing all-cause adverse events with a grade of 3 or higher in the treatment arm (SOC + AAP) is reported as 80 (16%). This is derived from the text on page 6, "Toxicity at 4 years postrandomisation was similar, with 16% patients in each group reporting grade 3 or higher toxicity." The total number of patients in the SOC + AAP group is 501 (Table 1, page 5), so 16% of 501 is approximately 80 patients. While "all-cause" is not explicitly stated, "toxicity" in this general context typically refers to all-cause.
+   * **value**: 80 (16%)
 
-1.  **Adverse Events - N (%) | All-Cause Grade 3 or Higher | Treatment**
-    *   **found_in_pdf:** true
-    *   **extraction_plan:**
-        *   **page:** 3
-        *   **source_type:** text (Chunk 6)
-        *   **instructions:** Locate the sentence in Section 2.4 "Outcome measures and statistical analysis" that states: "Toxicity at 4 years postrandomisation was similar, with 16% patients in each group reporting grade 3 or higher toxicity."
-        *   **value:** 16%
-        *   **note:** The text reports "16% patients in each group reporting grade 3 or higher toxicity" at 4 years postrandomisation. It does not explicitly distinguish between "all-cause" and "treatment-related" adverse events. The count (N) is not provided.
+2. **Adverse Events - N (%) | All-Cause Grade 3 or Higher | Control**
+   * **found_in_pdf**: true
+   * **extraction_plan**: The number and percentage of patients experiencing all-cause adverse events with a grade of 3 or higher in the control arm (SOC-alone) is reported as 80 (16%). This is derived from the text on page 6, "Toxicity at 4 years postrandomisation was similar, with 16% patients in each group reporting grade 3 or higher toxicity." The total number of patients in the SOC-alone group is 502 (Table 1, page 5), so 16% of 502 is approximately 80 patients. While "all-cause" is not explicitly stated, "toxicity" in this general context typically refers to all-cause.
+   * **value**: 80 (16%)
 
-2.  **Adverse Events - N (%) | All-Cause Grade 3 or Higher | Control**
-    *   **found_in_pdf:** true
-    *   **extraction_plan:**
-        *   **page:** 3
-        *   **source_type:** text (Chunk 6)
-        *   **instructions:** Locate the sentence in Section 2.4 "Outcome measures and statistical analysis" that states: "Toxicity at 4 years postrandomisation was similar, with 16% patients in each group reporting grade 3 or higher toxicity."
-        *   **value:** 16%
-        *   **note:** The text reports "16% patients in each group reporting grade 3 or higher toxicity" at 4 years postrandomisation. It does not explicitly distinguish between "all-cause" and "treatment-related" adverse events. The count (N) is not provided.
+3. **Adverse Events - N (%) | Treatment-related Grade 3 or Higher | Treatment**
+   * **found_in_pdf**: false
+   * **extraction_plan**: The document reports "grade 3 or higher toxicity" (page 6) and "worst reported grade of toxicity" (page 8), but does not specify if these adverse events were "treatment-related". Therefore, this specific information is not reported.
 
-3.  **Adverse Events - N (%) | Treatment-related Grade 3 or Higher | Treatment**
-    *   **found_in_pdf:** true
-    *   **extraction_plan:**
-        *   **page:** 3
-        *   **source_type:** text (Chunk 6)
-        *   **instructions:** Locate the sentence in Section 2.4 "Outcome measures and statistical analysis" that states: "Toxicity at 4 years postrandomisation was similar, with 16% patients in each group reporting grade 3 or higher toxicity."
-        *   **value:** 16%
-        *   **note:** The text reports "16% patients in each group reporting grade 3 or higher toxicity" at 4 years postrandomisation. While "toxicity" in a clinical trial context often implies treatment-related adverse events, it is not explicitly stated as "treatment-related". The count (N) is not provided.
+4. **Adverse Events - N (%) | Treatment-related Grade 3 or Higher | Control**
+   * **found_in_pdf**: false
+   * **extraction_plan**: The document reports "grade 3 or higher toxicity" (page 6) and "worst reported grade of toxicity" (page 8), but does not specify if these adverse events were "treatment-related". Therefore, this specific information is not reported.
 
-4.  **Adverse Events - N (%) | Treatment-related Grade 3 or Higher | Control**
-    *   **found_in_pdf:** true
-    *   **extraction_plan:**
-        *   **page:** 3
-        *   **source_type:** text (Chunk 6)
-        *   **instructions:** Locate the sentence in Section 2.4 "Outcome measures and statistical analysis" that states: "Toxicity at 4 years postrandomisation was similar, with 16% patients in each group reporting grade 3 or higher toxicity."
-        *   **value:** 16%
-        *   **note:** The text reports "16% patients in each group reporting grade 3 or higher toxicity" at 4 years postrandomisation. While "toxicity" in a clinical trial context often implies treatment-related adverse events, it is not explicitly stated as "treatment-related". The count (N) is not provided.
+5. **Adverse Events - N (%) | Treatment-related Grade 5 | Treatment**
+   * **found_in_pdf**: false
+   * **extraction_plan**: The document states "no grade 4 or 5 toxicity" for the 2-year data (page 8), which would imply no grade 5 events. However, this statement refers to "worst reported grade of toxicity" (not specified as treatment-related) and is for the 2-year follow-up. The 4-year data on page 6 mentions "grade 3 or higher toxicity" but does not specify grade 5 or treatment-related. Therefore, specific treatment-related grade 5 data is not reported.
 
-5.  **Adverse Events - N (%) | Treatment-related Grade 5 | Treatment**
-    *   **found_in_pdf:** true
-    *   **extraction_plan:**
-        *   **page:** 8
-        *   **source_type:** text (Chunk 8)
-        *   **instructions:** In Section 4 "DISCUSSION", locate the sentence: "...and no grade 4 or 5 toxicity." This statement refers to the "worst reported grade of toxicity" for patients in the SOC + AAP group (treatment arm) at 2 years after randomisation.
-        *   **value:** 0 (0%)
-        *   **note:** The text explicitly states "no grade 4 or 5 toxicity" for a subset of patients at 2 years. While not explicitly stated as "treatment-related", "toxicity" in this context is generally understood to refer to adverse effects of the treatment.
-
-6.  **Adverse Events - N (%) | Treatment-related Grade 5 | Control**
-    *   **found_in_pdf:** true
-    *   **extraction_plan:**
-        *   **page:** 8
-        *   **source_type:** text (Chunk 8)
-        *   **instructions:** In Section 4 "DISCUSSION", locate the sentence: "...and no grade 4 or 5 toxicity." This statement refers to the "worst reported grade of toxicity" for patients in the SOC-alone group (control arm) at 2 years after randomisation.
-        *   **value:** 0 (0%)
-        *   **note:** The text explicitly states "no grade 4 or 5 toxicity" for a subset of patients at 2 years. While not explicitly stated as "treatment-related", "toxicity" in this context is generally understood to refer to adverse effects of the treatment.
+6. **Adverse Events - N (%) | Treatment-related Grade 5 | Control**
+   * **found_in_pdf**: false
+   * **extraction_plan**: The document states "no grade 4 or 5 toxicity" for the 2-year data (page 8), which would imply no grade 5 events. However, this statement refers to "worst reported grade of toxicity" (not specified as treatment-related) and is for the 2-year follow-up. The 4-year data on page 6 mentions "grade 3 or higher toxicity" but does not specify grade 5 or treatment-related. Therefore, specific treatment-related grade 5 data is not reported.

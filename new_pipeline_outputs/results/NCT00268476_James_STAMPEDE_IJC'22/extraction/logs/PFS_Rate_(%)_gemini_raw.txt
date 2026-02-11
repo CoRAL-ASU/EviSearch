@@ -1,26 +1,22 @@
 INPUT PROMPT:
 You are extracting clinical trial data from a research paper.
 
-TASK: Extract values for the following canonical columns. Use EXACT column names as listed.
+TASK: Extract values for the following columns using the provided extraction plans.
 
 COLUMNS TO EXTRACT:
 - Column index 1: "PFS Rate (%) | Overall | Treatment"
   Definition: What the hazard ratio with confidence intervals of progression-free survival (PFS) of all comparisons in all participants, regardless of metastasis type or volume, in the treatment arm of the trial? If reported, include the rate (percentage) and any accompanying details. If multiple arms are reported, list each arm separately. Use 'Not reported' if missing.
-  Expected Location: Page 6 | table
-  Planner Confidence: high
-  Extraction Instructions:
-  The progression-free survival rate for the treatment arm (SOC + AAP) is reported in Table 2, under the "Progression-free survival" section, as "% event-free at 5 years (95% CI)". The value is 54% (50-59). The hazard ratio for SOC + AAP versus SOC-alone is 0.58 (95% CI: 0.49-0.69), P < .0001.
+  Extraction Plan:
+  Extract the percentage and confidence interval from Table 2, under the "Progression-free survival" row, in the "SOC + AAP" column, for the metric "% event-free at 5 years (95% CI)". Also, extract the Hazard Ratio (HR) and its 95% Confidence Interval (CI) for the comparison of SOC + AAP vs SOC-alone from the same table and row.
 
 - Column index 2: "PFS Rate (%) | Overall | Control"
   Definition: What hazard ratio with confidence intervals of Progression-Free Survival (PFS) of all comparisons in all participants in the control arm of the trial? If reported, include the rate (percentage) and any accompanying details. If multiple arms are reported, list each arm separately. Use 'Not reported' if missing.
-  Expected Location: Page 6 | table
-  Planner Confidence: high
-  Extraction Instructions:
-  The progression-free survival rate for the control arm (SOC-alone) is reported in Table 2, under the "Progression-free survival" section, as "% event-free at 5 years (95% CI)". The value is 37% (33-42). The hazard ratio for SOC + AAP versus SOC-alone is 0.58 (95% CI: 0.49-0.69), P < .0001.
+  Extraction Plan:
+  Extract the percentage and confidence interval from Table 2, under the "Progression-free survival" row, in the "SOC-alone" column, for the metric "% event-free at 5 years (95% CI)". Also, note the Hazard Ratio (HR) and its 95% Confidence Interval (CI) for the comparison of SOC + AAP vs SOC-alone from the same table and row, as it represents the comparative effect relevant to this arm.
 
 RELEVANT CHUNKS:
 --- Chunk 2 (TABLE on page 6) ---
-Summary: **Table 2. Primary and secondary outcome measure**  This table presents the primary and secondary outcome measures for patients in two groups: those receiving standard-of-care alone (SOC-alone, n = 502) and those receiving standard-of-care plus abiraterone acetate + prednisone/prednisolone (SOC + AA...
+Summary: **Table 2: Primary and secondary outcome measure**  This table presents the primary and secondary outcome measures for patients treated with standard-of-care (SOC) alone versus SOC plus abiraterone acetate + prednisone/prednisolone (AAP) in a clinical study. The table compares several survival and event-free outcomes between the two groups, including overall survival, failure-free survival, progression-free survival, metastatic progression-free survival (PFS), skeletal-related events, and disease-specific survival. For each outcome, the table provides the number of events, the percentage event-free or alive at 5 years (with 95% confidence intervals), hazard ratios (HR) with 95% confidence intervals and p-values (comparing SOC + AAP to SOC-alone), and restricted mean survival time (RMST) in months (with p-values for proportional hazards).  **Row headers:**   - Overall survival - Failure-free survival - Progression-free survival - Metastatic PFS - Skeletal-related events - Disease-specif
 
 Structured Table:
 ##Markdown Table##
@@ -49,12 +45,41 @@ Structured Table:
 |                                 | RMST (months), P (proportional hazards) | 78 (74-81)            | 84 (82-87)            | .33      |
 | **Disease-specific survival**   | Events         | 255                 | 156                 |          |
 |                                 | % event-free at 5 years (95% CI) | 50% (45-55)           | 72% (67-76)           |          |
-|                       
+|                                 | HR = vs SOC-alone (95% CI), P | (Reference)           | 0.49 (0.39-0.60)      | <.0001   |
+|                                 | RMST (months), P (proportional hazards) | 60 (57-64)            | 75 (72-78)            | .97      |
+
+##Caption##
+
+**Table 2: Primary and secondary outcome measure**
+
+This table presents the primary and secondary outcome measures for patients treated with standard-of-care (SOC) alone versus SOC plus abiraterone acetate + prednisone/prednisolone (AAP) in a clinical study. The table compares several survival and event-free outcomes between the two groups, including overall survival, failure-free survival, progression-free survival, metastatic progression-free survival (PFS), skeletal-related events, and disease-specific survival. For each outcome, the table provides the number of events, the percentage event-free or alive at 5 years (with 95% confidence intervals), hazard ratios (HR) with 95% confidence intervals and p-values (comparing SOC + AAP to SOC-alone), and restricted mean survival time (RMST) in months (with p-values for proportional hazards).
+
+**Row headers:**  
+- Overall survival
+- Failure-free survival
+- Progression-free survival
+- Metastatic PFS
+- Skeletal-related events
+- Disease-specific survival
+
+**Column headers:**  
+- Outcome (with sub-rows: Events, % at 5 years, HR, RMST)
+- SOC-alone (n = 502)
+- SOC + AAP (n = 501)
+- P
+
+**Description of information:**  
+The table details the efficacy of adding AAP to SOC in terms of survival and event-free rates at 5 years, hazard ratios for each outcome, and RMST, providing a comprehensive comparison of treatment arms. The hierarchical headers (e.g., "Overall survival" with sub-rows for events, % alive, HR, and RMST) have been flattened for clarity, with each outcome's metrics listed in sequence.
+
+**Additional context:**  
+Abbreviations used include 95% CI (confidence interval), AAP (abiraterone acetate + prednisone/prednisolone), HR (hazard ratio), P (p-value), RMST (restricted mean survival time), and SOC (standard-of-care). The table is part of a clinical study report comparing the effectiveness of SOC alone versus SOC + AAP in patients with metastatic prostate cancer.
 
 GUIDELINES:
-- For each listed column, extract a value if explicitly present; otherwise set value=null.
-- Provide evidence as an exact quote, page number(s), confidence (high/medium/low).
-- Use the EXACT column names from the list above.
+- Follow the extraction plan for each column precisely
+- If the value cannot be extracted as described in the plan, set value=null
+- Provide evidence as an exact quote from the PDF
+- Include page number(s) and confidence level (high/medium/low)
+- Use the EXACT column names from the list above
 
 Output format (for each column):
 Column index <N>: "<Exact Column Name>"
@@ -68,13 +93,15 @@ OUTPUT:
 Column index 1: "PFS Rate (%) | Overall | Treatment"
 Value: 54% (50-59)
 Evidence: "Progression-free survival
-% event-free at 5 years (95% CI) 54% (50-59)"
+% event-free at 5 years (95% CI) 54% (50-59)
+HR = vs SOC-alone (95% CI), P 0.58 (0.49-0.69)"
 Page: 6
 Confidence: high
 
 Column index 2: "PFS Rate (%) | Overall | Control"
 Value: 37% (33-42)
 Evidence: "Progression-free survival
-% event-free at 5 years (95% CI) 37% (33-42)"
+% event-free at 5 years (95% CI) 37% (33-42)
+HR = vs SOC-alone (95% CI), P (Reference)"
 Page: 6
 Confidence: high

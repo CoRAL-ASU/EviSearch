@@ -96,27 +96,35 @@ class PageClassifier:
             
             # Classify tables
             logger.info("📋 Classifying table pages...")
-            tables_raw, tables_structured = self._classify_tables(pdf_part)
+            tables_raw, tables_structured, tables_usage = self._classify_tables(pdf_part)
             logger.info(f"   Found {len(tables_structured)} tables")
-            
+
             # Classify figures
             logger.info("📊 Classifying figure pages...")
-            figures_raw, figures_structured = self._classify_figures(pdf_part)
+            figures_raw, figures_structured, figures_usage = self._classify_figures(pdf_part)
             logger.info(f"   Found {len(figures_structured)} figures")
-            
+
             # Save all artifacts
             self._save_artifacts(tables_raw, tables_structured, figures_raw, figures_structured)
-            
-            # Return combined metadata
+
+            # Usage for costing (Gemini gemini-2.5-flash)
+            class_usage = {
+                "input_tokens": tables_usage[0] + figures_usage[0],
+                "output_tokens": tables_usage[1] + figures_usage[1],
+                "provider": "gemini",
+                "model": "gemini-2.5-flash",
+            }
+
+            # Return combined metadata and usage
             return {
                 "tables": tables_structured,
                 "figures": figures_structured
-            }
+            }, class_usage
         
         except Exception as e:
             logger.error(f"❌ Page classification failed: {e}")
             raise  # Fail fast
-    
+
     def _classify_tables(self, pdf_part):
         """
         Classify table pages using Gemini and structure response.
@@ -148,10 +156,13 @@ Be thorough - check all pages."""
             contents=[pdf_part, prompt],
             config=config
         )
-        
+        usage = getattr(response, "usage_metadata", None)
+        tables_in = getattr(usage, "prompt_token_count", 0) if usage else 0
+        tables_out = getattr(usage, "candidates_token_count", 0) if usage else 0
+
         raw_text = response.text.strip()
         logger.info(f"   Raw response length: {len(raw_text)} chars")
-        
+
         # Structure with local LLM
         structured_result = self.structurer.structure(
             text=raw_text,
@@ -162,9 +173,9 @@ Be thorough - check all pages."""
         
         if not structured_result.success:
             raise ValueError(f"Failed to structure tables response: {structured_result.error}")
-        
-        return raw_text, structured_result.data.get("tables", [])
-    
+
+        return raw_text, structured_result.data.get("tables", []), (tables_in, tables_out)
+
     def _classify_figures(self, pdf_part):
         """
         Classify figure pages using Gemini and structure response.
@@ -196,10 +207,13 @@ Be thorough - check all pages."""
             contents=[pdf_part, prompt],
             config=config
         )
-        
+        usage = getattr(response, "usage_metadata", None)
+        figures_in = getattr(usage, "prompt_token_count", 0) if usage else 0
+        figures_out = getattr(usage, "candidates_token_count", 0) if usage else 0
+
         raw_text = response.text.strip()
         logger.info(f"   Raw response length: {len(raw_text)} chars")
-        
+
         # Structure with local LLM
         structured_result = self.structurer.structure(
             text=raw_text,
@@ -207,11 +221,11 @@ Be thorough - check all pages."""
             max_retries=3,
             return_dict=True
         )
-        
+
         if not structured_result.success:
             raise ValueError(f"Failed to structure figures response: {structured_result.error}")
-        
-        return raw_text, structured_result.data.get("figures", [])
+
+        return raw_text, structured_result.data.get("figures", []), (figures_in, figures_out)
     
     def _save_artifacts(self, tables_raw, tables_structured, figures_raw, figures_structured):
         """Save all classification artifacts to chunking_metadata/ directory."""

@@ -14,6 +14,7 @@ from pydantic import BaseModel, Field
 from src.LLMProvider.provider import LLMProvider
 from src.LLMProvider.structurer import OutputStructurer
 from src.config.config import STRUCTURER_BASE_URL, STRUCTURER_MODEL
+from src.utils.costing import usage_to_cost_dict
 from src.utils.logging_utils import setup_logger
 
 logger = setup_logger("planning")
@@ -313,7 +314,13 @@ Return ONLY valid JSON.
         found = sum(1 for c in plan.columns if c.found_in_pdf)
         logger.info("Plan summary for %s: found_in_pdf=true for %d/%d", group.name, found, len(plan.columns))
 
-        return plan.model_dump()
+        usage = usage_to_cost_dict(
+            self.provider.provider,
+            self.provider.model,
+            response.input_tokens,
+            response.output_tokens,
+        )
+        return plan.model_dump(), usage
 
     def generate_plans(
         self,
@@ -321,17 +328,20 @@ Return ONLY valid JSON.
         chunks: Any,
         output_dir: Path,
         workers: int = 10,
-    ) -> Dict[str, Dict[str, Any]]:
+    ) -> tuple[Dict[str, Dict[str, Any]], Dict[str, Any]]:
         """
         Generate extraction plans for all column groups.
         chunks: list of chunk dicts, or dict with "chunks" key.
-        Returns: {group_name: plan_data}
+        Returns: (plans {group_name: plan_data}, usage_dict for costing)
         """
+        from src.utils.costing import aggregate_usage
+
         chunks_list = chunks if isinstance(chunks, list) else (chunks.get("chunks", []) if isinstance(chunks, dict) else [])
         output_dir = Path(output_dir)
         output_dir.mkdir(parents=True, exist_ok=True)
 
         pdf_handle = self.provider.upload_pdf(pdf_path)
+        usage_list: List[Dict[str, Any]] = []
         try:
             plans = {}
             with ThreadPoolExecutor(max_workers=max(1, workers)) as executor:
@@ -348,8 +358,9 @@ Return ONLY valid JSON.
                 for future in as_completed(future_to_group):
                     group = future_to_group[future]
                     try:
-                        plan_data = future.result()
+                        plan_data, usage = future.result()
                         plans[plan_data["group_name"]] = plan_data
+                        usage_list.append(usage)
                         logger.info("Planned: %s", group.name)
                     except Exception as e:
                         logger.error("Failed group '%s': %s", group.name, e)
@@ -368,6 +379,7 @@ Return ONLY valid JSON.
                     encoding="utf-8",
                 )
                 logger.info("Saved compiled plans to %s", compiled_path.name)
-            return plans
+            usage_dict = aggregate_usage(usage_list) if usage_list else {}
+            return plans, usage_dict
         finally:
             self.provider.cleanup_pdf(pdf_handle)

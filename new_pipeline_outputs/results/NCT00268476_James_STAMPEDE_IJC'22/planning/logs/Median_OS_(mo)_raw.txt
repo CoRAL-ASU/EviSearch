@@ -1,27 +1,33 @@
-Here's the extraction plan for the requested columns:
+1. Median OS (mo) | Overall | Treatment
+   - **found_in_pdf**: true
+   - **extraction_plan**: The median overall survival for the SOC + AAP (treatment) group is reported in the "Results" section of the text.
+   - **value**: 79
+   - **unit**: months
+   - **page_number**: 6
+   - **source_type**: text
+   - **extraction_context**: "Median survival was 46 months (IQR 25, 92) in the SOC-alone group and 79 months (IQR 33, not reached) in the SOC + AAP group"
 
-1.  **Median OS (mo) | Overall | Treatment**
-    *   **found_in_pdf**: true
-    *   **extraction_plan**: The value is reported in the text on page 4, within Chunk 6, in the "Results" section. Extract the value "79" from the sentence: "Median survival was 46 months (IQR 25, 92) in the SOC-alone group and 79 months (IQR 33, not reached) in the SOC + AAP group".
-    *   **value**: 79
+2. Median OS (mo) | Overall | Control
+   - **found_in_pdf**: true
+   - **extraction_plan**: The median overall survival for the SOC-alone (control) group is reported in the "Results" section of the text.
+   - **value**: 46
+   - **unit**: months
+   - **page_number**: 6
+   - **source_type**: text
+   - **extraction_context**: "Median survival was 46 months (IQR 25, 92) in the SOC-alone group and 79 months (IQR 33, not reached) in the SOC + AAP group"
 
-2.  **Median OS (mo) | Overall | Control**
-    *   **found_in_pdf**: true
-    *   **extraction_plan**: The value is reported in the text on page 4, within Chunk 6, in the "Results" section. Extract the value "46" from the sentence: "Median survival was 46 months (IQR 25, 92) in the SOC-alone group and 79 months (IQR 33, not reached) in the SOC + AAP group".
-    *   **value**: 46
+3. Median OS (mo) | High volume | Treatment
+   - **found_in_pdf**: false
+   - **extraction_plan**: The PDF reports outcomes by "metastatic disease risk group using LATITUDE criteria" (Table 3), classifying patients as "High-risk" or "Low-risk". It does not explicitly report median OS for "High volume" patients defined by CHAARTED criteria. While CHAARTED criteria are mentioned in the discussion, the results are not presented using this classification. For the "High-risk" (LATITUDE) group, only Restricted Mean Survival Time (RMST) and 5-year survival percentages are provided, not median OS.
 
-3.  **Median OS (mo) | High volume | Treatment**
-    *   **found_in_pdf**: false
-    *   **extraction_plan**: This information is not reported in the PDF using CHAARTED criteria. The paper stratifies by "Metastatic disease risk group using LATITUDE criteria" in Table 3, and while it mentions CHAARTED criteria in the discussion, it does not provide median OS values for subgroups defined by CHAARTED criteria in this publication.
+4. Median OS (mo) | High volume | Control
+   - **found_in_pdf**: false
+   - **extraction_plan**: The PDF reports outcomes by "metastatic disease risk group using LATITUDE criteria" (Table 3), classifying patients as "High-risk" or "Low-risk". It does not explicitly report median OS for "High volume" patients defined by CHAARTED criteria. While CHAARTED criteria are mentioned in the discussion, the results are not presented using this classification. For the "High-risk" (LATITUDE) group, only Restricted Mean Survival Time (RMST) and 5-year survival percentages are provided, not median OS.
 
-4.  **Median OS (mo) | High volume | Control**
-    *   **found_in_pdf**: false
-    *   **extraction_plan**: This information is not reported in the PDF using CHAARTED criteria. The paper stratifies by "Metastatic disease risk group using LATITUDE criteria" in Table 3, and while it mentions CHAARTED criteria in the discussion, it does not provide median OS values for subgroups defined by CHAARTED criteria in this publication.
+5. Median OS (mo) | Low volume | Treatment
+   - **found_in_pdf**: false
+   - **extraction_plan**: The PDF reports outcomes by "metastatic disease risk group using LATITUDE criteria" (Table 3), classifying patients as "High-risk" or "Low-risk". It does not explicitly report median OS for "Low volume" patients defined by CHAARTED criteria. While CHAARTED criteria are mentioned in the discussion, the results are not presented using this classification. For the "Low-risk" (LATITUDE) group, only Restricted Mean Survival Time (RMST) and 5-year survival percentages are provided, not median OS.
 
-5.  **Median OS (mo) | Low volume | Treatment**
-    *   **found_in_pdf**: false
-    *   **extraction_plan**: This information is not reported in the PDF using CHAARTED criteria. The paper stratifies by "Metastatic disease risk group using LATITUDE criteria" in Table 3, and while it mentions CHAARTED criteria in the discussion, it does not provide median OS values for subgroups defined by CHAARTED criteria in this publication.
-
-6.  **Median OS (mo) | Low volume | Control**
-    *   **found_in_pdf**: false
-    *   **extraction_plan**: This information is not reported in the PDF using CHAARTED criteria. The paper stratifies by "Metastatic disease risk group using LATITUDE criteria" in Table 3, and while it mentions CHAARTED criteria in the discussion, it does not provide median OS values for subgroups defined by CHAARTED criteria in this publication.
+6. Median OS (mo) | Low volume | Control
+   - **found_in_pdf**: false
+   - **extraction_plan**: The PDF reports outcomes by "metastatic disease risk group using LATITUDE criteria" (Table 3), classifying patients as "High-risk" or "Low-risk". It does not explicitly report median OS for "Low volume" patients defined by CHAARTED criteria. While CHAARTED criteria are mentioned in the discussion, the results are not presented using this classification. For the "Low-risk" (LATITUDE) group, only Restricted Mean Survival Time (RMST) and 5-year survival percentages are provided, not median OS.

@@ -1,58 +1,89 @@
 INPUT PROMPT:
 You are extracting clinical trial data from a research paper.
 
-TASK: Extract values for the following canonical columns. Use EXACT column names as listed.
+TASK: Extract values for the following columns using the provided extraction plans.
 
 COLUMNS TO EXTRACT:
 - Column index 1: "OS Rate (%) | Overall | Treatment"
   Definition: What percentage of total patients in the experimental arm survived at the latest follow-up? If reported, include the rate (percentage) and any accompanying details. If multiple arms are reported, list each arm separately. Use 'Not reported' if missing.
-  Expected Location: Page 2 | table
-  Planner Confidence: high
-  Extraction Instructions:
-  The value is reported in Table 2, under the "Overall survival" section, in the row "SOC + AAP" and column "% alive at 5 years (95% CI)".
+  Extraction Plan:
+  The 5-year overall survival rate for the SOC + AAP (treatment) group is reported as 60% (95% CI: 55-64%) in Table 2, under the "Overall survival" section, row "% alive at 5 years (95% CI)". This is also mentioned in the text on page 3: "with 5-years survival improved from 41% SOC-alone to 60% SOC + AAP."
 
 - Column index 2: "OS Rate (%) | Overall | Control"
   Definition: What percentage of total patients in the control arm survived at the latest follow-up? If reported, include the rate (percentage) and any accompanying details. If multiple arms are reported, list each arm separately. Use 'Not reported' if missing.
-  Expected Location: Page 2 | table
-  Planner Confidence: high
-  Extraction Instructions:
-  The value is reported in Table 2, under the "Overall survival" section, in the row "SOC-alone" and column "% alive at 5 years (95% CI)".
+  Extraction Plan:
+  The 5-year overall survival rate for the SOC-alone (control) group is reported as 41% (95% CI: 37-45%) in Table 2, under the "Overall survival" section, row "% alive at 5 years (95% CI)". This is also mentioned in the text on page 3: "with 5-years survival improved from 41% SOC-alone to 60% SOC + AAP."
 
 - Column index 7: "OS Rate (%) | High volume | Treatment"
   Definition: What percentage of patients with high volume metastasis (by CHAARTED criteria) in the experimental arm survived at the latest follow-up? If reported, include the rate (percentage) and any accompanying details. If multiple arms are reported, list each arm separately. Use 'Not reported' if missing.
-  Expected Location: Page 3 | table
-  Planner Confidence: high
-  Extraction Instructions:
-  The document classifies patients into "High-risk" and "Low-risk" groups using LATITUDE criteria (page 4, section 2.3). The text on page 8 states that the LATITUDE and CHAARTED systems for defining metastatic disease risk group "largely coincided" and that "There was no evidence that the classifier used affected the overall conclusion". Therefore, the "High-risk" data from Table 3 is used. The value is reported in Table 3, under the "Overall survival" section, in the "High-risk" column, row "SOC + AAP" and column "% alive at 5 years, (95% CI)".
+  Extraction Plan:
+  The PDF reports overall survival rates for "High-risk" metastatic disease patients, classified using LATITUDE criteria (defined as ≥3 bone metastases; visceral metastases; Gleason score ≥8). The text on page 8 mentions that the LATITUDE and CHAARTED systems for defining metastatic disease risk group largely coincided. The 5-year overall survival rate for the SOC + AAP (treatment) group in the "High-risk" category is reported as 49% (95% CI: 43-55%) in Table 3, under the "Overall survival" section, row "% alive at 5 years, (95% CI)".
 
 - Column index 8: "OS Rate (%) | High volume | Control"
   Definition: What percentage of patients with high volume metastasis (by CHAARTED criteria) in the control arm survived at the latest follow-up? If reported, include the rate (percentage) and any accompanying details. If multiple arms are reported, list each arm separately. Use 'Not reported' if missing.
-  Expected Location: Page 3 | table
-  Planner Confidence: high
-  Extraction Instructions:
-  The document classifies patients into "High-risk" and "Low-risk" groups using LATITUDE criteria (page 4, section 2.3). The text on page 8 states that the LATITUDE and CHAARTED systems for defining metastatic disease risk group "largely coincided" and that "There was no evidence that the classifier used affected the overall conclusion". Therefore, the "High-risk" data from Table 3 is used. The value is reported in Table 3, under the "Overall survival" section, in the "High-risk" column, row "SOC-alone" and column "% alive at 5 years, (95% CI)".
+  Extraction Plan:
+  The PDF reports overall survival rates for "High-risk" metastatic disease patients, classified using LATITUDE criteria (defined as ≥3 bone metastases; visceral metastases; Gleason score ≥8). The text on page 8 mentions that the LATITUDE and CHAARTED systems for defining metastatic disease risk group largely coincided. The 5-year overall survival rate for the SOC-alone (control) group in the "High-risk" category is reported as 28% (95% CI: 22-34%) in Table 3, under the "Overall survival" section, row "% alive at 5 years, (95% CI)".
 
 - Column index 9: "OS Rate (%) | Low volume | Treatment"
   Definition: What percentage of patients with low volume metastasis (by CHAARTED criteria) in the experimental arm survived at the latest follow-up? If reported, include the rate (percentage) and any accompanying details. If multiple arms are reported, list each arm separately. Use 'Not reported' if missing.
-  Expected Location: Page 3 | table
-  Planner Confidence: high
-  Extraction Instructions:
-  The document classifies patients into "High-risk" and "Low-risk" groups using LATITUDE criteria (page 4, section 2.3). The text on page 8 states that the LATITUDE and CHAARTED systems for defining metastatic disease risk group "largely coincided" and that "There was no evidence that the classifier used affected the overall conclusion". Therefore, the "Low-risk" data from Table 3 is used. The value is reported in Table 3, under the "Overall survival" section, in the "Low-risk" column, row "SOC + AAP" and column "% alive at 5 years, (95% CI)".
+  Extraction Plan:
+  The PDF reports overall survival rates for "Low-risk" metastatic disease patients, classified using LATITUDE criteria. The text on page 8 mentions that the LATITUDE and CHAARTED systems for defining metastatic disease risk group largely coincided. The 5-year overall survival rate for the SOC + AAP (treatment) group in the "Low-risk" category is reported as 72% (95% CI: 65-77%) in Table 3, under the "Overall survival" section, row "% alive at 5 years, (95% CI)".
 
 - Column index 10: "OS Rate (%) | Low volume | Control"
   Definition: What percentage of patients with low volume metastasis (by CHAARTED criteria) in the control arm survived at the latest follow-up? If reported, include the rate (percentage) and any accompanying details. If multiple arms are reported, list each arm separately. Use 'Not reported' if missing.
-  Expected Location: Page 3 | table
-  Planner Confidence: high
-  Extraction Instructions:
-  The document classifies patients into "High-risk" and "Low-risk" groups using LATITUDE criteria (page 4, section 2.3). The text on page 8 states that the LATITUDE and CHAARTED systems for defining metastatic disease risk group "largely coincided" and that "There was no evidence that the classifier used affected the overall conclusion". Therefore, the "Low-risk" data from Table 3 is used. The value is reported in Table 3, under the "Overall survival" section, in the "Low-risk" column, row "SOC-alone" and column "% alive at 5 years, (95% CI)".
+  Extraction Plan:
+  The PDF reports overall survival rates for "Low-risk" metastatic disease patients, classified using LATITUDE criteria. The text on page 8 mentions that the LATITUDE and CHAARTED systems for defining metastatic disease risk group largely coincided. The 5-year overall survival rate for the SOC-alone (control) group in the "Low-risk" category is reported as 55% (95% CI: 48-61%) in Table 3, under the "Overall survival" section, row "% alive at 5 years, (95% CI)".
 
 RELEVANT CHUNKS:
-No relevant chunks found.
+--- Chunk 3 (TABLE on page 8) ---
+Summary: **Table 3: Primary and Secondary outcomes, by metastatic disease risk group using LATITUDE criteria**  This table presents the outcomes of patients with metastatic prostate cancer, stratified by metastatic disease risk group (Low-risk, High-risk, and Unclassified) and treatment arm (SOC-alone vs. SOC + AAP). The table includes the following row headers: Overall survival, Failure-free survival, Progression-free survival, Metastatic PFS, Skeletal-related events, and Disease-specific survival. For each outcome, the table provides the number of events, the percentage (with 95% confidence interval) of patients alive or event-free at 5 years, and the hazard ratio (HR) for SOC + AAP versus SOC-alone (with 95% CI and P-value).  Column headers are: Low-risk SOC-alone (n=220), Low-risk SOC + AAP (n=208), High-risk SOC-alone (n=232), High-risk SOC + AAP (n=241), Unclassified SOC-alone (n=45), and Unclassified SOC + AAP (n=43).  The table uses a hierarchical header structure, with the main header 
+
+Structured Table:
+##Markdown Table##
+
+| Metastatic disease risk group | Low-risk SOC-alone (n=220) | Low-risk SOC + AAP (n=208) | High-risk SOC-alone (n=232) | High-risk SOC + AAP (n=241) | Unclassified SOC-alone (n=45) | Unclassified SOC + AAP (n=43) |
+|------------------------------|----------------------------|----------------------------|-----------------------------|-----------------------------|-------------------------------|-------------------------------|
+| **Overall survival**          |                            |                            |                             |                             |                               |                               |
+| Events                       | 118                        | 75                         | 178                         | 145                         | 29                            | 22                            |
+| % alive at 5 years (95% CI)  | 55% (48-61)                | 72% (65-77)                | 28% (22-34)                 | 49% (43-55)                 | 40% (26-54)                   | 59% (42-72)                   |
+| HR vs SOC-alone (95% CI), P  | 0.54 (0.40-0.74), <.0001   |                            | 0.54 (0.43-0.69), <.0001    |                             | 0.63 (0.33-1.23), .180        |                               |
+| **Failure-free survival**     |                            |                            |                             |                             |                               |                               |
+| Events                       | 178                        | 92                         | 215                         | 165                         | 40                            | 22                            |
+| % event-free at 5 years (95% CI) | 21% (16-26)            | 61% (54-67)                | 6% (3-9)                    | 31% (25-37)                 | 18% (8-30)                    | 44% (29-59)                   |
+| HR vs SOC-alone (95% CI), P  | 0.32 (0.25-0.42), <.0001   |                            | 0.28 (0.22-0.36), <.0001    |                             | 0.33 (0.17-0.64), .0002       |                               |
+| **Progression-free survival** |                            |                            |                             |                             |                               |                               |
+| Events                       | 118                        | 73                         | 169                         | 146                         | 32                            | 19                            |
+| % event-free at 5 years (95% CI) | 50% (43-57)            | 70% (63-76)                | 25% (19-31)                 | 39% (33-46)                 | 36% (22-49)                   | 59% (42-73)                   |
+| HR vs SOC-alone (95% CI), P  | 0.55 (0.40-0.75), <.0001   |                            | 0.56 (0.46-0.72), <.0001    |                             | 0.38 (0.19-0.75), .007        |                               |
+| **Metastatic PFS**            |                            |                            |                             |                             |                               |                               |
+| Events                       | 113                        | 66                         | 164                         | 142                         | 30                            | 19                            |
+| % event-free at 5 years (95% CI) | 52% (45-59)            | 73% (66-79)                | 28% (22-34)                 | 41% (34-47)                 | 39% (25-53)                   | 59% (42-73)                   |
+| HR vs SOC-alone (95% CI), P  | 0.52 (0.37-0.72), <.0001   |                            | 0.59 (0.47-0.75), <.0001    |                             | 0.44 (0.22-0.88), .019        |                               |
+| **Skeletal-related events**   |                            |                            |                             |                             |                               |                               |
+| Events                       | 35                         | 24                         | 55                          | 44                          | 9                             | 8                             |
+| % event-free at 5 years (95% CI) | 84% (78-89)            | 88% (82-92)                | 65% (56-73)                 | 78% (71-83)                 | 77% (57-88)                   | 75% (56-87)                   |
+| HR vs SOC-alone (95% CI), P  | 0.47 (0.27-0.83), .010     |                            | 0.51 (0.33-0.79), .003      |                             | 0.83 (0.29-2.39), .82         |                               |
+| **Disease-specific survival** |                            |                            |                             |                             |                               |                               |
+| Events                       | 90                         | 39                         | 138                         | 100                         | 25                            | 15                            |
+| % event-free at 5 years (95% CI) | 64% (57-70)            | 86% (80-90)                | 37% (30-44)                 | 60% (53-66)                 | 46% (31-60)                   | 72% (54-84)                   |
+| HR vs SOC-alone (95% CI), P  | 0.29 (0.24-0.54), <.0001   |                            | 0.49 (0.37-0.65), <.0001    |                             | 0.48 (0.22-1.04), .050        |                               |
+
+##Caption##
+
+**Table 3: Primary and Secondary outcomes, by metastatic disease risk group using LATITUDE criteria**
+
+This table presents the outcomes of patients with metastatic prostate cancer, stratified by metastatic disease risk group (Low-risk, High-risk, and Unclassified) and treatment arm (SOC-alone vs. SOC + AAP). The table includes the following row headers: Overall survival, Failure-free survival, Progression-free survival, Metastatic PFS, Skeletal-related events, and Disease-specific survival. For each outcome, the table provides the number of events, the percentage (with 95% confidence interval) of patients alive or event-free at 5 years, and the hazard ratio (HR) for SOC + AAP versus SOC-alone (with 95% CI and P-value).
+
+Column headers are: Low-risk SOC-alone (n=220), Low-risk SOC + AAP (n=208), High-risk SOC-alone (n=232), High-risk SOC + AAP (n=241), Unclassified SOC-alone (n=45), and Unclassified SOC + AAP (n=43).
+
+The table uses a hierarchical header structure, with the main header being the metastatic disease risk group and subheaders specifying the treatment arms and sample sizes. In this extraction, these have been combined for clarity (e.g., "Low-risk SOC-alone (n=220)"). The table provides a comprehensive comparison of survival and progression outcomes across risk groups and treatments, highlighting the benefit of adding abiraterone acetate plus prednisolone/prednisone (AAP) to standard-of-care (SOC) in various risk categories. The table also notes that scans were unavailable for some patients, and abbreviations are provided for clarity.
 
 GUIDELINES:
-- For each listed column, extract a value if explicitly present; otherwise set value=null.
-- Provide evidence as an exact quote, page number(s), confidence (high/medium/low).
-- Use the EXACT column names from the list above.
+- Follow the extraction plan for each column precisely
+- If the value cannot be extracted as described in the plan, set value=null
+- Provide evidence as an exact quote from the PDF
+- Include page number(s) and confidence level (high/medium/low)
+- Use the EXACT column names from the list above
 
 Output format (for each column):
 Column index <N>: "<Exact Column Name>"
@@ -64,32 +95,37 @@ Confidence: <high/medium/low>
 
 OUTPUT:
 Column index 1: "OS Rate (%) | Overall | Treatment"
-Value: 60% (55-64)
-Evidence: "60% (55-64)"
+Value: 60% (95% CI: 55-64%)
+Evidence: "60% (55-64%)"
 Page: 6
 Confidence: high
+
 Column index 2: "OS Rate (%) | Overall | Control"
-Value: 41% (37-45)
-Evidence: "41% (37-45)"
+Value: 41% (37-45%)
+Evidence: "41% (37-45%)"
 Page: 6
 Confidence: high
+
 Column index 7: "OS Rate (%) | High volume | Treatment"
-Value: 55% (43-65)
-Evidence: "55% (43-65)"
+Value: 49% (43-55%)
+Evidence: "49% (43-55%)"
 Page: 8
 Confidence: high
+
 Column index 8: "OS Rate (%) | High volume | Control"
-Value: 72% (65-77)
-Evidence: "72% (65-77)"
+Value: 28% (22-34%)
+Evidence: "28% (22-34%)"
 Page: 8
 Confidence: high
+
 Column index 9: "OS Rate (%) | Low volume | Treatment"
-Value: 73% (66-79)
-Evidence: "73% (66-79)"
+Value: 72% (65-77%)
+Evidence: "72% (65-77%)"
 Page: 8
 Confidence: high
+
 Column index 10: "OS Rate (%) | Low volume | Control"
-Value: 55% (48-61)
-Evidence: "55% (48-61)"
+Value: 55% (48-61%)
+Evidence: "55% (48-61%)"
 Page: 8
 Confidence: high

@@ -1,24 +1,40 @@
 INPUT PROMPT:
 You are extracting clinical trial data from a research paper.
 
-TASK: Extract values for the following canonical columns. Use EXACT column names as listed.
+TASK: Extract values for the following columns using the provided extraction plans.
 
 COLUMNS TO EXTRACT:
 - Column index 1: "Class of Agent in Treatment Arm 1"
   Definition: What the type or category of therapeutic agent used in the first experimental arm of the clinical trial?. If reported, provide the value; otherwise use 'Not reported'.
-  Expected Location: Page 1 | text
-  Planner Confidence: high
-  Extraction Instructions:
-  The first experimental arm (SOC + AAP) includes Abiraterone acetate and prednisolone. Abiraterone acetate is an androgen biosynthesis inhibitor. Prednisolone is a corticosteroid. This information is found in the text.
+  Extraction Plan:
+  The treatment arm 1 is "SOC + AAP" (Standard-of-care plus Abiraterone Acetate and Prednisolone). The experimental agent added is Abiraterone Acetate. On page 10, in the "DISCUSSION" section (Chunk 7), the text states: "While those agents [apalutamide and enzalutamide] are androgen receptor antagonists, all three drugs [apalutamide, enzalutamide, and abiraterone] work by targeting the androgen receptor axis." The conclusion on the same page also mentions "upfront targeting of the androgen receptor pathway using abiraterone acetate". Therefore, the class of agent for abiraterone acetate is an androgen receptor axis targeting agent.
 
 RELEVANT CHUNKS:
---- Chunk 5 (TEXT on page 1-3) ---
-C A N C E R T H E R A P Y A N D P R E V E N T I O N Abiraterone acetate plus prednisolone for metastatic patientsstarting hormone therapy: 5-year follow-up results from theSTAMPEDE randomised trial (NCT00268476) Nicholas D. James1|Noel W. Clarke2|Adrian Cook3|Adnan Ali4|Alex P. Hoyle5|Gerhardt Attard6|Christopher D. Brawley3| Simon Chowdhury7|William R. Cross8|David P. Dearnaley9|Johann S. de Bono1|Carlos Diaz-Montana3|Duncan Gilbert3| Silke Gillessen10|Clare Gilson3,11|Rob J. Jones12|Ruth E. La...
+--- Chunk 8 (TEXT on page 7-10) ---
+William R Cross, David P Dearnaley, Johann S de Bono, Duncan Gil-
+bert, Silke Gillessen, Clare Gilson, Rob J Jones, Ruth E Langley, Zafar I
+Malik, David J Matheson, Robin Millman, Chris C Parker, Cheryl Pugh,
+Hannah Rush, J Martin Russell, Michelle L Buckner, Malcolm D
+Mason, Alastair WS Ritchie, Mahesh KB Parmar and Matthew R Sydes
+were members of the Trial Management Group. CA, Cheryl Pugh and
+MB were part of trial operations. All authors collated data. Adrian
+Cook, NJ, Noel W Clarke, Adnan Ali, Mahesh KB Parmar, and Mat-
+thew R Sydes wrote the Statistical Analysis Plan. Adrian Cook, CB and
+Matthew R Sydes performed the analyses. All authors interpreted the
+data. Nicholas D James, Adrian Cook, Noel W Clarke and Matthew R
+Sydes wrote critical sections of the article. All authors reviewed,
+edited and approved the final article. The work reported in the article
+has been performed by the authors, unless clearly specified in
+the text.
+ACKNOWLEDGEMENTS
+Large-scale trials do not happen with
 
 GUIDELINES:
-- For each listed column, extract a value if explicitly present; otherwise set value=null.
-- Provide evidence as an exact quote, page number(s), confidence (high/medium/low).
-- Use the EXACT column names from the list above.
+- Follow the extraction plan for each column precisely
+- If the value cannot be extracted as described in the plan, set value=null
+- Provide evidence as an exact quote from the PDF
+- Include page number(s) and confidence level (high/medium/low)
+- Use the EXACT column names from the list above
 
 Output format (for each column):
 Column index <N>: "<Exact Column Name>"
@@ -30,7 +46,7 @@ Confidence: <high/medium/low>
 
 OUTPUT:
 Column index 1: "Class of Agent in Treatment Arm 1"
-Value: Androgen biosynthesis inhibitor, Corticosteroid
-Evidence: "Abiraterone acetate plus prednisolone"
-Page: 1
+Value: Androgen Receptor Axis Targeting Agent
+Evidence: "While those agents [apalutamide and enzalutamide] are androgen receptor antagonists, all three drugs [apalutamide, enzalutamide, and abiraterone] work by targeting the androgen receptor axis...this extended analysis further reinforces the body of data on the substantial benefits of upfront targeting of the androgen receptor pathway using abiraterone acetate"
+Page: 10
 Confidence: high

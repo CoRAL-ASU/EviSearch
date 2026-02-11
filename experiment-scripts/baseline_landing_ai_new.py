@@ -181,7 +181,46 @@ def convert_and_evaluate(pdf_name: str, extracted_data: dict, skip_eval: bool = 
         print(f"Evaluation skipped or failed: {str(e)}")
 
 
-def main(pdf_name: str, skip_eval: bool = False):
+def _normalize_pdf_name(pdf_name: str) -> str:
+    return pdf_name if pdf_name.lower().endswith(".pdf") else f"{pdf_name}.pdf"
+
+
+def run_eval_only(pdf_name: str) -> None:
+    pdf_stem = pdf_name.rsplit(".pdf", 1)[0]
+    pdf_dir = os.path.join(OUTPUT_BASE_DIR, pdf_stem)
+    extraction_file = os.path.join(pdf_dir, "extraction_metadata.json")
+    if not os.path.exists(extraction_file):
+        print(f"Error: extraction_metadata.json not found at {extraction_file}")
+        return
+
+    print("\n" + "=" * 60)
+    print(f"LANDING AI BASELINE (NEW) - EVAL ONLY - {pdf_name}")
+    print("=" * 60 + "\n")
+
+    print(f"Running evaluation for {pdf_name}...")
+    try:
+        results = run_evaluation(
+            extraction_file=extraction_file,
+            document_name=pdf_name,
+            output_dir=pdf_dir,
+            ground_truth_file=GROUND_TRUTH_FILE,
+            definitions_file=DEFINITIONS_PATH,
+        )
+        if results and "overall" in results:
+            print("\nSummary Metrics:")
+            print(f"  Correctness:  {results['overall']['avg_correctness']:.3f}")
+            print(f"  Completeness: {results['overall']['avg_completeness']:.3f}")
+            print(f"  Overall:      {results['overall']['avg_overall']:.3f}")
+    except Exception as e:
+        print(f"Evaluation failed: {str(e)}")
+
+
+def main(pdf_name: str, skip_eval: bool = False, run_eval_only_flag: bool = False):
+    pdf_name = _normalize_pdf_name(pdf_name)
+    if run_eval_only_flag:
+        run_eval_only(pdf_name)
+        return
+
     pdf_path = os.path.join(BASE_PDF_PATH, pdf_name)
     if not os.path.exists(pdf_path):
         print(f"Error: PDF file {pdf_name} not found at {pdf_path}")
@@ -226,6 +265,11 @@ if __name__ == "__main__":
         action="store_true",
         help="Skip evaluation step (extraction only)",
     )
+    parser.add_argument(
+        "--run-eval-only",
+        action="store_true",
+        help="Run evaluation only using existing extraction_metadata.json",
+    )
     args = parser.parse_args()
 
-    main(args.pdf_name, skip_eval=args.skip_eval)
+    main(args.pdf_name, skip_eval=args.skip_eval, run_eval_only_flag=args.run_eval_only)

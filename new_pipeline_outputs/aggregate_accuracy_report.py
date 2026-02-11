@@ -4,6 +4,10 @@ Aggregate accuracy scores and results for all trials in new_pipeline_outputs/res
 Produces:
   - Excel report with Summary sheet + Per-Column sheet (wrong values highlighted in red)
   - HTML + PNG visualizations (overall scores per trial, heatmap of column correctness)
+
+Usage:
+  python aggregate_accuracy_report.py                    # use default: new_pipeline_outputs/results
+  python aggregate_accuracy_report.py "new_pipeline_outputs copy/results"   # use alternate folder
 """
 import json
 import sys
@@ -11,8 +15,12 @@ from pathlib import Path
 
 # Project root
 REPO_ROOT = Path(__file__).resolve().parents[1]
-RESULTS_DIR = REPO_ROOT / "new_pipeline_outputs" / "results"
-OUTPUT_DIR = REPO_ROOT / "new_pipeline_outputs" / "accuracy_report"
+DEFAULT_RESULTS_DIR = REPO_ROOT / "new_pipeline_outputs" / "results"
+DEFAULT_OUTPUT_DIR = REPO_ROOT / "new_pipeline_outputs" / "accuracy_report"
+
+# Set by main() from CLI; load_all_trial_evaluations uses RESULTS_DIR
+RESULTS_DIR = DEFAULT_RESULTS_DIR
+OUTPUT_DIR = DEFAULT_OUTPUT_DIR
 
 
 def find_evaluation_dir(trial_dir: Path) -> Path | None:
@@ -70,25 +78,60 @@ def load_all_trial_evaluations() -> dict:
 
 
 def build_summary_df(data: dict):
-    """DataFrame: one row per trial with overall and by-category metrics."""
+    """DataFrame: one row per trial with overall and by-category metrics.
+    Supports both formats:
+    - New: summary.summary = {Document, Total columns, Correct, Partial, Wrong, avg_overall};
+           summary.by_category = list of {Category, Total, Correct, Partial, Wrong}
+    - Old: summary.overall = {avg_correctness, avg_completeness, avg_overall, total_columns};
+           summary.by_category = dict of category -> {avg_overall, column_count}
+    """
     import pandas as pd
 
     rows = []
     for trial, payload in data.items():
         s = payload.get("summary") or {}
-        overall = s.get("overall") or {}
-        by_cat = s.get("by_category") or {}
-        row = {
-            "Trial": trial,
-            "avg_correctness": overall.get("avg_correctness"),
-            "avg_completeness": overall.get("avg_completeness"),
-            "avg_overall": overall.get("avg_overall"),
-            "total_columns": overall.get("total_columns"),
-        }
-        for cat in ["exact_match", "numeric_tolerance", "structured_text"]:
-            c = by_cat.get(cat) or {}
-            row[f"{cat}_overall"] = c.get("avg_overall")
-            row[f"{cat}_count"] = c.get("column_count")
+        row = {"Trial": trial}
+
+        # New format (evaluator_v2 with verdict)
+        if "summary" in s and isinstance(s["summary"], dict):
+            sm = s["summary"]
+            row["avg_overall"] = sm.get("avg_overall")
+            row["total_columns"] = sm.get("Total columns")
+            row["Correct"] = sm.get("Correct")
+            row["Partial"] = sm.get("Partial")
+            row["Wrong"] = sm.get("Wrong")
+            row["avg_correctness"] = sm.get("avg_overall")  # reuse for display
+            row["avg_completeness"] = sm.get("avg_overall")
+            by_cat = s.get("by_category") or []
+            if isinstance(by_cat, list):
+                by_cat_dict = {r["Category"]: r for r in by_cat if isinstance(r, dict)}
+                for cat in ["exact_match", "numeric_tolerance", "structured_text"]:
+                    c = by_cat_dict.get(cat) or {}
+                    tot = c.get("Total", 0)
+                    row[f"{cat}_count"] = tot
+                    row[f"{cat}_overall"] = (
+                        (c.get("Correct", 0) * 1.0 + c.get("Partial", 0) * 0.5) / tot
+                        if tot else None
+                    )
+            else:
+                for cat in ["exact_match", "numeric_tolerance", "structured_text"]:
+                    row[f"{cat}_overall"] = None
+                    row[f"{cat}_count"] = None
+        else:
+            # Old format
+            overall = s.get("overall") or {}
+            by_cat = s.get("by_category") or {}
+            row["avg_correctness"] = overall.get("avg_correctness")
+            row["avg_completeness"] = overall.get("avg_completeness")
+            row["avg_overall"] = overall.get("avg_overall")
+            row["total_columns"] = overall.get("total_columns")
+            row["Correct"] = None
+            row["Partial"] = None
+            row["Wrong"] = None
+            for cat in ["exact_match", "numeric_tolerance", "structured_text"]:
+                c = by_cat.get(cat) or {}
+                row[f"{cat}_overall"] = c.get("avg_overall")
+                row[f"{cat}_count"] = c.get("column_count")
         rows.append(row)
     return pd.DataFrame(rows)
 
@@ -129,6 +172,7 @@ def build_wrong_only_df(data: dict):
                 rows.append({
                     "Trial": trial,
                     "Column": col_name,
+                    "verdict": col_data.get("verdict"),  # Correct/Partial/Wrong when present
                     "overall": overall,
                     "correctness": col_data.get("correctness"),
                     "completeness": col_data.get("completeness"),
@@ -294,12 +338,31 @@ def create_html_report(data: dict, summary_df, per_column_df, wrong_df, out_dir:
         rows_html.append("<tr>" + "".join(cells) + "</tr>")
 
     summary_rows = []
+    has_verdict = "Correct" in summary_df.columns and summary_df["Correct"].notna().any()
     for _, row in summary_df.iterrows():
         t = row["Trial"]
-        summary_rows.append(
-            f"<tr><td>{t}</td><td>{row['avg_overall']:.3f}</td><td>{row['avg_correctness']:.3f}</td>"
-            f"<td>{row['avg_completeness']:.3f}</td><td>{row['total_columns']}</td></tr>"
-        )
+        avg = row.get("avg_overall")
+        avg_str = f"{avg:.3f}" if avg is not None and not (isinstance(avg, float) and (avg != avg)) else "—"
+        acc = row.get("avg_correctness")
+        acc_str = f"{acc:.3f}" if acc is not None and not (isinstance(acc, float) and (acc != acc)) else "—"
+        comp = row.get("avg_completeness")
+        comp_str = f"{comp:.3f}" if comp is not None and not (isinstance(comp, float) and (comp != comp)) else "—"
+        tot = row.get("total_columns")
+        tot_str = str(int(tot)) if tot is not None else "—"
+        if has_verdict and row.get("Correct") is not None:
+            summary_rows.append(
+                f"<tr><td>{t}</td><td>{avg_str}</td><td>{tot_str}</td>"
+                f"<td>{int(row['Correct'])}</td><td>{int(row['Partial'])}</td><td>{int(row['Wrong'])}</td></tr>"
+            )
+        else:
+            summary_rows.append(
+                f"<tr><td>{t}</td><td>{avg_str}</td><td>{acc_str}</td><td>{comp_str}</td><td>{tot_str}</td></tr>"
+            )
+
+    if has_verdict:
+        summary_header = "<thead><tr><th>Trial</th><th>Avg overall</th><th>Total columns</th><th>Correct</th><th>Partial</th><th>Wrong</th></tr></thead>"
+    else:
+        summary_header = "<thead><tr><th>Trial</th><th>Avg overall</th><th>Avg correctness</th><th>Avg completeness</th><th>Total columns</th></tr></thead>"
 
     trial_headers = "".join(f"<th>{t}</th>" for t in trials)
     html = f"""<!DOCTYPE html>
@@ -330,7 +393,7 @@ def create_html_report(data: dict, summary_df, per_column_df, wrong_df, out_dir:
 <h2>Summary (avg overall per trial)</h2>
 <div class="summary">
 <table>
-<thead><tr><th>Trial</th><th>Avg overall</th><th>Avg correctness</th><th>Avg completeness</th><th>Total columns</th></tr></thead>
+{summary_header}
 <tbody>
 {"".join(summary_rows)}
 </tbody>
@@ -355,7 +418,25 @@ def create_html_report(data: dict, summary_df, per_column_df, wrong_df, out_dir:
 
 
 def main():
+    global RESULTS_DIR, OUTPUT_DIR
     import pandas as pd
+
+    if len(sys.argv) > 1:
+        arg = sys.argv[1].strip()
+        results_path = Path(arg)
+        if not results_path.is_absolute():
+            results_path = REPO_ROOT / results_path
+        if not results_path.is_dir():
+            print(f"Results directory not found: {results_path}")
+            sys.exit(1)
+        RESULTS_DIR = results_path
+        # Write report next to the results folder (e.g. new_pipeline_outputs copy/accuracy_report)
+        OUTPUT_DIR = RESULTS_DIR.parent / "accuracy_report"
+        print("Using results dir:", RESULTS_DIR)
+        print("Output dir:", OUTPUT_DIR)
+    else:
+        RESULTS_DIR = DEFAULT_RESULTS_DIR
+        OUTPUT_DIR = DEFAULT_OUTPUT_DIR
 
     print("Scanning for trials with evaluation results...")
     data = load_all_trial_evaluations()

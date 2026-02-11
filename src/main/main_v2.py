@@ -38,9 +38,38 @@ from src.LLMProvider.provider import LLMProvider
 from src.LLMProvider.structurer import OutputStructurer
 from src.planning.plan_generator import PlanGenerator
 from src.table_definitions.definitions import load_definitions
+from src.utils.costing import build_pipeline_cost_summary
 from src.utils.logging_utils import setup_logger
 
 logger = setup_logger("main_v2")
+
+
+def save_pipeline_costs(
+    run_dir: Path,
+    chunk_usage: dict | None = None,
+    plan_usage: dict | None = None,
+    extraction_usage: dict | None = None,
+    eval_usage: dict | None = None,
+) -> None:
+    """Write per-module cost JSON and summary to run_dir/cost/."""
+    cost_dir = run_dir / "cost"
+    cost_dir.mkdir(parents=True, exist_ok=True)
+    if chunk_usage is not None:
+        (cost_dir / "chunking.json").write_text(json.dumps(chunk_usage, indent=2), encoding="utf-8")
+    if plan_usage is not None:
+        (cost_dir / "planning.json").write_text(json.dumps(plan_usage, indent=2), encoding="utf-8")
+    if extraction_usage is not None:
+        (cost_dir / "extraction.json").write_text(json.dumps(extraction_usage, indent=2), encoding="utf-8")
+    if eval_usage is not None:
+        (cost_dir / "evaluation.json").write_text(json.dumps(eval_usage, indent=2), encoding="utf-8")
+    summary = build_pipeline_cost_summary(
+        chunking=chunk_usage,
+        planning=plan_usage,
+        extraction=extraction_usage,
+        evaluation=eval_usage,
+    )
+    (cost_dir / "summary.json").write_text(json.dumps(summary, indent=2), encoding="utf-8")
+    logger.info("Costs saved to %s", cost_dir)
 
 
 def _find_existing(paths: list) -> Path | None:
@@ -49,6 +78,99 @@ def _find_existing(paths: list) -> Path | None:
         if p is not None and Path(p).exists():
             return Path(p)
     return None
+
+
+def _find_extraction_in_trial_dir(trial_dir: Path) -> Path | None:
+    """Find extraction_metadata.json under a trial dir. Checks extraction/, extractions/, latest/extraction/."""
+    for sub in ("extraction", "extractions"):
+        candidate = trial_dir / sub / "extraction_metadata.json"
+        if candidate.exists():
+            return candidate
+    latest = trial_dir / "latest" / "extraction" / "extraction_metadata.json"
+    if latest.exists():
+        return latest
+    return None
+
+
+def _get_eval_output_dir(trial_dir: Path, extraction_file: Path) -> Path:
+    """Return the evaluation output dir for this trial (same level as extraction)."""
+    # If extraction is under trial/latest/extraction/, write to trial/latest/evaluation/
+    if "latest" in extraction_file.parts:
+        return trial_dir / "latest" / "evaluation"
+    return trial_dir / "evaluation"
+
+
+def run_evaluation_for_all_trials_in_dir(alt_base: Path) -> list[tuple[str, Path | None, str | None]]:
+    """
+    Run evaluation for every trial under alt_base that has extraction.
+    alt_base can be the 'new_pipeline_outputs copy' folder (we use alt_base/results) or the results dir itself.
+    Returns list of (trial_name, eval_dir or None, error_message or None).
+    """
+    results_dir = alt_base / "results" if (alt_base / "results").is_dir() else alt_base
+    if not results_dir.is_dir():
+        return [("", None, f"Not a directory: {results_dir}")]
+
+    outcomes = []
+    for trial_dir in sorted(results_dir.iterdir()):
+        if not trial_dir.is_dir():
+            continue
+        trial_name = trial_dir.name
+        extraction_file = _find_extraction_in_trial_dir(trial_dir)
+        if extraction_file is None:
+            outcomes.append((trial_name, None, "No extraction_metadata.json found"))
+            continue
+        eval_dir = _get_eval_output_dir(trial_dir, extraction_file)
+        eval_dir.mkdir(parents=True, exist_ok=True)
+        if SKIP_STAGE_IF_EXISTS and (eval_dir / "evaluation_results.json").exists():
+            outcomes.append((trial_name, eval_dir, None))  # skipped
+            continue
+        if not GOLD_TABLE_JSON_PATH.exists():
+            outcomes.append((trial_name, None, "Ground truth file not found"))
+            continue
+        with open(GOLD_TABLE_JSON_PATH, "r", encoding="utf-8") as f:
+            gt_data = json.load(f)
+        doc_names = [row.get("Document Name", {}).get("value", "") for row in gt_data.get("data", [])]
+        doc_name_match = f"{trial_name}.pdf"
+        if doc_name_match not in doc_names:
+            outcomes.append((trial_name, None, f"No ground truth for {doc_name_match}"))
+            continue
+        try:
+            evaluator = EvaluatorV2(
+                extraction_file=str(extraction_file),
+                ground_truth_file=str(GOLD_TABLE_JSON_PATH),
+                definitions_file=str(DEFINITIONS_EVAL_CATEGORY_PATH),
+                document_name=doc_name_match,
+                output_dir=str(eval_dir),
+            )
+            evaluator.run()
+            outcomes.append((trial_name, eval_dir, None))
+        except Exception as e:
+            outcomes.append((trial_name, None, str(e)))
+    return outcomes
+
+
+def _run_evaluation_all_alternate():
+    """Prompt for alternate results folder and run evaluation for every trial that has extraction."""
+    default_alt = "new_pipeline_outputs copy"
+    alt_input = input(f"\nEnter path to alternate results folder [{default_alt}]: ").strip() or default_alt
+    alt_base = Path(alt_input)
+    if not alt_base.is_absolute():
+        alt_base = PROJECT_ROOT / alt_base
+    if not alt_base.is_dir():
+        print("Folder not found:", alt_base)
+        sys.exit(1)
+    print("\nRunning evaluation for all trials with extraction in:", alt_base)
+    outcomes = run_evaluation_for_all_trials_in_dir(alt_base)
+    print("\n" + "=" * 60)
+    print("EVALUATION BATCH COMPLETE")
+    print("=" * 60)
+    for trial_name, eval_dir, err in outcomes:
+        if err:
+            print(f"  {trial_name}: FAILED - {err}")
+        else:
+            status = "skipped (already exists)" if eval_dir and (eval_dir / "evaluation_results.json").exists() and SKIP_STAGE_IF_EXISTS else "done"
+            print(f"  {trial_name}: {status}" + (f" -> {eval_dir}" if eval_dir else ""))
+    print("=" * 60)
 
 
 def create_versioned_output_dir(base_dir: Path) -> tuple:
@@ -71,8 +193,9 @@ def run_chunking(
     pdf_path: Path,
     output_dir: Path,
     base_output: Path | None = None,
-) -> Path:
-    """Stage 1: Chunk PDF into text/image/table chunks. Skips if chunks already exist."""
+) -> tuple[Path, dict | None]:
+    """Stage 1: Chunk PDF into text/image/table chunks. Skips if chunks already exist.
+    Returns (chunk_file_path, usage_dict for costing or None if skipped)."""
     logger.info("=" * 60)
     logger.info("STAGE 1: CHUNKING")
     logger.info("=" * 60)
@@ -88,15 +211,15 @@ def run_chunking(
         ])
         if existing is not None:
             logger.info("Chunks already exist, skipping chunking: %s", existing)
-            return existing
+            return existing, None
 
-    process_pdf(
+    chunks, usage_dict = process_pdf(
         str(pdf_path),
         output_path=str(chunk_file),
         use_llm_classification=USE_LLM_PAGE_CLASSIFICATION,
     )
     logger.info("Chunks saved to %s", chunk_file)
-    return chunk_file
+    return chunk_file, usage_dict
 
 
 def run_planning(
@@ -104,8 +227,9 @@ def run_planning(
     chunk_file: Path,
     output_dir: Path,
     base_output: Path | None = None,
-) -> Path:
-    """Stage 2: Generate extraction plans for all column groups. Skips if plans already exist."""
+) -> tuple[Path, dict | None]:
+    """Stage 2: Generate extraction plans for all column groups. Skips if plans already exist.
+    Returns (plan_dir, usage_dict for costing or None if skipped)."""
     logger.info("=" * 60)
     logger.info("STAGE 2: PLANNING")
     logger.info("=" * 60)
@@ -119,21 +243,21 @@ def run_planning(
             existing_plans = load_plans_from_dir(Path(candidate))
             if existing_plans:
                 logger.info("Plans already exist (%d groups), skipping planning: %s", len(existing_plans), candidate)
-                return Path(candidate)
+                return Path(candidate), None
 
     provider = LLMProvider(provider=PLANNING_PROVIDER, model=PLANNING_MODEL)
     definitions = load_definitions()
     with open(chunk_file, "r", encoding="utf-8") as f:
         chunks = json.load(f)
     planner = PlanGenerator(provider, definitions)
-    plans = planner.generate_plans(
+    plans, usage_dict = planner.generate_plans(
         pdf_path=pdf_path,
         chunks=chunks,
         output_dir=plan_dir,
         workers=PLANNING_WORKERS,
     )
     logger.info("Generated %d extraction plans in %s", len(plans), plan_dir)
-    return plan_dir
+    return plan_dir, usage_dict
 
 
 def run_extraction(
@@ -142,8 +266,9 @@ def run_extraction(
     plan_dir: Path,
     output_dir: Path,
     base_output: Path | None = None,
-) -> Path:
-    """Stage 3: Execute extraction plans. Skips if extraction_metadata.json already exists."""
+) -> tuple[Path, dict | None]:
+    """Stage 3: Execute extraction plans. Skips if extraction_metadata.json already exists.
+    Returns (extraction_file path, usage_dict for costing or None if skipped)."""
     logger.info("=" * 60)
     logger.info("STAGE 3: EXTRACTION")
     logger.info("=" * 60)
@@ -159,7 +284,7 @@ def run_extraction(
         ])
         if existing is not None:
             logger.info("Extraction already exists, skipping: %s", existing)
-            return existing
+            return existing, None
 
     extraction_provider = LLMProvider(provider=EXTRACTION_PROVIDER_V2, model=EXTRACTION_MODEL_V2)
     structurer = OutputStructurer(base_url=STRUCTURER_BASE_URL, model=STRUCTURER_MODEL)
@@ -170,7 +295,7 @@ def run_extraction(
     with open(chunk_file, "r", encoding="utf-8") as f:
         chunks = json.load(f)
     executor = PlanExecutor(extraction_provider, structurer)
-    executor.execute_plans(
+    _, usage_dict = executor.execute_plans(
         pdf_path=pdf_path,
         chunks=chunks,
         plans=plans,
@@ -178,7 +303,7 @@ def run_extraction(
         workers=EXTRACTION_WORKERS,
     )
     logger.info("Extraction complete: %s", extraction_file)
-    return extraction_file
+    return extraction_file, usage_dict
 
 
 def run_evaluation(
@@ -200,18 +325,18 @@ def run_evaluation(
                 continue
             if (Path(eval_base) / "evaluation_results.json").exists() or (Path(eval_base) / "summary_metrics.json").exists():
                 logger.info("Evaluation results already exist, skipping: %s", eval_base)
-                return None
+                return None, None
 
     if not GOLD_TABLE_JSON_PATH.exists():
         logger.warning("Ground truth file not found, skipping evaluation")
-        return None
+        return None, None
     with open(GOLD_TABLE_JSON_PATH, "r", encoding="utf-8") as f:
         gt_data = json.load(f)
     doc_names = [row.get("Document Name", {}).get("value", "") for row in gt_data.get("data", [])]
     doc_name_match = f"{pdf_name}.pdf"
     if doc_name_match not in doc_names:
         logger.warning("No ground truth for %s, skipping evaluation", pdf_name)
-        return None
+        return None, None
     evaluator = EvaluatorV2(
         extraction_file=str(extraction_file),
         ground_truth_file=str(GOLD_TABLE_JSON_PATH),
@@ -220,8 +345,9 @@ def run_evaluation(
         output_dir=str(eval_dir),
     )
     results = evaluator.run()
+    usage_dict = evaluator.get_usage()
     logger.info("Evaluation complete: %s", eval_dir)
-    return results
+    return results, usage_dict
 
 
 def run_pipeline_from_args(pdf_path: Path, choice: str):
@@ -237,8 +363,8 @@ def run_pipeline_from_args(pdf_path: Path, choice: str):
             return None, None, f"PDF not found: {pdf_path}"
         pdf_name = pdf_path.stem
         choice = str(choice).strip()
-        if choice not in ("1", "2", "3", "4", "5", "6"):
-            return None, None, "Invalid choice. Use 1-6."
+        if choice not in ("1", "2", "3", "4", "5", "6", "7"):
+            return None, None, "Invalid choice. Use 1-7."
 
         base_output = RESULTS_BASE_DIR / pdf_name
         if VERSION_OUTPUTS:
@@ -250,9 +376,10 @@ def run_pipeline_from_args(pdf_path: Path, choice: str):
         chunk_file = None
         plan_dir = None
         extraction_file = None
+        chunk_usage = plan_usage = extraction_usage = eval_usage = None
 
         if choice in ("1", "5"):
-            chunk_file = run_chunking(pdf_path, run_dir, base_output=base_output)
+            chunk_file, chunk_usage = run_chunking(pdf_path, run_dir, base_output=base_output)
 
         if choice in ("2", "5", "6"):
             if chunk_file is None:
@@ -263,7 +390,7 @@ def run_pipeline_from_args(pdf_path: Path, choice: str):
                 ])
             if chunk_file is None or not chunk_file.exists():
                 return run_dir, None, "Chunks not found. Run chunking first (option 1 or 5)."
-            plan_dir = run_planning(pdf_path, chunk_file, run_dir, base_output=base_output)
+            plan_dir, plan_usage = run_planning(pdf_path, chunk_file, run_dir, base_output=base_output)
 
         if choice in ("3", "5", "6"):
             if chunk_file is None:
@@ -283,7 +410,7 @@ def run_pipeline_from_args(pdf_path: Path, choice: str):
                 return run_dir, None, "Chunks not found. Run chunking first."
             if not plan_dir.exists() or not load_plans_from_dir(plan_dir):
                 return run_dir, None, "Plans not found. Run planning first."
-            extraction_file = run_extraction(pdf_path, chunk_file, plan_dir, run_dir, base_output=base_output)
+            extraction_file, extraction_usage = run_extraction(pdf_path, chunk_file, plan_dir, run_dir, base_output=base_output)
 
         if choice in ("4", "5", "6"):
             if extraction_file is None:
@@ -294,8 +421,9 @@ def run_pipeline_from_args(pdf_path: Path, choice: str):
                 ])
             if extraction_file is None or not extraction_file.exists():
                 return run_dir, None, "Extraction not found. Run extraction first (option 3, 5, or 6)."
-            run_evaluation(extraction_file, pdf_name, run_dir, base_output=base_output)
+            _, eval_usage = run_evaluation(extraction_file, pdf_name, run_dir, base_output=base_output)
 
+        save_pipeline_costs(run_dir, chunk_usage, plan_usage, extraction_usage, eval_usage)
         return run_dir, extraction_file, None
     except Exception as e:
         logger.exception("Pipeline run failed")
@@ -306,15 +434,6 @@ def main():
     print("\n" + "=" * 60)
     print("CLINICAL TRIAL EXTRACTION PIPELINE V2")
     print("=" * 60)
-    pdf_path = input("\nEnter PDF path: ").strip()
-    pdf_path = Path(pdf_path)
-    if not pdf_path.exists():
-        print("PDF not found:", pdf_path)
-        sys.exit(1)
-    pdf_name = pdf_path.stem
-
-    base_output = RESULTS_BASE_DIR / pdf_name
-    base_output.mkdir(parents=True, exist_ok=True)
 
     print("\nSelect pipeline stage to run:")
     print("  1. Chunking only")
@@ -323,10 +442,50 @@ def main():
     print("  4. Evaluation only (requires extraction)")
     print("  5. Complete pipeline (all stages)")
     print("  6. Planning -> Extraction -> Evaluation (resume from chunks)")
-    choice = input("\nEnter choice (1-6): ").strip()
+    print("  7. Evaluation only for ALL trials (from alternate results folder, e.g. new_pipeline_outputs copy)")
+    choice = input("\nEnter choice (1-7): ").strip()
+
+    if choice == "7":
+        _run_evaluation_all_alternate()
+        return
+
+    pdf_path = input("\nEnter PDF path: ").strip()
+    pdf_path = Path(pdf_path)
+    if not pdf_path.exists():
+        print("PDF not found:", pdf_path)
+        sys.exit(1)
+    pdf_name = pdf_path.stem
+
+    # For choice 4, allow using an alternate results folder (e.g. new_pipeline_outputs copy)
+    base_output = RESULTS_BASE_DIR / pdf_name
+    use_alternate_for_eval = False
+    if choice == "4":
+        use_alt = input("Use alternate results folder for extraction? (y/n) [n]: ").strip().lower() or "n"
+        if use_alt == "y":
+            alt_input = input("Enter path to alternate folder (e.g. new_pipeline_outputs copy): ").strip()
+            if alt_input:
+                alt_base = Path(alt_input)
+                if not alt_base.is_absolute():
+                    alt_base = PROJECT_ROOT / alt_base
+                if alt_base.is_dir():
+                    base_output = (alt_base / "results" / pdf_name) if (alt_base / "results").is_dir() else (alt_base / pdf_name)
+                    use_alternate_for_eval = True
+                    print("Looking for extraction and writing evaluation to:", base_output)
+                else:
+                    print("Folder not found, using default results dir.")
+    base_output.mkdir(parents=True, exist_ok=True)
 
     # Option A: For evaluation-only, use existing run (latest); don't create a new versioned run.
-    if VERSION_OUTPUTS:
+    if use_alternate_for_eval:
+        run_dir = base_output
+        extraction_file_alt = _find_extraction_in_trial_dir(run_dir)
+        if extraction_file_alt is None:
+            print("Extraction not found under", run_dir, "(checked extraction/, extractions/, latest/extraction/)")
+            sys.exit(1)
+        run_dir = _get_eval_output_dir(base_output, extraction_file_alt).parent
+        print("\nOutput directory (evaluation only, alternate folder):", run_dir)
+        latest_link = None
+    elif VERSION_OUTPUTS:
         if choice == "4":
             latest_dir = base_output / "latest"
             if latest_dir.exists() and latest_dir.is_symlink():
@@ -348,9 +507,11 @@ def main():
     chunk_file = None
     plan_dir = None
     extraction_file = None
+    extraction_file_alt = None  # set when use_alternate_for_eval
+    chunk_usage = plan_usage = extraction_usage = eval_usage = None
 
     if choice in ("1", "5"):
-        chunk_file = run_chunking(pdf_path, run_dir, base_output=base_output)
+        chunk_file, chunk_usage = run_chunking(pdf_path, run_dir, base_output=base_output)
 
     if choice in ("2", "5", "6"):
         if chunk_file is None:
@@ -362,7 +523,7 @@ def main():
         if chunk_file is None or not chunk_file.exists():
             print("Chunks not found. Run chunking first.")
             sys.exit(1)
-        plan_dir = run_planning(pdf_path, chunk_file, run_dir, base_output=base_output)
+        plan_dir, plan_usage = run_planning(pdf_path, chunk_file, run_dir, base_output=base_output)
 
     if choice in ("3", "5", "6"):
         if chunk_file is None:
@@ -384,20 +545,24 @@ def main():
         if not plan_dir.exists() or not load_plans_from_dir(plan_dir):
             print("Plans not found. Run planning first.")
             sys.exit(1)
-        extraction_file = run_extraction(pdf_path, chunk_file, plan_dir, run_dir, base_output=base_output)
+        extraction_file, extraction_usage = run_extraction(pdf_path, chunk_file, plan_dir, run_dir, base_output=base_output)
 
     if choice in ("4", "5", "6"):
-        if extraction_file is None:
+        if use_alternate_for_eval:
+            extraction_file = extraction_file_alt
+        elif extraction_file is None:
             extraction_file = _find_existing([
                 run_dir / "extraction" / "extraction_metadata.json",
+                run_dir / "extractions" / "extraction_metadata.json",
                 base_output / "extraction" / "extraction_metadata.json",
                 base_output / "latest" / "extraction" / "extraction_metadata.json",
             ])
         if extraction_file is None or not extraction_file.exists():
             print("Extraction not found. Run extraction first.")
             sys.exit(1)
-        run_evaluation(extraction_file, pdf_name, run_dir, base_output=base_output)
+        _, eval_usage = run_evaluation(extraction_file, pdf_name, run_dir, base_output=base_output)
 
+    save_pipeline_costs(run_dir, chunk_usage, plan_usage, extraction_usage, eval_usage)
     print("\n" + "=" * 60)
     print("PIPELINE COMPLETE!")
     print("=" * 60)

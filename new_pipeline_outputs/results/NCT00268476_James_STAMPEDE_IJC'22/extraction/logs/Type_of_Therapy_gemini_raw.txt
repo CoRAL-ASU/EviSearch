@@ -1,24 +1,52 @@
 INPUT PROMPT:
 You are extracting clinical trial data from a research paper.
 
-TASK: Extract values for the following canonical columns. Use EXACT column names as listed.
+TASK: Extract values for the following columns using the provided extraction plans.
 
 COLUMNS TO EXTRACT:
 - Column index 1: "Type of Therapy"
   Definition: What is the description of the type of treatment or intervention provided to participants in the clinical trial?. If reported, provide the value; otherwise use 'Not reported'.
-  Expected Location: Page 1 | text
-  Planner Confidence: high
-  Extraction Instructions:
-  The type of therapy is described in the abstract and the methods section. From the abstract on page 1: "Abiraterone acetate plus prednisolone for metastatic patients starting hormone therapy". From the abstract on page 2: "Standard-of-care (SOC) was androgen deprivation therapy." and "Abiraterone acetate plus prednisolone (AAP) previously demonstrated improved survival in STAMPEDE, a multiarm, multistage platform trial in men starting long-term hormone therapy for prostate cancer." From Section 2.3 "Procedures" on page 4: "All patients received lifelong ADT using gonadotrophin-releasing hormone (GnRH) agonists, antagonists, or orchidectomy. Patients allocated to the SOC + AAP group were also planned to receive abiraterone (1000 mg daily) with prednisolone (5 mg daily)." Value: Standard-of-care (SOC) was androgen deprivation therapy (ADT) using gonadotrophin-releasing hormone (GnRH) agonists, antagonists, or orchidectomy. The experimental arm (SOC + AAP) received SOC plus abiraterone acetate (1000 mg daily) and prednisolone (5 mg daily).
+  Extraction Plan:
+  On page 3, in the Abstract section, extract the sentence "Abiraterone acetate plus prednisolone (AAP) previously demonstrated improved survival in STAMPEDE, a multiarm, multistage platform trial in men starting long-term hormone therapy for prostate cancer." and "Standard-of-care (SOC) was androgen deprivation therapy." Also, in the "2.3 Procedures" section, extract "All patients received lifelong ADT using gonadotrophin-releasing hormone (GnRH) agonists, antagonists, or orchidectomy. Patients allocated to the SOC + AAP group were also planned to receive abiraterone (1000 mg daily) with prednisolone (5 mg daily)."
 
 RELEVANT CHUNKS:
 --- Chunk 5 (TEXT on page 1-3) ---
-C A N C E R T H E R A P Y A N D P R E V E N T I O N Abiraterone acetate plus prednisolone for metastatic patientsstarting hormone therapy: 5-year follow-up results from theSTAMPEDE randomised trial (NCT00268476) Nicholas D. James1|Noel W. Clarke2|Adrian Cook3|Adnan Ali4|Alex P. Hoyle5|Gerhardt Attard6|Christopher D. Brawley3| Simon Chowdhury7|William R. Cross8|David P. Dearnaley9|Johann S. de Bono1|Carlos Diaz-Montana3|Duncan Gilbert3| Silke Gillessen10|Clare Gilson3,11|Rob J. Jones12|Ruth E. La...
+C A N C E R T H E R A P Y A N D P R E V E N T I O N
+Abiraterone acetate plus prednisolone for metastatic patientsstarting hormone therapy: 5-year follow-up results from theSTAMPEDE randomised trial (NCT00268476)
+Nicholas D. James1|Noel W. Clarke2|Adrian Cook3|Adnan Ali4|Alex P. Hoyle5|Gerhardt Attard6|Christopher D. Brawley3|
+Simon Chowdhury7|William R. Cross8|David P. Dearnaley9|Johann S. de Bono1|Carlos Diaz-Montana3|Duncan Gilbert3|
+Silke Gillessen10|Clare Gilson3,11|Rob J. Jones12|Ruth E. Langley3|Zafar I. Malik13|David J. Matheson14|Robin Millman15|Chris C. Parker16|
+Cheryl Pugh3|Hannah Rush3,17|J. Martin Russell18,19|Dominik R. Berthold20|Michelle L. Buckner3|Malcolm D. Mason21|
+Alastair W. S. Ritchie22|Alison J. Birtle23|Susannah J. Brock24|Prantik Das25|Dan Ford26|Joanna Gale27|Warren Grant28|
+Emma K. Gray29|Peter Hoskin30|Mohammad M. Khan31,32|Caroline Manetta33|Neil J. McPhail34|Joe M. O'Sullivan35|
+Omi Parikh36|Carla Perna37|Carmel J. Pezaro38|Andrew S. Protheroe39|Angus J. 
+
+--- Chunk 6 (TEXT on page 3-5) ---
+apy (ADT) which had started no longer than 12 weeks prior to ran-
+domisation. There were no age restrictions, but patients were
+required to have no clinically significant cardiovascular history. For
+this analysis, patients had metastatic disease confirmed by scinti-
+within 12 weeks of starting ADT.
+2.2|Randomisation and masking
+Patients were randomised centrally using a computerised algorithm,
+developed and maintained by the MRC Clinical Trials Unit at UCL.
+Minimisation with a random element of 20% was used, stratifying for
+(negative vs positive vs indeterminate), WHO performance status
+(0 vs 1 or 2), planned SOC therapy, and regular aspirin or NSAID use
+group or SOC-alone with abiraterone acetate and prednisolone/
+prednisone group (SOC + AAP). There was no blinding to treatment
+allocation for practical reasons and the key efficacy outcome mea-
+sures were objective.
+2.3|Procedures
+All patients received lifelong ADT using gonadotrophin-releasing hor-
+mone (GnRH) agonists, antagonists, o
 
 GUIDELINES:
-- For each listed column, extract a value if explicitly present; otherwise set value=null.
-- Provide evidence as an exact quote, page number(s), confidence (high/medium/low).
-- Use the EXACT column names from the list above.
+- Follow the extraction plan for each column precisely
+- If the value cannot be extracted as described in the plan, set value=null
+- Provide evidence as an exact quote from the PDF
+- Include page number(s) and confidence level (high/medium/low)
+- Use the EXACT column names from the list above
 
 Output format (for each column):
 Column index <N>: "<Exact Column Name>"
@@ -30,7 +58,9 @@ Confidence: <high/medium/low>
 
 OUTPUT:
 Column index 1: "Type of Therapy"
-Value: Standard-of-care (SOC) was androgen deprivation therapy (ADT) using gonadotrophin-releasing hormone (GnRH) agonists, antagonists, or orchidectomy. The experimental arm (SOC + AAP) received SOC plus abiraterone acetate (1000 mg daily) and prednisolone (5 mg daily).
-Evidence: "Abiraterone acetate plus prednisolone for metastatic patients starting hormone therapy"
-Page: 1
+Value: Abiraterone acetate plus prednisolone (AAP), androgen deprivation therapy (ADT), gonadotrophin-releasing hormone (GnRH) agonists, antagonists, or orchidectomy
+Evidence: "Abiraterone acetate plus prednisolone (AAP) previously demonstrated improved survival in STAMPEDE, a multiarm, multistage platform trial in men starting long-term hormone therapy for prostate cancer."
+"Standard-of-care (SOC) was androgen deprivation therapy."
+"All patients received lifelong ADT using gonadotrophin-releasing hormone (GnRH) agonists, antagonists, or orchidectomy. Patients allocated to the SOC + AAP group were also planned to receive abiraterone (1000 mg daily) with prednisolone (5 mg daily)."
+Page: 3
 Confidence: high

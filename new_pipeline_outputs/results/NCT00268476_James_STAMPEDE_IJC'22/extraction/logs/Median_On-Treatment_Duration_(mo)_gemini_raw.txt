@@ -1,24 +1,38 @@
 INPUT PROMPT:
 You are extracting clinical trial data from a research paper.
 
-TASK: Extract values for the following canonical columns. Use EXACT column names as listed.
+TASK: Extract values for the following columns using the provided extraction plans.
 
 COLUMNS TO EXTRACT:
 - Column index 1: "Median On-Treatment Duration (mo) | Treatment"
   Definition: What is the median duration in months that participants in the treatment arm of the trial received on-treatment therapy? If reported, include the value; use 'Not reported' if missing.
-  Expected Location: Page 6 | text
-  Planner Confidence: high
-  Extraction Instructions:
-  The median on-treatment duration for the treatment arm (SOC + AAP) is reported in the "RESULTS" section. Extract the value "29 months" from the text: "Median time on abiraterone in the SOC + AAP group was 29 months (IQR 12-71)..."
+  Extraction Plan:
+  The median on-treatment duration for the treatment arm (SOC + AAP) is reported in the text. Extract the numerical value and unit from the sentence: "Median time on abiraterone in the SOC + AAP group was 29 months (IQR 12-71)".
 
 RELEVANT CHUNKS:
 --- Chunk 7 (TEXT on page 5-7) ---
-patients with metastatic prostate cancer, not just those in the high- risk metastatic disease risk group defined for LATITUDE. Our long- term results are strikingly similar to those observed with both apalutamide1,2 and enzalutamide3 in trials with similar eligibility criteria to the metastatic population into STAMPEDE. While those agents are androgen receptor antagonists, all three drugs work by targeting the androgen receptor axis. This suggests that a choice of any of these agents may be clin...
+patients with metastatic prostate cancer, not just those in the high-
+risk metastatic disease risk group defined for LATITUDE. Our long-
+term results are strikingly similar to those observed with both
+apalutamide1,2 and enzalutamide3 in trials with similar eligibility
+criteria to the metastatic population into STAMPEDE. While those
+agents are androgen receptor antagonists, all three drugs work by
+targeting the androgen receptor axis. This suggests that a choice of
+any of these agents may be clinically reasonable and should be driven
+by secondary considerations such as side-effect profiles or cost rather
+than by primary efficacy or disease risk/metastatic burden. No addi-
+tional toxicity data has been collected since the primary report in
+2017, so we have not updated those aspects here. No further treat-
+ment for relapse had been reported for 29 of the 329 patients on the
+control arm who had died. Planned future access to national
+healthcare system data may facilitate reporting of addit
 
 GUIDELINES:
-- For each listed column, extract a value if explicitly present; otherwise set value=null.
-- Provide evidence as an exact quote, page number(s), confidence (high/medium/low).
-- Use the EXACT column names from the list above.
+- Follow the extraction plan for each column precisely
+- If the value cannot be extracted as described in the plan, set value=null
+- Provide evidence as an exact quote from the PDF
+- Include page number(s) and confidence level (high/medium/low)
+- Use the EXACT column names from the list above
 
 Output format (for each column):
 Column index <N>: "<Exact Column Name>"
@@ -30,7 +44,7 @@ Confidence: <high/medium/low>
 
 OUTPUT:
 Column index 1: "Median On-Treatment Duration (mo) | Treatment"
-Value: 29 months
-Evidence: "Median time on abiraterone in the SOC + AAP group was 29 months (IQR 12-71)..."
-Page: 6
+Value: 29
+Evidence: "Median time on abiraterone in the SOC + AAP group was 29 months (IQR 12-71)"
+Page: 7
 Confidence: high

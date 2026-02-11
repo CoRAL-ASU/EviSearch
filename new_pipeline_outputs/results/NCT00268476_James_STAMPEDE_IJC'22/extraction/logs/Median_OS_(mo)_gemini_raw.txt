@@ -1,31 +1,43 @@
 INPUT PROMPT:
 You are extracting clinical trial data from a research paper.
 
-TASK: Extract values for the following canonical columns. Use EXACT column names as listed.
+TASK: Extract values for the following columns using the provided extraction plans.
 
 COLUMNS TO EXTRACT:
 - Column index 1: "Median OS (mo) | Overall | Treatment"
   Definition: What is the median overall survival (in months) for all patients in the experimental arm? If reported, include the value; use 'Not reported' if missing.
-  Expected Location: Page 4 | text
-  Planner Confidence: high
-  Extraction Instructions:
-  The value is reported in the text on page 4, within Chunk 6, in the "Results" section. Extract the value "79" from the sentence: "Median survival was 46 months (IQR 25, 92) in the SOC-alone group and 79 months (IQR 33, not reached) in the SOC + AAP group".
+  Extraction Plan:
+  The median overall survival for the SOC + AAP (treatment) group is reported in the "Results" section of the text.
 
 - Column index 2: "Median OS (mo) | Overall | Control"
   Definition: What is the median overall survival (in months) for all patients in the control arm? If reported, include the value; use 'Not reported' if missing.
-  Expected Location: Page 4 | text
-  Planner Confidence: high
-  Extraction Instructions:
-  The value is reported in the text on page 4, within Chunk 6, in the "Results" section. Extract the value "46" from the sentence: "Median survival was 46 months (IQR 25, 92) in the SOC-alone group and 79 months (IQR 33, not reached) in the SOC + AAP group".
+  Extraction Plan:
+  The median overall survival for the SOC-alone (control) group is reported in the "Results" section of the text.
 
 RELEVANT CHUNKS:
---- Chunk 6 (TEXT on page 3-5) ---
-apy (ADT) which had started no longer than 12 weeks prior to ran- domisation. There were no age restrictions, but patients were required to have no clinically significant cardiovascular history. For this analysis, patients had metastatic disease confirmed by scinti- within 12 weeks of starting ADT. 2.2|Randomisation and masking Patients were randomised centrally using a computerised algorithm, developed and maintained by the MRC Clinical Trials Unit at UCL. Minimisation with a random element of ...
+--- Chunk 7 (TEXT on page 5-7) ---
+patients with metastatic prostate cancer, not just those in the high-
+risk metastatic disease risk group defined for LATITUDE. Our long-
+term results are strikingly similar to those observed with both
+apalutamide1,2 and enzalutamide3 in trials with similar eligibility
+criteria to the metastatic population into STAMPEDE. While those
+agents are androgen receptor antagonists, all three drugs work by
+targeting the androgen receptor axis. This suggests that a choice of
+any of these agents may be clinically reasonable and should be driven
+by secondary considerations such as side-effect profiles or cost rather
+than by primary efficacy or disease risk/metastatic burden. No addi-
+tional toxicity data has been collected since the primary report in
+2017, so we have not updated those aspects here. No further treat-
+ment for relapse had been reported for 29 of the 329 patients on the
+control arm who had died. Planned future access to national
+healthcare system data may facilitate reporting of addit
 
 GUIDELINES:
-- For each listed column, extract a value if explicitly present; otherwise set value=null.
-- Provide evidence as an exact quote, page number(s), confidence (high/medium/low).
-- Use the EXACT column names from the list above.
+- Follow the extraction plan for each column precisely
+- If the value cannot be extracted as described in the plan, set value=null
+- Provide evidence as an exact quote from the PDF
+- Include page number(s) and confidence level (high/medium/low)
+- Use the EXACT column names from the list above
 
 Output format (for each column):
 Column index <N>: "<Exact Column Name>"
@@ -39,11 +51,11 @@ OUTPUT:
 Column index 1: "Median OS (mo) | Overall | Treatment"
 Value: 79
 Evidence: "Median survival was 46 months (IQR 25, 92) in the SOC-alone group and 79 months (IQR 33, not reached) in the SOC + AAP group"
-Page: 4
+Page: 6
 Confidence: high
 
 Column index 2: "Median OS (mo) | Overall | Control"
 Value: 46
 Evidence: "Median survival was 46 months (IQR 25, 92) in the SOC-alone group and 79 months (IQR 33, not reached) in the SOC + AAP group"
-Page: 4
+Page: 6
 Confidence: high

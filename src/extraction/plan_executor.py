@@ -14,6 +14,7 @@ from pydantic import BaseModel, Field, field_validator
 from src.LLMProvider.provider import LLMProvider
 from src.LLMProvider.structurer import OutputStructurer, StructurerResponse
 from src.table_definitions.definitions import load_definitions
+from src.utils.costing import usage_to_cost_dict, aggregate_usage
 from src.utils.logging_utils import setup_logger
 
 from src.planning.plan_generator import (
@@ -360,7 +361,8 @@ def _extract_group(
 ) -> GroupExtractionV2:
     found_cols = [c for c in plan.columns if c.found_in_pdf]
     if not found_cols:
-        return GroupExtractionV2(group_name=group_name, extractions=[])
+        empty_usage = usage_to_cost_dict(provider.provider, provider.model, 0, 0)
+        return GroupExtractionV2(group_name=group_name, extractions=[]), empty_usage
 
     relevant_chunks = find_relevant_chunks(found_cols, chunks)
     columns_block = format_columns_for_prompt(found_cols, groups_dict, group_name)
@@ -400,6 +402,12 @@ Confidence: <high/medium/low>
     if not response.success:
         raise ValueError(f"Extraction LLM failed: {response.error}")
     free_form = (response.text or "").strip()
+    usage = usage_to_cost_dict(
+        provider.provider,
+        provider.model,
+        response.input_tokens,
+        response.output_tokens,
+    )
 
     logs_dir = output_dir / "logs"
     logs_dir.mkdir(parents=True, exist_ok=True)
@@ -458,7 +466,7 @@ Return ONLY valid JSON.
                     )
                     for idx in expected_indices
                 ],
-            )
+            ), usage
 
     extraction: GroupExtractionV2 = structured.data
     extraction.group_name = group_name
@@ -468,7 +476,7 @@ Return ONLY valid JSON.
         expected_indices=expected_indices,
         name_policy=name_policy,
     )
-    return extraction
+    return extraction, usage
 
 
 def _generate_outputs(
@@ -577,6 +585,7 @@ class PlanExecutor:
 
         pdf_handle = self.provider.upload_pdf(pdf_path)
         extractions_by_group = {}
+        usage_list: List[Dict[str, Any]] = []
         try:
             with ThreadPoolExecutor(max_workers=max(1, workers)) as executor:
                 future_to_name = {
@@ -598,7 +607,9 @@ class PlanExecutor:
                 for future in as_completed(future_to_name):
                     name = future_to_name[future]
                     try:
-                        extractions_by_group[name] = future.result()
+                        extraction, usage = future.result()
+                        extractions_by_group[name] = extraction
+                        usage_list.append(usage)
                         logger.info("Extracted: %s", name)
                     except Exception as e:
                         logger.error("Group failed %s: %s", name, e)
@@ -623,8 +634,10 @@ class PlanExecutor:
                 extractions_by_group=extractions_by_group,
                 output_path=output_path,
             )
+            usage_dict = aggregate_usage(usage_list) if usage_list else {}
             with open(output_path, "r", encoding="utf-8") as f:
-                return json.load(f)
+                metadata = json.load(f)
+            return metadata, usage_dict
         finally:
             self.provider.cleanup_pdf(pdf_handle)
 

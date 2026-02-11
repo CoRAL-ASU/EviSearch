@@ -15,7 +15,7 @@ from ..preprocessing.pdf_margin_preprocessing import (
 from ..chunking.utils_chunking import (
     text_chunking,
     extract_tables_pdfplumber,
-    ask_gemini_with_image,
+    analyze_image_with_llm,
     extract_caption_from_gemini,
     parse_table_extraction_response,
     save_chunks_to_json
@@ -47,6 +47,9 @@ class PDFChunker:
             self.table_pages = None
             self.figure_pages = None
             logger.info("📖 Standard mode: processing all pages")
+        # Token usage for costing (image LLM calls only; page classification tracked separately)
+        self.usage_input_tokens = 0
+        self.usage_output_tokens = 0
     
     def _process_page_text(self, page, page_num, patterns):
         """Process text content for a single page and accumulate it."""
@@ -90,8 +93,10 @@ class PDFChunker:
             
             for attempt in range(1, max_retries + 1):
                 # Call LLM to extract table and caption
-                llm_response = ask_gemini_with_image(img_pil, prompt_text=prompt_text)
-                
+                llm_response, in_tok, out_tok = analyze_image_with_llm(img_pil, prompt_text=prompt_text)
+                self.usage_input_tokens += in_tok
+                self.usage_output_tokens += out_tok
+
                 if not llm_response:
                     logger.warning(f"[Table] Page {page_num + 1}, attempt {attempt}/{max_retries}: No LLM response")
                     if attempt < max_retries:
@@ -148,7 +153,9 @@ class PDFChunker:
             pix = page.get_pixmap(matrix=fitz.Matrix(PIXMAP_RESOLUTION, PIXMAP_RESOLUTION))
             img_bytes = pix.tobytes("png")
             img_pil = Image.open(BytesIO(img_bytes))
-            gemini_raw = ask_gemini_with_image(img_pil)
+            gemini_raw, in_tok, out_tok = analyze_image_with_llm(img_pil)
+            self.usage_input_tokens += in_tok
+            self.usage_output_tokens += out_tok
             description = gemini_raw.strip() if gemini_raw else "Figure"
             
             block = f"```\n##Figure Descriptions##\n\n{description}\n```"
@@ -266,19 +273,24 @@ class PDFChunker:
 def process_pdf(pdf_path, output_path="pdf_chunks.json", use_llm_classification=True):
     """
     Entry point function to process PDF with optional LLM-based page classification.
-    
+
     Args:
         pdf_path: Path to PDF file
         output_path: Path to save chunks JSON (e.g., "output_dir/pdf_chunked.json")
         use_llm_classification: If True, use Gemini to classify pages first (default: True)
-    
+
     Returns:
-        list: List of extracted chunks
+        tuple: (chunks list, usage_dict for costing)
+        usage_dict has keys: input_tokens, output_tokens, cost_usd, provider, model, breakdown (list of per-sub-call usage)
     """
     import os
+    from ..config.config import CHUNKING_PROVIDER, CHUNKING_MODEL
+    from ..utils.costing import usage_to_cost_dict
+
     output_dir = Path(output_path).parent
     page_metadata = None
-    
+    classification_usage = None
+
     if use_llm_classification:
         logger.info("\n" + "=" * 80)
         logger.info("🔍 STEP 1: Page Classification with LLM")
@@ -303,8 +315,8 @@ def process_pdf(pdf_path, output_path="pdf_chunks.json", use_llm_classification=
                 structurer_model=STRUCTURER_MODEL,
                 structurer_base_url=STRUCTURER_BASE_URL
             )
-            page_metadata = classifier.classify()
-            
+            page_metadata, classification_usage = classifier.classify()
+
             # Log summary
             table_pages = sorted(set(t["page"] for t in page_metadata["tables"]))
             figure_pages = sorted(set(f["page"] for f in page_metadata["figures"]))
@@ -339,9 +351,38 @@ def process_pdf(pdf_path, output_path="pdf_chunks.json", use_llm_classification=
     
     save_chunks_to_json(chunks, output_path)
     logger.info(f"\n💾 Saved chunks to: {output_path}")
-    
+
     if chunks:
         logger.info("\n📄 Sample Chunk:")
         logger.info(json.dumps(chunks[0], indent=4, ensure_ascii=False)[:500] + "...")
-    
-    return chunks
+
+    # Build usage for costing: breakdown (page classification + image LLM) and totals
+    breakdown = []
+    if classification_usage:
+        d = usage_to_cost_dict(
+            classification_usage["provider"],
+            classification_usage["model"],
+            classification_usage["input_tokens"],
+            classification_usage["output_tokens"],
+        )
+        breakdown.append(d)
+    if chunker.usage_input_tokens or chunker.usage_output_tokens:
+        d = usage_to_cost_dict(
+            CHUNKING_PROVIDER,
+            CHUNKING_MODEL,
+            chunker.usage_input_tokens,
+            chunker.usage_output_tokens,
+        )
+        breakdown.append(d)
+    total_in = sum(b["input_tokens"] for b in breakdown)
+    total_out = sum(b["output_tokens"] for b in breakdown)
+    total_cost = sum(b["cost_usd"] for b in breakdown)
+    usage_dict = {
+        "input_tokens": total_in,
+        "output_tokens": total_out,
+        "cost_usd": round(total_cost, 6),
+        "provider": breakdown[0]["provider"] if len(breakdown) == 1 else "mixed",
+        "model": breakdown[0]["model"] if len(breakdown) == 1 else "mixed",
+        "breakdown": breakdown,
+    }
+    return chunks, usage_dict

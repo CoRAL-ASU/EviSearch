@@ -1,24 +1,62 @@
 INPUT PROMPT:
 You are extracting clinical trial data from a research paper.
 
-TASK: Extract values for the following canonical columns. Use EXACT column names as listed.
+TASK: Extract values for the following columns using the provided extraction plans.
 
 COLUMNS TO EXTRACT:
 - Column index 1: "Control Arm - N"
   Definition: What the total number of participants included in the control arm of the clinical trial?. If reported, provide the value; otherwise use 'Not reported'. If the trial contains multiple control arms, report for all separately
-  Expected Location: Page 5 | figure
-  Planner Confidence: high
-  Extraction Instructions:
-  The total number of participants in the control arm (SOC-alone) is reported as 502. This can be found in: Figure 1 (CONSORT diagram). Locate the box "Allocated to SOC" and extract the value "N = 502".
+  Extraction Plan:
+  The total number of participants in the control arm (SOC-alone) is 502. This can be extracted from: Page 5, Table 1, "SOC-alone n = 502" row. Page 5, Figure 1 (CONSORT diagram), "Allocated to SOC N = 502" box. Page 6, Table 2, "SOC-alone n = 502" row. Page 4, Text, Section 3 "RESULTS", first paragraph: "Of these, all 1003 patients with metastatic disease were analysed here: 502 (50%) allocated to standard treatment (SOC-alone group)..."
 
 RELEVANT CHUNKS:
---- Chunk 1 (FIGURE on page 5) ---
-``` ##Figure Descriptions##  ## Figure 1 This is a CONSORT diagram illustrating the flow of participants in a clinical trial comparing standard-of-care (SOC) with and without abiraterone acetate plus prednisolone/prednisone (AAP) in metastatic prostate cancer. The diagram details the number of patients recruited, allocated to each group, and their status at datalock, including those in follow-up, deceased, or who stopped participation.  ## Table 1 Baseline characteristics. |                     ...
+--- Chunk 0 (TABLE on page 5) ---
+Summary: **Table 1: Baseline characteristics of patients in the SOC-alone, SOC + AAP, and combined (All) groups.**  - **Row headers:** Age (years), Eligibility category, PSA (ng/mL), Metastatic disease risk group, Site of metastases. - **Column headers:** SOC-alone (n = 502), SOC + AAP (n = 501), All (n = 1003). - **Description:** This table presents the baseline characteristics of patients with metastatic disease at randomization in a clinical trial comparing standard-of-care (SOC) alone versus SOC plus abiraterone acetate and prednisolone/prednisone (AAP). The characteristics include age (median, IQR, and range), eligibility category (newly diagnosed or relapsing), PSA levels (median, IQR, and range), metastatic disease risk group (low-risk, high-risk, unclassified), and site of metastases (bone, liver, lung, distant lymph nodes, other). Percentages are provided for categorical variables. Notes clarify that some patients could not be classified due to missing imaging and that patients can be 
+
+Structured Table:
+##Markdown Table##
+
+|                                | SOC-alone n = 502 | SOC + AAP n = 501 | All n = 1003 |
+|--------------------------------|------------------|-------------------|-------------|
+| **Age (years)**                |                  |                   |             |
+| Median (IQR)                   | 67 (62-72)       | 67 (62-71)        | 67 (62-71)  |
+| Range                          | 39-84            | 42-85             | 39-85       |
+| **Eligibility category**        |                  |                   |             |
+| Newly diagnosed                 | 475 (95%)        | 466 (93%)         | 941 (94%)   |
+| Relapsing                       | 27 (5%)          | 35 (7%)           | 62 (6%)     |
+| **PSA (ng/mL)**                 |                  |                   |             |
+| Median (IQR)                   | 97.2 (26.0-358)  | 96.3 (29-371)     | 96.9 (27.3-363) |
+| Range                          | 0.6-10 530       | 0.1-21 460        | 0.1-21 460  |
+| **Metastatic disease risk group** |                |                   |             |
+| Low-risk                       | 220 (44%)        | 208 (42%)         | 428 (43%)   |
+| High-risk                      | 232 (46%)        | 241 (48%)         | 473 (47%)   |
+| Unclassified                    | 50 (10%)         | 52 (10%)          | 102* (10%)  |
+| **Site of metastases**          |                  |                   |             |
+| Bone                           | 448 (89%)        | 434 (87%)         | 882 (88%)   |
+| Liver                          | 8 (2%)           | 7 (1%)            | 15 (2%)     |
+| Lung                           | 21 (4%)          | 21 (4%)           | 42 (4%)     |
+| Distant lymph nodes            | 150 (30%)        | 143 (29%)         | 293 (29%)   |
+| Other                          | 26 (5%)          | 23 (5%)           | 49 (5%)     |
+
+*Includes 14 patients at Swiss sites for whom imaging could not be obtained.  
+Patients can be in multiple categories.
+
+##Caption##
+
+**Table 1: Baseline characteristics of patients in the SOC-alone, SOC + AAP, and combined (All) groups.**
+
+- **Row headers:** Age (years), Eligibility category, PSA (ng/mL), Metastatic disease risk group, Site of metastases.
+- **Column headers:** SOC-alone (n = 502), SOC + AAP (n = 501), All (n = 1003).
+- **Description:** This table presents the baseline characteristics of patients with metastatic disease at randomization in a clinical trial comparing standard-of-care (SOC) alone versus SOC plus abiraterone acetate and prednisolone/prednisone (AAP). The characteristics include age (median, IQR, and range), eligibility category (newly diagnosed or relapsing), PSA levels (median, IQR, and range), metastatic disease risk group (low-risk, high-risk, unclassified), and site of metastases (bone, liver, lung, distant lymph nodes, other). Percentages are provided for categorical variables. Notes clarify that some patients could not be classified due to missing imaging and that patients can be in multiple metastasis categories.
+- **Hierarchical headers:** The table uses a single-level header for each treatment group, with subcategories for each characteristic (e.g., age, eligibility, PSA, risk group, metastasis site). The hierarchical structure is resolved by listing each subcategory as a separate row under the main characteristic.
+- **Context:** The table is part of a study published in the International Journal of Cancer, summarizing the baseline characteristics of patients in a randomized trial of metastatic prostate cancer treatments. Abbreviations: AAP = abiraterone acetate + prednisolone/prednisone; IQR = interquartile range; SOC = standard-of-care.
 
 GUIDELINES:
-- For each listed column, extract a value if explicitly present; otherwise set value=null.
-- Provide evidence as an exact quote, page number(s), confidence (high/medium/low).
-- Use the EXACT column names from the list above.
+- Follow the extraction plan for each column precisely
+- If the value cannot be extracted as described in the plan, set value=null
+- Provide evidence as an exact quote from the PDF
+- Include page number(s) and confidence level (high/medium/low)
+- Use the EXACT column names from the list above
 
 Output format (for each column):
 Column index <N>: "<Exact Column Name>"
@@ -31,6 +69,6 @@ Confidence: <high/medium/low>
 OUTPUT:
 Column index 1: "Control Arm - N"
 Value: 502
-Evidence: "N = 502"
+Evidence: "SOC-alone n = 502"
 Page: 5
 Confidence: high
