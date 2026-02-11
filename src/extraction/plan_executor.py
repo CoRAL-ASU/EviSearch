@@ -33,7 +33,7 @@ logger = setup_logger("extraction")
 class ColumnExtractionV2(BaseModel):
     column_index: int
     column_name: str
-    value: Optional[Union[str, int, float]] = None
+    value: Optional[str] = None  # Always string to preserve formatting (e.g., "517 (79.4%)", "Not reported")
     evidence: Optional[str] = None
     page: str = ""
     confidence: str = "low"
@@ -630,7 +630,7 @@ class PlanExecutor:
 
 
 def load_plans_from_dir(plans_dir: Path) -> Dict[str, Dict[str, Any]]:
-    """Load plans from versioned planning directory (supports plans_all_columns.json or *_plan.json)."""
+    """Load plans from planning directory. plans_all_columns.json at root; *_plan.json in logs/ (or root for backward compat)."""
     plans_dir = Path(plans_dir)
     plans = {}
     compiled = plans_dir / "plans_all_columns.json"
@@ -639,12 +639,13 @@ def load_plans_from_dir(plans_dir: Path) -> Dict[str, Dict[str, Any]]:
         for p in data.get("plans", []):
             plans[p["group_name"]] = p
         return plans
-    for plan_file in plans_dir.glob("*_plan.json"):
-        data = json.loads(plan_file.read_text(encoding="utf-8"))
-        plans[data["group_name"]] = data
     logs_dir = plans_dir / "logs"
-    if logs_dir.exists() and not plans:
+    if logs_dir.exists():
         for plan_file in logs_dir.glob("*_plan.json"):
+            data = json.loads(plan_file.read_text(encoding="utf-8"))
+            plans[data["group_name"]] = data
+    if not plans:
+        for plan_file in plans_dir.glob("*_plan.json"):
             data = json.loads(plan_file.read_text(encoding="utf-8"))
             plans[data["group_name"]] = data
     return plans

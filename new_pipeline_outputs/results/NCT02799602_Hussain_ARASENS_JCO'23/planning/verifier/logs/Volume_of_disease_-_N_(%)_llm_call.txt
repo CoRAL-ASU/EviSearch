@@ -1,17 +1,39 @@
-INPUT PROMPT:
-You are extracting clinical trial data from a research paper.
+GROUP: Volume of disease - N (%)
+PROVIDER: gemini
+MODEL: gemini-2.5-flash
+SUCCESS: True
+ERROR: None
+PROMPT_TOKENS: 4329
+OUTPUT_TOKENS: 1188
+============================================================
+INPUT PROMPT
+============================================================
+You are verifying extraction plans for a clinical trial paper using ONLY the provided chunks.
 
-TASK: Extract values for the following columns using the provided extraction plans.
+You have:
+1) Relevant chunks selected from the chunking output.
 
-COLUMNS TO EXTRACT:
-- Column index 1: "Treatment Arm - N"
-  Definition: What are the total number of participants included in the experimental arm of the clinical trial?. If reported, provide the value; otherwise use 'Not reported'. If the trial contains multiple treatment arms, report for all separately
-  Extraction Plan:
-  For the Darolutamide + docetaxel + ADT arm, extract the value '652' from the 'All Patients' column under 'Darolutamide' in Table 1. For the Placebo + docetaxel + ADT arm, extract the value '650' from the 'All Patients' column under 'Placebo' in Table 1.
+Group: Volume of disease - N (%)
 
-RELEVANT CHUNKS:
+Columns to verify:
+- column_index: 1
+  column_name: Volume of disease - N (%) | High | Treatment
+  definition: What the number and percentage of participants in the treatment arm of the clinical trial with a high volume or burden of metastatic disease? If reported, include count and percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.
+  original_extraction_plan: From Table 1, on page 5, locate the "High Volumea" section. Under the "Darolutamide (n = 497)" column, the number of patients is 497. The total number of patients in the Darolutamide arm is 651 (from Figure 1, page 3, "Analyzed for primary end point"). Calculate the percentage as (497 / 651) * 100.
+
+- column_index: 2
+  column_name: Volume of disease - N (%) | High | Control
+  definition: What the number and percentage of participants in the control arm of the clinical trial with high volume/burden metastasis? If reported, include count and percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.
+  original_extraction_plan: From Table 1, on page 5, locate the "High Volumea" section. Under the "Placebo (n = 508)" column, the number of patients is 508. The total number of patients in the Placebo arm is 654 (from Figure 1, page 3, "Analyzed for primary end point"). Calculate the percentage as (508 / 654) * 100.
+
+- column_index: 3
+  column_name: Volume of disease - N (%) | Low | Control
+  definition: What the number and percentage of participants in the control arm of the trial with low volume/burden metastases? If reported, include count and percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.
+  original_extraction_plan: From Table 1, on page 5, locate the "Low Volumea" section. Under the "Placebo (n = 146)" column, the number of patients is 146. The total number of patients in the Placebo arm is 654 (from Figure 1, page 3, "Analyzed for primary end point"). Calculate the percentage as (146 / 654) * 100.
+
+Relevant chunks:
 --- Chunk 1 (TABLE on page 5) ---
-Summary: **Table 1. Baseline Demographics and Patient Characteristics for the Subgroups of Patients by Disease Volume and Disease Risk in ARASENS**  This table presents baseline demographic and clinical characteristics of patients enrolled in the ARASENS study, stratified by disease volume (high vs. low) and disease risk (high vs. low), and by treatment group (Darolutamide vs. Placebo). The table includes the following row headers: Age, ECOG PS (performance status), Gleason score at initial diagnosis, Metastasis stage at initial diagnosis, Metastasis stage at screening, Serum PSA level, Serum ALP level, and ALP status relative to the upper limit of normal (ULN). The column headers are combinations of disease volume/risk and treatment group, resulting in eight subgroups, plus a column for all patients.  **Hierarchical Header Structure:**   The table uses a two-level column header structure: the first level indicates disease volume or risk (High Volume, Low Volume, High Risk, Low Risk), and the s
+Summary: **Table 1. Baseline Demographics and Patient Characteristics for the Subgroups of Patients by Disease Volume and Disease Risk in ARASENS**  This table presents baseline demographic and clinical characteristics of patients enrolled in the ARASENS study, stratified by disease volume (high vs. low) and disease risk (high vs. low), and by treatment group (Darolutamide vs. Placebo). The table includes the following row headers: Age, ECOG PS (performance status), Gleason score at initial diagnosis, Metastasis stage at initial diagnosis, Metastasis stage at screening, Serum PSA level, Serum ALP level, and ALP status relative to the upper limit of normal (ULN). The column headers are combinations of disease volume/risk and treatment group, resulting in eight subgroups, plus a column for all patients.  **Hierarchical Header Structure:**   The table uses a two-level column header structure: the first level indicates disease volume or risk (High Volume, Low Volume, High Risk, Low Risk), and the second level specifies the treatment group (Darolutamide or Placebo) with the number of patients in each subgroup. For clarity, these have been combined into single-level headers in the extracted table (e.g., "High Volume - Darolutamide (n = 497)").  **Information Included:**   - Median age and range for each subgroup. - ECOG performance status (0, 1, or missing). - Gleason score at initial diagnosis (<8, ≥8, or missing). - Metastasis stage at initial diagnosis (de novo mHSPC, recurrent mHSPC, or missing). - Metastasis stage at screening (M1a, M1b, M1c). - Serum PSA and ALP levels (median and range). - Number and percentage of patients with ALP below or above the upper limit of normal.  **Purpose:**   The table provides a comprehensive overview of the baseline characteristics of patients in the ARASENS trial, facilitating comparison between subgroups defined by disease volume, disease risk, and treatment allocation. This information is essential for interpreting the study's outcomes and understanding the patient population.  **Abbreviations:**   ADT = androgen-deprivation therapy; ALP = alkaline phosphatase; ECOG PS = Eastern Cooperative Oncology Group performance status; LN = lymph node; mHSPC = metastatic hormone-sensitive prostate cancer; PSA = prostate-specific antigen; ULN = upper limit of normal.  **Notes:**   - Disease volume defined by CHAARTED criteria. - Disease risk defined by LATITUDE criteria. - ECOG PS scores range from 0 to 5. - Gleason scores range from 6 to 10. - Some values were centrally assessed; samples obtained while patients were receiving ADT.
 
 Structured Table:
 ##Markdown Table##
@@ -71,24 +93,60 @@ ADT = androgen-deprivation therapy; ALP = alkaline phosphatase; ECOG PS = Easter
 - Gleason scores range from 6 to 10.
 - Some values were centrally assessed; samples obtained while patients were receiving ADT.
 
-GUIDELINES:
-- Follow the extraction plan for each column precisely
-- If the value cannot be extracted as described in the plan, set value=null
-- Provide evidence as an exact quote from the PDF
-- Include page number(s) and confidence level (high/medium/low)
-- Use the EXACT column names from the list above
+Task:
+- Evaluate EACH column independently. Do not assume the original plan is correct.
+- Decide if the original_extraction_plan is VALID or WRONG given ONLY the provided chunks.
+- Your reasoning MUST cite Chunk IDs and include verbatim quotes that justify the verdict.
+- If you cannot quote support from chunks, verdict must be WRONG.
+- If WRONG, provide a corrected plan (plan only, not extracted value). If VERIFIED, corrected plan may restate the original.
 
-Output format (for each column):
-Column index <N>: "<Exact Column Name>"
-Value: <extracted value or null>
-Evidence: "<exact quote>"
-Page: <page number>
-Confidence: <high/medium/low>
+Output a free-text report that follows this exact template for EVERY column (one block per column):
+
+COLUMN <column_index>: <column_name>
+VERDICT: VERIFIED|WRONG
+REASONING:
+- Chunk citations: Chunk <id> ... (include 1-3 short direct quotes)
+- Why the original plan is right/wrong
+ISSUES:
+- (bullet list; empty if none)
+CORRECTED_PLAN_JSON:
+{"found_in_pdf": true/false, "page": -1 or int, "source_type": "table|text|figure|not_applicable", "confidence": "high|medium|low", "extraction_plan": "..."}
+
+Rules:
+- Keep column_index and column_name exactly as provided.
+- CORRECTED_PLAN_JSON must always be present (even if VERIFIED, you can restate the original).
+- Do not wrap anything in code fences.
 
 
-OUTPUT:
-Column index 1: "Treatment Arm - N"
-Value: 652
-Evidence: "All Patients (N = 1,305)\nDarolutamide\n(n = 652)"
-Page: 5
-Confidence: high
+============================================================
+RAW OUTPUT
+============================================================
+COLUMN 1: Volume of disease - N (%) | High | Treatment
+VERDICT: WRONG
+REASONING:
+- Chunk citations: Chunk 1 (TABLE on page 5) - "High Volume - Darolutamide (n = 497)", "Low Volume - Darolutamide (n = 154)"
+- Why the original plan is wrong: The original plan correctly identifies the numerator (497) from Table 1. However, it incorrectly states that the total number of patients in the Darolutamide arm (651) is "from Figure 1, page 3". Figure 1 is not provided in the relevant chunks. The total for the Darolutamide arm can be derived from the provided Table 1 by summing the 'n' values for "High Volume - Darolutamide" (497) and "Low Volume - Darolutamide" (154), which equals 651.
+ISSUES:
+- The original plan cites a source (Figure 1) that is not provided in the relevant chunks.
+CORRECTED_PLAN_JSON:
+{"found_in_pdf": true, "page": 5, "source_type": "table", "confidence": "high", "extraction_plan": "From Table 1, on page 5, locate the column 'High Volume - Darolutamide (n = 497)'. The number of patients is 497. To find the total number of patients in the Darolutamide arm, sum the 'n' values from 'High Volume - Darolutamide (n = 497)' and 'Low Volume - Darolutamide (n = 154)' from Table 1 (497 + 154 = 651). Calculate the percentage as (497 / 651) * 100."}
+
+COLUMN 2: Volume of disease - N (%) | High | Control
+VERDICT: WRONG
+REASONING:
+- Chunk citations: Chunk 1 (TABLE on page 5) - "High Volume - Placebo (n = 508)", "Low Volume - Placebo (n = 146)"
+- Why the original plan is wrong: The original plan correctly identifies the numerator (508) from Table 1. However, it incorrectly states that the total number of patients in the Placebo arm (654) is "from Figure 1, page 3". Figure 1 is not provided in the relevant chunks. The total for the Placebo arm can be derived from the provided Table 1 by summing the 'n' values for "High Volume - Placebo" (508) and "Low Volume - Placebo" (146), which equals 654.
+ISSUES:
+- The original plan cites a source (Figure 1) that is not provided in the relevant chunks.
+CORRECTED_PLAN_JSON:
+{"found_in_pdf": true, "page": 5, "source_type": "table", "confidence": "high", "extraction_plan": "From Table 1, on page 5, locate the column 'High Volume - Placebo (n = 508)'. The number of patients is 508. To find the total number of patients in the Placebo arm, sum the 'n' values from 'High Volume - Placebo (n = 508)' and 'Low Volume - Placebo (n = 146)' from Table 1 (508 + 146 = 654). Calculate the percentage as (508 / 654) * 100."}
+
+COLUMN 3: Volume of disease - N (%) | Low | Control
+VERDICT: WRONG
+REASONING:
+- Chunk citations: Chunk 1 (TABLE on page 5) - "Low Volume - Placebo (n = 146)", "High Volume - Placebo (n = 508)"
+- Why the original plan is wrong: The original plan correctly identifies the numerator (146) from Table 1. However, it incorrectly states that the total number of patients in the Placebo arm (654) is "from Figure 1, page 3". Figure 1 is not provided in the relevant chunks. The total for the Placebo arm can be derived from the provided Table 1 by summing the 'n' values for "Low Volume - Placebo" (146) and "High Volume - Placebo" (508), which equals 654.
+ISSUES:
+- The original plan cites a source (Figure 1) that is not provided in the relevant chunks.
+CORRECTED_PLAN_JSON:
+{"found_in_pdf": true, "page": 5, "source_type": "table", "confidence": "high", "extraction_plan": "From Table 1, on page 5, locate the column 'Low Volume - Placebo (n = 146)'. The number of patients is 146. To find the total number of patients in the Placebo arm, sum the 'n' values from 'Low Volume - Placebo (n = 146)' and 'High Volume - Placebo (n = 508)' from Table 1 (146 + 508 = 654). Calculate the percentage as (146 / 654) * 100."}

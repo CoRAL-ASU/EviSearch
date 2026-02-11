@@ -829,3 +829,6 @@ Group "Demographics - Treatment" → Chunk 3 (contains Table 1, pages 4-5)
 ---
 
 *End of Design Document*
+
+
+

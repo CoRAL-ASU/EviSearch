@@ -1,17 +1,34 @@
-INPUT PROMPT:
-You are extracting clinical trial data from a research paper.
+GROUP: Median Age (years)
+PROVIDER: gemini
+MODEL: gemini-2.5-flash
+SUCCESS: True
+ERROR: None
+PROMPT_TOKENS: 4094
+OUTPUT_TOKENS: 962
+============================================================
+INPUT PROMPT
+============================================================
+You are verifying extraction plans for a clinical trial paper using ONLY the provided chunks.
 
-TASK: Extract values for the following columns using the provided extraction plans.
+You have:
+1) Relevant chunks selected from the chunking output.
 
-COLUMNS TO EXTRACT:
-- Column index 1: "Treatment Arm - N"
-  Definition: What are the total number of participants included in the experimental arm of the clinical trial?. If reported, provide the value; otherwise use 'Not reported'. If the trial contains multiple treatment arms, report for all separately
-  Extraction Plan:
-  For the Darolutamide + docetaxel + ADT arm, extract the value '652' from the 'All Patients' column under 'Darolutamide' in Table 1. For the Placebo + docetaxel + ADT arm, extract the value '650' from the 'All Patients' column under 'Placebo' in Table 1.
+Group: Median Age (years)
 
-RELEVANT CHUNKS:
+Columns to verify:
+- column_index: 1
+  column_name: Median Age (years) | Treatment
+  definition: What median age in years of participants included in the treatment arm of the clinical trial? If reported, include the value; use 'Not reported' if missing.
+  original_extraction_plan: The median age for the treatment arm (Darolutamide) is reported in Table 1, "Baseline Demographics and Patient Characteristics for the Subgroups of Patients by Disease Volume and Disease Risk in ARASENS," on page 5. Locate the row "Age, median, years (range)" and the column "All Patients (N = 1,305) Darolutamide (n = 652)". The value is 67.0.
+
+- column_index: 2
+  column_name: Median Age (years) | Control
+  definition: What the median age of participants included in the control arm of the clinical trial? If reported, include the value; use 'Not reported' if missing.
+  original_extraction_plan: The median age for the control arm (Placebo) is reported in Table 1, "Baseline Demographics and Patient Characteristics for the Subgroups of Patients by Disease Volume and Disease Risk in ARASENS," on page 5. Locate the row "Age, median, years (range)" and the column "All Patients (N = 1,305) Placebo (n = 650)". The value is 67.0.
+
+Relevant chunks:
 --- Chunk 1 (TABLE on page 5) ---
-Summary: **Table 1. Baseline Demographics and Patient Characteristics for the Subgroups of Patients by Disease Volume and Disease Risk in ARASENS**  This table presents baseline demographic and clinical characteristics of patients enrolled in the ARASENS study, stratified by disease volume (high vs. low) and disease risk (high vs. low), and by treatment group (Darolutamide vs. Placebo). The table includes the following row headers: Age, ECOG PS (performance status), Gleason score at initial diagnosis, Metastasis stage at initial diagnosis, Metastasis stage at screening, Serum PSA level, Serum ALP level, and ALP status relative to the upper limit of normal (ULN). The column headers are combinations of disease volume/risk and treatment group, resulting in eight subgroups, plus a column for all patients.  **Hierarchical Header Structure:**   The table uses a two-level column header structure: the first level indicates disease volume or risk (High Volume, Low Volume, High Risk, Low Risk), and the s
+Summary: **Table 1. Baseline Demographics and Patient Characteristics for the Subgroups of Patients by Disease Volume and Disease Risk in ARASENS**  This table presents baseline demographic and clinical characteristics of patients enrolled in the ARASENS study, stratified by disease volume (high vs. low) and disease risk (high vs. low), and by treatment group (Darolutamide vs. Placebo). The table includes the following row headers: Age, ECOG PS (performance status), Gleason score at initial diagnosis, Metastasis stage at initial diagnosis, Metastasis stage at screening, Serum PSA level, Serum ALP level, and ALP status relative to the upper limit of normal (ULN). The column headers are combinations of disease volume/risk and treatment group, resulting in eight subgroups, plus a column for all patients.  **Hierarchical Header Structure:**   The table uses a two-level column header structure: the first level indicates disease volume or risk (High Volume, Low Volume, High Risk, Low Risk), and the second level specifies the treatment group (Darolutamide or Placebo) with the number of patients in each subgroup. For clarity, these have been combined into single-level headers in the extracted table (e.g., "High Volume - Darolutamide (n = 497)").  **Information Included:**   - Median age and range for each subgroup. - ECOG performance status (0, 1, or missing). - Gleason score at initial diagnosis (<8, ≥8, or missing). - Metastasis stage at initial diagnosis (de novo mHSPC, recurrent mHSPC, or missing). - Metastasis stage at screening (M1a, M1b, M1c). - Serum PSA and ALP levels (median and range). - Number and percentage of patients with ALP below or above the upper limit of normal.  **Purpose:**   The table provides a comprehensive overview of the baseline characteristics of patients in the ARASENS trial, facilitating comparison between subgroups defined by disease volume, disease risk, and treatment allocation. This information is essential for interpreting the study's outcomes and understanding the patient population.  **Abbreviations:**   ADT = androgen-deprivation therapy; ALP = alkaline phosphatase; ECOG PS = Eastern Cooperative Oncology Group performance status; LN = lymph node; mHSPC = metastatic hormone-sensitive prostate cancer; PSA = prostate-specific antigen; ULN = upper limit of normal.  **Notes:**   - Disease volume defined by CHAARTED criteria. - Disease risk defined by LATITUDE criteria. - ECOG PS scores range from 0 to 5. - Gleason scores range from 6 to 10. - Some values were centrally assessed; samples obtained while patients were receiving ADT.
 
 Structured Table:
 ##Markdown Table##
@@ -71,24 +88,56 @@ ADT = androgen-deprivation therapy; ALP = alkaline phosphatase; ECOG PS = Easter
 - Gleason scores range from 6 to 10.
 - Some values were centrally assessed; samples obtained while patients were receiving ADT.
 
-GUIDELINES:
-- Follow the extraction plan for each column precisely
-- If the value cannot be extracted as described in the plan, set value=null
-- Provide evidence as an exact quote from the PDF
-- Include page number(s) and confidence level (high/medium/low)
-- Use the EXACT column names from the list above
+Task:
+- Evaluate EACH column independently. Do not assume the original plan is correct.
+- Decide if the original_extraction_plan is VALID or WRONG given ONLY the provided chunks.
+- Your reasoning MUST cite Chunk IDs and include verbatim quotes that justify the verdict.
+- If you cannot quote support from chunks, verdict must be WRONG.
+- If WRONG, provide a corrected plan (plan only, not extracted value). If VERIFIED, corrected plan may restate the original.
 
-Output format (for each column):
-Column index <N>: "<Exact Column Name>"
-Value: <extracted value or null>
-Evidence: "<exact quote>"
-Page: <page number>
-Confidence: <high/medium/low>
+Output a free-text report that follows this exact template for EVERY column (one block per column):
+
+COLUMN <column_index>: <column_name>
+VERDICT: VERIFIED|WRONG
+REASONING:
+- Chunk citations: Chunk <id> ... (include 1-3 short direct quotes)
+- Why the original plan is right/wrong
+ISSUES:
+- (bullet list; empty if none)
+CORRECTED_PLAN_JSON:
+{"found_in_pdf": true/false, "page": -1 or int, "source_type": "table|text|figure|not_applicable", "confidence": "high|medium|low", "extraction_plan": "..."}
+
+Rules:
+- Keep column_index and column_name exactly as provided.
+- CORRECTED_PLAN_JSON must always be present (even if VERIFIED, you can restate the original).
+- Do not wrap anything in code fences.
 
 
-OUTPUT:
-Column index 1: "Treatment Arm - N"
-Value: 652
-Evidence: "All Patients (N = 1,305)\nDarolutamide\n(n = 652)"
-Page: 5
-Confidence: high
+============================================================
+RAW OUTPUT
+============================================================
+COLUMN 1: Median Age (years) | Treatment
+VERDICT: WRONG
+REASONING:
+- Chunk citations: Chunk 1 (TABLE on page 5) - "The column headers are combinations of disease volume/risk and treatment group, resulting in eight subgroups, plus a column for all patients."
+- Chunk 1 (TABLE on page 5) - "Information Included: - Median age and range for each subgroup."
+- Chunk 1 (TABLE on page 5) - The structured table shows column headers like "High Volume - Darolutamide (n = 497)", "Low Volume - Darolutamide (n = 154)", and "All Patients (N = 1,305)", but no column specifically for "All Patients (N = 1,305) Darolutamide (n = 652)".
+- Why the original plan is wrong: The original extraction plan specifies a column "All Patients (N = 1,305) Darolutamide (n = 652)" which does not exist in the provided table. The table provides median age for Darolutamide within specific subgroups (e.g., High Volume, Low Volume, High Risk, Low Risk), and for "All Patients" (N=1,305), but not for the entire Darolutamide treatment arm (n=652) as a single value.
+ISSUES:
+- The specified column in the original extraction plan does not exist in the provided table.
+- The median age for the overall Darolutamide treatment arm is not directly reported as a single value in the provided chunk.
+CORRECTED_PLAN_JSON:
+{"found_in_pdf": false, "page": -1, "source_type": "not_applicable", "confidence": "high", "extraction_plan": "The median age for the overall Darolutamide treatment arm is not reported as a single value in the provided Table 1. The table provides median age for Darolutamide within specific subgroups (e.g., High Volume - Darolutamide, Low Volume - Darolutamide, High Risk - Darolutamide, Low Risk - Darolutamide), but not for the entire arm (n=652). Therefore, the value is 'Not reported'."}
+
+COLUMN 2: Median Age (years) | Control
+VERDICT: WRONG
+REASONING:
+- Chunk citations: Chunk 1 (TABLE on page 5) - "The column headers are combinations of disease volume/risk and treatment group, resulting in eight subgroups, plus a column for all patients."
+- Chunk 1 (TABLE on page 5) - "Information Included: - Median age and range for each subgroup."
+- Chunk 1 (TABLE on page 5) - The structured table shows column headers like "High Volume - Placebo (n = 508)", "Low Volume - Placebo (n = 146)", and "All Patients (N = 1,305)", but no column specifically for "All Patients (N = 1,305) Placebo (n = 650)".
+- Why the original plan is wrong: The original extraction plan specifies a column "All Patients (N = 1,305) Placebo (n = 650)" which does not exist in the provided table. The table provides median age for Placebo within specific subgroups (e.g., High Volume, Low Volume, High Risk, Low Risk), and for "All Patients" (N=1,305), but not for the entire Placebo control arm (n=650) as a single value.
+ISSUES:
+- The specified column in the original extraction plan does not exist in the provided table.
+- The median age for the overall Placebo control arm is not directly reported as a single value in the provided chunk.
+CORRECTED_PLAN_JSON:
+{"found_in_pdf": false, "page": -1, "source_type": "not_applicable", "confidence": "high", "extraction_plan": "The median age for the overall Placebo control arm is not reported as a single value in the provided Table 1. The table provides median age for Placebo within specific subgroups (e.g., High Volume - Placebo, Low Volume - Placebo, High Risk - Placebo, Low Risk - Placebo), but not for the entire arm (n=650). Therefore, the value is 'Not reported'."}

@@ -1,0 +1,209 @@
+GROUP: Median PFS (mo)
+PROVIDER: gemini
+MODEL: gemini-2.5-flash
+SUCCESS: True
+ERROR: None
+PROMPT_TOKENS: 4886
+OUTPUT_TOKENS: 2363
+============================================================
+INPUT PROMPT
+============================================================
+You are verifying extraction plans for a clinical trial paper using ONLY the provided chunks.
+
+You have:
+1) Relevant chunks selected from the chunking output.
+
+Group: Median PFS (mo)
+
+Columns to verify:
+- column_index: 1
+  column_name: Median PFS (mo) | Overall | Treatment
+  definition: What is the median progression free survival (in months) for all patients in the experimental arm? If reported, include the value; use 'Not reported' if missing.
+  original_extraction_plan: The document reports "Time to CRPC" (Time to Castration-Resistant Prostate Cancer) as a secondary efficacy endpoint, which is a measure of progression. For the "Overall" group in the Darolutamide arm, the median "Time to CRPC" is "NR" (Not Reached). This can be found on page 8, in Table 2, under the row "Time to CRPC" and the column "Darolutamide (n=651)".
+
+- column_index: 2
+  column_name: Median PFS (mo) | Overall | Control
+  definition: What is the median progression free survival (in months) for all patients in the control arm? If reported, include the value; use 'Not reported' if missing.
+  original_extraction_plan: The document reports "Time to CRPC" (Time to Castration-Resistant Prostate Cancer) as a secondary efficacy endpoint, which is a measure of progression. For the "Overall" group in the Placebo arm, the median "Time to CRPC" is "19.1" months. This can be found on page 8, in Table 2, under the row "Time to CRPC" and the column "Placebo (n=654)".
+
+- column_index: 3
+  column_name: Median PFS (mo) | High volume | Treatment
+  definition: What is the median progression free survival (in months) for patients with high volume metastasis (by CHAARTED criteria) in the experimental arm? If reported, include the value; use 'Not reported' if missing.
+  original_extraction_plan: The document reports "Time to CRPC" (Time to Castration-Resistant Prostate Cancer) as a secondary efficacy endpoint, which is a measure of progression. For the "High Volume" group in the Darolutamide arm, the median "Time to CRPC" is "NR" (Not Reached). This can be found on page 8, in Table 2, under the row "Time to CRPC" and the column "Darolutamide (n=497)".
+
+- column_index: 4
+  column_name: Median PFS (mo) | High volume | Control
+  definition: What is the median progression free survival (in months) for patients with high volume metastasis (by CHAARTED criteria) in the control arm? If reported, include the value; use 'Not reported' if missing.
+  original_extraction_plan: The document reports "Time to CRPC" (Time to Castration-Resistant Prostate Cancer) as a secondary efficacy endpoint, which is a measure of progression. For the "High Volume" group in the Placebo arm, the median "Time to CRPC" is "16.4" months. This can be found on page 8, in Table 2, under the row "Time to CRPC" and the column "Placebo (n=508)".
+
+- column_index: 5
+  column_name: Median PFS (mo) | Low volume | Treatment
+  definition: What is the median progression free survival (in months) for patients with low volume metastasis (by CHAARTED criteria) in the experimental arm? If reported, include the value; use 'Not reported' if missing.
+  original_extraction_plan: The document reports "Time to CRPC" (Time to Castration-Resistant Prostate Cancer) as a secondary efficacy endpoint, which is a measure of progression. For the "Low Volume" group in the Darolutamide arm, the median "Time to CRPC" is "NR" (Not Reached). This can be found on page 8, in Table 2, under the row "Time to CRPC" and the column "Darolutamide (n=154)".
+
+- column_index: 6
+  column_name: Median PFS (mo) | Low volume | Control
+  definition: What is the median progression free survival (in months) for patients with low volume metastasis (by CHAARTED criteria) in the control arm? If reported, include the value; use 'Not reported' if missing.
+  original_extraction_plan: The document reports "Time to CRPC" (Time to Castration-Resistant Prostate Cancer) as a secondary efficacy endpoint, which is a measure of progression. For the "Low Volume" group in the Placebo arm, the median "Time to CRPC" is "25.8" months. This can be found on page 8, in Table 2, under the row "Time to CRPC" and the column "Placebo (n=146)".
+
+Relevant chunks:
+--- Chunk 4 (TABLE on page 8) ---
+Summary: **Table 2. Secondary Efficacy End Points for the Subgroups of Patients by Disease Volume and Disease Risk in ARASENS**  This table presents secondary efficacy endpoints for patients with metastatic hormone-sensitive prostate cancer (mHSPC) in the ARASENS trial, stratified by disease volume (high vs. low) and disease risk (high vs. low), as well as for all patients. The table compares outcomes between those treated with darolutamide and those given placebo, with all patients also receiving androgen deprivation therapy and docetaxel.  **Row headers (endpoints):** - Time to CRPC (castration-resistant prostate cancer) - Time to pain progression - SSE-free survival (symptomatic skeletal event-free survival) - Time to first SSE - Time to subsequent antineoplastic therapy - Time to worsening disease-related symptoms - Time to opioid use ≥ 7 days  Each endpoint includes the median time (months), number and percentage of patients with an event, and hazard ratio (HR) with 95% confidence interval (CI).  **Column headers:** - High Volume - Darolutamide (n = 497) - High Volume - Placebo (n = 508) - Low Volume - Darolutamide (n = 154) - Low Volume - Placebo (n = 146) - High Risk - Darolutamide (n = 452) - High Risk - Placebo (n = 460) - Low Risk - Darolutamide (n = 199) - Low Risk - Placebo (n = 194) - All Patients - Darolutamide (n = 651) - All Patients - Placebo (n = 654)  **Hierarchical header structure:**   The table originally used two levels of headers: main categories (High Volume, Low Volume, High Risk, Low Risk, All Patients) and subcategories (Darolutamide and Placebo with patient numbers). For clarity, these have been combined into single-level headers (e.g., "High Volume - Darolutamide (n = 497)").  **Information present:**   The table provides detailed efficacy outcomes for each subgroup, including time to disease progression, pain, skeletal events, need for further therapy, symptom worsening, and opioid use. It also includes the number and percentage of patients experiencing each event and the hazard ratios comparing darolutamide to placebo.  **Context:**   This table is part of a clinical trial report evaluating the efficacy of darolutamide in combination with standard therapy for mHSPC, with subgroup analyses by disease volume and risk to inform personalized treatment strategies.
+
+Structured Table:
+##Markdown Table##
+
+| End Point, Median Months                | High Volume - Darolutamide (n = 497) | High Volume - Placebo (n = 508) | Low Volume - Darolutamide (n = 154) | Low Volume - Placebo (n = 146) | High Risk - Darolutamide (n = 452) | High Risk - Placebo (n = 460) | Low Risk - Darolutamide (n = 199) | Low Risk - Placebo (n = 194) | All Patients - Darolutamide (n = 651) | All Patients - Placebo (n = 654) |
+|-----------------------------------------|--------------------------------------|----------------------------------|-------------------------------------|--------------------------------|-------------------------------------|--------------------------------|-------------------------------------|-------------------------------|--------------------------------------|----------------------------------|
+| Time to CRPC                            | NR                                   | 16.4                             | NR                                  | 25.8                           | NR                                  | 16.1                           | NR                                  | 25.1                          | NR                                   | 19.1                             |
+| No. (%)*                                | 198 (40)                             | 315 (62)                         | 27 (18)                             | 76 (52)                        | 175 (39)                            | 289 (63)                       | 50 (25)                             | 102 (53)                      | 225 (35)                             | 391 (60)                         |
+| HR (95% CI)                             | 0.41 (0.34 to 0.49)                  |                                  | 0.21 (0.14 to 0.33)                 |                                | 0.38 (0.32 to 0.46)                 |                                | 0.32 (0.23 to 0.45)                 |                               | 0.36 (0.30 to 0.42)                  |                                  |
+| Time to pain progression                | NR                                   | 24.4                             | 46.1                                | 39.5                           | 35.4                                 | 25.0                           | NR                                  | 28.8                          | NR                                   | 27.5                             |
+| No. (%)*                                | 161 (32)                             | 192 (38)                         | 61 (40)                             | 56 (38)                        | 155 (34)                             | 173 (38)                       | 67 (34)                             | 75 (39)                       | 222 (34)                             | 248 (38)                         |
+| HR (95% CI)                             | 0.75 (0.61 to 0.93)                  |                                  | 0.94 (0.66 to 1.36)                 |                                | 0.81 (0.65 to 1.01)                 |                                | 0.76 (0.55 to 1.06)                 |                               | 0.79 (0.66 to 0.95)                  |                                  |
+| SSE-free survival                       | 46.1                                 | 35.7                             | NR                                  | NR                             | 47.1                                 | 35.8                           | NR                                  | 46.7                          | 51.2                                  | 39.7                              |
+| No. (%)*                                | 225 (45)                             | 287 (57)                         | 32 (21)                             | 42 (29)                        | 205 (45)                             | 257 (56)                       | 52 (26)                             | 72 (37)                       | 257 (40)                              | 329 (50)                          |
+| HR (95% CI)                             | 0.63 (0.53 to 0.75)                  |                                  | 0.61 (0.38 to 0.96)                 |                                | 0.65 (0.54 to 0.78)                 |                                | 0.55 (0.39 to 0.79)                 |                               | 0.61 (0.52 to 0.72)                  |                                  |
+| Time to first SSE                       | NR                                   | NR                               | NR                                  | NR                             | NR                                   | NR                             | NR                                  | NR                            | NR                                   | NR                                |
+| No. (%)*                                | 82 (17)                              | 96 (19)                          | 13 (8)                              | 12 (8)                         | 78 (17)                              | 79 (17)                        | 17 (9)                              | 29 (15)                       | 95 (15)                               | 108 (17)                          |
+| HR (95% CI)                             | 0.71 (0.53 to 0.96)                  |                                  | 0.89 (0.40 to 1.95)                 |                                | 0.84 (0.61 to 1.15)                 |                                | 0.46 (0.25 to 0.84)                 |                               | 0.71 (0.54 to 0.94)                  |                                  |
+| Time to subsequent antineoplastic therapy| NR                                   | 22.7                             | NR                                  | 42.5                           | NR                                   | 21.3                           | NR                                  | 39.0                          | NR                                   | 25.3                              |
+| No. (%)*                                | 187 (38)                             | 324 (64)                         | 32 (21)                             | 71 (49)                        | 173 (38)                             | 299 (65)                       | 46 (23)                             | 96 (49)                       | 219 (34)                              | 395 (60)                          |
+| HR (95% CI)                             | 0.40 (0.34 to 0.49)                  |                                  | 0.34 (0.22 to 0.52)                 |                                | 0.40 (0.33 to 0.48)                 |                                | 0.36 (0.26 to 0.52)                 |                               | 0.39 (0.33 to 0.46)                  |                                  |
+| Time to worsening disease-related symptoms| 22.0                                 | 22.1                             | 11.1                                | 11.2                           | 19.3                                 | 16.7                           | 19.4                                 | 24.6                          | 19.3                                  | 19.4                              |
+| No. (%)*                                | 259 (52)                             | 229 (45)                         | 92 (60)                             | 79 (54)                        | 241 (53)                             | 217 (47)                       | 110 (55)                             | 91 (47)                       | 351 (54)                              | 308 (47)                          |
+| HR (95% CI)                             | 1.05 (0.88 to 1.25)                  |                                  | 1.04 (0.77 to 1.40)                 |                                | 1.01 (0.84 to 1.22)                 |                                | 1.13 (0.86 to 1.50)                 |                               | 1.04 (0.89 to 1.22)                  |                                  |
+| Time to opioid use ≥ 7 days             | NR                                   | NR                               | NR                                  | NR                             | NR                                   | NR                             | NR                                  | NR                            | NR                                   | NR                                |
+| No. (%)*                                | 74 (15)                              | 106 (21)                         | 18 (12)                             | 11 (8)                         | 68 (15)                              | 94 (20)                        | 24 (12)                             | 23 (12)                       | 92 (14)                               | 117 (18)                           |
+| HR (95% CI)                             | 0.63 (0.47 to 0.85)                  |                                  | 1.46 (0.69 to 3.10)                 |                                | 0.66 (0.48 to 0.90)                 |                                | 0.94 (0.53 to 1.66)                 |                               | 0.69 (0.52 to 0.91)                  |                                  |
+
+*Abbreviations: CRPC, castration-resistant prostate cancer; mo, months; HR, hazard ratio; NR, not reached; SSE, symptomatic skeletal event.  
+*High Volume defined by CHAARTED criteria: presence of visceral metastases or ≥ 4 bone metastases with ≥ 1 beyond vertebral bodies and pelvis (Sweeney et al.).  
+*High Risk defined by LATITUDE criteria (two of the following three factors): Gleason score of ≥ 8, the presence of ≥ 3 bone lesions, or the presence of measurable visceral metastasis (Fizazi et al.).  
+*No. of patients with an event.
+
+##Caption##
+
+**Table 2. Secondary Efficacy End Points for the Subgroups of Patients by Disease Volume and Disease Risk in ARASENS**
+
+This table presents secondary efficacy endpoints for patients with metastatic hormone-sensitive prostate cancer (mHSPC) in the ARASENS trial, stratified by disease volume (high vs. low) and disease risk (high vs. low), as well as for all patients. The table compares outcomes between those treated with darolutamide and those given placebo, with all patients also receiving androgen deprivation therapy and docetaxel.
+
+**Row headers (endpoints):**
+- Time to CRPC (castration-resistant prostate cancer)
+- Time to pain progression
+- SSE-free survival (symptomatic skeletal event-free survival)
+- Time to first SSE
+- Time to subsequent antineoplastic therapy
+- Time to worsening disease-related symptoms
+- Time to opioid use ≥ 7 days
+
+Each endpoint includes the median time (months), number and percentage of patients with an event, and hazard ratio (HR) with 95% confidence interval (CI).
+
+**Column headers:**
+- High Volume - Darolutamide (n = 497)
+- High Volume - Placebo (n = 508)
+- Low Volume - Darolutamide (n = 154)
+- Low Volume - Placebo (n = 146)
+- High Risk - Darolutamide (n = 452)
+- High Risk - Placebo (n = 460)
+- Low Risk - Darolutamide (n = 199)
+- Low Risk - Placebo (n = 194)
+- All Patients - Darolutamide (n = 651)
+- All Patients - Placebo (n = 654)
+
+**Hierarchical header structure:**  
+The table originally used two levels of headers: main categories (High Volume, Low Volume, High Risk, Low Risk, All Patients) and subcategories (Darolutamide and Placebo with patient numbers). For clarity, these have been combined into single-level headers (e.g., "High Volume - Darolutamide (n = 497)").
+
+**Information present:**  
+The table provides detailed efficacy outcomes for each subgroup, including time to disease progression, pain, skeletal events, need for further therapy, symptom worsening, and opioid use. It also includes the number and percentage of patients experiencing each event and the hazard ratios comparing darolutamide to placebo.
+
+**Context:**  
+This table is part of a clinical trial report evaluating the efficacy of darolutamide in combination with standard therapy for mHSPC, with subgroup analyses by disease volume and risk to inform personalized treatment strategies.
+
+Task:
+- Evaluate EACH column independently. Do not assume the original plan is correct.
+- Decide if the original_extraction_plan is VALID or WRONG given ONLY the provided chunks.
+- Your reasoning MUST cite Chunk IDs and include verbatim quotes that justify the verdict.
+- If you cannot quote support from chunks, verdict must be WRONG.
+- If WRONG, provide a corrected plan (plan only, not extracted value). If VERIFIED, corrected plan may restate the original.
+
+Output a free-text report that follows this exact template for EVERY column (one block per column):
+
+COLUMN <column_index>: <column_name>
+VERDICT: VERIFIED|WRONG
+REASONING:
+- Chunk citations: Chunk <id> ... (include 1-3 short direct quotes)
+- Why the original plan is right/wrong
+ISSUES:
+- (bullet list; empty if none)
+CORRECTED_PLAN_JSON:
+{"found_in_pdf": true/false, "page": -1 or int, "source_type": "table|text|figure|not_applicable", "confidence": "high|medium|low", "extraction_plan": "..."}
+
+Rules:
+- Keep column_index and column_name exactly as provided.
+- CORRECTED_PLAN_JSON must always be present (even if VERIFIED, you can restate the original).
+- Do not wrap anything in code fences.
+
+
+============================================================
+RAW OUTPUT
+============================================================
+COLUMN 1: Median PFS (mo) | Overall | Treatment
+VERDICT: VERIFIED
+REASONING:
+- Chunk citations: Chunk 4: "Table 2. Secondary Efficacy End Points for the Subgroups of Patients by Disease Volume and Disease Risk in ARASENS", "Row headers (endpoints): - Time to CRPC (castration-resistant prostate cancer)", "All Patients - Darolutamide (n = 651) | NR"
+- Why the original plan is right/wrong: The original plan correctly identifies "Time to CRPC" as a measure of progression, which is a suitable proxy for PFS in this context, as indicated by the chunk's description of "Time to CRPC" as an efficacy endpoint related to "time to disease progression". The plan accurately specifies the location (Table 2, row 'Time to CRPC', column 'All Patients - Darolutamide (n = 651)') and the value 'NR' for the experimental arm (Darolutamide) in the overall patient group.
+ISSUES:
+-
+CORRECTED_PLAN_JSON:
+{"found_in_pdf": true, "page": 8, "source_type": "table", "confidence": "high", "extraction_plan": "The document reports \"Time to CRPC\" (Time to Castration-Resistant Prostate Cancer) as a secondary efficacy endpoint, which is a measure of progression. For the \"Overall\" group in the Darolutamide arm, the median \"Time to CRPC\" is \"NR\" (Not Reached). This can be found on page 8, in Table 2, under the row \"Time to CRPC\" and the column \"All Patients - Darolutamide (n=651)\"."}
+
+COLUMN 2: Median PFS (mo) | Overall | Control
+VERDICT: VERIFIED
+REASONING:
+- Chunk citations: Chunk 4: "Table 2. Secondary Efficacy End Points for the Subgroups of Patients by Disease Volume and Disease Risk in ARASENS", "Row headers (endpoints): - Time to CRPC (castration-resistant prostate cancer)", "All Patients - Placebo (n = 654) | 19.1"
+- Why the original plan is right/wrong: The original plan correctly identifies "Time to CRPC" as a measure of progression, which is a suitable proxy for PFS in this context. The plan accurately specifies the location (Table 2, row 'Time to CRPC', column 'All Patients - Placebo (n = 654)') and the value '19.1' months for the control arm (Placebo) in the overall patient group.
+ISSUES:
+-
+CORRECTED_PLAN_JSON:
+{"found_in_pdf": true, "page": 8, "source_type": "table", "confidence": "high", "extraction_plan": "The document reports \"Time to CRPC\" (Time to Castration-Resistant Prostate Cancer) as a secondary efficacy endpoint, which is a measure of progression. For the \"Overall\" group in the Placebo arm, the median \"Time to CRPC\" is \"19.1\" months. This can be found on page 8, in Table 2, under the row \"Time to CRPC\" and the column \"All Patients - Placebo (n=654)\"."}
+
+COLUMN 3: Median PFS (mo) | High volume | Treatment
+VERDICT: VERIFIED
+REASONING:
+- Chunk citations: Chunk 4: "Table 2. Secondary Efficacy End Points for the Subgroups of Patients by Disease Volume and Disease Risk in ARASENS", "Row headers (endpoints): - Time to CRPC (castration-resistant prostate cancer)", "High Volume - Darolutamide (n = 497) | NR", "*High Volume defined by CHAARTED criteria: presence of visceral metastases or ≥ 4 bone metastases with ≥ 1 beyond vertebral bodies and pelvis (Sweeney et al.)."
+- Why the original plan is right/wrong: The original plan correctly identifies "Time to CRPC" as a measure of progression, which is a suitable proxy for PFS. The plan accurately specifies the location (Table 2, row 'Time to CRPC', column 'High Volume - Darolutamide (n = 497)') and the value 'NR' for the experimental arm (Darolutamide) in the high volume subgroup. The chunk also confirms that "High Volume" is defined by CHAARTED criteria, as requested by the definition.
+ISSUES:
+-
+CORRECTED_PLAN_JSON:
+{"found_in_pdf": true, "page": 8, "source_type": "table", "confidence": "high", "extraction_plan": "The document reports \"Time to CRPC\" (Time to Castration-Resistant Prostate Cancer) as a secondary efficacy endpoint, which is a measure of progression. For the \"High Volume\" group in the Darolutamide arm, the median \"Time to CRPC\" is \"NR\" (Not Reached). This can be found on page 8, in Table 2, under the row \"Time to CRPC\" and the column \"High Volume - Darolutamide (n=497)\"."}
+
+COLUMN 4: Median PFS (mo) | High volume | Control
+VERDICT: VERIFIED
+REASONING:
+- Chunk citations: Chunk 4: "Table 2. Secondary Efficacy End Points for the Subgroups of Patients by Disease Volume and Disease Risk in ARASENS", "Row headers (endpoints): - Time to CRPC (castration-resistant prostate cancer)", "High Volume - Placebo (n = 508) | 16.4", "*High Volume defined by CHAARTED criteria: presence of visceral metastases or ≥ 4 bone metastases with ≥ 1 beyond vertebral bodies and pelvis (Sweeney et al.)."
+- Why the original plan is right/wrong: The original plan correctly identifies "Time to CRPC" as a measure of progression, which is a suitable proxy for PFS. The plan accurately specifies the location (Table 2, row 'Time to CRPC', column 'High Volume - Placebo (n = 508)') and the value '16.4' months for the control arm (Placebo) in the high volume subgroup. The chunk also confirms that "High Volume" is defined by CHAARTED criteria, as requested by the definition.
+ISSUES:
+-
+CORRECTED_PLAN_JSON:
+{"found_in_pdf": true, "page": 8, "source_type": "table", "confidence": "high", "extraction_plan": "The document reports \"Time to CRPC\" (Time to Castration-Resistant Prostate Cancer) as a secondary efficacy endpoint, which is a measure of progression. For the \"High Volume\" group in the Placebo arm, the median \"Time to CRPC\" is \"16.4\" months. This can be found on page 8, in Table 2, under the row \"Time to CRPC\" and the column \"High Volume - Placebo (n=508)\"."}
+
+COLUMN 5: Median PFS (mo) | Low volume | Treatment
+VERDICT: VERIFIED
+REASONING:
+- Chunk citations: Chunk 4: "Table 2. Secondary Efficacy End Points for the Subgroups of Patients by Disease Volume and Disease Risk in ARASENS", "Row headers (endpoints): - Time to CRPC (castration-resistant prostate cancer)", "Low Volume - Darolutamide (n = 154) | NR", "*High Volume defined by CHAARTED criteria: presence of visceral metastases or ≥ 4 bone metastases with ≥ 1 beyond vertebral bodies and pelvis (Sweeney et al.)."
+- Why the original plan is right/wrong: The original plan correctly identifies "Time to CRPC" as a measure of progression, which is a suitable proxy for PFS. The plan accurately specifies the location (Table 2, row 'Time to CRPC', column 'Low Volume - Darolutamide (n = 154)') and the value 'NR' for the experimental arm (Darolutamide) in the low volume subgroup. The chunk defines "High Volume" by CHAARTED criteria, implicitly confirming that "Low Volume" is also categorized by these criteria.
+ISSUES:
+-
+CORRECTED_PLAN_JSON:
+{"found_in_pdf": true, "page": 8, "source_type": "table", "confidence": "high", "extraction_plan": "The document reports \"Time to CRPC\" (Time to Castration-Resistant Prostate Cancer) as a secondary efficacy endpoint, which is a measure of progression. For the \"Low Volume\" group in the Darolutamide arm, the median \"Time to CRPC\" is \"NR\" (Not Reached). This can be found on page 8, in Table 2, under the row \"Time to CRPC\" and the column \"Low Volume - Darolutamide (n=154)\"."}
+
+COLUMN 6: Median PFS (mo) | Low volume | Control
+VERDICT: VERIFIED
+REASONING:
+- Chunk citations: Chunk 4: "Table 2. Secondary Efficacy End Points for the Subgroups of Patients by Disease Volume and Disease Risk in ARASENS", "Row headers (endpoints): - Time to CRPC (castration-resistant prostate cancer)", "Low Volume - Placebo (n = 146) | 25.8", "*High Volume defined by CHAARTED criteria: presence of visceral metastases or ≥ 4 bone metastases with ≥ 1 beyond vertebral bodies and pelvis (Sweeney et al.)."
+- Why the original plan is right/wrong: The original plan correctly identifies "Time to CRPC" as a measure of progression, which is a suitable proxy for PFS. The plan accurately specifies the location (Table 2, row 'Time to CRPC', column 'Low Volume - Placebo (n = 146)') and the value '25.8' months for the control arm (Placebo) in the low volume subgroup. The chunk defines "High Volume" by CHAARTED criteria, implicitly confirming that "Low Volume" is also categorized by these criteria.
+ISSUES:
+-
+CORRECTED_PLAN_JSON:
+{"found_in_pdf": true, "page": 8, "source_type": "table", "confidence": "high", "extraction_plan": "The document reports \"Time to CRPC\" (Time to Castration-Resistant Prostate Cancer) as a secondary efficacy endpoint, which is a measure of progression. For the \"Low Volume\" group in the Placebo arm, the median \"Time to CRPC\" is \"25.8\" months. This can be found on page 8, in Table 2, under the row \"Time to CRPC\" and the column \"Low Volume - Placebo (n=146)\"."}

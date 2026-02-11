@@ -1,24 +1,26 @@
 INPUT PROMPT:
 You are extracting clinical trial data from a research paper.
 
-TASK: Extract values for the following canonical columns. Use EXACT column names as listed.
+TASK: Extract values for the following columns using the provided extraction plans.
 
 COLUMNS TO EXTRACT:
 - Column index 1: "Median On-Treatment Duration (mo) | Treatment"
   Definition: What is the median duration in months that participants in the treatment arm of the trial received on-treatment therapy? If reported, include the value; use 'Not reported' if missing.
-  Expected Location: Page 11 | text
-  Planner Confidence: high
-  Extraction Instructions:
-  The median on-treatment duration for the darolutamide treatment arm is reported in the "DISCUSSION" section on page 11.
+  Extraction Plan:
+  The median on-treatment duration for the darolutamide treatment arm is reported in the text on page 11.
 
 RELEVANT CHUNKS:
 --- Chunk 11 (TEXT on page 10-13) ---
-The following represents disclosure information provided by authors of this manuscript. All relationships are considered compensated unless otherwise noted.Relationships are self-held unless noted. I 5 Immediate Family Member, Inst 5 My Institution. Relationships may not relate to the subject matter of this manuscript.For more information about ASCO’s conﬂict of interest policy, please refer to www.asco.org/rwc or ascopubs.org/jco/authors/author-center. Open Payments is a public database contain...
+The following represents disclosure information provided by authors of this manuscript. All relationships are considered compensated unless otherwise noted.Relationships are self-held unless noted. I 5 Immediate Family Member, Inst 5 My Institution. Relationships may not relate to the subject matter of this manuscript.For more information about ASCO’s conﬂict of interest policy, please refer to www.asco.org/rwc or ascopubs.org/jco/authors/author-center.
+Open Payments is a public database containing information reported by companies about payments made to US-licensed physicians (Open Payments).
+Maha HussainHonoraria: UroToday, Merck, Astellas Pharma, AstraZeneca, Precisca,Medscape Zero, Targeted Oncology, Great Debates and Updates in GUOncology, Clinical Care OptionsConsulting or Advisory Role: Pﬁzer, Novartis, Merck, Janssen, Tempus, Bayer,AstraZeneca, GlaxoSmithKline, Convergent TherapeuticsResearch Funding: Genentech (Inst), Pﬁzer (Inst), PCCTC (Inst), AstraZeneca(Inst), Bayer (Inst)
 
 GUIDELINES:
-- For each listed column, extract a value if explicitly present; otherwise set value=null.
-- Provide evidence as an exact quote, page number(s), confidence (high/medium/low).
-- Use the EXACT column names from the list above.
+- Follow the extraction plan for each column precisely
+- If the value cannot be extracted as described in the plan, set value=null
+- Provide evidence as an exact quote from the PDF
+- Include page number(s) and confidence level (high/medium/low)
+- Use the EXACT column names from the list above
 
 Output format (for each column):
 Column index <N>: "<Exact Column Name>"

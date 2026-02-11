@@ -307,7 +307,7 @@ Return ONLY valid JSON.
             name_policy=self.name_policy,
         )
 
-        plan_path = output_dir / f"{stem}_plan.json"
+        plan_path = logs_dir / f"{stem}_plan.json"
         plan_path.write_text(json.dumps(plan.model_dump(), indent=2), encoding="utf-8")
 
         found = sum(1 for c in plan.columns if c.found_in_pdf)

@@ -1,0 +1,84 @@
+GROUP: No. of Deaths - N
+PROVIDER: gemini
+MODEL: gemini-2.5-flash
+SUCCESS: True
+ERROR: None
+PROMPT_TOKENS: 726
+OUTPUT_TOKENS: 535
+============================================================
+INPUT PROMPT
+============================================================
+You are verifying extraction plans for a clinical trial paper using ONLY the provided chunks.
+
+You have:
+1) Relevant chunks selected from the chunking output.
+
+Group: No. of Deaths - N
+
+Columns to verify:
+- column_index: 1
+  column_name: No. of Deaths - N | Treatment
+  definition: What the number of participants who died in the treatment arm of the clinical trial?.
+  original_extraction_plan: Extract the number of deaths for the darolutamide group from the caption of Figure 1. The caption states: "The primary end point (OS) was assessed after 533 patients had died (229 in the darolutamide group and 304 in the placebo group)." The value for the darolutamide (treatment) group is 229.
+
+- column_index: 2
+  column_name: No. of Deaths - N | Control
+  definition: What number of deaths that occurred in the control arm of the clinical trial?.
+  original_extraction_plan: Extract the number of deaths for the placebo group from the caption of Figure 1. The caption states: "The primary end point (OS) was assessed after 533 patients had died (229 in the darolutamide group and 304 in the placebo group)." The value for the placebo (control) group is 304.
+
+Relevant chunks:
+--- Chunk 0 (FIGURE on page 3) ---
+```
+##Figure Descriptions##
+
+## Figure 1
+This figure is a CONSORT flow diagram depicting the screening, randomization, allocation, and analysis of patients in a clinical trial comparing darolutamide + docetaxel + ADT versus placebo + docetaxel + ADT in metastatic hormone-sensitive prostate cancer. It details the number of patients screened, reasons for exclusion, allocation to treatment arms, reasons for discontinuation, and the numbers analyzed for primary and safety endpoints in each group.
+```
+
+Task:
+- Evaluate EACH column independently. Do not assume the original plan is correct.
+- Decide if the original_extraction_plan is VALID or WRONG given ONLY the provided chunks.
+- Your reasoning MUST cite Chunk IDs and include verbatim quotes that justify the verdict.
+- If you cannot quote support from chunks, verdict must be WRONG.
+- If WRONG, provide a corrected plan (plan only, not extracted value). If VERIFIED, corrected plan may restate the original.
+
+Output a free-text report that follows this exact template for EVERY column (one block per column):
+
+COLUMN <column_index>: <column_name>
+VERDICT: VERIFIED|WRONG
+REASONING:
+- Chunk citations: Chunk <id> ... (include 1-3 short direct quotes)
+- Why the original plan is right/wrong
+ISSUES:
+- (bullet list; empty if none)
+CORRECTED_PLAN_JSON:
+{"found_in_pdf": true/false, "page": -1 or int, "source_type": "table|text|figure|not_applicable", "confidence": "high|medium|low", "extraction_plan": "..."}
+
+Rules:
+- Keep column_index and column_name exactly as provided.
+- CORRECTED_PLAN_JSON must always be present (even if VERIFIED, you can restate the original).
+- Do not wrap anything in code fences.
+
+
+============================================================
+RAW OUTPUT
+============================================================
+COLUMN 1: No. of Deaths - N | Treatment
+VERDICT: WRONG
+REASONING:
+- Chunk citations: Chunk 0
+- Why the original plan is right/wrong: The original extraction plan states that the number of deaths for the darolutamide group is found in the caption of Figure 1 and provides a direct quote from that caption. However, the provided Chunk 0 is a "Figure Description" of Figure 1 and does not contain the specific quoted text: "The primary end point (OS) was assessed after 533 patients had died (229 in the darolutamide group and 304 in the placebo group)." Therefore, the original plan cannot be verified using only the provided chunk.
+ISSUES:
+- The specific text quoted in the original extraction plan is not present in the provided chunk.
+CORRECTED_PLAN_JSON:
+{"found_in_pdf": false, "page": -1, "source_type": "text", "confidence": "low", "extraction_plan": "The specific text quoted in the original extraction plan, which states the number of deaths for the darolutamide group, is not present in the provided chunks. The original plan indicates this information is in the caption of Figure 1."}
+
+COLUMN 2: No. of Deaths - N | Control
+VERDICT: WRONG
+REASONING:
+- Chunk citations: Chunk 0
+- Why the original plan is right/wrong: The original extraction plan states that the number of deaths for the placebo group is found in the caption of Figure 1 and provides a direct quote from that caption. However, the provided Chunk 0 is a "Figure Description" of Figure 1 and does not contain the specific quoted text: "The primary end point (OS) was assessed after 533 patients had died (229 in the darolutamide group and 304 in the placebo group)." Therefore, the original plan cannot be verified using only the provided chunk.
+ISSUES:
+- The specific text quoted in the original extraction plan is not present in the provided chunk.
+CORRECTED_PLAN_JSON:
+{"found_in_pdf": false, "page": -1, "source_type": "text", "confidence": "low", "extraction_plan": "The specific text quoted in the original extraction plan, which states the number of deaths for the placebo group, is not present in the provided chunks. The original plan indicates this information is in the caption of Figure 1."}

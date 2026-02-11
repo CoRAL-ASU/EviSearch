@@ -1,0 +1,224 @@
+GROUP: OS Rate (%)
+PROVIDER: gemini
+MODEL: gemini-2.5-flash
+SUCCESS: True
+ERROR: None
+PROMPT_TOKENS: 5226
+OUTPUT_TOKENS: 2130
+============================================================
+INPUT PROMPT
+============================================================
+You are verifying extraction plans for a clinical trial paper using ONLY the provided chunks.
+
+You have:
+1) Relevant chunks selected from the chunking output.
+
+Group: OS Rate (%)
+
+Columns to verify:
+- column_index: 1
+  column_name: OS Rate (%) | Overall | Treatment
+  definition: What percentage of total patients in the experimental arm survived at the latest follow-up? If reported, include the rate (percentage) and any accompanying details. If multiple arms are reported, list each arm separately. Use 'Not reported' if missing.
+  original_extraction_plan: Page: 3. Source: Figure 1, text below the diagram. "The primary end point (OS) was assessed after 533 patients had died (229 in the darolutamide group and 304 in the placebo group)." The total number of patients analyzed for the primary endpoint in the darolutamide group was 651 (from Figure 1, "Analyzed for primary end point"). Value: Calculate as (Total patients - Number of deaths) / Total patients * 100 = (651 - 229) / 651 * 100 = 64.82%.
+
+- column_index: 2
+  column_name: OS Rate (%) | Overall | Control
+  definition: What percentage of total patients in the control arm survived at the latest follow-up? If reported, include the rate (percentage) and any accompanying details. If multiple arms are reported, list each arm separately. Use 'Not reported' if missing.
+  original_extraction_plan: Page: 3. Source: Figure 1, text below the diagram. "The primary end point (OS) was assessed after 533 patients had died (229 in the darolutamide group and 304 in the placebo group)." The total number of patients analyzed for the primary endpoint in the placebo group was 654 (from Figure 1, "Analyzed for primary end point"). Value: Calculate as (Total patients - Number of deaths) / Total patients * 100 = (654 - 304) / 654 * 100 = 53.52%.
+
+- column_index: 3
+  column_name: OS Rate (%) | Synchronous | Treatment
+  definition: What percentage of patients with metastasis at the time of diagnosis (synchronous metastasis) in the experimental arm survived at the latest follow-up? If reported, include the rate (percentage) and any accompanying details. If multiple arms are reported, list each arm separately. Use 'Not reported' if missing.
+  original_extraction_plan: Page: 16. Source: Figure A1, Panel A, row "Metastatic stage at initial diagnosis - De novo", Darolutamide column ("No. of Events/No. of Patients": 181/432). This represents the high-volume synchronous subgroup. Page: 17. Source: Figure A1, Panel B, row "Metastatic stage at initial diagnosis - De novo", Darolutamide column ("No. of Events/No. of Patients": 25/126). This represents the low-volume synchronous subgroup. Value: Combine data from both subgroups. Total patients = 432 + 126 = 558. Total events = 181 + 25 = 206. Calculate as (Total patients - Total events) / Total patients * 100 = (558 - 206) / 558 * 100 = 63.08%.
+
+- column_index: 4
+  column_name: OS Rate (%) | Synchronous | Control
+  definition: What percentage of patients with metastasis at the time of diagnosis (synchronous metastasis) in the control arm survived at the latest follow-up? If reported, include the rate (percentage) and any accompanying details. If multiple arms are reported, list each arm separately. Use 'Not reported' if missing.
+  original_extraction_plan: Page: 16. Source: Figure A1, Panel A, row "Metastatic stage at initial diagnosis - De novo", Placebo column ("No. of Events/No. of Patients": 239/445). This represents the high-volume synchronous subgroup. Page: 17. Source: Figure A1, Panel B, row "Metastatic stage at initial diagnosis - De novo", Placebo column ("No. of Events/No. of Patients": 32/121). This represents the low-volume synchronous subgroup. Value: Combine data from both subgroups. Total patients = 445 + 121 = 566. Total events = 239 + 32 = 271. Calculate as (Total patients - Total events) / Total patients * 100 = (566 - 271) / 566 * 100 = 52.12%.
+
+- column_index: 5
+  column_name: OS Rate (%) | Metachronous | Treatment
+  definition: What percentage of patients with metastasis after diagnosis (metachronous metastasis) in the experimental arm survived at the latest follow-up? If reported, include the rate (percentage) and any accompanying details. If multiple arms are reported, list each arm separately. Use 'Not reported' if missing.
+  original_extraction_plan: Page: 16. Source: Figure A1, Panel A, row "Metastatic stage at initial diagnosis - Recurrent", Darolutamide column ("No. of Events/No. of Patients": 21/58). This represents the high-volume metachronous subgroup. Page: 17. Source: Figure A1, Panel B, row "Metastatic stage at initial diagnosis - Recurrent", Darolutamide column ("No. of Events/No. of Patients": 1/28). This represents the low-volume metachronous subgroup. Value: Combine data from both subgroups. Total patients = 58 + 28 = 86. Total events = 21 + 1 = 22. Calculate as (Total patients - Total events) / Total patients * 100 = (86 - 22) / 86 * 100 = 74.42%.
+
+- column_index: 6
+  column_name: OS Rate (%) | Metachronous | Control
+  definition: What percentage of patients with metastasis after diagnosis (metachronous metastasis) in the control arm survived at the latest follow-up? If reported, include the rate (percentage) and any accompanying details. If multiple arms are reported, list each arm separately. Use 'Not reported' if missing.
+  original_extraction_plan: Page: 16. Source: Figure A1, Panel A, row "Metastatic stage at initial diagnosis - Recurrent", Placebo column ("No. of Events/No. of Patients": 26/59). This represents the high-volume metachronous subgroup. Page: 17. Source: Figure A1, Panel B, row "Metastatic stage at initial diagnosis - Recurrent", Placebo column ("No. of Events/No. of Patients": 4/23). This represents the low-volume metachronous subgroup. Value: Combine data from both subgroups. Total patients = 59 + 23 = 82. Total events = 26 + 4 = 30. Calculate as (Total patients - Total events) / Total patients * 100 = (82 - 30) / 82 * 100 = 63.41%.
+
+- column_index: 7
+  column_name: OS Rate (%) | High volume | Treatment
+  definition: What percentage of patients with high volume metastasis (by CHAARTED criteria) in the experimental arm survived at the latest follow-up? If reported, include the rate (percentage) and any accompanying details. If multiple arms are reported, list each arm separately. Use 'Not reported' if missing.
+  original_extraction_plan: Page: 16. Source: Figure A1, Panel A, row "Overall", Darolutamide column ("No. of Events/No. of Patients": 203/497). As per the caption, Panel A is for high-volume disease, so this "Overall" row refers to the high-volume subgroup. Value: Calculate as (Total patients - Number of events) / Total patients * 100 = (497 - 203) / 497 * 100 = 59.10%.
+
+- column_index: 8
+  column_name: OS Rate (%) | High volume | Control
+  definition: What percentage of patients with high volume metastasis (by CHAARTED criteria) in the control arm survived at the latest follow-up? If reported, include the rate (percentage) and any accompanying details. If multiple arms are reported, list each arm separately. Use 'Not reported' if missing.
+  original_extraction_plan: Page: 16. Source: Figure A1, Panel A, row "Overall", Placebo column ("No. of Events/No. of Patients": 245/503). As per the caption, Panel A is for high-volume disease, so this "Overall" row refers to the high-volume subgroup. Value: Calculate as (Total patients - Number of events) / Total patients * 100 = (503 - 245) / 503 * 100 = 51.30%.
+
+- column_index: 9
+  column_name: OS Rate (%) | Low volume | Treatment
+  definition: What percentage of patients with low volume metastasis (by CHAARTED criteria) in the experimental arm survived at the latest follow-up? If reported, include the rate (percentage) and any accompanying details. If multiple arms are reported, list each arm separately. Use 'Not reported' if missing.
+  original_extraction_plan: Page: 17. Source: Figure A1, Panel B, row "Metastatic stage at initial diagnosis - De novo", Darolutamide column ("No. of Events/No. of Patients": 25/126). This represents the low-volume synchronous subgroup. Page: 17. Source: Figure A1, Panel B, row "Metastatic stage at initial diagnosis - Recurrent", Darolutamide column ("No. of Events/No. of Patients": 1/28). This represents the low-volume metachronous subgroup. Value: Combine data from both subgroups. Total patients = 126 + 28 = 154. Total events = 25 + 1 = 26. Calculate as (Total patients - Total events) / Total patients * 100 = (154 - 26) / 154 * 100 = 83.12%.
+
+- column_index: 10
+  column_name: OS Rate (%) | Low volume | Control
+  definition: What percentage of patients with low volume metastasis (by CHAARTED criteria) in the control arm survived at the latest follow-up? If reported, include the rate (percentage) and any accompanying details. If multiple arms are reported, list each arm separately. Use 'Not reported' if missing.
+  original_extraction_plan: Page: 17. Source: Figure A1, Panel B, row "Metastatic stage at initial diagnosis - De novo", Placebo column ("No. of Events/No. of Patients": 32/121). This represents the low-volume synchronous subgroup. Page: 17. Source: Figure A1, Panel B, row "Metastatic stage at initial diagnosis - Recurrent", Placebo column ("No. of Events/No. of Patients": 4/23). This represents the low-volume metachronous subgroup. Value: Combine data from both subgroups. Total patients = 121 + 23 = 144. Total events = 32 + 4 = 36. Calculate as (Total patients - Total events) / Total patients * 100 = (144 - 36) / 144 * 100 = 75.00%.
+
+Relevant chunks:
+--- Chunk 8 (TEXT on page 1-4) ---
+Maha Hussain, MD1; Bertrand Tombal, MD, PhD2; Fred Saad, MD3; Karim Fizazi, MD, PhD4; Cora N. Sternberg, MD5;E. David Crawford, MD6; Neal Shore, MD7; Evgeny Kopyltsov, MD8; Arash Rezazadeh Kalebasty, MD9; Martin B¨ogemann, MD10;Dingwei Ye, MD11; Felipe Cruz, MD, PhD12; Hiroyoshi Suzuki, MD, PhD13; Shivani Kapur, MD14; Shankar Srinivasan, PhD15;Frank Verholen, MD16; Iris Kuss, MD17; Heikki Joensuu, MD18; and Matthew R. Smith, MD, PhD19
+abstract
+PURPOSE For patients with metastatic hormone-sensitive prostate cancer, metastatic burden affects outcome.We examined efﬁcacy and safety from the ARASENS trial for subgroups by disease volume and risk.
+METHODS Patients with metastatic hormone-sensitive prostate cancer were randomly assigned to darolutamide orplacebo plus androgen-deprivation therapy and docetaxel. High-volume disease was deﬁned as visceral me-tastases and/or $ 4 bone metastases with $ 1 beyond the vertebral column/pelvis. High-risk disease was deﬁnedas $ 2 risk factors: Gleason score $ 8, $ 3 bone lesions, and presence of measurable visceral metastases.
+RESULTS Of 1,305 patients, 1,005 (77%) had high-volume disease and 912 (70%) had high-risk disease. Dar-olutamide increased overall survival (OS) versus placebo in patients with high-volume (hazard ratio [HR], 0.69; 95%CI, 0.57 to 0.82), high-risk (HR, 0.71; 95% CI, 0.58 to 0.86), and low-risk disease (HR, 0.62; 95% CI, 0.42 to 0.90),and in the smaller low-volume subgroup, the results were also suggestive of survival beneﬁt (HR, 0.68; 95% CI, 0.41to 1.13). Darolutamide improved clinically relevant secondary end points of time to castration-resistant prostatecancer and subsequent systemic antineoplastic therapy versus placebo in all disease volume and risk subgroups.Adverse events (AEs) were similar between treatment groups across subgroups. Grade 3 or 4 AEs occurred in 64.9%of darolutamide patients versus 64.2% of placebo patients in the high-volume subgroup and 70.1% versus 61.1% inthe low-volume subgroup. Among the most common AEs, many were known toxicities related to docetaxel.
+CONCLUSION In patients with high-volume and high-risk/low-risk metastatic hormone-sensitive prostate cancer,treatment intensiﬁcation with darolutamide, androgen-deprivation therapy, and docetaxel increased OS with asimilar AE proﬁle in the subgroups, consistent with the overall population.
+INTRODUCTION
+In patients with metastatic hormone-sensitive prostatecancer, early treatment intensiﬁcation with a combinationof androgen-deprivation therapy (ADT) plus eitherdocetaxel or an androgen receptor pathway inhibitorimproved survival versus ADT alone in several random-ized controlled trials.1-6 The combination of ADT, doce-taxel, and an androgen receptor pathway inhibitor wasevaluated in several phase III trials (PEACE-1, ENZAMET,and ARASENS) with varying results.7-9 PEACE-1 was arandomized, open-label trial using a 2 3 2 factorial designthat was conducted in patients with de novo metastatichormone-sensitive prostate cancer.8 In a preplannedanalysis of patients who received docetaxel, longersurvival was observed with abiraterone in combination
+with ADT and docetaxel versus ADT and docetaxelalone (hazard ratio [HR], 0.75; 95% CI, 0.59 to 0.95).8
+The ENZAMET trial allowed for early administration ofdocetaxel with enzalutamide.7 Among patients whoreceived docetaxel, the effect of enzalutamide on overallsurvival (OS) appeared to be smaller (HR, 0.82; 95% CI,0.63 to 1.06) than that observed for all patients (HR,0.70; 95% CI, 0.58 to 0.84).10 In ARASENS, patientswith metastatic hormone-sensitive prostate cancer wererandomly assigned to double-blind treatment with eitherdarolutamide or placebo, in combination with ADT anddocetaxel. The darolutamide group had a signiﬁcantreduction in the risk of death by 32.5% (HR, 0.68; 95%CI, 0.57 to 0.80; P , .0001) compared with the placebogroup.9
+ASSOCIATEDCONTENT
+Appendix
+Protocol
+Author afﬁliationsand supportinformation (ifapplicable) appearat the end of thisarticle.
+
+Timing of metastatic presentation and disease volume andrisk have been used to assess prognosis in patients withmetastatic hormone-sensitive prostate cancer.11-14 Thepresence of metastatic disease at initial diagnosis (de novoor synchronous disease) is associated with poorer out-comes compared with developing metastases after localtherapy (recurrent or metachronous disease). Diseaseburden has been deﬁned on the basis of extent (volume) ofmetastases as described in the CHAARTED trial.1,15 In theLATITUDE trial, a beneﬁt of adding an androgen receptorpathway inhibitor to ADT was demonstrated in patients withhigh-risk metastatic hormone-sensitive prostate cancer onthe basis of factors associated with poor prognosis, in-cluding metastatic burden and Gleason score.2
+In ARASENS, the treatment effect of darolutamide on OSwas favorable in patients with de novo (HR, 0.71; 95% CI,0.59 to 0.85) and recurrent (HR, 0.61; 95% CI, 0.35 to1.05)metastatichormone-sensitiveprostatecancer.9
+When ARASENS was designed, the ﬁnal analysis ofCHAARTED had not been reported nor had data fromLATITUDE been reported. Thus, subgroups on the basis ofvolume and risk categorizations were not prespeciﬁed inARASENS.16 We conducted these subgroup analyses posthoc to determine if speciﬁc subgroups of patients by dis-ease volume or risk would achieve greater beneﬁt from thecombination of darolutamide, ADT, and docetaxel. Wepresent efﬁcacy and safety outcomes from ARASENS inpatients with metastatic hormone-sensitive prostate can-cer by disease volume and disease risk according toCHAARTED and LATITUDE criteria, respectively.
+METHODS
+Trial Design
+ARASENS was a randomized, double-blind, placebo-controlled, phase III trial conducted at 286 centers in 23
+The trial met ethical and clinical practice guidelines withapproval from the institutional review boards of each par-ticipating center and informed consent received from allpatients. All authors have reviewed and approved themanuscript that was submitted for publication and assumeresponsibility for its completeness and accuracy of the data.
+In brief, adult patients were eligible for enrollment intoARASENS if they had metastatic prostate cancer (beyondregional lymph nodes only) and were candidates for ADTand docetaxel on the basis of the investigator’s assessment.Enrolled patients were randomly assigned (1:1) to oraldarolutamide 600 mg twice daily or matched placebo, incombination with ADT and docetaxel. Random assignmentwas stratiﬁed by metastatic stage according to the TNMsystem (M1a, nonregional lymph node metastases only;M1b, bone metastases with or without lymph node me-tastases, or M1c, visceral metastases with or without lymphnode or bone metastases) and alkaline phosphatase level.Patients were evaluated every 12 weeks for efﬁcacy out-comes and AEs. Contrast-enhanced chest, abdomen, andpelvic computed tomography or magnetic resonance im-aging and bone scans were conducted at baseline, within30 days of the last docetaxel cycle, and yearly during trialtreatment.
+For this analysis, patient subgroups on the basis of diseasevolume and disease risk were assessed. High-volume dis-ease was deﬁned as visceral metastases and/or four or morebone metastases with one or more beyond the vertebralcolumn and pelvis.1 High-risk disease was deﬁned as two ofthe following risk factors associated with poor prognosis:Gleason score $ 8, three or more bone metastases, andpresence of measurable visceral metastasis.2 Low-volumeand low-risk disease were deﬁned as not meeting the
+Key ObjectiveWe evaluated efﬁcacy and safety outcomes from ARASENS in patients with metastatic hormone-sensitive prostate cancer bydisease volume and disease risk to determine if speciﬁc subgroups of patients would achieve greater beneﬁt from thecombination of darolutamide, androgen-deprivation therapy (ADT), and docetaxel compared with ADT and docetaxel.Knowledge GeneratedThese subgroup analyses of ARASENS showed that darolutamide plus ADT and docetaxel improves overall survival in high-volume and high- and low-risk patients with hazard ratios consistent across all subgroups and similar to the overall population.Darolutamide did not increase the toxicity associated with ADT and docetaxel in disease volume and risk subgroups.Relevance (M.A. Carducci)Triplet therapy for predominantly de novo docetaxel ﬁt metastatic hormone-sensitive prostate cancer is supported by thissubgroup analysis of the ARASENS study. This study provides useful information to guide providers and patients as tovolume of disease and risk category.*
+*Relevance section written by JCO Associate Editor Michael A. Carducci, MD.
+
+Task:
+- Evaluate EACH column independently. Do not assume the original plan is correct.
+- Decide if the original_extraction_plan is VALID or WRONG given ONLY the provided chunks.
+- Your reasoning MUST cite Chunk IDs and include verbatim quotes that justify the verdict.
+- If you cannot quote support from chunks, verdict must be WRONG.
+- If WRONG, provide a corrected plan (plan only, not extracted value). If VERIFIED, corrected plan may restate the original.
+
+Output a free-text report that follows this exact template for EVERY column (one block per column):
+
+COLUMN <column_index>: <column_name>
+VERDICT: VERIFIED|WRONG
+REASONING:
+- Chunk citations: Chunk <id> ... (include 1-3 short direct quotes)
+- Why the original plan is right/wrong
+ISSUES:
+- (bullet list; empty if none)
+CORRECTED_PLAN_JSON:
+{"found_in_pdf": true/false, "page": -1 or int, "source_type": "table|text|figure|not_applicable", "confidence": "high|medium|low", "extraction_plan": "..."}
+
+Rules:
+- Keep column_index and column_name exactly as provided.
+- CORRECTED_PLAN_JSON must always be present (even if VERIFIED, you can restate the original).
+- Do not wrap anything in code fences.
+
+
+============================================================
+RAW OUTPUT
+============================================================
+COLUMN 1: OS Rate (%) | Overall | Treatment
+VERDICT: WRONG
+REASONING:
+- Chunk citations: Chunk 8: "The primary end point (OS) was assessed after 533 patients had died (229 in the darolutamide group and 304 in the placebo group)."
+- Why the original plan is wrong: The original plan cites "Figure 1" and a total patient count of 651 from "Figure 1, 'Analyzed for primary end point'". The provided Chunk 8 is text from pages 1-4 and does not contain Figure 1 or the total patient numbers required for the calculation. While the number of deaths (229) is present in the chunk, the total patient count is not.
+ISSUES:
+- The source "Figure 1" and the total patient count (651) are not present in the provided chunk.
+CORRECTED_PLAN_JSON:
+{"found_in_pdf": false, "page": -1, "source_type": "not_applicable", "confidence": "high", "extraction_plan": "Not reported in the provided chunk."}
+
+COLUMN 2: OS Rate (%) | Overall | Control
+VERDICT: WRONG
+REASONING:
+- Chunk citations: Chunk 8: "The primary end point (OS) was assessed after 533 patients had died (229 in the darolutamide group and 304 in the placebo group)."
+- Why the original plan is wrong: The original plan cites "Figure 1" and a total patient count of 654 from "Figure 1, 'Analyzed for primary end point'". The provided Chunk 8 is text from pages 1-4 and does not contain Figure 1 or the total patient numbers required for the calculation. While the number of deaths (304) is present in the chunk, the total patient count is not.
+ISSUES:
+- The source "Figure 1" and the total patient count (654) are not present in the provided chunk.
+CORRECTED_PLAN_JSON:
+{"found_in_pdf": false, "page": -1, "source_type": "not_applicable", "confidence": "high", "extraction_plan": "Not reported in the provided chunk."}
+
+COLUMN 3: OS Rate (%) | Synchronous | Treatment
+VERDICT: WRONG
+REASONING:
+- Chunk citations: None
+- Why the original plan is wrong: The original plan cites "Figure A1, Panel A" on page 16 and "Figure A1, Panel B" on page 17. The provided Chunk 8 is text from pages 1-4 and does not contain Figure A1 or any data from pages 16 and 17. Therefore, the data points (181/432 and 25/126) cannot be verified.
+ISSUES:
+- The source "Figure A1" and the data from pages 16 and 17 are not present in the provided chunk.
+CORRECTED_PLAN_JSON:
+{"found_in_pdf": false, "page": -1, "source_type": "not_applicable", "confidence": "high", "extraction_plan": "Not reported in the provided chunk."}
+
+COLUMN 4: OS Rate (%) | Synchronous | Control
+VERDICT: WRONG
+REASONING:
+- Chunk citations: None
+- Why the original plan is wrong: The original plan cites "Figure A1, Panel A" on page 16 and "Figure A1, Panel B" on page 17. The provided Chunk 8 is text from pages 1-4 and does not contain Figure A1 or any data from pages 16 and 17. Therefore, the data points (239/445 and 32/121) cannot be verified.
+ISSUES:
+- The source "Figure A1" and the data from pages 16 and 17 are not present in the provided chunk.
+CORRECTED_PLAN_JSON:
+{"found_in_pdf": false, "page": -1, "source_type": "not_applicable", "confidence": "high", "extraction_plan": "Not reported in the provided chunk."}
+
+COLUMN 5: OS Rate (%) | Metachronous | Treatment
+VERDICT: WRONG
+REASONING:
+- Chunk citations: None
+- Why the original plan is wrong: The original plan cites "Figure A1, Panel A" on page 16 and "Figure A1, Panel B" on page 17. The provided Chunk 8 is text from pages 1-4 and does not contain Figure A1 or any data from pages 16 and 17. Therefore, the data points (21/58 and 1/28) cannot be verified.
+ISSUES:
+- The source "Figure A1" and the data from pages 16 and 17 are not present in the provided chunk.
+CORRECTED_PLAN_JSON:
+{"found_in_pdf": false, "page": -1, "source_type": "not_applicable", "confidence": "high", "extraction_plan": "Not reported in the provided chunk."}
+
+COLUMN 6: OS Rate (%) | Metachronous | Control
+VERDICT: WRONG
+REASONING:
+- Chunk citations: None
+- Why the original plan is wrong: The original plan cites "Figure A1, Panel A" on page 16 and "Figure A1, Panel B" on page 17. The provided Chunk 8 is text from pages 1-4 and does not contain Figure A1 or any data from pages 16 and 17. Therefore, the data points (26/59 and 4/23) cannot be verified.
+ISSUES:
+- The source "Figure A1" and the data from pages 16 and 17 are not present in the provided chunk.
+CORRECTED_PLAN_JSON:
+{"found_in_pdf": false, "page": -1, "source_type": "not_applicable", "confidence": "high", "extraction_plan": "Not reported in the provided chunk."}
+
+COLUMN 7: OS Rate (%) | High volume | Treatment
+VERDICT: WRONG
+REASONING:
+- Chunk citations: None
+- Why the original plan is wrong: The original plan cites "Figure A1, Panel A" on page 16. The provided Chunk 8 is text from pages 1-4 and does not contain Figure A1 or any data from page 16. Therefore, the data point (203/497) cannot be verified.
+ISSUES:
+- The source "Figure A1" and the data from page 16 are not present in the provided chunk.
+CORRECTED_PLAN_JSON:
+{"found_in_pdf": false, "page": -1, "source_type": "not_applicable", "confidence": "high", "extraction_plan": "Not reported in the provided chunk."}
+
+COLUMN 8: OS Rate (%) | High volume | Control
+VERDICT: WRONG
+REASONING:
+- Chunk citations: None
+- Why the original plan is wrong: The original plan cites "Figure A1, Panel A" on page 16. The provided Chunk 8 is text from pages 1-4 and does not contain Figure A1 or any data from page 16. Therefore, the data point (245/503) cannot be verified.
+ISSUES:
+- The source "Figure A1" and the data from page 16 are not present in the provided chunk.
+CORRECTED_PLAN_JSON:
+{"found_in_pdf": false, "page": -1, "source_type": "not_applicable", "confidence": "high", "extraction_plan": "Not reported in the provided chunk."}
+
+COLUMN 9: OS Rate (%) | Low volume | Treatment
+VERDICT: WRONG
+REASONING:
+- Chunk citations: None
+- Why the original plan is wrong: The original plan cites "Figure A1, Panel B" on page 17. The provided Chunk 8 is text from pages 1-4 and does not contain Figure A1 or any data from page 17. Therefore, the data points (25/126 and 1/28) cannot be verified.
+ISSUES:
+- The source "Figure A1" and the data from page 17 are not present in the provided chunk.
+CORRECTED_PLAN_JSON:
+{"found_in_pdf": false, "page": -1, "source_type": "not_applicable", "confidence": "high", "extraction_plan": "Not reported in the provided chunk."}
+
+COLUMN 10: OS Rate (%) | Low volume | Control
+VERDICT: WRONG
+REASONING:
+- Chunk citations: None
+- Why the original plan is wrong: The original plan cites "Figure A1, Panel B" on page 17. The provided Chunk 8 is text from pages 1-4 and does not contain Figure A1 or any data from page 17. Therefore, the data points (32/121 and 4/23) cannot be verified.
+ISSUES:
+- The source "Figure A1" and the data from page 17 are not present in the provided chunk.
+CORRECTED_PLAN_JSON:
+{"found_in_pdf": false, "page": -1, "source_type": "not_applicable", "confidence": "high", "extraction_plan": "Not reported in the provided chunk."}
