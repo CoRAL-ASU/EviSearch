@@ -1,0 +1,427 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Failure Table Viewer</title>
+    <style>
+      :root {
+        --bg: #0f1115;
+        --panel: #151923;
+        --text: #e6e8ee;
+        --muted: #a6adbb;
+        --border: #2a3142;
+        --accent: #5aa9e6;
+      }
+      body {
+        margin: 0;
+        font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+        background: var(--bg);
+        color: var(--text);
+      }
+      .wrap {
+        max-width: 1400px;
+        margin: 24px auto;
+        padding: 0 16px;
+      }
+      h1 {
+        font-size: 20px;
+        margin: 0 0 12px;
+      }
+      .panel {
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 12px;
+        margin-bottom: 16px;
+      }
+      .row {
+        display: grid;
+        grid-template-columns: repeat(6, minmax(0, 1fr));
+        gap: 10px;
+      }
+      .row + .row {
+        margin-top: 10px;
+      }
+      label {
+        font-size: 12px;
+        color: var(--muted);
+        display: block;
+        margin-bottom: 4px;
+      }
+      input {
+        width: 100%;
+        box-sizing: border-box;
+        padding: 6px 8px;
+        border-radius: 6px;
+        border: 1px solid var(--border);
+        background: #0c0f14;
+        color: var(--text);
+      }
+      button {
+        padding: 6px 10px;
+        border-radius: 6px;
+        border: 1px solid var(--border);
+        background: #0c0f14;
+        color: var(--text);
+        cursor: pointer;
+      }
+      button:hover {
+        border-color: var(--accent);
+      }
+      .muted {
+        color: var(--muted);
+        font-size: 12px;
+      }
+      .toolbar {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        flex-wrap: wrap;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 12px;
+      }
+      thead th {
+        position: sticky;
+        top: 0;
+        background: #101520;
+        text-align: left;
+        padding: 8px;
+        border-bottom: 1px solid var(--border);
+        z-index: 1;
+      }
+      tbody td {
+        padding: 6px 8px;
+        border-bottom: 1px solid var(--border);
+        vertical-align: top;
+      }
+      .count {
+        font-size: 12px;
+        color: var(--muted);
+      }
+      .right {
+        text-align: right;
+      }
+      .note {
+        font-size: 12px;
+        color: var(--muted);
+        margin-top: 8px;
+      }
+      .file {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+      }
+      .file input[type="file"] {
+        border: none;
+        padding: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <h1>Failure Case Viewer</h1>
+      <div class="panel">
+        <div class="toolbar">
+          <div class="file">
+            <label for="fileInput">Load CSV</label>
+            <input id="fileInput" type="file" accept=".csv" />
+          </div>
+          <button id="loadLocal">Try load failures.csv</button>
+          <button id="clearFilters">Clear filters</button>
+          <span class="count" id="rowCount">0 rows</span>
+        </div>
+        <div class="note" id="mappingNote"></div>
+      </div>
+
+      <div class="panel">
+        <div class="row">
+          <div>
+            <label for="pdfFilter">PDF</label>
+            <input id="pdfFilter" placeholder="Contains..." />
+          </div>
+          <div>
+            <label for="columnFilter">Column</label>
+            <input id="columnFilter" placeholder="Contains..." />
+          </div>
+          <div>
+            <label for="modelFilter">Model</label>
+            <input id="modelFilter" placeholder="Contains..." />
+          </div>
+          <div>
+            <label for="categoryFilter">Category</label>
+            <input id="categoryFilter" placeholder="Contains..." />
+          </div>
+          <div>
+            <label for="correctnessMin">Correctness (min)</label>
+            <input id="correctnessMin" type="number" step="0.01" min="0" max="1" />
+          </div>
+          <div>
+            <label for="correctnessMax">Correctness (max)</label>
+            <input id="correctnessMax" type="number" step="0.01" min="0" max="1" />
+          </div>
+        </div>
+        <div class="row">
+          <div>
+            <label for="completenessMin">Completeness (min)</label>
+            <input id="completenessMin" type="number" step="0.01" min="0" max="1" />
+          </div>
+          <div>
+            <label for="completenessMax">Completeness (max)</label>
+            <input id="completenessMax" type="number" step="0.01" min="0" max="1" />
+          </div>
+          <div>
+            <label for="overallMin">Overall (min)</label>
+            <input id="overallMin" type="number" step="0.01" min="0" max="1" />
+          </div>
+          <div>
+            <label for="overallMax">Overall (max)</label>
+            <input id="overallMax" type="number" step="0.01" min="0" max="1" />
+          </div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <table id="dataTable">
+          <thead><tr id="headerRow"></tr></thead>
+          <tbody id="bodyRows"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <script>
+      const state = {
+        data: [],
+        headers: [],
+        colMap: {},
+      };
+
+      const els = {
+        fileInput: document.getElementById("fileInput"),
+        loadLocal: document.getElementById("loadLocal"),
+        clearFilters: document.getElementById("clearFilters"),
+        rowCount: document.getElementById("rowCount"),
+        mappingNote: document.getElementById("mappingNote"),
+        headerRow: document.getElementById("headerRow"),
+        bodyRows: document.getElementById("bodyRows"),
+        pdfFilter: document.getElementById("pdfFilter"),
+        columnFilter: document.getElementById("columnFilter"),
+        modelFilter: document.getElementById("modelFilter"),
+        categoryFilter: document.getElementById("categoryFilter"),
+        correctnessMin: document.getElementById("correctnessMin"),
+        correctnessMax: document.getElementById("correctnessMax"),
+        completenessMin: document.getElementById("completenessMin"),
+        completenessMax: document.getElementById("completenessMax"),
+        overallMin: document.getElementById("overallMin"),
+        overallMax: document.getElementById("overallMax"),
+      };
+
+      function parseCSV(text) {
+        const rows = [];
+        let row = [];
+        let cur = "";
+        let inQuotes = false;
+        for (let i = 0; i < text.length; i++) {
+          const ch = text[i];
+          const next = text[i + 1];
+          if (ch === "\"" && inQuotes && next === "\"") {
+            cur += "\"";
+            i++;
+            continue;
+          }
+          if (ch === "\"") {
+            inQuotes = !inQuotes;
+            continue;
+          }
+          if (ch === "," && !inQuotes) {
+            row.push(cur);
+            cur = "";
+            continue;
+          }
+          if (ch === "\n" && !inQuotes) {
+            row.push(cur);
+            rows.push(row);
+            row = [];
+            cur = "";
+            continue;
+          }
+          if (ch === "\r") continue;
+          cur += ch;
+        }
+        if (cur.length || row.length) {
+          row.push(cur);
+          rows.push(row);
+        }
+        return rows;
+      }
+
+      function findHeader(headers, candidates) {
+        const lower = headers.map(h => h.toLowerCase());
+        for (const c of candidates) {
+          const idx = lower.indexOf(c.toLowerCase());
+          if (idx >= 0) return headers[idx];
+        }
+        return null;
+      }
+
+      function mapColumns(headers) {
+        return {
+          pdf: findHeader(headers, ["pdf", "document", "document_name"]),
+          column: findHeader(headers, ["column", "column name"]),
+          model: findHeader(headers, ["model", "baseline", "method"]),
+          category: findHeader(headers, ["category"]),
+          correctness: findHeader(headers, ["correctness"]),
+          completeness: findHeader(headers, ["completeness"]),
+          overall: findHeader(headers, ["overall"]),
+        };
+      }
+
+      function setMappingNote() {
+        const m = state.colMap;
+        const parts = [
+          `pdf=${m.pdf || "missing"}`,
+          `column=${m.column || "missing"}`,
+          `model=${m.model || "missing"}`,
+          `category=${m.category || "missing"}`,
+          `correctness=${m.correctness || "missing"}`,
+          `completeness=${m.completeness || "missing"}`,
+          `overall=${m.overall || "missing"}`,
+        ];
+        els.mappingNote.textContent = `Column mapping: ${parts.join(", ")}`;
+      }
+
+      function loadCSVText(text) {
+        const rows = parseCSV(text.trim());
+        if (!rows.length) return;
+        const headers = rows[0];
+        const data = rows.slice(1).map(r => {
+          const obj = {};
+          headers.forEach((h, i) => { obj[h] = r[i] ?? ""; });
+          return obj;
+        });
+        state.headers = headers;
+        state.data = data;
+        state.colMap = mapColumns(headers);
+        setMappingNote();
+        renderHeader();
+        applyFilters();
+      }
+
+      function renderHeader() {
+        els.headerRow.innerHTML = "";
+        for (const h of state.headers) {
+          const th = document.createElement("th");
+          th.textContent = h;
+          els.headerRow.appendChild(th);
+        }
+      }
+
+      function parseNum(val) {
+        const n = parseFloat(val);
+        return Number.isFinite(n) ? n : NaN;
+      }
+
+      function applyFilters() {
+        if (!state.data.length) return;
+        const m = state.colMap;
+        const pdf = els.pdfFilter.value.trim().toLowerCase();
+        const col = els.columnFilter.value.trim().toLowerCase();
+        const model = els.modelFilter.value.trim().toLowerCase();
+        const cat = els.categoryFilter.value.trim().toLowerCase();
+
+        const cMin = parseFloat(els.correctnessMin.value);
+        const cMax = parseFloat(els.correctnessMax.value);
+        const pMin = parseFloat(els.completenessMin.value);
+        const pMax = parseFloat(els.completenessMax.value);
+        const oMin = parseFloat(els.overallMin.value);
+        const oMax = parseFloat(els.overallMax.value);
+
+        const filtered = state.data.filter(row => {
+          if (m.pdf && pdf && !String(row[m.pdf] || "").toLowerCase().includes(pdf)) return false;
+          if (m.column && col && !String(row[m.column] || "").toLowerCase().includes(col)) return false;
+          if (m.model && model && !String(row[m.model] || "").toLowerCase().includes(model)) return false;
+          if (m.category && cat && !String(row[m.category] || "").toLowerCase().includes(cat)) return false;
+
+          if (m.correctness && (Number.isFinite(cMin) || Number.isFinite(cMax))) {
+            const v = parseNum(row[m.correctness]);
+            if (Number.isFinite(cMin) && !(v >= cMin)) return false;
+            if (Number.isFinite(cMax) && !(v <= cMax)) return false;
+          }
+          if (m.completeness && (Number.isFinite(pMin) || Number.isFinite(pMax))) {
+            const v = parseNum(row[m.completeness]);
+            if (Number.isFinite(pMin) && !(v >= pMin)) return false;
+            if (Number.isFinite(pMax) && !(v <= pMax)) return false;
+          }
+          if (m.overall && (Number.isFinite(oMin) || Number.isFinite(oMax))) {
+            const v = parseNum(row[m.overall]);
+            if (Number.isFinite(oMin) && !(v >= oMin)) return false;
+            if (Number.isFinite(oMax) && !(v <= oMax)) return false;
+          }
+          return true;
+        });
+        renderRows(filtered);
+      }
+
+      function renderRows(rows) {
+        els.bodyRows.innerHTML = "";
+        for (const row of rows) {
+          const tr = document.createElement("tr");
+          for (const h of state.headers) {
+            const td = document.createElement("td");
+            td.textContent = row[h] ?? "";
+            tr.appendChild(td);
+          }
+          els.bodyRows.appendChild(tr);
+        }
+        els.rowCount.textContent = `${rows.length} rows`;
+      }
+
+      function clearFilters() {
+        els.pdfFilter.value = "";
+        els.columnFilter.value = "";
+        els.modelFilter.value = "";
+        els.categoryFilter.value = "";
+        els.correctnessMin.value = "";
+        els.correctnessMax.value = "";
+        els.completenessMin.value = "";
+        els.completenessMax.value = "";
+        els.overallMin.value = "";
+        els.overallMax.value = "";
+        applyFilters();
+      }
+
+      els.fileInput.addEventListener("change", (e) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = () => loadCSVText(reader.result);
+        reader.readAsText(file);
+      });
+
+      els.loadLocal.addEventListener("click", async () => {
+        try {
+          const resp = await fetch("failures.csv");
+          if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+          const text = await resp.text();
+          loadCSVText(text);
+        } catch (e) {
+          alert("Could not load failures.csv automatically. Use the file picker.");
+        }
+      });
+
+      els.clearFilters.addEventListener("click", clearFilters);
+
+      for (const el of [
+        els.pdfFilter, els.columnFilter, els.modelFilter, els.categoryFilter,
+        els.correctnessMin, els.correctnessMax,
+        els.completenessMin, els.completenessMax,
+        els.overallMin, els.overallMax
+      ]) {
+        el.addEventListener("input", applyFilters);
+      }
+    </script>
+  </body>
+</html>
