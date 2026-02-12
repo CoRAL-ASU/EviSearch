@@ -275,14 +275,34 @@ For example, if the column is shown as "1. Control Arm - N:", you must return co
         model = getattr(self.eval_provider, "model", "gemini-2.0-flash-001")
         if client is None:
             return None
-        prompt = f"""Extract the evaluation results from the following response into a JSON object with a "results" array.
+        prompt = f"""You previously evaluated clinical trial data extraction accuracy. Your evaluation is shown below.
+
+Your task: Structure your evaluation into the required JSON format.
 
 Expected columns: {', '.join(columns)}
 
-Response to parse:
-{response}
+Required JSON structure:
+{{
+  "results": [
+    {{
+      "column": "exact column name",
+      "correctness": 0.0 or 0.5 or 1.0,
+      "completeness": 0.0 or 0.5 or 1.0,
+      "reason": "full explanation preserving all your reasoning"
+    }}
+  ]
+}}
 
-For each column, include an object with: "column" (exact column name), "correctness" (0.0, 0.5, or 1.0), "completeness" (0.0, 0.5, or 1.0), "reason" (brief explanation)."""
+Instructions:
+- Extract correctness and completeness scores for each column
+- If scores are explicitly stated (e.g., "correctness: 1.0"), use them directly
+- If scores are implied (e.g., "values match exactly" → correctness=1.0, completeness=1.0; "no match" → 0.0)
+- Preserve your FULL reasoning in the "reason" field - do not summarize or shorten it
+- Handle markdown tables, prose, bullet points, or partial JSON in the response
+- Use exact column names from the expected columns list above (without number prefixes)
+
+Your previous evaluation response:
+{response}"""
         json_schema = EvaluationResults.model_json_schema()
         for attempt in range(1, max_retries + 1):
             try:
@@ -308,6 +328,8 @@ For each column, include an object with: "column" (exact column name), "correctn
                     "success": True,
                     "input_tokens": in_tok,
                     "output_tokens": out_tok,
+                    "input": prompt,
+                    "output": validated.model_dump()
                 })
                 return validated.model_dump()["results"]
             except (json.JSONDecodeError, ValidationError) as e:
@@ -318,6 +340,8 @@ For each column, include an object with: "column" (exact column name), "correctn
                         "fallback": "gemini",
                         "success": False,
                         "error": str(e),
+                        "input": prompt,
+                        "output": None
                     })
                     return None
             except Exception as e:
@@ -328,6 +352,8 @@ For each column, include an object with: "column" (exact column name), "correctn
                         "fallback": "gemini",
                         "success": False,
                         "error": str(e),
+                        "input": prompt,
+                        "output": None
                     })
                     return None
         return None
@@ -350,7 +376,9 @@ For each column, include an object with: "column" (exact column name), "correctn
             'timestamp': datetime.now().isoformat(),
             'success': result.success,
             'attempts': result.attempts,
-            'error': result.error if not result.success else None
+            'error': result.error if not result.success else None,
+            'input': response,
+            'output': result.data if result.success else None
         })
         
         if result.success:
@@ -367,7 +395,16 @@ For each column, include an object with: "column" (exact column name), "correctn
                 return fallback_results
         except Exception as e:
             logger.error(f"Gemini fallback also failed: {e}")
-        return [{"column": col, "correctness": 0.0, "completeness": 0.0, "reason": "Structuring failed"} for col in columns]
+        
+        # Both structurers failed - preserve original evaluation as reason
+        logger.error("All structuring attempts failed. Preserving original evaluation text.")
+        truncated_response = response[:1000] if len(response) > 1000 else response
+        return [{
+            "column": col,
+            "correctness": 0.0,
+            "completeness": 0.0,
+            "reason": f"Structuring failed. Original evaluation: {truncated_response}"
+        } for col in columns]
     
     def evaluate_batch(self, category: str, columns: List[str]) -> List[Dict]:
         """Evaluate a batch of columns."""

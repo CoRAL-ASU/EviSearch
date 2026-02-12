@@ -88,6 +88,7 @@ def main() -> None:
                     "value": col_data.get("predicted", ""),
                     "correctness": float(col_data.get("correctness", 0)),
                     "completeness": float(col_data.get("completeness", 0)),
+                    "reason": col_data.get("reason", ""),
                 }
 
     # Unique labels for filter dropdown (preserve order)
@@ -160,6 +161,7 @@ def build_html(payload: dict) -> str:
         .gt-cell {{ max-width: 180px; word-break: break-word; }}
         .model-cell {{ max-width: 200px; word-break: break-word; }}
         .model-cell .value {{ font-family: Consolas, monospace; font-size: 12px; }}
+        .model-cell .reason {{ font-size: 11px; color: #888; margin-top: 4px; margin-bottom: 4px; line-height: 1.3; white-space: pre-wrap; }}
         .model-cell .scores {{ font-size: 11px; color: #aaa; margin-top: 4px; }}
         .model-cell.na {{ color: #666; font-style: italic; }}
         .header-band {{ display: flex; flex-wrap: wrap; gap: 20px; padding: 16px 20px; background: #16213e; border-radius: 10px; margin-bottom: 16px; }}
@@ -288,7 +290,8 @@ def build_html(payload: dict) -> str:
                         td.classList.add('na');
                         td.textContent = 'N/A';
                     }} else {{
-                        td.innerHTML = '<div class="value">' + escapeHtml(String(cell.value)) + '</div><div class="scores">C: ' + cell.correctness + ', K: ' + cell.completeness + '</div>';
+                        const reasonHtml = cell.reason ? '<div class="reason">' + escapeHtml(cell.reason) + '</div>' : '';
+                        td.innerHTML = '<div class="value">' + escapeHtml(String(cell.value)) + '</div>' + reasonHtml + '<div class="scores">C: ' + cell.correctness + ', K: ' + cell.completeness + '</div>';
                     }}
                     tr.appendChild(td);
                 }});

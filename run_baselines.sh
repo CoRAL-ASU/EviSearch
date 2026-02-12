@@ -31,7 +31,7 @@
 # python experiment-scripts/baseline_file_search.py --pdf "dataset/NCT01957436_Fizazi_PEACE1_Lancet'22.pdf" --provider gemini --model gemini-2.0-flash --workers 10
 
 # Native Gemini (JSON schema) data extraction – run from repo root with GEMINI_API_KEY set
-python experiment-scripts/baseline_file_search_gemini_native.py --pdf "dataset/NCT00268476_Attard_STAMPEDE_Lancet'23.pdf" --model gemini-2.5-flash --workers 10
+python experiment-scripts/baseline_file_search_gemini_native.py --pdf "dataset/NCT00104715_Gravis_GETUG_EU'15.pdf" --model gemini-2.5-flash --workers 10
 python experiment-scripts/baseline_file_search_gemini_native.py --pdf "dataset/NCT00268476_James_STAMPEDE_IJC'22.pdf" --model gemini-2.5-flash --workers 10
 python experiment-scripts/baseline_file_search_gemini_native.py --pdf "dataset/NCT00309985_Kriayako_CHAARTED_JCO'18.pdf" --model gemini-2.5-flash --workers 10
 python experiment-scripts/baseline_file_search_gemini_native.py --pdf "dataset/NCT00309985_Sweeney_CHAARTED_NEJM'15.pdf" --model gemini-2.5-flash --workers 10
