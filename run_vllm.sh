@@ -98,7 +98,7 @@ export TRANSFORMERS_CACHE="$HF_HOME"
 export HF_DATASETS_CACHE="$HF_HOME"
 
 # Select the 4 GPUs you want vLLM to use
-export CUDA_VISIBLE_DEVICES=0
+export CUDA_VISIBLE_DEVICES=5
 # Optional: tune these values to your hardware and model (see notes below)
 # MODEL="meta-llama/Llama-3.1-8B"
 PORT=8001

@@ -46,8 +46,8 @@ load_dotenv()
 
 # ─── Pricing (USD per 1K tokens) ─────────────────────────────────────────────
 PRICING = {
-    "gemini-2.0-flash-001": {"input": 0.00015, "output": 0.0006},
-    "gemini-2.5-flash": {"input": 0.00015, "output": 0.0006},
+    "gemini-2.0-flash-001": {"input": 0.00015, "output": 0.0025},
+    "gemini-2.5-flash": {"input": 0.00015, "output": 0.0025},
 }
 
 # ─── CLI ───────────────────────────────────────────────────────────────────
@@ -63,7 +63,7 @@ def sanitize_filename(filename: str) -> str:
     return re.sub(r'[\/\\:*?"<>|]', '_', filename)
 
 pdf_stem = sanitize_filename(Path(args.pdf).stem)
-dirname = f"experiment-scripts/baselines_gemini_file_search/{args.model}/{pdf_stem}"
+dirname = f"experiment-scripts/baselines_file_search_results/gemini_native/{args.model}/{pdf_stem}"
 os.makedirs(dirname, exist_ok=True)
 
 print(f"\n{'='*60}")

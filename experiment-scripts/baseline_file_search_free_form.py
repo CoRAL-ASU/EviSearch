@@ -86,12 +86,9 @@ def sanitize_filename(filename):
 def get_stem_pathlib(path: str) -> str:
     return sanitize_filename(Path(path).stem)
 
-# Setup output directory
+# Setup output directory: file_search results under baselines_file_search_results/free_form/{model}/{pdf_stem}
 pdf_stem = get_stem_pathlib(args.pdf)
-if args.provider == "openai":
-    dirname = f"experiment-scripts/baselines_openai_file_search/{args.model}/{pdf_stem}"
-else:  # gemini
-    dirname = f"experiment-scripts/baselines_gemini_file_search/{args.model}/{pdf_stem}"
+dirname = f"experiment-scripts/baselines_file_search_results/free_form/{args.model}/{pdf_stem}"
 os.makedirs(dirname, exist_ok=True)
 
 print(f"\n{'='*60}")
@@ -266,6 +263,7 @@ class PDFQueryProvider:
                 print("🗑️  Cleaned up OpenAI file")
             except:
                 pass
+            
 
 # ─── Prompt Builder ────────────────────────────────────────────────────────────
 def build_prompt(label: str, items: List[Dict[str, str]]) -> str:

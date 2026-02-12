@@ -24,7 +24,7 @@ load_dotenv()
 # Paths configuration
 BASE_PDF_PATH = "dataset"  # Directory containing PDFs
 DEFINITIONS_PATH = "src/table_definitions/Definitions_with_eval_category.csv"
-OUTPUT_BASE_DIR = "experiment-scripts/baselines_landing_ai_new"
+OUTPUT_BASE_DIR = "experiment-scripts/baselines_landing_ai_new_results"
 GROUND_TRUTH_FILE = "dataset/Manual_Benchmark_GoldTable_cleaned.json"
 
 # Model configuration (override with env vars if needed)

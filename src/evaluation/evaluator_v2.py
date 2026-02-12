@@ -7,7 +7,7 @@ import json
 import pandas as pd
 from pathlib import Path
 from datetime import datetime
-from typing import Dict, List, Tuple
+from typing import Dict, List, Optional, Tuple
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from collections import defaultdict
 import sys
@@ -261,8 +261,79 @@ For example, if the column is shown as "1. Control Arm - N:", you must return co
         
         return prompt
     
+    def _structure_with_gemini_schema(self, response: str, columns: List[str], max_retries: int = 3) -> Optional[List[Dict]]:
+        """Structure evaluation response using Gemini with native JSON schema (no free-form parsing)."""
+        if getattr(self.eval_provider, "provider", None) != "gemini":
+            return None
+        try:
+            from pydantic import ValidationError
+            from google.genai import types as genai_types
+        except ImportError:
+            logger.warning("google.genai not available for structurer fallback")
+            return None
+        client = getattr(self.eval_provider, "client", None)
+        model = getattr(self.eval_provider, "model", "gemini-2.0-flash-001")
+        if client is None:
+            return None
+        prompt = f"""Extract the evaluation results from the following response into a JSON object with a "results" array.
+
+Expected columns: {', '.join(columns)}
+
+Response to parse:
+{response}
+
+For each column, include an object with: "column" (exact column name), "correctness" (0.0, 0.5, or 1.0), "completeness" (0.0, 0.5, or 1.0), "reason" (brief explanation)."""
+        json_schema = EvaluationResults.model_json_schema()
+        for attempt in range(1, max_retries + 1):
+            try:
+                config = genai_types.GenerateContentConfig(
+                    temperature=0.0,
+                    max_output_tokens=2000,
+                    response_mime_type="application/json",
+                    response_schema=json_schema,
+                )
+                api_response = client.models.generate_content(
+                    model=model,
+                    contents=prompt,
+                    config=config,
+                )
+                raw_json = (api_response.text or "").strip()
+                validated = EvaluationResults.model_validate(json.loads(raw_json))
+                usage = getattr(api_response, "usage_metadata", None)
+                in_tok = getattr(usage, "prompt_token_count", 0) if usage else 0
+                out_tok = getattr(usage, "candidates_token_count", 0) if usage else 0
+                self.llm_logs["structurer"].append({
+                    "timestamp": datetime.now().isoformat(),
+                    "fallback": "gemini",
+                    "success": True,
+                    "input_tokens": in_tok,
+                    "output_tokens": out_tok,
+                })
+                return validated.model_dump()["results"]
+            except (json.JSONDecodeError, ValidationError) as e:
+                if attempt == max_retries:
+                    logger.warning(f"Gemini schema structuring failed after {max_retries} attempts: {e}")
+                    self.llm_logs["structurer"].append({
+                        "timestamp": datetime.now().isoformat(),
+                        "fallback": "gemini",
+                        "success": False,
+                        "error": str(e),
+                    })
+                    return None
+            except Exception as e:
+                logger.warning(f"Gemini structurer attempt {attempt} failed: {e}")
+                if attempt == max_retries:
+                    self.llm_logs["structurer"].append({
+                        "timestamp": datetime.now().isoformat(),
+                        "fallback": "gemini",
+                        "success": False,
+                        "error": str(e),
+                    })
+                    return None
+        return None
+    
     def structure_response(self, response: str, columns: List[str], max_retries: int = 5) -> List[Dict]:
-        """Structure free-form response into JSON using Qwen structurer, fallback to Gemini."""
+        """Structure free-form response into JSON using Qwen structurer, fallback to Gemini with native JSON schema."""
         
         # Try Qwen structurer first
         logger.info(f"Structuring with Qwen...")
@@ -286,64 +357,17 @@ For example, if the column is shown as "1. Control Arm - N:", you must return co
             logger.info(f"Successfully structured with Qwen after {result.attempts} attempt(s)")
             return result.data['results']
         
-        # Fallback to Gemini
+        # Fallback to Gemini with native JSON schema
         logger.warning(f"Qwen structuring failed: {result.error}")
-        logger.warning("Falling back to Gemini for structuring...")
-        
+        logger.warning("Falling back to Gemini for structuring (native JSON schema)...")
         try:
-            structure_prompt = f"""Extract the evaluation results from the following response and format as JSON array.
-
-Expected columns: {', '.join(columns)}
-
-Response to parse:
-{response}
-
-Return a JSON array with this exact structure for each column:
-[
-  {{
-    "column": "column name",
-    "correctness": 0.0 or 0.5 or 1.0,
-    "completeness": 0.0 or 0.5 or 1.0,
-    "reason": "brief explanation"
-  }}
-]
-
-Return ONLY the JSON array, no other text."""
-            
-            llm_response = self.eval_provider.generate(
-                prompt=structure_prompt,
-                system_prompt="You are a JSON extraction assistant. Extract structured evaluation data and return valid JSON only.",
-                temperature=0.0,
-                max_tokens=2000
-            )
-            
-            if not llm_response.success:
-                logger.error(f"Gemini fallback failed: {llm_response.error}")
-                self.llm_logs['structurer'].append({
-                    'timestamp': datetime.now().isoformat(),
-                    'fallback': 'gemini',
-                    'success': False,
-                    'error': llm_response.error
-                })
-                return [{"column": col, "correctness": 0.0, "completeness": 0.0, "reason": f"Structuring failed: {llm_response.error}"} for col in columns]
-            
-            parsed = json.loads(llm_response.text)
-            
-            self.llm_logs['structurer'].append({
-                'timestamp': datetime.now().isoformat(),
-                'fallback': 'gemini',
-                'success': True,
-                'input_tokens': llm_response.input_tokens,
-                'output_tokens': llm_response.output_tokens
-            })
-            
-            logger.info("Successfully structured with Gemini fallback")
-            return parsed
-            
+            fallback_results = self._structure_with_gemini_schema(response, columns, max_retries=3)
+            if fallback_results is not None:
+                logger.info("Successfully structured with Gemini fallback (native JSON schema)")
+                return fallback_results
         except Exception as e:
             logger.error(f"Gemini fallback also failed: {e}")
-            # Return default results
-            return [{"column": col, "correctness": 0.0, "completeness": 0.0, "reason": f"Parsing failed: {e}"} for col in columns]
+        return [{"column": col, "correctness": 0.0, "completeness": 0.0, "reason": "Structuring failed"} for col in columns]
     
     def evaluate_batch(self, category: str, columns: List[str]) -> List[Dict]:
         """Evaluate a batch of columns."""

@@ -270,6 +270,8 @@ def format_columns_for_prompt(
 # Fallback structurers
 # -----------------------------
 
+GEMINI_STRUCTURER_MODEL = "gemini-2.0-flash-001"
+
 
 def _structure_with_openai(
     client: Any,
@@ -309,11 +311,12 @@ def _structure_with_gemini(
     client: Any,
     prompt: str,
     schema: Type[BaseModel],
-    model: str = "gemini-2.5-flash",
+    model: str = None,
     max_retries: int = 3,
 ) -> StructurerResponse:
     from pydantic import ValidationError
     from google.genai import types as genai_types
+    model = model or GEMINI_STRUCTURER_MODEL
     json_schema = schema.model_json_schema()
     system_instruction = f"""You are a JSON formatter. Convert the provided text into valid JSON matching this schema:
 {json.dumps(json_schema, indent=2)}
@@ -449,7 +452,8 @@ Return ONLY valid JSON.
             )
         elif provider.provider == "gemini":
             structured = _structure_with_gemini(
-                provider.client, structuring_prompt, GroupExtractionV2, model=provider.model, max_retries=3
+                provider.client, structuring_prompt, GroupExtractionV2,
+                model=GEMINI_STRUCTURER_MODEL, max_retries=3
             )
         if not structured.success:
             logger.error("Fallback structurer failed for '%s'", group_name)
