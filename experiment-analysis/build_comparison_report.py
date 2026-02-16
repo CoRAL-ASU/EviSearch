@@ -14,6 +14,7 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parents[1]
 SCRIPT_BASE = REPO_ROOT / "experiment-scripts"
 DEFINITIONS_CSV = REPO_ROOT / "src/table_definitions/Definitions_with_eval_category.csv"
+GOLD_TABLE_JSON = REPO_ROOT / "dataset/Manual_Benchmark_GoldTable_cleaned.json"
 OUT_HTML = REPO_ROOT / "experiment-analysis/comparison_report.html"
 
 # PDFs common to gemini_native and landing_ai_new (10)
@@ -58,6 +59,30 @@ def _avg(pairs: list[tuple[float, float]]) -> dict[str, float] | None:
     return {"correctness": sum(p[0] for p in pairs) / len(pairs), "completeness": sum(p[1] for p in pairs) / len(pairs)}
 
 
+def load_ground_truth_from_gold_table(gold_path: Path) -> dict[str, dict[str, str]]:
+    """Load gold table JSON; return dict[pdf_id, dict[column_name, value]].
+    pdf_id = document name without .pdf (e.g. NCT00104715_Gravis_GETUG_EU'15).
+    """
+    if not gold_path.exists():
+        return {}
+    raw = json.loads(gold_path.read_text(encoding="utf-8"))
+    rows = raw.get("data") or []
+    out: dict[str, dict[str, str]] = {}
+    for row in rows:
+        doc_cell = row.get("Document Name")
+        doc_value = doc_cell.get("value", "") if isinstance(doc_cell, dict) else (doc_cell or "")
+        pdf_id = doc_value[:-4] if doc_value.endswith(".pdf") else doc_value
+        if not pdf_id:
+            continue
+        out[pdf_id] = {}
+        for col, cell in row.items():
+            if isinstance(cell, dict):
+                out[pdf_id][col] = cell.get("value") if cell.get("value") is not None else ""
+            else:
+                out[pdf_id][col] = str(cell) if cell is not None else ""
+    return out
+
+
 def load_eval(pdf_id: str, model_path: Path) -> dict | None:
     path = model_path / pdf_id / "evaluation" / "evaluation_results.json"
     if not path.exists():
@@ -73,17 +98,23 @@ def main() -> None:
     models_out = [{"id": f"m{i}", "name": name} for i, (name, _) in enumerate(MODELS)]
     pdfs_out = [{"id": pdf, "name": pdf} for pdf in PDF_LIST]
 
-    # data[pdf_id] = { ground_truth: { col: str }, models: { model_id: { col: { value, correctness, completeness } } } }
+    # Ground truth from gold table (single source of truth)
+    gt_by_pdf = load_ground_truth_from_gold_table(GOLD_TABLE_JSON)
+
+    # data[pdf_id] = { ground_truth: { col: str }, gt_not_found: bool, models: { ... } }
     data: dict = {}
     for pdf_id in PDF_LIST:
-        data[pdf_id] = {"ground_truth": {}, "models": {m["id"]: {} for m in models_out}}
+        data[pdf_id] = {
+            "ground_truth": gt_by_pdf.get(pdf_id, {}),
+            "gt_not_found": pdf_id not in gt_by_pdf,
+            "models": {m["id"]: {} for m in models_out},
+        }
         for mi, (_, model_path) in enumerate(MODELS):
             mid = models_out[mi]["id"]
             ev = load_eval(pdf_id, model_path)
             if ev is None:
                 continue
             for col_name, col_data in ev.get("columns", {}).items():
-                data[pdf_id]["ground_truth"][col_name] = col_data.get("ground_truth", "")
                 data[pdf_id]["models"][mid][col_name] = {
                     "value": col_data.get("predicted", ""),
                     "correctness": float(col_data.get("correctness", 0)),
@@ -278,9 +309,10 @@ def build_html(payload: dict) -> str:
             thead.appendChild(headRow);
 
             tbody.innerHTML = '';
+            const gtNotFoundMsg = pdfData.gt_not_found ? 'Column not found for PDF' : '';
             rows.forEach(row => {{
                 const tr = document.createElement('tr');
-                const gtVal = gt[row.column] ?? '';
+                const gtVal = gtNotFoundMsg || (gt[row.column] ?? '');
                 tr.innerHTML = '<td class="col-name">' + escapeHtml(row.column) + '</td><td>' + escapeHtml(row.label) + '</td><td class="cat-cell">' + escapeHtml(row.eval_category || '') + '</td><td class="def-cell">' + escapeHtml(row.definition || '') + '</td><td class="gt-cell">' + escapeHtml(gtVal) + '</td>';
                 models.forEach(m => {{
                     const cell = (modelCols[m.id] || {{}})[row.column];

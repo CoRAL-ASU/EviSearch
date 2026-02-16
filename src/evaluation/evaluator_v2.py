@@ -193,52 +193,74 @@ Columns to evaluate:\n"""
         elif category == 'numeric_tolerance':
             prompt = """You are evaluating clinical trial data extraction for numeric columns.
 
-Compare Ground Truth (GT) vs Predicted (Pred) values by extracting and comparing ALL numbers.
+Compare Ground Truth (GT) vs Predicted (Pred) values using the column Definition to determine what is required.
 
-Rules:
-- Extract all numbers from both GT and Pred (handle formats like "250 (63.6%)", "median 12.5 months", etc.)
-- Allow tolerance: ±0.1 for absolute values, ±2% relative for percentages
-- Handle multi-value cells (e.g., "High-volume: 250 (63.6%) Low-volume: 150 (36.4%)")
-- If both are empty: correctness=1.0, completeness=1.0
-- If one is empty: correctness=0.0, completeness=0.0
-- Consider the column definition to understand what numbers to extract
+CRITICAL RULES:
 
-Scoring (use only 0.0, 0.5, or 1.0):
-- correctness: What fraction of numbers in Pred match numbers in GT (within tolerance)?
-  - 1.0 = all predicted numbers match GT
-  - 0.5 = some predicted numbers match, some don't
-  - 0.0 = no predicted numbers match GT or predicted has extra wrong numbers
-  
-- completeness: What fraction of numbers in GT are captured in Pred?
-  - 1.0 = all GT numbers are in prediction
-  - 0.5 = some GT numbers are captured
-  - 0.0 = no GT numbers are captured
+1) **What's required vs optional (check the Definition)**:
+   - If definition says "include count AND percentage" or "N (%)": both N and % are REQUIRED.
+   - If definition says "at X years" or "X-year rate": the timepoint is REQUIRED.
+   - If definition says "median" without specifying CI/IQR: only the median number is required; CI, IQR, SD, range, p-values are OPTIONAL context.
+   - Default: primary numbers are required; statistical context (CI, IQR, p-values) is optional unless definition explicitly asks for it.
+
+2) **Tolerance**: ±0.1 for absolute values, ±2% relative for percentages.
+
+3) **Correctness** (use only 0.0, 0.5, or 1.0):
+   - 1.0 = all predicted numbers match GT numbers (within tolerance); extra optional stats (IQR, CI) in pred are fine
+   - 0.5 = some predicted numbers match, some don't or contradict GT
+   - 0.0 = no predicted numbers match GT, or predicted numbers contradict GT
+
+4) **Completeness** (use only 0.0, 0.5, or 1.0):
+   - 1.0 = all REQUIRED numbers from GT are present in pred (check definition to determine what's required)
+   - 0.5 = some required numbers present, some missing
+   - 0.0 = required numbers missing
+
+5) **Empty handling**:
+   - If both empty ("Not reported", "", etc.): correctness=1.0, completeness=1.0
+   - If one is empty: correctness=0.0, completeness=0.0
+
+EXAMPLES:
+- GT="35.1 months (95% CI 29.9–43.6)", Pred="35.1 months", Def="median OS" → correctness=1.0 (35.1 matches), completeness=1.0 (CI is optional)
+- GT="70% at 5 years", Pred="70%", Def="OS rate at 5 years" → correctness=1.0 (70% matches), completeness=0.5 (missing required timepoint)
+- GT="250 (63.6%)", Pred="250", Def="include count and percentage" → correctness=1.0 (N matches), completeness=0.5 (missing required %)
+- GT="250 (63.6%)", Pred="250 (64%)", Def="include count and percentage" → correctness=1.0 (both within tolerance), completeness=1.0 (both present)
+- GT="High-volume: 92 (48%) Low-volume: 100 (52%)", Pred="92 (48%)", Def="by volume subgroup" → correctness=1.0 (high-volume matches), completeness=0.5 (missing low-volume)
 
 Columns to evaluate:\n"""
         
         else:  # structured_text
             prompt = """You are evaluating clinical trial data extraction for structured text columns (treatments, regimens, endpoints, classifications).
 
-Compare Ground Truth (GT) vs Predicted (Pred) for semantic information content.
+Compare Ground Truth (GT) vs Predicted (Pred) for semantic information content using the column Definition to determine what is required.
 
-Rules:
-- Be lenient with abbreviations (e.g., "ADT" = "Androgen Deprivation Therapy")
-- Accept rephrasing if meaning is preserved
-- Focus on key medical facts (drug names, doses, schedules, endpoints)
-- If both empty: correctness=1.0, completeness=1.0
-- If one empty: correctness=0.0, completeness=0.0
-- Consider the column definition to understand expected information
+CRITICAL RULES:
 
-Scoring (use only 0.0, 0.5, or 1.0):
-- correctness: What fraction of information in Pred is factually correct according to GT?
-  - 1.0 = all predicted info is in GT
-  - 0.5 = some predicted info is correct, some is wrong/extra
-  - 0.0 = predicted info is wrong or not in GT
-  
-- completeness: What fraction of information in GT is captured in Pred?
-  - 1.0 = prediction captures all GT info
-  - 0.5 = prediction captures some GT info
-  - 0.0 = prediction misses all GT info
+1) **Correctness = no contradiction** (use only 0.0, 0.5, or 1.0):
+   - 1.0 = all information in Pred matches or is compatible with GT; extra correct detail (e.g., drug mechanism, trial name, expanded abbreviations) is fine and does NOT lower the score
+   - 0.5 = some predicted info correct, some contradicts GT (mixed: core fact right but extra detail wrong)
+   - 0.0 = predicted info contradicts GT or core facts are wrong
+
+2) **Completeness = required facts only** (use only 0.0, 0.5, or 1.0):
+   - Use the Definition to identify what information is REQUIRED for this column
+   - For "treatment regimen": drug name and combination partner (e.g., ADT) are typically required; dose and schedule are required if definition implies detail (e.g., "describe the regimen") but optional if definition just asks "what treatment"
+   - For "endpoint": endpoint name is required; timepoints/thresholds are required only if definition specifies
+   - Use medical judgment based on the definition to decide what's required vs optional context
+   - 1.0 = all required facts from GT are present in pred
+   - 0.5 = some required facts present, some missing
+   - 0.0 = required facts missing
+   - Do NOT penalize for missing optional context (mechanism, rationale, historical notes, expanded forms)
+
+3) **General**:
+   - Be lenient with abbreviations (e.g., "ADT" = "Androgen Deprivation Therapy")
+   - Accept rephrasing if meaning is preserved
+   - If both empty: correctness=1.0, completeness=1.0
+   - If one empty: correctness=0.0, completeness=0.0
+
+EXAMPLES:
+- GT="ADT", Pred="ADT (LHRH agonist for testosterone suppression)", Def="control arm regimen" → correctness=1.0 (extra mechanism is fine, no contradiction), completeness=1.0 (core fact "ADT" present)
+- GT="Docetaxel 75 mg/m² every 21 days + ADT", Pred="Docetaxel + ADT", Def="treatment regimen (describe)" → correctness=1.0 (no contradiction), completeness=0.5 (missing dose/schedule which are required by "describe")
+- GT="ADT", Pred="ADT with docetaxel", Def="control arm" → correctness=0.5 (ADT correct but extra "docetaxel" contradicts), completeness=1.0 (ADT present)
+- GT="Overall survival", Pred="Overall survival at 3 years", Def="primary endpoint" → correctness=1.0 (extra timepoint is fine), completeness=1.0 (endpoint name present)
 
 Columns to evaluate:\n"""
         
@@ -260,6 +282,84 @@ IMPORTANT: When returning results, use the EXACT column name shown above (withou
 For example, if the column is shown as "1. Control Arm - N:", you must return column name as "Control Arm - N"."""
         
         return prompt
+    
+    def _evaluate_batch_gemini_native_json(self, category: str, columns: List[str], max_retries: int = 3) -> List[Dict]:
+        """Evaluate a batch using Gemini with native JSON schema (no structurer)."""
+        try:
+            from pydantic import ValidationError
+            from google.genai import types as genai_types
+        except ImportError:
+            logger.warning("google.genai not available for native JSON evaluation")
+            return [{"column": col, "correctness": 0.0, "completeness": 0.0, "reason": "Native JSON evaluation unavailable (missing google.genai)"} for col in columns]
+        client = getattr(self.eval_provider, "client", None)
+        model = getattr(self.eval_provider, "model", "gemini-2.5-flash")
+        if client is None:
+            return [{"column": col, "correctness": 0.0, "completeness": 0.0, "reason": "Gemini client not available"} for col in columns]
+        prompt = self.build_prompt(category, columns)
+        prompt += "\n\nRespond with a single JSON object containing a \"results\" array. Each element must have: \"column\" (exact column name), \"correctness\" (0.0, 0.5, or 1.0), \"completeness\" (0.0, 0.5, or 1.0), \"reason\" (brief explanation)."
+        json_schema = EvaluationResults.model_json_schema()
+        last_response_text = None
+        for attempt in range(1, max_retries + 1):
+            try:
+                config = genai_types.GenerateContentConfig(
+                    temperature=0.0,
+                    max_output_tokens=32000,
+                    response_mime_type="application/json",
+                    response_schema=json_schema,
+                )
+                api_response = client.models.generate_content(
+                    model=model,
+                    contents=prompt,
+                    config=config,
+                )
+                last_response_text = (api_response.text or "").strip()
+                if not last_response_text:
+                    raise ValueError("Empty response from Gemini")
+                validated = EvaluationResults.model_validate(json.loads(last_response_text))
+                usage = getattr(api_response, "usage_metadata", None)
+                in_tok = getattr(usage, "prompt_token_count", 0) if usage else 0
+                out_tok = getattr(usage, "candidates_token_count", 0) if usage else 0
+                self.llm_logs["gemini"].append({
+                    "timestamp": datetime.now().isoformat(),
+                    "category": category,
+                    "columns": columns,
+                    "prompt": prompt,
+                    "response": last_response_text,
+                    "success": True,
+                    "input_tokens": in_tok,
+                    "output_tokens": out_tok,
+                    "native_json": True,
+                })
+                return validated.model_dump()["results"]
+            except (json.JSONDecodeError, ValidationError, ValueError) as e:
+                logger.warning(f"Gemini native JSON attempt {attempt} failed: {e}")
+                if attempt == max_retries:
+                    self.llm_logs["gemini"].append({
+                        "timestamp": datetime.now().isoformat(),
+                        "category": category,
+                        "columns": columns,
+                        "prompt": prompt,
+                        "response": last_response_text,
+                        "success": False,
+                        "error": str(e),
+                        "native_json": True,
+                    })
+                    return [{"column": col, "correctness": 0.0, "completeness": 0.0, "reason": f"Native JSON evaluation failed: {e}"} for col in columns]
+            except Exception as e:
+                logger.warning(f"Gemini native JSON attempt {attempt} failed: {e}")
+                if attempt == max_retries:
+                    self.llm_logs["gemini"].append({
+                        "timestamp": datetime.now().isoformat(),
+                        "category": category,
+                        "columns": columns,
+                        "prompt": prompt,
+                        "response": last_response_text,
+                        "success": False,
+                        "error": str(e),
+                        "native_json": True,
+                    })
+                    return [{"column": col, "correctness": 0.0, "completeness": 0.0, "reason": f"Evaluation failed: {e}"} for col in columns]
+        return [{"column": col, "correctness": 0.0, "completeness": 0.0, "reason": "Evaluation failed after retries"} for col in columns]
     
     def _structure_with_gemini_schema(self, response: str, columns: List[str], max_retries: int = 3) -> Optional[List[Dict]]:
         """Structure evaluation response using Gemini with native JSON schema (no free-form parsing)."""
@@ -407,14 +507,17 @@ Your previous evaluation response:
         } for col in columns]
     
     def evaluate_batch(self, category: str, columns: List[str]) -> List[Dict]:
-        """Evaluate a batch of columns."""
+        """Evaluate a batch of columns. Uses Gemini native JSON when available; otherwise free-form + structurer."""
         logger.info(f"Evaluating batch of {len(columns)} columns in category '{category}'")
         
-        # Build prompt
-        prompt = self.build_prompt(category, columns)
+        # Use Gemini native JSON (no structurer) when provider is Gemini and client is available
+        if getattr(self.eval_provider, "provider", None) == "gemini" and getattr(self.eval_provider, "client", None) is not None:
+            logger.info("Using Gemini native JSON for evaluation (no structurer).")
+            return self._evaluate_batch_gemini_native_json(category, columns)
         
-        # Call Gemini for evaluation
-        logger.info("Calling Gemini for evaluation...")
+        # Fallback: free-form Gemini then Qwen/Gemini structurer (e.g. non-Gemini or client missing)
+        prompt = self.build_prompt(category, columns)
+        logger.info("Calling Gemini for evaluation (free-form)...")
         llm_response = self.eval_provider.generate(
             prompt=prompt,
             system_prompt="You are an expert clinical trial data evaluator with deep knowledge of medical terminology, statistical measures, and data extraction accuracy.",
@@ -424,12 +527,9 @@ Your previous evaluation response:
         
         if not llm_response.success:
             logger.error(f"Gemini call failed: {llm_response.error}")
-            # Return default results on failure
             return [{"column": col, "correctness": 0.0, "completeness": 0.0, "reason": f"LLM call failed: {llm_response.error}"} for col in columns]
         
         response = llm_response.text
-        
-        # Log Gemini call
         self.llm_logs['gemini'].append({
             'timestamp': datetime.now().isoformat(),
             'category': category,
@@ -440,11 +540,7 @@ Your previous evaluation response:
             'input_tokens': llm_response.input_tokens,
             'output_tokens': llm_response.output_tokens
         })
-        
-        # Structure response
-        structured_results = self.structure_response(response, columns)
-        
-        return structured_results
+        return self.structure_response(response, columns)
     
     def evaluate_all(self, max_workers=5):
         """Run evaluation on all columns with parallel processing."""

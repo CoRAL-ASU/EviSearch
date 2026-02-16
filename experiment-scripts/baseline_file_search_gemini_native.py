@@ -56,6 +56,7 @@ parser.add_argument("--pdf", required=True, help="Path to the PDF file")
 parser.add_argument("--model", default="gemini-2.0-flash-001", help="Gemini model name")
 parser.add_argument("--workers", type=int, default=10, help="Parallel label groups")
 parser.add_argument("--skip-eval", action="store_true", help="Skip evaluation")
+parser.add_argument("--run-eval-only", action="store_true", help="Skip extraction; use existing extraction_metadata.json and run evaluation only")
 parser.add_argument("--reliability-runs", type=int, default=1, help="Number of runs for reliability (default 1)")
 args = parser.parse_args()
 
@@ -88,6 +89,33 @@ for col_name, col_info in definitions.items():
     })
 label_groups = OrderedDict(label_groups)
 print(f"Loaded {len(definitions)} columns in {len(label_groups)} label groups")
+
+# ─── Run-only-eval path: skip extraction, run evaluation on existing extraction_metadata.json ──
+if args.run_eval_only:
+    extraction_file = os.path.join(dirname, "extraction_metadata.json")
+    if not os.path.isfile(extraction_file):
+        sys.exit(f"run-eval-only: extraction_metadata.json not found at {extraction_file}. Run extraction first.")
+    print("\nRun-eval-only: skipping extraction, running evaluation on existing extraction_metadata.json")
+    pdf_name = Path(args.pdf).name
+    try:
+        results = run_evaluation(
+            extraction_file=extraction_file,
+            document_name=pdf_name,
+            output_dir=dirname,
+            ground_truth_file="dataset/Manual_Benchmark_GoldTable_cleaned.json",
+            definitions_file=definitions_path,
+        )
+        if results and "overall" in results:
+            print("\nSummary: Correctness = {:.3f}, Completeness = {:.3f}, Overall = {:.3f}".format(
+                results["overall"]["avg_correctness"],
+                results["overall"]["avg_completeness"],
+                results["overall"]["avg_overall"],
+            ))
+    except Exception as e:
+        print(f"Evaluation failed: {e}")
+        sys.exit(1)
+    print(f"\nDone. Results: {dirname}/")
+    sys.exit(0)
 
 # ─── Schema description for reasoning (user-requested) ───────────────────────
 REASONING_DESCRIPTION = (
