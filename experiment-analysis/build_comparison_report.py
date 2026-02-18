@@ -53,6 +53,39 @@ def load_definitions() -> list[dict]:
     return rows
 
 
+def load_updated_gold_table(pdf_list: list[str], definition_columns: list[str]) -> dict[str, dict[str, str]]:
+    """
+    Load Manual_Benchmark_GoldTable_cleaned.json and return
+    pdf_id -> { column_name: value } for each PDF and each definition column.
+    """
+    if not GOLD_TABLE_JSON.exists():
+        return {pdf_id: {} for pdf_id in pdf_list}
+    raw = json.loads(GOLD_TABLE_JSON.read_text(encoding="utf-8"))
+    records = raw.get("data", [])
+    # Build pdf_id -> record (record is dict of key -> { "value": ..., "location": ... })
+    pdf_to_record: dict[str, dict] = {}
+    for rec in records:
+        doc_name = (rec.get("Document Name") or {}).get("value", "")
+        if not doc_name:
+            continue
+        # Match without .pdf: "NCT00104715_Gravis_GETUG_EU'15.pdf" -> "NCT00104715_Gravis_GETUG_EU'15"
+        pdf_id = doc_name.replace(".pdf", "").strip()
+        if pdf_id in pdf_list:
+            pdf_to_record[pdf_id] = rec
+    # For each pdf_id, extract values for each definition column
+    out: dict[str, dict[str, str]] = {}
+    for pdf_id in pdf_list:
+        out[pdf_id] = {}
+        rec = pdf_to_record.get(pdf_id, {})
+        for col in definition_columns:
+            cell = rec.get(col)
+            if isinstance(cell, dict) and "value" in cell:
+                out[pdf_id][col] = cell["value"] if cell["value"] is not None else ""
+            else:
+                out[pdf_id][col] = ""
+    return out
+
+
 def _avg(pairs: list[tuple[float, float]]) -> dict[str, float] | None:
     if not pairs:
         return None
@@ -98,15 +131,16 @@ def main() -> None:
     models_out = [{"id": f"m{i}", "name": name} for i, (name, _) in enumerate(MODELS)]
     pdfs_out = [{"id": pdf, "name": pdf} for pdf in PDF_LIST]
 
-    # Ground truth from gold table (single source of truth)
-    gt_by_pdf = load_ground_truth_from_gold_table(GOLD_TABLE_JSON)
+    # Load updated ground truth from Manual_Benchmark_GoldTable_cleaned.json (new benchmark)
+    definition_columns = [d["column"] for d in definitions]
+    ground_truth_updated = load_updated_gold_table(PDF_LIST, definition_columns)
 
-    # data[pdf_id] = { ground_truth: { col: str }, gt_not_found: bool, models: { ... } }
+    # data[pdf_id] = { ground_truth: { col: str }, ground_truth_updated: { col: str }, models: ... }
     data: dict = {}
     for pdf_id in PDF_LIST:
         data[pdf_id] = {
-            "ground_truth": gt_by_pdf.get(pdf_id, {}),
-            "gt_not_found": pdf_id not in gt_by_pdf,
+            "ground_truth": {},
+            "ground_truth_updated": ground_truth_updated.get(pdf_id, {}),
             "models": {m["id"]: {} for m in models_out},
         }
         for mi, (_, model_path) in enumerate(MODELS):
@@ -190,6 +224,7 @@ def build_html(payload: dict) -> str:
         .def-cell {{ max-width: 280px; word-break: break-word; font-size: 12px; color: #bbb; }}
         .cat-cell {{ white-space: nowrap; font-size: 12px; }}
         .gt-cell {{ max-width: 180px; word-break: break-word; }}
+        .gt-updated-cell {{ max-width: 180px; word-break: break-word; background: rgba(78, 204, 163, 0.08); }}
         .model-cell {{ max-width: 200px; word-break: break-word; }}
         .model-cell .value {{ font-family: Consolas, monospace; font-size: 12px; }}
         .model-cell .reason {{ font-size: 11px; color: #888; margin-top: 4px; margin-bottom: 4px; line-height: 1.3; white-space: pre-wrap; }}
@@ -285,9 +320,10 @@ def build_html(payload: dict) -> str:
 
             const pdfData = data[pdfId];
             renderHeaderBand(pdfId);
-            if (!pdfData) {{ tbody.innerHTML = '<tr><td colspan="' + (5 + models.length) + '">No data for this PDF.</td></tr>'; return; }}
+            if (!pdfData) {{ tbody.innerHTML = '<tr><td colspan="' + (6 + models.length) + '">No data for this PDF.</td></tr>'; return; }}
 
             const gt = pdfData.ground_truth || {{}};
+            const gtUpdated = pdfData.ground_truth_updated || {{}};
             const modelCols = pdfData.models || {{}};
 
             rows = rows.filter(row => {{
@@ -304,7 +340,7 @@ def build_html(payload: dict) -> str:
 
             thead.innerHTML = '';
             const headRow = document.createElement('tr');
-            headRow.innerHTML = '<th>Column</th><th>Label</th><th>Category</th><th>Definition</th><th>Ground truth</th>' +
+            headRow.innerHTML = '<th>Column</th><th>Label</th><th>Category</th><th>Definition</th><th>Ground truth</th><th>Ground truth (updated)</th>' +
                 models.map(m => '<th>' + m.name + '</th>').join('');
             thead.appendChild(headRow);
 
@@ -312,8 +348,9 @@ def build_html(payload: dict) -> str:
             const gtNotFoundMsg = pdfData.gt_not_found ? 'Column not found for PDF' : '';
             rows.forEach(row => {{
                 const tr = document.createElement('tr');
-                const gtVal = gtNotFoundMsg || (gt[row.column] ?? '');
-                tr.innerHTML = '<td class="col-name">' + escapeHtml(row.column) + '</td><td>' + escapeHtml(row.label) + '</td><td class="cat-cell">' + escapeHtml(row.eval_category || '') + '</td><td class="def-cell">' + escapeHtml(row.definition || '') + '</td><td class="gt-cell">' + escapeHtml(gtVal) + '</td>';
+                const gtVal = gt[row.column] ?? '';
+                const gtUpdatedVal = gtUpdated[row.column] ?? '';
+                tr.innerHTML = '<td class="col-name">' + escapeHtml(row.column) + '</td><td>' + escapeHtml(row.label) + '</td><td class="cat-cell">' + escapeHtml(row.eval_category || '') + '</td><td class="def-cell">' + escapeHtml(row.definition || '') + '</td><td class="gt-cell">' + escapeHtml(gtVal) + '</td><td class="gt-cell gt-updated-cell">' + escapeHtml(gtUpdatedVal) + '</td>';
                 models.forEach(m => {{
                     const cell = (modelCols[m.id] || {{}})[row.column];
                     const td = document.createElement('td');

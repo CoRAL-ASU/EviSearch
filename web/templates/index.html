@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clinical Trial Data Extraction</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <div class="header-content">
+                <h1>🏥 Clinical Trial Data Extraction</h1>
+                <p class="subtitle">AI-powered extraction of clinical trial data from PDF documents</p>
+            </div>
+        </header>
+
+        <div class="main-content">
+            <!-- Step 1: Upload PDF -->
+            <section class="card" id="upload-section">
+                <div class="card-header">
+                    <span class="step-number">1</span>
+                    <h2>Upload PDF Document</h2>
+                </div>
+                <div class="card-body">
+                    <div class="upload-area" id="upload-area">
+                        <div class="upload-icon">📄</div>
+                        <p class="upload-text">Drag and drop your PDF here, or click to browse</p>
+                        <p class="upload-hint">Maximum file size: 50MB</p>
+                        <input type="file" id="pdf-input" accept=".pdf" hidden>
+                        <button class="btn btn-primary" id="browse-btn">Browse Files</button>
+                    </div>
+                    <div id="pdf-info" class="pdf-info" style="display: none;">
+                        <div class="success-message">
+                            <span class="success-icon">✓</span>
+                            <span id="pdf-name"></span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Step 2: Choose Query Method -->
+            <section class="card" id="query-section" style="display: none;">
+                <div class="card-header">
+                    <span class="step-number">2</span>
+                    <h2>Select Query Method</h2>
+                </div>
+                <div class="card-body">
+                    <div class="query-methods">
+                        <div class="method-card" id="method-single">
+                            <div class="method-icon">🎯</div>
+                            <h3>Extract Value</h3>
+                            <p>Extract value for a specific column from uploaded PDF</p>
+                        </div>
+                        <div class="method-card" id="method-all">
+                            <div class="method-icon">📋</div>
+                            <h3>Extract All Data</h3>
+                            <p>View complete 133-column data from existing extractions</p>
+                        </div>
+                        <div class="method-card" id="method-csv">
+                            <div class="method-icon">📊</div>
+                            <h3>Custom CSV</h3>
+                            <p>Extract custom columns from CSV file</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Single Column Form -->
+            <section class="card query-form" id="single-form" style="display: none;">
+                <div class="card-header">
+                    <h2>Extract Value</h2>
+                    <button class="btn-back" onclick="backToMethods()">← Back</button>
+                </div>
+                <div class="card-body">
+                    <div class="form-group">
+                        <label for="column-select">Select Column</label>
+                        <select id="column-select" class="form-input">
+                            <option value="">-- Select a column --</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="custom-column">Or enter custom column name</label>
+                        <input type="text" id="custom-column" class="form-input" placeholder="e.g., Trial Name">
+                    </div>
+                    <div class="form-group">
+                        <label for="custom-definition">Custom Definition (optional)</label>
+                        <textarea id="custom-definition" class="form-input" rows="3" placeholder="Enter column definition if using custom column name"></textarea>
+                    </div>
+                    <button class="btn btn-primary btn-large" id="extract-single-btn">
+                        <span class="btn-text">Extract Value</span>
+                        <span class="btn-loader" style="display: none;">⌛ Extracting...</span>
+                    </button>
+                </div>
+            </section>
+
+            <!-- CSV Upload Form -->
+            <section class="card query-form" id="csv-form" style="display: none;">
+                <div class="card-header">
+                    <h2>Custom CSV Extraction</h2>
+                    <button class="btn-back" onclick="backToMethods()">← Back</button>
+                </div>
+                <div class="card-body">
+                    <div class="info-box">
+                        <strong>CSV Format Requirements:</strong>
+                        <ul>
+                            <li>Must contain columns: <code>column_name</code> and <code>definition</code></li>
+                            <li>Example row: <code>NCT,"What national Clinical Trial identifier..."</code></li>
+                            <li>Use this option for custom columns not in the standard 133 set</li>
+                        </ul>
+                    </div>
+                    <div class="upload-area-small">
+                        <input type="file" id="csv-input" accept=".csv" hidden>
+                        <button class="btn btn-secondary" id="browse-csv-btn">Choose CSV File</button>
+                        <span id="csv-name" style="margin-left: 15px; color: #666;"></span>
+                    </div>
+                    <button class="btn btn-primary btn-large" id="extract-csv-btn" disabled>
+                        <span class="btn-text">Extract from CSV</span>
+                        <span class="btn-loader" style="display: none;">⌛ Extracting...</span>
+                    </button>
+                </div>
+            </section>
+
+            <!-- All Columns Form -->
+            <section class="card query-form" id="all-form" style="display: none;">
+                <div class="card-header">
+                    <h2>Extract All Data</h2>
+                    <button class="btn-back" onclick="backToMethods()">← Back</button>
+                </div>
+                <div class="card-body">
+                    <div class="info-box">
+                        <strong>📋 View Existing Extractions</strong>
+                        <p style="margin-top: 10px;">Select a document from the list below to view its complete 133-column extraction data. These are pre-extracted results from the baseline experiments.</p>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="document-select">Select Document</label>
+                        <select id="document-select" class="form-input">
+                            <option value="">-- Loading available documents... --</option>
+                        </select>
+                        <p class="upload-hint" id="document-info" style="margin-top: 8px; display: none;"></p>
+                    </div>
+                    
+                    <button class="btn btn-primary btn-large" id="load-extraction-btn" disabled>
+                        <span class="btn-text">Load Extraction Data</span>
+                        <span class="btn-loader" style="display: none;">⌛ Loading...</span>
+                    </button>
+                </div>
+            </section>
+
+            <!-- Results Section -->
+            <section class="card" id="results-section" style="display: none;">
+                <div class="card-header">
+                    <h2>Extraction Results</h2>
+                    <div class="export-buttons">
+                        <button class="btn btn-secondary btn-small" id="toggle-view-btn">📊 Table View</button>
+                        <button class="btn btn-secondary btn-small" id="export-json-btn">Export JSON</button>
+                        <button class="btn btn-secondary btn-small" id="export-csv-btn">Export CSV</button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div id="results-stats" class="results-stats"></div>
+                    
+                    <!-- Card View (default) -->
+                    <div id="results-container" class="results-container"></div>
+                    
+                    <!-- Table View (for all columns) -->
+                    <div id="results-table-view" class="results-table-view" style="display: none;">
+                        <div class="table-container">
+                            <table id="results-table" class="results-table">
+                                <thead>
+                                    <tr>
+                                        <th>Column Name</th>
+                                        <th>Value</th>
+                                        <th>Page</th>
+                                        <th>Modality</th>
+                                        <th>Evidence</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="results-table-body">
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <footer class="footer">
+            <p>Powered by Gemini AI • Clinical Trial Data Extraction Pipeline</p>
+        </footer>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loading-overlay" style="display: none;">
+        <div class="loader"></div>
+        <p>Processing...</p>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>
