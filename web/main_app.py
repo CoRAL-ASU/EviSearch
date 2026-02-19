@@ -198,10 +198,36 @@ def get_document_extraction(doc_id):
         # Transform to web interface format
         results = {}
         for col_name, col_data in extraction_data.items():
+            # Try to extract page number from evidence or page field
+            page = col_data.get("page", "N/A")
+            if page == "Not applicable" or page == "N/A":
+                # Try to parse from evidence if available
+                evidence = col_data.get("evidence", "")
+                if "page" in evidence.lower():
+                    import re
+                    page_match = re.search(r'page\s+(\d+)', evidence, re.IGNORECASE)
+                    if page_match:
+                        page = page_match.group(1)
+                    else:
+                        page = "Unknown"
+                else:
+                    page = "Unknown"
+            
+            # Determine modality from plan_source_type or evidence
+            modality = col_data.get("plan_source_type", "unknown")
+            if modality == "Not applicable" or modality == "unknown":
+                evidence = col_data.get("evidence", "").lower()
+                if "table" in evidence:
+                    modality = "table"
+                elif "figure" in evidence or "chart" in evidence:
+                    modality = "figure"
+                else:
+                    modality = "text"
+            
             results[col_name] = {
                 "value": col_data.get("value", "not found"),
-                "page_number": col_data.get("page", "N/A"),
-                "modality": col_data.get("plan_source_type", "unknown"),
+                "page_number": page,
+                "modality": modality,
                 "evidence": col_data.get("evidence", ""),
                 "definition": ""  # Could load from definitions if needed
             }
