@@ -1,0 +1,59 @@
+============================================================
+INPUT
+============================================================
+You are extracting a value for a clinical trial data column from the provided document content.
+
+Column: OS Rate (%) | Overall | Treatment
+Definition: What percentage of total patients in the experimental arm survived at the latest follow-up? If reported, include the rate (percentage) and any accompanying details. If multiple arms are reported, list each arm separately. Use 'Not reported' if missing.
+
+Extraction plan to follow:
+Extract '48%' from text on page 9, in the 'overall survival' section, referring to the abiraterone trial at 84 months for 'standard of care plus abiraterone'.
+
+Document content (grouped by type, in chronological page order):
+--- TEXT ---
+Articles
+
+Figure 4: Secondary efficacy endpoint analysis
+Shaded regions represent 95% Cls. Survival curves for the abiraterone and enzalutamide trial are capped at 84 months due to shorter follow-up than in the abiraterone trial. Abiraterone refers to abiraterone acetate and prednisolone. Prostate cancer-specific survival (A, B), failure free survival (C, D) and metastatic progression free survival (E, F) in the abiraterone and abiraterone and enzalutamide trials.
+
+(difference 10.2 months [6.8-13.5]; p<0.0001) and
+51.3 months (48.8-53.8) with standard of care versus
+58.6 months (56.0-61.1) with addition of abiraterone
+and enzalutamide (difference 7.3 months [3.7-10.9];
+p<0.0001). At 84 months in the abiraterone trial,
+
+overall survival was 30% (95% CI 26–34) with standard
+of care versus 48% (43–52) with standard of care
+plus abiraterone.
+In prespecified subgroup analyses by stratification
+factors, there was an interaction with NSAID or aspirin
+
+www.thelancet.com/oncology Vol 24 May 2023
+
+451
+
+Task:
+1. Extract the value for this column following the plan. Return your best-effort value even if uncertain.
+2. If the plan seems wrong, incomplete, or ambiguous, still return the value you found and add a suggestion and/or alternative_plan.
+3. Use "not found" or "not reported" only if the value is genuinely absent from the content.
+
+Output a JSON object with:
+- value: the extracted value (string)
+- found: true if you found a value, false if not reported/absent
+- confidence: "high" | "medium" | "low"
+- suggestion: optional string with concerns or notes (null if none)
+- alternative_plan: optional string describing a different extraction approach to try (null if plan seems fine)
+
+
+============================================================
+OUTPUT
+============================================================
+```json
+{
+  "value": "48%",
+  "found": true,
+  "confidence": "high",
+  "suggestion": "The column definition asks to \"include the rate (percentage) and any accompanying details\". The accompanying 95% CI for 48% is (43–52). If a more comprehensive value is desired, consider including this detail (e.g., \"48% (43–52)\") in the extracted value by updating the plan.",
+  "alternative_plan": null
+}
+```

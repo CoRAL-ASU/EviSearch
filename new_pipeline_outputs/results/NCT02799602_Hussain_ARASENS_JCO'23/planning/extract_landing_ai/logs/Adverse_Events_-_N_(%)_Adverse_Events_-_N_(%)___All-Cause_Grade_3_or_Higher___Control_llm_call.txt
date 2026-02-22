@@ -1,0 +1,63 @@
+============================================================
+INPUT
+============================================================
+You are extracting a value for a clinical trial data column from the provided document content.
+
+Column: Adverse Events - N (%) | All-Cause Grade 3 or Higher | Control
+Definition: What number and percentage of patients experiencing all-cause adverse events with a grade of 3 or higher in the control arm of the trial? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.
+
+Extraction plan to follow:
+Sum the counts and percentages for "Grade 3", "Grade 4", and "Grade 5 (death)" from the "All Patients - Placebo (n = 650)" column in Table 3.
+
+Document content (relevant excerpts):
+[Page 9, TABLE]
+TABLE 3. Treatment-Emergent AEs in the Subgroups of Patients by Disease Volume and Disease Risk in ARASENS
+<table>
+<tr><td></td><td colspan="2">High Volumeª</td><td colspan="2">Low Volumeª</td><td colspan="2">High Riskᵇ</td><td colspan="2">Low Riskⁿ</td><td colspan="2">All Patients⁹ (N = 1302ᶜ)</td></tr>
+<tr><td>AE</td><td>Darolutamide (n = 498)</td><td>Placebo (n = 506)</td><td>Darolutamide (n = 154)</td><td>Placebo (n = 144)</td><td>Darolutamide (n = 453)</td><td>Placebo (n = 457)</td><td>Darolutamide (n = 199)</td><td>Placebo (n = 193)</td><td>Darolutamide (n = 652)</td><td>Placebo (n = 650)</td></tr>
+<tr><td>Any AE</td><td>496 (99.6)</td><td>500 (98.8)</td><td>153 (99.4)</td><td>143 (99.3)</td><td>450 (99.3)</td><td>451 (98.7)</td><td>199 (100)</td><td>192 (99.5)</td><td>649 (99.5)</td><td>643 (98.9)</td></tr>
+<tr><td colspan="11">Worst grade</td></tr>
+<tr><td>Grade 1</td><td>21 (4.2)</td><td>23 (4.5)</td><td>7 (4.5)</td><td>12 (8.3)</td><td>19 (4.2)</td><td>20 (4.4)</td><td>9 (4.5)</td><td>15 (7.8)</td><td>28 (4.3)</td><td>35 (5.4)</td></tr>
+<tr><td>Grade 2</td><td>130 (26.1)</td><td>132 (26.1)</td><td>32 (20.8)</td><td>37 (25.7)</td><td>107 (23.6)</td><td>118 (25.8)</td><td>55 (27.6)</td><td>51 (26.4)</td><td>162 (24.8)</td><td>169 (26.0)</td></tr>
+<tr><td>Grade 3</td><td>188 (37.8)</td><td>189 (37.4)</td><td>60 (39.0)</td><td>43 (29.9)</td><td>169 (37.3)</td><td>167 (36.5)</td><td>79 (39.7)</td><td>65 (33.7)</td><td>248 (38.0)</td><td>232 (35.7)</td></tr>
+<tr><td>Grade 4</td><td>135 (27.1)</td><td>136 (26.9)</td><td>48 (31.2)</td><td>45 (31.3)</td><td>137 (30.2)</td><td>127 (27.8)</td><td>46 (23.1)</td><td>54 (28.0)</td><td>183 (28.1)</td><td>181 (27.8)</td></tr>
+<tr><td>Grade 5 (death)d</td><td>21 (4.2)</td><td>20 (4.0)</td><td>6 (3.9)</td><td>6 (4.2)</td><td>17 (3.8)</td><td>19 (4.2)</td><td>10 (5.0)</td><td>7 (3.6)</td><td>27 (4.1)</td><td>26 (4.0)</td></tr>
+<tr><td>Serious AE</td><td>226 (45.4)</td><td>220 (43.5)</td><td>66 (42.9)</td><td>55 (38.2)</td><td>205 (45.3)</td><td>196 (42.9)</td><td>87 (43.7)</td><td>79 (40.9)</td><td>292 (44.8)</td><td>275 (42.3)</td></tr>
+<tr><td colspan="11">AE leading to permanent discontinuation of trial agent</td></tr>
+<tr><td>Darolutamide or placebo</td><td>66 (13.3)</td><td>54 (10.7)</td><td>22 (14.3)</td><td>15 (10.4)</td><td>58 (12.8)</td><td>45 (9.8)</td><td>30 (15.1)</td><td>24 (12.4)</td><td>88 (13.5)</td><td>69 (10.6)</td></tr>
+<tr><td>Docetaxel</td><td>39 (7.8)</td><td>54 (10.7)</td><td>13 (8.4)</td><td>13 (9.0)</td><td>38 (8.4)</td><td>45 (9.8)</td><td>14 (7.0)</td><td>22 (11.4)</td><td>52 (8.0)</td><td>67 (10.3)</td></tr>
+<tr><td colspan="11">Most common AEs (≥ 25%), No. (%)/EAIR</td></tr>
+<tr><td>Alopecia</td><td>192 (38.6)/15.3</td><td>202 (39.9)/23.1</td><td>72 (46.8)/15.2</td><td>62 (43.1)/18.9</td><td>191 (42.2)/16.6</td><td>183 (40.0)/23.3</td><td>73 (36.7)/12.5</td><td>81 (42.0)/19.5</td><td>264 (40.5)/15.3</td><td>264 (40.6)/22.0</td></tr>
+<tr><td>Neutropenia</td><td>197 (39.6)</td><td>199 (39.3)</td><td>59 (38.3)</td><td>53 (36.8)</td><td>192 (42.4)</td><td>182 (39.8)</td><td>64 (32.2)</td><td>70 (36.3)</td><td>256 (39.3)</td><td>252 (38.8)</td></tr>
+<tr><td>Fatigue</td><td>166 (33.3)/13.2</td><td>165 (32.6)/18.9</td><td>50 (32.5)/10.6</td><td>49 (34.0)/15.0</td><td>141 (31.1)/12.3</td><td>130 (28.4)/16.5</td><td>75 (37.7)/12.9</td><td>84 (43.5)/20.2</td><td>216 (33.1)/12.5</td><td>214 (32.9)/17.8</td></tr>
+<tr><td>Anemia</td><td>140 (28.1)/11.1</td><td>132 (26.1)/15.1</td><td>41 (26.6)/8.7</td><td>31 (21.5)/9.5</td><td>134 (29.6)/11.7</td><td>105 (23.0)/13.4</td><td>47 (23.6)/8.1</td><td>58 (30.1)/13.9</td><td>181 (27.8)/10.5</td><td>163 (25.1)/13.6</td></tr>
+<tr><td>Peripheral edema</td><td>136 (27.3)/10.8</td><td>138 (27.3)/15.8</td><td>37 (24.0)/7.8</td><td>31 (21.5)/9.5</td><td>119 (26.3)/10.4</td><td>123 (26.9)/15.7</td><td>54 (27.1)/9.3</td><td>46 (23.8)/11.0</td><td>173 (26.5)/10.0</td><td>169 (26.0)/14.1</td></tr>
+<tr><td>Arthralgia</td><td>134 (26.9)/10.7</td><td>134 (26.5)/15.3</td><td>44 (28.6)/9.3</td><td>40 (27.8)/12.2</td><td>125 (27.6)/10.9</td><td>118 (25.8)/15.0</td><td>53 (26.6)/9.1</td><td>56 (29.0)/13.4</td><td>178 (27.3)/10.3</td><td>174 (26.8)/14.5</td></tr>
+<tr><td>Diarrhea</td><td>120 (24.1)/9.5</td><td>114 (22.5)/13.0</td><td>47 (30.5)/9.9</td><td>42 (29.2)/12.8</td><td>111 (24.5)/9.7</td><td>98 (21.4)/12.5</td><td>56 (28.1)/9.6</td><td>58 (30.1)/13.9</td><td>167 (25.6)/9.6</td><td>156 (24.0)/13.0</td></tr>
+</table>
+
+Task:
+1. Extract the value for this column following the plan. Return your best-effort value even if uncertain.
+2. If the plan seems wrong, incomplete, or ambiguous, still return the value you found and add a suggestion and/or alternative_plan.
+3. Use "not found" or "not reported" only if the value is genuinely absent from the content.
+
+Output a JSON object with:
+- value: the extracted value (string)
+- found: true if you found a value, false if not reported/absent
+- confidence: "high" | "medium" | "low"
+- suggestion: optional string with concerns or notes (null if none)
+- alternative_plan: optional string describing a different extraction approach to try (null if plan seems fine)
+
+
+============================================================
+OUTPUT
+============================================================
+```json
+{
+  "value": "439 (67.5%)",
+  "found": true,
+  "confidence": "high",
+  "suggestion": null,
+  "alternative_plan": null
+}
+```

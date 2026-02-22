@@ -1,0 +1,71 @@
+============================================================
+INPUT
+============================================================
+You are extracting a value for a clinical trial data column from the provided document content.
+
+Column: Median OS (mo) | Overall | Treatment
+Definition: What is the median overall survival (in months) for all patients in the experimental arm? If reported, include the value; use 'Not reported' if missing.
+
+Extraction plan to follow:
+In Table A1 (Figure A1) on page 16, locate the "Overall" row under the "Subgroup" column. In the "Darolutamide + ADT + Docetaxel Median" column, the value is "NE".
+
+Document content (relevant excerpts):
+[Page 16, TABLE]
+<table>
+<tr><td>A Subgroup</td><td>Darolutamide + ADT + Docetaxel No. of Events/</td><td>Placebo + ADT + Docetaxel No. of Patients</td><td>Darolutamide + ADT + Docetaxel Median</td><td>Placebo + ADT + Docetaxel Median</td><td></td><td>HR (95% CI)</td></tr>
+<tr><td>Overall</td><td>203/497</td><td>268/508</td><td>NE</td><td>42.4</td><td>diamond shape graph</td><td>0.685 (0.571 to 0.822)</td></tr>
+<tr><td>Extent of disease (eCRF) Bone metastasis</td><td>150/386</td><td>206/389</td><td>NE</td><td>42.5</td><td>line with square graph</td><td>0.653 (0.529 to 0.806)</td></tr>
+<tr><td>Visceral metastasis</td><td>53/111</td><td>62/118</td><td>49.0</td><td>42.0</td><td>line with square graph</td><td>0.792 (0.549 to 1.143)</td></tr>
+<tr><td>ALP stratification factor (eCRF)</td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+<tr><td>Below upper limit of normal</td><td>44/168</td><td>69/176</td><td>NE</td><td>51.8</td><td>chart (line with bars)</td><td>0.613 (0.420 to 0.896)</td></tr>
+<tr><td>At or above upper limit of normal</td><td>159/329</td><td>199/332</td><td>47.1</td><td>36.0</td><td>chart (line with bars)</td><td>0.689 (0.559 to 0.849)</td></tr>
+<tr><td>&lt; 65</td><td>70/184</td><td>103/182</td><td>NE</td><td>40.9</td><td>chart (line with bars)</td><td>0.573 (0.423 to 0.777)</td></tr>
+<tr><td>65-74</td><td>94/228</td><td>107/230</td><td>NE</td><td>51.8</td><td>chart (line with bars)</td><td>0.824 (0.624 to 1.087)</td></tr>
+<tr><td>75-84</td><td>37/82</td><td>55/92</td><td>NE</td><td>38.1</td><td>chart (line with bars)</td><td>0.627 (0.413 to 0.951)</td></tr>
+<tr><td>≥ 85 Race</td><td>2/3</td><td>3/4</td><td>33.7</td><td>27.8</td><td></td><td></td></tr>
+<tr><td>White</td><td>118/258</td><td>151/259</td><td>50.3</td><td>39.4</td><td>horizontal bar with blue square</td><td>0.672 (0.528 to 0.855)</td></tr>
+<tr><td>Asian</td><td>65/177</td><td>86/193</td><td>NE</td><td>51.8</td><td>horizontal bar with blue square</td><td>0.777 (0.563 to 1.072)</td></tr>
+<tr><td>Black or African American</td><td>6/22</td><td>14/21</td><td>NE</td><td>32.4</td><td>horizontal bar with blue square</td><td>0.346 (0.132 to 0.904)</td></tr>
+<tr><td>Other or not reported</td><td>14/40</td><td>17/35</td><td>NE</td><td>43.2</td><td>horizontal bar with blue square</td><td>0.562 (0.275 to 1.150)</td></tr>
+<tr><td>Geographical region</td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+<tr><td>North America</td><td>36/95</td><td>46/88</td><td>NE</td><td>41.1</td><td>(box plot with whisker)</td><td>0.592 (0.382 to 0.918)</td></tr>
+<tr><td>Asia Pacific</td><td>64/175</td><td>85/191</td><td>NE</td><td>51.8</td><td>(box plot with whisker)</td><td>0.774 (0.559 to 1.070)</td></tr>
+<tr><td>Rest of the world</td><td>103/227</td><td>137/229</td><td>49.0</td><td>39.3</td><td>(box plot with whisker)</td><td>0.655 (0.507 to 0.846)</td></tr>
+<tr><td>PSA at baseline Below median</td><td>94/220</td><td>121/252</td><td>NE</td><td>47.6</td><td>(box plot with whisker)</td><td>0.805 (0.615 to 1.055)</td></tr>
+<tr><td>At or above median ECOG at baseline</td><td>109/277</td><td>147/255</td><td>NE</td><td>40.6</td><td>horizontal line with blue squares</td><td>0.589 (0.459 to 0.754)</td></tr>
+<tr><td>0</td><td>130/343</td><td>165/349</td><td>NE</td><td>47.6</td><td>horizontal line with blue squares</td><td>0.743 (0.591 to 0.936)</td></tr>
+<tr><td>1</td><td>73/154</td><td>102/157</td><td>47.2</td><td>30.2</td><td>horizontal line with blue squares</td><td>0.580 (0.430 to 0.784)</td></tr>
+<tr><td>Gleason score</td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+<tr><td>&lt;8</td><td>30/96</td><td>39/87</td><td>NE</td><td>NE</td><td>horizontal line with blue squares</td><td>0.595 (0.369 to 0.958)</td></tr>
+<tr><td>≥ 8</td><td>165/381</td><td>217/403</td><td>NE</td><td>42.3</td><td>horizontal bar chart with square marker</td><td>0.724 (0.591 to 0.887)</td></tr>
+<tr><td>Metastatic stage at initial diagnosis De novo</td><td>181/432</td><td>239/445</td><td>NE</td><td>42.4</td><td>horizontal bar chart with square marker</td><td>0.696 (0.574 to 0.845)</td></tr>
+<tr><td>Recurrent</td><td>21/58</td><td>26/59</td><td>NE</td><td>NE</td><td>horizontal bar chart with square marker</td><td>0.695 (0.390 to 1.241)</td></tr>
+<tr><td></td><td></td><td></td><td></td><td>0</td><td>1 0.1 (chart scale)</td><td>10.0 (chart scale)</td></tr>
+<tr><td></td><td></td><td></td><td></td><td colspan="2">Darolutamide Better</td><td>Placebo Better</td></tr>
+</table>
+
+Task:
+1. Extract the value for this column following the plan. Return your best-effort value even if uncertain.
+2. If the plan seems wrong, incomplete, or ambiguous, still return the value you found and add a suggestion and/or alternative_plan.
+3. Use "not found" or "not reported" only if the value is genuinely absent from the content.
+
+Output a JSON object with:
+- value: the extracted value (string)
+- found: true if you found a value, false if not reported/absent
+- confidence: "high" | "medium" | "low"
+- suggestion: optional string with concerns or notes (null if none)
+- alternative_plan: optional string describing a different extraction approach to try (null if plan seems fine)
+
+
+============================================================
+OUTPUT
+============================================================
+```json
+{
+  "value": "NE",
+  "found": true,
+  "confidence": "high",
+  "suggestion": null,
+  "alternative_plan": null
+}
+```

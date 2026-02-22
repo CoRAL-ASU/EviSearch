@@ -1,0 +1,47 @@
+============================================================
+INPUT
+============================================================
+You are extracting a value for a clinical trial data column from the provided document content.
+
+Column: Reporting by prognostic groups - Y/N | High volume
+Definition: What indicates whether the results of the clinical trial were reported based on prognostic groups with high volume/burden of metastases, with a response of either "yes" (Y) or "no" (N)? Answer Yes or No
+
+Extraction plan to follow:
+Yes, reporting by 'high volume' prognostic group is available. The document uses the term 'Extensive' disease, which is explicitly defined as 'high risk' in footnote b of Table A2 on Page 12. Table A3 on Page 13, titled 'Treatment Outcomes by Disease Severity', provides outcomes (PFS and OS) for the 'Extensive' group. The definition of 'extensive disease' is also provided in the 'Patients and Interventions' section on Page 2: 'extensive disease was defined as that with greater than minimal involvement'.
+
+Document content (grouped by type, in chronological page order):
+--- TABLES ---
+[Page 13]
+TABLE A3. Treatment Outcomes by Disease Severity
+<table>
+<tr><td>Disease Group</td><td>Control Arm</td><td>Orteronel Arm</td><td>PFS Control Median/5 Year</td><td>PFS Orteronel Median/5 Year</td><td>HR (95% CI)</td><td>OS Control Median/5 Year</td><td>OS Orteronel Median/5 Year</td><td>HR (95% CI)</td></tr>
+<tr><td>Extensive</td><td>313</td><td>310</td><td>1.1 years/20%</td><td>2.2 years/29%</td><td>0.66 (0.55 to 0.79)</td><td>4.1 years/44%</td><td>4.8 years/47%</td><td>0.88 (0.71 to 1.10)</td></tr>
+<tr><td>Minimal</td><td>328</td><td>328</td><td>3.6 years/38%</td><td>NR/58%</td><td>0.53 (0.42 to 0.66)</td><td>NR/71%</td><td>NR/71%</td><td>0.89 (0.67 to 1.18)</td></tr>
+</table>
+Abbreviations: HR, hazard ratio; NR, not reached; OS, overall survival; PFS, progression-free survival.
+
+Task:
+1. Extract the value for this column following the plan. Return your best-effort value even if uncertain.
+2. If the plan seems wrong, incomplete, or ambiguous, still return the value you found and add a suggestion and/or alternative_plan.
+3. Use "not found" or "not reported" only if the value is genuinely absent from the content.
+
+Output a JSON object with:
+- value: the extracted value (string)
+- found: true if you found a value, false if not reported/absent
+- confidence: "high" | "medium" | "low"
+- suggestion: optional string with concerns or notes (null if none)
+- alternative_plan: optional string describing a different extraction approach to try (null if plan seems fine)
+
+
+============================================================
+OUTPUT
+============================================================
+```json
+{
+  "value": "Yes",
+  "found": true,
+  "confidence": "medium",
+  "suggestion": "The extraction plan refers to a definition of 'Extensive' disease as 'high risk' in footnote b of Table A2 on Page 12. This specific table and page content were not provided in the document content, so this part of the plan could not be directly verified. However, the presence of 'Extensive' disease group in Table A3 with reported outcomes (PFS and OS), and its definition as 'greater than minimal involvement' on Page 2, strongly supports the classification as a 'high volume' prognostic group as per the plan's overall conclusion.",
+  "alternative_plan": null
+}
+```

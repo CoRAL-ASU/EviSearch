@@ -3,8 +3,8 @@ PROVIDER: gemini
 MODEL: gemini-2.5-flash
 SUCCESS: True
 ERROR: None
-PROMPT_TOKENS: 726
-OUTPUT_TOKENS: 535
+PROMPT_TOKENS: 1120
+OUTPUT_TOKENS: 562
 ============================================================
 INPUT PROMPT
 ============================================================
@@ -27,13 +27,57 @@ Columns to verify:
   original_extraction_plan: Extract the number of deaths for the placebo group from the caption of Figure 1. The caption states: "The primary end point (OS) was assessed after 533 patients had died (229 in the darolutamide group and 304 in the placebo group)." The value for the placebo (control) group is 304.
 
 Relevant chunks:
---- Chunk 0 (FIGURE on page 3) ---
-```
-##Figure Descriptions##
+--- Chunk 34 (FIGURE on page 3) ---
+<a id='aedfdd2e-476c-4760-bec3-d41b132e76a6'></a>
 
-## Figure 1
-This figure is a CONSORT flow diagram depicting the screening, randomization, allocation, and analysis of patients in a clinical trial comparing darolutamide + docetaxel + ADT versus placebo + docetaxel + ADT in metastatic hormone-sensitive prostate cancer. It details the number of patients screened, reasons for exclusion, allocation to treatment arms, reasons for discontinuation, and the numbers analyzed for primary and safety endpoints in each group.
-```
+<::Patients screened (N = 1,686)
+
+Not eligible (n = 380)
+Screen failureᵃ (n = 309)
+Withdrawal by patient (n = 43)
+AE (n = 4)
+Physician's decision (n = 2)
+Other (n = 22)
+
+Patients randomly assigned (N = 1,306)
+
+Darolutamide + docetaxel + ADT (n = 651)
+Received allocated treatment (n = 651)
+Did not receive allocated treatment (n = 0)
+
+Placebo + docetaxel + ADT (n = 655)
+Excluded for GCP violation (n = 1)
+Received allocated treatment (n = 651)
+Did not receive allocated treatment
+Withdrawal by patient (n = 2)
+Physician's decision (n = 1)
+
+Discontinued (n = 352)
+Primary reason for discontinuation
+Disease progression, clinical (n = 127)
+Disease progression, radiological (n = 84)
+AE (n = 72)
+Death (n = 8)
+Withdrawal by patient (n = 25)
+Physician's decision (n = 3)
+Otherᵇ (n = 33)
+
+Discontinued (n = 526)
+Primary reason for discontinuation
+Disease progression, clinical (n = 272)
+Disease progression, radiological (n = 132)
+AE (n = 53)
+Death (n = 5)
+Withdrawal by patient (n = 35)
+Physician's decision (n = 6)
+Otherᵇ (n = 23)
+
+Analyzed for primary end point (n = 651ᶜ)
+Analyzed for safety (n = 652ᵈ)
+
+Analyzed for primary end point (n = 654ᶜ)
+Analyzed for safety (n = 650ᵈ)
+: flowchart::>
 
 Task:
 - Evaluate EACH column independently. Do not assume the original plan is correct.
@@ -66,19 +110,19 @@ RAW OUTPUT
 COLUMN 1: No. of Deaths - N | Treatment
 VERDICT: WRONG
 REASONING:
-- Chunk citations: Chunk 0
-- Why the original plan is right/wrong: The original extraction plan states that the number of deaths for the darolutamide group is found in the caption of Figure 1 and provides a direct quote from that caption. However, the provided Chunk 0 is a "Figure Description" of Figure 1 and does not contain the specific quoted text: "The primary end point (OS) was assessed after 533 patients had died (229 in the darolutamide group and 304 in the placebo group)." Therefore, the original plan cannot be verified using only the provided chunk.
+- Chunk citations: Chunk 34 ("The primary end point (OS) was assessed after 533 patients had died (229 in the darolutamide group and 304 in the placebo group).")
+- Why the original plan is wrong: The original extraction plan states that the information is found in "the caption of Figure 1" and provides a specific quote. However, the provided Chunk 34 is a flowchart and does not contain a caption for Figure 1, nor does it contain the quoted sentence. Therefore, the source cited in the original plan is not present in the provided chunks.
 ISSUES:
-- The specific text quoted in the original extraction plan is not present in the provided chunk.
+- The source (Figure 1 caption with the specific quote) cited in the original plan is not present in the provided chunk.
 CORRECTED_PLAN_JSON:
-{"found_in_pdf": false, "page": -1, "source_type": "text", "confidence": "low", "extraction_plan": "The specific text quoted in the original extraction plan, which states the number of deaths for the darolutamide group, is not present in the provided chunks. The original plan indicates this information is in the caption of Figure 1."}
+{"found_in_pdf": true, "page": 3, "source_type": "figure", "confidence": "high", "extraction_plan": "Extract the number of deaths for the darolutamide group from the 'Primary reason for discontinuation' section under the 'Darolutamide + docetaxel + ADT' arm in the flowchart. The value is found next to 'Death (n = X)'."}
 
 COLUMN 2: No. of Deaths - N | Control
 VERDICT: WRONG
 REASONING:
-- Chunk citations: Chunk 0
-- Why the original plan is right/wrong: The original extraction plan states that the number of deaths for the placebo group is found in the caption of Figure 1 and provides a direct quote from that caption. However, the provided Chunk 0 is a "Figure Description" of Figure 1 and does not contain the specific quoted text: "The primary end point (OS) was assessed after 533 patients had died (229 in the darolutamide group and 304 in the placebo group)." Therefore, the original plan cannot be verified using only the provided chunk.
+- Chunk citations: Chunk 34 ("The primary end point (OS) was assessed after 533 patients had died (229 in the darolutamide group and 304 in the placebo group).")
+- Why the original plan is wrong: The original extraction plan states that the information is found in "the caption of Figure 1" and provides a specific quote. However, the provided Chunk 34 is a flowchart and does not contain a caption for Figure 1, nor does it contain the quoted sentence. Therefore, the source cited in the original plan is not present in the provided chunks.
 ISSUES:
-- The specific text quoted in the original extraction plan is not present in the provided chunk.
+- The source (Figure 1 caption with the specific quote) cited in the original plan is not present in the provided chunk.
 CORRECTED_PLAN_JSON:
-{"found_in_pdf": false, "page": -1, "source_type": "text", "confidence": "low", "extraction_plan": "The specific text quoted in the original extraction plan, which states the number of deaths for the placebo group, is not present in the provided chunks. The original plan indicates this information is in the caption of Figure 1."}
+{"found_in_pdf": true, "page": 3, "source_type": "figure", "confidence": "high", "extraction_plan": "Extract the number of deaths for the placebo group from the 'Primary reason for discontinuation' section under the 'Placebo + docetaxel + ADT' arm in the flowchart. The value is found next to 'Death (n = X)'."}

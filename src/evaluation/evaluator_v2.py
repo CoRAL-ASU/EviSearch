@@ -15,7 +15,9 @@ import sys
 # Add parent to path for imports
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
+from src.config.config import EVALUATION_MODEL_V2, EVALUATION_PROVIDER_V2
 from src.LLMProvider.provider import LLMProvider
+from src.utils.costing import aggregate_usage, usage_to_cost_dict
 from src.LLMProvider.structurer import OutputStructurer
 from src.utils.logging_utils import setup_logger
 from pydantic import BaseModel, Field
@@ -54,7 +56,7 @@ class EvaluatorV2:
         self.output_dir.mkdir(parents=True, exist_ok=True)
         
         # LLM providers
-        self.eval_provider = LLMProvider(provider="gemini", model="gemini-2.0-flash-001")
+        self.eval_provider = LLMProvider(provider=EVALUATION_PROVIDER_V2, model=EVALUATION_MODEL_V2)
         self.structurer = OutputStructurer(
             base_url="http://localhost:8001/v1",
             model="Qwen/Qwen3-8B"
@@ -177,10 +179,15 @@ class EvaluatorV2:
 
 Compare Ground Truth (GT) vs Predicted (Pred) values for exact/semantic equivalence.
 
+CRITICAL - Empty / missing (use for BOTH GT and Pred):
+- Treat as equivalent to empty: "", "Not reported", "not reported", "not found", "Not found", "not applicable", "N/A", "na", "NaN", "not present", "Not reported", "Not applicable"
+- When GT is empty and Pred is any of the above → correctness=1.0, completeness=1.0 (no hallucination)
+- When GT is empty and Pred has a substantive value → correctness=0.0, completeness=0.0 (hallucination)
+- When GT has a value and Pred is empty → correctness=0.0, completeness=0.0 (missing extraction)
+
 Rules:
 - Case-insensitive comparison
 - Accept synonyms: "Yes"/"Y", "No"/"N", "Full Pub"/"Full Publication", "Phase 3"/"3.0", etc.
-- Empty values: "Not reported", "not present", "", "NaN" are all equivalent to empty
 - For identifiers (NCT, Trial Name): must match exactly (ignoring case/whitespace)
 - Consider the column definition to understand acceptable variations
 
@@ -198,9 +205,10 @@ Compare Ground Truth (GT) vs Predicted (Pred) values using the column Definition
 CRITICAL RULES:
 
 1) **What's required vs optional (check the Definition)**:
-   - If definition says "include count AND percentage" or "N (%)": both N and % are REQUIRED.
+   - If definition says "include count AND percentage" or "N (%)": both the count (N) and the percentage numeric value are REQUIRED. The literal "%" symbol is OPTIONAL—e.g. Pred="103 (55)" has both N and percentage value; do NOT dock for missing "%".
    - If definition says "at X years" or "X-year rate": the timepoint is REQUIRED.
    - If definition says "median" without specifying CI/IQR: only the median number is required; CI, IQR, SD, range, p-values are OPTIONAL context.
+   - **Multiple values in GT**: If GT contains multiple distinct required values (e.g. "bPFS 12.9 mo; rPFS 15.3 mo" or "X and Y"), pred must include ALL of them for completeness=1.0. If pred reports only one value and GT has two or more, score correctness based on whether the reported value matches one in GT, but set completeness=0.5 (missing other required value(s)).
    - Default: primary numbers are required; statistical context (CI, IQR, p-values) is optional unless definition explicitly asks for it.
 
 2) **Tolerance**: ±0.1 for absolute values, ±2% relative for percentages.
@@ -215,16 +223,22 @@ CRITICAL RULES:
    - 0.5 = some required numbers present, some missing
    - 0.0 = required numbers missing
 
-5) **Empty handling**:
-   - If both empty ("Not reported", "", etc.): correctness=1.0, completeness=1.0
-   - If one is empty: correctness=0.0, completeness=0.0
+5) **Empty handling** (treat as empty for BOTH GT and Pred):
+   - Empty-equivalent: "", "Not reported", "not found", "Not found", "not applicable", "N/A", "na", "NaN", "not present"
+   - When GT is empty and Pred is empty-equivalent → correctness=1.0, completeness=1.0 (no hallucination)
+   - When GT is empty and Pred has a number or substantive value → correctness=0.0, completeness=0.0 (hallucination)
+   - When GT has a value and Pred is empty-equivalent → correctness=0.0, completeness=0.0 (missing extraction)
+   - When both have substantive values: apply tolerance and required-vs-optional rules above
 
 EXAMPLES:
 - GT="35.1 months (95% CI 29.9–43.6)", Pred="35.1 months", Def="median OS" → correctness=1.0 (35.1 matches), completeness=1.0 (CI is optional)
 - GT="70% at 5 years", Pred="70%", Def="OS rate at 5 years" → correctness=1.0 (70% matches), completeness=0.5 (missing required timepoint)
-- GT="250 (63.6%)", Pred="250", Def="include count and percentage" → correctness=1.0 (N matches), completeness=0.5 (missing required %)
+- GT="250 (63.6%)", Pred="250", Def="include count and percentage" → correctness=1.0 (N matches), completeness=0.5 (missing percentage value)
+- GT="103 (55%)", Pred="103 (55)", Def="include count and percentage" → correctness=1.0, completeness=1.0 (both N and percentage value present; "%" symbol optional)
 - GT="250 (63.6%)", Pred="250 (64%)", Def="include count and percentage" → correctness=1.0 (both within tolerance), completeness=1.0 (both present)
 - GT="High-volume: 92 (48%) Low-volume: 100 (52%)", Pred="92 (48%)", Def="by volume subgroup" → correctness=1.0 (high-volume matches), completeness=0.5 (missing low-volume)
+- GT="bPFS 12.9 mo; rPFS 15.3 mo", Pred="12.9 mo", Def="median PFS (months)" → correctness=1.0 (12.9 matches), completeness=0.5 (missing rPFS 15.3)
+- GT="bPFS 12.9 mo; rPFS 15.3 mo", Pred="12.9 mo; 15.3 mo" or "bPFS 12.9; rPFS 15.3", Def="median PFS" → correctness=1.0, completeness=1.0 (both values present)
 
 Columns to evaluate:\n"""
         
@@ -250,11 +264,15 @@ CRITICAL RULES:
    - 0.0 = required facts missing
    - Do NOT penalize for missing optional context (mechanism, rationale, historical notes, expanded forms)
 
-3) **General**:
+3) **Empty handling** (treat as empty for BOTH GT and Pred):
+   - Empty-equivalent: "", "Not reported", "not found", "Not found", "not applicable", "N/A", "na", "not present"
+   - When GT is empty and Pred is empty-equivalent → correctness=1.0, completeness=1.0 (no hallucination)
+   - When GT is empty and Pred has substantive text → correctness=0.0, completeness=0.0 (hallucination)
+   - When GT has a value and Pred is empty-equivalent → correctness=0.0, completeness=0.0 (missing extraction)
+
+4) **General**:
    - Be lenient with abbreviations (e.g., "ADT" = "Androgen Deprivation Therapy")
    - Accept rephrasing if meaning is preserved
-   - If both empty: correctness=1.0, completeness=1.0
-   - If one empty: correctness=0.0, completeness=0.0
 
 EXAMPLES:
 - GT="ADT", Pred="ADT (LHRH agonist for testosterone suppression)", Def="control arm regimen" → correctness=1.0 (extra mechanism is fine, no contradiction), completeness=1.0 (core fact "ADT" present)
@@ -292,7 +310,7 @@ For example, if the column is shown as "1. Control Arm - N:", you must return co
             logger.warning("google.genai not available for native JSON evaluation")
             return [{"column": col, "correctness": 0.0, "completeness": 0.0, "reason": "Native JSON evaluation unavailable (missing google.genai)"} for col in columns]
         client = getattr(self.eval_provider, "client", None)
-        model = getattr(self.eval_provider, "model", "gemini-2.5-flash")
+        model = getattr(self.eval_provider, "model", EVALUATION_MODEL_V2)
         if client is None:
             return [{"column": col, "correctness": 0.0, "completeness": 0.0, "reason": "Gemini client not available"} for col in columns]
         prompt = self.build_prompt(category, columns)
@@ -372,7 +390,7 @@ For example, if the column is shown as "1. Control Arm - N:", you must return co
             logger.warning("google.genai not available for structurer fallback")
             return None
         client = getattr(self.eval_provider, "client", None)
-        model = getattr(self.eval_provider, "model", "gemini-2.0-flash-001")
+        model = getattr(self.eval_provider, "model", EVALUATION_MODEL_V2)
         if client is None:
             return None
         prompt = f"""You previously evaluated clinical trial data extraction accuracy. Your evaluation is shown below.
@@ -721,6 +739,23 @@ Your previous evaluation response:
         except Exception as e:
             logger.error(f"Evaluation failed: {e}", exc_info=True)
             raise
+
+    def get_usage(self) -> dict:
+        """Aggregate token usage from LLM logs for costing. Returns dict with input_tokens, output_tokens, cost_usd, etc."""
+        items = []
+        for log in self.llm_logs.get("gemini", []) + self.llm_logs.get("structurer", []):
+            in_tok = log.get("input_tokens", 0)
+            out_tok = log.get("output_tokens", 0)
+            if in_tok or out_tok:
+                items.append({
+                    "input_tokens": in_tok,
+                    "output_tokens": out_tok,
+                    "provider": EVALUATION_PROVIDER_V2,
+                    "model": EVALUATION_MODEL_V2,
+                })
+        return aggregate_usage(items) if items else usage_to_cost_dict(
+            EVALUATION_PROVIDER_V2, EVALUATION_MODEL_V2, 0, 0
+        )
 
 
 if __name__ == "__main__":

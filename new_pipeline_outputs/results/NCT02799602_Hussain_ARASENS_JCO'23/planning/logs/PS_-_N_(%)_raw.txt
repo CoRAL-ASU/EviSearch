@@ -1,40 +1,35 @@
-1. PS - N (%) | 0 | Treatment
-   - **found_in_pdf**: true
-   - **extraction_plan**: The number and percentage of participants with a Performance Status (PS) score of 0 in the Darolutamide treatment arm can be derived by summing the counts from the "High Volume" and "Low Volume" subgroups in Table 1.
-     - From Table 1, page 5, under "ECOG PS, No. (%)", for "0":
-       - Darolutamide (n = 497) High Volume: 343 (69.0%)
-       - Darolutamide (n = 154) Low Volume: 123 (79.9%)
-     - Summing these gives: 343 + 123 = 466 patients.
-     - The total number of Darolutamide patients in these subgroups is 497 + 154 = 651.
-     - The percentage is (466 / 651) * 100 = 71.6%.
-     - Therefore, the value is 466 (71.6%).
-2. PS - N (%) | 0 | Control
-   - **found_in_pdf**: true
-   - **extraction_plan**: The number and percentage of participants with a Performance Status (PS) score of 0 in the Placebo control arm can be derived by summing the counts from the "High Volume" and "Low Volume" subgroups in Table 1.
-     - From Table 1, page 5, under "ECOG PS, No. (%)", for "0":
-       - Placebo (n = 508) High Volume: 349 (68.7%)
-       - Placebo (n = 146) Low Volume: 113 (77.4%)
-     - Summing these gives: 349 + 113 = 462 patients.
-     - The total number of Placebo patients in these subgroups is 508 + 146 = 654.
-     - The percentage is (462 / 654) * 100 = 70.6%.
-     - Therefore, the value is 462 (70.6%).
-3. PS - N (%) | 1-2 | Treatment
-   - **found_in_pdf**: true
-   - **extraction_plan**: Table 1, page 5, reports ECOG PS scores as "0" or "1". No patients are reported with PS 2. Therefore, "PS 1-2" is interpreted as "PS 1". The number and percentage of participants with a Performance Status (PS) score of 1 in the Darolutamide treatment arm can be derived by summing the counts from the "High Volume" and "Low Volume" subgroups.
-     - From Table 1, page 5, under "ECOG PS, No. (%)", for "1":
-       - Darolutamide (n = 497) High Volume: 154 (31.0%)
-       - Darolutamide (n = 154) Low Volume: 31 (20.1%)
-     - Summing these gives: 154 + 31 = 185 patients.
-     - The total number of Darolutamide patients in these subgroups is 497 + 154 = 651.
-     - The percentage is (185 / 651) * 100 = 28.4%.
-     - Therefore, the value is 185 (28.4%).
-4. PS - N (%) | 1-2 | Control
-   - **found_in_pdf**: true
-   - **extraction_plan**: Table 1, page 5, reports ECOG PS scores as "0" or "1". No patients are reported with PS 2. Therefore, "PS 1-2" is interpreted as "PS 1". The number and percentage of participants with a Performance Status (PS) score of 1 in the Placebo control arm can be derived by summing the counts from the "High Volume" and "Low Volume" subgroups.
-     - From Table 1, page 5, under "ECOG PS, No. (%)", for "1":
-       - Placebo (n = 508) High Volume: 157 (30.9%)
-       - Placebo (n = 146) Low Volume: 33 (22.6%)
-     - Summing these gives: 157 + 33 = 190 patients.
-     - The total number of Placebo patients in these subgroups is 508 + 146 = 654.
-     - The percentage is (190 / 654) * 100 = 29.0%.
-     - Therefore, the value is 190 (29.0%).
+1. **PS - N (%) | 0 | Treatment**
+   * **found_in_pdf**: true
+   * **page_number**: 5
+   * **source_type**: table
+   * **extraction_rule**: In Table 1, locate the row "ECOG PS, No. (%)" and the sub-row "0". Sum the values from the "Darolutamide (n = 497)" column under "High Volume" and the "Darolutamide (n = 154)" column under "Low Volume".
+     * High Volume - Darolutamide: 343
+     * Low Volume - Darolutamide: 123
+     * Total Darolutamide PS 0 = 343 + 123 = 466.
+     * Total Darolutamide patients = 497 (High Volume) + 154 (Low Volume) = 651.
+     * Percentage = (466 / 651) * 100 = 71.58%.
+   * **value**: 466 (71.6%)
+
+2. **PS - N (%) | 0 | Control**
+   * **found_in_pdf**: true
+   * **page_number**: 5
+   * **source_type**: table
+   * **extraction_rule**: In Table 1, locate the row "ECOG PS, No. (%)" and the sub-row "0". Sum the values from the "Placebo (n = 508)" column under "High Volume" and the "Placebo (n = 146)" column under "Low Volume".
+     * High Volume - Placebo: 349
+     * Low Volume - Placebo: 113
+     * Total Placebo PS 0 = 349 + 113 = 462.
+     * Total Placebo patients = 508 (High Volume) + 146 (Low Volume) = 654.
+     * Percentage = (462 / 654) * 100 = 70.64%.
+   * **value**: 462 (70.6%)
+
+3. **PS - N (%) | 1-2 | Treatment**
+   * **found_in_pdf**: false
+   * **page_number**: 5
+   * **source_type**: table
+   * **extraction_rule**: Table 1 (page 5) provides ECOG PS distribution for PS 0 and PS 1, but does not explicitly report PS 2. The footnote states "ECOG PS scores range from 0 to 5", and the sum of patients with PS 0, PS 1, and "Missing" accounts for all patients in the Darolutamide arm (466 + 185 + 0 = 651). Therefore, PS 2 is not reported as a distinct category, and a value for the range "1-2" cannot be provided. The value for PS 1 in the Darolutamide arm is 185 (28.4%).
+
+4. **PS - N (%) | 1-2 | Control**
+   * **found_in_pdf**: false
+   * **page_number**: 5
+   * **source_type**: table
+   * **extraction_rule**: Table 1 (page 5) provides ECOG PS distribution for PS 0 and PS 1, but does not explicitly report PS 2. The footnote states "ECOG PS scores range from 0 to 5", and the sum of patients with PS 0, PS 1, and "Missing" accounts for all patients in the Placebo arm (462 + 190 + 2 = 654). Therefore, PS 2 is not reported as a distinct category, and a value for the range "1-2" cannot be provided. The value for PS 1 in the Placebo arm is 190 (29.1%).

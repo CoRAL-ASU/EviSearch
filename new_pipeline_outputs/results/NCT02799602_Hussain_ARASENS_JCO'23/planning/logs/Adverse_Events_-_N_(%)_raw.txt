@@ -1,41 +1,41 @@
-Here's the extraction plan:
+Here's the analysis for each canonical column:
 
 1.  **Adverse Events - N (%) | All-Cause Grade 3 or Higher | Treatment**
-    *   **found_in_pdf:** true
-    *   **page_number:** 9
-    *   **source_type:** table
-    *   **extraction_plan:** From Table 3, under "All Patients" and "Darolutamide (n = 652)", sum the counts and percentages for "Grade 3", "Grade 4", and "Grade 5 (death)".
+    *   **Reported:** Yes
+    *   **Location:** Table 3 (page 9), "All Patients - Darolutamide (n = 652)" column, under "Worst grade".
+    *   **Extraction:** Sum the counts and percentages for "Grade 3", "Grade 4", and "Grade 5 (death)" from the "All Patients - Darolutamide (n = 652)" column in Table 3.
         *   Grade 3: 248 (38.0%)
         *   Grade 4: 183 (28.1%)
         *   Grade 5 (death): 27 (4.1%)
-        *   Total: 248 + 183 + 27 = 458 patients.
-        *   Total percentage: 38.0% + 28.1% + 4.1% = 70.2%.
-        *   Value: 458 (70.2%)
+        *   Total N = 248 + 183 + 27 = 458
+        *   Total % = 38.0% + 28.1% + 4.1% = 70.2%
+        *   Therefore, 458 (70.2%) patients experienced all-cause Grade 3 or higher AEs in the darolutamide arm.
+    *   **Note:** The abstract (Chunk 8, page 1) states "Grade 3 or 4 AEs occurred in 64.9% of darolutamide patients". This is a slightly different percentage, as it explicitly excludes Grade 5. Given the canonical column asks for "Grade 3 or Higher", the sum of Grade 3, 4, and 5 from Table 3 is used.
 
 2.  **Adverse Events - N (%) | All-Cause Grade 3 or Higher | Control**
-    *   **found_in_pdf:** true
-    *   **page_number:** 9
-    *   **source_type:** table
-    *   **extraction_plan:** From Table 3, under "All Patients" and "Placebo (n = 650)", sum the counts and percentages for "Grade 3", "Grade 4", and "Grade 5 (death)".
+    *   **Reported:** Yes
+    *   **Location:** Table 3 (page 9), "All Patients - Placebo (n = 650)" column, under "Worst grade".
+    *   **Extraction:** Sum the counts and percentages for "Grade 3", "Grade 4", and "Grade 5 (death)" from the "All Patients - Placebo (n = 650)" column in Table 3.
         *   Grade 3: 232 (35.7%)
         *   Grade 4: 181 (27.8%)
         *   Grade 5 (death): 26 (4.0%)
-        *   Total: 232 + 181 + 26 = 439 patients.
-        *   Total percentage: 35.7% + 27.8% + 4.0% = 67.5%.
-        *   Value: 439 (67.5%)
+        *   Total N = 232 + 181 + 26 = 439
+        *   Total % = 35.7% + 27.8% + 4.0% = 67.5%
+        *   Therefore, 439 (67.5%) patients experienced all-cause Grade 3 or higher AEs in the placebo arm.
+    *   **Note:** The abstract (Chunk 8, page 1) provides percentages for Grade 3 or 4 AEs in placebo patients for high-volume (64.2%) and low-volume (61.1%) subgroups, but not for the overall control arm.
 
 3.  **Adverse Events - N (%) | Treatment-related Grade 3 or Higher | Treatment**
-    *   **found_in_pdf:** false
-    *   **extraction_plan:** Table 3 reports "Treatment-Emergent AEs" by grade, which are generally considered all-cause. It does not specify which of these AEs are "treatment-related" for Grade 3 or higher. The text also does not provide this specific breakdown.
+    *   **Reported:** No
+    *   **Location:** Table 3 (Chunk 5, page 9) lists "Worst grade" for "Any AE" (all-cause), but does not specify "treatment-related" for these grades. It also lists "AE leading to permanent discontinuation of trial agent" which is treatment-related, but this is not categorized by grade (e.g., Grade 3 or higher). The abstract (Chunk 8, page 1) mentions "Grade 3 or 4 AEs" but does not specify if they are treatment-related.
 
 4.  **Adverse Events - N (%) | Treatment-related Grade 3 or Higher | Control**
-    *   **found_in_pdf:** false
-    *   **extraction_plan:** Table 3 reports "Treatment-Emergent AEs" by grade, which are generally considered all-cause. It does not specify which of these AEs are "treatment-related" for Grade 3 or higher. The text also does not provide this specific breakdown.
+    *   **Reported:** No
+    *   **Location:** Table 3 (Chunk 5, page 9) lists "Worst grade" for "Any AE" (all-cause), but does not specify "treatment-related" for these grades. It also lists "AE leading to permanent discontinuation of trial agent" which is treatment-related, but this is not categorized by grade (e.g., Grade 3 or higher). The abstract (Chunk 8, page 1) mentions "Grade 3 or 4 AEs" but does not specify if they are treatment-related.
 
 5.  **Adverse Events - N (%) | Treatment-related Grade 5 | Treatment**
-    *   **found_in_pdf:** false
-    *   **extraction_plan:** Table 3 reports "Grade 5 (death)" under "Worst grade" for "Any AE", which is generally considered all-cause treatment-emergent. It does not specify if these Grade 5 events are "treatment-related". Footnote 'd' for Table 3 states "Specific grade 5 events are provided in the supplementary appendix of Smith et al.", implying these are all-cause.
+    *   **Reported:** No
+    *   **Location:** Table 3 (Chunk 5, page 9) lists "Grade 5 (death)" for "Any AE" (all-cause), which is 27 (4.1%) for the darolutamide arm. Footnote 'd' indicates that "Specific grade 5 events are provided in the supplementary appendix of Smith et al.", but this appendix is not provided in the available chunks. Therefore, the specific number and percentage of *treatment-related* Grade 5 AEs cannot be extracted from the provided document.
 
 6.  **Adverse Events - N (%) | Treatment-related Grade 5 | Control**
-    *   **found_in_pdf:** false
-    *   **extraction_plan:** Table 3 reports "Grade 5 (death)" under "Worst grade" for "Any AE", which is generally considered all-cause treatment-emergent. It does not specify if these Grade 5 events are "treatment-related". Footnote 'd' for Table 3 states "Specific grade 5 events are provided in the supplementary appendix of Smith et al.", implying these are all-cause.
+    *   **Reported:** No
+    *   **Location:** Table 3 (Chunk 5, page 9) lists "Grade 5 (death)" for "Any AE" (all-cause), which is 26 (4.0%) for the placebo arm. Footnote 'd' indicates that "Specific grade 5 events are provided in the supplementary appendix of Smith et al.", but this appendix is not provided in the available chunks. Therefore, the specific number and percentage of *treatment-related* Grade 5 AEs cannot be extracted from the provided document.

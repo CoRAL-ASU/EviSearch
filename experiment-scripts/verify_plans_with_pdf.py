@@ -14,7 +14,9 @@ from pydantic import BaseModel, Field
 from typing_extensions import Literal
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
+SCRIPT_DIR = Path(__file__).resolve().parent
 sys.path.insert(0, str(PROJECT_ROOT))
+sys.path.insert(0, str(SCRIPT_DIR))
 
 from src.LLMProvider.provider import LLMProvider
 from src.LLMProvider.structurer import OutputStructurer
@@ -27,7 +29,7 @@ VERIFIER_PROVIDER = "gemini"
 VERIFIER_MODEL = "gemini-2.5-flash"
 STRUCTURER_BASE_URL = "http://localhost:8001/v1"
 STRUCTURER_MODEL = "Qwen/Qwen3-8B"
-MAX_WORKERS = 4
+MAX_WORKERS = 8
 TEMPERATURE = 0.0
 MAX_TOKENS = 60000
 TEXT_CHUNK_CHAR_LIMIT = 32000
@@ -73,11 +75,22 @@ def parse_args() -> argparse.Namespace:
         default="new_pipeline_outputs/results",
         help="Root path containing per-document pipeline outputs.",
     )
+    parser.add_argument(
+        "--chunk-source",
+        choices=("pipeline", "landing-ai"),
+        default="pipeline",
+        help="Chunk source: 'pipeline' uses pdf_chunked.json; 'landing-ai' uses Landing AI ADE Parse.",
+    )
+    parser.add_argument(
+        "--dataset-dir",
+        default="dataset",
+        help="Directory containing PDFs (used when --chunk-source=landing-ai).",
+    )
     parser.add_argument("--dry-run", action="store_true", help="Run verification without writing output files.")
     return parser.parse_args()
 
 
-def resolve_paths(pdf_name: str, results_root: Path) -> Dict[str, Path]:
+def resolve_paths(pdf_name: str, results_root: Path, require_chunks: bool = True) -> Dict[str, Path]:
     base_dir = results_root / pdf_name
     planning_dir = base_dir / "planning"
     chunk_file = base_dir / "chunking" / "pdf_chunked.json"
@@ -87,7 +100,7 @@ def resolve_paths(pdf_name: str, results_root: Path) -> Dict[str, Path]:
         raise FileNotFoundError(f"Base results directory not found: {base_dir}")
     if not planning_dir.exists():
         raise FileNotFoundError(f"Planning directory not found: {planning_dir}")
-    if not chunk_file.exists():
+    if require_chunks and not chunk_file.exists():
         raise FileNotFoundError(f"Chunk file not found: {chunk_file}")
 
     return {
@@ -427,7 +440,6 @@ def write_outputs(verifier_dir: Path, results: List[Dict[str, Any]]) -> None:
     logs_dir = verifier_dir / "logs"
     logs_dir.mkdir(parents=True, exist_ok=True)
 
-    compiled_plans: List[Dict[str, Any]] = []
     total_columns = 0
     verified_columns = 0
     corrected_columns = 0
@@ -437,33 +449,27 @@ def write_outputs(verifier_dir: Path, results: List[Dict[str, Any]]) -> None:
         group_name = item["group_name"]
         stem = safe_stem(group_name)
 
-        verification_path = verifier_dir / f"{stem}_verification.json"
-        verification_path.write_text(json.dumps(item, indent=2, ensure_ascii=False), encoding="utf-8")
-
-        call_log_path = logs_dir / f"{stem}_llm_call.txt"
-        call_log_text = (
-            f"GROUP: {group_name}\n"
-            f"PROVIDER: {item.get('model_provider', VERIFIER_PROVIDER)}\n"
-            f"MODEL: {item.get('model_name', VERIFIER_MODEL)}\n"
-            f"SUCCESS: {item.get('success')}\n"
-            f"ERROR: {item.get('error')}\n"
-            f"PROMPT_TOKENS: {item.get('prompt_token_count')}\n"
-            f"OUTPUT_TOKENS: {item.get('output_token_count')}\n"
-            "============================================================\n"
-            "INPUT PROMPT\n"
-            "============================================================\n"
-            f"{str(item.get('raw_prompt', ''))}\n\n"
-            "============================================================\n"
-            "RAW OUTPUT\n"
-            "============================================================\n"
-            f"{str(item.get('raw_response', ''))}\n"
+        # LLM log per group
+        (logs_dir / f"{stem}_llm_call.txt").write_text(
+            (
+                f"GROUP: {group_name}\n"
+                f"PROVIDER: {item.get('model_provider', VERIFIER_PROVIDER)}\n"
+                f"MODEL: {item.get('model_name', VERIFIER_MODEL)}\n"
+                f"SUCCESS: {item.get('success')}\n"
+                f"ERROR: {item.get('error')}\n"
+                f"PROMPT_TOKENS: {item.get('prompt_token_count')}\n"
+                f"OUTPUT_TOKENS: {item.get('output_token_count')}\n"
+                "============================================================\n"
+                "INPUT PROMPT\n"
+                "============================================================\n"
+                f"{str(item.get('raw_prompt', ''))}\n\n"
+                "============================================================\n"
+                "RAW OUTPUT\n"
+                "============================================================\n"
+                f"{str(item.get('raw_response', ''))}\n"
+            ),
+            encoding="utf-8",
         )
-        call_log_path.write_text(call_log_text, encoding="utf-8")
-
-        group_plan = item["verified_group_plan"]
-        verified_plan_path = verifier_dir / f"{stem}_verified_plan.json"
-        verified_plan_path.write_text(json.dumps(group_plan, indent=2, ensure_ascii=False), encoding="utf-8")
-        compiled_plans.append(group_plan)
 
         for col in item.get("columns", []):
             total_columns += 1
@@ -475,18 +481,8 @@ def write_outputs(verifier_dir: Path, results: List[Dict[str, Any]]) -> None:
             else:
                 failed_columns += 1
 
+    # Single compiled JSON with full verification for all groups
     compiled = {
-        "generated_at": datetime.utcnow().isoformat() + "Z",
-        "total_groups": len(compiled_plans),
-        "total_columns": sum(len(p.get("columns", [])) for p in compiled_plans),
-        "plans": compiled_plans,
-    }
-    (verifier_dir / "verified_plans_all_columns.json").write_text(
-        json.dumps(compiled, indent=2, ensure_ascii=False),
-        encoding="utf-8",
-    )
-
-    summary = {
         "generated_at": datetime.utcnow().isoformat() + "Z",
         "provider": VERIFIER_PROVIDER,
         "model": VERIFIER_MODEL,
@@ -499,20 +495,10 @@ def write_outputs(verifier_dir: Path, results: List[Dict[str, Any]]) -> None:
         "groups_with_failures": [
             r["group_name"] for r in results if any(c.get("status") == "failed" for c in r.get("columns", []))
         ],
+        "results": results,
     }
-    (verifier_dir / "verification_summary.json").write_text(
-        json.dumps(summary, indent=2, ensure_ascii=False),
-        encoding="utf-8",
-    )
-
-    run_metadata = {
-        "generated_at": datetime.utcnow().isoformat() + "Z",
-        "provider": VERIFIER_PROVIDER,
-        "model": VERIFIER_MODEL,
-        "max_workers": MAX_WORKERS,
-    }
-    (verifier_dir / "run_metadata.json").write_text(
-        json.dumps(run_metadata, indent=2, ensure_ascii=False),
+    (verifier_dir / "verification.json").write_text(
+        json.dumps(compiled, indent=2, ensure_ascii=False),
         encoding="utf-8",
     )
 
@@ -520,9 +506,22 @@ def write_outputs(verifier_dir: Path, results: List[Dict[str, Any]]) -> None:
 def main() -> int:
     args = parse_args()
     results_root = (PROJECT_ROOT / args.results_root).resolve()
+    use_landing_ai = args.chunk_source == "landing-ai"
 
-    paths = resolve_paths(args.pdf_name, results_root)
-    chunks = load_chunks(paths["chunk_file"])
+    paths = resolve_paths(args.pdf_name, results_root, require_chunks=not use_landing_ai)
+
+    if use_landing_ai:
+        from landing_ai_chunks import load_landing_ai_chunks
+
+        pdf_path = PROJECT_ROOT / args.dataset_dir / f"{args.pdf_name}.pdf"
+        if not pdf_path.exists():
+            raise FileNotFoundError(f"PDF not found: {pdf_path} (required for --chunk-source=landing-ai)")
+        cache_dir = paths["base_dir"] / "chunking"
+        print(f"Loading chunks from Landing AI ADE Parse (cache: {cache_dir})...")
+        chunks = load_landing_ai_chunks(pdf_path, cache_dir=cache_dir, use_cache=True)
+        print(f"Loaded {len(chunks)} chunks from Landing AI")
+    else:
+        chunks = load_chunks(paths["chunk_file"])
     plans_by_group = load_plans(paths["planning_dir"])
     definitions_map = load_column_definitions()
 

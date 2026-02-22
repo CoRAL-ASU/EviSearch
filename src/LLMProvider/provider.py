@@ -123,7 +123,11 @@ class LLMProvider:
             api_key = os.getenv("GEMINI_API_KEY")
             if not api_key:
                 raise ValueError("GEMINI_API_KEY environment variable not set")
-            self._client = genai.Client(api_key=api_key)
+            # 30s timeout per API call to avoid hanging
+            self._client = genai.Client(
+                api_key=api_key,
+                http_options=types.HttpOptions(timeout=30_000),
+            )
         
         elif self.provider == "openai":
             api_key = os.getenv("OPENAI_API_KEY")
@@ -424,10 +428,14 @@ class LLMProvider:
         system_prompt: str = None,
         temperature: float = 0.0,
         max_tokens: int = 8000,
+        response_mime_type: str = None,
+        response_schema: dict = None,
     ) -> LLMResponse:
         """
         Generate text response with PDF context.
         Uses provider's native PDF support (OpenAI Responses API, Gemini PDF Part).
+        For Gemini: response_mime_type (e.g. "application/json") and response_schema
+        constrain output format when provided.
         """
         if pdf_handle.provider != self.provider:
             raise ValueError(f"PDFHandle from {pdf_handle.provider} does not match provider {self.provider}")
@@ -461,11 +469,16 @@ class LLMProvider:
             if not pdf_handle.file_part:
                 raise ValueError("Gemini PDFHandle missing file_part")
             _ensure_genai()
-            config = types.GenerateContentConfig(
+            config_kwargs = dict(
                 temperature=temperature,
                 max_output_tokens=max_tokens,
                 system_instruction=system_prompt if system_prompt else None,
             )
+            if response_mime_type:
+                config_kwargs["response_mime_type"] = response_mime_type
+            if response_schema:
+                config_kwargs["response_schema"] = response_schema
+            config = types.GenerateContentConfig(**config_kwargs)
             response = self._client.models.generate_content(
                 model=self.model,
                 contents=[pdf_handle.file_part, prompt],

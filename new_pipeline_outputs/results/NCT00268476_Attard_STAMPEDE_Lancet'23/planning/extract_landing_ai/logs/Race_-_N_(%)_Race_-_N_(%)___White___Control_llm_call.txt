@@ -1,0 +1,127 @@
+============================================================
+INPUT
+============================================================
+You are extracting a value for a clinical trial data column from the provided document content.
+
+Column: Race - N (%) | White | Control
+Definition: What number and percentage of control arm participants who identified as White in terms of their racial background? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.
+
+Extraction plan to follow:
+Race or ethnicity data were not collected, as stated in the 'Methods' section on page 4: "Race or ethnicity data were not collected."
+
+Document content (grouped by type, in chronological page order):
+--- TEXT ---
+Articles
+
+for Adverse Events (version 3.0 updated to 4.0 in
+STAMPEDE protocol version 15; May 15, 2016). Serious
+adverse reactions were also reported. Race or ethnicity
+data were not collected. Pre-randomisation bone scans
+were retrieved to the Christie Hospital (Manchester, UK)
+central imaging repository after completion of accrual.
+Physicians (AS, CJ, AH, and YJ) classified patients by
+high-volume or low-volume disease using the CHAARTED
+trial criteria 2,15 based on the number and site of bone
+metastases and whether local sites stated at random-
+isation that visceral disease was present on CT scan.
+Ascertainment of death from prostate cancer was
+determined using a prespecified algorithm or manual
+review by a panel of clinicians according to an agreed
+set of rules and without knowledge of randomised
+treatment allocation.
+
+## Outcomes
+The primary outcome was overall survival for both trials (defined as the time from randomisation to death from any cause).
+
+Secondary outcomes were prostate cancer-specific
+survival (defined as the time from randomisation to death
+from prostate cancer); failure-free survival (defined as
+biochemical failure, local or lymph node progression,
+distant metastases, or death from prostate cancer);
+
+progression-free survival (defined as failure-free survival but excluding biochemical failure); metastatic progression-free survival (defined as progression of or new distant metastases or death from prostate cancer); symptomatic skeletal-related events (defined as pathological fracture or spinal cord compression or bone pain requiring radiotherapy or surgery); toxic effects and adverse events; and cost-effectiveness of research treatment. Cost-effectiveness was reported previously for the abiraterone trial¹⁶ and could be updated in the future based on longer-term follow-up included here.
+
+## Statistical analysis
+Efficacy analyses were specified in the STAMPEDE protocol. We stated our intention to include both trials in the meta-analysis before initiation of accrual to the abiraterone and enzalutamide trial¹⁰ and again, in the update to report outcomes for patients with high-risk localised and metastatic disease.¹³
+
+Original sample size calculations were based on recruit-
+ment of at least 1800 patients with high-risk localised or
+metastatic disease to either trial and aimed to detect an
+event-driven overall hazard ratio (HR) of at least 0.75 with
+90% power at two-sided 5% significance, assuming a
+4-year median overall survival with standard of care. Both
+trials recruited the target sample size and there was no
+
+Figure 1: Trial profile
+
+Patients who did not start research treatment are not included in the safety analysis. All randomly assigned patients are included in the efficacy analyses. Abiraterone refers to abiraterone acetate and prednisolone. *Metastatic status was updated by recruiting sites for 11 patients after random assignment and after first report of the abiraterone trial; status was changed for six patients from non-metastatic to metastatic disease and for five patients from metastatic to non-metastatic disease. †Patients who withdrew and did not have data in the past 2 years; reasons were provided as free text by site and categorised centrally.
+
+446
+
+www.thelancet.com/oncology Vol 24 May 2023
+
+--- FIGURES ---
+[Page 4]
+<::5488 patients randomly assigned (from Nov 15, 2011, to Jan 17, 2014, and from July 29, 2014, to March 31, 2016)
+
+: flowchart::>
+
+<::
+  <::1003 with metastatic disease allocated to the abiraterone trial*
+  : flowchart::>
+  <::916 with metastatic disease allocated to the abiraterone and enzalutamide trial
+  : flowchart::>
+  <::2194 with non-metastatic disease 1375 with metastatic disease allocated to other trials
+  : flowchart::>
+
+: flowchart::>
+
+<::
+  <::502 assigned to standard of care 502 received standard of care
+  : flowchart::>
+  <::501 assigned to standard of care plus abiraterone 498 received abiraterone
+  : flowchart::>
+  <::454 assigned to standard of care 454 received standard of care
+  : flowchart::>
+  <::462 assigned to standard of care plus abiraterone plus enzalutamide 445 received abiraterone and enzalutamide
+  : flowchart::>
+
+: flowchart::>
+
+<::
+  <::371 died 122 alive 80 with data in past 1 year 30 with data in past 2 years 12 with no data in past 2 years 9 withdrew† 2 relocated 5 due to patient or clinician decision 2 unknown
+  : flowchart::>
+  <::293 died 194 alive 137 with data in past 1 year 46 with data in past 2 years 11 with no data in past 2 years 14 withdrew† 4 relocated 7 due to patient or clinician decision 3 unknown
+  : flowchart::>
+  <::292 died 152 alive 102 with data in past 1 year 45 with data in past 2 years 5 with no data in past 2 years 10 withdrew† 5 relocated 2 due to patient or clinician decision 3 unknown
+  : flowchart::>
+  <::228 died 225 alive 176 with data in past 1 year 43 with data in past 2 years 6 with no data in past 2 years 9 withdrew† 1 relocated 2 due to patient or clinician decision 6 unknown
+  : flowchart::>
+
+: flowchart::>
+
+Task:
+1. Extract the value for this column following the plan. Return your best-effort value even if uncertain.
+2. If the plan seems wrong, incomplete, or ambiguous, still return the value you found and add a suggestion and/or alternative_plan.
+3. Use "not found" or "not reported" only if the value is genuinely absent from the content.
+
+Output a JSON object with:
+- value: the extracted value (string)
+- found: true if you found a value, false if not reported/absent
+- confidence: "high" | "medium" | "low"
+- suggestion: optional string with concerns or notes (null if none)
+- alternative_plan: optional string describing a different extraction approach to try (null if plan seems fine)
+
+
+============================================================
+OUTPUT
+============================================================
+```json
+{
+  "value": "Not reported",
+  "found": false,
+  "confidence": "high",
+  "suggestion": null,
+  "alternative_plan": null
+}
+```

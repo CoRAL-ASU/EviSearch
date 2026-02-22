@@ -1,0 +1,61 @@
+============================================================
+INPUT
+============================================================
+You are extracting a value for a clinical trial data column from the provided document content.
+
+Column: Median PFS (mo) | Overall | Treatment
+Definition: What is the median progression free survival (in months) for all patients in the experimental arm? If reported, include the value; use 'Not reported' if missing.
+
+Extraction plan to follow:
+In Table 2, locate the row 'Radiographic progression-free survival' under 'Primary outcomes in the overall population'. In the 'Median, years' section, under the column 'SOC with abiraterone groups', the value is '4.5'.
+
+Document content (relevant excerpts):
+[Page 9, TABLE]
+<table>
+<tr><td></td><td colspan="2">Patients assessed, n</td><td colspan="2">Median, years</td><td rowspan="2">Median difference, years</td><td rowspan="2">Hazard ratio</td><td rowspan="2">p value</td></tr>
+<tr><td></td><td>SOC with abiraterone groups</td><td>SOC without abiraterone groups</td><td>SOC with abiraterone groups</td><td>SOC without abiraterone groups</td></tr>
+<tr><td colspan="8">Primary outcomes in the overall population</td></tr>
+<tr><td>Overall survival</td><td>583</td><td>589</td><td>5-7</td><td>4-7</td><td>0-9 (95-1% CI 0-0-2-0)</td><td>0-82 (95-1% CI 0-69-0-98)</td><td>0.030</td></tr>
+<tr><td>Radiographic progression-free survival</td><td>583</td><td>589</td><td>4-5</td><td>2-2</td><td>2-1 (99.9% CI 0-7-2-9)</td><td>0-54 (99.9% CI 0-41-0-71)</td><td>&lt;0.0001</td></tr>
+<tr><td colspan="8">Secondary outcomes in the overall population</td></tr>
+<tr><td>CRPC-free survival</td><td>583</td><td>589</td><td>3-8</td><td>1.5</td><td>2-3 (95% CI 1-6-3-0)</td><td>0-40 (95% CI 0-35-0-47)</td><td>&lt;0.0001</td></tr>
+<tr><td>Prostate-cancer-specific survival</td><td>583</td><td>589</td><td>NR</td><td>5.8</td><td>NA</td><td>0-75 (95% CI 0-61-0-91)</td><td>0-0038</td></tr>
+<tr><td colspan="8">Primary outcomes in the ADT with docetaxel population</td></tr>
+<tr><td>Overall survival</td><td>355</td><td>355</td><td>NR</td><td>4-4</td><td>NA</td><td>0.75 (95-1% CI 0-59-0-95)</td><td>0-017</td></tr>
+<tr><td>Radiographic progression- free survival</td><td>355</td><td>355</td><td>4-5</td><td>2.0</td><td>2-2 (99.9% CI 0-6-2-8)</td><td>0-50 (99.9% CI 0-34-0-71)</td><td>&lt;0.0001</td></tr>
+<tr><td colspan="8">Secondary outcomes in the ADT with docetaxel population</td></tr>
+<tr><td>Overall survival in patients with low-volume metastatic burden</td><td>131</td><td>123</td><td>NR</td><td>NR</td><td>NA</td><td>0-83 (95-1% CI 0-50-1-39)</td><td>0.66</td></tr>
+<tr><td>Overall survival in patients with high-volume metastatic burden</td><td>224</td><td>232</td><td>5-1</td><td>3.5</td><td>1-1 (95-1% CI 0-2-1-9)</td><td>0-72 (95-1% CI 0-55-0-95)</td><td>0-019</td></tr>
+<tr><td>Radiographic progression- free survival in patients with low-volume metastatic burden</td><td>129</td><td>122</td><td>NR</td><td>2.7</td><td>NA</td><td>0-58 (99-9% CI 0-29-1-15)</td><td>0-0061</td></tr>
+<tr><td>Radiographic progression-free survival in patients with high-volume metastatic burden</td><td>225</td><td>231</td><td>4-1</td><td>1-6</td><td>2.2 (99.9% CI 0.6-3.2)</td><td>0.47 (99.9% CI 0.30-0.72)</td><td>&lt;0.0001</td></tr>
+<tr><td>CRPC-free survival</td><td>355</td><td>355</td><td>3-2</td><td>1-4</td><td>2.0 (95% CI 1.5-3.1)</td><td>0.38 (95% CI 0.31-0.47)</td><td>&lt;0.0001</td></tr>
+<tr><td>Prostate-cancer-specific survival</td><td>355</td><td>355</td><td>NR</td><td>4-7</td><td>NA</td><td>0.69 (95% CI 0.53-0.90)</td><td>0.0062</td></tr>
+<tr><td colspan="8">ADT=androgen deprivation therapy. CRPC=castration-resistant prostate cancer. NA=not available. NR=not reached. SOC=standard of care (with or without radiotherapy).</td></tr>
+<tr><td colspan="8">Table 2: Efficacy outcomes in the intention-to-treat population</td></tr>
+</table>
+
+Task:
+1. Extract the value for this column following the plan. Return your best-effort value even if uncertain.
+2. If the plan seems wrong, incomplete, or ambiguous, still return the value you found and add a suggestion and/or alternative_plan.
+3. Use "not found" or "not reported" only if the value is genuinely absent from the content.
+
+Output a JSON object with:
+- value: the extracted value (string)
+- found: true if you found a value, false if not reported/absent
+- confidence: "high" | "medium" | "low"
+- suggestion: optional string with concerns or notes (null if none)
+- alternative_plan: optional string describing a different extraction approach to try (null if plan seems fine)
+
+
+============================================================
+OUTPUT
+============================================================
+```json
+{
+  "value": "54",
+  "found": true,
+  "confidence": "high",
+  "suggestion": "The extracted value from the table is in years (4.5 years). The definition requires the value in months, so a conversion (4.5 * 12 = 54) was performed.",
+  "alternative_plan": null
+}
+```

@@ -1,0 +1,137 @@
+============================================================
+INPUT
+============================================================
+You are extracting a value for a clinical trial data column from the provided document content.
+
+Column: Mode of metastases - N (%) | Metachronous | Control
+Definition: What the number and percentage of patients with metachronous metastases (metastases that occur after the diagnosis of prostate cancer) in the control arm of the clinical trial? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.
+
+Extraction plan to follow:
+The study explicitly states that it 'only included patients with de novo mCSPC' (page 11, Chunk 5). This implies that no patients with metachronous metastases were included in the study.
+
+Document content (relevant excerpts):
+[Page 11, TEXT]
+Articles
+
+[Page 11, TEXT]
+with ADT and docetaxel without abiraterone. Indeed,
+docetaxel and abiraterone have distinct mechanisms of
+action. In addition, they do not display absolute cross-
+resistance, as abiraterone improves overall survival
+after docetaxel treatment and docetaxel retains some
+activity after abiraterone failure. 30,31 Collectively, these
+observations provide a rationale for the survival benefits
+resulting from their combination in this trial. However,
+this study did not answer whether this triple
+combination yields clinical advantages over ADT plus a
+second-generation androgen receptor axis inhibitor.
+Indeed, at the time when this trial was conducted
+(2013–18), combining ADT with such an inhibitor had
+not been approved for mCSPC, thereby precluding
+such a comparison within the trial. Incidentally, the
+ongoing phase 3 ARASENS (NCT02799602) and
+ENZAMET (NCT02446405) trials are also testing the
+combined efficacy of second-generation androgen
+receptor axis inhibitors (darolutamide and enzalutamide,
+respectively) with ADT and docetaxel, and their
+upcoming overall survival results will put the benefits
+of abiraterone in perspective.
+
+[Page 11, TEXT]
+Reaching treatment synergy and preventing acquired
+resistance despite tumour clonal heterogeneity are
+cardinal aspects of mCSPC management that require
+an optimisation of the treatment framework. In
+PEACE-1, significant survival benefits were obtained
+when abiraterone was added to ADT with docetaxel.
+Remarkably, these benefits were observed even though
+more than 80% of the SOC without abiraterone group
+eventually received a second-generation androgen
+receptor axis inhibitor (mostly abiraterone or enzaluta-
+mide) to address cancer progression. Indeed, by contrast
+with previous trials, PEACE-1 investigators were allowed
+to prescribe early salvage treatments to the control
+group patients who showed evidence of cancer
+progression. To this end, a PSA minimum value of just
+0.50 ng/mL was used to define mCRPC, even in the
+absence of radiographic progression. Collectively, these
+observations suggest that the upfront combination
+implemented in this trial is superior to the sequential
+administration of these (or similar) agents as occurred
+in the control group. Of note, abiraterone is approved
+for metastatic prostate cancer in many countries and is
+close to becoming a worldwide generic drug.
+
+[Page 11, TEXT]
+In conclusion, this trial not only confirms that
+combining abiraterone with SOC improves outcomes in
+men with de novo mCSPC, but it shows that combining
+abiraterone with ADT and docetaxel improves overall
+and radiographic progression-free survival and other
+efficacy endpoints with little toxicity increase.
+Nonetheless, as PEACE-1 only included patients with
+de novo mCSPC, it is still unclear whether this triple
+therapy might benefit patients with metachronous
+mCSPC. Our findings cannot directly address whether
+this triplet systemic combination is superior to ADT
+and abiraterone. Longer follow-up is required to answer
+
+[Page 11, TEXT]
+whether combining such an intensive first line systemic
+treatment with radiotherapy to the primary tumour
+might provide further clinical benefits for patients with
+mCSPC. This upcoming analysis will be performed
+when the preplanned number of radiographic
+progression-free survival and overall survival events is
+reached in the population of men presenting with
+low-volume metastatic dissemination.
+
+[Page 11, TEXT]
+# Contributors
+
+KF, AB, and SF conceived and designed the study. KF, JC, GR, RM, AF, BT, SS, DB, PR, GK, GG, FC, J-FB, AH, MS, AT-V, IL, LM, BL, SA-L, EM, CEK, AE, AR, NM, FS, FP, M-EC-F, SVF, MJ, and AB were investigators who conducted the study and collected data. KF, IR, and SF directly accessed and verified the underlying data. KF, JC, GR, RM, DB, FB, BT, GK, GG, AT-V, and SF contributed to data analysis or data interpretation. All authors contributed to data interpretation and writing, review, and approval of the manuscript for submission.
+
+[Page 11, TEXT]
+Declaration of interests
+KF reports consulting fees from Amgen, AstraZeneca, Astellas, Bayer,
+CureVac, Janssen, Novartis, Orion, Pfizer, and Sanofi; honoraria from
+AstraZeneca, Astellas, Bayer, Janssen, Novartis, and Sanofi;
+and participation on a Data Safety Monitoring Board for Lilly.
+JC reports grants from AB Science, Aragon Pharmaceuticals,
+Arog Pharmaceuticals, Astellas Pharma, AstraZeneca,
+Aveo Pharmaceuticals, Bayer, Blueprint Medicines Corporation,
+BN Immunotherapeutics, Boehringer Ingelheim, Esperia, Bristol
+Myers Squibb, Clovis Oncology, Cougar Biotechnology, Deciphera
+Pharmaceuticals, Exelixis, F Hoffmann-La Roche, Genentech,
+
+[Page 11, TEXT]
+www.thelancet.com Published online April 8, 2022 https://doi.org/10.1016/ S0140-6736(22)00367-1
+
+[Page 11, TEXT]
+11
+
+Task:
+1. Extract the value for this column following the plan. Return your best-effort value even if uncertain.
+2. If the plan seems wrong, incomplete, or ambiguous, still return the value you found and add a suggestion and/or alternative_plan.
+3. Use "not found" or "not reported" only if the value is genuinely absent from the content.
+
+Output a JSON object with:
+- value: the extracted value (string)
+- found: true if you found a value, false if not reported/absent
+- confidence: "high" | "medium" | "low"
+- suggestion: optional string with concerns or notes (null if none)
+- alternative_plan: optional string describing a different extraction approach to try (null if plan seems fine)
+
+
+============================================================
+OUTPUT
+============================================================
+```json
+{
+  "value": "0 (0%)",
+  "found": true,
+  "confidence": "high",
+  "suggestion": null,
+  "alternative_plan": null
+}
+```

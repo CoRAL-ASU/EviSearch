@@ -1,0 +1,235 @@
+============================================================
+INPUT
+============================================================
+You are extracting a value for a clinical trial data column from the provided document content.
+
+Column: Median On-Treatment Duration (mo) | Control
+Definition: What is the median duration in months of participants receiving treatment in the control arm of the clinical trial? If reported, include the value; use 'Not reported' if missing.
+
+Extraction plan to follow:
+The median on-treatment duration for the control arm (Bicalutamide) is not explicitly reported in the PDF. Table A1 (page 12) provides the 'Protocol/Postprotocol Treatment Status' showing the number of patients still on protocol treatment (100 out of 641) and those off protocol treatment (541 out of 641), but it does not provide a median duration for how long patients received the treatment. The abstract (page 1) and results section (page 4) mention a median follow-up of 4.9 years, but this refers to the study follow-up, not the duration of active treatment.
+
+Document content (grouped by type, in chronological page order):
+--- TEXT ---
+original report
+Orteronel for Metastatic
+Hormone-Sensitive Prostate Cancer: A
+Multicenter, Randomized, Open-Label Phase III
+Trial (SWOG-1216)
+
+Neeraj Agarwal, MD¹; Catherine M. Tangen, DrPH²; Maha H.A. Hussain, MD³; Shilpa Gupta, MD⁴; Melissa Plets, MS²; Primo N. Lara, MD⁵;
+Andrea L. Harzstark, MD⁶; Przemyslaw W. Twardowski, MD⁷; Channing J. Paller, MD⁸; Dylan Zylla, MD⁹; Matthew R. Zibelman, MD¹⁰;
+Ellis Levine, MD¹¹; Bruce J. Roth, MD¹²; Amir Goldkorn, MD¹³; Daniel A. Vaena, MD¹⁴,¹⁵; Manish Kohli, MD¹,¹⁶; Tony Crispino¹⁷;
+Nicholas J. Vogelzang, MD¹⁸; Ian M. Thompson Jr, MD¹⁹; and David I. Quinn, MD¹³
+
+abstr
+PURPOSE Orteronel (TAK-700) is a nonsteroidal 17,20-lyase inhibitor suppressing androgen synthesis. We evaluated the clinical benefit of orteronel when added to androgen deprivation therapy (ADT) in patients with newly diagnosed metastatic hormone-sensitive prostate cancer.
+
+act
+METHODS In this open-label randomized phase III study, patients with metastatic hormone-sensitive prostate cancer were randomly assigned 1:1 to ADT with orteronel (300 mg oral twice daily; experimental arm) or ADT with bicalutamide (50 mg oral once daily; control arm). The primary objective was the comparison of overall survival (OS), targeting a 33% improvement in median survival. A stratified log-rank test with a one-sided P \u2264 .022 would indicate statistical significance. Secondary end points were progression-free survival (PFS), prostate-specific antigen (PSA) level at 7 months (\u2264 0.2 v 0.2 to \u2264 4 v > 4 ng/mL), and adverse event profile.
+
+**RESULTS** Among 1,279 patients included in the analysis, 638 were randomly assigned to the ADT plus orteronel arm and 641 to the control arm. The median age was 68 years; 49% had extensive disease. After a median follow-up of 4.9 years, there was a significant improvement in PFS (median 47.6 v 23.0 months, hazard ratio 0.58; 95% CI, 0.51 to 0.67; P < .0001) and PSA response at 7 months (P < .0001), but not in OS (median 81.1 v 70.2 months, hazard ratio 0.86; 95% CI, 0.72 to 1.02; P = .040, one-sided). More grade 3/4 adverse events occurred in the experimental versus the control arms (43% v 14%). Postprotocol life-prolonging therapy was received by 77.4% of patients in the control arm and 61.3% of patients in the orteronel arm.
+
+**CONCLUSION** The study did not meet the primary end point of improved OS with orteronel. The lack of correlation of PFS and PSA response with OS raises concerns over assumption of their consistent surrogacy for OS in the context of extensive postprotocol therapy in this setting.
+
+J Clin Oncol 00. © 2022 by American Society of Clinical Oncology
+
+## INTRODUCTION
+The cornerstone of treatment for metastatic hormone-sensitive prostate cancer (mHSPC) is androgen deprivation therapy (ADT) with medical or surgical castration.¹ However, disease progression universally occurs on ADT, mediated by extragonadal production of androgens or androgen-independent activation of androgen receptor.¹ The treatment paradigm of mHSPC has evolved over the past decade with multiple trials showing improved survival by intensification of ADT with either docetaxel chemotherapy or abiraterone, which inhibits a pivotal enzyme in intra- and extragonadal androgen synthesis (ie, CYP17 [CYP17 hydroxylase, CYP17, 20 lyase]) located in the testes and adrenal glands. ¹⁻⁵ More recently, two direct, potent, and specific inhibitors of the androgen receptor, apalutamide and
+
+enzalutamide, were approved on the basis of improved survival in phase III trials. 1,6,7 Currently, the most common sequencing of these agents in the treatment of metastatic prostate cancer is abiraterone acetate followed by enzalutamide or docetaxel. 8 One challenge with abiraterone acetate is the requirement for coadministration of corticosteroids because of inhibition of CYP17 hydroxylase.1 This results in diminished cortisol production and leads to secondary mineralocorticoid excess, with symptoms such as electrolyte abnormalities, hypertension, and edema.1
+
+Orteronel (TAK-700) is a novel CYP17 inhibitor. In
+comparison with abiraterone acetate, orteronel inhibits
+CYP17, 20 lyase with greater specificity compared with
+CYP17 hydroxylase and does not generally lead to the
+syndrome of secondary mineralocorticoid excess.9,10
+
+ASCO®
+
+Journal of Clinical Oncology®
+
+1
+
+Downloaded from ascopubs.org by Mayo Foundation--Rochester on April 26, 2022 from 129.176.151.025 Copyright © 2022 American Society of Clinical Oncology. All rights reserved.
+
+S
+
+ASSOCIATED
+CONTENT
+Appendix
+**Data Sharing**
+**Statement**
+**Protocol**
+Author affiliations
+and support
+information (if
+applicable) appear
+at the end of this
+article.
+Accepted on March
+18, 2022 and
+published at
+ascopubs.org/journal/
+jco on April 21, 2022:
+DOI https://doi.org/10.
+1200/JC0.21.02517
+
+Agarwal et al
+
+interaction of the stratification factor with treatment,
+evaluating heterogeneity between levels of a factor, was
+tested using a residual chi-square from the Cox model. A
+two-sided Cochrane-Mantel-Haenszel test was used to
+compare three-category PSA response rates between the
+two treatment arms.
+
+## RESULTS
+
+### Patients
+
+Between March 1, 2013, and July 15, 2017, 1,313 patients were randomly assigned and 1,279 were included in the intention-to-treat analysis (32 patients were ineligible, and two patients withdrew all consent before starting treatment—see Appendix Fig A1, online only for details). Six hundred thirty-eight patients were randomly assigned to the orteronel arm, and 641 were randomly assigned to the control arm. At the cutoff date (February 5, 2021) for the final analysis after 525 deaths (and 787 PFS events), the median follow-up time was 4.9 years. Demographic and clinical characteristics at baseline were well balanced (Table 1). The median age of the patients for the orteronel and control arms was 67.6 and 68.1 years, respectively. Across both groups, approximately 10% of the patients were African American, 49% had extensive disease, and 96% had a Zubrod performance status of 0 or 1.
+
+Primary End Point
+Analysis for OS occurred after the prespecified 525 deaths
+were observed (251 in the orteronel group and 274 in the
+
+control group). The median OS in the orteronel group was
+81.1 months as compared with 70.2 months in the control
+group. The OS rate at 5 years was 59.7% in the orteronel
+group and 57.9% in the control group (HR for death 0.86;
+95% CI, 0.72 to 1.02; P = .040, one-sided). No statistically
+significant improvement in OS was observed with orteronel
+compared with control (Fig 1). This lack of treatment effect
+on OS seemed consistent across stratification factors, in-
+cluding disease severity, and by race (Fig 3 and Appendix
+Table A3, online only).
+
+Secondary End Points
+Analysis of PFS occurred after 787 events were observed
+(343 in the orteronel group and 444 in the control group).
+The median PFS in the orteronel group was 47.6 months
+compared with 23.0 months in the control group (Fig 2).
+The PFS at 4 years was 50.2% in the orteronel group and
+33.9% in the control group (HR, 0.58; 95% CI, 0.51 to
+0.67; P < .001).
+
+The PSA response rates at month 7 were significantly im-
+proved with orteronel (CR 58%; PR: 22%, NR: 19%) versus
+bicalutamide (CR: 44%; PR: 31%; NR: 25%; P < .0001).
+
+Safety
+More grade 3 and 4 AEs occurred in the orteronel group
+versus the control group (43% v 13%). Notable differences
+included the frequency of hypertension (20% with orteronel
+v 5% with control) and fatigue (5% in orteronel v 2% in the
+control group). Five patients in the experimental arm and
+
+4 © 2022 by American Society of Clinical Oncology
+
+Downloaded from ascopubs.org by Mayo Foundation--Rochester on April 26, 2022 from 129.176.151.025
+Copyright © 2022 American Society of Clinical Oncology. All rights reserved.
+
+Agarwal et al
+
+APPENDIX
+
+Abbreviations: ADT, androgen deprivation therapy; HR, hazard ratio; OS, overall survival; PFS, progression-free survival; rPFS, radiographic progression-free survival.
+
+ªThe ENZAMET trial was not included as 44% of patients on the control arm received early docetaxel therapy.
+ᵇIn S1216, extensive (high) risk was defined as metastatic disease beyond axial skeleton and/or lymph nodes; in LATITUDE, high-risk disease was defined as having any two of the following: three or more bone metastases on bone scan, Gleason sum ≥ 8, and any visceral metastases; in the other trials, high-volume disease was defined as having four or more bone metastases on bone scan, including one or more outside the vertebral bodies or pelvis and/or visceral metastases.
+
+© 2022 by American Society of Clinical Oncology
+
+Downloaded from ascopubs.org by Mayo Foundation--Rochester on April 26, 2022 from 129.176.151.025
+Copyright © 2022 American Society of Clinical Oncology. All rights reserved.
+
+--- TABLES ---
+[Page 12]
+TABLE A1. Post Hoc Analysis of Subsequent Life-Prolonging Therapy
+<table>
+<tr><td>Protocol/Postprotocol Treatment Status</td><td>LHRH Agonist Plus Orteronel (n = 638)</td><td>LHRH Agonist Plus Bicalutamide (n = 641)</td></tr>
+<tr><td>Patients still on protocol treatment</td><td>192</td><td>100</td></tr>
+<tr><td>Patients off protocol treatment</td><td>446</td><td>541</td></tr>
+<tr><td>Data unavailable</td><td>115</td><td>139</td></tr>
+<tr><td>Postprotocol treatment or death, No. (%)</td><td>331 (100)</td><td>402 (100)</td></tr>
+<tr><td>Died on treatment or within 1 month of going off treatment</td><td>33 (10)</td><td>19 (4.7)</td></tr>
+<tr><td>Receiving non-life-prolonging treatment only</td><td>95 (28.7)</td><td>72 (17.9)</td></tr>
+<tr><td>Receiving life-prolonging treatment</td><td>203 (61.3)</td><td>311 (77.4)</td></tr>
+<tr><td>Receiving subsequent androgen axis inhibitor therapy</td><td>138 (68)</td><td>237 (76.2)</td></tr>
+</table>
+Abbreviation: LHRH, luteinizing hormone-releasing hormone.
+ªReceipt of approved systemic therapy known to improve survival outcomes in metastatic prostate cancer, as reported by treating investigators.
+
+[Page 12]
+TABLE A2. Comparison of Contemporary Phase III Trials
+<table>
+<tr><td></td><td>Experimental Arm</td><td>Control Arm With Nonintensified ADT</td><td colspan="2">HR</td><td>Treatment Arm</td><td>Control Arm</td><td></td></tr>
+<tr><td>Trialª</td><td>Subsequent Therapy, %</td><td>Subsequent Therapy, %</td><td>PFS</td><td>OS</td><td>High Volume/ Risk, %</td><td>High Volume/ Risk, %</td><td>Median Follow-Up (months)</td></tr>
+<tr><td>ARCHES²⁸</td><td>8</td><td>23.10</td><td>0.39 (0.30-0.50) (rPFS)</td><td>0.81 (0.53-1.25)</td><td>61.7</td><td>64.8</td><td>14.4</td></tr>
+<tr><td>CHAARTED²⁴</td><td>37.8</td><td>47.60</td><td>0.61 (0.51-0.72)</td><td>0.72 (0.59-0.89)</td><td>66.2</td><td>63.6</td><td>28.9</td></tr>
+<tr><td>LATITUDE⁴</td><td>30</td><td>57</td><td>0.47 (0.39-0.55) (rPFS)</td><td>0.62 (0.51-0.76)</td><td>81.6</td><td>77.7</td><td>30.4</td></tr>
+<tr><td>STAMPEDE abiraterone5</td><td>53</td><td>58</td><td>0.31 (0.25-0.39)</td><td>0.61 (0.49-0.79)</td><td>48.7</td><td>51.3</td><td>40</td></tr>
+<tr><td>STAMPEDE docetaxel29</td><td>21</td><td>21</td><td>0.69 (0.59-0.81)</td><td>0.81 (0.69-0.95)</td><td>41</td><td>44</td><td>78.2</td></tr>
+<tr><td>TITAN7</td><td>48.6</td><td>64.1</td><td>0.48 (0.39-0.60) (rPFS)</td><td>0.67 (0.51-0.89)</td><td>61.9</td><td>63.6</td><td>22.7</td></tr>
+<tr><td>SWOG S1216</td><td>61.3</td><td>77.4</td><td>0.58 (0.51-0.67)</td><td>0.86 (0.72-1.02)</td><td>49</td><td>49</td><td>58.8</td></tr>
+</table>
+
+--- FIGURES ---
+[Page 1]
+<::logo: Check for updates
+A circular icon with a red bookmark on a yellow and blue background::>
+
+[Page 4]
+<::chart
+: Kaplan-Meier curve showing progression-free survival by arm.
+Y-axis: Percent (0 to 100)
+X-axis: Time Since Random Assignment (months) (0 to 96)
+
+Curves:
+- LHRH agonist plus orteronel (red line): median 47.6 months
+- LHRH agonist plus bicalutamide (blue line): median 23.0 months
+
+Statistical data:
+HR 0.58, 95% CI 0.51 to 0.67; P = .0001
+
+Table within graph:
+| Arm | At Risk | Event | 4-Year Estimate |
+| :--- | :--- | :--- | :--- |
+| LHRHa plus bicalutamide | 641 | 444 | 34% |
+| LHRHa plus orteronel | 638 | 343 | 50% |
+
+No. at risk table:
+| Arm | 0 | 24 | 48 | 72 |
+| :--- | :--- | :--- | :--- | :--- |
+| LHRHa plus bicalutamide | 641 | 295 | 164 | 42 |
+| LHRHa plus orteronel | 638 | 401 | 244 | 84 |
+
+FIG 2. Intention-to-treat comparison of progression-free survival by arm. HR, hazard ratio; LHRH, luteinizing hormone-releasing hormone.
+::>
+
+Task:
+1. Extract the value for this column following the plan. Return your best-effort value even if uncertain.
+2. If the plan seems wrong, incomplete, or ambiguous, still return the value you found and add a suggestion and/or alternative_plan.
+3. Use "not found" or "not reported" only if the value is genuinely absent from the content.
+
+Output a JSON object with:
+- value: the extracted value (string)
+- found: true if you found a value, false if not reported/absent
+- confidence: "high" | "medium" | "low"
+- suggestion: optional string with concerns or notes (null if none)
+- alternative_plan: optional string describing a different extraction approach to try (null if plan seems fine)
+
+
+============================================================
+OUTPUT
+============================================================
+```json
+{
+  "value": "Not reported",
+  "found": false,
+  "confidence": "high",
+  "suggestion": null,
+  "alternative_plan": null
+}
+```

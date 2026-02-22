@@ -28,9 +28,11 @@ from pathlib import Path
 from openai import OpenAI
 try:
     from google import genai
+    from google.genai import types as genai_types
     GENAI_NEW = True
 except ImportError:
     import google.generativeai as genai
+    genai_types = None
     GENAI_NEW = False
 from dotenv import load_dotenv
 
@@ -135,8 +137,11 @@ class PDFQueryProvider:
                 raise EnvironmentError("GEMINI_API_KEY not set")
             
             if GENAI_NEW:
-                # Using new google.genai package
-                self.client = genai.Client(api_key=api_key)
+                # Using new google.genai package (30s timeout per call)
+                self.client = genai.Client(
+                    api_key=api_key,
+                    http_options=genai_types.HttpOptions(timeout=30_000),
+                )
             else:
                 # Using deprecated google.generativeai
                 genai.configure(api_key=api_key)

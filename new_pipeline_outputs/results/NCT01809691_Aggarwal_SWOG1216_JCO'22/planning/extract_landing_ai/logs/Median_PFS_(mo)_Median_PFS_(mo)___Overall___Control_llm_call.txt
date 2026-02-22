@@ -1,0 +1,93 @@
+============================================================
+INPUT
+============================================================
+You are extracting a value for a clinical trial data column from the provided document content.
+
+Column: Median PFS (mo) | Overall | Control
+Definition: What is the median progression free survival (in months) for all patients in the control arm? If reported, include the value; use 'Not reported' if missing.
+
+Extraction plan to follow:
+The median PFS in the control group was 23.0 months, as stated in the abstract on page 1 and the 'Secondary End Points' section on page 4. This is also visually represented in Figure 2 on page 4.
+
+Document content (grouped by type, in chronological page order):
+--- TEXT ---
+Agarwal et al
+
+interaction of the stratification factor with treatment,
+evaluating heterogeneity between levels of a factor, was
+tested using a residual chi-square from the Cox model. A
+two-sided Cochrane-Mantel-Haenszel test was used to
+compare three-category PSA response rates between the
+two treatment arms.
+
+## RESULTS
+
+### Patients
+
+Between March 1, 2013, and July 15, 2017, 1,313 patients were randomly assigned and 1,279 were included in the intention-to-treat analysis (32 patients were ineligible, and two patients withdrew all consent before starting treatment—see Appendix Fig A1, online only for details). Six hundred thirty-eight patients were randomly assigned to the orteronel arm, and 641 were randomly assigned to the control arm. At the cutoff date (February 5, 2021) for the final analysis after 525 deaths (and 787 PFS events), the median follow-up time was 4.9 years. Demographic and clinical characteristics at baseline were well balanced (Table 1). The median age of the patients for the orteronel and control arms was 67.6 and 68.1 years, respectively. Across both groups, approximately 10% of the patients were African American, 49% had extensive disease, and 96% had a Zubrod performance status of 0 or 1.
+
+Primary End Point
+Analysis for OS occurred after the prespecified 525 deaths
+were observed (251 in the orteronel group and 274 in the
+
+control group). The median OS in the orteronel group was
+81.1 months as compared with 70.2 months in the control
+group. The OS rate at 5 years was 59.7% in the orteronel
+group and 57.9% in the control group (HR for death 0.86;
+95% CI, 0.72 to 1.02; P = .040, one-sided). No statistically
+significant improvement in OS was observed with orteronel
+compared with control (Fig 1). This lack of treatment effect
+on OS seemed consistent across stratification factors, in-
+cluding disease severity, and by race (Fig 3 and Appendix
+Table A3, online only).
+
+Secondary End Points
+Analysis of PFS occurred after 787 events were observed
+(343 in the orteronel group and 444 in the control group).
+The median PFS in the orteronel group was 47.6 months
+compared with 23.0 months in the control group (Fig 2).
+The PFS at 4 years was 50.2% in the orteronel group and
+33.9% in the control group (HR, 0.58; 95% CI, 0.51 to
+0.67; P < .001).
+
+The PSA response rates at month 7 were significantly im-
+proved with orteronel (CR 58%; PR: 22%, NR: 19%) versus
+bicalutamide (CR: 44%; PR: 31%; NR: 25%; P < .0001).
+
+Safety
+More grade 3 and 4 AEs occurred in the orteronel group
+versus the control group (43% v 13%). Notable differences
+included the frequency of hypertension (20% with orteronel
+v 5% with control) and fatigue (5% in orteronel v 2% in the
+control group). Five patients in the experimental arm and
+
+4 © 2022 by American Society of Clinical Oncology
+
+Downloaded from ascopubs.org by Mayo Foundation--Rochester on April 26, 2022 from 129.176.151.025
+Copyright © 2022 American Society of Clinical Oncology. All rights reserved.
+
+Task:
+1. Extract the value for this column following the plan. Return your best-effort value even if uncertain.
+2. If the plan seems wrong, incomplete, or ambiguous, still return the value you found and add a suggestion and/or alternative_plan.
+3. Use "not found" or "not reported" only if the value is genuinely absent from the content.
+
+Output a JSON object with:
+- value: the extracted value (string)
+- found: true if you found a value, false if not reported/absent
+- confidence: "high" | "medium" | "low"
+- suggestion: optional string with concerns or notes (null if none)
+- alternative_plan: optional string describing a different extraction approach to try (null if plan seems fine)
+
+
+============================================================
+OUTPUT
+============================================================
+```json
+{
+  "value": "23.0",
+  "found": true,
+  "confidence": "high",
+  "suggestion": null,
+  "alternative_plan": null
+}
+```

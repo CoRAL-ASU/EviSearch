@@ -13,6 +13,7 @@ from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 SCRIPT_BASE = REPO_ROOT / "experiment-scripts"
+RESULTS_ROOT = REPO_ROOT / "new_pipeline_outputs" / "results"
 DEFINITIONS_CSV = REPO_ROOT / "src/table_definitions/Definitions_with_eval_category.csv"
 GOLD_TABLE_JSON = REPO_ROOT / "dataset/Manual_Benchmark_GoldTable_cleaned.json"
 OUT_HTML = REPO_ROOT / "experiment-analysis/comparison_report.html"
@@ -31,12 +32,12 @@ PDF_LIST = [
     "NCT02799602_Smith_ARASENS_NEJM'22",
 ]
 
-# Extensible: (display_name, path relative to experiment-scripts)
+# Extensible: (display_name, path to results dir containing {pdf_id}/evaluation/evaluation_results.json)
 MODELS = [
     ("Gemini 2.5 Flash (native)", SCRIPT_BASE / "baselines_file_search_results/gemini_native/gemini-2.5-flash"),
     ("LandingAI (ADE)", SCRIPT_BASE / "baselines_landing_ai_new_results"),
+    ("Our Pipeline", RESULTS_ROOT),
     # ("Gemini 2.5 Flash (free-form)", SCRIPT_BASE / "baselines_file_search_results/free_form/gemini-2.5-flash"),
-    # ("Our Pipeline", ...),
 ]
 
 
@@ -117,10 +118,108 @@ def load_ground_truth_from_gold_table(gold_path: Path) -> dict[str, dict[str, st
 
 
 def load_eval(pdf_id: str, model_path: Path) -> dict | None:
-    path = model_path / pdf_id / "evaluation" / "evaluation_results.json"
+    for sub in ("evaluation", "latest/evaluation"):
+        path = model_path / pdf_id / sub / "evaluation_results.json"
+        if path.exists():
+            return json.loads(path.read_text(encoding="utf-8"))
+    return None
+
+
+EXTRACTION_MODEL_ID = "extraction"
+
+
+def _parse_extraction_json(raw: str) -> dict | None:
+    """Parse JSON from raw LLM response (may be wrapped in ```json ... ```)."""
+    if not raw or not isinstance(raw, str):
+        return None
+    text = raw.strip()
+    if "```" in text:
+        start = text.find("{")
+        end = text.rfind("}") + 1
+        if start >= 0 and end > start:
+            text = text[start:end]
+    try:
+        return json.loads(text)
+    except Exception:
+        return None
+
+
+def load_extraction_columns(pdf_id: str) -> dict[str, dict] | None:
+    """Load per-column extraction results; return {column_name: {value, confidence, ...}}.
+    Value is parsed from raw_response JSON (LLM output); top-level value is fallback."""
+    path = RESULTS_ROOT / pdf_id / "planning" / "extract_landing_ai" / "extraction_results.json"
     if not path.exists():
         return None
-    return json.loads(path.read_text(encoding="utf-8"))
+    d = json.loads(path.read_text(encoding="utf-8"))
+    out: dict[str, dict] = {}
+    for r in d.get("results", []):
+        col = r.get("column_name")
+        if not col:
+            continue
+        raw = r.get("raw_response") or ""
+        parsed = _parse_extraction_json(raw)
+        value = ""
+        confidence = "low"
+        found = False
+        suggestion = None
+        if parsed and isinstance(parsed, dict):
+            v = parsed.get("value")
+            value = str(v) if v is not None else ""
+            confidence = str(parsed.get("confidence", "low")).lower() or "low"
+            found = bool(parsed.get("found", False))
+            suggestion = parsed.get("suggestion")
+        if not value:
+            value = str(r.get("value") or "")
+        if not confidence or confidence == "low":
+            confidence = r.get("confidence") or "low"
+        if suggestion is None:
+            suggestion = r.get("suggestion")
+        out[col] = {
+            "value": value,
+            "confidence": confidence,
+            "found": found,
+            "suggestion": suggestion,
+            "alternative_plan": r.get("alternative_plan"),
+            "retry_value": r.get("retry_value"),
+            "values_match": r.get("values_match"),
+            "correctness": None,
+            "completeness": None,
+            "reason": (suggestion or "") if suggestion else "",
+        }
+    return out if out else None
+
+
+def load_extraction_stats(pdf_id: str) -> dict | None:
+    """Load extraction stats from extract_landing_ai/extraction_results.json."""
+    path = RESULTS_ROOT / pdf_id / "planning" / "extract_landing_ai" / "extraction_results.json"
+    if not path.exists():
+        return None
+    d = json.loads(path.read_text(encoding="utf-8"))
+    r = d.get("results", [])
+    if not r:
+        return None
+    with_alt = sum(1 for x in r if x.get("alternative_plan"))
+    total_cols = len(r)
+    retries = sum(1 for x in r if x.get("retry_value") is not None)
+    total_calls = total_cols + retries
+    conf_map = {"high": 3, "medium": 2, "low": 1}
+    confs = [conf_map.get(x.get("confidence", "low"), 1) for x in r]
+    avg_conf = sum(confs) / len(confs) if confs else 0
+    high_c = sum(1 for x in r if x.get("confidence") == "high")
+    med_c = sum(1 for x in r if x.get("confidence") == "medium")
+    low_c = sum(1 for x in r if x.get("confidence") == "low")
+    return {
+        "with_alternative_plan": with_alt,
+        "total_columns": total_cols,
+        "retries_done": retries,
+        "total_calls": total_calls,
+        "avg_confidence": round(avg_conf, 2),
+        "confidence_high": high_c,
+        "confidence_medium": med_c,
+        "confidence_low": low_c,
+        "values_matched": d.get("values_matched", 0),
+        "values_differed": d.get("values_differed", 0),
+    }
 
 
 def main() -> None:
@@ -129,19 +228,21 @@ def main() -> None:
     col_to_eval = {d["column"]: d["eval_category"] for d in definitions}
 
     models_out = [{"id": f"m{i}", "name": name} for i, (name, _) in enumerate(MODELS)]
+    models_out.append({"id": EXTRACTION_MODEL_ID, "name": "Extraction (Landing AI)"})
     pdfs_out = [{"id": pdf, "name": pdf} for pdf in PDF_LIST]
 
     # Load updated ground truth from Manual_Benchmark_GoldTable_cleaned.json (new benchmark)
     definition_columns = [d["column"] for d in definitions]
     ground_truth_updated = load_updated_gold_table(PDF_LIST, definition_columns)
 
-    # data[pdf_id] = { ground_truth: { col: str }, ground_truth_updated: { col: str }, models: ... }
+    # data[pdf_id] = { ground_truth: { col: str }, ground_truth_updated: { col: str }, models: ..., extraction_stats: ... }
     data: dict = {}
     for pdf_id in PDF_LIST:
         data[pdf_id] = {
             "ground_truth": {},
             "ground_truth_updated": ground_truth_updated.get(pdf_id, {}),
             "models": {m["id"]: {} for m in models_out},
+            "extraction_stats": load_extraction_stats(pdf_id),
         }
         for mi, (_, model_path) in enumerate(MODELS):
             mid = models_out[mi]["id"]
@@ -155,6 +256,10 @@ def main() -> None:
                     "completeness": float(col_data.get("completeness", 0)),
                     "reason": col_data.get("reason", ""),
                 }
+        ext_cols = load_extraction_columns(pdf_id)
+        if ext_cols:
+            for col_name, col_data in ext_cols.items():
+                data[pdf_id]["models"][EXTRACTION_MODEL_ID][col_name] = col_data
 
     # Unique labels for filter dropdown (preserve order)
     labels_seen = []
@@ -171,14 +276,20 @@ def main() -> None:
             if not model_cols:
                 data[pdf_id]["summary"][mid] = None
                 continue
+            if mid == EXTRACTION_MODEL_ID:
+                data[pdf_id]["summary"][mid] = None
+                continue
             by_cat: dict[str, list[tuple[float, float]]] = {"exact_match": [], "structured_text": [], "numeric_tolerance": []}
             all_c, all_k = [], []
             for col_name, cell in model_cols.items():
+                c, k = cell.get("correctness"), cell.get("completeness")
+                if c is None or k is None:
+                    continue
                 cat = col_to_eval.get(col_name, "")
                 if cat in by_cat:
-                    by_cat[cat].append((cell["correctness"], cell["completeness"]))
-                all_c.append(cell["correctness"])
-                all_k.append(cell["completeness"])
+                    by_cat[cat].append((float(c), float(k)))
+                all_c.append(float(c))
+                all_k.append(float(k))
             data[pdf_id]["summary"][mid] = {
                 "overall": {"correctness": sum(all_c) / len(all_c) if all_c else 0, "completeness": sum(all_k) / len(all_k) if all_k else 0},
                 "exact_match": _avg(by_cat["exact_match"]),
@@ -271,11 +382,25 @@ def build_html(payload: dict) -> str:
 
         function renderHeaderBand(pdfId) {{
             const pdfData = data[pdfId];
-            if (!pdfData || !pdfData.summary) {{ headerBand.style.display = 'none'; return; }}
+            if (!pdfData) {{ headerBand.style.display = 'none'; return; }}
+            const hasSummary = pdfData.summary && Object.values(pdfData.summary).some(s => s);
+            const ext = pdfData.extraction_stats;
+            if (!hasSummary && !ext) {{ headerBand.style.display = 'none'; return; }}
             headerBand.style.display = 'flex';
             headerBand.innerHTML = '';
+            if (ext) {{
+                const div = document.createElement('div');
+                div.className = 'model-summary extraction-stats';
+                div.innerHTML = '<h3>Extraction (Landing AI)</h3>' +
+                    '<div class="overall">Alt plans: ' + ext.with_alternative_plan + ' / Total calls: ' + ext.total_calls + '</div>' +
+                    '<div class="by-cat"><span>Columns: ' + ext.total_columns + '</span><span>Retries: ' + ext.retries_done + '</span></div>' +
+                    '<div class="by-cat"><span>Avg confidence: ' + ext.avg_confidence.toFixed(2) + '</span><span>H/M/L: ' + ext.confidence_high + '/' + ext.confidence_medium + '/' + ext.confidence_low + '</span></div>' +
+                    '<div class="by-cat"><span>Values matched: ' + ext.values_matched + '</span><span>Values differed: ' + ext.values_differed + '</span></div>';
+                headerBand.appendChild(div);
+            }}
             models.forEach(m => {{
-                const sum = pdfData.summary[m.id];
+                if (m.id === 'extraction') return;
+                const sum = pdfData.summary && pdfData.summary[m.id];
                 const div = document.createElement('div');
                 div.className = 'model-summary' + (sum ? '' : ' na');
                 let html = '<h3>' + escapeHtml(m.name) + '</h3>';
@@ -332,8 +457,8 @@ def build_html(payload: dict) -> str:
                 for (const m of models) {{
                     const cell = (modelCols[m.id] || {{}})[row.column];
                     if (!cell) continue;
-                    if (corrFilter !== null && cell.correctness === corrFilter) hasCorr = true;
-                    if (compFilter !== null && cell.completeness === compFilter) hasComp = true;
+                    if (cell.correctness != null && corrFilter !== null && cell.correctness === corrFilter) hasCorr = true;
+                    if (cell.completeness != null && compFilter !== null && cell.completeness === compFilter) hasComp = true;
                 }}
                 return hasCorr && hasComp;
             }});
@@ -360,7 +485,15 @@ def build_html(payload: dict) -> str:
                         td.textContent = 'N/A';
                     }} else {{
                         const reasonHtml = cell.reason ? '<div class="reason">' + escapeHtml(cell.reason) + '</div>' : '';
-                        td.innerHTML = '<div class="value">' + escapeHtml(String(cell.value)) + '</div>' + reasonHtml + '<div class="scores">C: ' + cell.correctness + ', K: ' + cell.completeness + '</div>';
+                        let scoresHtml = '';
+                        if (cell.correctness != null && cell.completeness != null) {{
+                            scoresHtml = '<div class="scores">C: ' + cell.correctness + ', K: ' + cell.completeness + '</div>';
+                        }} else if (cell.confidence) {{
+                            let s = 'conf: ' + cell.confidence;
+                            if (cell.retry_value != null) s += ' | retry: ' + (cell.values_match ? 'match' : 'diff');
+                            scoresHtml = '<div class="scores">' + s + '</div>';
+                        }}
+                        td.innerHTML = '<div class="value">' + escapeHtml(String(cell.value)) + '</div>' + reasonHtml + scoresHtml;
                     }}
                     tr.appendChild(td);
                 }});

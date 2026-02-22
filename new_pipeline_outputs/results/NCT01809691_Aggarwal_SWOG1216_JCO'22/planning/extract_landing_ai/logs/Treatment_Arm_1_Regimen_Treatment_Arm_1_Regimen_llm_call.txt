@@ -1,0 +1,102 @@
+============================================================
+INPUT
+============================================================
+You are extracting a value for a clinical trial data column from the provided document content.
+
+Column: Treatment Arm 1 Regimen
+Definition: What the specific treatment protocol or regimen used in the experimental arms of the clinical trial?. If reported, provide the treament regimen used ; otherwise use 'Not reported'.
+
+Extraction plan to follow:
+The 'METHODS' section on page 1 describes the experimental arm: 'ADT with orteronel (300 mg oral twice daily)'.
+
+Document content (grouped by type, in chronological page order):
+--- TEXT ---
+original report
+Orteronel for Metastatic
+Hormone-Sensitive Prostate Cancer: A
+Multicenter, Randomized, Open-Label Phase III
+Trial (SWOG-1216)
+
+Neeraj Agarwal, MD¹; Catherine M. Tangen, DrPH²; Maha H.A. Hussain, MD³; Shilpa Gupta, MD⁴; Melissa Plets, MS²; Primo N. Lara, MD⁵;
+Andrea L. Harzstark, MD⁶; Przemyslaw W. Twardowski, MD⁷; Channing J. Paller, MD⁸; Dylan Zylla, MD⁹; Matthew R. Zibelman, MD¹⁰;
+Ellis Levine, MD¹¹; Bruce J. Roth, MD¹²; Amir Goldkorn, MD¹³; Daniel A. Vaena, MD¹⁴,¹⁵; Manish Kohli, MD¹,¹⁶; Tony Crispino¹⁷;
+Nicholas J. Vogelzang, MD¹⁸; Ian M. Thompson Jr, MD¹⁹; and David I. Quinn, MD¹³
+
+abstr
+PURPOSE Orteronel (TAK-700) is a nonsteroidal 17,20-lyase inhibitor suppressing androgen synthesis. We evaluated the clinical benefit of orteronel when added to androgen deprivation therapy (ADT) in patients with newly diagnosed metastatic hormone-sensitive prostate cancer.
+
+act
+METHODS In this open-label randomized phase III study, patients with metastatic hormone-sensitive prostate cancer were randomly assigned 1:1 to ADT with orteronel (300 mg oral twice daily; experimental arm) or ADT with bicalutamide (50 mg oral once daily; control arm). The primary objective was the comparison of overall survival (OS), targeting a 33% improvement in median survival. A stratified log-rank test with a one-sided P \u2264 .022 would indicate statistical significance. Secondary end points were progression-free survival (PFS), prostate-specific antigen (PSA) level at 7 months (\u2264 0.2 v 0.2 to \u2264 4 v > 4 ng/mL), and adverse event profile.
+
+**RESULTS** Among 1,279 patients included in the analysis, 638 were randomly assigned to the ADT plus orteronel arm and 641 to the control arm. The median age was 68 years; 49% had extensive disease. After a median follow-up of 4.9 years, there was a significant improvement in PFS (median 47.6 v 23.0 months, hazard ratio 0.58; 95% CI, 0.51 to 0.67; P < .0001) and PSA response at 7 months (P < .0001), but not in OS (median 81.1 v 70.2 months, hazard ratio 0.86; 95% CI, 0.72 to 1.02; P = .040, one-sided). More grade 3/4 adverse events occurred in the experimental versus the control arms (43% v 14%). Postprotocol life-prolonging therapy was received by 77.4% of patients in the control arm and 61.3% of patients in the orteronel arm.
+
+**CONCLUSION** The study did not meet the primary end point of improved OS with orteronel. The lack of correlation of PFS and PSA response with OS raises concerns over assumption of their consistent surrogacy for OS in the context of extensive postprotocol therapy in this setting.
+
+J Clin Oncol 00. © 2022 by American Society of Clinical Oncology
+
+## INTRODUCTION
+The cornerstone of treatment for metastatic hormone-sensitive prostate cancer (mHSPC) is androgen deprivation therapy (ADT) with medical or surgical castration.¹ However, disease progression universally occurs on ADT, mediated by extragonadal production of androgens or androgen-independent activation of androgen receptor.¹ The treatment paradigm of mHSPC has evolved over the past decade with multiple trials showing improved survival by intensification of ADT with either docetaxel chemotherapy or abiraterone, which inhibits a pivotal enzyme in intra- and extragonadal androgen synthesis (ie, CYP17 [CYP17 hydroxylase, CYP17, 20 lyase]) located in the testes and adrenal glands. ¹⁻⁵ More recently, two direct, potent, and specific inhibitors of the androgen receptor, apalutamide and
+
+enzalutamide, were approved on the basis of improved survival in phase III trials. 1,6,7 Currently, the most common sequencing of these agents in the treatment of metastatic prostate cancer is abiraterone acetate followed by enzalutamide or docetaxel. 8 One challenge with abiraterone acetate is the requirement for coadministration of corticosteroids because of inhibition of CYP17 hydroxylase.1 This results in diminished cortisol production and leads to secondary mineralocorticoid excess, with symptoms such as electrolyte abnormalities, hypertension, and edema.1
+
+Orteronel (TAK-700) is a novel CYP17 inhibitor. In
+comparison with abiraterone acetate, orteronel inhibits
+CYP17, 20 lyase with greater specificity compared with
+CYP17 hydroxylase and does not generally lead to the
+syndrome of secondary mineralocorticoid excess.9,10
+
+ASCO®
+
+Journal of Clinical Oncology®
+
+1
+
+Downloaded from ascopubs.org by Mayo Foundation--Rochester on April 26, 2022 from 129.176.151.025 Copyright © 2022 American Society of Clinical Oncology. All rights reserved.
+
+S
+
+ASSOCIATED
+CONTENT
+Appendix
+**Data Sharing**
+**Statement**
+**Protocol**
+Author affiliations
+and support
+information (if
+applicable) appear
+at the end of this
+article.
+Accepted on March
+18, 2022 and
+published at
+ascopubs.org/journal/
+jco on April 21, 2022:
+DOI https://doi.org/10.
+1200/JC0.21.02517
+
+Task:
+1. Extract the value for this column following the plan. Return your best-effort value even if uncertain.
+2. If the plan seems wrong, incomplete, or ambiguous, still return the value you found and add a suggestion and/or alternative_plan.
+3. Use "not found" or "not reported" only if the value is genuinely absent from the content.
+
+Output a JSON object with:
+- value: the extracted value (string)
+- found: true if you found a value, false if not reported/absent
+- confidence: "high" | "medium" | "low"
+- suggestion: optional string with concerns or notes (null if none)
+- alternative_plan: optional string describing a different extraction approach to try (null if plan seems fine)
+
+
+============================================================
+OUTPUT
+============================================================
+```json
+{
+  "value": "ADT with orteronel (300 mg oral twice daily)",
+  "found": true,
+  "confidence": "high",
+  "suggestion": null,
+  "alternative_plan": null
+}
+```

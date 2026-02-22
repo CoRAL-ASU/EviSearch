@@ -1,0 +1,101 @@
+============================================================
+INPUT
+============================================================
+You are extracting a value for a clinical trial data column from the provided document content.
+
+Column: Secondary Endpoint(s)
+Definition: What the secondary outcome(s) or objective(s) of the clinical trial, in addition to the primary endpoint, that are being measured or evaluated?. If reported, provide the value; otherwise use 'Not reported'.
+
+Extraction plan to follow:
+Extract the list of secondary endpoints from the "Outcomes" section on page 3. The text states: "The secondary endpoints were castration-resistant prostate cancer (CRPC)-free survival, serious-genito-urinary-event-free survival, prostate-cancer-specificsurvival, time to next skeletal-related event, PSA response rate, prognostic study of serum PSA measured 6-8 months after initiation of systemic therapy, time to pain progression, time to chemotherapy for CRPC, quality of life, changes in bone mineral density, correlation of biomarkers with outcome, event rate per 100 person-years of treatment analysis, and toxicity."
+
+Document content (relevant excerpts):
+[Page 3, TEXT]
+Articles
+
+[Page 3, TEXT]
+survival compared with ADT alone. 6,7 Thereby, an additional amendment was filed on Aug 10, 2017, to make docetaxel mandatory for the remainder of the patients to be accrued, so that the trial could evaluate the addition of abiraterone to ADT with docetaxel (given that the evaluation of ADT plus abiraterone compared with ADT alone had already been addressed by other trials). Further details on the amendments to the protocol and statistical analysis plan are provided in the appendix (pp 7–8). Evolution of the sample size and allocation of patients according to these key amendments is depicted in the appendix (pp 9–10).
+
+[Page 3, TEXT]
+Randomisation and masking
+Eligible patients were centrally randomly assigned in the
+Alea Clinical Portal), in a 1:1:1:1 ratio, to SOC, SOC plus
+radiotherapy, SOC plus abiraterone (abiraterone plus
+prednisone), or SOC plus radiotherapy plus abiraterone.
+This randomisation process was performed via the
+Tenalea autonomous software, solely accessed by the trial
+data manager within the Epidemioloy and Biostatistics
+facility of the Gustave Roussy Center in Villejuif, France
+until 2015, then by each investigator.
+
+[Page 3, TEXT]
+Randomisation was done using a minimisation algorithm, stratified by study site, ECOG performance status (0 vs 1-2), type of ADT (gonadotropin-releasing hormone agonist vs antagonist vs bilateral orchiectomy), planned administration of docetaxel (yes vs no), and disease extent or burden based on metastatic status (lymph node metastases only vs bone metastases [with or without lymph node metastases] vs visceral metastases).
+A similar weight was given to each of the five stratification factors, with 80% probability to minimise imbalance in the number of patients assigned to each treatment group. As the case report form gathered information for patient stratification according to high-volume versus low-volume metastatic burden classification (as defined in the CHAARTED study² [high volume was defined as the presence of visceral metastases or at least four bone lesions with one beyond the vertebral bodies and pelvis]), this later classification was retained to enable inter-trial comparisons. No masking was performed in this study.
+
+[Page 3, TEXT]
+Procedures
+In all patients in the study, ADT was planned to be continuously maintained by either a gonadotropin-releasing hormone agonist or antagonist, or bilateral orchiectomy. Patients assigned to receive docetaxel as part of SOC with continuous ADT were to receive six cycles of intravenous docetaxel (75 mg/m² per cycle; maximum dose of 150 mg per cycle), to be administered every 3 weeks (plus or minus 3 days). Granulocyte colony-stimulating factor (G-CSF) injections after each docetaxel cycle were recommended until the protocol amendment on Jan 22, 2018, made G-CSF prophylaxis mandatory for patients who received docetaxel. The first docetaxel cycle
+
+[Page 3, TEXT]
+had to be administered within 14 days after randomisation and be at least 6 weeks after ADT initiation. Patients assigned to receive abiraterone received 1000 mg of abiraterone (four 250 mg tablets, orally) once daily plus prednisone 5 mg orally twice daily, starting within 6 weeks after ADT initiation. PEACE-1 began accrual in 2013, before the LATITUDE and the STAMPEDE' abiraterone trials were reported and before abiraterone was approved for mCSPC, which is why we used 10 mg of prednisone, similar to what is approved for metastatic castration-resistant prostate cancer (mCRPC). Abiraterone and prednisone (hereafter referred to as abiraterone) were administered until disease progression to castration resistance, withdrawal of consent, unacceptable toxicity, or death. Patients assigned to receive radiotherapy (74 Gy in 37 fractions administered over 7–8 weeks) were planned to start radiotherapy at least 3 weeks after docetaxel completion (but no more than 8 weeks after completion). Treatments given after disease progression followed common practice, and investigators were able to change therapy as they thought was most appropriate, on the basis of prostate-specific antigen (PSA) concentration variation or clinical progression, even in absence of radiographical evidence. The treatment flow chart is depicted in the appendix (p 10).
+
+[Page 3, TEXT]
+Every enrolled patient was to be followed-up for a
+duration of 10 years. The complete list of assessments
+performed at each visit and follow-up intervals are
+detailed in the appendix (pp 12–13). Survival status data
+were gathered within 3 months of the cutoff date for
+97% of patients.
+
+[Page 3, TEXT]
+## Outcomes
+The coprimary endpoints were radiographic progression-free survival and overall survival. Radiographical progression of soft-tissue lesions was evaluated by either CT or MRI, on the basis of RECIST version 1.1. Progression of bone lesions was assessed by bone scan according to the adapted version of Prostate Cancer Working Group 2 criteria,²¹ with no secondary bone scan required to confirm progression. Radiographic progression-free survival was defined as the time between randomisation and the occurrence of radiographical progression or death from any cause. Overall survival was defined as the time between randomisation and death from any cause. Patients without events were censored at the date of last follow-up.
+
+[Page 3, TEXT]
+The secondary endpoints were castration-resistant
+prostate cancer (CRPC)-free survival, serious-genito-
+urinary-event-free survival, prostate-cancer-specificsurvival,
+time to next skeletal-related event, PSA response rate,
+prognostic study of serum PSA measured 6–8 months
+after initiation of systemic therapy, time to pain pro-
+gression, time to chemotherapy for CRPC, quality of life,
+changes in bone mineral density, correlation of biomarkers
+with outcome, event rate per 100 person-years of treatment
+analysis, and toxicity. CRPC-free survival was defined as
+
+[Page 3, TEXT]
+www.thelancet.com Published online April 8, 2022 https://doi.org/10.1016/ S0140-6736(22)00367-1
+
+[Page 3, TEXT]
+3
+
+[Page 3, TEXT]
+For more on the **Alea Clinical**
+**Portal** see https://www.
+aleaclinical.eu
+
+Task:
+1. Extract the value for this column following the plan. Return your best-effort value even if uncertain.
+2. If the plan seems wrong, incomplete, or ambiguous, still return the value you found and add a suggestion and/or alternative_plan.
+3. Use "not found" or "not reported" only if the value is genuinely absent from the content.
+
+Output a JSON object with:
+- value: the extracted value (string)
+- found: true if you found a value, false if not reported/absent
+- confidence: "high" | "medium" | "low"
+- suggestion: optional string with concerns or notes (null if none)
+- alternative_plan: optional string describing a different extraction approach to try (null if plan seems fine)
+
+
+============================================================
+OUTPUT
+============================================================
+```json
+{
+  "value": "castration-resistant prostate cancer (CRPC)-free survival, serious-genito-urinary-event-free survival, prostate-cancer-specificsurvival, time to next skeletal-related event, PSA response rate, prognostic study of serum PSA measured 6–8 months after initiation of systemic therapy, time to pain progression, time to chemotherapy for CRPC, quality of life, changes in bone mineral density, correlation of biomarkers with outcome, event rate per 100 person-years of treatment analysis, and toxicity.",
+  "found": true,
+  "confidence": "high",
+  "suggestion": null,
+  "alternative_plan": null
+}
+```

@@ -92,6 +92,65 @@ def _find_extraction_in_trial_dir(trial_dir: Path) -> Path | None:
     return None
 
 
+def _find_landing_ai_extraction_in_trial_dir(trial_dir: Path) -> Path | None:
+    """Find Landing AI extraction_results.json. Checks extract_landing_ai, then plan_extract_columns."""
+    for sub in ("extract_landing_ai", "plan_extract_columns"):
+        candidate = trial_dir / "planning" / sub / "extraction_results.json"
+        if candidate.exists():
+            return candidate
+    return None
+
+
+def _normalize_landing_ai_for_evaluator(extraction_path: Path) -> dict:
+    """Load Landing AI extraction_results.json and normalize to {col_name: {value, ...}} for EvaluatorV2."""
+    data = json.loads(extraction_path.read_text(encoding="utf-8"))
+    results = data.get("results")
+    if results is None:
+        return {}
+    out = {}
+    if isinstance(results, list):
+        for r in results:
+            col = r.get("column_name")
+            if col:
+                val = r.get("value")
+                out[col] = {"value": val if val is not None else ""}
+    elif isinstance(results, dict):
+        for col, r in results.items():
+            if isinstance(r, dict):
+                val = r.get("value")
+                out[col] = {"value": val if val is not None else ""}
+            else:
+                out[col] = {"value": str(r) if r is not None else ""}
+    return out
+
+
+def _get_extraction_file_for_eval(
+    trial_dir: Path,
+    source: str,
+    eval_dir: Path,
+) -> Path | None:
+    """
+    Return path to evaluator-ready extraction file.
+    source: "ours" | "landing_ai"
+    For "ours": extraction/extraction_metadata.json ( EvaluatorV2 format).
+    For "landing_ai": normalize planning/extract_landing_ai/extraction_results.json, write to eval_dir.
+    """
+    if source == "ours":
+        return _find_extraction_in_trial_dir(trial_dir)
+    if source == "landing_ai":
+        landing_path = _find_landing_ai_extraction_in_trial_dir(trial_dir)
+        if landing_path is None:
+            return None
+        normalized = _normalize_landing_ai_for_evaluator(landing_path)
+        if not normalized:
+            return None
+        eval_dir.mkdir(parents=True, exist_ok=True)
+        out_path = eval_dir / "landing_ai_extraction_for_eval.json"
+        out_path.write_text(json.dumps(normalized, indent=2), encoding="utf-8")
+        return out_path
+    return None
+
+
 def _get_eval_output_dir(trial_dir: Path, extraction_file: Path) -> Path:
     """Return the evaluation output dir for this trial (same level as extraction)."""
     # If extraction is under trial/latest/extraction/, write to trial/latest/evaluation/
@@ -100,10 +159,14 @@ def _get_eval_output_dir(trial_dir: Path, extraction_file: Path) -> Path:
     return trial_dir / "evaluation"
 
 
-def run_evaluation_for_all_trials_in_dir(alt_base: Path) -> list[tuple[str, Path | None, str | None]]:
+def run_evaluation_for_all_trials_in_dir(
+    alt_base: Path,
+    extraction_source: str = "ours",
+) -> list[tuple[str, Path | None, str | None]]:
     """
     Run evaluation for every trial under alt_base that has extraction.
     alt_base can be the 'new_pipeline_outputs copy' folder (we use alt_base/results) or the results dir itself.
+    extraction_source: "ours" | "landing_ai" - which extraction to evaluate.
     Returns list of (trial_name, eval_dir or None, error_message or None).
     """
     results_dir = alt_base / "results" if (alt_base / "results").is_dir() else alt_base
@@ -115,9 +178,11 @@ def run_evaluation_for_all_trials_in_dir(alt_base: Path) -> list[tuple[str, Path
         if not trial_dir.is_dir():
             continue
         trial_name = trial_dir.name
-        extraction_file = _find_extraction_in_trial_dir(trial_dir)
+        eval_dir_candidate = trial_dir / "evaluation"
+        extraction_file = _get_extraction_file_for_eval(trial_dir, extraction_source, eval_dir_candidate)
         if extraction_file is None:
-            outcomes.append((trial_name, None, "No extraction_metadata.json found"))
+            msg = "No extraction_metadata.json found" if extraction_source == "ours" else "No Landing AI extraction found"
+            outcomes.append((trial_name, None, msg))
             continue
         eval_dir = _get_eval_output_dir(trial_dir, extraction_file)
         eval_dir.mkdir(parents=True, exist_ok=True)
@@ -159,8 +224,13 @@ def _run_evaluation_all_alternate():
     if not alt_base.is_dir():
         print("Folder not found:", alt_base)
         sys.exit(1)
-    print("\nRunning evaluation for all trials with extraction in:", alt_base)
-    outcomes = run_evaluation_for_all_trials_in_dir(alt_base)
+    print("\nWhich extraction to evaluate?")
+    print("  1. Ours (extraction/extraction_metadata.json)")
+    print("  2. Landing AI (planning/extract_landing_ai or plan_extract_columns)")
+    src_choice = input("Enter choice (1 or 2) [1]: ").strip() or "1"
+    extraction_source = "landing_ai" if src_choice == "2" else "ours"
+    print("\nRunning evaluation for all trials with extraction in:", alt_base, f"(source: {extraction_source})")
+    outcomes = run_evaluation_for_all_trials_in_dir(alt_base, extraction_source=extraction_source)
     print("\n" + "=" * 60)
     print("EVALUATION BATCH COMPLETE")
     print("=" * 60)
@@ -459,6 +529,7 @@ def main():
     # For choice 4, allow using an alternate results folder (e.g. new_pipeline_outputs copy)
     base_output = RESULTS_BASE_DIR / pdf_name
     use_alternate_for_eval = False
+    extraction_source = "ours"
     if choice == "4":
         use_alt = input("Use alternate results folder for extraction? (y/n) [n]: ").strip().lower() or "n"
         if use_alt == "y":
@@ -473,17 +544,24 @@ def main():
                     print("Looking for extraction and writing evaluation to:", base_output)
                 else:
                     print("Folder not found, using default results dir.")
+        print("\nWhich extraction to evaluate?")
+        print("  1. Ours (extraction/extraction_metadata.json)")
+        print("  2. Landing AI (planning/extract_landing_ai or plan_extract_columns)")
+        src_choice = input("Enter choice (1 or 2) [1]: ").strip() or "1"
+        extraction_source = "landing_ai" if src_choice == "2" else "ours"
     base_output.mkdir(parents=True, exist_ok=True)
 
     # Option A: For evaluation-only, use existing run (latest); don't create a new versioned run.
-    if use_alternate_for_eval:
-        run_dir = base_output
-        extraction_file_alt = _find_extraction_in_trial_dir(run_dir)
+    if use_alternate_for_eval or choice == "4":
+        extraction_file_alt = _get_extraction_file_for_eval(base_output, extraction_source, base_output / "evaluation")
         if extraction_file_alt is None:
-            print("Extraction not found under", run_dir, "(checked extraction/, extractions/, latest/extraction/)")
+            msg = "No extraction found" if extraction_source == "ours" else "No Landing AI extraction found"
+            print(msg, "under", base_output)
             sys.exit(1)
-        run_dir = _get_eval_output_dir(base_output, extraction_file_alt).parent
-        print("\nOutput directory (evaluation only, alternate folder):", run_dir)
+        eval_dir = _get_eval_output_dir(base_output, extraction_file_alt)
+        run_dir = eval_dir.parent
+        if use_alternate_for_eval:
+            print("\nOutput directory (evaluation only, alternate folder):", run_dir)
         latest_link = None
     elif VERSION_OUTPUTS:
         if choice == "4":
@@ -507,7 +585,6 @@ def main():
     chunk_file = None
     plan_dir = None
     extraction_file = None
-    extraction_file_alt = None  # set when use_alternate_for_eval
     chunk_usage = plan_usage = extraction_usage = eval_usage = None
 
     if choice in ("1", "5"):
@@ -548,7 +625,7 @@ def main():
         extraction_file, extraction_usage = run_extraction(pdf_path, chunk_file, plan_dir, run_dir, base_output=base_output)
 
     if choice in ("4", "5", "6"):
-        if use_alternate_for_eval:
+        if choice == "4":
             extraction_file = extraction_file_alt
         elif extraction_file is None:
             extraction_file = _find_existing([

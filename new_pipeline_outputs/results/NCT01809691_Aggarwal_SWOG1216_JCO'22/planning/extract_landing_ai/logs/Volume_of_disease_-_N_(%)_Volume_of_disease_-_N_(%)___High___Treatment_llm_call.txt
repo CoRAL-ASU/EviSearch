@@ -1,0 +1,89 @@
+============================================================
+INPUT
+============================================================
+You are extracting a value for a clinical trial data column from the provided document content.
+
+Column: Volume of disease - N (%) | High | Treatment
+Definition: What the number and percentage of participants in the treatment arm of the clinical trial with a high volume or burden of metastatic disease? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.
+
+Extraction plan to follow:
+Extract the 'Extensive' row value for the 'Orteronel (n = 638)' column from the 'Disease severity, No. (%)' section in Table 1 on page 5. The value is 310 (49).
+
+Document content (grouped by type, in chronological page order):
+--- TABLES ---
+[Page 5]
+TABLE 1. Baseline Characteristics of Patients Included in the Primary Intention-To-Treat Analysis (N = 1,279)
+<table>
+<tr><td>Characteristic</td><td>Orteronel (n = 638)</td><td>Bicalutamide (n = 641)</td></tr>
+<tr><td>Median age, years (range)</td><td>67.6 (46.1-90.0)</td><td>68.1 (19.4-92.3)</td></tr>
+<tr><td>Race, No. (%)</td><td></td><td></td></tr>
+<tr><td>White</td><td>539 (84)</td><td>538 (84)</td></tr>
+<tr><td>Black</td><td>64 (10)</td><td>71 (11)</td></tr>
+<tr><td>Others</td><td>35 (6)</td><td>32 (5)</td></tr>
+<tr><td>Zubrod PS, No. (%)</td><td></td><td></td></tr>
+<tr><td>0</td><td>416 (65)</td><td>442 (69)</td></tr>
+<tr><td>1</td><td>197 (31)</td><td>175 (27)</td></tr>
+<tr><td>2</td><td>21 (3)</td><td>21 (3)</td></tr>
+<tr><td>3</td><td>3(&lt;1)</td><td>2(&lt;1)</td></tr>
+<tr><td>Missing</td><td>1(&lt;1)</td><td>1(&lt;1)</td></tr>
+<tr><td>Gleason score at initial diagnosis, No. (%)</td><td></td><td></td></tr>
+<tr><td>&lt;7</td><td>46 (7)</td><td>39 (6)</td></tr>
+<tr><td>7</td><td>165 (26)</td><td>168 (26)</td></tr>
+<tr><td>8</td><td>123 (19)</td><td>118 (19)</td></tr>
+<tr><td>9-10</td><td>249 (39)</td><td>264 (41)</td></tr>
+<tr><td>Missing</td><td>55 (9)</td><td>52 (8)</td></tr>
+<tr><td>Median PSA level, ng/mL (range)</td><td>27.2 (2.0-6,710.0)</td><td>31.8 (2.0-6,651.2)</td></tr>
+<tr><td>Bone pain, No. (%)</td><td></td><td></td></tr>
+<tr><td>Yes</td><td>158 (25)</td><td>143 (22)</td></tr>
+<tr><td>No</td><td>480 (75)</td><td>498 (78)</td></tr>
+<tr><td>Bone metastases, No. (%)</td><td></td><td></td></tr>
+<tr><td>Yes</td><td>470 (74)</td><td>482 (75)</td></tr>
+<tr><td>No</td><td>168 (26)</td><td>159 (25)</td></tr>
+<tr><td>Liver metastases, No. (%)</td><td></td><td></td></tr>
+<tr><td>Yes</td><td>16 (3)</td><td>14 (2)</td></tr>
+<tr><td>No</td><td>622 (97)</td><td>627 (98)</td></tr>
+<tr><td>Other visceral metastases, No. (%)</td><td></td><td></td></tr>
+<tr><td>Yes</td><td>82 (13)</td><td>72 (11)</td></tr>
+<tr><td>No</td><td>556 (87)</td><td>569 (89)</td></tr>
+<tr><td>Disease severity, No. (%)</td><td></td><td></td></tr>
+<tr><td>Minimal</td><td>328 (51)</td><td>328 (51)</td></tr>
+<tr><td>Extensive</td><td>310 (49)</td><td>313 (49)</td></tr>
+<tr><td>Preregistration LHRH suppression, No. (%)</td><td></td><td></td></tr>
+<tr><td>Yes</td><td>330 (52)</td><td>331 (52)</td></tr>
+<tr><td>No</td><td>308 (48)</td><td>310 (48)</td></tr>
+<tr><td>Bisphosphonate use at study entry, No. (%)</td><td></td><td></td></tr>
+<tr><td>Yes</td><td>39 (6)</td><td>35 (5)</td></tr>
+<tr><td>No</td><td>599 (94)</td><td>606 (95)</td></tr>
+<tr><td>Prior radical prostatectomy, No. (%)</td><td></td><td></td></tr>
+<tr><td>Yes</td><td>167 (26)</td><td>148 (23)</td></tr>
+<tr><td>No</td><td>471 (74)</td><td>493 (77)</td></tr>
+<tr><td>Prior bilateral orchiectomy, No. (%)</td><td></td><td></td></tr>
+<tr><td>Yes</td><td>4 (1)</td><td>3 (1)</td></tr>
+<tr><td>No</td><td>634 (99)</td><td>638 (99)</td></tr>
+</table>
+
+Task:
+1. Extract the value for this column following the plan. Return your best-effort value even if uncertain.
+2. If the plan seems wrong, incomplete, or ambiguous, still return the value you found and add a suggestion and/or alternative_plan.
+3. Use "not found" or "not reported" only if the value is genuinely absent from the content.
+
+Output a JSON object with:
+- value: the extracted value (string)
+- found: true if you found a value, false if not reported/absent
+- confidence: "high" | "medium" | "low"
+- suggestion: optional string with concerns or notes (null if none)
+- alternative_plan: optional string describing a different extraction approach to try (null if plan seems fine)
+
+
+============================================================
+OUTPUT
+============================================================
+```json
+{
+  "value": "310 (49)",
+  "found": true,
+  "confidence": "high",
+  "suggestion": null,
+  "alternative_plan": null
+}
+```

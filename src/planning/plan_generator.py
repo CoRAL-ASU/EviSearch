@@ -1,19 +1,19 @@
 # src/planning/plan_generator.py
 """
 Plan-based extraction (V2): generate extraction plans for each column group.
-Uses multimodal LLM (PDF + chunks) for free-form planning, then local structurer for JSON.
+Uses multimodal LLM (PDF + chunks) with JSON schema in prompt for structured output.
+No separate structurer model (Qwen) - schema-driven parsing only.
 """
 import json
+import re
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Dict, List, Literal, Optional
+from typing import Any, Dict, List, Literal, Optional, Union
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ValidationError
 
 from src.LLMProvider.provider import LLMProvider
-from src.LLMProvider.structurer import OutputStructurer
-from src.config.config import STRUCTURER_BASE_URL, STRUCTURER_MODEL
 from src.utils.costing import usage_to_cost_dict
 from src.utils.logging_utils import setup_logger
 
@@ -49,10 +49,18 @@ class ColumnExtractionPlanV2(BaseModel):
     found_in_pdf: bool = Field(
         description="True if the value exists in the PDF; False if not reported/available"
     )
-    page: int = Field(description="Page number if found; -1 if not found")
+    page: int = Field(
+        description="Page number where value was found, or where we looked if not found; -1 if no page reference"
+    )
     source_type: SourceType = Field(description="table/text/figure if found, else not_applicable")
+    sources: List[List[Union[int, str]]] = Field(
+        default_factory=list,
+        description="List of [page, modality] tuples; modality is text|table|figure; provide 2-3 when available; empty if not found",
+    )
     confidence: Confidence = Field(description="high/medium/low")
-    extraction_plan: str = Field(description="How to extract, or why not reported")
+    extraction_plan: str = Field(
+        description="How to extract if found; if not found, cite WHERE you looked (pages/tables/figures) and why the value is absent"
+    )
     column_name_raw: Optional[str] = None
 
 
@@ -97,7 +105,7 @@ def format_chunk_summaries(chunks: list) -> str:
     for i, chunk in enumerate(chunks):
         chunk_type = chunk.get("type", "unknown")
         page = chunk.get("page", "?")
-        content_preview = (chunk.get("content", "") or "")[:120].replace("\n", " ")
+        content_preview = (chunk.get("content", "") or "").replace("\n", " ")
         if chunk_type == "table":
             summary = f"Chunk {i}: TABLE on page {page} - {content_preview}..."
         elif chunk_type == "figure":
@@ -116,8 +124,8 @@ def build_expected_columns_block(group: ColumnGroup) -> str:
 
 
 def _normalize_not_found(plan: ColumnExtractionPlanV2) -> ColumnExtractionPlanV2:
+    """When found_in_pdf=false, set source_type=not_applicable. Page may indicate where we looked."""
     if not plan.found_in_pdf:
-        plan.page = -1
         plan.source_type = "not_applicable"
     return plan
 
@@ -172,13 +180,46 @@ def validate_and_normalize_group_plan(
         more = f" (and {total - 5} more)" if total > 5 else ""
         raise ValueError(
             f"\n❌ Column name mismatch(es) for group '{group_name}':\n"
-            f"The structurer output incorrect column names.\n"
+            f"Output had incorrect column names.\n"
             f"Mismatches{more}:\n{preview}"
         )
 
     plan.group_name = group_name
     plan.columns = normalized
     return plan
+
+
+def _extract_json_from_response(text: str) -> Union[dict, list]:
+    """Extract JSON from LLM response (handles ```json blocks, think tags, etc.)."""
+    if not text or not isinstance(text, str):
+        raise ValueError("Empty or invalid response text")
+    t = text.strip()
+    # Strip <think>...</think> blocks
+    t = re.sub(r"<think>.*?</think>", "", t, flags=re.DOTALL | re.IGNORECASE)
+    t = t.strip()
+    # Extract from ```json ... ``` or ``` ... ```
+    if "```" in t:
+        start = t.find("{")
+        if start < 0:
+            start = t.find("[")
+        end = max(t.rfind("}") + 1, t.rfind("]") + 1) if start >= 0 else -1
+        if start >= 0 and end > start:
+            t = t[start:end]
+    return json.loads(t)
+
+
+def _parse_and_validate_plan(
+    text: str,
+    schema: type,
+    expected_columns: List[str],
+    group_name: str,
+) -> GroupExtractionPlanV2:
+    """Extract JSON from text, validate against schema, auto-wrap array if needed."""
+    raw = _extract_json_from_response(text)
+    # Auto-wrap bare array with "columns" key if needed
+    if isinstance(raw, list):
+        raw = {"group_name": group_name, "columns": raw}
+    return schema.model_validate(raw)
 
 
 # -----------------------------
@@ -189,24 +230,18 @@ def validate_and_normalize_group_plan(
 class PlanGenerator:
     """
     Generate extraction plans for all column groups.
-    Uses provider (e.g. Gemini) with PDF for free-form planning, then structurer for JSON.
+    Uses provider (e.g. Gemini) with JSON schema in prompt - no separate structurer model.
     """
 
     def __init__(
         self,
         provider: LLMProvider,
         definitions: Dict[str, List[Dict[str, str]]],
-        structurer: Optional[OutputStructurer] = None,
         name_policy: Literal["strict", "override"] = "strict",
     ):
         self.provider = provider
         self.definitions = definitions
         self.groups = definitions_to_column_groups(definitions)
-        self.structurer = structurer or OutputStructurer(
-            base_url=STRUCTURER_BASE_URL,
-            model=STRUCTURER_MODEL,
-            enable_thinking=False,
-        )
         self.name_policy = name_policy
 
     def generate_plan_for_group(
@@ -216,97 +251,94 @@ class PlanGenerator:
         chunks: list,
         output_dir: Path,
     ) -> Dict[str, Any]:
-        """Generate extraction plan for one column group."""
+        """Generate extraction plan for one column group using JSON schema in prompt."""
         logger.info("Planning extraction for group: %s (%d columns)", group.name, len(group.columns))
 
         chunk_summaries = format_chunk_summaries(chunks)
         expected_block = build_expected_columns_block(group)
+        expected_columns = [c.name for c in group.columns]
 
-        prompt = f"""You are creating an extraction plan for a clinical trial data extraction task.
+        # JSON schema from Pydantic model
+        json_schema = GroupExtractionPlanV2.model_json_schema()
+        schema_str = json.dumps(json_schema, indent=2)
+
+# AVAILABLE CHUNKS:
+# {chunk_summaries}
+        prompt = f"""You are retreiving comprehensive evidence for a clinical trial data extraction task.
 
 You have:
 - The FULL PDF loaded (for structure + precise reference)
-- A list of pre-extracted chunks (to orient you)
-
-AVAILABLE CHUNKS:
-{chunk_summaries}
 
 TASK:
 For EACH of the following canonical columns, decide whether the value is reported in this PDF.
 If reported, identify WHERE and HOW to extract it.
-If not reported, say it is not reported.
+If not reported, you MUST still cite WHERE you looked: which pages, tables, figures you examined to reach that conclusion (e.g. "Table 1 (page 5) provides X but not Y").
+If multiple trials are mentioned in the document you should provide treatment and control values for all arms as per the query.
+⚠️ CRITICAL: Output MUST be valid JSON matching this schema exactly. No markdown, no explanations.
+For total pariticpants, sum the populaiton of treatment and control arms and provide totals for different trials separately.
+If the trial has multiple arms, always provide treatment or control values for all arms as per the query.
 
-⚠️ CRITICAL INSTRUCTION:
-When you refer to these columns in your response, you MUST use their EXACT names as listed below.
-Do NOT paraphrase, abbreviate, or modify column names in ANY way.
-Character-for-character match is REQUIRED (including spaces, punctuation, pipes |, parentheses).
+JSON SCHEMA:
+{schema_str}
 
-CANONICAL COLUMNS (ORDERED; use these EXACT names in your response):
-{expected_block}
+Group name (use exactly): "{group.name}"
+
+EXPECTED_COLUMNS (ordered; column_index 1-based, column_name must match EXACTLY):
+{chr(10).join(f"{i}. {name}" for i, name in enumerate(expected_columns, 1))}
 
 Rules:
+- Return ONLY a JSON object with "group_name" and "columns" (array of {len(expected_columns)} items).
+- Each column item: column_index (1..{len(expected_columns)}), column_name (exact match), found_in_pdf, page, source_type (table/text/figure/not_applicable), sources, confidence (high/medium/low), extraction_plan.
+- sources: list of [page, modality] tuples (e.g. [[5, "table"], [1, "text"]]). Provide 2-3 when available; modality is "text"|"table"|"figure". Empty list [] if not found.
+- If found_in_pdf=false: source_type=not_applicable; page may indicate where you looked; extraction_plan MUST cite WHERE you looked (pages/tables/figures).
 - Be honest: many columns will NOT be reported.
-- If found_in_pdf=false, state why in extraction_plan.
-- If found_in_pdf=true, include page number, source type (table/text/figure), and concrete instructions.
-- ALWAYS refer to columns using their exact canonical names (copy-paste from the list above).
 """
-
-        response = self.provider.generate_with_pdf(
-            prompt=prompt,
-            pdf_handle=pdf_handle,
-            temperature=0.1,
-            max_tokens=8000,
-        )
-        if not response.success:
-            raise ValueError(f"Planning LLM failed: {response.error}")
-
-        free_form = (response.text or "").strip()
 
         logs_dir = output_dir / "logs"
         logs_dir.mkdir(parents=True, exist_ok=True)
         stem = safe_stem(group.name)
-        raw_file = logs_dir / f"{stem}_raw.txt"
-        raw_file.write_text(free_form, encoding="utf-8")
 
-        expected_columns = [c.name for c in group.columns]
-        expected_names_list = "\n".join([f"{i}. {name}" for i, name in enumerate(expected_columns, 1)])
+        max_retries = 5
+        last_error: Optional[str] = None
+        response = None
 
-        structuring_prompt = f"""Convert the following free-form extraction plan into STRICT JSON.
+        for attempt in range(1, max_retries + 1):
+            response = self.provider.generate_with_pdf(
+                prompt=prompt,
+                pdf_handle=pdf_handle,
+                temperature=0.0,
+                max_tokens=12000,
+                response_mime_type="application/json",
+                response_schema=json_schema,
+            )
+            if not response.success:
+                raise ValueError(f"Planning LLM failed: {response.error}")
 
-Group name (use exactly this, do not rename): "{group.name}"
+            raw_text = (response.text or "").strip()
+            raw_file = logs_dir / f"{stem}_raw.txt"
+            raw_file.write_text(raw_text, encoding="utf-8")
 
-EXPECTED_COLUMNS (ordered; index is canonical):
-{expected_names_list}
-
-⚠️ For each item, column_name MUST be an EXACT CHARACTER-FOR-CHARACTER match with EXPECTED_COLUMNS[column_index].
-
-Output rules:
-- Return JSON with fields: group_name, columns
-- columns must be a list with EXACTLY {len(expected_columns)} items
-- Each item: column_index (1..{len(expected_columns)}), column_name (exact match), found_in_pdf, page, source_type (table/text/figure/not_applicable), confidence (high/medium/low), extraction_plan
-
-Free-form plan text:
-{free_form}
-
-Return ONLY valid JSON.
-"""
-
-        structured = self.structurer.structure(
-            text=structuring_prompt,
-            schema=GroupExtractionPlanV2,
-            max_retries=5,
-            return_dict=False,
-        )
-        if not structured.success:
-            raise ValueError(f"Structuring failed for group '{group.name}': {structured.error}")
-
-        plan: GroupExtractionPlanV2 = structured.data
-        plan = validate_and_normalize_group_plan(
-            group_name=group.name,
-            plan=plan,
-            expected_columns=expected_columns,
-            name_policy=self.name_policy,
-        )
+            try:
+                plan = _parse_and_validate_plan(
+                    raw_text,
+                    GroupExtractionPlanV2,
+                    expected_columns,
+                    group.name,
+                )
+                plan = validate_and_normalize_group_plan(
+                    group_name=group.name,
+                    plan=plan,
+                    expected_columns=expected_columns,
+                    name_policy=self.name_policy,
+                )
+                break
+            except (json.JSONDecodeError, ValidationError, ValueError) as e:
+                last_error = str(e)
+                logger.warning("Plan validation failed (attempt %d/%d): %s", attempt, max_retries, last_error)
+                if attempt < max_retries:
+                    prompt += f"\n\n[RETRY {attempt}]: Previous output failed validation: {last_error}\nOutput valid JSON matching the schema."
+                else:
+                    raise ValueError(f"Structuring failed for group '{group.name}' after {max_retries} attempts: {last_error}") from e
 
         plan_path = logs_dir / f"{stem}_plan.json"
         plan_path.write_text(json.dumps(plan.model_dump(), indent=2), encoding="utf-8")

@@ -1,0 +1,84 @@
+============================================================
+INPUT
+============================================================
+You are extracting a value for a clinical trial data column from the provided document content.
+
+Column: PS - N (%) | 0 | Control
+Definition: What the number and percentage of patients with a Performance Status (PS) score of 0 in the control arm of the trial? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.
+
+Extraction plan to follow:
+Extract the value '370 (74%)' from Table 1, page 5, under the row 'WHO performance status: 0' and column 'Abiraterone trial: Standard of care (n=502)'. Data for the Abiraterone and Enzalutamide trial's control arm is also available as '315 (69%)'.
+
+Document content (grouped by type, in chronological page order):
+--- TABLES ---
+[Page 5]
+<table>
+<tr><td></td><td colspan="2">Abiraterone trial</td><td colspan="2">Abiraterone and enzalutamide trial</td></tr>
+<tr><td></td><td>Standard of care (n=502)</td><td>Standard of care plus abiraterone (n=501)</td><td>Standard of care (n=454)</td><td>Standard of care plus enzalutamide and abiraterone (n=462)</td></tr>
+<tr><td colspan="5">Age, years</td></tr>
+<tr><td>Median</td><td>67 (62-72)</td><td>67 (62-71)</td><td>68 (64-73)</td><td>69 (63-74)</td></tr>
+<tr><td>Min-max</td><td>39-84</td><td>42-85</td><td>37-83</td><td>48-84</td></tr>
+<tr><td colspan="5">Prostate-specific antigen before androgen deprivation therapy, ng/mL</td></tr>
+<tr><td>Median</td><td>97 (26-358)</td><td>96 (29-371)</td><td>97 (25-319)</td><td>85 (26-337)</td></tr>
+<tr><td>Min-max</td><td>1-10530</td><td>0-21460</td><td>0-20590</td><td>1-6881</td></tr>
+<tr><td colspan="5">Time from diagnosis to randomisation, days</td></tr>
+<tr><td>Median</td><td>71 (51-95)</td><td>77 (54-97)</td><td>75 (56-99)</td><td>78 (59-100)</td></tr>
+<tr><td>Min-max</td><td>0-4866</td><td>3-5384</td><td>4-5346</td><td>2-4676</td></tr>
+<tr><td colspan="5">T stage</td></tr>
+<tr><td>T0-T2</td><td>56 (11%)</td><td>51 (10%)</td><td>42 (9%)</td><td>47 (10%)</td></tr>
+<tr><td>T3</td><td>270 (54%)</td><td>289 (58%)</td><td>252 (56%)</td><td>273 (59%)</td></tr>
+<tr><td>T4</td><td>137 (27%)</td><td>118 (24%)</td><td>117 (26%)</td><td>95 (21%)</td></tr>
+<tr><td>Tx</td><td>39 (8%)</td><td>43 (9%)</td><td>43 (9%)</td><td>47 (10%)</td></tr>
+<tr><td colspan="5">N stage (pelvic nodes)</td></tr>
+<tr><td>NO</td><td>175 (35%)</td><td>167 (33%)</td><td>150 (33%)</td><td>157 (34%)</td></tr>
+<tr><td>N+</td><td>291 (58%)</td><td>293 (58%)</td><td>278 (61%)</td><td>278 (60%)</td></tr>
+<tr><td>NX</td><td>36 (7%)</td><td>41 (8%)</td><td>26 (6%)</td><td>27 (6%)</td></tr>
+<tr><td colspan="5">Metastatic volume</td></tr>
+<tr><td>Low</td><td>204 (41%)</td><td>222 (44%)</td><td>162 (36%)</td><td>195 (42%)</td></tr>
+<tr><td>High</td><td>271 (54%)</td><td>253 (51%)</td><td>209 (46%)</td><td>196 (42%)</td></tr>
+<tr><td>Missing</td><td>27 (5%)</td><td>26 (5%)</td><td>83 (18%)</td><td>71 (15%)</td></tr>
+<tr><td colspan="5">Gleason Score</td></tr>
+<tr><td>&lt;7</td><td>118 (24%)</td><td>115 (23%)</td><td>92 (20%)</td><td>79 (17%)</td></tr>
+<tr><td>8</td><td>106 (21%)</td><td>117 (23%)</td><td>88 (19%)</td><td>94 (20%)</td></tr>
+<tr><td>9</td><td>245 (49%)</td><td>231 (46%)</td><td>239 (53%)</td><td>258 (56%)</td></tr>
+<tr><td>10</td><td>23 (5%)</td><td>18 (4%)</td><td>18 (4%)</td><td>17 (4%)</td></tr>
+<tr><td>Unknown</td><td>10 (2%)</td><td>20 (4%)</td><td>17 (4%)</td><td>14 (3%)</td></tr>
+<tr><td colspan="5">WHO performance status</td></tr>
+<tr><td>0</td><td>370 (74%)</td><td>376 (75%)</td><td>315 (69%)</td><td>325 (70%)</td></tr>
+<tr><td>1</td><td>125 (25%)</td><td>118 (24%)</td><td>134 (30%)</td><td>129 (28%)</td></tr>
+<tr><td>2</td><td>7 (1%)</td><td>7 (1%)</td><td>5 (1%)</td><td>8 (2%)</td></tr>
+<tr><td colspan="5">Pain from prostate cancer</td></tr>
+<tr><td>Absent</td><td>396 (79%)</td><td>389 (78%)</td><td>374 (82%)</td><td>368 (80%)</td></tr>
+<tr><td>Present</td><td>102 (20%)</td><td>107 (21%)</td><td>78 (17%)</td><td>86 (19%)</td></tr>
+<tr><td>Unknown</td><td>4(1%)</td><td>5 (1%)</td><td>2(&lt;1%)</td><td>8 (2%)</td></tr>
+<tr><td colspan="5">Aspirin use</td></tr>
+<tr><td>No</td><td>412 (82%)</td><td>411 (82%)</td><td>374 (82%)</td><td>377 (82%)</td></tr>
+<tr><td>Yes</td><td>90 (18%)</td><td>90 (18%)</td><td>80 (18%)</td><td>85 (18%)</td></tr>
+<tr><td colspan="5">(Table 1 continues on next page)</td></tr>
+</table>
+
+Task:
+1. Extract the value for this column following the plan. Return your best-effort value even if uncertain.
+2. If the plan seems wrong, incomplete, or ambiguous, still return the value you found and add a suggestion and/or alternative_plan.
+3. Use "not found" or "not reported" only if the value is genuinely absent from the content.
+
+Output a JSON object with:
+- value: the extracted value (string)
+- found: true if you found a value, false if not reported/absent
+- confidence: "high" | "medium" | "low"
+- suggestion: optional string with concerns or notes (null if none)
+- alternative_plan: optional string describing a different extraction approach to try (null if plan seems fine)
+
+
+============================================================
+OUTPUT
+============================================================
+```json
+{
+  "value": "Abiraterone trial control arm: 370 (74%); Abiraterone and enzalutamide trial control arm: 315 (69%)",
+  "found": true,
+  "confidence": "high",
+  "suggestion": null,
+  "alternative_plan": null
+}
+```

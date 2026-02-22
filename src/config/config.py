@@ -26,7 +26,7 @@ CHUNKING_MODEL = "gpt-4.1"
 
 # ============== PATHS ==============
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
-DEFINITIONS_CSV_PATH = PROJECT_ROOT / "src" / "table_definitions" / "Definitions_open_ended.csv"
+DEFINITIONS_CSV_PATH = PROJECT_ROOT / "src" / "table_definitions" / "Definitions_with_eval_category.csv"
 GOLD_TABLE_PATH = PROJECT_ROOT / "dataset" / "GoldTable.csv"
 EVALUATION_PROMPT_PATH = PROJECT_ROOT / "src" / "evaluation" / "llm_judge.txt"
 
@@ -99,7 +99,7 @@ EXTRACTION_WORKERS = 10
 
 # Evaluation stage (category-aware)
 EVALUATION_PROVIDER_V2 = "gemini"
-EVALUATION_MODEL_V2 = "gemini-2.0-flash-001"
+EVALUATION_MODEL_V2 = "gemini-2.5-flash"
 EVALUATION_WORKERS = 5
 
 # Output versioning (timestamped run directories)

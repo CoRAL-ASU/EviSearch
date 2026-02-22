@@ -176,7 +176,11 @@ class GeminiPDFProvider:
         api_key = os.getenv("GEMINI_API_KEY")
         if not api_key:
             raise EnvironmentError("GEMINI_API_KEY not set")
-        self.client = genai.Client(api_key=api_key)
+        # 30s timeout per API call to avoid hanging
+        self.client = genai.Client(
+            api_key=api_key,
+            http_options=genai_types.HttpOptions(timeout=30_000),
+        )
         self._pdf_part = None
 
     def upload_pdf(self, pdf_path: str) -> None:

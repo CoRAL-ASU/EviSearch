@@ -3,7 +3,7 @@
   "model_provider": "gemini",
   "model_name": "gemini-2.5-flash",
   "prompt_token_count": 726,
-  "output_token_count": 535,
+  "output_token_count": 619,
   "success": true,
   "error": null,
   "relevant_chunk_ids": [
@@ -15,9 +15,9 @@
       "column_name": "No. of Deaths - N | Treatment",
       "status": "corrected",
       "verdict": "wrong",
-      "reasoning": "Chunk citations: Chunk 0. Why the original plan is right/wrong: The original extraction plan states that the number of deaths for the darolutamide group is found in the caption of Figure 1 and provides a direct quote from that caption. However, the provided Chunk 0 is a \"Figure Description\" of Figure 1 and does not contain the specific quoted text: \"The primary end point (OS) was assessed after 533 patients had died (229 in the darolutamide group and 304 in the placebo group).\" Therefore, the original plan cannot be verified using only the provided chunk.",
+      "reasoning": "- Chunk citations: Chunk 0 (\"This figure is a CONSORT flow diagram depicting the screening, randomization, allocation, and analysis of patients...\", \"It details the number of patients screened, reasons for exclusion, allocation to treatment arms, reasons for discontinuation, and the numbers analyzed for primary and safety endpoints in each group.\")\n- Why the original plan is wrong: The original extraction plan states that the value is extracted from a specific quote in the caption of Figure 1: \"The primary end point (OS) was assessed after 533 patients had died (229 in the darolutamide group and 304 in the placebo group).\" However, the provided Chunk 0 is a \"Figure Description\" for Figure 1 and does not contain this specific verbatim quote. Therefore, the claim that the caption states this cannot be verified using only the provided chunk.",
       "issues": [
-        "The specific text quoted in the original extraction plan is not present in the provided chunk."
+        "The specific quote from the caption of Figure 1, as stated in the original plan, is not present in the provided Chunk 0."
       ],
       "original_plan": {
         "found_in_pdf": true,
@@ -27,11 +27,11 @@
         "extraction_plan": "Extract the number of deaths for the darolutamide group from the caption of Figure 1. The caption states: \"The primary end point (OS) was assessed after 533 patients had died (229 in the darolutamide group and 304 in the placebo group).\" The value for the darolutamide (treatment) group is 229."
       },
       "corrected_plan": {
-        "found_in_pdf": false,
-        "page": -1,
-        "source_type": "not_applicable",
-        "confidence": "low",
-        "extraction_plan": "The specific text quoted in the original extraction plan, which states the number of deaths for the darolutamide group, is not present in the provided chunks. The original plan indicates this information is in the caption of Figure 1."
+        "found_in_pdf": true,
+        "page": 3,
+        "source_type": "figure",
+        "confidence": "medium",
+        "extraction_plan": "Extract the number of deaths for the darolutamide group from the caption of Figure 1, which is expected to contain details on primary endpoints."
       }
     },
     {
@@ -39,9 +39,9 @@
       "column_name": "No. of Deaths - N | Control",
       "status": "corrected",
       "verdict": "wrong",
-      "reasoning": "Chunk citations: Chunk 0. Why the original plan is right/wrong: The original extraction plan states that the number of deaths for the placebo group is found in the caption of Figure 1 and provides a direct quote from that caption. However, the provided Chunk 0 is a \"Figure Description\" of Figure 1 and does not contain the specific quoted text: \"The primary end point (OS) was assessed after 533 patients had died (229 in the darolutamide group and 304 in the placebo group).\" Therefore, the original plan cannot be verified using only the provided chunk.",
+      "reasoning": "- Chunk citations: Chunk 0 (\"This figure is a CONSORT flow diagram depicting the screening, randomization, allocation, and analysis of patients...\", \"It details the number of patients screened, reasons for exclusion, allocation to treatment arms, reasons for discontinuation, and the numbers analyzed for primary and safety endpoints in each group.\")\n- Why the original plan is wrong: The original extraction plan states that the value is extracted from a specific quote in the caption of Figure 1: \"The primary end point (OS) was assessed after 533 patients had died (229 in the darolutamide group and 304 in the placebo group).\" However, the provided Chunk 0 is a \"Figure Description\" for Figure 1 and does not contain this specific verbatim quote. Therefore, the claim that the caption states this cannot be verified using only the provided chunk.",
       "issues": [
-        "The specific text quoted in the original extraction plan is not present in the provided chunk."
+        "The specific quote from the caption of Figure 1, as stated in the original plan, is not present in the provided Chunk 0."
       ],
       "original_plan": {
         "found_in_pdf": true,
@@ -51,16 +51,16 @@
         "extraction_plan": "Extract the number of deaths for the placebo group from the caption of Figure 1. The caption states: \"The primary end point (OS) was assessed after 533 patients had died (229 in the darolutamide group and 304 in the placebo group).\" The value for the placebo (control) group is 304."
       },
       "corrected_plan": {
-        "found_in_pdf": false,
-        "page": -1,
-        "source_type": "not_applicable",
-        "confidence": "low",
-        "extraction_plan": "The specific text quoted in the original extraction plan, which states the number of deaths for the placebo group, is not present in the provided chunks. The original plan indicates this information is in the caption of Figure 1."
+        "found_in_pdf": true,
+        "page": 3,
+        "source_type": "figure",
+        "confidence": "medium",
+        "extraction_plan": "Extract the number of deaths for the placebo group from the caption of Figure 1, which is expected to contain details on primary endpoints."
       }
     }
   ],
   "raw_prompt": "You are verifying extraction plans for a clinical trial paper using ONLY the provided chunks.\n\nYou have:\n1) Relevant chunks selected from the chunking output.\n\nGroup: No. of Deaths - N\n\nColumns to verify:\n- column_index: 1\n  column_name: No. of Deaths - N | Treatment\n  definition: What the number of participants who died in the treatment arm of the clinical trial?.\n  original_extraction_plan: Extract the number of deaths for the darolutamide group from the caption of Figure 1. The caption states: \"The primary end point (OS) was assessed after 533 patients had died (229 in the darolutamide group and 304 in the placebo group).\" The value for the darolutamide (treatment) group is 229.\n\n- column_index: 2\n  column_name: No. of Deaths - N | Control\n  definition: What number of deaths that occurred in the control arm of the clinical trial?.\n  original_extraction_plan: Extract the number of deaths for the placebo group from the caption of Figure 1. The caption states: \"The primary end point (OS) was assessed after 533 patients had died (229 in the darolutamide group and 304 in the placebo group).\" The value for the placebo (control) group is 304.\n\nRelevant chunks:\n--- Chunk 0 (FIGURE on page 3) ---\n```\n##Figure Descriptions##\n\n## Figure 1\nThis figure is a CONSORT flow diagram depicting the screening, randomization, allocation, and analysis of patients in a clinical trial comparing darolutamide + docetaxel + ADT versus placebo + docetaxel + ADT in metastatic hormone-sensitive prostate cancer. It details the number of patients screened, reasons for exclusion, allocation to treatment arms, reasons for discontinuation, and the numbers analyzed for primary and safety endpoints in each group.\n```\n\nTask:\n- Evaluate EACH column independently. Do not assume the original plan is correct.\n- Decide if the original_extraction_plan is VALID or WRONG given ONLY the provided chunks.\n- Your reasoning MUST cite Chunk IDs and include verbatim quotes that justify the verdict.\n- If you cannot quote support from chunks, verdict must be WRONG.\n- If WRONG, provide a corrected plan (plan only, not extracted value). If VERIFIED, corrected plan may restate the original.\n\nOutput a free-text report that follows this exact template for EVERY column (one block per column):\n\nCOLUMN <column_index>: <column_name>\nVERDICT: VERIFIED|WRONG\nREASONING:\n- Chunk citations: Chunk <id> ... (include 1-3 short direct quotes)\n- Why the original plan is right/wrong\nISSUES:\n- (bullet list; empty if none)\nCORRECTED_PLAN_JSON:\n{\"found_in_pdf\": true/false, \"page\": -1 or int, \"source_type\": \"table|text|figure|not_applicable\", \"confidence\": \"high|medium|low\", \"extraction_plan\": \"...\"}\n\nRules:\n- Keep column_index and column_name exactly as provided.\n- CORRECTED_PLAN_JSON must always be present (even if VERIFIED, you can restate the original).\n- Do not wrap anything in code fences.\n",
-  "raw_response": "COLUMN 1: No. of Deaths - N | Treatment\nVERDICT: WRONG\nREASONING:\n- Chunk citations: Chunk 0\n- Why the original plan is right/wrong: The original extraction plan states that the number of deaths for the darolutamide group is found in the caption of Figure 1 and provides a direct quote from that caption. However, the provided Chunk 0 is a \"Figure Description\" of Figure 1 and does not contain the specific quoted text: \"The primary end point (OS) was assessed after 533 patients had died (229 in the darolutamide group and 304 in the placebo group).\" Therefore, the original plan cannot be verified using only the provided chunk.\nISSUES:\n- The specific text quoted in the original extraction plan is not present in the provided chunk.\nCORRECTED_PLAN_JSON:\n{\"found_in_pdf\": false, \"page\": -1, \"source_type\": \"text\", \"confidence\": \"low\", \"extraction_plan\": \"The specific text quoted in the original extraction plan, which states the number of deaths for the darolutamide group, is not present in the provided chunks. The original plan indicates this information is in the caption of Figure 1.\"}\n\nCOLUMN 2: No. of Deaths - N | Control\nVERDICT: WRONG\nREASONING:\n- Chunk citations: Chunk 0\n- Why the original plan is right/wrong: The original extraction plan states that the number of deaths for the placebo group is found in the caption of Figure 1 and provides a direct quote from that caption. However, the provided Chunk 0 is a \"Figure Description\" of Figure 1 and does not contain the specific quoted text: \"The primary end point (OS) was assessed after 533 patients had died (229 in the darolutamide group and 304 in the placebo group).\" Therefore, the original plan cannot be verified using only the provided chunk.\nISSUES:\n- The specific text quoted in the original extraction plan is not present in the provided chunk.\nCORRECTED_PLAN_JSON:\n{\"found_in_pdf\": false, \"page\": -1, \"source_type\": \"text\", \"confidence\": \"low\", \"extraction_plan\": \"The specific text quoted in the original extraction plan, which states the number of deaths for the placebo group, is not present in the provided chunks. The original plan indicates this information is in the caption of Figure 1.\"}",
+  "raw_response": "COLUMN 1: No. of Deaths - N | Treatment\nVERDICT: WRONG\nREASONING:\n- Chunk citations: Chunk 0 (\"This figure is a CONSORT flow diagram depicting the screening, randomization, allocation, and analysis of patients...\", \"It details the number of patients screened, reasons for exclusion, allocation to treatment arms, reasons for discontinuation, and the numbers analyzed for primary and safety endpoints in each group.\")\n- Why the original plan is wrong: The original extraction plan states that the value is extracted from a specific quote in the caption of Figure 1: \"The primary end point (OS) was assessed after 533 patients had died (229 in the darolutamide group and 304 in the placebo group).\" However, the provided Chunk 0 is a \"Figure Description\" for Figure 1 and does not contain this specific verbatim quote. Therefore, the claim that the caption states this cannot be verified using only the provided chunk.\nISSUES:\n- The specific quote from the caption of Figure 1, as stated in the original plan, is not present in the provided Chunk 0.\nCORRECTED_PLAN_JSON:\n{\"found_in_pdf\": true, \"page\": -1, \"source_type\": \"figure\", \"confidence\": \"medium\", \"extraction_plan\": \"Extract the number of deaths for the darolutamide group from the caption of Figure 1, which is expected to contain details on primary endpoints.\"}\n\nCOLUMN 2: No. of Deaths - N | Control\nVERDICT: WRONG\nREASONING:\n- Chunk citations: Chunk 0 (\"This figure is a CONSORT flow diagram depicting the screening, randomization, allocation, and analysis of patients...\", \"It details the number of patients screened, reasons for exclusion, allocation to treatment arms, reasons for discontinuation, and the numbers analyzed for primary and safety endpoints in each group.\")\n- Why the original plan is wrong: The original extraction plan states that the value is extracted from a specific quote in the caption of Figure 1: \"The primary end point (OS) was assessed after 533 patients had died (229 in the darolutamide group and 304 in the placebo group).\" However, the provided Chunk 0 is a \"Figure Description\" for Figure 1 and does not contain this specific verbatim quote. Therefore, the claim that the caption states this cannot be verified using only the provided chunk.\nISSUES:\n- The specific quote from the caption of Figure 1, as stated in the original plan, is not present in the provided Chunk 0.\nCORRECTED_PLAN_JSON:\n{\"found_in_pdf\": true, \"page\": -1, \"source_type\": \"figure\", \"confidence\": \"medium\", \"extraction_plan\": \"Extract the number of deaths for the placebo group from the caption of Figure 1, which is expected to contain details on primary endpoints.\"}",
   "structured": {
     "group_name": "GroupVerification",
     "columns": [
@@ -68,32 +68,32 @@
         "column_index": 1,
         "column_name": "No. of Deaths - N | Treatment",
         "verdict": "WRONG",
-        "reasoning": "Chunk citations: Chunk 0. Why the original plan is right/wrong: The original extraction plan states that the number of deaths for the darolutamide group is found in the caption of Figure 1 and provides a direct quote from that caption. However, the provided Chunk 0 is a \"Figure Description\" of Figure 1 and does not contain the specific quoted text: \"The primary end point (OS) was assessed after 533 patients had died (229 in the darolutamide group and 304 in the placebo group).\" Therefore, the original plan cannot be verified using only the provided chunk.",
+        "reasoning": "- Chunk citations: Chunk 0 (\"This figure is a CONSORT flow diagram depicting the screening, randomization, allocation, and analysis of patients...\", \"It details the number of patients screened, reasons for exclusion, allocation to treatment arms, reasons for discontinuation, and the numbers analyzed for primary and safety endpoints in each group.\")\n- Why the original plan is wrong: The original extraction plan states that the value is extracted from a specific quote in the caption of Figure 1: \"The primary end point (OS) was assessed after 533 patients had died (229 in the darolutamide group and 304 in the placebo group).\" However, the provided Chunk 0 is a \"Figure Description\" for Figure 1 and does not contain this specific verbatim quote. Therefore, the claim that the caption states this cannot be verified using only the provided chunk.",
         "issues": [
-          "The specific text quoted in the original extraction plan is not present in the provided chunk."
+          "The specific quote from the caption of Figure 1, as stated in the original plan, is not present in the provided Chunk 0."
         ],
         "corrected_plan": {
-          "found_in_pdf": false,
+          "found_in_pdf": true,
           "page": -1,
-          "source_type": "text",
-          "confidence": "low",
-          "extraction_plan": "The specific text quoted in the original extraction plan, which states the number of deaths for the darolutamide group, is not present in the provided chunks. The original plan indicates this information is in the caption of Figure 1."
+          "source_type": "figure",
+          "confidence": "medium",
+          "extraction_plan": "Extract the number of deaths for the darolutamide group from the caption of Figure 1, which is expected to contain details on primary endpoints."
         }
       },
       {
         "column_index": 2,
         "column_name": "No. of Deaths - N | Control",
         "verdict": "WRONG",
-        "reasoning": "Chunk citations: Chunk 0. Why the original plan is right/wrong: The original extraction plan states that the number of deaths for the placebo group is found in the caption of Figure 1 and provides a direct quote from that caption. However, the provided Chunk 0 is a \"Figure Description\" of Figure 1 and does not contain the specific quoted text: \"The primary end point (OS) was assessed after 533 patients had died (229 in the darolutamide group and 304 in the placebo group).\" Therefore, the original plan cannot be verified using only the provided chunk.",
+        "reasoning": "- Chunk citations: Chunk 0 (\"This figure is a CONSORT flow diagram depicting the screening, randomization, allocation, and analysis of patients...\", \"It details the number of patients screened, reasons for exclusion, allocation to treatment arms, reasons for discontinuation, and the numbers analyzed for primary and safety endpoints in each group.\")\n- Why the original plan is wrong: The original extraction plan states that the value is extracted from a specific quote in the caption of Figure 1: \"The primary end point (OS) was assessed after 533 patients had died (229 in the darolutamide group and 304 in the placebo group).\" However, the provided Chunk 0 is a \"Figure Description\" for Figure 1 and does not contain this specific verbatim quote. Therefore, the claim that the caption states this cannot be verified using only the provided chunk.",
         "issues": [
-          "The specific text quoted in the original extraction plan is not present in the provided chunk."
+          "The specific quote from the caption of Figure 1, as stated in the original plan, is not present in the provided Chunk 0."
         ],
         "corrected_plan": {
-          "found_in_pdf": false,
+          "found_in_pdf": true,
           "page": -1,
-          "source_type": "text",
-          "confidence": "low",
-          "extraction_plan": "The specific text quoted in the original extraction plan, which states the number of deaths for the placebo group, is not present in the provided chunks. The original plan indicates this information is in the caption of Figure 1."
+          "source_type": "figure",
+          "confidence": "medium",
+          "extraction_plan": "Extract the number of deaths for the placebo group from the caption of Figure 1, which is expected to contain details on primary endpoints."
         }
       }
     ]
@@ -104,21 +104,21 @@
       {
         "column_index": 1,
         "column_name": "No. of Deaths - N | Treatment",
-        "found_in_pdf": false,
-        "page": -1,
-        "source_type": "not_applicable",
-        "confidence": "low",
-        "extraction_plan": "The specific text quoted in the original extraction plan, which states the number of deaths for the darolutamide group, is not present in the provided chunks. The original plan indicates this information is in the caption of Figure 1.",
+        "found_in_pdf": true,
+        "page": 3,
+        "source_type": "figure",
+        "confidence": "medium",
+        "extraction_plan": "Extract the number of deaths for the darolutamide group from the caption of Figure 1, which is expected to contain details on primary endpoints.",
         "column_name_raw": null
       },
       {
         "column_index": 2,
         "column_name": "No. of Deaths - N | Control",
-        "found_in_pdf": false,
-        "page": -1,
-        "source_type": "not_applicable",
-        "confidence": "low",
-        "extraction_plan": "The specific text quoted in the original extraction plan, which states the number of deaths for the placebo group, is not present in the provided chunks. The original plan indicates this information is in the caption of Figure 1.",
+        "found_in_pdf": true,
+        "page": 3,
+        "source_type": "figure",
+        "confidence": "medium",
+        "extraction_plan": "Extract the number of deaths for the placebo group from the caption of Figure 1, which is expected to contain details on primary endpoints.",
         "column_name_raw": null
       }
     ]

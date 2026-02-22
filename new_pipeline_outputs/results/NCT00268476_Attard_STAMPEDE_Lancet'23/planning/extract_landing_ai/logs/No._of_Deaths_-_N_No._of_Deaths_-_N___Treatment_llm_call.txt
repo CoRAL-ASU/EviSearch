@@ -1,0 +1,213 @@
+============================================================
+INPUT
+============================================================
+You are extracting a value for a clinical trial data column from the provided document content.
+
+Column: No. of Deaths - N | Treatment
+Definition: What the number of participants who died in the treatment arm of the clinical trial?.
+
+Extraction plan to follow:
+Extract the number '521' from the text on page 12, which states: 'fewer deaths attributed to prostate cancer in patients who received abiraterone with or without enzalutamide than in those who received standard of care (413 [79%] of 521 in treatment groups vs 581 [88%] of 663 in standard of care groups)'.
+
+Document content (grouped by type, in chronological page order):
+--- TEXT ---
+Articles
+
+is maintained with longer follow-up and 23% of patients
+in the abiraterone trial and 22% in the abiraterone
+and enzalutamide trial continued abiraterone with no
+indication for a treatment change after more than
+82 months of follow-up.
+
+We also report fewer deaths attributed to prostate cancer in patients who received abiraterone with or without enzalutamide than in those who received standard of care (413 [79%] of 521 in treatment groups vs 581 [88%] of 663 in standard of care groups), suggesting that for some patients with metastatic disease hormone intensification at the start of androgen deprivation therapy controls the prostate cancer for long enough for death from other causes to occur.
+
+Since 2022, the benefit of triplet therapy with androgen
+deprivation therapy supplemented by docetaxel and
+either abiraterone or enzalutamide, or darolutamide has
+been debated. As with previous trials, 8,12,23,24 none of the
+patients who received androgen deprivation therapy and
+abiraterone or enzalutamide were randomly assigned to
+docetaxel but a small subgroup in the abiraterone and
+enzalutamide trial received docetaxel as standard of care.
+The point estimates for risk of death in patients with
+planned use of docetaxel versus those with no planned use
+of docetaxel were numerically different but we found no
+statistically significant interaction. Conclusions on the
+efficacy of docetaxel given before abiraterone and
+enzalutamide are confounded by physicians electing to
+use docetaxel for younger patients and putatively more
+aggressive cancers on clinical and pathological criteria
+and are limited by the small number of patients.
+
+The interaction with NSAID or aspirin is statistically
+significant but not clinically significant. Moreover, the
+interaction is in the opposite direction to that observed
+in patients with non-metastatic disease recruited to
+STAMPEDE trials. ¹⁴
+
+Our trial design was limited to only detect large benefits from combining enzalutamide and abiraterone with androgen deprivation therapy. However, given the toxicity and cost of abiraterone and enzalutamide, missing small differences in treatment effect is an acceptable limitation. There was a 2-year difference in accrual periods that, given the changes in clinical practice in the past 10 years, resulted in patients allocated to the abiraterone and enzalutamide trial receiving different treatment sequences after progression than those in the abiraterone trial. We provided updated information on first therapy instituted at trial-defined progression in the abiraterone trial and new data from the abiraterone and enzalutamide trial. Given that funding for these agents before chemotherapy became more widely available in the UK National Health Service after 2015, more patients had this option at progression in the abiraterone and enzalutamide trial than in the abiraterone trial. Collection and reporting of treatment after progression can be difficult, particularly for later lines and when patients move hospitals or join subsequent trials. Although we anticipate the use of
+
+subsequent treatments might be under-reported, we have no reason to think there is bias according to the allocated treatment in these trials. We do not have a detailed assessment of the long-term metabolic toxic effects of intensified hormone treatment plus androgen deprivation therapy and abiraterone with or without enzalutamide. Any increase in mortality from treatment toxicity is offset by the improvement in prostate cancer control, but given the increased life expectancy, management of long-term treatment effects should be prioritised in clinical practice and future trials.
+
+The excellent outcomes for 23% of patients who continued abiraterone or abiraterone and enzalutamide at trial closure introduces concerns regarding the risks of harm from continuous treatment to progression, especially for unselected patients with low-volume disease for whom treatment deintensification clinical trial protocols should be considered. Conversely, these and previous trials have reported that despite hormone intensification, a substantial proportion of patients with metastatic prostate cancer relapse and die within 36 months and identification of these patients to offer additional treatment options is a high priority for future trials. Both our trials have closed to further data collection, although we might explore long-term patient outcome monitoring using linkage with health-care systems data.25 In conclusion, enzalutamide and abiraterone should not be combined for patients with prostate cancer starting long-term androgen deprivation therapy; but clinically important improvements in overall survival from addition of abiraterone to androgen deprivation therapy are maintained for longer than 7 years.
+
+**Contributors**
+GA was the chief investigator of the abiraterone and enzalutamide trial.
+NDJ was the chief investigator of the abiraterone and STAMPEDE trials.
+GA, NWC, MDM, MRS, LCB, MKBP, and NDJ designed the trials. GA,
+AC, CB, LM, MRS, MKBP, and NDJ contributed to the statistical analysis
+plan. CLA, CPu, CD-M, CM, and NP contributed to the trial operations.
+RM and DM were patient representatives. AS, CJ, AH, and YJ analysed
+scans for disease volume with support from MDB. NWC was chair of the
+safety review committee. WC was chair of the site advisory team. GA,
+NWC, WC, RJJ, CCP, SG, SC, ZM, JMR, DPD, DG, REL, RM, DM, MRS,
+LCB, MKBP, NDJ, HR, HA-A are members and MDM and CG were
+members of the trial management group. GA, NWC, WC, RJJ, CCP, SG,
+SC, ZM, JMR, CPe, WG, HS, IP, JMO, AB, JG, NS, CT, JT, JW, PD, EG,
+MA, OP, AR, AHM, JW, AZ, RC, DPD, MDM, and NDJ recruited
+patients. MKBP conceived the original multi-arm multistage platform
+design idea. GA wrote the first draft of the manuscript with crucial input
+from LM, MRS, LCB and NDJ. All authors approved the final manuscript,
+had full access to all the data in the study, and accept responsibility to
+submit for publication. LM, AC, and CB have accessed and verified the
+data all the data in the study.
+
+Declaration of interests
+GA reports personal fees, grants, and travel support from Janssen and Astellas; personal fees or travel support from Pfizer, Ipsen, Novartis (Advanced Accelerator Applications), Abbott Laboratories, Ferring, ESSA Pharmaceuticals, Bayer Healthcare Pharmaceuticals, BeiGene, Takeda, AstraZeneca, and Sanofi Aventis; grant support from AstraZeneca, Innocrin Pharma, and Arno Therapeutics; receives a share of the royalty income from The Institute of Cancer Research Rewards to Discoverers Scheme for abiraterone; and holds a patent on plasma methylation signatures as biomarkers for prostate cancer
+
+454
+
+www.thelancet.com/oncology Vol 24 May 2023
+
+Task:
+1. Extract the value for this column following the plan. Return your best-effort value even if uncertain.
+2. If the plan seems wrong, incomplete, or ambiguous, still return the value you found and add a suggestion and/or alternative_plan.
+3. Use "not found" or "not reported" only if the value is genuinely absent from the content.
+
+Output a JSON object with:
+- value: the extracted value (string)
+- found: true if you found a value, false if not reported/absent
+- confidence: "high" | "medium" | "low"
+- suggestion: optional string with concerns or notes (null if none)
+- alternative_plan: optional string describing a different extraction approach to try (null if plan seems fine)
+
+
+============================================================
+OUTPUT
+============================================================
+```json
+{
+  "value": "521",
+  "found": true,
+  "confidence": "high",
+  "suggestion": "The extraction plan specifically requested '521'. However, '521' represents the total number of participants in the treatment groups, not the number of deaths. The column definition 'No. of Deaths - N | Treatment' asks for the number of participants who died. According to the text, '413' is the number of deaths in the treatment groups.",
+  "alternative_plan": "To align with the column definition 'No. of Deaths - N | Treatment', the value '413' should be extracted from the phrase '413 [79%] of 521 in treatment groups'."
+}
+```
+
+============================================================
+INPUT (RETRY)
+============================================================
+You are extracting a value for a clinical trial data column from the provided document content.
+
+Column: No. of Deaths - N | Treatment
+Definition: What the number of participants who died in the treatment arm of the clinical trial?.
+
+Extraction plan to follow:
+To align with the column definition 'No. of Deaths - N | Treatment', the value '413' should be extracted from the phrase '413 [79%] of 521 in treatment groups'.
+
+Document content (grouped by type, in chronological page order):
+--- TEXT ---
+Articles
+
+is maintained with longer follow-up and 23% of patients
+in the abiraterone trial and 22% in the abiraterone
+and enzalutamide trial continued abiraterone with no
+indication for a treatment change after more than
+82 months of follow-up.
+
+We also report fewer deaths attributed to prostate cancer in patients who received abiraterone with or without enzalutamide than in those who received standard of care (413 [79%] of 521 in treatment groups vs 581 [88%] of 663 in standard of care groups), suggesting that for some patients with metastatic disease hormone intensification at the start of androgen deprivation therapy controls the prostate cancer for long enough for death from other causes to occur.
+
+Since 2022, the benefit of triplet therapy with androgen
+deprivation therapy supplemented by docetaxel and
+either abiraterone or enzalutamide, or darolutamide has
+been debated. As with previous trials, 8,12,23,24 none of the
+patients who received androgen deprivation therapy and
+abiraterone or enzalutamide were randomly assigned to
+docetaxel but a small subgroup in the abiraterone and
+enzalutamide trial received docetaxel as standard of care.
+The point estimates for risk of death in patients with
+planned use of docetaxel versus those with no planned use
+of docetaxel were numerically different but we found no
+statistically significant interaction. Conclusions on the
+efficacy of docetaxel given before abiraterone and
+enzalutamide are confounded by physicians electing to
+use docetaxel for younger patients and putatively more
+aggressive cancers on clinical and pathological criteria
+and are limited by the small number of patients.
+
+The interaction with NSAID or aspirin is statistically
+significant but not clinically significant. Moreover, the
+interaction is in the opposite direction to that observed
+in patients with non-metastatic disease recruited to
+STAMPEDE trials. ¹⁴
+
+Our trial design was limited to only detect large benefits from combining enzalutamide and abiraterone with androgen deprivation therapy. However, given the toxicity and cost of abiraterone and enzalutamide, missing small differences in treatment effect is an acceptable limitation. There was a 2-year difference in accrual periods that, given the changes in clinical practice in the past 10 years, resulted in patients allocated to the abiraterone and enzalutamide trial receiving different treatment sequences after progression than those in the abiraterone trial. We provided updated information on first therapy instituted at trial-defined progression in the abiraterone trial and new data from the abiraterone and enzalutamide trial. Given that funding for these agents before chemotherapy became more widely available in the UK National Health Service after 2015, more patients had this option at progression in the abiraterone and enzalutamide trial than in the abiraterone trial. Collection and reporting of treatment after progression can be difficult, particularly for later lines and when patients move hospitals or join subsequent trials. Although we anticipate the use of
+
+subsequent treatments might be under-reported, we have no reason to think there is bias according to the allocated treatment in these trials. We do not have a detailed assessment of the long-term metabolic toxic effects of intensified hormone treatment plus androgen deprivation therapy and abiraterone with or without enzalutamide. Any increase in mortality from treatment toxicity is offset by the improvement in prostate cancer control, but given the increased life expectancy, management of long-term treatment effects should be prioritised in clinical practice and future trials.
+
+The excellent outcomes for 23% of patients who continued abiraterone or abiraterone and enzalutamide at trial closure introduces concerns regarding the risks of harm from continuous treatment to progression, especially for unselected patients with low-volume disease for whom treatment deintensification clinical trial protocols should be considered. Conversely, these and previous trials have reported that despite hormone intensification, a substantial proportion of patients with metastatic prostate cancer relapse and die within 36 months and identification of these patients to offer additional treatment options is a high priority for future trials. Both our trials have closed to further data collection, although we might explore long-term patient outcome monitoring using linkage with health-care systems data.25 In conclusion, enzalutamide and abiraterone should not be combined for patients with prostate cancer starting long-term androgen deprivation therapy; but clinically important improvements in overall survival from addition of abiraterone to androgen deprivation therapy are maintained for longer than 7 years.
+
+**Contributors**
+GA was the chief investigator of the abiraterone and enzalutamide trial.
+NDJ was the chief investigator of the abiraterone and STAMPEDE trials.
+GA, NWC, MDM, MRS, LCB, MKBP, and NDJ designed the trials. GA,
+AC, CB, LM, MRS, MKBP, and NDJ contributed to the statistical analysis
+plan. CLA, CPu, CD-M, CM, and NP contributed to the trial operations.
+RM and DM were patient representatives. AS, CJ, AH, and YJ analysed
+scans for disease volume with support from MDB. NWC was chair of the
+safety review committee. WC was chair of the site advisory team. GA,
+NWC, WC, RJJ, CCP, SG, SC, ZM, JMR, DPD, DG, REL, RM, DM, MRS,
+LCB, MKBP, NDJ, HR, HA-A are members and MDM and CG were
+members of the trial management group. GA, NWC, WC, RJJ, CCP, SG,
+SC, ZM, JMR, CPe, WG, HS, IP, JMO, AB, JG, NS, CT, JT, JW, PD, EG,
+MA, OP, AR, AHM, JW, AZ, RC, DPD, MDM, and NDJ recruited
+patients. MKBP conceived the original multi-arm multistage platform
+design idea. GA wrote the first draft of the manuscript with crucial input
+from LM, MRS, LCB and NDJ. All authors approved the final manuscript,
+had full access to all the data in the study, and accept responsibility to
+submit for publication. LM, AC, and CB have accessed and verified the
+data all the data in the study.
+
+Declaration of interests
+GA reports personal fees, grants, and travel support from Janssen and Astellas; personal fees or travel support from Pfizer, Ipsen, Novartis (Advanced Accelerator Applications), Abbott Laboratories, Ferring, ESSA Pharmaceuticals, Bayer Healthcare Pharmaceuticals, BeiGene, Takeda, AstraZeneca, and Sanofi Aventis; grant support from AstraZeneca, Innocrin Pharma, and Arno Therapeutics; receives a share of the royalty income from The Institute of Cancer Research Rewards to Discoverers Scheme for abiraterone; and holds a patent on plasma methylation signatures as biomarkers for prostate cancer
+
+454
+
+www.thelancet.com/oncology Vol 24 May 2023
+
+Task:
+1. Extract the value for this column following the plan. Return your best-effort value even if uncertain.
+2. If the plan seems wrong, incomplete, or ambiguous, still return the value you found and add a suggestion and/or alternative_plan.
+3. Use "not found" or "not reported" only if the value is genuinely absent from the content.
+
+Output a JSON object with:
+- value: the extracted value (string)
+- found: true if you found a value, false if not reported/absent
+- confidence: "high" | "medium" | "low"
+- suggestion: optional string with concerns or notes (null if none)
+- alternative_plan: optional string describing a different extraction approach to try (null if plan seems fine)
+
+
+============================================================
+OUTPUT (RETRY)
+============================================================
+```json
+{
+  "value": "413",
+  "found": true,
+  "confidence": "high",
+  "suggestion": null,
+  "alternative_plan": null
+}
+```

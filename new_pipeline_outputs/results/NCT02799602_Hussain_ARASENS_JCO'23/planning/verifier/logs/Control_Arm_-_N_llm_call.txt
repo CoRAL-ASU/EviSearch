@@ -3,8 +3,8 @@ PROVIDER: gemini
 MODEL: gemini-2.5-flash
 SUCCESS: True
 ERROR: None
-PROMPT_TOKENS: 17886
-OUTPUT_TOKENS: 484
+PROMPT_TOKENS: 1760
+OUTPUT_TOKENS: 262
 ============================================================
 INPUT PROMPT
 ============================================================
@@ -22,362 +22,59 @@ Columns to verify:
   original_extraction_plan: On page 3, refer to the CONSORT flow diagram (Figure 1). Locate the box for "Placebo + docetaxel + ADT" and find the number of patients "Analyzed for primary end point", which is n = 654. Alternatively, on page 5, refer to Table 1, "Baseline Demographics and Patient Characteristics for the Subgroups of Patients by Disease Volume and Disease Risk in ARASENS". In the "All Patients (N = 1,305)" column, under the "Placebo" sub-column, the total number of patients is 654.
 
 Relevant chunks:
---- Chunk 0 (FIGURE on page 3) ---
-```
-##Figure Descriptions##
+--- Chunk 0 (FIGURE on page 1) ---
+<a id='fa924fa3-3af2-4742-87c5-39f8cf60ba29'></a>
 
-## Figure 1
-This figure is a CONSORT flow diagram depicting the screening, randomization, allocation, and analysis of patients in a clinical trial comparing darolutamide + docetaxel + ADT versus placebo + docetaxel + ADT in metastatic hormone-sensitive prostate cancer. It details the number of patients screened, reasons for exclusion, allocation to treatment arms, reasons for discontinuation, and the numbers analyzed for primary and safety endpoints in each group.
-```
+<::logo: [Unknown] Check for updates A grey button with a colorful circular icon featuring a red banner and yellow arrow.::>
 
---- Chunk 1 (TABLE on page 5) ---
-Summary: **Table 1. Baseline Demographics and Patient Characteristics for the Subgroups of Patients by Disease Volume and Disease Risk in ARASENS**  This table presents baseline demographic and clinical characteristics of patients enrolled in the ARASENS study, stratified by disease volume (high vs. low) and disease risk (high vs. low), and by treatment group (Darolutamide vs. Placebo). The table includes the following row headers: Age, ECOG PS (performance status), Gleason score at initial diagnosis, Metastasis stage at initial diagnosis, Metastasis stage at screening, Serum PSA level, Serum ALP level, and ALP status relative to the upper limit of normal (ULN). The column headers are combinations of disease volume/risk and treatment group, resulting in eight subgroups, plus a column for all patients.  **Hierarchical Header Structure:**   The table uses a two-level column header structure: the first level indicates disease volume or risk (High Volume, Low Volume, High Risk, Low Risk), and the second level specifies the treatment group (Darolutamide or Placebo) with the number of patients in each subgroup. For clarity, these have been combined into single-level headers in the extracted table (e.g., "High Volume - Darolutamide (n = 497)").  **Information Included:**   - Median age and range for each subgroup. - ECOG performance status (0, 1, or missing). - Gleason score at initial diagnosis (<8, ≥8, or missing). - Metastasis stage at initial diagnosis (de novo mHSPC, recurrent mHSPC, or missing). - Metastasis stage at screening (M1a, M1b, M1c). - Serum PSA and ALP levels (median and range). - Number and percentage of patients with ALP below or above the upper limit of normal.  **Purpose:**   The table provides a comprehensive overview of the baseline characteristics of patients in the ARASENS trial, facilitating comparison between subgroups defined by disease volume, disease risk, and treatment allocation. This information is essential for interpreting the study's outcomes and understanding the patient population.  **Abbreviations:**   ADT = androgen-deprivation therapy; ALP = alkaline phosphatase; ECOG PS = Eastern Cooperative Oncology Group performance status; LN = lymph node; mHSPC = metastatic hormone-sensitive prostate cancer; PSA = prostate-specific antigen; ULN = upper limit of normal.  **Notes:**   - Disease volume defined by CHAARTED criteria. - Disease risk defined by LATITUDE criteria. - ECOG PS scores range from 0 to 5. - Gleason scores range from 6 to 10. - Some values were centrally assessed; samples obtained while patients were receiving ADT.
+--- Chunk 1 (TEXT on page 1) ---
+<a id='4743de54-4f6f-4b23-9e02-64f521fd0ca2'></a>
 
-Structured Table:
-##Markdown Table##
+original reports
 
-| Characteristic at Baseline         | High Volume - Darolutamide (n = 497) | High Volume - Placebo (n = 508) | Low Volume - Darolutamide (n = 154) | Low Volume - Placebo (n = 146) | High Risk - Darolutamide (n = 452) | High Risk - Placebo (n = 460) | Low Risk - Darolutamide (n = 199) | Low Risk - Placebo (n = 194) | All Patients (N = 1,305) |
-|------------------------------------|--------------------------------------|----------------------------------|-------------------------------------|---------------------------------|------------------------------------|-------------------------------|-----------------------------------|-------------------------------|--------------------------|
-| Age, median, years (range)         | 67.0 (41-89)                         | 67.0 (44-86)                     | 67.0 (41-84)                        | 67.5 (42-81)                    | 67.0 (41-86)                       | 67.0 (44-86)                  | 67.0 (42-85)                      | 67.0 (41-89)                  | 67.0 (41-89)             |
-| ECOG PS, No. (%)                   |                                      |                                  |                                     |                                 |                                    |                               |                                   |                               |                          |
-| 0                                  | 343 (69.0)                           | 349 (68.7)                       | 123 (79.9)                          | 113 (77.4)                      | 317 (70.1)                         | 318 (69.1)                    | 149 (74.9)                        | 144 (74.2)                    | 928 (71.1)               |
-| 1                                  | 154 (31.0)                           | 157 (30.9)                       | 31 (20.1)                           | 33 (22.6)                       | 135 (29.9)                         | 140 (30.4)                    | 50 (25.1)                         | 50 (25.8)                     | 375 (28.7)               |
-| Missing                            | 0                                    | 2 (0.4)                          | 0                                   | 0                               | 0                                  | 2 (0.4)                       | 0                                 | 0                             | 2 (0.2)                  |
-| Gleason score at initial diagnosis, No. (%) |                              |                                  |                                     |                                 |                                    |                               |                                   |                               |                          |
-| < 8                                | 96 (19.3)                            | 87 (17.1)                        | 26 (16.9)                           | 31 (21.2)                       | 16 (3.5)                            | 16 (3.5)                      | 106 (53.3)                        | 102 (52.6)                    | 240 (18.4)               |
-| ≥ 8                                | 381 (76.7)                           | 403 (79.3)                       | 124 (80.5)                          | 113 (77.4)                      | 428 (94.7)                          | 440 (95.7)                    | 77 (38.7)                         | 76 (39.2)                     | 1,021 (78.2)             |
-| Missing                            | 20 (4.0)                             | 18 (3.5)                         | 4 (2.6)                             | 2 (1.4)                         | 8 (1.8)                             | 4 (0.9)                       | 16 (8.0)                          | 16 (8.2)                      | 44 (3.4)                 |
-| Metastasis stage at initial diagnosis, No. (%) |                        |                                  |                                     |                                 |                                    |                               |                                   |                               |                          |
-| De novo mHSPC                      | 432 (86.9)                           | 445 (87.6)                       | 126 (81.8)                          | 121 (82.9)                      | 416 (92.0)                          | 419 (91.1)                    | 142 (71.4)                        | 147 (75.8)                    | 1,124 (86.1)             |
-| Recurrent mHSPC                    | 58 (11.7)                            | 59 (11.6)                        | 28 (18.2)                           | 25 (15.8)                       | 33 (7.3)                             | 39 (8.5)                      | 53 (26.6)                         | 43 (22.2)                     | 168 (12.9)               |
-| Missing                            | 7 (1.4)                              | 4 (0.8)                          | 0                                   | 0                               | 3 (0.7)                             | 2 (0.4)                       | 4 (2.0)                           | 4 (2.1)                       | 13 (1.0)                 |
-| Metastasis stage at screening, No. (%) |                                 |                                  |                                     |                                 |                                    |                               |                                   |                               |                          |
-| M1a, nonregional LN only           | -                                    | -                                | 23 (14.9)                           | 15 (10.3)                       | -                                   | -                             | 23 (11.6)                         | 15 (7.7)                      | 38 (2.9)                 |
-| M1b, bone metastases ± LN          | 386 (77.7)                           | 390 (76.8)*                      | 131 (85.1)                          | 131 (89.7)                      | 345 (76.3)                          | 354 (77.0)*                   | 172 (86.4)                        | 167 (86.1)                    | 1,038 (79.5)             |
-| M1c, visceral metastases ± LN or bone | 111 (22.3)                        | 118 (23.2)                       | 0                                   | 0                               | 107 (23.7)                           | 106 (23.0)                    | 4 (2.0)                            | 12 (6.2)                      | 229 (17.5)               |
-| Serum PSA, level†, ng/mL, median (range) | 38.7 (0.9-2191.0)               | 27.9 (0.1-1947.0)                | 11.7 (0.3-771.0)                    | 14.5 (0.3-372.9)                | 34.0 (0.9-2191.0)                     | 30.0 (0.1-1947.0)             | 12.0 (0.3-372.9)                   | 12.4 (0.3-372.9)              | 27.6 (0.1-2191.0)        |
-| Serum ALP level† (ULN), median (range) | 199.0 (46.4-4885)                | 172.0 (41.7-680)                 | 84.5 (40.2-116)                     | 87.5 (36.7-385)                 | 183.0 (44.4-885)                        | 161.5 (41.7-680)              | 99.0 (40.4-793)                    | 97.0 (36.2-327)               | 143.0 (36.7-680)         |
-| ALP < ULN, No. (%)                  | 168 (33.8)                         | 176 (34.6)                       | 122 (79.2)                          | 115 (78.8)                      | 166 (36.5)                             | 165 (36.1)                    | 125 (62.8)                         | 125 (64.4)                    | 581 (44.5)               |
-| ALP ≥ ULN, No. (%)                  | 329 (66.2)                         | 332 (65.4)                       | 32 (20.8)                           | 31 (21.2)                       | 287 (63.5)                             | 294 (63.9)                    | 74 (37.2)                          | 69 (35.6)                     | 724 (55.5)               |
+Darolutamide Plus Androgen-Deprivation
+Therapy and Docetaxel in Metastatic
+Hormone-Sensitive Prostate Cancer by Disease
+Volume and Risk Subgroups in the Phase III
+ARASENS Trial
 
-##Caption##
+--- Chunk 2 (TEXT on page 1) ---
+<a id='e3838a35-2b51-4a22-be00-458040021fbf'></a>
 
-**Table 1. Baseline Demographics and Patient Characteristics for the Subgroups of Patients by Disease Volume and Disease Risk in ARASENS**
+Maha Hussain, MD¹; Bertrand Tombal, MD, PhD²; Fred Saad, MD³; Karim Fizazi, MD, PhD⁴; Cora N. Sternberg, MD⁵;
+E. David Crawford, MD⁶; Neal Shore, MD⁷; Evgeny Kopyltsov, MD⁸; Arash Rezazadeh Kalebasty, MD⁹; Martin Bögemann, MD¹⁰;
+Dingwei Ye, MD¹¹; Felipe Cruz, MD, PhD¹²; Hiroyoshi Suzuki, MD, PhD¹³; Shivani Kapur, MD¹⁴; Shankar Srinivasan, PhD¹⁵;
+Frank Verholen, MD¹⁶; Iris Kuss, MD¹⁷; Heikki Joensuu, MD¹⁸; and Matthew R. Smith, MD, PhD¹⁹
 
-This table presents baseline demographic and clinical characteristics of patients enrolled in the ARASENS study, stratified by disease volume (high vs. low) and disease risk (high vs. low), and by treatment group (Darolutamide vs. Placebo). The table includes the following row headers: Age, ECOG PS (performance status), Gleason score at initial diagnosis, Metastasis stage at initial diagnosis, Metastasis stage at screening, Serum PSA level, Serum ALP level, and ALP status relative to the upper limit of normal (ULN). The column headers are combinations of disease volume/risk and treatment group, resulting in eight subgroups, plus a column for all patients.
+--- Chunk 3 (TEXT on page 1) ---
+<a id='e96597af-4aaa-4781-b940-d3464ddd68fa'></a>
 
-**Hierarchical Header Structure:**  
-The table uses a two-level column header structure: the first level indicates disease volume or risk (High Volume, Low Volume, High Risk, Low Risk), and the second level specifies the treatment group (Darolutamide or Placebo) with the number of patients in each subgroup. For clarity, these have been combined into single-level headers in the extracted table (e.g., "High Volume - Darolutamide (n = 497)").
+PURPOSE For patients with metastatic hormone-sensitive prostate cancer, metastatic burden affects outcome.
+We examined efficacy and safety from the ARASENS trial for subgroups by disease volume and risk.
 
-**Information Included:**  
-- Median age and range for each subgroup.
-- ECOG performance status (0, 1, or missing).
-- Gleason score at initial diagnosis (<8, ≥8, or missing).
-- Metastasis stage at initial diagnosis (de novo mHSPC, recurrent mHSPC, or missing).
-- Metastasis stage at screening (M1a, M1b, M1c).
-- Serum PSA and ALP levels (median and range).
-- Number and percentage of patients with ALP below or above the upper limit of normal.
+abs1
 
-**Purpose:**  
-The table provides a comprehensive overview of the baseline characteristics of patients in the ARASENS trial, facilitating comparison between subgroups defined by disease volume, disease risk, and treatment allocation. This information is essential for interpreting the study's outcomes and understanding the patient population.
+--- Chunk 4 (TEXT on page 1) ---
+<a id='e03352e1-0ce4-4a50-8346-dbeff1abff7f'></a>
 
-**Abbreviations:**  
-ADT = androgen-deprivation therapy; ALP = alkaline phosphatase; ECOG PS = Eastern Cooperative Oncology Group performance status; LN = lymph node; mHSPC = metastatic hormone-sensitive prostate cancer; PSA = prostate-specific antigen; ULN = upper limit of normal.
+tract
+METHODS Patients with metastatic hormone-sensitive prostate cancer were randomly assigned to darolutamide or placebo plus androgen-deprivation therapy and docetaxel. High-volume disease was defined as visceral metastases and/or ≥ 4 bone metastases with ≥ 1 beyond the vertebral column/pelvis. High-risk disease was defined as ≥ 2 risk factors: Gleason score ≥ 8, ≥ 3 bone lesions, and presence of measurable visceral metastases.
 
-**Notes:**  
-- Disease volume defined by CHAARTED criteria.
-- Disease risk defined by LATITUDE criteria.
-- ECOG PS scores range from 0 to 5.
-- Gleason scores range from 6 to 10.
-- Some values were centrally assessed; samples obtained while patients were receiving ADT.
+--- Chunk 5 (TEXT on page 1) ---
+<a id='918d002e-7e28-401c-b0ce-6bbb7e1d9e85'></a>
 
---- Chunk 2 (FIGURE on page 6) ---
-```
-##Figure Descriptions##
+## RESULTS
+Of 1,305 patients, 1,005 (77%) had high-volume disease and 912 (70%) had high-risk disease. Darolutamide increased overall survival (OS) versus placebo in patients with high-volume (hazard ratio [HR], 0.69; 95% CI, 0.57 to 0.82), high-risk (HR, 0.71; 95% CI, 0.58 to 0.86), and low-risk disease (HR, 0.62; 95% CI, 0.42 to 0.90), and in the smaller low-volume subgroup, the results were also suggestive of survival benefit (HR, 0.68; 95% CI, 0.41 to 1.13). Darolutamide improved clinically relevant secondary end points of time to castration-resistant prostate cancer and subsequent systemic antineoplastic therapy versus placebo in all disease volume and risk subgroups. Adverse events (AEs) were similar between treatment groups across subgroups. Grade 3 or 4 AEs occurred in 64.9% of darolutamide patients versus 64.2% of placebo patients in the high-volume subgroup and 70.1% versus 61.1% in the low-volume subgroup. Among the most common AEs, many were known toxicities related to docetaxel.
 
-## Figure 2
-This figure presents Kaplan-Meier survival curves for overall survival (OS) in subgroups of patients with metastatic hormone-sensitive prostate cancer treated with darolutamide + ADT + docetaxel versus placebo + ADT + docetaxel. The subgroups analyzed are: (A) high-volume disease, (B) low-volume disease, (C) high-risk disease, and (D) low-risk disease. Each panel shows improved survival for the darolutamide group, with hazard ratios (HRs) and median survival times indicated for each subgroup.
-```
+--- Chunk 6 (TEXT on page 1) ---
+<a id='a8690014-88e1-4e8e-b4e7-6ab301a74571'></a>
 
---- Chunk 3 (FIGURE on page 7) ---
-```
-##Figure Descriptions##
+**CONCLUSION** In patients with high-volume and high-risk/low-risk metastatic hormone-sensitive prostate cancer, treatment intensification with darolutamide, androgen-deprivation therapy, and docetaxel increased OS with a similar AE profile in the subgroups, consistent with the overall population.
 
-## Figure 3
-Kaplan-Meier plots show time to castration-resistant prostate cancer in subgroups of patients by (A) high-volume disease, (B) low-volume disease, (C) high-risk disease, and (D) low-risk disease in the ARASENS trial. The graphs compare darolutamide + ADT + docetaxel versus placebo + ADT + docetaxel, demonstrating improved outcomes for the darolutamide group across all subgroups. Hazard ratios and median times to progression are provided for each subgroup, indicating a consistent benefit of the darolutamide combination.
-```
+--- Chunk 7 (TEXT on page 1) ---
+<a id='c4eb7deb-dbd8-431f-8582-e5a611058d51'></a>
 
---- Chunk 4 (TABLE on page 8) ---
-Summary: **Table 2. Secondary Efficacy End Points for the Subgroups of Patients by Disease Volume and Disease Risk in ARASENS**  This table presents secondary efficacy endpoints for patients with metastatic hormone-sensitive prostate cancer (mHSPC) in the ARASENS trial, stratified by disease volume (high vs. low) and disease risk (high vs. low), as well as for all patients. The table compares outcomes between those treated with darolutamide and those given placebo, with all patients also receiving androgen deprivation therapy and docetaxel.  **Row headers (endpoints):** - Time to CRPC (castration-resistant prostate cancer) - Time to pain progression - SSE-free survival (symptomatic skeletal event-free survival) - Time to first SSE - Time to subsequent antineoplastic therapy - Time to worsening disease-related symptoms - Time to opioid use ≥ 7 days  Each endpoint includes the median time (months), number and percentage of patients with an event, and hazard ratio (HR) with 95% confidence interval (CI).  **Column headers:** - High Volume - Darolutamide (n = 497) - High Volume - Placebo (n = 508) - Low Volume - Darolutamide (n = 154) - Low Volume - Placebo (n = 146) - High Risk - Darolutamide (n = 452) - High Risk - Placebo (n = 460) - Low Risk - Darolutamide (n = 199) - Low Risk - Placebo (n = 194) - All Patients - Darolutamide (n = 651) - All Patients - Placebo (n = 654)  **Hierarchical header structure:**   The table originally used two levels of headers: main categories (High Volume, Low Volume, High Risk, Low Risk, All Patients) and subcategories (Darolutamide and Placebo with patient numbers). For clarity, these have been combined into single-level headers (e.g., "High Volume - Darolutamide (n = 497)").  **Information present:**   The table provides detailed efficacy outcomes for each subgroup, including time to disease progression, pain, skeletal events, need for further therapy, symptom worsening, and opioid use. It also includes the number and percentage of patients experiencing each event and the hazard ratios comparing darolutamide to placebo.  **Context:**   This table is part of a clinical trial report evaluating the efficacy of darolutamide in combination with standard therapy for mHSPC, with subgroup analyses by disease volume and risk to inform personalized treatment strategies.
-
-Structured Table:
-##Markdown Table##
-
-| End Point, Median Months                | High Volume - Darolutamide (n = 497) | High Volume - Placebo (n = 508) | Low Volume - Darolutamide (n = 154) | Low Volume - Placebo (n = 146) | High Risk - Darolutamide (n = 452) | High Risk - Placebo (n = 460) | Low Risk - Darolutamide (n = 199) | Low Risk - Placebo (n = 194) | All Patients - Darolutamide (n = 651) | All Patients - Placebo (n = 654) |
-|-----------------------------------------|--------------------------------------|----------------------------------|-------------------------------------|--------------------------------|-------------------------------------|--------------------------------|-------------------------------------|-------------------------------|--------------------------------------|----------------------------------|
-| Time to CRPC                            | NR                                   | 16.4                             | NR                                  | 25.8                           | NR                                  | 16.1                           | NR                                  | 25.1                          | NR                                   | 19.1                             |
-| No. (%)*                                | 198 (40)                             | 315 (62)                         | 27 (18)                             | 76 (52)                        | 175 (39)                            | 289 (63)                       | 50 (25)                             | 102 (53)                      | 225 (35)                             | 391 (60)                         |
-| HR (95% CI)                             | 0.41 (0.34 to 0.49)                  |                                  | 0.21 (0.14 to 0.33)                 |                                | 0.38 (0.32 to 0.46)                 |                                | 0.32 (0.23 to 0.45)                 |                               | 0.36 (0.30 to 0.42)                  |                                  |
-| Time to pain progression                | NR                                   | 24.4                             | 46.1                                | 39.5                           | 35.4                                 | 25.0                           | NR                                  | 28.8                          | NR                                   | 27.5                             |
-| No. (%)*                                | 161 (32)                             | 192 (38)                         | 61 (40)                             | 56 (38)                        | 155 (34)                             | 173 (38)                       | 67 (34)                             | 75 (39)                       | 222 (34)                             | 248 (38)                         |
-| HR (95% CI)                             | 0.75 (0.61 to 0.93)                  |                                  | 0.94 (0.66 to 1.36)                 |                                | 0.81 (0.65 to 1.01)                 |                                | 0.76 (0.55 to 1.06)                 |                               | 0.79 (0.66 to 0.95)                  |                                  |
-| SSE-free survival                       | 46.1                                 | 35.7                             | NR                                  | NR                             | 47.1                                 | 35.8                           | NR                                  | 46.7                          | 51.2                                  | 39.7                              |
-| No. (%)*                                | 225 (45)                             | 287 (57)                         | 32 (21)                             | 42 (29)                        | 205 (45)                             | 257 (56)                       | 52 (26)                             | 72 (37)                       | 257 (40)                              | 329 (50)                          |
-| HR (95% CI)                             | 0.63 (0.53 to 0.75)                  |                                  | 0.61 (0.38 to 0.96)                 |                                | 0.65 (0.54 to 0.78)                 |                                | 0.55 (0.39 to 0.79)                 |                               | 0.61 (0.52 to 0.72)                  |                                  |
-| Time to first SSE                       | NR                                   | NR                               | NR                                  | NR                             | NR                                   | NR                             | NR                                  | NR                            | NR                                   | NR                                |
-| No. (%)*                                | 82 (17)                              | 96 (19)                          | 13 (8)                              | 12 (8)                         | 78 (17)                              | 79 (17)                        | 17 (9)                              | 29 (15)                       | 95 (15)                               | 108 (17)                          |
-| HR (95% CI)                             | 0.71 (0.53 to 0.96)                  |                                  | 0.89 (0.40 to 1.95)                 |                                | 0.84 (0.61 to 1.15)                 |                                | 0.46 (0.25 to 0.84)                 |                               | 0.71 (0.54 to 0.94)                  |                                  |
-| Time to subsequent antineoplastic therapy| NR                                   | 22.7                             | NR                                  | 42.5                           | NR                                   | 21.3                           | NR                                  | 39.0                          | NR                                   | 25.3                              |
-| No. (%)*                                | 187 (38)                             | 324 (64)                         | 32 (21)                             | 71 (49)                        | 173 (38)                             | 299 (65)                       | 46 (23)                             | 96 (49)                       | 219 (34)                              | 395 (60)                          |
-| HR (95% CI)                             | 0.40 (0.34 to 0.49)                  |                                  | 0.34 (0.22 to 0.52)                 |                                | 0.40 (0.33 to 0.48)                 |                                | 0.36 (0.26 to 0.52)                 |                               | 0.39 (0.33 to 0.46)                  |                                  |
-| Time to worsening disease-related symptoms| 22.0                                 | 22.1                             | 11.1                                | 11.2                           | 19.3                                 | 16.7                           | 19.4                                 | 24.6                          | 19.3                                  | 19.4                              |
-| No. (%)*                                | 259 (52)                             | 229 (45)                         | 92 (60)                             | 79 (54)                        | 241 (53)                             | 217 (47)                       | 110 (55)                             | 91 (47)                       | 351 (54)                              | 308 (47)                          |
-| HR (95% CI)                             | 1.05 (0.88 to 1.25)                  |                                  | 1.04 (0.77 to 1.40)                 |                                | 1.01 (0.84 to 1.22)                 |                                | 1.13 (0.86 to 1.50)                 |                               | 1.04 (0.89 to 1.22)                  |                                  |
-| Time to opioid use ≥ 7 days             | NR                                   | NR                               | NR                                  | NR                             | NR                                   | NR                             | NR                                  | NR                            | NR                                   | NR                                |
-| No. (%)*                                | 74 (15)                              | 106 (21)                         | 18 (12)                             | 11 (8)                         | 68 (15)                              | 94 (20)                        | 24 (12)                             | 23 (12)                       | 92 (14)                               | 117 (18)                           |
-| HR (95% CI)                             | 0.63 (0.47 to 0.85)                  |                                  | 1.46 (0.69 to 3.10)                 |                                | 0.66 (0.48 to 0.90)                 |                                | 0.94 (0.53 to 1.66)                 |                               | 0.69 (0.52 to 0.91)                  |                                  |
-
-*Abbreviations: CRPC, castration-resistant prostate cancer; mo, months; HR, hazard ratio; NR, not reached; SSE, symptomatic skeletal event.  
-*High Volume defined by CHAARTED criteria: presence of visceral metastases or ≥ 4 bone metastases with ≥ 1 beyond vertebral bodies and pelvis (Sweeney et al.).  
-*High Risk defined by LATITUDE criteria (two of the following three factors): Gleason score of ≥ 8, the presence of ≥ 3 bone lesions, or the presence of measurable visceral metastasis (Fizazi et al.).  
-*No. of patients with an event.
-
-##Caption##
-
-**Table 2. Secondary Efficacy End Points for the Subgroups of Patients by Disease Volume and Disease Risk in ARASENS**
-
-This table presents secondary efficacy endpoints for patients with metastatic hormone-sensitive prostate cancer (mHSPC) in the ARASENS trial, stratified by disease volume (high vs. low) and disease risk (high vs. low), as well as for all patients. The table compares outcomes between those treated with darolutamide and those given placebo, with all patients also receiving androgen deprivation therapy and docetaxel.
-
-**Row headers (endpoints):**
-- Time to CRPC (castration-resistant prostate cancer)
-- Time to pain progression
-- SSE-free survival (symptomatic skeletal event-free survival)
-- Time to first SSE
-- Time to subsequent antineoplastic therapy
-- Time to worsening disease-related symptoms
-- Time to opioid use ≥ 7 days
-
-Each endpoint includes the median time (months), number and percentage of patients with an event, and hazard ratio (HR) with 95% confidence interval (CI).
-
-**Column headers:**
-- High Volume - Darolutamide (n = 497)
-- High Volume - Placebo (n = 508)
-- Low Volume - Darolutamide (n = 154)
-- Low Volume - Placebo (n = 146)
-- High Risk - Darolutamide (n = 452)
-- High Risk - Placebo (n = 460)
-- Low Risk - Darolutamide (n = 199)
-- Low Risk - Placebo (n = 194)
-- All Patients - Darolutamide (n = 651)
-- All Patients - Placebo (n = 654)
-
-**Hierarchical header structure:**  
-The table originally used two levels of headers: main categories (High Volume, Low Volume, High Risk, Low Risk, All Patients) and subcategories (Darolutamide and Placebo with patient numbers). For clarity, these have been combined into single-level headers (e.g., "High Volume - Darolutamide (n = 497)").
-
-**Information present:**  
-The table provides detailed efficacy outcomes for each subgroup, including time to disease progression, pain, skeletal events, need for further therapy, symptom worsening, and opioid use. It also includes the number and percentage of patients experiencing each event and the hazard ratios comparing darolutamide to placebo.
-
-**Context:**  
-This table is part of a clinical trial report evaluating the efficacy of darolutamide in combination with standard therapy for mHSPC, with subgroup analyses by disease volume and risk to inform personalized treatment strategies.
-
---- Chunk 5 (TABLE on page 9) ---
-Summary: **Table 3. Treatment-Emergent Adverse Events (AEs) in the Subgroups of Patients by Disease Volume and Disease Risk in ARASENS**  This table presents the incidence and severity of treatment-emergent adverse events (AEs) among patients in the ARASENS trial, stratified by disease volume (high vs. low) and disease risk (high vs. low), as well as for all patients. The table compares patients treated with Darolutamide versus placebo within each subgroup.   **Row headers:**   - Any AE - Worst grade (Grade 1, Grade 2, Grade 3, Grade 4, Grade 5 [death]) - Serious AE - AE leading to permanent discontinuation of trial agent (Darolutamide or placebo, Docetaxel) - Most common AEs (≥ 25%), No. (%)/EAIR (Alopecia, Neutropenia, Fatigue, Anemia, Peripheral edema, Arthralgia, Diarrhea)  **Column headers:**   - High Volume - Darolutamide (n = 498) - High Volume - Placebo (n = 506) - Low Volume - Darolutamide (n = 154) - Low Volume - Placebo (n = 144) - High Risk - Darolutamide (n = 453) - High Risk - Placebo (n = 457) - Low Risk - Darolutamide (n = 199) - Low Risk - Placebo (n = 193) - All Patients - Darolutamide (n = 652) - All Patients - Placebo (n = 650)  **Description:**   The table details the frequency and severity of AEs, including the most common AEs (≥ 25% incidence), serious AEs, and AEs leading to permanent discontinuation of trial agents. Data are presented as number of patients (percentage), and for common AEs, the exposure-adjusted incidence rate (EAIR) is also provided. The table uses a hierarchical header structure, with main headers for disease volume and risk, and subheaders for treatment arms (Darolutamide vs. Placebo). For clarity, these have been combined into single-level headers in the extracted table.  **Additional context:**   - Disease volume and risk are defined by specific clinical criteria (see footnotes in the table). - Grade 5 events (death) and neutropenia definitions are further detailed in the footnotes. - The table provides a comprehensive overview of the safety profile of Darolutamide plus ADT and docetaxel in different patient subgroups with metastatic hormone-sensitive prostate cancer (mHSPC).
-
-Structured Table:
-##Markdown Table##
-
-| AE                                   | High Volume - Darolutamide (n = 498) | High Volume - Placebo (n = 506) | Low Volume - Darolutamide (n = 154) | Low Volume - Placebo (n = 144) | High Risk - Darolutamide (n = 453) | High Risk - Placebo (n = 457) | Low Risk - Darolutamide (n = 199) | Low Risk - Placebo (n = 193) | All Patients - Darolutamide (n = 652) | All Patients - Placebo (n = 650) |
-|--------------------------------------|--------------------------------------|----------------------------------|-------------------------------------|--------------------------------|-------------------------------------|--------------------------------|-------------------------------------|-------------------------------|--------------------------------------|----------------------------------|
-| Any AE                              | 496 (99.6)                           | 500 (98.8)                       | 153 (99.4)                          | 143 (99.3)                     | 450 (99.3)                          | 451 (98.7)                    | 199 (100)                            | 192 (99.5)                    | 649 (99.5)                           | 643 (98.9)                       |
-| Worst grade                         |                                      |                                  |                                     |                                |                                     |                                |                                     |                               |                                      |                                  |
-| Grade 1                             | 21 (4.2)                             | 23 (4.5)                         | 7 (4.5)                             | 12 (8.3)                       | 19 (4.2)                             | 20 (4.4)                      | 9 (4.5)                              | 15 (7.8)                       | 28 (4.3)                              | 35 (5.4)                         |
-| Grade 2                             | 130 (26.1)                           | 132 (26.1)                       | 32 (20.8)                           | 37 (25.7)                      | 107 (23.6)                            | 118 (25.8)                    | 55 (27.6)                             | 51 (26.4)                      | 162 (24.8)                             | 169 (26.0)                       |
-| Grade 3                             | 188 (37.8)                           | 189 (37.4)                       | 60 (39.0)                           | 43 (29.9)                      | 169 (37.3)                            | 167 (36.5)                    | 79 (39.7)                              | 65 (33.7)                      | 248 (38.0)                             | 232 (35.7)                       |
-| Grade 4                             | 135 (27.1)                           | 136 (26.9)                       | 48 (31.2)                           | 45 (31.3)                      | 137 (30.2)                            | 127 (27.8)                    | 46 (23.1)                              | 54 (28.0)                      | 183 (28.1)                             | 181 (27.8)                       |
-| Grade 5 (death)†                    | 21 (4.2)                             | 20 (4.0)                         | 6 (3.9)                             | 6 (4.2)                        | 17 (3.8)                              | 19 (4.2)                      | 10 (5.0)                               | 7 (3.6)                        | 27 (4.1)                                | 26 (4.0)                         |
-| Serious AE                          | 226 (45.4)                           | 220 (43.5)                       | 66 (42.9)                           | 55 (38.2)                      | 205 (45.3)                            | 196 (42.9)                    | 87 (43.7)                               | 79 (40.9)                      | 292 (44.8)                               | 275 (42.3)                       |
-| AE leading to permanent discontinuation of trial agent |                                      |                                  |                                     |                                |                                     |                                |                                     |                               |                                      |                                  |
-| Darolutamide or placebo              | 66 (13.3)                            | 54 (10.7)                        | 22 (14.3)                           | 15 (10.4)                      | 58 (12.8)                             | 45 (9.8)                      | 30 (15.1)                              | 24 (12.4)                      | 88 (13.5)                                | 69 (10.6)                        |
-| Docetaxel                            | 39 (7.8)                             | 54 (10.7)                        | 13 (8.4)                            | 13 (9.0)                       | 38 (8.4)                              | 45 (9.8)                      | 14 (7.0)                                | 22 (11.4)                      | 52 (8.0)                                 | 67 (10.3)                        |
-| Most common AEs (≥ 25%), No. (%)/EAIR |                                      |                                  |                                     |                                |                                     |                                |                                     |                               |                                      |                                  |
-| Alopecia                            | 192 (38.6)/151.3                     | 202 (39.9)/231.2                 | 72 (46.8)/152.6                     | 62 (43.1)/189.8                | 191 (42.2)/166.6                      | 183 (40.0)/223.3              | 73 (36.7)/125.8                         | 81 (42.0)/195.6                | 264 (40.5)/151.3                          | 264 (40.6)/222.0                  |
-| Neutropenia‡                        | 197 (39.6)                           | 199 (39.3)                       | 59 (38.3)                           | 53 (36.8)                      | 192 (42.4)                             | 182 (39.8)                    | 64 (32.2)                                | 70 (36.3)                      | 256 (39.3)                                 | 252 (38.8)                        |
-| Fatigue                             | 166 (33.3)/112.3                     | 165 (32.6)/118.9                 | 52 (33.5)/106.9                     | 49 (34.0)/150.1                | 141 (31.1)/112.3                       | 130 (28.4)/116.5              | 75 (37.7)/112.9                           | 84 (43.5)/120.2                | 216 (33.1)/112.5                            | 214 (32.9)/117.8                  |
-| Anemia                              | 140 (28.1)/111.1                     | 132 (26.1)/115.1                 | 41 (26.6)/98.7                      | 31 (21.5)/95.9                 | 105 (23.2)/101.4                        | 103 (22.5)/113.4              | 58 (29.1)/103.9                            | 63 (32.6)/118.1                | 178 (27.3)/110.3                             | 163 (25.1)/113.6                  |
-| Peripheral edema                    | 136 (27.3)/110.8                     | 138 (27.3)/115.8                 | 37 (24.0)/77.8                      | 31 (21.5)/95.5                 | 123 (27.2)/106.2                        | 119 (26.0)/115.7              | 54 (27.1)/97.3                              | 46 (23.8)/110.1                | 173 (26.5)/110.6                             | 162 (24.9)/114.1                  |
-| Arthralgia                          | 134 (26.9)/107.7                     | 134 (26.5)/115.3                 | 44 (28.6)/99.3                      | 40 (27.8)/112.2                | 105 (23.2)/101.3                        | 104 (22.8)/113.4              | 48 (24.1)/95.0                               | 53 (27.5)/110.3                | 174 (27.0)/110.3                             | 143 (22.0)/114.5                  |
-| Diarrhea                            | 120 (24.1)/95.5                      | 114 (22.5)/113.0                 | 47 (30.5)/99.9                      | 42 (29.2)/128.6                | 114 (25.2)/97.0                          | 98 (21.4)/112.5               | 56 (28.1)/119.6                              | 58 (30.1)/139.1                | 167 (25.6)/96.9                              | 156 (24.0)/113.0                  |
-
-##Caption##
-
-**Table 3. Treatment-Emergent Adverse Events (AEs) in the Subgroups of Patients by Disease Volume and Disease Risk in ARASENS**
-
-This table presents the incidence and severity of treatment-emergent adverse events (AEs) among patients in the ARASENS trial, stratified by disease volume (high vs. low) and disease risk (high vs. low), as well as for all patients. The table compares patients treated with Darolutamide versus placebo within each subgroup. 
-
-**Row headers:**  
-- Any AE
-- Worst grade (Grade 1, Grade 2, Grade 3, Grade 4, Grade 5 [death])
-- Serious AE
-- AE leading to permanent discontinuation of trial agent (Darolutamide or placebo, Docetaxel)
-- Most common AEs (≥ 25%), No. (%)/EAIR (Alopecia, Neutropenia, Fatigue, Anemia, Peripheral edema, Arthralgia, Diarrhea)
-
-**Column headers:**  
-- High Volume - Darolutamide (n = 498)
-- High Volume - Placebo (n = 506)
-- Low Volume - Darolutamide (n = 154)
-- Low Volume - Placebo (n = 144)
-- High Risk - Darolutamide (n = 453)
-- High Risk - Placebo (n = 457)
-- Low Risk - Darolutamide (n = 199)
-- Low Risk - Placebo (n = 193)
-- All Patients - Darolutamide (n = 652)
-- All Patients - Placebo (n = 650)
-
-**Description:**  
-The table details the frequency and severity of AEs, including the most common AEs (≥ 25% incidence), serious AEs, and AEs leading to permanent discontinuation of trial agents. Data are presented as number of patients (percentage), and for common AEs, the exposure-adjusted incidence rate (EAIR) is also provided. The table uses a hierarchical header structure, with main headers for disease volume and risk, and subheaders for treatment arms (Darolutamide vs. Placebo). For clarity, these have been combined into single-level headers in the extracted table.
-
-**Additional context:**  
-- Disease volume and risk are defined by specific clinical criteria (see footnotes in the table).
-- Grade 5 events (death) and neutropenia definitions are further detailed in the footnotes.
-- The table provides a comprehensive overview of the safety profile of Darolutamide plus ADT and docetaxel in different patient subgroups with metastatic hormone-sensitive prostate cancer (mHSPC).
-
---- Chunk 6 (TABLE on page 10) ---
-Summary: **Caption:**   Table 4 presents Adverse Events (AEs) of Special Interest for subgroups of patients by disease volume and disease risk in the ARASENS study. The table compares the incidence (number and percentage) of various AEs between patients treated with Darolutamide and those given placebo, across different subgroups: High Volume, Low Volume, High Risk, Low Risk, and All Patients. Each subgroup is further divided by treatment arm (Darolutamide or Placebo), with the number of patients (n) indicated for each.  **Row Headers:**   - Fatigue - Vasodilation/flushing - Rash - Diabetes mellitus and hyperglycemia - Hypertension - Cardiac disorder (with subcategories: Cardiac arrhythmia, Coronary artery disorders, Heart failure) - Bone fracture - Falls, including accident - Mental impairment disorders - Weight decreased - Depressed mood disorders - Breast disorders/gynecomastia - Cerebral ischemia - Seizure  **Column Headers:**   - High Volume - Darolutamide (n = 498) - High Volume - Placebo (n = 506) - Low Volume - Darolutamide (n = 154) - Low Volume - Placebo (n = 144) - High Risk - Darolutamide (n = 453) - High Risk - Placebo (n = 457) - Low Risk - Darolutamide (n = 199) - Low Risk - Placebo (n = 193) - All Patients - Darolutamide (n = 652) - All Patients - Placebo (n = 650)  **Description:**   The table provides a detailed breakdown of the frequency (number and percentage) of specific adverse events of interest in patients with metastatic hormone-sensitive prostate cancer, stratified by disease volume (high/low) and risk (high/low), and by treatment group (Darolutamide vs. Placebo). The adverse events include both general and specific conditions, with some categories further subdivided (e.g., cardiac disorder includes arrhythmia, coronary artery disorders, and heart failure). The table also includes footnotes clarifying definitions for disease volume, risk, and specific AE categories.  **Hierarchical Structure Explanation:**   The table originally contains two levels of column headers: the main subgroup (High Volume, Low Volume, High Risk, Low Risk, All Patients) and the treatment arm (Darolutamide or Placebo with patient numbers). For clarity, these have been combined into single-level headers (e.g., "High Volume - Darolutamide (n = 498)") in the Markdown table above.  **Other Relevant Information:**   - Data are presented as number of patients (percentage). - Disease volume and risk are defined by specific clinical criteria (see footnotes in the table). - Some AE categories are MedDRA High-Level Group Terms or combine multiple MedDRA terms. - The table is from the ARASENS study, as published by the American Society of Clinical Oncology.
-
-Structured Table:
-##Markdown Table##
-
-| AEs of Special Interest                | High Volume - Darolutamide (n = 498) | High Volume - Placebo (n = 506) | Low Volume - Darolutamide (n = 154) | Low Volume - Placebo (n = 144) | High Risk - Darolutamide (n = 453) | High Risk - Placebo (n = 457) | Low Risk - Darolutamide (n = 199) | Low Risk - Placebo (n = 193) | All Patients - Darolutamide (n = 652) | All Patients - Placebo (n = 650) |
-|----------------------------------------|--------------------------------------|----------------------------------|-------------------------------------|--------------------------------|-------------------------------------|-------------------------------|-------------------------------------|-------------------------------|--------------------------------------|----------------------------------|
-| Fatigue                               | 166 (33.3)                           | 165 (32.6)                       | 50 (32.5)                          | 49 (34.0)                      | 141 (31.1)                         | 130 (28.4)                    | 75 (37.7)                          | 84 (43.5)                    | 216 (33.1)                           | 214 (32.9)                       |
-| Vasodilation/flushing                 | 96 (19.3)                            | 108 (21.3)                       | 37 (24.0)                          | 33 (22.9)                      | 83 (18.3)                          | 96 (21.0)                     | 50 (25.1)                          | 45 (23.3)                    | 133 (20.4)                           | 141 (21.7)                       |
-| Rashᵃ                                 | 78 (15.7)                            | 71 (14.0)                        | 30 (19.5)                          | 17 (11.8)                      | 72 (15.9)                          | 67 (14.7)                     | 36 (18.1)                          | 21 (10.9)                    | 108 (16.6)                           | 88 (13.5)                        |
-| Diabetes mellitus and hyperglycemia   | 69 (13.9)                            | 70 (13.8)                        | 30 (19.5)                          | 23 (16.0)                      | 60 (13.2)                          | 63 (13.8)                     | 39 (19.6)                          | 30 (15.5)                    | 99 (15.2)                            | 93 (14.3)                        |
-| Hypertensionᵇ                         | 63 (12.7)                            | 38 (7.5)                         | 26 (16.9)                          | 21 (14.6)                      | 54 (11.9)                          | 33 (7.2)                      | 35 (17.6)                          | 26 (13.5)                    | 89 (13.7)                            | 60 (9.2)                         |
-| Cardiac disorder                      | 56 (11.2)                            | 60 (11.9)                        | 15 (9.7)                           | 16 (11.1)                      | 44 (9.7)                           | 47 (10.3)                     | 27 (13.6)                          | 29 (15.0)                    | 71 (10.9)                            | 76 (11.7)                        |
-| &nbsp;&nbsp;Cardiac arrhythmiaᶜ       | 40 (8.0)                             | 43 (8.5)                         | 12 (7.8)                           | 12 (8.3)                       | 31 (6.8)                           | 34 (7.4)                      | 21 (10.6)                          | 21 (10.9)                    | 52 (8.0)                             | 55 (8.5)                         |
-| &nbsp;&nbsp;Coronary artery disordersᵈ| 16 (3.2)                             | 10 (2.0)                         | 3 (1.9)                            | 3 (2.1)                        | 14 (3.1)                           | 7 (1.5)                       | 5 (2.5)                            | 6 (3.1)                      | 19 (2.9)                             | 13 (2.0)                         |
-| &nbsp;&nbsp;Heart failureᵉ            | 3 (0.6)                              | 11 (2.2)                         | 1 (0.6)                            | 2 (1.4)                        | 2 (0.4)                            | 9 (2.0)                       | 4 (2.0)                            | 4 (2.1)                      | 4 (0.6)                              | 13 (2.0)                         |
-| Bone fractureᶠ                        | 39 (7.8)                             | 25 (4.9)                         | 10 (6.5)                           | 8 (5.6)                        | 36 (7.9)                           | 23 (5.0)                      | 13 (6.5)                            | 10 (5.2)                     | 49 (7.5)                             | 33 (5.1)                         |
-| Falls, including accident             | 34 (6.8)                             | 24 (4.7)                         | 9 (5.8)                            | 8 (4.2)                        | 33 (7.3)                           | 18 (3.9)                      | 10 (5.0)                            | 12 (6.2)                     | 43 (6.6)                             | 30 (4.6)                         |
-| Mental impairment disordersᵍ          | 17 (3.4)                             | 11 (2.2)                         | 6 (3.9)                            | 4 (2.8)                        | 18 (4.0)                           | 10 (2.2)                      | 5 (2.5)                             | 5 (2.5)                      | 23 (3.5)                             | 15 (2.3)                         |
-| Weight decreased                      | 19 (3.8)                             | 31 (6.1)                         | 3 (1.9)                            | 4 (2.8)                        | 14 (3.1)                           | 24 (5.3)                      | 7 (3.4)                             | 4 (2.1)                      | 32 (4.9)                             | 35 (5.4)                         |
-| Depressed mood disordersʰ             | 16 (3.2)                             | 16 (3.2)                         | 5 (3.2)                            | 8 (5.6)                        | 8 (1.8)                            | 12 (2.6)                      | 12 (6.0)                            | 12 (6.2)                     | 21 (3.2)                             | 24 (3.7)                         |
-| Breast disorders/gynecomastiaⁱ        | 15 (3.0)                             | 7 (1.4)                          | 6 (3.9)                            | 3 (2.1)                        | 10 (2.2)                           | 5 (1.1)                       | 11 (5.5)                            | 5 (2.6)                      | 21 (3.2)                             | 10 (1.5)                         |
-| Cerebral ischemia                     | 7 (1.4)                              | 5 (1.0)                          | 1 (0.6)                            | 3 (2.1)                        | 3 (0.7)                            | 7 (1.5)                       | 2 (1.0)                             | 1 (0.5)                      | 8 (1.2)                              | 8 (1.2)                          |
-| Seizure                               | 3 (0.6)                              | 1 (0.2)                          | 1 (0.6)                            | 0                              | 2 (0.4)                            | 0                             | 2 (1.0)                             | 1 (0.5)                      | 4 (0.6)                              | 1 (0.2)                          |
-
-##Caption##
-
-**Caption:**  
-Table 4 presents Adverse Events (AEs) of Special Interest for subgroups of patients by disease volume and disease risk in the ARASENS study. The table compares the incidence (number and percentage) of various AEs between patients treated with Darolutamide and those given placebo, across different subgroups: High Volume, Low Volume, High Risk, Low Risk, and All Patients. Each subgroup is further divided by treatment arm (Darolutamide or Placebo), with the number of patients (n) indicated for each.
-
-**Row Headers:**  
-- Fatigue
-- Vasodilation/flushing
-- Rash
-- Diabetes mellitus and hyperglycemia
-- Hypertension
-- Cardiac disorder (with subcategories: Cardiac arrhythmia, Coronary artery disorders, Heart failure)
-- Bone fracture
-- Falls, including accident
-- Mental impairment disorders
-- Weight decreased
-- Depressed mood disorders
-- Breast disorders/gynecomastia
-- Cerebral ischemia
-- Seizure
-
-**Column Headers:**  
-- High Volume - Darolutamide (n = 498)
-- High Volume - Placebo (n = 506)
-- Low Volume - Darolutamide (n = 154)
-- Low Volume - Placebo (n = 144)
-- High Risk - Darolutamide (n = 453)
-- High Risk - Placebo (n = 457)
-- Low Risk - Darolutamide (n = 199)
-- Low Risk - Placebo (n = 193)
-- All Patients - Darolutamide (n = 652)
-- All Patients - Placebo (n = 650)
-
-**Description:**  
-The table provides a detailed breakdown of the frequency (number and percentage) of specific adverse events of interest in patients with metastatic hormone-sensitive prostate cancer, stratified by disease volume (high/low) and risk (high/low), and by treatment group (Darolutamide vs. Placebo). The adverse events include both general and specific conditions, with some categories further subdivided (e.g., cardiac disorder includes arrhythmia, coronary artery disorders, and heart failure). The table also includes footnotes clarifying definitions for disease volume, risk, and specific AE categories.
-
-**Hierarchical Structure Explanation:**  
-The table originally contains two levels of column headers: the main subgroup (High Volume, Low Volume, High Risk, Low Risk, All Patients) and the treatment arm (Darolutamide or Placebo with patient numbers). For clarity, these have been combined into single-level headers (e.g., "High Volume - Darolutamide (n = 498)") in the Markdown table above.
-
-**Other Relevant Information:**  
-- Data are presented as number of patients (percentage).
-- Disease volume and risk are defined by specific clinical criteria (see footnotes in the table).
-- Some AE categories are MedDRA High-Level Group Terms or combine multiple MedDRA terms.
-- The table is from the ARASENS study, as published by the American Society of Clinical Oncology.
-
---- Chunk 7 (TABLE on page 16) ---
-Summary: **Caption:**   This table presents overall survival (OS) outcomes in prespecified subgroups for patients with (A) high-volume and (B) low-volume metastatic castration-sensitive prostate cancer, as part of a study comparing Darolutamide + ADT + Docetaxel versus Placebo + ADT + Docetaxel. The table is extracted from a figure in a clinical oncology publication and summarizes hazard ratios (HR) and median OS (in months) for various patient subgroups.  **Row Headers:**   - Subgroup (e.g., Extent of disease, ALP stratification, Age, Race, Geographical region, PSA at baseline, ECOG at baseline, Gleason score, Metastatic stage at initial diagnosis) - Specific subgroup categories (e.g., Bone metastasis, Visceral metastasis, <65 years, White, North America, etc.)  **Column Headers:**   - Darolutamide + ADT + Docetaxel No. of Events/No. of Patients - Placebo + ADT + Docetaxel No. of Events/No. of Patients - Darolutamide + ADT + Docetaxel Median (months) - Placebo + ADT + Docetaxel Median (months) - HR (95% CI)  **Table Information:**   The table details the number of events and patients, median overall survival (OS) in months, and hazard ratios (HR) with 95% confidence intervals (CI) for each subgroup. Subgroups include disease extent, ALP levels, age, race, geographical region, PSA at baseline, ECOG status, Gleason score, and metastatic stage at diagnosis. "NE" indicates "not estimable." The HR values indicate the relative risk of death for Darolutamide + ADT + Docetaxel compared to Placebo + ADT + Docetaxel, with values less than 1 favoring Darolutamide.  **Hierarchical Header Explanation:**   The table originally contained two header levels: main headers (e.g., "Darolutamide + ADT + Docetaxel") and subheaders (e.g., "No. of Events/No. of Patients", "Median"). These have been combined into single-level headers for clarity and readability in the Markdown table above.  **Context:**   This table is part of a supplementary appendix (FIG A1) from a clinical study, providing detailed subgroup analyses for overall survival in patients with high-volume metastatic prostate cancer treated with Darolutamide + ADT + Docetaxel versus placebo. The data were obtained from univariate analysis using unstratified Cox regression. High-volume disease was defined as the presence of visceral metastases or ≥4 bone lesions with ≥1 beyond the vertebral bodies and pelvis. Abbreviations: ADT (androgen-deprivation therapy), ALP (alkaline phosphatase), ECOG (Eastern Cooperative Oncology Group), HR (hazard ratio), OS (overall survival), NE (not estimable), PSA (prostate-specific antigen).
-
-Structured Table:
-##Markdown Table##
-
-| Subgroup                                 | Darolutamide + ADT + Docetaxel No. of Events/No. of Patients | Placebo + ADT + Docetaxel No. of Events/No. of Patients | Darolutamide + ADT + Docetaxel Median | Placebo + ADT + Docetaxel Median | HR (95% CI)              |
-|-------------------------------------------|-------------------------------------------------------------|---------------------------------------------------------|--------------------------------------|----------------------------------|--------------------------|
-| Overall                                  | 203/497                                                     | 268/508                                                 | NE                                   | 42.4                             | 0.685 (0.571 to 0.822)   |
-| Extent of disease (excl. visceral)        |                                                             |                                                         |                                      |                                  |                          |
-| Bone metastasis                           | 150/386                                                     | 206/389                                                 | NE                                   | 42.5                             | 0.653 (0.529 to 0.809)   |
-| Visceral metastasis                       | 53/111                                                      | 62/118                                                  | 49.0                                 | 42.0                             | 0.792 (0.549 to 1.143)   |
-| ALP stratification factor (factor)        |                                                             |                                                         |                                      |                                  |                          |
-| Below upper limit of normal               | 44/468                                                      | 69/176                                                  | NE                                   | 51.8                             | 0.613 (0.420 to 0.896)   |
-| At or above upper limit of normal         | 159/329                                                     | 199/332                                                 | 47.1                                 | 36.0                             | 0.689 (0.559 to 0.849)   |
-| Age (years)                              |                                                             |                                                         |                                      |                                  |                          |
-| < 65                                     | 70/184                                                      | 103/182                                                 | NE                                   | 40.9                             | 0.573 (0.423 to 0.777)   |
-| 65-74                                    | 94/228                                                      | 107/230                                                 | NE                                   | 51.8                             | 0.824 (0.624 to 1.087)   |
-| 75-84                                    | 37/82                                                       | 55/92                                                   | NE                                   | 38.1                             | 0.627 (0.413 to 0.951)   |
-| ≥ 85                                     | 2/3                                                         | 3/4                                                     | 33.7                                 | 27.8                             | -                        |
-| Race                                     |                                                             |                                                         |                                      |                                  |                          |
-| White                                    | 118/258                                                     | 151/259                                                 | 50.3                                 | 39.4                             | 0.672 (0.528 to 0.855)   |
-| Asian                                    | 66/177                                                      | 86/193                                                  | NE                                   | 51.8                             | 0.777 (0.558 to 1.072)   |
-| Black or African American                 | 6/22                                                        | 14/21                                                   | NE                                   | 32.4                             | 0.340 (0.123 to 0.940)   |
-| Other or not reported                     | 14/40                                                       | 17/35                                                   | NE                                   | 43.2                             | 0.662 (0.272 to 1.510)   |
-| Geographical region                      |                                                             |                                                         |                                      |                                  |                          |
-| North America                            | 36/95                                                       | 46/88                                                   | NE                                   | 41.1                             | 0.592 (0.382 to 0.918)   |
-| Asia Pacific                             | 64/175                                                      | 85/191                                                  | NE                                   | 51.8                             | 0.774 (0.559 to 1.070)   |
-| Rest of the world                        | 103/227                                                     | 137/229                                                 | 49.0                                 | 39.3                             | 0.655 (0.507 to 0.846)   |
-| PSA at baseline                          |                                                             |                                                         |                                      |                                  |                          |
-| Below median                             | 94/220                                                      | 121/252                                                 | NE                                   | 47.6                             | 0.805 (0.615 to 1.055)   |
-| At or above median                       | 109/277                                                     | 147/255                                                 | NE                                   | 40.6                             | 0.589 (0.459 to 0.754)   |
-| ECOG at baseline                         |                                                             |                                                         |                                      |                                  |                          |
-| 0                                        | 130/343                                                     | 165/349                                                 | NE                                   | 47.6                             | 0.743 (0.591 to 0.936)   |
-| 1                                        | 73/154                                                      | 102/157                                                 | 47.2                                 | 30.2                             | 0.580 (0.430 to 0.784)   |
-| Gleason score                            |                                                             |                                                         |                                      |                                  |                          |
-| < 8                                      | 30/96                                                       | 39/87                                                   | NE                                   | NE                               | 0.595 (0.359 to 0.985)   |
-| ≥ 8                                      | 163/381                                                     | 217/403                                                 | NE                                   | 42.3                             | 0.724 (0.591 to 0.887)   |
-| Metastatic stage at initial diagnosis     |                                                             |                                                         |                                      |                                  |                          |
-| De novo                                  | 181/432                                                     | 239/445                                                 | NE                                   | 42.4                             | 0.608 (0.574 to 0.845)   |
-| Recurrent                                | 21/58                                                       | 26/59                                                   | NE                                   | NE                               | 0.695 (0.390 to 1.241)   |
-
-##Caption##
-
-**Caption:**  
-This table presents overall survival (OS) outcomes in prespecified subgroups for patients with (A) high-volume and (B) low-volume metastatic castration-sensitive prostate cancer, as part of a study comparing Darolutamide + ADT + Docetaxel versus Placebo + ADT + Docetaxel. The table is extracted from a figure in a clinical oncology publication and summarizes hazard ratios (HR) and median OS (in months) for various patient subgroups.
-
-**Row Headers:**  
-- Subgroup (e.g., Extent of disease, ALP stratification, Age, Race, Geographical region, PSA at baseline, ECOG at baseline, Gleason score, Metastatic stage at initial diagnosis)
-- Specific subgroup categories (e.g., Bone metastasis, Visceral metastasis, <65 years, White, North America, etc.)
-
-**Column Headers:**  
-- Darolutamide + ADT + Docetaxel No. of Events/No. of Patients
-- Placebo + ADT + Docetaxel No. of Events/No. of Patients
-- Darolutamide + ADT + Docetaxel Median (months)
-- Placebo + ADT + Docetaxel Median (months)
-- HR (95% CI)
-
-**Table Information:**  
-The table details the number of events and patients, median overall survival (OS) in months, and hazard ratios (HR) with 95% confidence intervals (CI) for each subgroup. Subgroups include disease extent, ALP levels, age, race, geographical region, PSA at baseline, ECOG status, Gleason score, and metastatic stage at diagnosis. "NE" indicates "not estimable." The HR values indicate the relative risk of death for Darolutamide + ADT + Docetaxel compared to Placebo + ADT + Docetaxel, with values less than 1 favoring Darolutamide.
-
-**Hierarchical Header Explanation:**  
-The table originally contained two header levels: main headers (e.g., "Darolutamide + ADT + Docetaxel") and subheaders (e.g., "No. of Events/No. of Patients", "Median"). These have been combined into single-level headers for clarity and readability in the Markdown table above.
-
-**Context:**  
-This table is part of a supplementary appendix (FIG A1) from a clinical study, providing detailed subgroup analyses for overall survival in patients with high-volume metastatic prostate cancer treated with Darolutamide + ADT + Docetaxel versus placebo. The data were obtained from univariate analysis using unstratified Cox regression. High-volume disease was defined as the presence of visceral metastases or ≥4 bone lesions with ≥1 beyond the vertebral bodies and pelvis. Abbreviations: ADT (androgen-deprivation therapy), ALP (alkaline phosphatase), ECOG (Eastern Cooperative Oncology Group), HR (hazard ratio), OS (overall survival), NE (not estimable), PSA (prostate-specific antigen).
+J Clin Oncol 00. © 2023 by American Society of Clinical Oncology
 
 Task:
 - Evaluate EACH column independently. Do not assume the original plan is correct.
@@ -410,10 +107,9 @@ RAW OUTPUT
 COLUMN 1: Control Arm - N
 VERDICT: WRONG
 REASONING:
-- Chunk citations: Chunk 1 (TABLE on page 5) - "Structured Table: | All Patients (N = 1,305) |", Chunk 4 (TABLE on page 8) - "Column headers: ... All Patients - Placebo (n = 654)"
-- Why the original plan is right/wrong: The original plan's first instruction to refer to Figure 1 on page 3 cannot be fully verified as Chunk 0 is a description of the figure, not the figure itself, and does not contain the specific number '654' or the exact label "Analyzed for primary end point". The alternative instruction to refer to Table 1 on page 5 is incorrect. While Table 1 (Chunk 1) has an "All Patients (N = 1,305)" column, it does not contain a "Placebo" sub-column with the value 654 as described. However, Chunk 4 (Table 2 on page 8) explicitly lists "All Patients - Placebo (n = 654)" as a column header, which directly provides the requested information. Since a part of the original plan is factually incorrect based on the provided chunks, the overall verdict is WRONG.
+- Chunk citations: None of the provided chunks contain the CONSORT flow diagram (Figure 1) on page 3 or Table 1 on page 5, which are referenced in the original extraction plan. All provided chunks are from page 1.
+- Why the original plan is right/wrong: The original plan refers to specific pages (page 3 and page 5) and elements (Figure 1, Table 1) that are not present in the provided chunks. Therefore, it is impossible to verify the plan or extract the value using only the given information.
 ISSUES:
-- The original plan incorrectly states that the value 654 can be found in a "Placebo" sub-column under "All Patients (N = 1,305)" in Table 1. This structure does not exist in Table 1.
-- The first part of the plan referencing Figure 1 cannot be fully verified with the provided chunk, which is a description only.
+- The original extraction plan references pages and figures/tables that are not included in the provided chunks.
 CORRECTED_PLAN_JSON:
-{"found_in_pdf": true, "page": 8, "source_type": "table", "confidence": "high", "extraction_plan": "On page 8, refer to Table 2, \"Secondary Efficacy End Points for the Subgroups of Patients by Disease Volume and Disease Risk in ARASENS\". Locate the column header \"All Patients - Placebo (n = 654)\". The number of participants in the control arm is 654."}
+{"found_in_pdf": false, "page": -1, "source_type": "not_applicable", "confidence": "low", "extraction_plan": "The information for the total number of participants in the control arm is not available in the provided chunks. The original plan refers to page 3 (Figure 1) and page 5 (Table 1), which are not included in the provided document excerpts."}

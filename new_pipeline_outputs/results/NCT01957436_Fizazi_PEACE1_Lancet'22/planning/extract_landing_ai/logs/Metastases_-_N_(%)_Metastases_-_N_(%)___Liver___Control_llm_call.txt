@@ -1,0 +1,201 @@
+============================================================
+INPUT
+============================================================
+You are extracting a value for a clinical trial data column from the provided document content.
+
+Column: Metastases - N (%) | Liver | Control
+Definition: What the number and percentage of participants in the control arm of the trial who had liver as the metastatic site? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.
+
+Extraction plan to follow:
+Table 1 (page 6) provides X but not Y
+
+Document content (relevant excerpts):
+[Page 6, TEXT]
+Articles
+
+[Page 6, TEXT]
+found for radiographic progression-free survival (p=0.94),
+overall survival (p=0.85), CRPC-free survival (p=0.75), or
+prostate-cancer-specific survival (p=0.98), after adjusting
+for ECOG performance status, ADT type, and disease
+burden. Consequently, the comparative evaluation of
+abiraterone efficacy on survival outcomes was conducted
+by pooling the groups two by two (SOC without
+abiraterone [with or without radiotherapy] groups vs SOC
+plus abiraterone [with or without radiotherapy] groups).
+
+[Page 6, TABLE]
+<table>
+<tr><td></td><td colspan="2">Overall population (n=1172)</td><td colspan="2">ADT with docetaxel population (n=710)*</td></tr>
+<tr><td></td><td>SOC plus abiraterone groups (with or without radiotherapy; n=583)</td><td>SOC without abiraterone groups (with or without radiotherapy; n=589)</td><td>SOC plus abiraterone groups (with or without radiotherapy; n=355)</td><td>SOC without abiraterone groups (with or without radiotherapy; n=355)</td></tr>
+<tr><td>Assigned to receive radiotherapy</td><td>291 (50%)</td><td>293 (50%)</td><td>178 (50%)</td><td>177 (50%)</td></tr>
+<tr><td colspan="5">Country</td></tr>
+<tr><td>Belgium</td><td>29 (5%)</td><td>25 (4%)</td><td>16 (5%)</td><td>16 (5%)</td></tr>
+<tr><td>France</td><td>458 (79%)</td><td>462 (78%)</td><td>278 (78%)</td><td>280 (79%)</td></tr>
+<tr><td>Ireland</td><td>30 (5%)</td><td>30 (5%)</td><td>17 (5%)</td><td>13 (4%)</td></tr>
+<tr><td>Italy</td><td>1(&lt;1%)</td><td>3 (1%)</td><td>0</td><td>0</td></tr>
+<tr><td>Romania</td><td>4(1%)</td><td>5 (1%)</td><td>0</td><td>0</td></tr>
+<tr><td>Spain</td><td>55 (9%)</td><td>56 (10%)</td><td>38 (11%)</td><td>39 (11%)</td></tr>
+<tr><td>Switzerland</td><td>6 (1%)</td><td>8 (1%)</td><td>6 (2%)</td><td>7 (2%)</td></tr>
+<tr><td>Age, years Median</td><td>67 (61-72)</td><td>66 (59-72)</td><td>66 (60-70)</td><td>66 (59-70)</td></tr>
+<tr><td>Range</td><td>37-94</td><td>43-87</td><td>37-85</td><td>44-84</td></tr>
+<tr><td colspan="5">ECOG performance status</td></tr>
+<tr><td>0</td><td>412 (71%)</td><td>412 (70%)</td><td>250 (70%)</td><td>246 (69%)</td></tr>
+<tr><td>1-2</td><td>171 (29%)</td><td>177 (30%)</td><td>105 (30%)</td><td>109 (31%)</td></tr>
+<tr><td colspan="5">T stage</td></tr>
+<tr><td>T1</td><td>23 (4%)</td><td>23 (4%)</td><td>10 (3%)</td><td>13 (4%)</td></tr>
+<tr><td>T2</td><td>109 (19%)</td><td>94 (16%)</td><td>64 (19%)</td><td>45 (13%)</td></tr>
+<tr><td>T3</td><td>287 (51%)</td><td>310 (53%)</td><td>167 (49%)</td><td>189 (55%)</td></tr>
+<tr><td>T4</td><td>98 (17%)</td><td>99 (17%)</td><td>68 (20%)</td><td>65 (19%)</td></tr>
+<tr><td>Tx</td><td>45 (8%)</td><td>54 (9%)</td><td>32 (9%)</td><td>35 (10%)</td></tr>
+<tr><td>Missing data</td><td>21 (4%)</td><td>9 (2%)</td><td>14 (4%)</td><td>8 (2%)</td></tr>
+<tr><td colspan="5">N stage</td></tr>
+<tr><td>N1</td><td>307 (55%)</td><td>325 (57%)</td><td>198 (58%)</td><td>207 (60%)</td></tr>
+<tr><td>NO</td><td>186 (33%)</td><td>174 (30%)</td><td>99 (29%)</td><td>97 (28%)</td></tr>
+<tr><td>NX</td><td>69 (12%)</td><td>76 (13%)</td><td>43 (13%)</td><td>39 (11%)</td></tr>
+<tr><td>Missing data</td><td>21 (4%)</td><td>14 (2%)</td><td>15 (4%)</td><td>12 (3%)</td></tr>
+<tr><td colspan="2">Time from diagnosis, months Median 2-3 (1-6-3-2)</td><td>2-3 (1-4-3-1)</td><td>2-2 (1-6-3-0)</td><td>2-2 (1-4-2-9)</td></tr>
+<tr><td>Missing data</td><td>10 (2%)</td><td>10 (2%)</td><td>6 (2%)</td><td>7(2%)</td></tr>
+<tr><td colspan="3">Metastatic localisation</td><td colspan="2"></td></tr>
+<tr><td>Bone†</td><td>472 (81%)</td><td>475 (81%)</td><td>287 (81%)</td><td>279 (79%)</td></tr>
+<tr><td>Lymph node only</td><td>47 (8%)</td><td>52 (9%)</td><td>27 (8%)</td><td>29 (8%)</td></tr>
+<tr><td>Visceral‡</td><td>64 (11%)</td><td>62 (11%)</td><td>41 (12%)</td><td>47 (13%)</td></tr>
+<tr><td>Metastatic burden§ High burden</td><td>331 (57%)</td><td>336 (57%)</td><td>224 (63%)</td><td>232 (65%)</td></tr>
+<tr><td>Low burden</td><td>252 (43%)</td><td>253 (43%)</td><td>131 (37%)</td><td>123 (35%)</td></tr>
+<tr><td colspan="5">(Table 1 continues on next page)</td></tr>
+</table>
+
+[Page 6, TEXT]
+In the overall population, the addition of abiraterone to SOC (with or without docetaxel and with or without radiotherapy) decreased the number of radiographic progression events or deaths from 371 to 252, improved the median progression-free survival from 2.22 years (IQR 1.09–6.03) to 4.46 years (1.72–not reached), and reduced the relative risk of radiographic progression or death by 46% compared with patients who did not receive abiraterone (adjusted HR for radiographic progression-free survival 0.54, 99.9% CI 0.41–0.71; p<0.0001; figure 2A, table 2). The addition of abiraterone to SOC (with or without docetaxel and with or without radiotherapy) decreased the number of deaths from 268 to 228, improved the median overall survival from 4.72 years (IQR 2.59–not reached) to 5.72 years (2.72–not reached), and reduced the risk of death from any cause by 18% (adjusted HR for overall survival 0.82, 95.1% CI 0.69–0.98; p=0.030; figure 2C, table 2). In the overall population, the effect of abiraterone on radiographic progression-free survival and overall survival showed a high consistency across most of the predefined subgroups, except for the under-represented subgroup of patients who had bilateral orchiectomy and those who did not receive docetaxel based on the investigator's decision (figures 3A, 3C). For overall survival only, the effect of the addition of abiraterone was pronounced in patients with high-volume metastatic burden (figure 3C).
+
+[Page 6, TEXT]
+As SOC plus abiraterone showed a superior efficacy
+compared with SOC without abiraterone that met the
+required predefined significance level (type I error of
+0.049 for overall survival and 0.001 for radiographic
+progression-free survival) within the overall population,
+abiraterone efficacy was further investigated within the
+more restricted ADT with docetaxel population to assess
+the preplanned coprimary endpoints. In this population,
+compared with SOC (including docetaxel) without
+abiraterone, the addition of abiraterone decreased the
+number of radiographic progression events or deaths
+from 211 to 139, improved the median radiographic
+progression-free survival from 2.03 years (IQR
+1.09–not reached) to 4.46 years (1.90–not reached), and
+reduced the relative risk of radiographic progression or
+death by 50% (adjusted HR for radiographic
+progression-free survival 0.50, 99.9% CI 0.34–0.71;
+p<0.0001; figure 2B, table 2). Similarly, compared with
+SOC (including docetaxel) without abiraterone, the
+addition of abiraterone reduced the number of deaths
+from 151 to 121, improved the median overall survival
+from 4.43 years (IQR 2.47–not reached) to not reached,
+and reduced the relative risk of death from any cause by
+25% (adjusted HR for overall survival 0.75, 95.1% CI
+0.59–0.95; p=0.017; figure 2D, table 2).
+
+[Page 6, TEXT]
+By analysing the ADT with docetaxel population
+according to the disease burden, we observed that
+compared with SOC (including docetaxel) without
+abiraterone, the addition of abiraterone decreased the
+number of radiographic progression events or deaths
+
+[Page 6, TEXT]
+6
+
+[Page 6, TEXT]
+www.thelancet.com Published online April 8, 2022 https://doi.org/10.1016/S0140-6736(22)00367-1
+
+[Page 7, TABLE]
+<table>
+<tr><td></td><td colspan="2">Overall population (n=1172)</td><td colspan="2">ADT with docetaxel population (n=710)*</td></tr>
+<tr><td></td><td>SOC plus abiraterone groups (with or without radiotherapy; n=583)</td><td>SOC without abiraterone groups (with or without radiotherapy; n=589)</td><td>SOC plus abiraterone groups (with or without radiotherapy; n=355)</td><td>SOC without abiraterone groups (with or without radiotherapy; n=355)</td></tr>
+<tr><td colspan="5">(Continued from previous page)</td></tr>
+<tr><td>Gleason score</td><td></td><td></td><td></td><td></td></tr>
+<tr><td>≤7</td><td>145 (25%)</td><td>133 (23%)</td><td>79 (23%)</td><td>71 (20%)</td></tr>
+<tr><td>8-10</td><td>429 (75%)</td><td>441 (77%)</td><td>270 (77%)</td><td>276 (80%)</td></tr>
+<tr><td>Missing data</td><td>9 (2%)</td><td>15 (3%)</td><td>6 (2%)</td><td>8 (2%)</td></tr>
+<tr><td colspan="2">PSA at randomisation, ng/mL</td><td></td><td></td><td></td></tr>
+<tr><td>Median</td><td>14 (3-62)</td><td>11 (3-55)</td><td>14 (2-59)</td><td>12 (3-60)</td></tr>
+<tr><td>Missing data</td><td>2 (&lt;1%)</td><td>4 (1%)</td><td>0</td><td>2 (&lt;1%)</td></tr>
+<tr><td>Medical history</td><td></td><td></td><td></td><td></td></tr>
+<tr><td>Hypertension</td><td>270 (47%); N=574</td><td>241 (43%); N=562</td><td>156 (44%); N=352</td><td>148 (43%); N=344</td></tr>
+<tr><td>Type 2 diabetes</td><td>62 (11%); N=566</td><td>80 (14%); N=556</td><td>33 (9%); N=351</td><td>56 (16%); N=344</td></tr>
+<tr><td>High cholesterol</td><td>229 (40%); N=568</td><td>229 (41%); N=556</td><td>136 (39%); N=351</td><td>130 (38%); N=343</td></tr>
+</table>
+Data are n (%) or median (IQR) unless otherwise stated. All numbers are rounded to the nearest integer. Ethnicity-related information are not presented, as French laws forbid the collection of such data. SOC in the overall population was ADT with or without docetaxel. SOC in the ADT with docetaxel population was ADT with docetaxel. ADT=androgen deprivation therapy. ECOG=Eastern Cooperative Oncology Group. PSA=prostate-specific antigen. SOC=standard of care. *The median number of docetaxel cycles was 6 (IQR 6–6) in both the SOC with abiraterone and SOC without abiraterone groups. †Without visceral metastases. ‡With or without lymph node and bone metastases. §The metastatic burden was classified as reported by Sweeney and colleagues (2015), with a high burden characterised by four or more bone metastases with one or more outside the vertebral bodies or pelvis, or visceral metastases, or both; all other assessable situations were classified as low burden.
+Table 1: Baseline characteristics in the intention-to-treat population
+
+[Page 9, TABLE]
+<table>
+<tr><td></td><td colspan="2">Patients assessed, n</td><td colspan="2">Median, years</td><td rowspan="2">Median difference, years</td><td rowspan="2">Hazard ratio</td><td rowspan="2">p value</td></tr>
+<tr><td></td><td>SOC with abiraterone groups</td><td>SOC without abiraterone groups</td><td>SOC with abiraterone groups</td><td>SOC without abiraterone groups</td></tr>
+<tr><td colspan="8">Primary outcomes in the overall population</td></tr>
+<tr><td>Overall survival</td><td>583</td><td>589</td><td>5-7</td><td>4-7</td><td>0-9 (95-1% CI 0-0-2-0)</td><td>0-82 (95-1% CI 0-69-0-98)</td><td>0.030</td></tr>
+<tr><td>Radiographic progression-free survival</td><td>583</td><td>589</td><td>4-5</td><td>2-2</td><td>2-1 (99.9% CI 0-7-2-9)</td><td>0-54 (99.9% CI 0-41-0-71)</td><td>&lt;0.0001</td></tr>
+<tr><td colspan="8">Secondary outcomes in the overall population</td></tr>
+<tr><td>CRPC-free survival</td><td>583</td><td>589</td><td>3-8</td><td>1.5</td><td>2-3 (95% CI 1-6-3-0)</td><td>0-40 (95% CI 0-35-0-47)</td><td>&lt;0.0001</td></tr>
+<tr><td>Prostate-cancer-specific survival</td><td>583</td><td>589</td><td>NR</td><td>5.8</td><td>NA</td><td>0-75 (95% CI 0-61-0-91)</td><td>0-0038</td></tr>
+<tr><td colspan="8">Primary outcomes in the ADT with docetaxel population</td></tr>
+<tr><td>Overall survival</td><td>355</td><td>355</td><td>NR</td><td>4-4</td><td>NA</td><td>0.75 (95-1% CI 0-59-0-95)</td><td>0-017</td></tr>
+<tr><td>Radiographic progression- free survival</td><td>355</td><td>355</td><td>4-5</td><td>2.0</td><td>2-2 (99.9% CI 0-6-2-8)</td><td>0-50 (99.9% CI 0-34-0-71)</td><td>&lt;0.0001</td></tr>
+<tr><td colspan="8">Secondary outcomes in the ADT with docetaxel population</td></tr>
+<tr><td>Overall survival in patients with low-volume metastatic burden</td><td>131</td><td>123</td><td>NR</td><td>NR</td><td>NA</td><td>0-83 (95-1% CI 0-50-1-39)</td><td>0.66</td></tr>
+<tr><td>Overall survival in patients with high-volume metastatic burden</td><td>224</td><td>232</td><td>5-1</td><td>3.5</td><td>1-1 (95-1% CI 0-2-1-9)</td><td>0-72 (95-1% CI 0-55-0-95)</td><td>0-019</td></tr>
+<tr><td>Radiographic progression- free survival in patients with low-volume metastatic burden</td><td>129</td><td>122</td><td>NR</td><td>2.7</td><td>NA</td><td>0-58 (99-9% CI 0-29-1-15)</td><td>0-0061</td></tr>
+<tr><td>Radiographic progression-free survival in patients with high-volume metastatic burden</td><td>225</td><td>231</td><td>4-1</td><td>1-6</td><td>2.2 (99.9% CI 0.6-3.2)</td><td>0.47 (99.9% CI 0.30-0.72)</td><td>&lt;0.0001</td></tr>
+<tr><td>CRPC-free survival</td><td>355</td><td>355</td><td>3-2</td><td>1-4</td><td>2.0 (95% CI 1.5-3.1)</td><td>0.38 (95% CI 0.31-0.47)</td><td>&lt;0.0001</td></tr>
+<tr><td>Prostate-cancer-specific survival</td><td>355</td><td>355</td><td>NR</td><td>4-7</td><td>NA</td><td>0.69 (95% CI 0.53-0.90)</td><td>0.0062</td></tr>
+<tr><td colspan="8">ADT=androgen deprivation therapy. CRPC=castration-resistant prostate cancer. NA=not available. NR=not reached. SOC=standard of care (with or without radiotherapy).</td></tr>
+<tr><td colspan="8">Table 2: Efficacy outcomes in the intention-to-treat population</td></tr>
+</table>
+
+[Page 11, TABLE]
+<table>
+<tr><td></td><td colspan="2">ADT with docetaxel population</td><td colspan="2">ADT without docetaxel population</td></tr>
+<tr><td></td><td>SOC plus abiraterone groups (with or without radiotherapy; n=347)</td><td>SOC without abiraterone groups (with or without radiotherapy; n=350)</td><td>SOC plus abiraterone groups (with or without radiotherapy; n=226)</td><td>SOC without abiraterone groups (with or without radiotherapy; n=237)</td></tr>
+<tr><td>Any adverse events</td><td>346 (100%)</td><td>349 (100%)</td><td>226 (100%)</td><td>233 (99%)</td></tr>
+<tr><td>Severe (grade ≥3) adverse events</td><td>217 (63%)</td><td>181 (52%)</td><td>149 (66%)</td><td>97 (41%)</td></tr>
+<tr><td>Fatal (grade 5) adverse events</td><td>7 (2%)</td><td>3 (1%)</td><td>8 (4%)</td><td>5 (2%)</td></tr>
+<tr><td colspan="5">Frequent severe adverse events</td></tr>
+<tr><td>Hypertension</td><td>76 (22%)</td><td>45 (13%)</td><td>66 (29%)</td><td>38 (16%)</td></tr>
+<tr><td>Neutropenia</td><td>34 (10%)</td><td>32 (9%)</td><td>0</td><td>0</td></tr>
+<tr><td>Hepatotoxicity</td><td>20 (6%)</td><td>2 (1%)</td><td>14 (6%)</td><td>3 (1%)</td></tr>
+<tr><td>Febrile neutropenia</td><td>18 (5%)</td><td>19 (5%)</td><td>2 (1%)</td><td>1(&lt;1%)</td></tr>
+<tr><td>Gamma-glutamyl transferase increase</td><td>17 (5%)</td><td>14 (4%)</td><td>6 (3%)</td><td>4 (2%)</td></tr>
+<tr><td>Erectile dysfunction</td><td>7 (2%)</td><td>5 (1%)</td><td>12 (5%)</td><td>13 (5%)</td></tr>
+<tr><td>Blood alkaline phosphatase increase</td><td>15 (4%)</td><td>12 (3%)</td><td>6 (3%)</td><td>13 (5%)</td></tr>
+<tr><td colspan="5">Other severe adverse events</td></tr>
+<tr><td>Fatigue</td><td>10 (3%)</td><td>15 (4%)</td><td>3 (1%)</td><td>0</td></tr>
+<tr><td>Peripheral neuropathy</td><td>4 (1%)</td><td>6 (2%)</td><td>1 (&lt;1%)</td><td>0</td></tr>
+<tr><td colspan="5">Data are n (%). As the patients were not randomly assigned according to docetaxel prescription, toxicities recorded in the ADT without docetaxel and ADT with docetaxel populations are not directly comparable. Percentages are rounded to the nearest integer. The safety population includes patients who actually received the assigned treatment. Severe adverse events (grade ≥3) were considered frequent if they occurred in at least 5% of patients in either group and are reported in decreasing order of occurrence according to the Medical Dictionary for Regulatory Affairs Preferred Term classification. ADT=androgen deprivation therapy. SOC=standard of care.</td></tr>
+<tr><td colspan="5">Table 3: Adverse events in the safety population</td></tr>
+</table>
+
+Task:
+1. Extract the value for this column following the plan. Return your best-effort value even if uncertain.
+2. If the plan seems wrong, incomplete, or ambiguous, still return the value you found and add a suggestion and/or alternative_plan.
+3. Use "not found" or "not reported" only if the value is genuinely absent from the content.
+
+Output a JSON object with:
+- value: the extracted value (string)
+- found: true if you found a value, false if not reported/absent
+- confidence: "high" | "medium" | "low"
+- suggestion: optional string with concerns or notes (null if none)
+- alternative_plan: optional string describing a different extraction approach to try (null if plan seems fine)
+
+
+============================================================
+OUTPUT
+============================================================
+```json
+{
+  "value": "Not reported",
+  "found": false,
+  "confidence": "high",
+  "suggestion": "Table 1 on page 6 provides data for 'Metastatic localisation' including 'Bone', 'Lymph node only', and 'Visceral'. However, 'Liver' as a specific metastatic site is not reported separately. 'Visceral' metastases (62 (11%) for the overall control arm and 47 (13%) for the ADT with docetaxel control arm) is a broader category that may include liver, but does not isolate it.",
+  "alternative_plan": null
+}
+```

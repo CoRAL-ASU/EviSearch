@@ -112,7 +112,6 @@ def validate_and_normalize_plan(
                 item.column_name_raw = item.column_name
                 item.column_name = canonical
         if not item.found_in_pdf:
-            item.page = -1
             item.source_type = "not_applicable"
         normalized.append(item)
     if mismatches and name_policy == "strict":

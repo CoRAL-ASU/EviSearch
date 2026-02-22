@@ -1,0 +1,87 @@
+============================================================
+INPUT
+============================================================
+You are extracting a value for a clinical trial data column from the provided document content.
+
+Column: Docetaxel administration - N (%) | Control
+Definition: What number and percentage of participants who received docetaxel before or during the trial in the control arm of the clinical trial? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.
+
+Extraction plan to follow:
+On page 2, in the "METHODS" section under "Trial Design", it states: "Enrolled patients were randomly assigned (1:1) to oral darolutamide 600 mg twice daily or matched placebo, in combination with ADT and docetaxel." This indicates that docetaxel was part of the allocated treatment for all patients in the placebo arm. Figure 1 on page 3, in the "CONSORT flow diagram", shows that for the "Placebo + docetaxel + ADT" arm, "Received allocated treatment (n = 651)". Therefore, 651 patients (100% of those who received allocated treatment) in the control arm received docetaxel.
+
+Document content (relevant excerpts):
+[Page 3, FIGURE]
+<::Patients screened (N = 1,686)
+
+Not eligible (n = 380)
+Screen failureᵃ (n = 309)
+Withdrawal by patient (n = 43)
+AE (n = 4)
+Physician's decision (n = 2)
+Other (n = 22)
+
+Patients randomly assigned (N = 1,306)
+
+Darolutamide + docetaxel + ADT (n = 651)
+Received allocated treatment (n = 651)
+Did not receive allocated treatment (n = 0)
+
+Placebo + docetaxel + ADT (n = 655)
+Excluded for GCP violation (n = 1)
+Received allocated treatment (n = 651)
+Did not receive allocated treatment
+Withdrawal by patient (n = 2)
+Physician's decision (n = 1)
+
+Discontinued (n = 352)
+Primary reason for discontinuation
+Disease progression, clinical (n = 127)
+Disease progression, radiological (n = 84)
+AE (n = 72)
+Death (n = 8)
+Withdrawal by patient (n = 25)
+Physician's decision (n = 3)
+Otherᵇ (n = 33)
+
+Discontinued (n = 526)
+Primary reason for discontinuation
+Disease progression, clinical (n = 272)
+Disease progression, radiological (n = 132)
+AE (n = 53)
+Death (n = 5)
+Withdrawal by patient (n = 35)
+Physician's decision (n = 6)
+Otherᵇ (n = 23)
+
+Analyzed for primary end point (n = 651ᶜ)
+Analyzed for safety (n = 652ᵈ)
+
+Analyzed for primary end point (n = 654ᶜ)
+Analyzed for safety (n = 650ᵈ)
+: flowchart::>
+
+Task:
+1. Extract the value for this column following the plan. Return your best-effort value even if uncertain.
+2. If the plan seems wrong, incomplete, or ambiguous, still return the value you found and add a suggestion and/or alternative_plan.
+3. Use "not found" or "not reported" only if the value is genuinely absent from the content.
+
+Output a JSON object with:
+- value: the extracted value (string)
+- found: true if you found a value, false if not reported/absent
+- confidence: "high" | "medium" | "low"
+- suggestion: optional string with concerns or notes (null if none)
+- alternative_plan: optional string describing a different extraction approach to try (null if plan seems fine)
+
+
+============================================================
+OUTPUT
+============================================================
+```json
+{
+  "value": "651 (100%)",
+  "found": true,
+  "confidence": "high",
+  "suggestion": null,
+  "alternative_plan": null
+}
+```

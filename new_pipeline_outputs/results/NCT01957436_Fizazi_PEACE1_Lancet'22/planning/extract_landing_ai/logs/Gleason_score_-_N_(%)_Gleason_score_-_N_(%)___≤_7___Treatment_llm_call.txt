@@ -1,0 +1,57 @@
+============================================================
+INPUT
+============================================================
+You are extracting a value for a clinical trial data column from the provided document content.
+
+Column: Gleason score - N (%) | ≤ 7 | Treatment
+Definition: What number and percentage of participants included in the treatment arm of the clinical trial with a Gleason score of 7 or less? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.
+
+Extraction plan to follow:
+Extract the value from Table 1, under the "Overall population (n=1172)" section, row "Gleason score", sub-row "≤7", column "SOC plus abiraterone groups (with or without radiotherapy; n=583)". The value is "145 (25%)". Extract the value from Table 1, under the "ADT with docetaxel population (n=710)*" section, row "Gleason score", sub-row "≤7", column "SOC plus abiraterone groups (with or without radiotherapy; n=355)". The value is "79 (23%)".
+
+Document content (relevant excerpts):
+[Page 7, TABLE]
+<table>
+<tr><td></td><td colspan="2">Overall population (n=1172)</td><td colspan="2">ADT with docetaxel population (n=710)*</td></tr>
+<tr><td></td><td>SOC plus abiraterone groups (with or without radiotherapy; n=583)</td><td>SOC without abiraterone groups (with or without radiotherapy; n=589)</td><td>SOC plus abiraterone groups (with or without radiotherapy; n=355)</td><td>SOC without abiraterone groups (with or without radiotherapy; n=355)</td></tr>
+<tr><td colspan="5">(Continued from previous page)</td></tr>
+<tr><td>Gleason score</td><td></td><td></td><td></td><td></td></tr>
+<tr><td>≤7</td><td>145 (25%)</td><td>133 (23%)</td><td>79 (23%)</td><td>71 (20%)</td></tr>
+<tr><td>8-10</td><td>429 (75%)</td><td>441 (77%)</td><td>270 (77%)</td><td>276 (80%)</td></tr>
+<tr><td>Missing data</td><td>9 (2%)</td><td>15 (3%)</td><td>6 (2%)</td><td>8 (2%)</td></tr>
+<tr><td colspan="2">PSA at randomisation, ng/mL</td><td></td><td></td><td></td></tr>
+<tr><td>Median</td><td>14 (3-62)</td><td>11 (3-55)</td><td>14 (2-59)</td><td>12 (3-60)</td></tr>
+<tr><td>Missing data</td><td>2 (&lt;1%)</td><td>4 (1%)</td><td>0</td><td>2 (&lt;1%)</td></tr>
+<tr><td>Medical history</td><td></td><td></td><td></td><td></td></tr>
+<tr><td>Hypertension</td><td>270 (47%); N=574</td><td>241 (43%); N=562</td><td>156 (44%); N=352</td><td>148 (43%); N=344</td></tr>
+<tr><td>Type 2 diabetes</td><td>62 (11%); N=566</td><td>80 (14%); N=556</td><td>33 (9%); N=351</td><td>56 (16%); N=344</td></tr>
+<tr><td>High cholesterol</td><td>229 (40%); N=568</td><td>229 (41%); N=556</td><td>136 (39%); N=351</td><td>130 (38%); N=343</td></tr>
+</table>
+Data are n (%) or median (IQR) unless otherwise stated. All numbers are rounded to the nearest integer. Ethnicity-related information are not presented, as French laws forbid the collection of such data. SOC in the overall population was ADT with or without docetaxel. SOC in the ADT with docetaxel population was ADT with docetaxel. ADT=androgen deprivation therapy. ECOG=Eastern Cooperative Oncology Group. PSA=prostate-specific antigen. SOC=standard of care. *The median number of docetaxel cycles was 6 (IQR 6–6) in both the SOC with abiraterone and SOC without abiraterone groups. †Without visceral metastases. ‡With or without lymph node and bone metastases. §The metastatic burden was classified as reported by Sweeney and colleagues (2015), with a high burden characterised by four or more bone metastases with one or more outside the vertebral bodies or pelvis, or visceral metastases, or both; all other assessable situations were classified as low burden.
+Table 1: Baseline characteristics in the intention-to-treat population
+
+Task:
+1. Extract the value for this column following the plan. Return your best-effort value even if uncertain.
+2. If the plan seems wrong, incomplete, or ambiguous, still return the value you found and add a suggestion and/or alternative_plan.
+3. Use "not found" or "not reported" only if the value is genuinely absent from the content.
+
+Output a JSON object with:
+- value: the extracted value (string)
+- found: true if you found a value, false if not reported/absent
+- confidence: "high" | "medium" | "low"
+- suggestion: optional string with concerns or notes (null if none)
+- alternative_plan: optional string describing a different extraction approach to try (null if plan seems fine)
+
+
+============================================================
+OUTPUT
+============================================================
+```json
+{
+  "value": "Overall population (n=1172), SOC plus abiraterone groups: 145 (25%); ADT with docetaxel population (n=710), SOC plus abiraterone groups: 79 (23%)",
+  "found": true,
+  "confidence": "high",
+  "suggestion": null,
+  "alternative_plan": null
+}
+```

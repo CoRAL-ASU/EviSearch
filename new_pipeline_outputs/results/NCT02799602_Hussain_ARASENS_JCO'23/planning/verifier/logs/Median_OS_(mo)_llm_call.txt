@@ -3,8 +3,8 @@ PROVIDER: gemini
 MODEL: gemini-2.5-flash
 SUCCESS: True
 ERROR: None
-PROMPT_TOKENS: 1298
-OUTPUT_TOKENS: 1807
+PROMPT_TOKENS: 3516
+OUTPUT_TOKENS: 1529
 ============================================================
 INPUT PROMPT
 ============================================================
@@ -47,13 +47,69 @@ Columns to verify:
   original_extraction_plan: The value is reported in Figure 2B on page 6. Locate the Kaplan-Meier curve for "Placebo + ADT + docetaxel" under "Low-volume disease" and extract the median OS. This is also stated in the "Primary End Point" section of the text on page 4.
 
 Relevant chunks:
---- Chunk 2 (FIGURE on page 6) ---
-```
-##Figure Descriptions##
+--- Chunk 58 (FIGURE on page 6) ---
+<a id='f08860bd-c04d-4dae-8392-21a3e441b2aa'></a>
 
-## Figure 2
-This figure presents Kaplan-Meier survival curves for overall survival (OS) in subgroups of patients with metastatic hormone-sensitive prostate cancer treated with darolutamide + ADT + docetaxel versus placebo + ADT + docetaxel. The subgroups analyzed are: (A) high-volume disease, (B) low-volume disease, (C) high-risk disease, and (D) low-risk disease. Each panel shows improved survival for the darolutamide group, with hazard ratios (HRs) and median survival times indicated for each subgroup.
-```
+A
+<::Kaplan-Meier curve showing percentage of patients who survived over time (months) for high-volume patients. The y-axis is "Patients Who Survived (%)" from 0 to 100 in increments of 10. The x-axis is "Time (months)" from 0 to 60 in increments of 3.
+
+Two survival curves are plotted:
+1. Darolutamide + ADT + docetaxel (solid line): Median, NE (95% CI, 50.3 months to NE)
+2. Placebo + ADT + docetaxel (dashed line): Median, 42.4 months (95% CI, 39.7 to 46.0)
+
+HR for death, 0.69 (95% CI, 0.57 to 0.82)
+
+Table: No. of high-volume patients at risk:
+| Time (months) | 0   | 3   | 6   | 9   | 12  | 15  | 18  | 21  | 24  | 27  | 30  | 33  | 36  | 39  | 42  | 45  | 48  | 51 | 54 | 57 | 60 |
+| :------------ | :-- | :-- | :-- | :-- | :-- | :-- | :-- | :-- | :-- | :-- | :-- | :-- | :-- | :-- | :-- | :-- | :-- | :-- | :-- | :-- | :-- |
+| Darolutamide  | 497 | 494 | 486 | 479 | 462 | 449 | 429 | 408 | 389 | 378 | 356 | 341 | 326 | 312 | 285 | 193 | 103 | 43 | 6  | 0  | 0  |
+| Placebo       | 508 | 502 | 491 | 469 | 444 | 430 | 401 | 378 | 358 | 341 | 319 | 304 | 286 | 269 | 233 | 153 | 72  | 23 | 4  | 1  | 0  |
+: chart and table::>
+B
+<::Kaplan-Meier curve showing percentage of patients who survived over time (months) for low-volume patients. The y-axis is "Patients Who Survived (%)" from 0 to 100 in increments of 10. The x-axis is "Time (months)" from 0 to 57 in increments of 3.
+
+Two survival curves are plotted:
+1. Darolutamide + ADT + docetaxel (solid line): Median, NE (95% CI, NE to NE)
+2. Placebo + ADT + docetaxel (dashed line): Median, NE (95% CI, NE to NE)
+
+HR for death, 0.68 (95% CI, 0.41 to 1.13)
+
+Table: No. of low-volume patients at risk:
+| Time (months) | 0   | 3   | 6   | 9   | 12  | 15  | 18  | 21  | 24  | 27  | 30  | 33  | 36  | 39  | 42  | 45  | 48 | 51 | 54 | 57 |
+| :------------ | :-- | :-- | :-- | :-- | :-- | :-- | :-- | :-- | :-- | :-- | :-- | :-- | :-- | :-- | :-- | :-- | :-- | :-- | :-- | :-- |
+| Darolutamide  | 154 | 151 | 151 | 148 | 146 | 144 | 141 | 140 | 136 | 131 | 130 | 127 | 126 | 124 | 117 | 74  | 36 | 13 | 3  | 0  |
+| Placebo       | 146 | 144 | 139 | 138 | 136 | 135 | 134 | 132 | 130 | 129 | 122 | 120 | 116 | 114 | 107 | 65  | 35 | 14 | 2  | 0  |
+: chart and table::>
+C
+<::Kaplan-Meier curve showing percentage of patients who survived over time (months) for high-risk patients. The y-axis is "Patients Who Survived (%)" from 0 to 100 in increments of 10. The x-axis is "Time (months)" from 0 to 57 in increments of 3.
+
+Two survival curves are plotted:
+1. Darolutamide + ADT + docetaxel (solid line): Median, NE (95% CI, NE to NE)
+2. Placebo + ADT + docetaxel (dashed line): Median, 43.2 months (95% CI, 40.0 to 48.9)
+
+HR for death, 0.71 (95% CI, 0.58 to 0.86)
+
+Table: No. of high-risk patients at risk:
+| Time (months) | 0   | 3   | 6   | 9   | 12  | 15  | 18  | 21  | 24  | 27  | 30  | 33  | 36  | 39  | 42  | 45  | 48 | 51 | 54 | 57 |
+| :------------ | :-- | :-- | :-- | :-- | :-- | :-- | :-- | :-- | :-- | :-- | :-- | :-- | :-- | :-- | :-- | :-- | :-- | :-- | :-- | :-- |
+| Darolutamide  | 452 | 450 | 443 | 437 | 419 | 407 | 389 | 369 | 352 | 344 | 322 | 308 | 294 | 282 | 257 | 177 | 99 | 42 | 6  | 0  |
+| Placebo       | 460 | 453 | 443 | 423 | 400 | 392 | 367 | 346 | 330 | 313 | 290 | 277 | 261 | 245 | 215 | 148 | 72 | 24 | 3  | 0  |
+: chart and table::>
+D
+<::Kaplan-Meier curve showing percentage of patients who survived over time (months) for low-risk patients. The y-axis is "Patients Who Survived (%)" from 0 to 100 in increments of 10. The x-axis is "Time (months)" from 0 to 60 in increments of 3.
+
+Two survival curves are plotted:
+1. Darolutamide + ADT + docetaxel (solid line): Median, NE (95% CI, NE to NE)
+2. Placebo + ADT + docetaxel (dashed line): Median, NE (95% CI, NE to NE)
+
+HR for death, 0.62 (95% CI, 0.42 to 0.90)
+
+Table: No. of low-risk patients at risk:
+| Time (months) | 0   | 3   | 6   | 9   | 12  | 15  | 18  | 21  | 24  | 27  | 30  | 33  | 36  | 39  | 42  | 45  | 48 | 51 | 54 | 57 | 60 |
+| :------------ | :-- | :-- | :-- | :-- | :-- | :-- | :-- | :-- | :-- | :-- | :-- | :-- | :-- | :-- | :-- | :-- | :-- | :-- | :-- | :-- | :-- |
+| Darolutamide  | 199 | 195 | 194 | 190 | 189 | 186 | 181 | 179 | 173 | 165 | 164 | 160 | 158 | 154 | 145 | 90  | 40 | 14 | 3  | 0  | 0  |
+| Placebo       | 194 | 193 | 187 | 184 | 180 | 173 | 168 | 164 | 158 | 157 | 151 | 147 | 141 | 138 | 125 | 70  | 35 | 13 | 3  | 1  | 0  |
+: chart and table::> 
 
 Task:
 - Evaluate EACH column independently. Do not assume the original plan is correct.
@@ -86,61 +142,61 @@ RAW OUTPUT
 COLUMN 1: Median OS (mo) | Overall | Treatment
 VERDICT: WRONG
 REASONING:
-- Chunk citations: Chunk 2
-- Why the original plan is wrong: The original extraction plan states that the value is reported in "Appendix Figure A1 on page 16". The provided Chunk 2 describes "Figure 2 on page 6" and does not contain any information about "Appendix Figure A1" or page 16, nor does it mention overall survival for the entire treatment group. Therefore, the original plan cannot be verified with the provided chunk.
+- Chunk citations: None
+- Why the original plan is right/wrong: The original extraction plan refers to "Appendix Figure A1 on page 16". This specific figure and page are not present in the provided chunks. Therefore, the source cannot be verified. Based on the provided chunks, the overall median OS for the treatment arm is not found.
 ISSUES:
-- The specified location (Appendix Figure A1 on page 16) is not mentioned or described in the provided chunk.
-- The chunk does not contain information about overall survival for the entire treatment group.
+- The specified source (Appendix Figure A1 on page 16) is not available in the provided chunks.
+- The value for "Overall" median OS for the treatment arm is not found in the provided chunks.
 CORRECTED_PLAN_JSON:
-{"found_in_pdf": false, "page": -1, "source_type": "not_applicable", "confidence": "low", "extraction_plan": "Information regarding Median OS (mo) for Overall Treatment group at Appendix Figure A1 on page 16 is not found in the provided chunks."}
+{"found_in_pdf": false, "page": -1, "source_type": "not_applicable", "confidence": "high", "extraction_plan": "The value for overall median OS for the treatment arm is not reported in the provided chunks."}
 
 COLUMN 2: Median OS (mo) | Overall | Control
 VERDICT: WRONG
 REASONING:
-- Chunk citations: Chunk 2
-- Why the original plan is wrong: The original extraction plan states that the value is reported in "Appendix Figure A1 on page 16". The provided Chunk 2 describes "Figure 2 on page 6" and does not contain any information about "Appendix Figure A1" or page 16, nor does it mention overall survival for the entire control group. Therefore, the original plan cannot be verified with the provided chunk.
+- Chunk citations: None
+- Why the original plan is right/wrong: The original extraction plan refers to "Appendix Figure A1 on page 16". This specific figure and page are not present in the provided chunks. Therefore, the source cannot be verified. Based on the provided chunks, the overall median OS for the control arm is not found.
 ISSUES:
-- The specified location (Appendix Figure A1 on page 16) is not mentioned or described in the provided chunk.
-- The chunk does not contain information about overall survival for the entire control group.
+- The specified source (Appendix Figure A1 on page 16) is not available in the provided chunks.
+- The value for "Overall" median OS for the control arm is not found in the provided chunks.
 CORRECTED_PLAN_JSON:
-{"found_in_pdf": false, "page": -1, "source_type": "not_applicable", "confidence": "low", "extraction_plan": "Information regarding Median OS (mo) for Overall Control group at Appendix Figure A1 on page 16 is not found in the provided chunks."}
+{"found_in_pdf": false, "page": -1, "source_type": "not_applicable", "confidence": "high", "extraction_plan": "The value for overall median OS for the control arm is not reported in the provided chunks."}
 
 COLUMN 3: Median OS (mo) | High volume | Treatment
 VERDICT: VERIFIED
 REASONING:
-- Chunk citations: Chunk 2
-- Why the original plan is right: Chunk 2 explicitly states: "Figure 2 This figure presents Kaplan-Meier survival curves for overall survival (OS) in subgroups of patients... The subgroups analyzed are: (A) high-volume disease... Each panel shows improved survival for the darolutamide group, with hazard ratios (HRs) and median survival times indicated for each subgroup." This confirms that Figure 2A on page 6 contains Kaplan-Meier curves for high-volume disease and indicates median survival times for the darolutamide group, aligning with the original plan. The mention of the "Primary End Point" section is not supported by the chunk, but the primary extraction location (Figure 2A) is.
+- Chunk citations: Chunk 58
+- Why the original plan is right/wrong: The original plan correctly identifies "Figure 2A on page 6" as the source. Chunk 58, part A, corresponds to Figure 2A and is titled "Kaplan-Meier curve showing percentage of patients who survived over time (months) for high-volume patients." It explicitly states for "Darolutamide + ADT + docetaxel (solid line): Median, NE (95% CI, 50.3 months to NE)". The plan accurately directs to locate this information. The mention of page 4 is secondary and not required for verification from the provided chunk.
 ISSUES:
-- The mention of "Primary End Point" section of the text on page 4 is not supported by the provided chunk.
+- None
 CORRECTED_PLAN_JSON:
-{"found_in_pdf": true, "page": 6, "source_type": "figure", "confidence": "high", "extraction_plan": "The value is reported in Figure 2A on page 6. Locate the Kaplan-Meier curve for \"Darolutamide + ADT + docetaxel\" under \"High-volume disease\" and extract the median OS."}
+{"found_in_pdf": true, "page": 6, "source_type": "figure", "confidence": "high", "extraction_plan": "The value is reported in Figure 2A (Chunk 58, part A) on page 6. Locate the Kaplan-Meier curve for 'Darolutamide + ADT + docetaxel' under 'High-volume disease' and extract the median OS."}
 
 COLUMN 4: Median OS (mo) | High volume | Control
 VERDICT: VERIFIED
 REASONING:
-- Chunk citations: Chunk 2
-- Why the original plan is right: Chunk 2 explicitly states: "Figure 2 This figure presents Kaplan-Meier survival curves for overall survival (OS) in subgroups of patients with metastatic hormone-sensitive prostate cancer treated with darolutamide + ADT + docetaxel versus placebo + ADT + docetaxel. The subgroups analyzed are: (A) high-volume disease... Each panel shows improved survival for the darolutamide group, with hazard ratios (HRs) and median survival times indicated for each subgroup." This confirms that Figure 2A on page 6 contains Kaplan-Meier curves for high-volume disease and indicates median survival times for both treatment arms (implied by "versus placebo + ADT + docetaxel" and "median survival times indicated for each subgroup"), aligning with the original plan. The mention of the "Primary End Point" section is not supported by the chunk, but the primary extraction location (Figure 2A) is.
+- Chunk citations: Chunk 58
+- Why the original plan is right/wrong: The original plan correctly identifies "Figure 2A on page 6" as the source. Chunk 58, part A, corresponds to Figure 2A and is titled "Kaplan-Meier curve showing percentage of patients who survived over time (months) for high-volume patients." It explicitly states for "Placebo + ADT + docetaxel (dashed line): Median, 42.4 months (95% CI, 39.7 to 46.0)". The plan accurately directs to locate this information. The mention of page 4 is secondary and not required for verification from the provided chunk.
 ISSUES:
-- The mention of "Primary End Point" section of the text on page 4 is not supported by the provided chunk.
+- None
 CORRECTED_PLAN_JSON:
-{"found_in_pdf": true, "page": 6, "source_type": "figure", "confidence": "high", "extraction_plan": "The value is reported in Figure 2A on page 6. Locate the Kaplan-Meier curve for \"Placebo + ADT + docetaxel\" under \"High-volume disease\" and extract the median OS."}
+{"found_in_pdf": true, "page": 6, "source_type": "figure", "confidence": "high", "extraction_plan": "The value is reported in Figure 2A (Chunk 58, part A) on page 6. Locate the Kaplan-Meier curve for 'Placebo + ADT + docetaxel' under 'High-volume disease' and extract the median OS."}
 
 COLUMN 5: Median OS (mo) | Low volume | Treatment
 VERDICT: VERIFIED
 REASONING:
-- Chunk citations: Chunk 2
-- Why the original plan is right: Chunk 2 explicitly states: "Figure 2 This figure presents Kaplan-Meier survival curves for overall survival (OS) in subgroups of patients... The subgroups analyzed are: (B) low-volume disease... Each panel shows improved survival for the darolutamide group, with hazard ratios (HRs) and median survival times indicated for each subgroup." This confirms that Figure 2B on page 6 contains Kaplan-Meier curves for low-volume disease and indicates median survival times for the darolutamide group, aligning with the original plan. The mention of the "Primary End Point" section is not supported by the chunk, but the primary extraction location (Figure 2B) is.
+- Chunk citations: Chunk 58
+- Why the original plan is right/wrong: The original plan correctly identifies "Figure 2B on page 6" as the source. Chunk 58, part B, corresponds to Figure 2B and is titled "Kaplan-Meier curve showing percentage of patients who survived over time (months) for low-volume patients." It explicitly states for "Darolutamide + ADT + docetaxel (solid line): Median, NE (95% CI, NE to NE)". The plan accurately directs to locate this information. The mention of page 4 is secondary and not required for verification from the provided chunk.
 ISSUES:
-- The mention of "Primary End Point" section of the text on page 4 is not supported by the provided chunk.
+- None
 CORRECTED_PLAN_JSON:
-{"found_in_pdf": true, "page": 6, "source_type": "figure", "confidence": "high", "extraction_plan": "The value is reported in Figure 2B on page 6. Locate the Kaplan-Meier curve for \"Darolutamide + ADT + docetaxel\" under \"Low-volume disease\" and extract the median OS."}
+{"found_in_pdf": true, "page": 6, "source_type": "figure", "confidence": "high", "extraction_plan": "The value is reported in Figure 2B (Chunk 58, part B) on page 6. Locate the Kaplan-Meier curve for 'Darolutamide + ADT + docetaxel' under 'Low-volume disease' and extract the median OS."}
 
 COLUMN 6: Median OS (mo) | Low volume | Control
 VERDICT: VERIFIED
 REASONING:
-- Chunk citations: Chunk 2
-- Why the original plan is right: Chunk 2 explicitly states: "Figure 2 This figure presents Kaplan-Meier survival curves for overall survival (OS) in subgroups of patients with metastatic hormone-sensitive prostate cancer treated with darolutamide + ADT + docetaxel versus placebo + ADT + docetaxel. The subgroups analyzed are: (B) low-volume disease... Each panel shows improved survival for the darolutamide group, with hazard ratios (HRs) and median survival times indicated for each subgroup." This confirms that Figure 2B on page 6 contains Kaplan-Meier curves for low-volume disease and indicates median survival times for both treatment arms (implied by "versus placebo + ADT + docetaxel" and "median survival times indicated for each subgroup"), aligning with the original plan. The mention of the "Primary End Point" section is not supported by the chunk, but the primary extraction location (Figure 2B) is.
+- Chunk citations: Chunk 58
+- Why the original plan is right/wrong: The original plan correctly identifies "Figure 2B on page 6" as the source. Chunk 58, part B, corresponds to Figure 2B and is titled "Kaplan-Meier curve showing percentage of patients who survived over time (months) for low-volume patients." It explicitly states for "Placebo + ADT + docetaxel (dashed line): Median, NE (95% CI, NE to NE)". The plan accurately directs to locate this information. The mention of page 4 is secondary and not required for verification from the provided chunk.
 ISSUES:
-- The mention of "Primary End Point" section of the text on page 4 is not supported by the provided chunk.
+- None
 CORRECTED_PLAN_JSON:
-{"found_in_pdf": true, "page": 6, "source_type": "figure", "confidence": "high", "extraction_plan": "The value is reported in Figure 2B on page 6. Locate the Kaplan-Meier curve for \"Placebo + ADT + docetaxel\" under \"Low-volume disease\" and extract the median OS."}
+{"found_in_pdf": true, "page": 6, "source_type": "figure", "confidence": "high", "extraction_plan": "The value is reported in Figure 2B (Chunk 58, part B) on page 6. Locate the Kaplan-Meier curve for 'Placebo + ADT + docetaxel' under 'Low-volume disease' and extract the median OS."}

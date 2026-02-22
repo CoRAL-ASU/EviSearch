@@ -1,0 +1,47 @@
+============================================================
+INPUT
+============================================================
+You are extracting a value for a clinical trial data column from the provided document content.
+
+Column: OS Rate (%) | High volume | Control
+Definition: What percentage of patients with high volume metastasis (by CHAARTED criteria) in the control arm survived at the latest follow-up? If reported, include the rate (percentage) and any accompanying details. If multiple arms are reported, list each arm separately. Use 'Not reported' if missing.
+
+Extraction plan to follow:
+Appendix Table A3 (page 13) under 'Extensive' disease group (defined as high volume in footnote b of Table A2 on page 12) shows 'OS Control Median/5 Year' as 4.1 years/44%. The OS rate is 44%.
+
+Document content (grouped by type, in chronological page order):
+--- TABLES ---
+[Page 13]
+TABLE A3. Treatment Outcomes by Disease Severity
+<table>
+<tr><td>Disease Group</td><td>Control Arm</td><td>Orteronel Arm</td><td>PFS Control Median/5 Year</td><td>PFS Orteronel Median/5 Year</td><td>HR (95% CI)</td><td>OS Control Median/5 Year</td><td>OS Orteronel Median/5 Year</td><td>HR (95% CI)</td></tr>
+<tr><td>Extensive</td><td>313</td><td>310</td><td>1.1 years/20%</td><td>2.2 years/29%</td><td>0.66 (0.55 to 0.79)</td><td>4.1 years/44%</td><td>4.8 years/47%</td><td>0.88 (0.71 to 1.10)</td></tr>
+<tr><td>Minimal</td><td>328</td><td>328</td><td>3.6 years/38%</td><td>NR/58%</td><td>0.53 (0.42 to 0.66)</td><td>NR/71%</td><td>NR/71%</td><td>0.89 (0.67 to 1.18)</td></tr>
+</table>
+Abbreviations: HR, hazard ratio; NR, not reached; OS, overall survival; PFS, progression-free survival.
+
+Task:
+1. Extract the value for this column following the plan. Return your best-effort value even if uncertain.
+2. If the plan seems wrong, incomplete, or ambiguous, still return the value you found and add a suggestion and/or alternative_plan.
+3. Use "not found" or "not reported" only if the value is genuinely absent from the content.
+
+Output a JSON object with:
+- value: the extracted value (string)
+- found: true if you found a value, false if not reported/absent
+- confidence: "high" | "medium" | "low"
+- suggestion: optional string with concerns or notes (null if none)
+- alternative_plan: optional string describing a different extraction approach to try (null if plan seems fine)
+
+
+============================================================
+OUTPUT
+============================================================
+```json
+{
+  "value": "44% (5-year)",
+  "found": true,
+  "confidence": "high",
+  "suggestion": null,
+  "alternative_plan": null
+}
+```

@@ -1,0 +1,114 @@
+============================================================
+INPUT
+============================================================
+You are extracting a value for a clinical trial data column from the provided document content.
+
+Column: Total Participants - N
+Definition: What are the total number of participants included in the clinical trial? These include only participants who were inlcuded in either the treatment or control arm of the clinical trial. If reported, provide the value; otherwise use 'Not reported'.If multiple comparative trials are mentioned, report for all separately
+
+Extraction plan to follow:
+The total number of participants randomly assigned is 1,313, as explicitly stated in the CONSORT diagram (Figure A1) on page 13, under 'Total randomly assigned (N = 1,313)'. This is corroborated by the 'RESULTS' section on page 4, which states '1,313 patients were randomly assigned'.
+
+Document content (grouped by type, in chronological page order):
+--- FIGURES ---
+[Page 13]
+<::flowchart
+: Total randomly assigned
+(N = 1,313)
+
+LHRHa plus bicalutamide
+(n = 660)
+
+Ineligible
+(n = 17)
+Baseline out of range (n = 3)
+QTc out of range (n = 1)
+Extent of disease (n = 2)
+Prior ADT outside protocol limits (n = 11)
+
+Withdrew all consent
+(n = 2)
+
+ITT analysis population
+
+Treatment status (n = 641)
+Currently on treatment (n = 100)
+No protocol treatment (n = 11)
+Discontinued treatment (n = 530)
+Adverse events (n = 21)
+Disease progression (n = 372)
+Death (n = 13)
+Patient refusal (n = 72)
+Other (n = 52)
+
+Withdrew consent
+(n = 37)
+
+Documented lost to follow-up
+(n = 3)
+
+Last contact > 18 months ago
+(n = 13)
+
+LHRHa plus orteronel
+(n = 653)
+
+Ineligible
+(n = 15)
+Baseline out of range (n = 6)
+QTc out of range (n = 1)
+Extent of disease (n = 1)
+Prior ADT outside protocol limits (n = 5)
+Prohibited concomitant therapy (n = 1)
+Prohibited heart condition (n = 1)
+
+Withdrew all consent
+(n = 0)
+
+Treatment status (n = 638)
+Currently on treatment (n = 192)
+No protocol treatment (n = 10)
+Discontinued treatment (n = 436)
+Adverse events (n = 80)
+Disease progression (n = 226)
+Death (n = 26)
+Patient refusal (n = 70)
+Other (n = 34)
+
+Withdrew consent
+(n = 43)
+
+Documented lost to follow-up
+(n = 4)
+
+Last contact > 18 months ago
+(n = 12)
+
+FIG A1. CONSORT diagram for the S1216 trial. ADT, androgen deprivation therapy; ITT, intention-to-treat; LHRHa, luteinizing hormone-releasing hormone agonist; QTc, corrected QT interval.
+::>
+
+Task:
+1. Extract the value for this column following the plan. Return your best-effort value even if uncertain.
+2. If the plan seems wrong, incomplete, or ambiguous, still return the value you found and add a suggestion and/or alternative_plan.
+3. Use "not found" or "not reported" only if the value is genuinely absent from the content.
+
+Output a JSON object with:
+- value: the extracted value (string)
+- found: true if you found a value, false if not reported/absent
+- confidence: "high" | "medium" | "low"
+- suggestion: optional string with concerns or notes (null if none)
+- alternative_plan: optional string describing a different extraction approach to try (null if plan seems fine)
+
+
+============================================================
+OUTPUT
+============================================================
+```json
+{
+  "value": "1,313",
+  "found": true,
+  "confidence": "high",
+  "suggestion": null,
+  "alternative_plan": null
+}
+```

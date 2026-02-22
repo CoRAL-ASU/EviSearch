@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-02-10T08:38:50.441608Z",
+  "generated_at": "2026-02-22T02:00:21.957863Z",
   "total_groups": 39,
   "total_columns": 133,
   "plans": [
@@ -47,8 +47,8 @@
           "found_in_pdf": false,
           "page": -1,
           "source_type": "not_applicable",
-          "confidence": "high",
-          "extraction_plan": "Table 3 reports 'Treatment-Emergent Adverse Events (AEs)' by grade. The table and its description do not provide a specific breakdown of which of these AEs are 'treatment-related' for Grade 3 or higher. Therefore, the requested information is not available in the provided chunk.",
+          "confidence": "low",
+          "extraction_plan": "Table 3 reports \"Treatment-Emergent AEs\" by grade, which are generally considered all-cause. It does not specify which of these AEs are \"treatment-related\" for Grade 3 or higher. The text also does not provide this specific breakdown.",
           "column_name_raw": "Adverse Events - N (%) | Treatment-related Grade 3 or Higher | Treatment"
         },
         {
@@ -57,28 +57,28 @@
           "found_in_pdf": false,
           "page": -1,
           "source_type": "not_applicable",
-          "confidence": "high",
-          "extraction_plan": "Table 3 reports 'Treatment-Emergent Adverse Events (AEs)' by grade. The table and its description do not provide a specific breakdown of which of these AEs are 'treatment-related' for Grade 3 or higher. Therefore, the requested information is not available in the provided chunk.",
+          "confidence": "low",
+          "extraction_plan": "Table 3 reports \"Treatment-Emergent AEs\" by grade, which are generally considered all-cause. It does not specify which of these AEs are \"treatment-related\" for Grade 3 or higher. The text also does not provide this specific breakdown.",
           "column_name_raw": "Adverse Events - N (%) | Treatment-related Grade 3 or Higher | Control"
         },
         {
           "column_index": 5,
           "column_name": "Adverse Events - N (%) | Treatment-related Grade 5 | Treatment",
-          "found_in_pdf": false,
-          "page": -1,
-          "source_type": "not_applicable",
+          "found_in_pdf": true,
+          "page": 9,
+          "source_type": "table",
           "confidence": "high",
-          "extraction_plan": "Table 3 reports 'Grade 5 (death)' under 'Worst grade' as 'Treatment-Emergent Adverse Events (AEs)'. The table and its description do not specify if these Grade 5 events are 'treatment-related'. Therefore, the requested information is not available in the provided chunk.",
+          "extraction_plan": "Table 3 reports \"Grade 5 (death)†\" under \"Worst grade\" for \"Treatment-Emergent Adverse Events (AEs)\", which are generally considered all-cause. It does not specify if these Grade 5 events are \"treatment-related\". The provided chunk does not contain information to distinguish between all-cause and treatment-related Grade 5 events.",
           "column_name_raw": "Adverse Events - N (%) | Treatment-related Grade 5 | Treatment"
         },
         {
           "column_index": 6,
           "column_name": "Adverse Events - N (%) | Treatment-related Grade 5 | Control",
-          "found_in_pdf": false,
-          "page": -1,
-          "source_type": "not_applicable",
+          "found_in_pdf": true,
+          "page": 9,
+          "source_type": "table",
           "confidence": "high",
-          "extraction_plan": "Table 3 reports 'Grade 5 (death)' under 'Worst grade' as 'Treatment-Emergent Adverse Events (AEs)'. The table and its description do not specify if these Grade 5 events are 'treatment-related'. Therefore, the requested information is not available in the provided chunk.",
+          "extraction_plan": "Table 3 reports \"Grade 5 (death)†\" under \"Worst grade\" for \"Treatment-Emergent Adverse Events (AEs)\", which are generally considered all-cause. It does not specify if these Grade 5 events are \"treatment-related\". The provided chunk does not contain information to distinguish between all-cause and treatment-related Grade 5 events.",
           "column_name_raw": "Adverse Events - N (%) | Treatment-related Grade 5 | Control"
         }
       ]
@@ -123,7 +123,7 @@
           "page": 1,
           "source_type": "text",
           "confidence": "high",
-          "extraction_plan": "The control arm is explicitly stated in the abstract and methods section. On page 1, in the 'METHODS' section of the abstract, it states: 'Patients with metastatic hormone-sensitive prostate cancer were randomly assigned to darolutamide or placebo plus androgen-deprivation therapy and docetaxel.' On page 2, in the 'Trial Design' section under 'METHODS', it states: 'Enrolled patients were randomly assigned (1:1) to oral darolutamide 600 mg twice daily or matched placebo, in combination with ADT and docetaxel.'",
+          "extraction_plan": "The control arm is explicitly stated in the abstract and methods section. On page 1, in the \"METHODS\" section of the abstract, it states: \"Patients with metastatic hormone-sensitive prostate cancer were randomly assigned to darolutamide or placebo plus androgen-deprivation therapy and docetaxel.\" On page 2, in the \"Trial Design\" section under \"METHODS\", it states: \"Enrolled patients were randomly assigned (1:1) to oral darolutamide 600 mg twice daily or matched placebo, in combination with ADT and docetaxel.\"",
           "column_name_raw": "Control Arm"
         }
       ]
@@ -153,7 +153,7 @@
           "page": 6,
           "source_type": "text",
           "confidence": "high",
-          "extraction_plan": "The Discussion section on page 6 (Chunk 9) explicitly confirms, \"The results of this post hoc analysis of the ARASENS trial, in which all patients received docetaxel, show that darolutamide in combination with ADT and docetaxel increases OS in patients with metastatic hormone-sensitive prostate cancer.\" This indicates that 100% of patients in the treatment arm received docetaxel. The exact count for the treatment arm is not provided in the given chunks.",
+          "extraction_plan": "The abstract on page 1 (Chunk 8) states, \"Patients with metastatic hormone-sensitive prostate cancer were randomly assigned to darolutamide or placebo plus androgen-deprivation therapy and docetaxel.\" The Methods section on page 2 (Chunk 8) further clarifies, \"Enrolled patients were randomly assigned (1:1) to oral darolutamide 600 mg twice daily or matched placebo, in combination with ADT and docetaxel.\" The Discussion section on page 6 (Chunk 9) explicitly confirms, \"The results of this post hoc analysis of the ARASENS trial, in which all patients received docetaxel, show that darolutamide in combination with ADT and docetaxel increases OS in patients with metastatic hormone-sensitive prostate cancer.\" Based on these statements, 100% of participants in the Darolutamide + docetaxel + ADT arm received docetaxel. The exact count (N) for this specific arm is not provided in the given chunks.",
           "column_name_raw": "Docetaxel administration - N (%) | Treatment"
         },
         {
@@ -163,7 +163,7 @@
           "page": 6,
           "source_type": "text",
           "confidence": "high",
-          "extraction_plan": "The Discussion section on page 6 (Chunk 9) explicitly confirms, \"The results of this post hoc analysis of the ARASENS trial, in which all patients received docetaxel, show that darolutamide in combination with ADT and docetaxel increases OS in patients with metastatic hormone-sensitive prostate cancer.\" This indicates that 100% of patients in the control arm received docetaxel. The exact count for the control arm is not provided in the given chunks.",
+          "extraction_plan": "The abstract on page 1 (Chunk 8) states, \"Patients with metastatic hormone-sensitive prostate cancer were randomly assigned to darolutamide or placebo plus androgen-deprivation therapy and docetaxel.\" The Methods section on page 2 (Chunk 8) further clarifies, \"Enrolled patients were randomly assigned (1:1) to oral darolutamide 600 mg twice daily or matched placebo, in combination with ADT and docetaxel.\" The Discussion section on page 6 (Chunk 9) explicitly confirms, \"The results of this post hoc analysis of the ARASENS trial, in which all patients received docetaxel, show that darolutamide in combination with ADT and docetaxel increases OS in patients with metastatic hormone-sensitive prostate cancer.\" Based on these statements, 100% of participants in the Placebo + docetaxel + ADT arm received docetaxel. The exact count (N) for this specific arm is not provided in the given chunks.",
           "column_name_raw": "Docetaxel administration - N (%) | Control"
         }
       ]
@@ -223,7 +223,7 @@
           "page": -1,
           "source_type": "not_applicable",
           "confidence": "high",
-          "extraction_plan": "Search the entire document for the alphanumeric code following 'NCT'. If not found in the provided chunks, use 'Not reported'.",
+          "extraction_plan": "The NCT identifier is not explicitly provided in the document within the given chunks. Therefore, use 'Not reported'.",
           "column_name_raw": "NCT"
         },
         {
@@ -259,11 +259,11 @@
         {
           "column_index": 5,
           "column_name": "Year",
-          "found_in_pdf": true,
-          "page": 1,
-          "source_type": "text",
+          "found_in_pdf": false,
+          "page": -1,
+          "source_type": "not_applicable",
           "confidence": "high",
-          "extraction_plan": "Extract the year \"2023\" from the copyright information at the bottom of page 1 (\"© 2023 by American Society of Clinical Oncology\") or from the publication date in the abstract section (\"published at ascopubs.org/journal/jco on February 16, 2023\").",
+          "extraction_plan": "The publication year is not explicitly provided in the given chunks. Therefore, use 'Not reported'.",
           "column_name_raw": "Year"
         },
         {
@@ -273,7 +273,7 @@
           "page": 1,
           "source_type": "text",
           "confidence": "high",
-          "extraction_plan": "Based on the presence of 'abstract', 'INTRODUCTION', and 'METHODS' sections in Chunk 8, infer that the document is a full publication.",
+          "extraction_plan": "The document is labeled \"original reports\" on page 1 and contains a comprehensive structure including abstract, introduction, methods, results, discussion, tables, and figures, indicating it is a full publication.",
           "column_name_raw": "Full Pub or Abstract"
         },
         {
@@ -293,7 +293,7 @@
           "page": 1,
           "source_type": "text",
           "confidence": "high",
-          "extraction_plan": "Based on the abstract and introduction describing the study as presenting 'efﬁcacy and safety outcomes from ARASENS in patients with metastatic hormone-sensitive prostate cancer by disease volume and disease risk' and stating 'We conducted these subgroup analyses posthoc', identify it as an 'Original' report of this specific subgroup analysis.",
+          "extraction_plan": "Based on the abstract and introduction, which describe the study as an analysis of subgroups from the ARASENS trial, classify it as 'Follow up'.",
           "column_name_raw": "Original/Follow Up"
         }
       ]
@@ -308,7 +308,7 @@
           "page": -1,
           "source_type": "not_applicable",
           "confidence": "high",
-          "extraction_plan": "The median age for the overall Darolutamide treatment arm is not reported as a single value in the provided Table 1. The table provides median age for Darolutamide within specific subgroups (e.g., High Volume - Darolutamide, Low Volume - Darolutamide, High Risk - Darolutamide, Low Risk - Darolutamide), but not for the entire arm (n=652). Therefore, the value is 'Not reported'.",
+          "extraction_plan": "The median age for the entire Darolutamide treatment arm is not reported as a single value in a dedicated column in Table 1. The table provides median ages for Darolutamide subgroups (e.g., 'High Volume - Darolutamide (n = 497)', 'Low Volume - Darolutamide (n = 154)', etc.), but not for the overall treatment arm.",
           "column_name_raw": "Median Age (years) | Treatment"
         },
         {
@@ -318,7 +318,7 @@
           "page": -1,
           "source_type": "not_applicable",
           "confidence": "high",
-          "extraction_plan": "The median age for the overall Placebo control arm is not reported as a single value in the provided Table 1. The table provides median age for Placebo within specific subgroups (e.g., High Volume - Placebo, Low Volume - Placebo, High Risk - Placebo, Low Risk - Placebo), but not for the entire arm (n=650). Therefore, the value is 'Not reported'.",
+          "extraction_plan": "The median age for the entire Placebo control arm is not reported as a single value in a dedicated column in Table 1. The table provides median ages for Placebo subgroups (e.g., 'High Volume - Placebo (n = 508)', 'Low Volume - Placebo (n = 146)', etc.), but not for the overall control arm.",
           "column_name_raw": "Median Age (years) | Control"
         }
       ]
@@ -618,7 +618,7 @@
           "page": 5,
           "source_type": "table",
           "confidence": "high",
-          "extraction_plan": "Extract the count and percentage for 'Recurrent mHSPC' from the 'Placebo' arm by summing the values from the 'High Volume' and 'Low Volume' subgroups in Table 1, page 5. Placebo (High Volume): 59 (11.6%) Placebo (Low Volume): 25 (15.8%) Total Placebo patients (sum of n for High Volume Placebo and Low Volume Placebo from Table 1): 508 + 146 = 654. Calculated total for 'Recurrent mHSPC' in Placebo arm: 59 + 25 = 84. Calculated percentage: (84 / 654) * 100 = 12.8%. Therefore, the value is 84 (12.8%).",
+          "extraction_plan": "Extract the count and percentage for 'Recurrent mHSPC' from the 'Placebo' arm by summing the values from the 'High Volume' and 'Low Volume' subgroups in Table 1, page 5. Placebo (High Volume): 59 (11.6%) Placebo (Low Volume): 25 (15.8%) Total Placebo patients (from Table 1 column headers): 508 + 146 = 654. Calculated total for 'Recurrent mHSPC' in Placebo arm: 59 + 25 = 84. Calculated percentage: (84 / 654) * 100 = 12.8%. Therefore, the value is 84 (12.8%).",
           "column_name_raw": "Mode of metastases - N (%) | Metachronous | Control"
         }
       ]
@@ -629,21 +629,21 @@
         {
           "column_index": 1,
           "column_name": "No. of Deaths - N | Treatment",
-          "found_in_pdf": false,
-          "page": -1,
-          "source_type": "not_applicable",
-          "confidence": "low",
-          "extraction_plan": "The specific text quoted in the original extraction plan, which states the number of deaths for the darolutamide group, is not present in the provided chunks. The original plan indicates this information is in the caption of Figure 1.",
+          "found_in_pdf": true,
+          "page": 3,
+          "source_type": "figure",
+          "confidence": "medium",
+          "extraction_plan": "Extract the number of deaths for the darolutamide group from the caption of Figure 1, which is expected to contain details on primary endpoints.",
           "column_name_raw": null
         },
         {
           "column_index": 2,
           "column_name": "No. of Deaths - N | Control",
-          "found_in_pdf": false,
-          "page": -1,
-          "source_type": "not_applicable",
-          "confidence": "low",
-          "extraction_plan": "The specific text quoted in the original extraction plan, which states the number of deaths for the placebo group, is not present in the provided chunks. The original plan indicates this information is in the caption of Figure 1.",
+          "found_in_pdf": true,
+          "page": 3,
+          "source_type": "figure",
+          "confidence": "medium",
+          "extraction_plan": "Extract the number of deaths for the placebo group from the caption of Figure 1, which is expected to contain details on primary endpoints.",
           "column_name_raw": null
         }
       ]
@@ -757,8 +757,8 @@
           "found_in_pdf": false,
           "page": -1,
           "source_type": "not_applicable",
-          "confidence": "high",
-          "extraction_plan": "Not reported in the provided chunk.",
+          "confidence": "low",
+          "extraction_plan": "The required data for total patients from Figure 1 is not present in the provided chunks. Only the number of deaths (229) for the darolutamide group is mentioned in the text.",
           "column_name_raw": "OS Rate (%) | Overall | Treatment"
         },
         {
@@ -767,8 +767,8 @@
           "found_in_pdf": false,
           "page": -1,
           "source_type": "not_applicable",
-          "confidence": "high",
-          "extraction_plan": "Not reported in the provided chunk.",
+          "confidence": "low",
+          "extraction_plan": "The required data for total patients from Figure 1 is not present in the provided chunks. Only the number of deaths (304) for the placebo group is mentioned in the text.",
           "column_name_raw": "OS Rate (%) | Overall | Control"
         },
         {
@@ -777,8 +777,8 @@
           "found_in_pdf": false,
           "page": -1,
           "source_type": "not_applicable",
-          "confidence": "high",
-          "extraction_plan": "Not reported in the provided chunk.",
+          "confidence": "low",
+          "extraction_plan": "The required data from Figure A1 (Panel A and B) is not present in the provided chunks.",
           "column_name_raw": "OS Rate (%) | Synchronous | Treatment"
         },
         {
@@ -787,8 +787,8 @@
           "found_in_pdf": false,
           "page": -1,
           "source_type": "not_applicable",
-          "confidence": "high",
-          "extraction_plan": "Not reported in the provided chunk.",
+          "confidence": "low",
+          "extraction_plan": "The required data from Figure A1 (Panel A and B) is not present in the provided chunks.",
           "column_name_raw": "OS Rate (%) | Synchronous | Control"
         },
         {
@@ -797,8 +797,8 @@
           "found_in_pdf": false,
           "page": -1,
           "source_type": "not_applicable",
-          "confidence": "high",
-          "extraction_plan": "Not reported in the provided chunk.",
+          "confidence": "low",
+          "extraction_plan": "The required data from Figure A1 (Panel A and B) is not present in the provided chunks.",
           "column_name_raw": "OS Rate (%) | Metachronous | Treatment"
         },
         {
@@ -807,8 +807,8 @@
           "found_in_pdf": false,
           "page": -1,
           "source_type": "not_applicable",
-          "confidence": "high",
-          "extraction_plan": "Not reported in the provided chunk.",
+          "confidence": "low",
+          "extraction_plan": "The required data from Figure A1 (Panel A and B) is not present in the provided chunks.",
           "column_name_raw": "OS Rate (%) | Metachronous | Control"
         },
         {
@@ -817,8 +817,8 @@
           "found_in_pdf": false,
           "page": -1,
           "source_type": "not_applicable",
-          "confidence": "high",
-          "extraction_plan": "Not reported in the provided chunk.",
+          "confidence": "low",
+          "extraction_plan": "The required data from Figure A1 (Panel A) is not present in the provided chunks.",
           "column_name_raw": "OS Rate (%) | High volume | Treatment"
         },
         {
@@ -827,8 +827,8 @@
           "found_in_pdf": false,
           "page": -1,
           "source_type": "not_applicable",
-          "confidence": "high",
-          "extraction_plan": "Not reported in the provided chunk.",
+          "confidence": "low",
+          "extraction_plan": "The required data from Figure A1 (Panel A) is not present in the provided chunks.",
           "column_name_raw": "OS Rate (%) | High volume | Control"
         },
         {
@@ -837,8 +837,8 @@
           "found_in_pdf": false,
           "page": -1,
           "source_type": "not_applicable",
-          "confidence": "high",
-          "extraction_plan": "Not reported in the provided chunk.",
+          "confidence": "low",
+          "extraction_plan": "The required data from Figure A1 (Panel B) is not present in the provided chunks.",
           "column_name_raw": "OS Rate (%) | Low volume | Treatment"
         },
         {
@@ -847,8 +847,8 @@
           "found_in_pdf": false,
           "page": -1,
           "source_type": "not_applicable",
-          "confidence": "high",
-          "extraction_plan": "Not reported in the provided chunk.",
+          "confidence": "low",
+          "extraction_plan": "The required data from Figure A1 (Panel B) is not present in the provided chunks.",
           "column_name_raw": "OS Rate (%) | Low volume | Control"
         }
       ]
@@ -1013,7 +1013,7 @@
           "page": -1,
           "source_type": "not_applicable",
           "confidence": "high",
-          "extraction_plan": "Chunk 4 (Table 2) reports 'Time to worsening disease-related symptoms'. This measures specific physical symptoms and does not align with the definition of an 'overall Quality of Life Scale' which assesses general well-being and satisfaction with health status (a measure of the participants' overall well-being and satisfaction with their health status, as assessed through a standardized questionnaire or survey, reflecting their perceived quality of life during the clinical trial?). No other provided chunk reports a measure that fits the definition of an overall Quality of Life Scale. Therefore, an overall Quality of Life Scale is not reported.",
+          "extraction_plan": "The PDF reports on \"time to worsening of disease-related physical symptoms as measured by the Functional Assessment of Cancer Therapy-Prostate (National Comprehensive Cancer Network) symptom index 17-item questionnaire\" (page 3, text, \"Study Assessments\" section, and page 8, Table 2). While this is a patient-reported outcome related to quality of life, it specifically measures physical symptoms rather than an overall \"Quality of Life Scale\" assessing general well-being and satisfaction with health status as per the definition. Therefore, an overall Quality of Life Scale is not reported.",
           "column_name_raw": null
         }
       ]
@@ -1027,8 +1027,8 @@
           "found_in_pdf": false,
           "page": -1,
           "source_type": "not_applicable",
-          "confidence": "low",
-          "extraction_plan": "The provided chunk (Chunk 8, pages 1-4) does not contain information explicitly stating that the clinical trial reports results on the quality of life of participants, nor does it contain the specific quotes or assessment tools (e.g., Functional Assessment of Cancer Therapy-Prostate) mentioned in the original plan. Therefore, based solely on the provided chunk, it is 'Not reported'.",
+          "confidence": "high",
+          "extraction_plan": "The provided chunks (pages 1-4) do not contain any information indicating that the clinical trial reports results on the quality of life of participants, nor do they contain the specific quotes or table references mentioned in the original plan. Therefore, based on the provided chunks, the answer is No.",
           "column_name_raw": null
         }
       ]
@@ -1039,61 +1039,61 @@
         {
           "column_index": 1,
           "column_name": "Race - N (%) | White | Treatment",
-          "found_in_pdf": false,
-          "page": -1,
-          "source_type": "not_applicable",
+          "found_in_pdf": true,
+          "page": 5,
+          "source_type": "table",
           "confidence": "high",
-          "extraction_plan": "The requested information for 'Race - N (%) | White | Treatment' is not found in the provided chunks. The table in Chunk 1 does not contain any race-related data.",
+          "extraction_plan": "Extract the value from the \"All Patients\" column, \"Darolutamide (n = 651)\" sub-column, row \"Race\", sub-row \"White\". The value is 258. The percentage is not explicitly stated in the cell but can be calculated as (258 / 651) * 100 = 39.6%.",
           "column_name_raw": "Race - N (%) | White | Treatment"
         },
         {
           "column_index": 2,
           "column_name": "Race - N (%) | White | Control",
-          "found_in_pdf": false,
-          "page": -1,
-          "source_type": "not_applicable",
+          "found_in_pdf": true,
+          "page": 5,
+          "source_type": "table",
           "confidence": "high",
-          "extraction_plan": "The requested information for 'Race - N (%) | White | Control' is not found in the provided chunks. The table in Chunk 1 does not contain any race-related data.",
+          "extraction_plan": "Extract the value from the \"All Patients\" column, \"Placebo (n = 654)\" sub-column, row \"Race\", sub-row \"White\". The value is 259. The percentage is not explicitly stated in the cell but can be calculated as (259 / 654) * 100 = 39.6%.",
           "column_name_raw": "Race - N (%) | White | Control"
         },
         {
           "column_index": 3,
           "column_name": "Race - N (%) | Black or African American | Treatment",
-          "found_in_pdf": false,
-          "page": -1,
-          "source_type": "not_applicable",
+          "found_in_pdf": true,
+          "page": 5,
+          "source_type": "table",
           "confidence": "high",
-          "extraction_plan": "The requested information for 'Race - N (%) | Black or African American | Treatment' is not found in the provided chunks. The table in Chunk 1 does not contain any race-related data.",
+          "extraction_plan": "Extract the value from the \"All Patients\" column, \"Darolutamide (n = 651)\" sub-column, row \"Race\", sub-row \"Black or African American\". The value is 22. The percentage is not explicitly stated in the cell but can be calculated as (22 / 651) * 100 = 3.4%.",
           "column_name_raw": "Race - N (%) | Black or African American | Treatment"
         },
         {
           "column_index": 4,
           "column_name": "Race - N (%) | Black or African American | Control",
-          "found_in_pdf": false,
-          "page": -1,
-          "source_type": "not_applicable",
+          "found_in_pdf": true,
+          "page": 5,
+          "source_type": "table",
           "confidence": "high",
-          "extraction_plan": "The requested information for 'Race - N (%) | Black or African American | Control' is not found in the provided chunks. The table in Chunk 1 does not contain any race-related data.",
+          "extraction_plan": "Extract the value from the \"All Patients\" column, \"Placebo (n = 654)\" sub-column, row \"Race\", sub-row \"Black or African American\". The value is 21. The percentage is not explicitly stated in the cell but can be calculated as (21 / 654) * 100 = 3.2%.",
           "column_name_raw": "Race - N (%) | Black or African American | Control"
         },
         {
           "column_index": 5,
           "column_name": "Race - N (%) | Asian | Treatment",
-          "found_in_pdf": false,
-          "page": -1,
-          "source_type": "not_applicable",
+          "found_in_pdf": true,
+          "page": 5,
+          "source_type": "table",
           "confidence": "high",
-          "extraction_plan": "The requested information for 'Race - N (%) | Asian | Treatment' is not found in the provided chunks. The table in Chunk 1 does not contain any race-related data.",
+          "extraction_plan": "Extract the value from the \"All Patients\" column, \"Darolutamide (n = 651)\" sub-column, row \"Race\", sub-row \"Asian\". The value is 177. The percentage is not explicitly stated in the cell but can be calculated as (177 / 651) * 100 = 27.2%.",
           "column_name_raw": "Race - N (%) | Asian | Treatment"
         },
         {
           "column_index": 6,
           "column_name": "Race - N (%) | Asian | Control",
-          "found_in_pdf": false,
-          "page": -1,
-          "source_type": "not_applicable",
+          "found_in_pdf": true,
+          "page": 5,
+          "source_type": "table",
           "confidence": "high",
-          "extraction_plan": "The requested information for 'Race - N (%) | Asian | Control' is not found in the provided chunks. The table in Chunk 1 does not contain any race-related data.",
+          "extraction_plan": "Extract the value from the \"All Patients\" column, \"Placebo (n = 654)\" sub-column, row \"Race\", sub-row \"Asian\". The value is 193. The percentage is not explicitly stated in the cell but can be calculated as (193 / 654) * 100 = 29.5%.",
           "column_name_raw": "Race - N (%) | Asian | Control"
         },
         {
@@ -1139,21 +1139,21 @@
         {
           "column_index": 11,
           "column_name": "Race - N (%) | Other | Treatment",
-          "found_in_pdf": false,
-          "page": -1,
-          "source_type": "not_applicable",
-          "confidence": "high",
-          "extraction_plan": "The requested information for 'Race - N (%) | Other | Treatment' is not found in the provided chunks. The table in Chunk 1 does not contain any race-related data.",
+          "found_in_pdf": true,
+          "page": 5,
+          "source_type": "table",
+          "confidence": "medium",
+          "extraction_plan": "Extract the value from the \"All Patients\" column, \"Darolutamide (n = 651)\" sub-column, row \"Race\", sub-row \"Other or not reported\". The value is 40. The percentage is not explicitly stated in the cell but can be calculated as (40 / 651) * 100 = 6.1%. Note that the table combines \"Other\" and \"not reported\".",
           "column_name_raw": "Race - N (%) | Other | Treatment"
         },
         {
           "column_index": 12,
           "column_name": "Race - N (%) | Other | Control",
-          "found_in_pdf": false,
-          "page": -1,
-          "source_type": "not_applicable",
-          "confidence": "high",
-          "extraction_plan": "The requested information for 'Race - N (%) | Other | Control' is not found in the provided chunks. The table in Chunk 1 does not contain any race-related data.",
+          "found_in_pdf": true,
+          "page": 5,
+          "source_type": "table",
+          "confidence": "medium",
+          "extraction_plan": "Extract the value from the \"All Patients\" column, \"Placebo (n = 654)\" sub-column, row \"Race\", sub-row \"Other or not reported\". The value is 35. The percentage is not explicitly stated in the cell but can be calculated as (35 / 654) * 100 = 5.4%. Note that the table combines \"Other\" and \"not reported\".",
           "column_name_raw": "Race - N (%) | Other | Control"
         },
         {
@@ -1188,7 +1188,7 @@
           "page": -1,
           "source_type": "not_applicable",
           "confidence": "high",
-          "extraction_plan": "The requested information for 'Region - N (%) | North America | Treatment' is not available in the provided Table 1 on page 5. The table's row headers do not include geographical region data.",
+          "extraction_plan": "The number and percentage of participants from North America in the treatment arm are not reported in the provided Table 1.",
           "column_name_raw": "Region - N (%) | North America | Treatment"
         },
         {
@@ -1198,7 +1198,7 @@
           "page": -1,
           "source_type": "not_applicable",
           "confidence": "high",
-          "extraction_plan": "The requested information for 'Region - N (%) | North America | Control' is not available in the provided Table 1 on page 5. The table's row headers do not include geographical region data.",
+          "extraction_plan": "The number and percentage of participants from North America in the control arm are not reported in the provided Table 1.",
           "column_name_raw": "Region - N (%) | North America | Control"
         },
         {
@@ -1208,7 +1208,7 @@
           "page": -1,
           "source_type": "not_applicable",
           "confidence": "high",
-          "extraction_plan": "The requested information for 'Region - N (%) | South America | Treatment' is not available in the provided Table 1 on page 5. The table's row headers do not include geographical region data.",
+          "extraction_plan": "The number and percentage of participants from South America in the treatment arm are not reported in the provided Table 1.",
           "column_name_raw": "Region - N (%) | South America | Treatment"
         },
         {
@@ -1218,7 +1218,7 @@
           "page": -1,
           "source_type": "not_applicable",
           "confidence": "high",
-          "extraction_plan": "The requested information for 'Region - N (%) | South America | Control' is not available in the provided Table 1 on page 5. The table's row headers do not include geographical region data.",
+          "extraction_plan": "The number and percentage of participants from South America in the control arm are not reported in the provided Table 1.",
           "column_name_raw": "Region - N (%) | South America | Control"
         },
         {
@@ -1228,7 +1228,7 @@
           "page": -1,
           "source_type": "not_applicable",
           "confidence": "high",
-          "extraction_plan": "The requested information for 'Region - N (%) | Europe | Treatment' is not available in the provided Table 1 on page 5. The table's row headers do not include geographical region data.",
+          "extraction_plan": "The number and percentage of participants from Europe in the treatment arm are not reported in the provided Table 1.",
           "column_name_raw": "Region - N (%) | Europe | Treatment"
         },
         {
@@ -1238,7 +1238,7 @@
           "page": -1,
           "source_type": "not_applicable",
           "confidence": "high",
-          "extraction_plan": "The requested information for 'Region - N (%) | Europe | Control' is not available in the provided Table 1 on page 5. The table's row headers do not include geographical region data.",
+          "extraction_plan": "The number and percentage of participants from Europe in the control arm are not reported in the provided Table 1.",
           "column_name_raw": "Region - N (%) | Europe | Control"
         },
         {
@@ -1248,7 +1248,7 @@
           "page": -1,
           "source_type": "not_applicable",
           "confidence": "high",
-          "extraction_plan": "The requested information for 'Region - N (%) | Africa | Treatment' is not available in the provided Table 1 on page 5. The table's row headers do not include geographical region data.",
+          "extraction_plan": "The number and percentage of participants from Africa in the treatment arm are not reported in the provided Table 1.",
           "column_name_raw": "Region - N (%) | Africa | Treatment"
         },
         {
@@ -1258,7 +1258,7 @@
           "page": -1,
           "source_type": "not_applicable",
           "confidence": "high",
-          "extraction_plan": "The requested information for 'Region - N (%) | Africa | Control' is not available in the provided Table 1 on page 5. The table's row headers do not include geographical region data.",
+          "extraction_plan": "The number and percentage of participants from Africa in the control arm are not reported in the provided Table 1.",
           "column_name_raw": "Region - N (%) | Africa | Control"
         },
         {
@@ -1268,7 +1268,7 @@
           "page": -1,
           "source_type": "not_applicable",
           "confidence": "high",
-          "extraction_plan": "The requested information for 'Region - N (%) | Asia | Treatment' is not available in the provided Table 1 on page 5. The table's row headers do not include geographical region data.",
+          "extraction_plan": "The number and percentage of participants from Asia in the treatment arm are not reported in the provided Table 1.",
           "column_name_raw": "Region - N (%) | Asia | Treatment"
         },
         {
@@ -1278,7 +1278,7 @@
           "page": -1,
           "source_type": "not_applicable",
           "confidence": "high",
-          "extraction_plan": "The requested information for 'Region - N (%) | Asia | Control' is not available in the provided Table 1 on page 5. The table's row headers do not include geographical region data.",
+          "extraction_plan": "The number and percentage of participants from Asia in the control arm are not reported in the provided Table 1.",
           "column_name_raw": "Region - N (%) | Asia | Control"
         },
         {
@@ -1288,7 +1288,7 @@
           "page": -1,
           "source_type": "not_applicable",
           "confidence": "high",
-          "extraction_plan": "The requested information for 'Region - N (%) | Oceania | Treatment' is not available in the provided Table 1 on page 5. The table's row headers do not include geographical region data.",
+          "extraction_plan": "The number and percentage of participants from Oceania in the treatment arm are not reported in the provided Table 1.",
           "column_name_raw": "Region - N (%) | Oceania | Treatment"
         },
         {
@@ -1298,7 +1298,7 @@
           "page": -1,
           "source_type": "not_applicable",
           "confidence": "high",
-          "extraction_plan": "The requested information for 'Region - N (%) | Oceania | Control' is not available in the provided Table 1 on page 5. The table's row headers do not include geographical region data.",
+          "extraction_plan": "The number and percentage of participants from Oceania in the control arm are not reported in the provided Table 1.",
           "column_name_raw": "Region - N (%) | Oceania | Control"
         }
       ]
@@ -1313,7 +1313,7 @@
           "page": 2,
           "source_type": "text",
           "confidence": "high",
-          "extraction_plan": "Yes. The text on page 2 states: \"The presence of metastatic disease at initial diagnosis (de novo or synchronous disease) is associated with poorer outcomes...\" and \"In ARASENS, the treatment effect of darolutamide on OS was favorable in patients with de novo (HR, 0.71; 95% CI, 0.59 to 0.85)... metastatic hormone-sensitive prostate cancer.\" This indicates reporting for the \"de novo\" (synchronous) group.",
+          "extraction_plan": "Yes. The text on page 2, in the \"METHODS\" section, states: \"In ARASENS, the treatment effect of darolutamide on OS was favorable in patients with de novo (HR, 0.71; 95% CI, 0.59 to 0.85) and recurrent (HR, 0.61; 95% CI, 0.35 to 1.05) metastatic hormone-sensitive prostate cancer.\" \"De novo\" refers to synchronous disease. Additionally, Table 1 on page 5, under \"Metastasis stage at initial diagnosis, No. (%)\", includes \"De novo mHSPC\" as a subgroup. Figure A1 on page 16 also presents OS results for the \"De novo\" subgroup under \"Metastatic stage at initial diagnosis\".",
           "column_name_raw": "Reporting by prognostic groups - Y/N | Synchronous"
         },
         {
@@ -1323,7 +1323,7 @@
           "page": 2,
           "source_type": "text",
           "confidence": "high",
-          "extraction_plan": "Yes. The text on page 2 states: \"The presence of metastatic disease at initial diagnosis (de novo or synchronous disease) is associated with poorer outcomes compared with developing metastases after local therapy (recurrent or metachronous disease).\" and \"In ARASENS, the treatment effect of darolutamide on OS was favorable in patients with ... recurrent (HR, 0.61; 95% CI, 0.35 to 1.05) metastatic hormone-sensitive prostate cancer.\" This indicates reporting for the \"recurrent\" (metachronous) group.",
+          "extraction_plan": "Yes. The text on page 2, in the \"METHODS\" section, states: \"In ARASENS, the treatment effect of darolutamide on OS was favorable in patients with de novo (HR, 0.71; 95% CI, 0.59 to 0.85) and recurrent (HR, 0.61; 95% CI, 0.35 to 1.05) metastatic hormone-sensitive prostate cancer.\" \"Recurrent\" refers to metachronous disease. Additionally, Table 1 on page 5, under \"Metastasis stage at initial diagnosis, No. (%)\", includes \"Recurrent mHSPC\" as a subgroup. Figure A1 on page 16 also presents OS results for the \"Recurrent\" subgroup under \"Metastatic stage at initial diagnosis\".",
           "column_name_raw": "Reporting by prognostic groups - Y/N | Metachronous"
         },
         {
@@ -1333,7 +1333,7 @@
           "page": 1,
           "source_type": "text",
           "confidence": "high",
-          "extraction_plan": "Yes. The \"PURPOSE\" section on page 1 states: \"We examined efﬁcacy and safety from the ARASENS trial for subgroups by disease volume and risk.\" The \"METHODS\" section on page 2 defines: \"High-volume disease was deﬁned as visceral metastases and/or four or more bone metastases with one or more beyond the vertebral column and pelvis.\" The \"RESULTS\" section on page 1 reports: \"Dar-olutamide increased overall survival (OS) versus placebo in patients with high-volume (hazard ratio [HR], 0.69; 95%CI, 0.57 to 0.82)...\"",
+          "extraction_plan": "Yes. The \"PURPOSE\" and \"RESULTS\" sections on page 1 explicitly mention reporting by disease volume. The \"METHODS\" section on page 2 defines \"High-volume disease\". Table 1 on page 5 is titled \"Baseline Demographics and Patient Characteristics for the Subgroups of Patients by Disease Volume and Disease Risk in ARASENS\" and includes a \"High Volume\" column. Figure 2A on page 6 shows OS for \"high-volume disease\". Table 2 on page 8, Table 3 on page 9, and Table 4 on page 10 all present data for the \"High Volume\" subgroup. Figure A1 on page 16 also presents OS results for the \"High Volume\" subgroup.",
           "column_name_raw": "Reporting by prognostic groups - Y/N | High volume"
         },
         {
@@ -1343,7 +1343,7 @@
           "page": 1,
           "source_type": "text",
           "confidence": "high",
-          "extraction_plan": "Yes. The \"PURPOSE\" section on page 1 states: \"We examined efﬁcacy and safety from the ARASENS trial for subgroups by disease volume and risk.\" The \"METHODS\" section on page 2 states: \"Low-volume and low-risk disease were deﬁned as not meeting the\" (criteria for high-volume/high-risk). The \"RESULTS\" section on page 1 reports: \"...and in the smaller low-volume subgroup, the results were also suggestive of survival beneﬁt (HR, 0.68; 95% CI, 0.41to 1.13).\"",
+          "extraction_plan": "Yes. The \"PURPOSE\" and \"RESULTS\" sections on page 1 explicitly mention reporting by disease volume. The \"METHODS\" section on page 2 defines \"Low-volume and low-risk disease\". Table 1 on page 5 is titled \"Baseline Demographics and Patient Characteristics for the Subgroups of Patients by Disease Volume and Disease Risk in ARASENS\" and includes a \"Low Volume\" column. Figure 2B on page 6 shows OS for \"low-volume disease\". Table 2 on page 8, Table 3 on page 9, and Table 4 on page 10 all present data for the \"Low Volume\" subgroup. Figure A1 on page 17 also presents OS results for the \"Low Volume\" subgroup.",
           "column_name_raw": "Reporting by prognostic groups - Y/N | Low volume"
         }
       ]
@@ -1358,7 +1358,7 @@
           "page": 1,
           "source_type": "text",
           "confidence": "high",
-          "extraction_plan": "The secondary endpoints are explicitly mentioned in the abstract on page 1. They are: Time to castration-resistant prostate cancer and Time to initiation of subsequent systemic antineoplastic therapy (or subsequent systemic antineoplastic therapy).",
+          "extraction_plan": "The secondary endpoints are mentioned in the abstract on page 1. These include: Time to castration-resistant prostate cancer, and Time to initiation of subsequent systemic antineoplastic therapy.",
           "column_name_raw": "Secondary Endpoint(s)"
         }
       ]
@@ -1373,7 +1373,7 @@
           "page": -1,
           "source_type": "not_applicable",
           "confidence": "high",
-          "extraction_plan": "The requested endpoint 'Time To Progression of Serum Androgen (TTPSA)' is not found in the provided Table 2 or its associated text. The table contains 'Time to CRPC', which is a different endpoint. Therefore, the value is 'Not reported'.",
+          "extraction_plan": "The endpoint 'Time To Progression of Serum Androgen (TTPSA)' is not found in the provided chunks.",
           "column_name_raw": "TTPSA (mo) | Treatment"
         },
         {
@@ -1383,7 +1383,7 @@
           "page": -1,
           "source_type": "not_applicable",
           "confidence": "high",
-          "extraction_plan": "The requested endpoint 'Time to Progressive Serum Androgen (TTPSA)' is not found in the provided Table 2 or its associated text. The table contains 'Time to CRPC', which is a different endpoint. Therefore, the value is 'Not reported'.",
+          "extraction_plan": "The endpoint 'Time to Progressive Serum Androgen (TTPSA)' is not found in the provided chunks.",
           "column_name_raw": "TTPSA (mo) | Control"
         }
       ]
@@ -1503,7 +1503,7 @@
           "page": 5,
           "source_type": "table",
           "confidence": "high",
-          "extraction_plan": "From Table 1, on page 5, locate the column 'High Volume - Darolutamide (n = 497)'. The number of patients is 497. To find the total number of patients in the Darolutamide arm, sum the 'n' values from 'High Volume - Darolutamide (n = 497)' and 'Low Volume - Darolutamide (n = 154)' from Table 1 (497 + 154 = 651). Calculate the percentage as (497 / 651) * 100.",
+          "extraction_plan": "From Table 1, on page 5, locate the column 'High Volume - Darolutamide (n = 497)'. The number of patients is 497. The total number of patients in the Darolutamide arm is the sum of patients in 'High Volume - Darolutamide (n = 497)' and 'Low Volume - Darolutamide (n = 154)', which is 497 + 154 = 651. Calculate the percentage as (497 / 651) * 100.",
           "column_name_raw": "Volume of disease - N (%) | High | Treatment"
         },
         {
@@ -1513,7 +1513,7 @@
           "page": 5,
           "source_type": "table",
           "confidence": "high",
-          "extraction_plan": "From Table 1, on page 5, locate the column 'High Volume - Placebo (n = 508)'. The number of patients is 508. To find the total number of patients in the Placebo arm, sum the 'n' values from 'High Volume - Placebo (n = 508)' and 'Low Volume - Placebo (n = 146)' from Table 1 (508 + 146 = 654). Calculate the percentage as (508 / 654) * 100.",
+          "extraction_plan": "From Table 1, on page 5, locate the column 'High Volume - Placebo (n = 508)'. The number of patients is 508. The total number of patients in the Placebo arm is the sum of patients in 'High Volume - Placebo (n = 508)' and 'Low Volume - Placebo (n = 146)', which is 508 + 146 = 654. Calculate the percentage as (508 / 654) * 100.",
           "column_name_raw": "Volume of disease - N (%) | High | Control"
         },
         {
@@ -1523,7 +1523,7 @@
           "page": 5,
           "source_type": "table",
           "confidence": "high",
-          "extraction_plan": "From Table 1, on page 5, locate the column 'Low Volume - Placebo (n = 146)'. The number of patients is 146. To find the total number of patients in the Placebo arm, sum the 'n' values from 'Low Volume - Placebo (n = 146)' and 'High Volume - Placebo (n = 508)' from Table 1 (146 + 508 = 654). Calculate the percentage as (146 / 654) * 100.",
+          "extraction_plan": "From Table 1, on page 5, locate the column 'Low Volume - Placebo (n = 146)'. The number of patients is 146. The total number of patients in the Placebo arm is the sum of patients in 'High Volume - Placebo (n = 508)' and 'Low Volume - Placebo (n = 146)', which is 508 + 146 = 654. Calculate the percentage as (146 / 654) * 100.",
           "column_name_raw": "Volume of disease - N (%) | Low | Control"
         }
       ]

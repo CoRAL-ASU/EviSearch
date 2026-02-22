@@ -1,0 +1,559 @@
+============================================================
+INPUT
+============================================================
+You are extracting a value for a clinical trial data column from the provided document content.
+
+Column: Metastases - N (%) | Lungs | Treatment
+Definition: What the number and percentage of participants in the treatment arm of the trial who had lungs as the metastatic site? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.
+
+Extraction plan to follow:
+Table 1 (page 5) provides categories such as "M1c, visceral metastases ± LN or bone". While lung metastases would fall under "visceral metastases", the table does not provide a specific breakdown for lung involvement. Abstract and methods sections (Chunk 8, pages 1-4) define "high-volume disease" and "high-risk disease" by the presence of "visceral metastases" but do not specify individual organs like the lungs.
+
+Document content (relevant excerpts):
+[Page 1, FIGURE]
+<::logo: [Unknown] Check for updates A grey button with a colorful circular icon featuring a red banner and yellow arrow.::>
+
+[Page 1, TEXT]
+original reports
+
+Darolutamide Plus Androgen-Deprivation
+Therapy and Docetaxel in Metastatic
+Hormone-Sensitive Prostate Cancer by Disease
+Volume and Risk Subgroups in the Phase III
+ARASENS Trial
+
+[Page 1, TEXT]
+Maha Hussain, MD¹; Bertrand Tombal, MD, PhD²; Fred Saad, MD³; Karim Fizazi, MD, PhD⁴; Cora N. Sternberg, MD⁵;
+E. David Crawford, MD⁶; Neal Shore, MD⁷; Evgeny Kopyltsov, MD⁸; Arash Rezazadeh Kalebasty, MD⁹; Martin Bögemann, MD¹⁰;
+Dingwei Ye, MD¹¹; Felipe Cruz, MD, PhD¹²; Hiroyoshi Suzuki, MD, PhD¹³; Shivani Kapur, MD¹⁴; Shankar Srinivasan, PhD¹⁵;
+Frank Verholen, MD¹⁶; Iris Kuss, MD¹⁷; Heikki Joensuu, MD¹⁸; and Matthew R. Smith, MD, PhD¹⁹
+
+[Page 1, TEXT]
+PURPOSE For patients with metastatic hormone-sensitive prostate cancer, metastatic burden affects outcome.
+We examined efficacy and safety from the ARASENS trial for subgroups by disease volume and risk.
+
+abs1
+
+[Page 1, TEXT]
+tract
+METHODS Patients with metastatic hormone-sensitive prostate cancer were randomly assigned to darolutamide or placebo plus androgen-deprivation therapy and docetaxel. High-volume disease was defined as visceral metastases and/or ≥ 4 bone metastases with ≥ 1 beyond the vertebral column/pelvis. High-risk disease was defined as ≥ 2 risk factors: Gleason score ≥ 8, ≥ 3 bone lesions, and presence of measurable visceral metastases.
+
+[Page 1, TEXT]
+## RESULTS
+Of 1,305 patients, 1,005 (77%) had high-volume disease and 912 (70%) had high-risk disease. Darolutamide increased overall survival (OS) versus placebo in patients with high-volume (hazard ratio [HR], 0.69; 95% CI, 0.57 to 0.82), high-risk (HR, 0.71; 95% CI, 0.58 to 0.86), and low-risk disease (HR, 0.62; 95% CI, 0.42 to 0.90), and in the smaller low-volume subgroup, the results were also suggestive of survival benefit (HR, 0.68; 95% CI, 0.41 to 1.13). Darolutamide improved clinically relevant secondary end points of time to castration-resistant prostate cancer and subsequent systemic antineoplastic therapy versus placebo in all disease volume and risk subgroups. Adverse events (AEs) were similar between treatment groups across subgroups. Grade 3 or 4 AEs occurred in 64.9% of darolutamide patients versus 64.2% of placebo patients in the high-volume subgroup and 70.1% versus 61.1% in the low-volume subgroup. Among the most common AEs, many were known toxicities related to docetaxel.
+
+[Page 1, TEXT]
+**CONCLUSION** In patients with high-volume and high-risk/low-risk metastatic hormone-sensitive prostate cancer, treatment intensification with darolutamide, androgen-deprivation therapy, and docetaxel increased OS with a similar AE profile in the subgroups, consistent with the overall population.
+
+[Page 1, TEXT]
+J Clin Oncol 00. © 2023 by American Society of Clinical Oncology
+
+[Page 1, TEXT]
+## INTRODUCTION
+In patients with metastatic hormone-sensitive prostate cancer, early treatment intensification with a combination of androgen-deprivation therapy (ADT) plus either docetaxel or an androgen receptor pathway inhibitor improved survival versus ADT alone in several randomized controlled trials.<sup>1-6</sup> The combination of ADT, docetaxel, and an androgen receptor pathway inhibitor was evaluated in several phase III trials (PEACE-1, ENZAMET, and ARASENS) with varying results.<sup>7-9</sup> PEACE-1 was a randomized, open-label trial using a 2 × 2 factorial design that was conducted in patients with de novo metastatic hormone-sensitive prostate cancer.<sup>8</sup> In a preplanned analysis of patients who received docetaxel, longer survival was observed with abiraterone in combination
+
+[Page 1, TEXT]
+with ADT and docetaxel versus ADT and docetaxel
+alone (hazard ratio [HR], 0.75; 95% CI, 0.59 to 0.95).⁸
+The ENZAMET trial allowed for early administration of
+docetaxel with enzalutamide.⁷ Among patients who
+received docetaxel, the effect of enzalutamide on overall
+survival (OS) appeared to be smaller (HR, 0.82; 95% CI,
+0.63 to 1.06) than that observed for all patients (HR,
+0.70; 95% CI, 0.58 to 0.84).¹⁰ In ARASENS, patients
+with metastatic hormone-sensitive prostate cancer were
+randomly assigned to double-blind treatment with either
+darolutamide or placebo, in combination with ADT and
+docetaxel. The darolutamide group had a significant
+reduction in the risk of death by 32.5% (HR, 0.68; 95%
+CI, 0.57 to 0.80; P < .0001) compared with the placebo
+group.⁹
+
+[Page 1, TEXT]
+ASSOCIATED
+CONTENT
+Appendix
+
+[Page 1, TEXT]
+## Protocol
+Author affiliations
+and support
+information (if
+applicable) appear
+at the end of this
+article.
+
+[Page 1, TEXT]
+Accepted on January
+19, 2023 and
+published at
+ascopubs.org/journal/
+jco on February 16,
+2023: DOI https://doi.
+org/10.1200/JC0.23.
+00041
+
+[Page 1, TEXT]
+ASCO®
+
+[Page 1, TEXT]
+Journal of Clinical Oncology®
+
+[Page 1, TEXT]
+1
+
+[Page 1, TEXT]
+Downloaded from ascopubs.org by Mayo Foundation--Rochester on June 12, 2023 from 129.176.151.029
+Copyright  2023 American Society of Clinical Oncology. All rights reserved.
+
+[Page 2, TEXT]
+Hussain et al
+
+[Page 2, TEXT]
+## CONTEXT
+
+**Key Objective**
+We evaluated efficacy and safety outcomes from ARASENS in patients with metastatic hormone-sensitive prostate cancer by disease volume and disease risk to determine if specific subgroups of patients would achieve greater benefit from the combination of darolutamide, androgen-deprivation therapy (ADT), and docetaxel compared with ADT and docetaxel.
+
+**Knowledge Generated**
+These subgroup analyses of ARASENS showed that darolutamide plus ADT and docetaxel improves overall survival in high-volume and high- and low-risk patients with hazard ratios consistent across all subgroups and similar to the overall population. Darolutamide did not increase the toxicity associated with ADT and docetaxel in disease volume and risk subgroups.
+
+**Relevance (M.A. Carducci)**
+Triplet therapy for predominantly de novo docetaxel fit metastatic hormone-sensitive prostate cancer is supported by this subgroup analysis of the ARASENS study. This study provides useful information to guide providers and patients as to volume of disease and risk category.*
+
+[Page 2, TEXT]
+*Relevance section written by *JCO* Associate Editor Michael A. Carducci, MD.
+
+[Page 2, TEXT]
+Timing of metastatic presentation and disease volume and
+risk have been used to assess prognosis in patients with
+metastatic hormone-sensitive prostate cancer. 11-14 The
+presence of metastatic disease at initial diagnosis (de novo
+or synchronous disease) is associated with poorer out-
+comes compared with developing metastases after local
+therapy (recurrent or metachronous disease). Disease
+burden has been defined on the basis of extent (volume) of
+metastases as described in the CHAARTED trial. 1,15 In the
+LATITUDE trial, a benefit of adding an androgen receptor
+pathway inhibitor to ADT was demonstrated in patients with
+high-risk metastatic hormone-sensitive prostate cancer on
+the basis of factors associated with poor prognosis, in-
+cluding metastatic burden and Gleason score.2
+
+[Page 2, TEXT]
+In ARASENS, the treatment effect of darolutamide on OS was favorable in patients with de novo (HR, 0.71; 95% CI, 0.59 to 0.85) and recurrent (HR, 0.61; 95% CI, 0.35 to 1.05) metastatic hormone-sensitive prostate cancer.⁹ When ARASENS was designed, the final analysis of CHAARTED had not been reported nor had data from LATITUDE been reported. Thus, subgroups on the basis of volume and risk categorizations were not prespecified in ARASENS.¹⁶ We conducted these subgroup analyses post hoc to determine if specific subgroups of patients by dis-ease volume or risk would achieve greater benefit from the combination of darolutamide, ADT, and docetaxel. We present efficacy and safety outcomes from ARASENS in patients with metastatic hormone-sensitive prostate can-cer by disease volume and disease risk according to CHAARTED and LATITUDE criteria, respectively.
+
+[Page 2, TEXT]
+## METHODS
+### Trial Design
+ARASENS was a randomized, double-blind, placebo-controlled, phase III trial conducted at 286 centers in 23
+
+[Page 2, TEXT]
+countries between November 2016 and June 2018. Complete study design and methodology have been published.9 The trial met ethical and clinical practice guidelines with approval from the institutional review boards of each participating center and informed consent received from all patients. All authors have reviewed and approved the manuscript that was submitted for publication and assume responsibility for its completeness and accuracy of the data.
+
+[Page 2, TEXT]
+In brief, adult patients were eligible for enrollment into ARASENS if they had metastatic prostate cancer (beyond regional lymph nodes only) and were candidates for ADT and docetaxel on the basis of the investigator's assessment. Enrolled patients were randomly assigned (1:1) to oral darolutamide 600 mg twice daily or matched placebo, in combination with ADT and docetaxel. Random assignment was stratified by metastatic stage according to the TNM system (M1a, nonregional lymph node metastases only; M1b, bone metastases with or without lymph node me-tastases, or M1c, visceral metastases with or without lymph node or bone metastases) and alkaline phosphatase level. Patients were evaluated every 12 weeks for efficacy out-comes and AEs. Contrast-enhanced chest, abdomen, and pelvic computed tomography or magnetic resonance im-aging and bone scans were conducted at baseline, within 30 days of the last docetaxel cycle, and yearly during trial treatment.
+
+[Page 2, TEXT]
+For this analysis, patient subgroups on the basis of disease
+volume and disease risk were assessed. High-volume dis-
+ease was defined as visceral metastases and/or four or more
+bone metastases with one or more beyond the vertebral
+column and pelvis. High-risk disease was defined as two of
+the following risk factors associated with poor prognosis:
+Gleason score ≥ 8, three or more bone metastases, and
+presence of measurable visceral metastasis. Low-volume
+and low-risk disease were defined as not meeting the
+
+[Page 2, TEXT]
+2 © 2023 by American Society of Clinical Oncology
+
+[Page 2, TEXT]
+Downloaded from ascopubs.org by Mayo Foundation--Rochester on June 12, 2023 from 129.176.151.029 Copyright  2023 American Society of Clinical Oncology. All rights reserved.
+
+[Page 3, TEXT]
+Darolutamide, ADT, and Docetaxel in mHSPC Volume/Risk Subgroups
+
+[Page 3, TEXT]
+respective high-volume and high-risk criteria. High-volume/
+high-risk groups further included patients with diffusely in-
+creased skeletal metastases with superscan. 17
+
+[Page 3, TEXT]
+## Study Assessments
+OS was the primary end point. Secondary efficacy end points included time to castration-resistant prostate cancer, time to pain progression on the basis of the Brief Pain Inventory Short-Form questionnaire, symptomatic skeletal event-free survival, time to first symptomatic-skeletal event, time to initiation of subsequent systemic antineoplastic therapy, time to worsening of disease-related physical symptoms as measured by the Functional Assessment of Cancer Therapy–Prostate (National Comprehensive Cancer Network) symptom index 17-item questionnaire, and time to initiation of opioid use for 7 or more days. Safety was assessed by AEs, which were graded using the National Cancer
+
+[Page 3, TEXT]
+Institute Common Terminology Criteria for Adverse Events,
+version 4.03.
+
+[Page 3, TEXT]
+## Statistical Analysis
+This subgroup analysis used Kaplan-Meier estimates to determine medians and 95% CIs. Treatment groups were compared by HRs and associated 95% CIs on the basis of an unstratified Cox regression model. The Cox models used HR estimation on the basis of fitting separate models for each volume/risk subgroup (four models overall). AEs were summarized by treatment group for the subgroups of patients by disease volume and disease risk.
+
+[Page 3, TEXT]
+## RESULTS
+
+### Patient Characteristics
+
+As previously reported, a total of 1,306 patients were randomly assigned, and 1,305 patients were included in
+
+[Page 3, FIGURE]
+<::Patients screened (N = 1,686)
+
+Not eligible (n = 380)
+Screen failureᵃ (n = 309)
+Withdrawal by patient (n = 43)
+AE (n = 4)
+Physician's decision (n = 2)
+Other (n = 22)
+
+Patients randomly assigned (N = 1,306)
+
+Darolutamide + docetaxel + ADT (n = 651)
+Received allocated treatment (n = 651)
+Did not receive allocated treatment (n = 0)
+
+Placebo + docetaxel + ADT (n = 655)
+Excluded for GCP violation (n = 1)
+Received allocated treatment (n = 651)
+Did not receive allocated treatment
+Withdrawal by patient (n = 2)
+Physician's decision (n = 1)
+
+Discontinued (n = 352)
+Primary reason for discontinuation
+Disease progression, clinical (n = 127)
+Disease progression, radiological (n = 84)
+AE (n = 72)
+Death (n = 8)
+Withdrawal by patient (n = 25)
+Physician's decision (n = 3)
+Otherᵇ (n = 33)
+
+Discontinued (n = 526)
+Primary reason for discontinuation
+Disease progression, clinical (n = 272)
+Disease progression, radiological (n = 132)
+AE (n = 53)
+Death (n = 5)
+Withdrawal by patient (n = 35)
+Physician's decision (n = 6)
+Otherᵇ (n = 23)
+
+Analyzed for primary end point (n = 651ᶜ)
+Analyzed for safety (n = 652ᵈ)
+
+Analyzed for primary end point (n = 654ᶜ)
+Analyzed for safety (n = 650ᵈ)
+: flowchart::>
+
+[Page 3, TEXT]
+FIG 1. CONSORT flow diagram. ªPatient had signed informed consent but did not meet inclusion/exclusion criteria.
+bOther includes noncompliance, additional primary malignancy, lost to follow-up, protocol violation, and other. cThe
+primary end point (OS) was assessed after 533 patients had died (229 in the darolutamide group and 304 in the placebo
+group). Most deaths were related to disease progression (415 of 533 [77.9%] in the overall population, 172 of 229
+[75.1%] in the darolutamide group, and 243 of 304 [79.9%] in the placebo group). dOne patient was randomly assigned
+in the placebo arm but received darolutamide. The patient was included in the darolutamide arm for the safety analysis
+and the placebo arm for the full analysis set. AE, adverse event; ADT, androgen-deprivation therapy; GCP, good clinical
+practice; HR, hazard ratio; OS, overall survival. From N Engl J Med, Smith MR, Hussain M, Saad F, et al, Darolutamide
+and Survival in Metastatic, Hormone-Sensitive Prostate Cancer, 386(12), 1132-1142,9 Copyright © 2022, Massa-
+chusetts Medical Society. Reprinted with permission from Massachusetts Medical Society.
+
+[Page 3, TEXT]
+Journal of Clinical Oncology
+
+[Page 3, TEXT]
+3
+
+[Page 3, TEXT]
+Downloaded from ascopubs.org by Mayo Foundation--Rochester on June 12, 2023 from 129.176.151.029
+Copyright © 2023 American Society of Clinical Oncology. All rights reserved.
+
+[Page 4, TEXT]
+Hussain et al
+
+[Page 4, TEXT]
+the full analysis set of ARASENS (Fig 1). Of them, 1,005
+(77%) patients had high-volume disease and 300 (23%)
+had low-volume disease; 912 (70%) patients had high-risk
+disease, and 393 (30%) had low-risk disease (Table 1).
+Baseline demographics and patient characteristics were
+well balanced between treatment groups in disease volume
+and risk subgroups. Among those with high-volume dis-
+ease, most had bone metastases and 23% had visceral
+metastases. Patients with high-volume disease had higher
+baseline median serum prostate-specific antigen levels,
+and a greater proportion of patients had elevated alkaline
+phosphatase levels than patients with low-volume disease.
+For those with high-risk disease, approximately 77% had
+three or more bone metastases, and almost all (95%) had a
+Gleason score ≥ 8.
+
+[Page 4, TEXT]
+Patients receiving darolutamide had longer duration of treatment versus those receiving placebo in high-volume (32.9 v 15.3 months) and low-volume subgroups (43.6 v 26.5 months). Similar results were observed in patients with high- and low-risk metastatic hormone-sensitive prostate cancer (darolutamide v placebo, 33.1 v 15.2 months; 43.3 v 22.5 months). A higher proportion of patients receiving darolutamide across all subgroups were ongoing with study treatment at the time of study analysis versus patients receiving placebo (high-volume, 39.4% v 15.9%; low-volume, 66.9% v 30.1%; high-risk, 41.4% v 15.2%; low-risk, 56.3% v 28.4%).
+
+[Page 4, TEXT]
+Primary End Point
+
+**OS.** A benefit in OS was shown with darolutamide compared with placebo for patients with high-volume disease (HR, 0.69; 95% CI, 0.57 to 0.82; Fig 2). Median survival was not reached in the darolutamide group and was 42.4 months (95% CI, 39.7 to 46.0 months) in the placebo group. In patients with low-volume disease, the results are suggestive of a survival benefit with darolutamide (HR, 0.68; 95% CI, 0.41 to 1.13). Median survival was not reached in either treatment group for low-volume patients. A test for interaction showed that the treatment effect was homogeneous across high- and low-volume subgroups (ratio of HRs, 0.99; 95% CI, 0.58 to 1.69).
+
+[Page 4, TEXT]
+The improvement in survival with darolutamide was ob-
+served despite more than 70% of patients in the placebo
+group receiving subsequent life-prolonging systemic ther-
+apies, primarily different androgen receptor pathway
+inhibitors (76.1% with high-volume and 73.1% with low-
+volume disease) compared with those in the darolutamide
+group (59.8% with high-volume and 38.6% with low-
+volume disease; Appendix Table A1, online only). The
+effect of darolutamide treatment on OS across prespecified
+subgroups, including de novo and recurrent disease, was
+favorable across all subgroups of patients with high-volume
+and almost all subgroups with low-volume disease (Ap-
+pendix Fig A1, online only).
+
+[Page 4, TEXT]
+In both high-risk and low-risk metastatic hormone-sensitive
+prostate cancer subgroups, darolutamide provided an OS
+benefit compared with placebo (high-risk, HR, 0.71; 95%
+CI, 0.58 to 0.86; low-risk, HR, 0.62; 95% CI, 0.42 to 0.90;
+Fig 3). In patients with high-risk disease, median survival
+was not reached in the darolutamide group versus
+43.2 months (95% CI, 40.0 to 48.9 months) in the placebo
+group. In patients with low-risk disease, median survival
+was not reached in either treatment group.
+
+[Page 4, TEXT]
+## Secondary Efficacy End Points
+
+Darolutamide prolonged time to castration resistance compared with placebo in patients with high-volume (HR, 0.41; 95% CI, 0.34 to 0.49) and low-volume metastatic hormone-sensitive prostate cancer (HR, 0.21; 95% CI, 0.14 to 0.33) as well as in those with high-risk (HR, 0.38; 95% CI, 0.32 to 0.46) and low-risk metastatic hormone-sensitive prostate cancer (HR, 0.32; 95% CI, 0.23 to 0.45; Fig 3). The effects of darolutamide on other key clinically relevant secondary efficacy end points are shown in Table 2.
+
+[Page 4, TEXT]
+Safety. The incidence of AEs was similar between treatment groups across all high-volume and low-volume disease and high-risk and low-risk disease subgroups (Table 3). Incidences of serious AEs in patients receiving darolutamide compared with placebo were 45.4% versus 43.5% for those with high-volume disease, 42.9% versus 38.2% for patients with low-volume disease, 45.3% versus 42.9% for patients with high-risk disease, and 43.7% versus 40.9% for patients with low-risk disease. Discontinuations of darolutamide and placebo due to AEs occurred respectively in 13.3% and 10.7% of high-volume, 14.3% and 10.4% of low-volume, 12.8% and 9.8% of high-risk, and 15.1% and 12.4% of low-risk patients. Incidences of the most common AEs, occurring in 25% or more of patients, were similar between treatment groups across subgroups by disease volume and risk. The safety profile of darolutamide was confirmed on the basis of the exposure-adjusted incidence rates that account for the longer duration of treatment with darolutamide versus placebo (Table 3). AEs of special interest commonly associated with androgen receptor pathway inhibitors were consistent for disease volume and disease risk subgroups (Table 4).
+
+[Page 4, TEXT]
+## DISCUSSION
+Two previous studies have investigated the combination of an androgen receptor pathway inhibitor with ADT and docetaxel, with conflicting results in subgroups by disease volume. In the PEACE-1 trial of patients with de novo metastatic hormone-sensitive prostate cancer, 710 of 1,173 (61%) patients received ADT and docetaxel as their standard of care, and 64% of these patients met high-volume disease criteria.⁸ An improvement in OS with abiraterone, ADT, and docetaxel was observed in patients
+
+[Page 4, TEXT]
+4 © 2023 by American Society of Clinical Oncology
+
+[Page 4, TEXT]
+Downloaded from ascopubs.org by Mayo Foundation--Rochester on June 12, 2023 from 129.176.151.029
+Copyright © 2023 American Society of Clinical Oncology. All rights reserved.
+
+[Page 5, TABLE]
+TABLE 1. Baseline Demographics and Patient Characteristics for the Subgroups of Patients by Disease Volume and Disease Risk in ARASENS
+<table>
+<tr><td></td><td colspan="2">High Volumeª</td><td colspan="2">Low Volumeª</td><td colspan="2">High Riskᵇ</td><td colspan="2">Low Riskᵇ</td><td></td></tr>
+<tr><td>Characteristic at Baseline</td><td>Darolutamide (n = 497)</td><td>Placebo (n = 508)</td><td>Darolutamide (n = 154)</td><td>Placebo (n = 146)</td><td>Darolutamide (n = 452)</td><td>Placebo (n = 460)</td><td>Darolutamide (n = 199)</td><td>Placebo (n = 194)</td><td>All Patients (N = 1,305)</td></tr>
+<tr><td>Age, median, years (range)</td><td>67.0 (41-89)</td><td>67.0 (44-86)</td><td>67.0 (41-84)</td><td>67.5 (42-81)</td><td>67.0 (41-86)</td><td>67.0 (44-86)</td><td>67.0 (41-89)</td><td>67.0 (42-85)</td><td>67.0 (41-89)</td></tr>
+<tr><td colspan="10">ECOG PS, No. (%)</td></tr>
+<tr><td>0</td><td>343 (69.0)</td><td>349 (68.7)</td><td>123 (79.9)</td><td>113 (77.4)</td><td>317 (70.1)</td><td>318 (69.1)</td><td>149 (74.9)</td><td>144 (74.2)</td><td>928 (71.1)</td></tr>
+<tr><td>1</td><td>154 (31.0)</td><td>157 (30.9)</td><td>31 (20.1)</td><td>33 (22.6)</td><td>135 (29.9)</td><td>140 (30.4)</td><td>50 (25.1)</td><td>50 (25.8)</td><td>375 (28.7)</td></tr>
+<tr><td>Missing</td><td>0</td><td>2 (0.4)</td><td>0</td><td>0</td><td>0</td><td>2 (0.4)</td><td>0</td><td>0</td><td>2 (0.2)</td></tr>
+<tr><td colspan="10">Gleason score at initial diagnosis, No. (%)</td></tr>
+<tr><td>&lt; 8</td><td>96 (19.3)</td><td>87 (17.1)</td><td>26 (16.9)</td><td>31 (21.2)</td><td>16 (3.5)</td><td>16 (3.5)</td><td>106 (53.3)</td><td>102 (52.6)</td><td>240 (18.4)</td></tr>
+<tr><td>≥ 8</td><td>381 (76.7)</td><td>403 (79.3)</td><td>124 (80.5)</td><td>113 (77.4)</td><td>428 (94.7)</td><td>440 (95.7)</td><td>77 (38.7)</td><td>76 (39.2)</td><td>1,021 (78.2)</td></tr>
+<tr><td>Missing</td><td>20 (4.0)</td><td>18 (3.5)</td><td>4 (2.6)</td><td>2 (1.4)</td><td>8 (1.8)</td><td>4 (0.9)</td><td>16 (8.0)</td><td>16 (8.2)</td><td>44 (3.4)</td></tr>
+<tr><td colspan="10">Metastasis stage at initial diagnosis, No. (%)</td></tr>
+<tr><td>De novo mHSPC</td><td>432 (86.9)</td><td>445 (87.6)</td><td>126 (81.8)</td><td>121 (82.9)</td><td>416 (92.0)</td><td>419 (91.1)</td><td>142 (71.4)</td><td>147 (75.8)</td><td>1,124 (86.1)</td></tr>
+<tr><td>Recurrent mHSPC</td><td>58 (11.7)</td><td>59 (11.6)</td><td>28 (18.2)</td><td>23 (15.8)</td><td>33 (7.3)</td><td>39 (8.5)</td><td>53 (26.6)</td><td>43 (22.2)</td><td>168 (12.9)</td></tr>
+<tr><td>Missing</td><td>7 (1.4)</td><td>4 (0.8)</td><td>0</td><td>2 (1.4)</td><td>3 (0.7)</td><td>2 (0.4)</td><td>4 (2.0)</td><td>4 (2.1)</td><td>13 (1.0)</td></tr>
+<tr><td colspan="10">Metastasis stage at screening, No. (%)</td></tr>
+<tr><td>M1a, nonregional LN only</td><td>0</td><td>0</td><td>23 (14.9)</td><td>15 (10.3)</td><td>0</td><td>0</td><td>23 (11.6)</td><td>15 (7.7)</td><td>38 (2.9)</td></tr>
+<tr><td>M1b, bone metastases  LN</td><td>386 (77.7)</td><td>390 (76.8)</td><td>131 (85.1)</td><td>131 (89.7)</td><td>345 (76.3)</td><td>354 (77.0)</td><td>172 (86.4)</td><td>167 (86.1)</td><td>1,038 (79.5)</td></tr>
+<tr><td>M1c, visceral metastases  LN or bone</td><td>111 (22.3)</td><td>118 (23.2)</td><td>0</td><td>0</td><td>107 (23.7)</td><td>106 (23.0)</td><td>4 (2.0)</td><td>12 (6.2)</td><td>229 (17.5)</td></tr>
+<tr><td>Serum PSA level, ng/mL, median (range)</td><td>38.7 (0-9,219.0)</td><td>27.9 (0-11,947.0)</td><td>11.7 (0-3,771.0)</td><td>14.5 (0-3,372.9)</td><td>34.0 (0-9,219.0)</td><td>30.0 (0-11,947.0)</td><td>19.2 (0-4,173.0)</td><td>12.4 (0-3,372.9)</td><td>27.6 (0-11,947.0)</td></tr>
+<tr><td>Serum ALP level, U/L, median (range)</td><td>199.0 (46-4,885)</td><td>172.0 (41-7,680)</td><td>84.5 (40-2,116)</td><td>87.5 (36-735)</td><td>183.0 (44-4,885)</td><td>161.5 (41-7,680)</td><td>99.0 (40-4,793)</td><td>97.0 (36-3,227)</td><td>143.0 (36-7,680)</td></tr>
+<tr><td>ALP &lt; ULN, No. (%)</td><td>168 (33.8)</td><td>176 (34.6)</td><td>122 (79.2)</td><td>115 (78.8)</td><td>165 (36.5)</td><td>166 (36.1)</td><td>125 (62.8)</td><td>125 (64.4)</td><td>581 (44.5)</td></tr>
+<tr><td>ALP ≥ ULN, No. (%)</td><td>329 (66.2)</td><td>332 (65.4)</td><td>32 (20.8)</td><td>31 (21.2)</td><td>287 (63.5)</td><td>294 (63.9)</td><td>74 (37.2)</td><td>69 (35.6)</td><td>724 (55.5)</td></tr>
+</table>
+
+[Page 5, TEXT]
+Abbreviations: ADT, androgen-deprivation therapy; ALP, alkaline phosphatase; ECOG PS, Eastern Cooperative Oncology Group performance status; LN, lymph node; mHSPC, metastatic hormone-sensitive prostate cancer; PSA, prostate-specific antigen; ULN, upper level of normal.
+
+*Disease volume defined by CHAARTED criteria: presence of visceral metastases or ≥ 4 bone metastases with ≥ 1 beyond vertebral bodies and pelvis (Sweeney et al).¹
+
+*Disease risk defined by LATITUDE criteria (two of the following three factors): Gleason score of ≥ 8, the presence of ≥ 3 bone lesions, or the presence of measurable visceral metastasis (Fizazi et al).²
+
+*ECOG PS scores range from 0 to 5, with higher scores indicating greater disability.
+
+*Gleason scores for the histologic pattern of carcinoma range from 6 to 10, with higher scores indicating a more aggressive form of prostate cancer.
+
+*One patient had lymph node metastasis alone per direct entry in case report form but was categorized as M1b in the high-volume subgroup using detailed tumor data.
+
+*These values were centrally assessed. Samples were obtained while patients were receiving ADT.
+
+[Page 5, TEXT]
+5
+
+[Page 5, TEXT]
+une 12, 2023 from 129.176.151.02
+y. All rights reserved.
+
+[Page 5, TEXT]
+Journal of Clinical Oncology
+
+[Page 5, TEXT]
+Darolutamide, ADT, and Docetaxel in mHSPC Volume/Risk Subgroups
+
+[Page 5, TEXT]
+Downloaded from ascopubs.org by Mayo Foundation--Rochester on Ju
+Copyright © 2023 American Society of Clinical Oncolog
+
+[Page 8, TABLE]
+TABLE 2. Secondary Efficacy End Points for the Subgroups of Patients by Disease Volume and Disease Risk in ARASENS
+<table>
+<tr><td></td><td colspan="2">High Volumeª</td><td colspan="2">Low Volumeª</td><td colspan="2">High Risk&quot;</td><td colspan="2">Low Risk&quot;</td><td colspan="2">All Patients⁹ (N = 1,305)</td></tr>
+<tr><td>End Point, Median Months</td><td>Darolutamide (n = 497)</td><td>Placebo (n = 508)</td><td>Darolutamide (n = 154)</td><td>Placebo (n = 146)</td><td>Darolutamide (n = 452)</td><td>Placebo (n = 460)</td><td>Darolutamide (n = 199)</td><td>Placebo (n = 194)</td><td>Darolutamide (n = 651)</td><td>Placebo (n = 654)</td></tr>
+<tr><td>Time to CRPC</td><td>NR</td><td>16.4</td><td>NR</td><td>25.8</td><td>NR</td><td>16.1</td><td>NR</td><td>25.1</td><td>NR</td><td>19.1</td></tr>
+<tr><td>No. (%)</td><td>198 (40)</td><td>315 (62)</td><td>27 (18)</td><td>76 (52)</td><td>175 (39)</td><td>289 (63)</td><td>50 (25)</td><td>102 (53)</td><td>225 (35)</td><td>391 (60)</td></tr>
+<tr><td>HR (95% CI)</td><td colspan="2">0.41 (0.34 to 0.49)</td><td colspan="2">0.21 (0.14 to 0.33)</td><td colspan="2">0.38 (0.32 to 0.46)</td><td colspan="2">0.32 (0.23 to 0.45)</td><td colspan="2">0.36 (0.30 to 0.42)</td></tr>
+<tr><td>Time to pain progression</td><td>NR</td><td>24.4</td><td>46.1</td><td>39.5</td><td>35.4</td><td>25.0</td><td>NR</td><td>28.8</td><td>NR</td><td>27.5</td></tr>
+<tr><td>No. (%)</td><td>161 (32)</td><td>192 (38)</td><td>61 (40)</td><td>56 (38)</td><td>155 (34)</td><td>173 (38)</td><td>67 (34)</td><td>75 (39)</td><td>222 (34)</td><td>248 (38)</td></tr>
+<tr><td>HR (95% CI)</td><td colspan="2">0.75 (0.61 to 0.93)</td><td colspan="2">0.94 (0.66 to 1.36)</td><td colspan="2">0.81 (0.65 to 1.01)</td><td colspan="2">0.76 (0.55 to 1.06)</td><td colspan="2">0.79 (0.66 to 0.95)</td></tr>
+<tr><td>SSE-free survival</td><td>46.1</td><td>35.7</td><td>NR</td><td>NR</td><td>47.1</td><td>35.8</td><td>NR</td><td>46.7</td><td>51.2</td><td>39.7</td></tr>
+<tr><td>No. (%)</td><td>225 (45)</td><td>287 (57)</td><td>32 (21)</td><td>42 (29)</td><td>205 (45)</td><td>257 (56)</td><td>52 (26)</td><td>72 (37)</td><td>257 (40)</td><td>329 (50)</td></tr>
+<tr><td>HR (95% CI)</td><td colspan="2">0.63 (0.53 to 0.75)</td><td colspan="2">0.61 (0.38 to 0.96)</td><td colspan="2">0.65 (0.54 to 0.78)</td><td colspan="2">0.55 (0.39 to 0.79)</td><td colspan="2">0.61 (0.52 to 0.72)</td></tr>
+<tr><td>Time to first SSE</td><td>NR</td><td>NR</td><td>NR</td><td>NR</td><td>NR</td><td>NR</td><td>NR</td><td>NR</td><td>NR</td><td>NR</td></tr>
+<tr><td>No. (%)</td><td>82 (17)</td><td>96 (19)</td><td>13 (8)</td><td>12 (8)</td><td>78 (17)</td><td>79 (17)</td><td>17 (9)</td><td>29 (15)</td><td>95 (15)</td><td>108 (17)</td></tr>
+<tr><td>HR (95% CI)</td><td colspan="2">0.71 (0.53 to 0.96)</td><td colspan="2">0.89 (0.40 to 1.95)</td><td colspan="2">0.84 (0.61 to 1.15)</td><td colspan="2">0.46 (0.25 to 0.84)</td><td colspan="2">0.71 (0.54 to 0.94)</td></tr>
+<tr><td>Time to subsequent antineoplastic therapy</td><td>NR</td><td>22.7</td><td>NR</td><td>42.5</td><td>NR</td><td>21.3</td><td>NR</td><td>39.0</td><td>NR</td><td>25.3</td></tr>
+<tr><td>No. (%)</td><td>187 (38)</td><td>324 (64)</td><td>32 (21)</td><td>71 (49)</td><td>173 (38)</td><td>299 (65)</td><td>46 (23)</td><td>96 (49)</td><td>219 (34)</td><td>395 (60)</td></tr>
+<tr><td>HR (95% CI)</td><td colspan="2">0.40 (0.34 to 0.49)</td><td colspan="2">0.34 (0.22 to 0.52)</td><td colspan="2">0.40 (0.33 to 0.48)</td><td colspan="2">0.36 (0.26 to 0.52)</td><td colspan="2">0.39 (0.33 to 0.46)</td></tr>
+<tr><td>Time to worsening disease- related symptoms</td><td>22.0</td><td>22.1</td><td>11.1</td><td>11.2</td><td>19.3</td><td>16.7</td><td>19.4</td><td>24.6</td><td>19.3</td><td>19.4</td></tr>
+<tr><td>No. (%)</td><td>259 (52)</td><td>229 (45)</td><td>92 (60)</td><td>79 (54)</td><td>241 (53)</td><td>217 (47)</td><td>110 (55)</td><td>91 (47)</td><td>351 (54)</td><td>308 (47)</td></tr>
+<tr><td>HR (95% CI)</td><td colspan="2">1.05 (0.88 to 1.25)</td><td colspan="2">1.04 (0.77 to 1.40)</td><td colspan="2">1.01 (0.84 to 1.22)</td><td colspan="2">1.13 (0.86 to 1.50)</td><td colspan="2">1.04 (0.89 to 1.22)</td></tr>
+<tr><td>Time to opioid use ≥ 7 days</td><td>NR</td><td>NR</td><td>NR</td><td>NR</td><td>NR</td><td>NR</td><td>NR</td><td>NR</td><td>NR</td><td>NR</td></tr>
+<tr><td>No. (%)</td><td>74 (15)</td><td>106 (21)</td><td>18 (12)</td><td>11 (8)</td><td>68 (15)</td><td>94 (20)</td><td>24 (12)</td><td>23 (12)</td><td>92 (14)</td><td>117 (18)</td></tr>
+<tr><td>HR (95% CI)</td><td colspan="2">0.63 (0.47 to 0.85)</td><td colspan="2">1.46 (0.69 to 3.10)</td><td colspan="2">0.66 (0.48 to 0.90)</td><td colspan="2">0.94 (0.53 to 1.66)</td><td colspan="2">0.69 (0.52 to 0.91)</td></tr>
+</table>
+
+[Page 9, TABLE]
+TABLE 3. Treatment-Emergent AEs in the Subgroups of Patients by Disease Volume and Disease Risk in ARASENS
+<table>
+<tr><td></td><td colspan="2">High Volumeª</td><td colspan="2">Low Volumeª</td><td colspan="2">High Riskᵇ</td><td colspan="2">Low Riskⁿ</td><td colspan="2">All Patients⁹ (N = 1302ᶜ)</td></tr>
+<tr><td>AE</td><td>Darolutamide (n = 498)</td><td>Placebo (n = 506)</td><td>Darolutamide (n = 154)</td><td>Placebo (n = 144)</td><td>Darolutamide (n = 453)</td><td>Placebo (n = 457)</td><td>Darolutamide (n = 199)</td><td>Placebo (n = 193)</td><td>Darolutamide (n = 652)</td><td>Placebo (n = 650)</td></tr>
+<tr><td>Any AE</td><td>496 (99.6)</td><td>500 (98.8)</td><td>153 (99.4)</td><td>143 (99.3)</td><td>450 (99.3)</td><td>451 (98.7)</td><td>199 (100)</td><td>192 (99.5)</td><td>649 (99.5)</td><td>643 (98.9)</td></tr>
+<tr><td colspan="11">Worst grade</td></tr>
+<tr><td>Grade 1</td><td>21 (4.2)</td><td>23 (4.5)</td><td>7 (4.5)</td><td>12 (8.3)</td><td>19 (4.2)</td><td>20 (4.4)</td><td>9 (4.5)</td><td>15 (7.8)</td><td>28 (4.3)</td><td>35 (5.4)</td></tr>
+<tr><td>Grade 2</td><td>130 (26.1)</td><td>132 (26.1)</td><td>32 (20.8)</td><td>37 (25.7)</td><td>107 (23.6)</td><td>118 (25.8)</td><td>55 (27.6)</td><td>51 (26.4)</td><td>162 (24.8)</td><td>169 (26.0)</td></tr>
+<tr><td>Grade 3</td><td>188 (37.8)</td><td>189 (37.4)</td><td>60 (39.0)</td><td>43 (29.9)</td><td>169 (37.3)</td><td>167 (36.5)</td><td>79 (39.7)</td><td>65 (33.7)</td><td>248 (38.0)</td><td>232 (35.7)</td></tr>
+<tr><td>Grade 4</td><td>135 (27.1)</td><td>136 (26.9)</td><td>48 (31.2)</td><td>45 (31.3)</td><td>137 (30.2)</td><td>127 (27.8)</td><td>46 (23.1)</td><td>54 (28.0)</td><td>183 (28.1)</td><td>181 (27.8)</td></tr>
+<tr><td>Grade 5 (death)d</td><td>21 (4.2)</td><td>20 (4.0)</td><td>6 (3.9)</td><td>6 (4.2)</td><td>17 (3.8)</td><td>19 (4.2)</td><td>10 (5.0)</td><td>7 (3.6)</td><td>27 (4.1)</td><td>26 (4.0)</td></tr>
+<tr><td>Serious AE</td><td>226 (45.4)</td><td>220 (43.5)</td><td>66 (42.9)</td><td>55 (38.2)</td><td>205 (45.3)</td><td>196 (42.9)</td><td>87 (43.7)</td><td>79 (40.9)</td><td>292 (44.8)</td><td>275 (42.3)</td></tr>
+<tr><td colspan="11">AE leading to permanent discontinuation of trial agent</td></tr>
+<tr><td>Darolutamide or placebo</td><td>66 (13.3)</td><td>54 (10.7)</td><td>22 (14.3)</td><td>15 (10.4)</td><td>58 (12.8)</td><td>45 (9.8)</td><td>30 (15.1)</td><td>24 (12.4)</td><td>88 (13.5)</td><td>69 (10.6)</td></tr>
+<tr><td>Docetaxel</td><td>39 (7.8)</td><td>54 (10.7)</td><td>13 (8.4)</td><td>13 (9.0)</td><td>38 (8.4)</td><td>45 (9.8)</td><td>14 (7.0)</td><td>22 (11.4)</td><td>52 (8.0)</td><td>67 (10.3)</td></tr>
+<tr><td colspan="11">Most common AEs (≥ 25%), No. (%)/EAIR</td></tr>
+<tr><td>Alopecia</td><td>192 (38.6)/15.3</td><td>202 (39.9)/23.1</td><td>72 (46.8)/15.2</td><td>62 (43.1)/18.9</td><td>191 (42.2)/16.6</td><td>183 (40.0)/23.3</td><td>73 (36.7)/12.5</td><td>81 (42.0)/19.5</td><td>264 (40.5)/15.3</td><td>264 (40.6)/22.0</td></tr>
+<tr><td>Neutropenia</td><td>197 (39.6)</td><td>199 (39.3)</td><td>59 (38.3)</td><td>53 (36.8)</td><td>192 (42.4)</td><td>182 (39.8)</td><td>64 (32.2)</td><td>70 (36.3)</td><td>256 (39.3)</td><td>252 (38.8)</td></tr>
+<tr><td>Fatigue</td><td>166 (33.3)/13.2</td><td>165 (32.6)/18.9</td><td>50 (32.5)/10.6</td><td>49 (34.0)/15.0</td><td>141 (31.1)/12.3</td><td>130 (28.4)/16.5</td><td>75 (37.7)/12.9</td><td>84 (43.5)/20.2</td><td>216 (33.1)/12.5</td><td>214 (32.9)/17.8</td></tr>
+<tr><td>Anemia</td><td>140 (28.1)/11.1</td><td>132 (26.1)/15.1</td><td>41 (26.6)/8.7</td><td>31 (21.5)/9.5</td><td>134 (29.6)/11.7</td><td>105 (23.0)/13.4</td><td>47 (23.6)/8.1</td><td>58 (30.1)/13.9</td><td>181 (27.8)/10.5</td><td>163 (25.1)/13.6</td></tr>
+<tr><td>Peripheral edema</td><td>136 (27.3)/10.8</td><td>138 (27.3)/15.8</td><td>37 (24.0)/7.8</td><td>31 (21.5)/9.5</td><td>119 (26.3)/10.4</td><td>123 (26.9)/15.7</td><td>54 (27.1)/9.3</td><td>46 (23.8)/11.0</td><td>173 (26.5)/10.0</td><td>169 (26.0)/14.1</td></tr>
+<tr><td>Arthralgia</td><td>134 (26.9)/10.7</td><td>134 (26.5)/15.3</td><td>44 (28.6)/9.3</td><td>40 (27.8)/12.2</td><td>125 (27.6)/10.9</td><td>118 (25.8)/15.0</td><td>53 (26.6)/9.1</td><td>56 (29.0)/13.4</td><td>178 (27.3)/10.3</td><td>174 (26.8)/14.5</td></tr>
+<tr><td>Diarrhea</td><td>120 (24.1)/9.5</td><td>114 (22.5)/13.0</td><td>47 (30.5)/9.9</td><td>42 (29.2)/12.8</td><td>111 (24.5)/9.7</td><td>98 (21.4)/12.5</td><td>56 (28.1)/9.6</td><td>58 (30.1)/13.9</td><td>167 (25.6)/9.6</td><td>156 (24.0)/13.0</td></tr>
+</table>
+
+[Page 10, TABLE]
+TABLE 4. AEs of Special Interest for the Subgroups of Patients by Disease Volume and Disease Risk in ARASENS
+<table>
+<tr><td></td><td colspan="2">High Volumeª</td><td colspan="2">Low Volumeª</td><td colspan="2">High Riskᵇ</td><td colspan="2">Low Riskᵇ</td><td colspan="2">All Patientsᶜ</td></tr>
+<tr><td>AEs of Special Interest</td><td>Darolutamide (n = 498)</td><td>Placebo (n = 506)</td><td>Darolutamide (n = 154)</td><td>Placebo (n = 144)</td><td>Darolutamide (n = 453)</td><td>Placebo (n = 457)</td><td>Darolutamide (n = 199)</td><td>Placebo (n = 193)</td><td>Darolutamide (n = 652)</td><td>Placebo (n = 650)</td></tr>
+<tr><td>Fatigue</td><td>166 (33.3)</td><td>165 (32.6)</td><td>50 (32.5)</td><td>49 (34.0)</td><td>141 (31.1)</td><td>130 (28.4)</td><td>75 (37.7)</td><td>84 (43.5)</td><td>216 (33.1)</td><td>214 (32.9)</td></tr>
+<tr><td>Vasodilation/flushing</td><td>96 (19.3)</td><td>108 (21.3)</td><td>37 (24.0)</td><td>33 (22.9)</td><td>83 (18.3)</td><td>96 (21.0)</td><td>50 (25.1)</td><td>45 (23.3)</td><td>133 (20.4)</td><td>141 (21.7)</td></tr>
+<tr><td>Rashd</td><td>78 (15.7)</td><td>71 (14.0)</td><td>30 (19.5)</td><td>17 (11.8)</td><td>72 (15.9)</td><td>67 (14.7)</td><td>36 (18.1)</td><td>21 (10.9)</td><td>108 (16.6)</td><td>88 (13.5)</td></tr>
+<tr><td>Diabetes mellitus and hyperglycemia</td><td>69 (13.9)</td><td>70 (13.8)</td><td>30 (19.5)</td><td>23 (16.0)</td><td>60 (13.2)</td><td>63 (13.8)</td><td>39 (19.6)</td><td>30 (15.5)</td><td>99 (15.2)</td><td>93 (14.3)</td></tr>
+<tr><td>Hypertension</td><td>63 (12.7)</td><td>38 (7.5)</td><td>26 (16.9)</td><td>21 (14.6)</td><td>54 (11.9)</td><td>33 (7.2)</td><td>35 (17.6)</td><td>26 (13.5)</td><td>89 (13.7)</td><td>60 (9.2)</td></tr>
+<tr><td>Cardiac disorder</td><td>56 (11.2)</td><td>60 (11.9)</td><td>15 (9.7)</td><td>16 (11.1)</td><td>44 (9.7)</td><td>47 (10.3)</td><td>27 (13.6)</td><td>29 (15.0)</td><td>71 (10.9)</td><td>76 (11.7)</td></tr>
+<tr><td>Cardiac arrhythmia</td><td>40 (8.0)</td><td>43 (8.5)</td><td>12 (7.8)</td><td>12 (8.3)</td><td>31 (6.8)</td><td>34 (7.4)</td><td>21 (10.6)</td><td>21 (10.9)</td><td>52 (8.0)</td><td>55 (8.5)</td></tr>
+<tr><td>Coronary artery disorders</td><td>16 (3.2)</td><td>10 (2.0)</td><td>3 (1.9)</td><td>3 (2.1)</td><td>14 (3.1)</td><td>7 (1.5)</td><td>5 (2.5)</td><td>6 (3.1)</td><td>19 (2.9)</td><td>13 (2.0)</td></tr>
+<tr><td>Heart failure</td><td>3 (0.6)</td><td>11 (2.2)</td><td>1 (0.6)</td><td>2 (1.4)</td><td>2 (0.4)</td><td>9 (2.0)</td><td>2 (1.0)</td><td>4 (2.1)</td><td>4 (0.6)</td><td>13 (2.0)</td></tr>
+<tr><td>Bone fracturef</td><td>39 (7.8)</td><td>25 (4.9)</td><td>10 (6.5)</td><td>8 (5.6)</td><td>36 (7.9)</td><td>23 (5.0)</td><td>13 (6.5)</td><td>10 (5.2)</td><td>49 (7.5)</td><td>33 (5.1)</td></tr>
+<tr><td>Falls, including accident</td><td>34 (6.8)</td><td>24 (4.7)</td><td>9 (5.8)</td><td>6 (4.2)</td><td>33 (7.3)</td><td>18 (3.9)</td><td>10 (5.0)</td><td>12 (6.2)</td><td>43 (6.6)</td><td>30 (4.6)</td></tr>
+<tr><td>Mental impairment disorders</td><td>17 (3.4)</td><td>11 (2.2)</td><td>6 (3.9)</td><td>4 (2.8)</td><td>18 (4.0)</td><td>10 (2.2)</td><td>5 (2.5)</td><td>5 (2.6)</td><td>23 (3.5)</td><td>15 (2.3)</td></tr>
+<tr><td>Weight decreased</td><td>19 (3.8)</td><td>31 (6.1)</td><td>3 (1.9)</td><td>4 (2.8)</td><td>18 (4.0)</td><td>24 (5.3)</td><td>4 (2.0)</td><td>11 (5.7)</td><td>22 (3.4)</td><td>35 (5.4)</td></tr>
+<tr><td>Depressed mood disorders</td><td>16 (3.2)</td><td>16 (3.2)</td><td>5 (3.2)</td><td>8 (5.6)</td><td>9 (2.0)</td><td>12 (2.6)</td><td>12 (6.0)</td><td>12 (6.2)</td><td>21 (3.2)</td><td>24 (3.7)</td></tr>
+<tr><td>Breast disorders/gynecomastia</td><td>15 (3.0)</td><td>7 (1.4)</td><td>6 (3.9)</td><td>3 (2.1)</td><td>10 (2.2)</td><td>5 (1.1)</td><td>11 (5.5)</td><td>5 (2.6)</td><td>21 (3.2)</td><td>10 (1.5)</td></tr>
+<tr><td>Cerebral ischemia</td><td>7 (1.4)</td><td>5 (1.0)</td><td>1 (0.6)</td><td>3 (2.1)</td><td>7 (1.5)</td><td>4 (0.9)</td><td>1 (0.5)</td><td>4 (2.1)</td><td>8 (1.2)</td><td>8 (1.2)</td></tr>
+<tr><td>Seizure</td><td>3 (0.6)</td><td>1 (0.2)</td><td>1 (0.6)</td><td>0</td><td>2 (0.4)</td><td>0</td><td>2 (1.0)</td><td>1 (0.5)</td><td>4 (0.6)</td><td>1 (0.2)</td></tr>
+</table>
+
+[Page 16, TABLE]
+<table>
+<tr><td>A Subgroup</td><td>Darolutamide + ADT + Docetaxel No. of Events/</td><td>Placebo + ADT + Docetaxel No. of Patients</td><td>Darolutamide + ADT + Docetaxel Median</td><td>Placebo + ADT + Docetaxel Median</td><td></td><td>HR (95% CI)</td></tr>
+<tr><td>Overall</td><td>203/497</td><td>268/508</td><td>NE</td><td>42.4</td><td>diamond shape graph</td><td>0.685 (0.571 to 0.822)</td></tr>
+<tr><td>Extent of disease (eCRF) Bone metastasis</td><td>150/386</td><td>206/389</td><td>NE</td><td>42.5</td><td>line with square graph</td><td>0.653 (0.529 to 0.806)</td></tr>
+<tr><td>Visceral metastasis</td><td>53/111</td><td>62/118</td><td>49.0</td><td>42.0</td><td>line with square graph</td><td>0.792 (0.549 to 1.143)</td></tr>
+<tr><td>ALP stratification factor (eCRF)</td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+<tr><td>Below upper limit of normal</td><td>44/168</td><td>69/176</td><td>NE</td><td>51.8</td><td>chart (line with bars)</td><td>0.613 (0.420 to 0.896)</td></tr>
+<tr><td>At or above upper limit of normal</td><td>159/329</td><td>199/332</td><td>47.1</td><td>36.0</td><td>chart (line with bars)</td><td>0.689 (0.559 to 0.849)</td></tr>
+<tr><td>&lt; 65</td><td>70/184</td><td>103/182</td><td>NE</td><td>40.9</td><td>chart (line with bars)</td><td>0.573 (0.423 to 0.777)</td></tr>
+<tr><td>65-74</td><td>94/228</td><td>107/230</td><td>NE</td><td>51.8</td><td>chart (line with bars)</td><td>0.824 (0.624 to 1.087)</td></tr>
+<tr><td>75-84</td><td>37/82</td><td>55/92</td><td>NE</td><td>38.1</td><td>chart (line with bars)</td><td>0.627 (0.413 to 0.951)</td></tr>
+<tr><td>≥ 85 Race</td><td>2/3</td><td>3/4</td><td>33.7</td><td>27.8</td><td></td><td></td></tr>
+<tr><td>White</td><td>118/258</td><td>151/259</td><td>50.3</td><td>39.4</td><td>horizontal bar with blue square</td><td>0.672 (0.528 to 0.855)</td></tr>
+<tr><td>Asian</td><td>65/177</td><td>86/193</td><td>NE</td><td>51.8</td><td>horizontal bar with blue square</td><td>0.777 (0.563 to 1.072)</td></tr>
+<tr><td>Black or African American</td><td>6/22</td><td>14/21</td><td>NE</td><td>32.4</td><td>horizontal bar with blue square</td><td>0.346 (0.132 to 0.904)</td></tr>
+<tr><td>Other or not reported</td><td>14/40</td><td>17/35</td><td>NE</td><td>43.2</td><td>horizontal bar with blue square</td><td>0.562 (0.275 to 1.150)</td></tr>
+<tr><td>Geographical region</td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+<tr><td>North America</td><td>36/95</td><td>46/88</td><td>NE</td><td>41.1</td><td>(box plot with whisker)</td><td>0.592 (0.382 to 0.918)</td></tr>
+<tr><td>Asia Pacific</td><td>64/175</td><td>85/191</td><td>NE</td><td>51.8</td><td>(box plot with whisker)</td><td>0.774 (0.559 to 1.070)</td></tr>
+<tr><td>Rest of the world</td><td>103/227</td><td>137/229</td><td>49.0</td><td>39.3</td><td>(box plot with whisker)</td><td>0.655 (0.507 to 0.846)</td></tr>
+<tr><td>PSA at baseline Below median</td><td>94/220</td><td>121/252</td><td>NE</td><td>47.6</td><td>(box plot with whisker)</td><td>0.805 (0.615 to 1.055)</td></tr>
+<tr><td>At or above median ECOG at baseline</td><td>109/277</td><td>147/255</td><td>NE</td><td>40.6</td><td>horizontal line with blue squares</td><td>0.589 (0.459 to 0.754)</td></tr>
+<tr><td>0</td><td>130/343</td><td>165/349</td><td>NE</td><td>47.6</td><td>horizontal line with blue squares</td><td>0.743 (0.591 to 0.936)</td></tr>
+<tr><td>1</td><td>73/154</td><td>102/157</td><td>47.2</td><td>30.2</td><td>horizontal line with blue squares</td><td>0.580 (0.430 to 0.784)</td></tr>
+<tr><td>Gleason score</td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+<tr><td>&lt;8</td><td>30/96</td><td>39/87</td><td>NE</td><td>NE</td><td>horizontal line with blue squares</td><td>0.595 (0.369 to 0.958)</td></tr>
+<tr><td>≥ 8</td><td>165/381</td><td>217/403</td><td>NE</td><td>42.3</td><td>horizontal bar chart with square marker</td><td>0.724 (0.591 to 0.887)</td></tr>
+<tr><td>Metastatic stage at initial diagnosis De novo</td><td>181/432</td><td>239/445</td><td>NE</td><td>42.4</td><td>horizontal bar chart with square marker</td><td>0.696 (0.574 to 0.845)</td></tr>
+<tr><td>Recurrent</td><td>21/58</td><td>26/59</td><td>NE</td><td>NE</td><td>horizontal bar chart with square marker</td><td>0.695 (0.390 to 1.241)</td></tr>
+<tr><td></td><td></td><td></td><td></td><td>0</td><td>1 0.1 (chart scale)</td><td>10.0 (chart scale)</td></tr>
+<tr><td></td><td></td><td></td><td></td><td colspan="2">Darolutamide Better</td><td>Placebo Better</td></tr>
+</table>
+
+[Page 18, TABLE]
+TABLE A1. Subsequent Life-Prolonging Systemic Antineoplastic Therapy in Patient Subgroups by Disease Volume and Disease Risk in ARASENS
+<table>
+<tr><td></td><td colspan="2">High Volumeª</td><td colspan="2">Low Volumeª</td><td colspan="2">High Riskᵇ</td><td colspan="2">Low Riskⁿ</td><td colspan="2">All Patients</td></tr>
+<tr><td>Subsequent Therapy</td><td>Darolutamide (n = 271)</td><td>Placebo (n = 402)</td><td>Darolutamide (n = 44)</td><td>Placebo (n = 93)</td><td>Darolutamide (n = 240)</td><td>Placebo (n = 364)</td><td>Darolutamide (n = 75)</td><td>Placebo (n = 131)</td><td>Darolutamide (n = 315)</td><td>Placebo (n = 495)</td></tr>
+<tr><td>Patients with subsequent life-prolonging systemic antineoplastic therapy</td><td>162 (59.8)</td><td>306 (76.1)</td><td>17 (38.6)</td><td>68 (73.1)</td><td>145 (60.4)</td><td>283 (77.7)</td><td>34 (45.3)</td><td>91 (69.5)</td><td>179 (56.8)</td><td>374 (75.6)</td></tr>
+<tr><td>Abiraterone acetate</td><td>101 (37.3)</td><td>190 (47.3)</td><td>11 (25.0)</td><td>42 (45.2)</td><td>91 (37.9)</td><td>178 (48.9)</td><td>21 (28.0)</td><td>54 (41.2)</td><td>112 (35.6)</td><td>232 (46.9)</td></tr>
+<tr><td>Enzalutamide</td><td>41 (15.1)</td><td>106 (26.4)</td><td>7 (15.9)</td><td>30 (32.3)</td><td>35 (14.6)</td><td>100 (27.5)</td><td>13 (17.3)</td><td>36 (27.5)</td><td>48 (15.2)</td><td>136 (27.5)</td></tr>
+<tr><td>Cabazitaxel</td><td>53 (19.6)</td><td>75 (18.7)</td><td>4 (9.1)</td><td>14 (15.1)</td><td>48 (20.0)</td><td>65 (17.9)</td><td>9 (12.0)</td><td>24 (18.3)</td><td>57 (18.1)</td><td>89 (18.0)</td></tr>
+<tr><td>Docetaxel</td><td>41 (15.1)</td><td>74 (18.4)</td><td>5 (11.4)</td><td>15 (16.1)</td><td>37 (15.4)</td><td>66 (18.1)</td><td>9 (12.0)</td><td>23 (17.6)</td><td>46 (14.6)</td><td>89 (18.0)</td></tr>
+<tr><td>Radium-223</td><td>18 (6.6)</td><td>30 (7.5)</td><td>1 (2.3)</td><td>4 (4.3)</td><td>18 (7.5)</td><td>22 (6.0)</td><td>1 (1.3)</td><td>12 (9.2)</td><td>19 (6.0)</td><td>34 (6.9)</td></tr>
+<tr><td>Sipuleucel-T</td><td>4 (1.5)</td><td>7 (1.7)</td><td>0</td><td>3 (3.2)</td><td>4 (1.7)</td><td>8 (2.2)</td><td>0</td><td>2 (1.5)</td><td>4 (1.3)</td><td>10 (2.0)</td></tr>
+<tr><td>Lutetium-177 PSMA</td><td>2 (0.7)</td><td>7 (1.7)</td><td>0</td><td>0</td><td>2 (0.8)</td><td>7 (1.9)</td><td>0</td><td>0</td><td>2 (0.6)</td><td>7 (1.4)</td></tr>
+<tr><td>Apalutamide</td><td>2 (0.7)</td><td>1 (0.2)</td><td>0</td><td>1 (1.1)</td><td>2 (0.8)</td><td>2 (0.5)</td><td>0</td><td>0</td><td>2 (0.6)</td><td>2 (0.4)</td></tr>
+<tr><td>Other systemic antineoplastic therapy</td><td>25 (9.2)</td><td>18 (4.5)</td><td>15 (34.1)</td><td>3 (3.2)</td><td>28 (11.7)</td><td>16 (4.4)</td><td>12 (16.0)</td><td>5 (3.8)</td><td>40 (12.7)</td><td>21 (4.2)</td></tr>
+</table>
+
+Task:
+1. Extract the value for this column following the plan. Return your best-effort value even if uncertain.
+2. If the plan seems wrong, incomplete, or ambiguous, still return the value you found and add a suggestion and/or alternative_plan.
+3. Use "not found" or "not reported" only if the value is genuinely absent from the content.
+
+Output a JSON object with:
+- value: the extracted value (string)
+- found: true if you found a value, false if not reported/absent
+- confidence: "high" | "medium" | "low"
+- suggestion: optional string with concerns or notes (null if none)
+- alternative_plan: optional string describing a different extraction approach to try (null if plan seems fine)
+
+
+============================================================
+OUTPUT
+============================================================
+```json
+{
+  "value": "Not reported",
+  "found": false,
+  "confidence": "high",
+  "suggestion": "The document reports the number and percentage of participants with 'visceral metastases' (M1c) in the treatment arm, but does not provide a specific breakdown for lung involvement within this category. Lung metastases would fall under 'visceral metastases', but the exact count/percentage for lungs alone is not specified.",
+  "alternative_plan": null
+}
+```

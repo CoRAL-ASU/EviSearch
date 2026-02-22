@@ -1,0 +1,85 @@
+============================================================
+INPUT
+============================================================
+You are extracting a value for a clinical trial data column from the provided document content.
+
+Column: Docetaxel administration - N (%) | Control
+Definition: What number and percentage of participants who received docetaxel before or during the trial in the control arm of the clinical trial? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.
+
+Extraction plan to follow:
+Extract the number and percentage of participants who received docetaxel from the control arms as specified in the text.
+
+Document content (relevant excerpts):
+[Page 5, FIGURE]
+<::1173 patients enrolled and randomly assigned
+
+1 withdrew consent for analysis of their data, data not included
+
+296 assigned to SOC
+
+178 received docetaxel
+118 did not receive docetaxel
+
+293 assigned to SOC plus radiotherapy
+
+177 received docetaxel
+116 did not receive docetaxel
+
+292 assigned to SOC plus abiraterone
+
+177 received docetaxel
+115 did not receive docetaxel
+
+291 assigned to SOC plus abiraterone plus radiotherapy
+
+178 received docetaxel
+113 did not receive docetaxel
+
+589 in SOC (with or without radiotherapy) without abiraterone groups
+306 alive with data from the past 3 months
+15 alive without data from the past 3 months (lost to follow-up or consent withdrawn)
+268 deceased at data cutoff
+
+583 in SOC (with or without radiotherapy) plus abiraterone groups
+337 alive with data from the past 3 months
+18 alive without data from the past 3 months (lost to follow-up or consent withdrawn)
+228 deceased at data cutoff
+
+589 included in the overall population for efficacy analysis
+355 included in the ADT with docetaxel population for efficacy analysis
+
+583 included in the overall population for efficacy analysis
+355 included in the ADT with docetaxel population for efficacy analysis
+
+350 included in the ADT with docetaxel population for safety analysis
+237 included in the ADT without docetaxel population for safety analysis
+
+347 included in the ADT with docetaxel population for safety analysis
+226 included in the ADT without docetaxel population for safety analysis
+: flowchart::>
+
+Task:
+1. Extract the value for this column following the plan. Return your best-effort value even if uncertain.
+2. If the plan seems wrong, incomplete, or ambiguous, still return the value you found and add a suggestion and/or alternative_plan.
+3. Use "not found" or "not reported" only if the value is genuinely absent from the content.
+
+Output a JSON object with:
+- value: the extracted value (string)
+- found: true if you found a value, false if not reported/absent
+- confidence: "high" | "medium" | "low"
+- suggestion: optional string with concerns or notes (null if none)
+- alternative_plan: optional string describing a different extraction approach to try (null if plan seems fine)
+
+
+============================================================
+OUTPUT
+============================================================
+```json
+{
+  "value": "SOC: 178 (60.1%); SOC plus radiotherapy: 177 (60.4%)",
+  "found": true,
+  "confidence": "high",
+  "suggestion": "The document does not explicitly label an arm as 'control'. However, based on the trial's structure comparing treatments with and without abiraterone, the 'SOC' and 'SOC plus radiotherapy' arms are interpreted as the control arms (i.e., without abiraterone). This interpretation is supported by the later grouping 'SOC (with or without radiotherapy) without abiraterone groups'.",
+  "alternative_plan": null
+}
+```

@@ -1,0 +1,99 @@
+============================================================
+INPUT
+============================================================
+You are extracting a value for a clinical trial data column from the provided document content.
+
+Column: Median OS (mo) | High volume | Control
+Definition: What is the median overall survival (in months) for patients with high volume metastasis (by CHAARTED criteria) in the control arm? If reported, include the value; use 'Not reported' if missing.
+
+Extraction plan to follow:
+In Figure 2, Panel A (page 6), which shows OS for high-volume disease, locate the "Placebo + ADT + docetaxel Median" line. The value is "42.4 months".
+
+Document content (relevant excerpts):
+[Page 6, FIGURE]
+A
+<::Kaplan-Meier curve showing percentage of patients who survived over time (months) for high-volume patients. The y-axis is "Patients Who Survived (%)" from 0 to 100 in increments of 10. The x-axis is "Time (months)" from 0 to 60 in increments of 3.
+
+Two survival curves are plotted:
+1. Darolutamide + ADT + docetaxel (solid line): Median, NE (95% CI, 50.3 months to NE)
+2. Placebo + ADT + docetaxel (dashed line): Median, 42.4 months (95% CI, 39.7 to 46.0)
+
+HR for death, 0.69 (95% CI, 0.57 to 0.82)
+
+Table: No. of high-volume patients at risk:
+| Time (months) | 0   | 3   | 6   | 9   | 12  | 15  | 18  | 21  | 24  | 27  | 30  | 33  | 36  | 39  | 42  | 45  | 48  | 51 | 54 | 57 | 60 |
+| :------------ | :-- | :-- | :-- | :-- | :-- | :-- | :-- | :-- | :-- | :-- | :-- | :-- | :-- | :-- | :-- | :-- | :-- | :-- | :-- | :-- | :-- |
+| Darolutamide  | 497 | 494 | 486 | 479 | 462 | 449 | 429 | 408 | 389 | 378 | 356 | 341 | 326 | 312 | 285 | 193 | 103 | 43 | 6  | 0  | 0  |
+| Placebo       | 508 | 502 | 491 | 469 | 444 | 430 | 401 | 378 | 358 | 341 | 319 | 304 | 286 | 269 | 233 | 153 | 72  | 23 | 4  | 1  | 0  |
+: chart and table::>
+B
+<::Kaplan-Meier curve showing percentage of patients who survived over time (months) for low-volume patients. The y-axis is "Patients Who Survived (%)" from 0 to 100 in increments of 10. The x-axis is "Time (months)" from 0 to 57 in increments of 3.
+
+Two survival curves are plotted:
+1. Darolutamide + ADT + docetaxel (solid line): Median, NE (95% CI, NE to NE)
+2. Placebo + ADT + docetaxel (dashed line): Median, NE (95% CI, NE to NE)
+
+HR for death, 0.68 (95% CI, 0.41 to 1.13)
+
+Table: No. of low-volume patients at risk:
+| Time (months) | 0   | 3   | 6   | 9   | 12  | 15  | 18  | 21  | 24  | 27  | 30  | 33  | 36  | 39  | 42  | 45  | 48 | 51 | 54 | 57 |
+| :------------ | :-- | :-- | :-- | :-- | :-- | :-- | :-- | :-- | :-- | :-- | :-- | :-- | :-- | :-- | :-- | :-- | :-- | :-- | :-- | :-- |
+| Darolutamide  | 154 | 151 | 151 | 148 | 146 | 144 | 141 | 140 | 136 | 131 | 130 | 127 | 126 | 124 | 117 | 74  | 36 | 13 | 3  | 0  |
+| Placebo       | 146 | 144 | 139 | 138 | 136 | 135 | 134 | 132 | 130 | 129 | 122 | 120 | 116 | 114 | 107 | 65  | 35 | 14 | 2  | 0  |
+: chart and table::>
+C
+<::Kaplan-Meier curve showing percentage of patients who survived over time (months) for high-risk patients. The y-axis is "Patients Who Survived (%)" from 0 to 100 in increments of 10. The x-axis is "Time (months)" from 0 to 57 in increments of 3.
+
+Two survival curves are plotted:
+1. Darolutamide + ADT + docetaxel (solid line): Median, NE (95% CI, NE to NE)
+2. Placebo + ADT + docetaxel (dashed line): Median, 43.2 months (95% CI, 40.0 to 48.9)
+
+HR for death, 0.71 (95% CI, 0.58 to 0.86)
+
+Table: No. of high-risk patients at risk:
+| Time (months) | 0   | 3   | 6   | 9   | 12  | 15  | 18  | 21  | 24  | 27  | 30  | 33  | 36  | 39  | 42  | 45  | 48 | 51 | 54 | 57 |
+| :------------ | :-- | :-- | :-- | :-- | :-- | :-- | :-- | :-- | :-- | :-- | :-- | :-- | :-- | :-- | :-- | :-- | :-- | :-- | :-- | :-- |
+| Darolutamide  | 452 | 450 | 443 | 437 | 419 | 407 | 389 | 369 | 352 | 344 | 322 | 308 | 294 | 282 | 257 | 177 | 99 | 42 | 6  | 0  |
+| Placebo       | 460 | 453 | 443 | 423 | 400 | 392 | 367 | 346 | 330 | 313 | 290 | 277 | 261 | 245 | 215 | 148 | 72 | 24 | 3  | 0  |
+: chart and table::>
+D
+<::Kaplan-Meier curve showing percentage of patients who survived over time (months) for low-risk patients. The y-axis is "Patients Who Survived (%)" from 0 to 100 in increments of 10. The x-axis is "Time (months)" from 0 to 60 in increments of 3.
+
+Two survival curves are plotted:
+1. Darolutamide + ADT + docetaxel (solid line): Median, NE (95% CI, NE to NE)
+2. Placebo + ADT + docetaxel (dashed line): Median, NE (95% CI, NE to NE)
+
+HR for death, 0.62 (95% CI, 0.42 to 0.90)
+
+Table: No. of low-risk patients at risk:
+| Time (months) | 0   | 3   | 6   | 9   | 12  | 15  | 18  | 21  | 24  | 27  | 30  | 33  | 36  | 39  | 42  | 45  | 48 | 51 | 54 | 57 | 60 |
+| :------------ | :-- | :-- | :-- | :-- | :-- | :-- | :-- | :-- | :-- | :-- | :-- | :-- | :-- | :-- | :-- | :-- | :-- | :-- | :-- | :-- | :-- |
+| Darolutamide  | 199 | 195 | 194 | 190 | 189 | 186 | 181 | 179 | 173 | 165 | 164 | 160 | 158 | 154 | 145 | 90  | 40 | 14 | 3  | 0  | 0  |
+| Placebo       | 194 | 193 | 187 | 184 | 180 | 173 | 168 | 164 | 158 | 157 | 151 | 147 | 141 | 138 | 125 | 70  | 35 | 13 | 3  | 1  | 0  |
+: chart and table::>
+
+Task:
+1. Extract the value for this column following the plan. Return your best-effort value even if uncertain.
+2. If the plan seems wrong, incomplete, or ambiguous, still return the value you found and add a suggestion and/or alternative_plan.
+3. Use "not found" or "not reported" only if the value is genuinely absent from the content.
+
+Output a JSON object with:
+- value: the extracted value (string)
+- found: true if you found a value, false if not reported/absent
+- confidence: "high" | "medium" | "low"
+- suggestion: optional string with concerns or notes (null if none)
+- alternative_plan: optional string describing a different extraction approach to try (null if plan seems fine)
+
+
+============================================================
+OUTPUT
+============================================================
+```json
+{
+  "value": "42.4",
+  "found": true,
+  "confidence": "high",
+  "suggestion": null,
+  "alternative_plan": null
+}
+```

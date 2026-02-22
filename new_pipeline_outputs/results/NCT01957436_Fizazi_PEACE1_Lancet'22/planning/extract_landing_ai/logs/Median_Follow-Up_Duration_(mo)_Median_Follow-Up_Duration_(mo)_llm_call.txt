@@ -1,0 +1,85 @@
+============================================================
+INPUT
+============================================================
+You are extracting a value for a clinical trial data column from the provided document content.
+
+Column: Median Follow-Up Duration (mo)
+Definition: What the median length of time, measured in months, that participants in the clinical trial were followed up or monitored after the start of the trial? If reported, include the value; use 'Not reported' if missing.
+
+Extraction plan to follow:
+The text states: "For the overall survival analyses, the median follow-up periods from randomisation to the cutoff date of June 1, 2021, were 4·41 years for the overall population". Convert 4.41 years to months (4.41 * 12 = 52.92 months).
+
+Document content (relevant excerpts):
+[Page 5, TEXT]
+Articles
+
+[Page 5, TEXT]
+(5000 repeats). Statistical analyses were performed with
+SAS (version 9.4) and R (version 4.0.2).
+This study is ongoing and is registered with
+ClinicalTrials.gov, NCT01957436.
+
+[Page 5, TEXT]
+Role of the funding source
+The funders of the study had no role in study design, data collection, data analysis, data interpretation, or writing of the report.
+
+[Page 5, TEXT]
+## Results
+Between Nov 27, 2013, and Dec 20, 2018, 1173 patients were enrolled (one patient subsequently withdrew consent for analysis of his data) and assigned to receive SOC (n=296), SOC plus radiotherapy (n=293), SOC plus abiraterone (n=292), or SOC plus radiotherapy plus abiraterone (n=291; figure 1). SOC was ADT alone in 462 patients and ADT with docetaxel in 710 patients (table 1).
+
+[Page 5, TEXT]
+For radiographic progression-free survival and overall
+survival, the median follow-up periods were longer in
+the overall population (3.5 years [IQR 2.8-4.6] and
+4.4 years [3.5-5.4], respectively) than in the ADT with
+docetaxel population (3.0 years [2.1-3.8] and 3.8 years
+[2.9-4.5], respectively). Regardless of the population and
+
+[Page 5, TEXT]
+survival outcome considered, the median follow-up periods did not differ between the groups who did or did not receive abiraterone. For the radiographic progression-free survival analyses, the median follow-up periods from randomisation to the cutoff date of Sept 1, 2020, were 3.53 years for the overall population (3.52 years for the SOC without abiraterone groups and 3.56 years for the SOC plus abiraterone groups; log-rank p=0.86) and 2.99 years for the ADT with docetaxel population (3.00 years and 2.97 years; log-rank p=0.93). For the overall survival analyses, the median follow-up periods from randomisation to the cutoff date of June 1, 2021, were 4.41 years for the overall population (4.44 years for the SOC without abiraterone groups and 4.39 years for the SOC plus abiraterone groups; log-rank p=0.98) and 3.81 years for the ADT with docetaxel population (3.75 years and 3.85 years; log-rank p=0.95).
+
+[Page 5, TEXT]
+In the overall population (n=1172), no interaction
+between abiraterone and radiotherapy was found
+for radiographic progression-free survival (p=0.64),
+overall survival (p=0.86), CRPC-free survival (p=0.56),
+or prostate-cancer-specific survival (p=0.54), after
+adjusting for the four stratification factors. Likewise,
+in the ADT with docetaxel population (n=710), no
+interaction between abiraterone and radiotherapy was
+
+[Page 5, TEXT]
+Figure 1: Trial profile
+ADT=androgen deprivation therapy. SOC=standard of care.
+
+[Page 5, TEXT]
+www.thelancet.com Published online April 8, 2022 https://doi.org/10.1016/ S0140-6736(22)00367-1
+
+[Page 5, TEXT]
+5
+
+Task:
+1. Extract the value for this column following the plan. Return your best-effort value even if uncertain.
+2. If the plan seems wrong, incomplete, or ambiguous, still return the value you found and add a suggestion and/or alternative_plan.
+3. Use "not found" or "not reported" only if the value is genuinely absent from the content.
+
+Output a JSON object with:
+- value: the extracted value (string)
+- found: true if you found a value, false if not reported/absent
+- confidence: "high" | "medium" | "low"
+- suggestion: optional string with concerns or notes (null if none)
+- alternative_plan: optional string describing a different extraction approach to try (null if plan seems fine)
+
+
+============================================================
+OUTPUT
+============================================================
+```json
+{
+  "value": "52.92",
+  "found": true,
+  "confidence": "high",
+  "suggestion": null,
+  "alternative_plan": null
+}
+```

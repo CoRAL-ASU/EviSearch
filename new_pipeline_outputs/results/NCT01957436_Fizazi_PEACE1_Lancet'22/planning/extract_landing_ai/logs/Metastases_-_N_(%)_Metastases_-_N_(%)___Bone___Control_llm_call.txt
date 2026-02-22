@@ -1,0 +1,78 @@
+============================================================
+INPUT
+============================================================
+You are extracting a value for a clinical trial data column from the provided document content.
+
+Column: Metastases - N (%) | Bone | Control
+Definition: What the number and percentage of patients showing metastases in the bone in the control arm of the trial? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.
+
+Extraction plan to follow:
+Locate Table 1 on page 6. Find the row 'Metastatic localisation' and then the sub-row 'Bone'. Extract the value from the column 'SOC without abiraterone groups (with or without radiotherapy; n=589)' under 'Overall population (n=1172)' and from the column 'SOC without abiraterone groups (with or without radiotherapy; n=355)' under 'ADT with docetaxel population (n=710)'
+
+Document content (relevant excerpts):
+[Page 6, TABLE]
+<table>
+<tr><td></td><td colspan="2">Overall population (n=1172)</td><td colspan="2">ADT with docetaxel population (n=710)*</td></tr>
+<tr><td></td><td>SOC plus abiraterone groups (with or without radiotherapy; n=583)</td><td>SOC without abiraterone groups (with or without radiotherapy; n=589)</td><td>SOC plus abiraterone groups (with or without radiotherapy; n=355)</td><td>SOC without abiraterone groups (with or without radiotherapy; n=355)</td></tr>
+<tr><td>Assigned to receive radiotherapy</td><td>291 (50%)</td><td>293 (50%)</td><td>178 (50%)</td><td>177 (50%)</td></tr>
+<tr><td colspan="5">Country</td></tr>
+<tr><td>Belgium</td><td>29 (5%)</td><td>25 (4%)</td><td>16 (5%)</td><td>16 (5%)</td></tr>
+<tr><td>France</td><td>458 (79%)</td><td>462 (78%)</td><td>278 (78%)</td><td>280 (79%)</td></tr>
+<tr><td>Ireland</td><td>30 (5%)</td><td>30 (5%)</td><td>17 (5%)</td><td>13 (4%)</td></tr>
+<tr><td>Italy</td><td>1(&lt;1%)</td><td>3 (1%)</td><td>0</td><td>0</td></tr>
+<tr><td>Romania</td><td>4(1%)</td><td>5 (1%)</td><td>0</td><td>0</td></tr>
+<tr><td>Spain</td><td>55 (9%)</td><td>56 (10%)</td><td>38 (11%)</td><td>39 (11%)</td></tr>
+<tr><td>Switzerland</td><td>6 (1%)</td><td>8 (1%)</td><td>6 (2%)</td><td>7 (2%)</td></tr>
+<tr><td>Age, years Median</td><td>67 (61-72)</td><td>66 (59-72)</td><td>66 (60-70)</td><td>66 (59-70)</td></tr>
+<tr><td>Range</td><td>37-94</td><td>43-87</td><td>37-85</td><td>44-84</td></tr>
+<tr><td colspan="5">ECOG performance status</td></tr>
+<tr><td>0</td><td>412 (71%)</td><td>412 (70%)</td><td>250 (70%)</td><td>246 (69%)</td></tr>
+<tr><td>1-2</td><td>171 (29%)</td><td>177 (30%)</td><td>105 (30%)</td><td>109 (31%)</td></tr>
+<tr><td colspan="5">T stage</td></tr>
+<tr><td>T1</td><td>23 (4%)</td><td>23 (4%)</td><td>10 (3%)</td><td>13 (4%)</td></tr>
+<tr><td>T2</td><td>109 (19%)</td><td>94 (16%)</td><td>64 (19%)</td><td>45 (13%)</td></tr>
+<tr><td>T3</td><td>287 (51%)</td><td>310 (53%)</td><td>167 (49%)</td><td>189 (55%)</td></tr>
+<tr><td>T4</td><td>98 (17%)</td><td>99 (17%)</td><td>68 (20%)</td><td>65 (19%)</td></tr>
+<tr><td>Tx</td><td>45 (8%)</td><td>54 (9%)</td><td>32 (9%)</td><td>35 (10%)</td></tr>
+<tr><td>Missing data</td><td>21 (4%)</td><td>9 (2%)</td><td>14 (4%)</td><td>8 (2%)</td></tr>
+<tr><td colspan="5">N stage</td></tr>
+<tr><td>N1</td><td>307 (55%)</td><td>325 (57%)</td><td>198 (58%)</td><td>207 (60%)</td></tr>
+<tr><td>NO</td><td>186 (33%)</td><td>174 (30%)</td><td>99 (29%)</td><td>97 (28%)</td></tr>
+<tr><td>NX</td><td>69 (12%)</td><td>76 (13%)</td><td>43 (13%)</td><td>39 (11%)</td></tr>
+<tr><td>Missing data</td><td>21 (4%)</td><td>14 (2%)</td><td>15 (4%)</td><td>12 (3%)</td></tr>
+<tr><td colspan="2">Time from diagnosis, months Median 2-3 (1-6-3-2)</td><td>2-3 (1-4-3-1)</td><td>2-2 (1-6-3-0)</td><td>2-2 (1-4-2-9)</td></tr>
+<tr><td>Missing data</td><td>10 (2%)</td><td>10 (2%)</td><td>6 (2%)</td><td>7(2%)</td></tr>
+<tr><td colspan="3">Metastatic localisation</td><td colspan="2"></td></tr>
+<tr><td>Bone†</td><td>472 (81%)</td><td>475 (81%)</td><td>287 (81%)</td><td>279 (79%)</td></tr>
+<tr><td>Lymph node only</td><td>47 (8%)</td><td>52 (9%)</td><td>27 (8%)</td><td>29 (8%)</td></tr>
+<tr><td>Visceral‡</td><td>64 (11%)</td><td>62 (11%)</td><td>41 (12%)</td><td>47 (13%)</td></tr>
+<tr><td>Metastatic burden§ High burden</td><td>331 (57%)</td><td>336 (57%)</td><td>224 (63%)</td><td>232 (65%)</td></tr>
+<tr><td>Low burden</td><td>252 (43%)</td><td>253 (43%)</td><td>131 (37%)</td><td>123 (35%)</td></tr>
+<tr><td colspan="5">(Table 1 continues on next page)</td></tr>
+</table>
+
+Task:
+1. Extract the value for this column following the plan. Return your best-effort value even if uncertain.
+2. If the plan seems wrong, incomplete, or ambiguous, still return the value you found and add a suggestion and/or alternative_plan.
+3. Use "not found" or "not reported" only if the value is genuinely absent from the content.
+
+Output a JSON object with:
+- value: the extracted value (string)
+- found: true if you found a value, false if not reported/absent
+- confidence: "high" | "medium" | "low"
+- suggestion: optional string with concerns or notes (null if none)
+- alternative_plan: optional string describing a different extraction approach to try (null if plan seems fine)
+
+
+============================================================
+OUTPUT
+============================================================
+```json
+{
+  "value": "Overall population: 475 (81%); ADT with docetaxel population: 279 (79%)",
+  "found": true,
+  "confidence": "high",
+  "suggestion": null,
+  "alternative_plan": null
+}
+```

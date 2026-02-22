@@ -1,50 +1,41 @@
-1. OS Rate (%) | Overall | Treatment
-   - Found in PDF: Yes
-   - Extraction Plan:
-     - Page: 3
-     - Source: Figure 1, text below the diagram. "The primary end point (OS) was assessed after 533 patients had died (229 in the darolutamide group and 304 in the placebo group)." The total number of patients analyzed for the primary endpoint in the darolutamide group was 651 (from Figure 1, "Analyzed for primary end point").
-     - Value: Calculate as (Total patients - Number of deaths) / Total patients * 100 = (651 - 229) / 651 * 100 = 64.82%.
-2. OS Rate (%) | Overall | Control
-   - Found in PDF: Yes
-   - Extraction Plan:
-     - Page: 3
-     - Source: Figure 1, text below the diagram. "The primary end point (OS) was assessed after 533 patients had died (229 in the darolutamide group and 304 in the placebo group)." The total number of patients analyzed for the primary endpoint in the placebo group was 654 (from Figure 1, "Analyzed for primary end point").
-     - Value: Calculate as (Total patients - Number of deaths) / Total patients * 100 = (654 - 304) / 654 * 100 = 53.52%.
-3. OS Rate (%) | Synchronous | Treatment
-   - Found in PDF: Yes
-   - Extraction Plan:
-     - Page: 16
-     - Source: Figure A1, Panel A, row "Metastatic stage at initial diagnosis - De novo", Darolutamide column ("No. of Events/No. of Patients": 181/432). This represents the high-volume synchronous subgroup.
-     - Page: 17
-     - Source: Figure A1, Panel B, row "Metastatic stage at initial diagnosis - De novo", Darolutamide column ("No. of Events/No. of Patients": 25/126). This represents the low-volume synchronous subgroup.
-     - Value: Combine data from both subgroups. Total patients = 432 + 126 = 558. Total events = 181 + 25 = 206. Calculate as (Total patients - Total events) / Total patients * 100 = (558 - 206) / 558 * 100 = 63.08%.
-4. OS Rate (%) | Synchronous | Control
-   - Found in PDF: Yes
-   - Extraction Plan:
-     - Page: 16
-     - Source: Figure A1, Panel A, row "Metastatic stage at initial diagnosis - De novo", Placebo column ("No. of Events/No. of Patients": 239/445). This represents the high-volume synchronous subgroup.
-     - Page: 17
-     - Source: Figure A1, Panel B, row "Metastatic stage at initial diagnosis - De novo", Placebo column ("No. of Events/No. of Patients": 32/121). This represents the low-volume synchronous subgroup.
-     - Value: Combine data from both subgroups. Total patients = 445 + 121 = 566. Total events = 239 + 32 = 271. Calculate as (Total patients - Total events) / Total patients * 100 = (566 - 271) / 566 * 100 = 52.12%.
-5. OS Rate (%) | Metachronous | Treatment
-   - Found in PDF: Yes
-   - Extraction Plan:
-     - Page: 16
-     - Source: Figure A1, Panel A, row "Metastatic stage at initial diagnosis - Recurrent", Darolutamide column ("No. of Events/No. of Patients": 21/58). This represents the high-volume metachronous subgroup.
-     - Page: 17
-     - Source: Figure A1, Panel B, row "Metastatic stage at initial diagnosis - Recurrent", Darolutamide column ("No. of Events/No. of Patients": 1/28). This represents the low-volume metachronous subgroup.
-     - Value: Combine data from both subgroups. Total patients = 58 + 28 = 86. Total events = 21 + 1 = 22. Calculate as (Total patients - Total events) / Total patients * 100 = (86 - 22) / 86 * 100 = 74.42%.
-6. OS Rate (%) | Metachronous | Control
-   - Found in PDF: Yes
-   - Extraction Plan:
-     - Page: 16
-     - Source: Figure A1, Panel A, row "Metastatic stage at initial diagnosis - Recurrent", Placebo column ("No. of Events/No. of Patients": 26/59). This represents the high-volume metachronous subgroup.
-     - Page: 17
-     - Source: Figure A1, Panel B, row "Metastatic stage at initial diagnosis - Recurrent", Placebo column ("No. of Events/No. of Patients": 4/23). This represents the low-volume metachronous subgroup.
-     - Value: Combine data from both subgroups. Total patients = 59 + 23 = 82. Total events = 26 + 4 = 30. Calculate as (Total patients - Total events) / Total patients * 100 = (82 - 30) / 82 * 100 = 63.41%.
-7. OS Rate (%) | High volume | Treatment
-   - Found in PDF: Yes
-   - Extraction Plan:
-     - Page: 16
-     - Source: Figure A1, Panel A, row "Overall", Darolutamide column ("No. of Events/No. of Patients": 203/497). As per the caption, Panel A is for high-volume disease, so this "Overall" row refers to the high-volume subgroup.
-     - Value: Calculate as (Total patients - Number of events) / Total patients * 1
+Here's the analysis for each canonical column:
+
+1.  **OS Rate (%) | Overall | Treatment**
+    *   **found_in_pdf**: false
+    *   **explanation**: The overall survival (OS) for the entire treatment arm is reported in terms of median OS (not reached) and hazard ratio (HR, 0.68; 95% CI, 0.57 to 0.80) in the abstract (Chunk 8, page 1) and Figure A1 (Chunk 7, page 16). However, a specific OS rate (percentage) at the latest follow-up for the *overall* treatment arm is not reported. Figure 2 (Chunk 2, page 6) provides Kaplan-Meier curves for *subgroups* (high-volume, low-volume, high-risk, low-risk), not for the overall population.
+
+2.  **OS Rate (%) | Overall | Control**
+    *   **found_in_pdf**: false
+    *   **explanation**: The overall survival (OS) for the entire control arm is reported in terms of median OS (42.4 months; 95% CI, 39.7 to 46.0 months) and hazard ratio (HR, 0.68; 95% CI, 0.57 to 0.80) in the abstract (Chunk 8, page 1) and Figure A1 (Chunk 7, page 16). However, a specific OS rate (percentage) at the latest follow-up for the *overall* control arm is not reported. Figure 2 (Chunk 2, page 6) provides Kaplan-Meier curves for *subgroups* (high-volume, low-volume, high-risk, low-risk), not for the overall population.
+
+3.  **OS Rate (%) | Synchronous | Treatment**
+    *   **found_in_pdf**: false
+    *   **explanation**: For patients with de novo mHSPC (synchronous metastasis), the median OS for the darolutamide arm is reported as "NE" (not estimable) in Figure A1 (Chunk 7, page 16). The hazard ratio is also reported (HR, 0.71; 95% CI, 0.59 to 0.85) in the text (Chunk 8, page 2). However, a specific OS rate (percentage) at the latest follow-up is not reported.
+
+4.  **OS Rate (%) | Synchronous | Control**
+    *   **found_in_pdf**: false
+    *   **explanation**: For patients with de novo mHSPC (synchronous metastasis), the median OS for the placebo arm is reported as "NE" (not estimable) in Figure A1 (Chunk 7, page 16). The hazard ratio is also reported (HR, 0.71; 95% CI, 0.59 to 0.85) in the text (Chunk 8, page 2). However, a specific OS rate (percentage) at the latest follow-up is not reported.
+
+5.  **OS Rate (%) | Metachronous | Treatment**
+    *   **found_in_pdf**: false
+    *   **explanation**: For patients with recurrent mHSPC (metachronous metastasis), the median OS for the darolutamide arm is reported as "NE" (not estimable) in Figure A1 (Chunk 7, page 16). The hazard ratio is also reported (HR, 0.61; 95% CI, 0.35 to 1.05) in the text (Chunk 8, page 2). However, a specific OS rate (percentage) at the latest follow-up is not reported.
+
+6.  **OS Rate (%) | Metachronous | Control**
+    *   **found_in_pdf**: false
+    *   **explanation**: For patients with recurrent mHSPC (metachronous metastasis), the median OS for the placebo arm is reported as "NE" (not estimable) in Figure A1 (Chunk 7, page 16). The hazard ratio is also reported (HR, 0.61; 95% CI, 0.35 to 1.05) in the text (Chunk 8, page 2). However, a specific OS rate (percentage) at the latest follow-up is not reported.
+
+7.  **OS Rate (%) | High volume | Treatment**
+    *   **found_in_pdf**: true
+    *   **explanation**: In Figure 2A (Chunk 2, page 6), the Kaplan-Meier curve for "Darolutamide + ADT + docetaxel" in patients with high-volume disease shows an approximate OS rate of **55%** at the latest follow-up of 57 months. At this time point, 6 patients were still at risk.
+
+8.  **OS Rate (%) | High volume | Control**
+    *   **found_in_pdf**: true
+    *   **explanation**: In Figure 2A (Chunk 2, page 6), the Kaplan-Meier curve for "Placebo + ADT + docetaxel" in patients with high-volume disease shows an approximate OS rate of **45%** at the latest follow-up of 57 months. At this time point, 4 patients were still at risk.
+
+9.  **OS Rate (%) | Low volume | Treatment**
+    *   **found_in_pdf**: true
+    *   **explanation**: In Figure 2B (Chunk 2, page 6), the Kaplan-Meier curve for "Darolutamide + ADT + docetaxel" in patients with low-volume disease shows an approximate OS rate of **85%** at the latest follow-up of 54 months. At this time point, 3 patients were still at risk. The curve ends at 57 months with 0 patients at risk.
+
+10. **OS Rate (%) | Low volume | Control**
+    *   **found_in_pdf**: true
+    *   **explanation**: In Figure 2B (Chunk 2, page 6), the Kaplan-Meier curve for "Placebo + ADT + docetaxel" in patients with low-volume disease shows an approximate OS rate of **75%** at the latest follow-up of 54 months. At this time point, 2 patients were still at risk. The curve ends at 57 months with 0 patients at risk.
