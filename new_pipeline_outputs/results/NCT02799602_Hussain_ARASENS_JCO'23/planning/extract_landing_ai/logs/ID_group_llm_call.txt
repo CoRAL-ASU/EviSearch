@@ -1,0 +1,359 @@
+RETRIEVAL SOURCE: extraction_plan_pages
+
+============================================================
+INPUT
+============================================================
+You are extracting values for multiple clinical trial data columns from the same document content.
+All columns below share the same evidence pool. Extract each column following its plan.
+
+COLUMNS TO EXTRACT:
+
+Column 1: NCT
+  Definition: What national Clinical Trial identifier, a unique identification number assigned to a clinical trial?. If reported, provide the value; otherwise use 'Not reported'.
+  Extraction plan: Extract the value "NCT02799602" from the "CLINICAL TRIAL INFORMATION" section on page 12.
+
+Column 2: PubMed ID
+  Definition: What a unique identifier assigned to a clinical trial publication in the PubMed database?. If reported, provide the value; otherwise use 'Not reported'.
+  Extraction plan: I examined the header and footer of page 1, the "ASSOCIATED CONTENT" section on page 1, and the "CLINICAL TRIAL INFORMATION" section on page 12. No PubMed ID was found.
+
+Column 3: Trial Name
+  Definition: What the title or identifier of the clinical trial being referred to in the study?. If reported, provide the value; otherwise use 'Not reported'.
+  Extraction plan: Extract "ARASENS" from the title "Darolutamide Plus Androgen-Deprivation Therapy and Docetaxel in Metastatic Hormone-Sensitive Prostate Cancer by Disease Volume and Risk Subgroups in the Phase III ARASENS Trial" on page 1.
+
+Column 4: Author
+  Definition: What the name of the person or people responsible for writing or publishing the clinical trial study? Your answer should be a name/ list of names (you can use th et al. format )or 'NA'. If reported, provide the value; otherwise use 'Not reported'.
+  Extraction plan: Extract the list of authors from the top of page 1: "Maha Hussain, MD; Bertrand Tombal, MD, PhD; Fred Saad, MD; Karim Fizazi, MD, PhD; Cora N. Sternberg, MD; E. David Crawford, MD; Neal Shore, MD; Evgeny Kopyltsov, MD; Arash Rezazadeh Kalebasty, MD; Martin Bögemann, MD; Dingwei Ye, MD; Felipe Cruz, MD, PhD; Hiroyoshi Suzuki, MD, PhD; Shivani Kapur, MD; Shankar Srinivasan, PhD; Frank Verholen, MD; Iris Kuss, MD; Heikki Joensuu, MD; and Matthew R. Smith, MD, PhD".
+
+Column 5: Year
+  Definition: Publication year of the clinical trial. Use 'Not reported' if unclear.
+  Extraction plan: Extract "2023" from the copyright information "© 2023 by American Society of Clinical Oncology" at the bottom of page 1.
+
+Column 6: Full Pub or Abstract
+  Definition: Indicates whether results are fully published or only an abstract is available. Use 'Full Pub' or 'Abstract'; use 'Not reported' if unclear.
+  Extraction plan: The document is a multi-page PDF (15 pages of content) with detailed methods, results, figures, and tables, indicating a full publication rather than just an abstract. The title also includes "original reports" on page 1.
+
+Column 7: Phase
+  Definition: Clinical trial phase (e.g., I, II, III, IV) as reported. Use 'Not reported' if unclear.
+  Extraction plan: Extract "Phase III" from the title "Darolutamide Plus Androgen-Deprivation Therapy and Docetaxel in Metastatic Hormone-Sensitive Prostate Cancer by Disease Volume and Risk Subgroups in the Phase III ARASENS Trial" on page 1.
+
+Column 8: Original/Follow Up
+  Definition: Whether the study is an original report or a follow-up analysis. Use Original or Follow up; use 'Not reported' if unclear.
+  Extraction plan: The document is labeled "original reports" on page 1. The abstract and introduction describe the study as evaluating efficacy and safety from the ARASENS trial, and the "Knowledge Generated" section on page 2 states "These subgroup analyses of ARASENS showed...". This indicates it's an original report of subgroup analyses from the ARASENS trial.
+
+
+Document content (grouped by type, in chronological page order):
+--- TEXT ---
+original reports
+
+Darolutamide Plus Androgen-Deprivation
+Therapy and Docetaxel in Metastatic
+Hormone-Sensitive Prostate Cancer by Disease
+Volume and Risk Subgroups in the Phase III
+ARASENS Trial
+
+Maha Hussain, MD¹; Bertrand Tombal, MD, PhD²; Fred Saad, MD³; Karim Fizazi, MD, PhD⁴; Cora N. Sternberg, MD⁵;
+E. David Crawford, MD⁶; Neal Shore, MD⁷; Evgeny Kopyltsov, MD⁸; Arash Rezazadeh Kalebasty, MD⁹; Martin Bögemann, MD¹⁰;
+Dingwei Ye, MD¹¹; Felipe Cruz, MD, PhD¹²; Hiroyoshi Suzuki, MD, PhD¹³; Shivani Kapur, MD¹⁴; Shankar Srinivasan, PhD¹⁵;
+Frank Verholen, MD¹⁶; Iris Kuss, MD¹⁷; Heikki Joensuu, MD¹⁸; and Matthew R. Smith, MD, PhD¹⁹
+
+PURPOSE For patients with metastatic hormone-sensitive prostate cancer, metastatic burden affects outcome.
+We examined efficacy and safety from the ARASENS trial for subgroups by disease volume and risk.
+
+abs1
+
+tract
+METHODS Patients with metastatic hormone-sensitive prostate cancer were randomly assigned to darolutamide or placebo plus androgen-deprivation therapy and docetaxel. High-volume disease was defined as visceral metastases and/or ≥ 4 bone metastases with ≥ 1 beyond the vertebral column/pelvis. High-risk disease was defined as ≥ 2 risk factors: Gleason score ≥ 8, ≥ 3 bone lesions, and presence of measurable visceral metastases.
+
+## RESULTS
+Of 1,305 patients, 1,005 (77%) had high-volume disease and 912 (70%) had high-risk disease. Darolutamide increased overall survival (OS) versus placebo in patients with high-volume (hazard ratio [HR], 0.69; 95% CI, 0.57 to 0.82), high-risk (HR, 0.71; 95% CI, 0.58 to 0.86), and low-risk disease (HR, 0.62; 95% CI, 0.42 to 0.90), and in the smaller low-volume subgroup, the results were also suggestive of survival benefit (HR, 0.68; 95% CI, 0.41 to 1.13). Darolutamide improved clinically relevant secondary end points of time to castration-resistant prostate cancer and subsequent systemic antineoplastic therapy versus placebo in all disease volume and risk subgroups. Adverse events (AEs) were similar between treatment groups across subgroups. Grade 3 or 4 AEs occurred in 64.9% of darolutamide patients versus 64.2% of placebo patients in the high-volume subgroup and 70.1% versus 61.1% in the low-volume subgroup. Among the most common AEs, many were known toxicities related to docetaxel.
+
+**CONCLUSION** In patients with high-volume and high-risk/low-risk metastatic hormone-sensitive prostate cancer, treatment intensification with darolutamide, androgen-deprivation therapy, and docetaxel increased OS with a similar AE profile in the subgroups, consistent with the overall population.
+
+J Clin Oncol 00. © 2023 by American Society of Clinical Oncology
+
+## INTRODUCTION
+In patients with metastatic hormone-sensitive prostate cancer, early treatment intensification with a combination of androgen-deprivation therapy (ADT) plus either docetaxel or an androgen receptor pathway inhibitor improved survival versus ADT alone in several randomized controlled trials.<sup>1-6</sup> The combination of ADT, docetaxel, and an androgen receptor pathway inhibitor was evaluated in several phase III trials (PEACE-1, ENZAMET, and ARASENS) with varying results.<sup>7-9</sup> PEACE-1 was a randomized, open-label trial using a 2 × 2 factorial design that was conducted in patients with de novo metastatic hormone-sensitive prostate cancer.<sup>8</sup> In a preplanned analysis of patients who received docetaxel, longer survival was observed with abiraterone in combination
+
+with ADT and docetaxel versus ADT and docetaxel
+alone (hazard ratio [HR], 0.75; 95% CI, 0.59 to 0.95).⁸
+The ENZAMET trial allowed for early administration of
+docetaxel with enzalutamide.⁷ Among patients who
+received docetaxel, the effect of enzalutamide on overall
+survival (OS) appeared to be smaller (HR, 0.82; 95% CI,
+0.63 to 1.06) than that observed for all patients (HR,
+0.70; 95% CI, 0.58 to 0.84).¹⁰ In ARASENS, patients
+with metastatic hormone-sensitive prostate cancer were
+randomly assigned to double-blind treatment with either
+darolutamide or placebo, in combination with ADT and
+docetaxel. The darolutamide group had a significant
+reduction in the risk of death by 32.5% (HR, 0.68; 95%
+CI, 0.57 to 0.80; P < .0001) compared with the placebo
+group.⁹
+
+ASSOCIATED
+CONTENT
+Appendix
+
+## Protocol
+Author affiliations
+and support
+information (if
+applicable) appear
+at the end of this
+article.
+
+Accepted on January
+19, 2023 and
+published at
+ascopubs.org/journal/
+jco on February 16,
+2023: DOI https://doi.
+org/10.1200/JC0.23.
+00041
+
+ASCO®
+
+Journal of Clinical Oncology®
+
+1
+
+Downloaded from ascopubs.org by Mayo Foundation--Rochester on June 12, 2023 from 129.176.151.029
+Copyright  2023 American Society of Clinical Oncology. All rights reserved.
+
+Hussain et al
+
+## CONTEXT
+
+**Key Objective**
+We evaluated efficacy and safety outcomes from ARASENS in patients with metastatic hormone-sensitive prostate cancer by disease volume and disease risk to determine if specific subgroups of patients would achieve greater benefit from the combination of darolutamide, androgen-deprivation therapy (ADT), and docetaxel compared with ADT and docetaxel.
+
+**Knowledge Generated**
+These subgroup analyses of ARASENS showed that darolutamide plus ADT and docetaxel improves overall survival in high-volume and high- and low-risk patients with hazard ratios consistent across all subgroups and similar to the overall population. Darolutamide did not increase the toxicity associated with ADT and docetaxel in disease volume and risk subgroups.
+
+**Relevance (M.A. Carducci)**
+Triplet therapy for predominantly de novo docetaxel fit metastatic hormone-sensitive prostate cancer is supported by this subgroup analysis of the ARASENS study. This study provides useful information to guide providers and patients as to volume of disease and risk category.*
+
+*Relevance section written by *JCO* Associate Editor Michael A. Carducci, MD.
+
+Timing of metastatic presentation and disease volume and
+risk have been used to assess prognosis in patients with
+metastatic hormone-sensitive prostate cancer. 11-14 The
+presence of metastatic disease at initial diagnosis (de novo
+or synchronous disease) is associated with poorer out-
+comes compared with developing metastases after local
+therapy (recurrent or metachronous disease). Disease
+burden has been defined on the basis of extent (volume) of
+metastases as described in the CHAARTED trial. 1,15 In the
+LATITUDE trial, a benefit of adding an androgen receptor
+pathway inhibitor to ADT was demonstrated in patients with
+high-risk metastatic hormone-sensitive prostate cancer on
+the basis of factors associated with poor prognosis, in-
+cluding metastatic burden and Gleason score.2
+
+In ARASENS, the treatment effect of darolutamide on OS was favorable in patients with de novo (HR, 0.71; 95% CI, 0.59 to 0.85) and recurrent (HR, 0.61; 95% CI, 0.35 to 1.05) metastatic hormone-sensitive prostate cancer.⁹ When ARASENS was designed, the final analysis of CHAARTED had not been reported nor had data from LATITUDE been reported. Thus, subgroups on the basis of volume and risk categorizations were not prespecified in ARASENS.¹⁶ We conducted these subgroup analyses post hoc to determine if specific subgroups of patients by dis-ease volume or risk would achieve greater benefit from the combination of darolutamide, ADT, and docetaxel. We present efficacy and safety outcomes from ARASENS in patients with metastatic hormone-sensitive prostate can-cer by disease volume and disease risk according to CHAARTED and LATITUDE criteria, respectively.
+
+## METHODS
+### Trial Design
+ARASENS was a randomized, double-blind, placebo-controlled, phase III trial conducted at 286 centers in 23
+
+countries between November 2016 and June 2018. Complete study design and methodology have been published.9 The trial met ethical and clinical practice guidelines with approval from the institutional review boards of each participating center and informed consent received from all patients. All authors have reviewed and approved the manuscript that was submitted for publication and assume responsibility for its completeness and accuracy of the data.
+
+In brief, adult patients were eligible for enrollment into ARASENS if they had metastatic prostate cancer (beyond regional lymph nodes only) and were candidates for ADT and docetaxel on the basis of the investigator's assessment. Enrolled patients were randomly assigned (1:1) to oral darolutamide 600 mg twice daily or matched placebo, in combination with ADT and docetaxel. Random assignment was stratified by metastatic stage according to the TNM system (M1a, nonregional lymph node metastases only; M1b, bone metastases with or without lymph node me-tastases, or M1c, visceral metastases with or without lymph node or bone metastases) and alkaline phosphatase level. Patients were evaluated every 12 weeks for efficacy out-comes and AEs. Contrast-enhanced chest, abdomen, and pelvic computed tomography or magnetic resonance im-aging and bone scans were conducted at baseline, within 30 days of the last docetaxel cycle, and yearly during trial treatment.
+
+For this analysis, patient subgroups on the basis of disease
+volume and disease risk were assessed. High-volume dis-
+ease was defined as visceral metastases and/or four or more
+bone metastases with one or more beyond the vertebral
+column and pelvis. High-risk disease was defined as two of
+the following risk factors associated with poor prognosis:
+Gleason score ≥ 8, three or more bone metastases, and
+presence of measurable visceral metastasis. Low-volume
+and low-risk disease were defined as not meeting the
+
+2 © 2023 by American Society of Clinical Oncology
+
+Downloaded from ascopubs.org by Mayo Foundation--Rochester on June 12, 2023 from 129.176.151.029 Copyright  2023 American Society of Clinical Oncology. All rights reserved.
+
+Hussain et al
+
+CLINICAL TRIAL INFORMATION
+NCT02799602
+
+## DATA SHARING STATEMENT
+Availability of the data underlying this publication will be determined according to Bayer's commitment to the EFPIA/PhRMA "Principles for responsible clinical trial data sharing." This pertains to scope, time point, and process of data access.
+
+As such, Bayer commits to sharing upon request from qualified scientific and medical researchers patient-level clinical trial data, study-level clinical trial data, and protocols from clinical trials in patients for medicines and indications approved in the United States and European Union (EU) as necessary for conducting legitimate research. This applies to data on new medicines and indications that have been approved by the EU and US regulatory agencies on or after January 01, 2014. Interested researchers can use www.vivli.org to request access to anonymized patient-level data and supporting documents from clinical studies to conduct further research that can help advance medical science or improve patient care. Information on the Bayer criteria for listing studies and other relevant information is provided in the member section of the portal.
+
+Data access will be granted to anonymized patient-level data, protocols,
+and clinical study reports after approval by an independent scientific
+review panel. Bayer is not involved in the decisions made by the
+independent review panel. Bayer will take all necessary measures to
+ensure that patient privacy is safeguarded.
+
+**AUTHORS' DISCLOSURES OF POTENTIAL CONFLICTS OF INTEREST**
+
+Disclosures provided by the authors are available with this article at DOI
+[https://doi.org/10.1200/JCO.23.00041](https://doi.org/10.1200/JCO.23.00041).
+
+AUTHOR CONTRIBUTIONS
+Conception and design: Maha Hussain, Bertrand Tombal, Fred Saad,
+Karim Fizazi, Cora N. Sternberg, E. David Crawford, Neal Shore, Felipe
+Cruz, Iris Kuss, Matthew R. Smith
+
+**Provision of study materials or patients:** Maha Hussain, Bertrand Tombal, Fred Saad, Karim Fizazi, Cora N. Sternberg, Evgeny Kopyltsov, Arash Rezazadeh Kalebasty, Martin Bögemann, Dingwei Ye, Felipe Cruz, Heikki Joensuu, Matthew R. Smith
+
+Collection and assembly of data: Maha Hussain, Bertrand Tombal, Fred
+Saad, Cora N. Sternberg, Arash Rezazadeh Kalebasty, Martin Bögemann,
+Dingwei Ye, Felipe Cruz, Hiroyoshi Suzuki, Iris Kuss, Matthew R. Smith
+
+Data analysis and interpretation: All authors
+Manuscript writing: All authors
+Final approval of manuscript: All authors
+Accountable for all aspects of the work: All authors
+
+## ACKNOWLEDGMENT
+Statistical analyses were provided by Kevin Clark, MS, MPH, PT, of Bayer and Lei Li, MSc, of CHRESTOS Concept GmbH & Co KG. Writing and editorial support in the development of this manuscript was provided by Michelle McDermott, PharmD, and Lauren Gallagher RPh, PhD, of OPEN Health Communications, London, UK, with financial support from Bayer Healthcare. The authors retained full editorial control over the content of the manuscript and the decision to publish.
+
+REFERENCES
+1. Sweeney CJ, Chen YH, Carducci M, et al: Chemohormonal therapy in metastatic hormone-sensitive prostate cancer. N Engl J Med 373:737-746, 2015
+2. Fizazi K, Tran N, Fein L, et al: Abiraterone plus prednisone in metastatic, castration-sensitive prostate cancer. N Engl J Med 377:352-360, 2017
+3. Fizazi K, Tran N, Fein L, et al: Abiraterone acetate plus prednisone in patients with newly diagnosed high-risk metastatic castration-sensitive prostate cancer (LATITUDE): Final overall survival analysis of a randomised, double-blind, phase 3 trial. Lancet Oncol 20:686-700, 2019
+4. Chi KN, Agarwal N, Bjartell A, et al: Apalutamide for metastatic, castration-sensitive prostate cancer. N Engl J Med 381:13-24, 2019
+5. Chi KN, Chowdhury S, Bjartell A, et al: Apalutamide in patients with metastatic castration-sensitive prostate cancer: Final survival analysis of the randomized, double-blind, phase III TITAN study. J Clin Oncol 39:2294-2303, 2021
+6. Armstrong AJ, Azad AA, Iguchi T, et al: Improved survival with enzalutamide in patients with metastatic hormone-sensitive prostate cancer. J Clin Oncol 40:1616-1622, 2022
+7. Davis ID, Martin AJ, Stockler MR, et al: Enzalutamide with standard first-line therapy in metastatic prostate cancer. N Engl J Med 381:121-131, 2019
+8. Fizazi K, Foulon S, Carles J, et al: Abiraterone plus prednisone added to androgen deprivation therapy and docetaxel in de novo metastatic castration-sensitive prostate cancer (PEACE-1): A multicentre, open-label, randomised, phase 3 study with a 2x2 factorial design. Lancet 399:1695-1707, 2022
+9. Smith MR, Hussain M, Saad F, et al: Darolutamide and survival in metastatic, hormone-sensitive prostate cancer. N Engl J Med 386:1132-1142, 2022
+10. Davis ID, Martin AJ, Zielinski RR, et al: Updated Overall Survival Outcomes in ENZAMET (ANZUP 1304), an International, Cooperative Group Trial of Enzalutamide in Metastatic Hormone-Sensitive Prostate Cancer (mHSPC) [oral Presentation LBA5004] Annual Meeting of the American Society of Clinical Oncology. Chicago, IL, USA, 2022
+11. Virgo KS, Rumble RB, de Wit R, et al: Initial management of noncastrate advanced, recurrent, or metastatic prostate cancer: ASCO Guideline Update. J Clin Oncol 39:1274-1305, 2021
+12. Mottet N, Cornford P, van den Bergh RCN, et al: EAU-EANM-ESTRO-ESUR-ISUP-SIOG Guidelines on Prostate Cancer. Amhem, the Netherlands, EAU Guidelines Office, 2022
+13. Francini E, Gray KP, Xie W, et al: Time of metastatic disease presentation and volume of disease are prognostic for metastatic hormone sensitive prostate cancer (mHSPC). Prostate 78:889-895, 2018
+14. Tewari AK, Gillessen S, Sweeney CJ: Metastatic prostate cancer: In search of more granularity. J Clin Oncol 39:2968-2969, 2021
+15. Kyriakopoulos CE, Chen YH, Carducci MA, et al: Chemohormonal therapy in metastatic hormone-sensitive prostate cancer: Long-term survival analysis of the randomized phase III E3805 CHAARTED trial. J Clin Oncol 36:1080-1087, 2018
+16. Smith MR: Darolutamide in metastatic prostate cancer. Reply. N Engl J Med 386:2345, 2022
+17. Manohar PR, Rather TA, Khan SH, et al: Skeletal metastases presenting as superscan on technetium 99m methylene diphosphonate whole body bone scintigraphy in different type of cancers: A 5-year retro-prospective study. World J Nucl Med 16:39-44, 2017
+18. Morris MJ, Rathkopf DE, Novotny W, et al: Phase Ib study of enzalutamide in combination with docetaxel in men with metastatic castration-resistant prostate cancer. Clin Cancer Res 22:3774-3781, 2016
+19. Shore N, Zurth C, Fricke R, et al: Evaluation of clinically relevant drug-drug interactions and population pharmacokinetics of darolutamide in patients with nonmetastatic castration-resistant prostate cancer: Results of pre-specified and post hoc analyses of the phase III ARAMIS trial. Targeted Oncol 14:527-539, 2019
+
+12 © 2023 by American Society of Clinical Oncology
+
+Downloaded from ascopubs.org by Mayo Foundation--Rochester on June 12, 2023 from 129.176.151.029
+Copyright  2023 American Society of Clinical Oncology. All rights reserved.
+
+--- FIGURES ---
+[Page 1]
+<::logo: [Unknown] Check for updates A grey button with a colorful circular icon featuring a red banner and yellow arrow.::>
+
+Task:
+For EACH column listed above, output a JSON object with:
+- candidates: array of 1-4 objects, each with value, evidence (string or null), assumptions (string or null), confidence ("high"|"medium"|"low")
+- primary_value: string (your best guess)
+- found: true if at least one value was found, false if not reported/absent
+
+Return a single JSON object with column names as keys. Each value is an object with candidates, primary_value, found.
+Example: {"Median PFS (mo) | Overall | Treatment": {"candidates": [{"value": "19.4", "evidence": "Table 2", "assumptions": null, "confidence": "high"}], "primary_value": "19.4", "found": true}, ...}
+
+
+============================================================
+OUTPUT
+============================================================
+```json
+{
+  "NCT": {
+    "candidates": [
+      {
+        "value": "NCT02799602",
+        "evidence": "CLINICAL TRIAL INFORMATION\nNCT02799602",
+        "assumptions": null,
+        "confidence": "high"
+      }
+    ],
+    "primary_value": "NCT02799602",
+    "found": true
+  },
+  "PubMed ID": {
+    "candidates": [
+      {
+        "value": "Not reported",
+        "evidence": "I examined the header and footer of page 1, the \"ASSOCIATED CONTENT\" section on page 1, and the \"CLINICAL TRIAL INFORMATION\" section on page 12. No PubMed ID was found.",
+        "assumptions": null,
+        "confidence": "high"
+      }
+    ],
+    "primary_value": "Not reported",
+    "found": false
+  },
+  "Trial Name": {
+    "candidates": [
+      {
+        "value": "ARASENS",
+        "evidence": "Darolutamide Plus Androgen-Deprivation\nTherapy and Docetaxel in Metastatic\nHormone-Sensitive Prostate Cancer by Disease\nVolume and Risk Subgroups in the Phase III\nARASENS Trial",
+        "assumptions": null,
+        "confidence": "high"
+      }
+    ],
+    "primary_value": "ARASENS",
+    "found": true
+  },
+  "Author": {
+    "candidates": [
+      {
+        "value": "Maha Hussain, MD; Bertrand Tombal, MD, PhD; Fred Saad, MD; Karim Fizazi, MD, PhD; Cora N. Sternberg, MD; E. David Crawford, MD; Neal Shore, MD; Evgeny Kopyltsov, MD; Arash Rezazadeh Kalebasty, MD; Martin Bögemann, MD; Dingwei Ye, MD; Felipe Cruz, MD, PhD; Hiroyoshi Suzuki, MD, PhD; Shivani Kapur, MD; Shankar Srinivasan, PhD; Frank Verholen, MD; Iris Kuss, MD; Heikki Joensuu, MD; and Matthew R. Smith, MD, PhD",
+        "evidence": "Maha Hussain, MD¹; Bertrand Tombal, MD, PhD²; Fred Saad, MD³; Karim Fizazi, MD, PhD⁴; Cora N. Sternberg, MD⁵;\nE. David Crawford, MD⁶; Neal Shore, MD⁷; Evgeny Kopyltsov, MD⁸; Arash Rezazadeh Kalebasty, MD⁹; Martin Bögemann, MD¹⁰;\nDingwei Ye, MD¹¹; Felipe Cruz, MD, PhD¹²; Hiroyoshi Suzuki, MD, PhD¹³; Shivani Kapur, MD¹⁴; Shankar Srinivasan, PhD¹⁵;\nFrank Verholen, MD¹⁶; Iris Kuss, MD¹⁷; Heikki Joensuu, MD¹⁸; and Matthew R. Smith, MD, PhD¹⁹",
+        "assumptions": null,
+        "confidence": "high"
+      }
+    ],
+    "primary_value": "Maha Hussain, MD; Bertrand Tombal, MD, PhD; Fred Saad, MD; Karim Fizazi, MD, PhD; Cora N. Sternberg, MD; E. David Crawford, MD; Neal Shore, MD; Evgeny Kopyltsov, MD; Arash Rezazadeh Kalebasty, MD; Martin Bögemann, MD; Dingwei Ye, MD; Felipe Cruz, MD, PhD; Hiroyoshi Suzuki, MD, PhD; Shivani Kapur, MD; Shankar Srinivasan, PhD; Frank Verholen, MD; Iris Kuss, MD; Heikki Joensuu, MD; and Matthew R. Smith, MD, PhD",
+    "found": true
+  },
+  "Year": {
+    "candidates": [
+      {
+        "value": "2023",
+        "evidence": "J Clin Oncol 00. © 2023 by American Society of Clinical Oncology",
+        "assumptions": null,
+        "confidence": "high"
+      }
+    ],
+    "primary_value": "2023",
+    "found": true
+  },
+  "Full Pub or Abstract": {
+    "candidates": [
+      {
+        "value": "Full Pub",
+        "evidence": "The document is a multi-page PDF (15 pages of content) with detailed methods, results, figures, and tables, indicating a full publication rather than just an abstract. The title also includes \"original reports\" on page 1.",
+        "assumptions": "The provided text content, including 'original reports' on page 1, an abstract, introduction, methods, results, and references, spanning multiple pages (1, 2, 12), confirms it is a full publication.",
+        "confidence": "high"
+      }
+    ],
+    "primary_value": "Full Pub",
+    "found": true
+  },
+  "Phase": {
+    "candidates": [
+      {
+        "value": "Phase III",
+        "evidence": "Darolutamide Plus Androgen-Deprivation\nTherapy and Docetaxel in Metastatic\nHormone-Sensitive Prostate Cancer by Disease\nVolume and Risk Subgroups in the Phase III\nARASENS Trial",
+        "assumptions": null,
+        "confidence": "high"
+      }
+    ],
+    "primary_value": "Phase III",
+    "found": true
+  },
+  "Original/Follow Up": {
+    "candidates": [
+      {
+        "value": "Original",
+        "evidence": "The document is labeled \"original reports\" on page 1. The abstract and introduction describe the study as evaluating efficacy and safety from the ARASENS trial, and the \"Knowledge Generated\" section on page 2 states \"These subgroup analyses of ARASENS showed...\". The Methods section also states \"We conducted these subgroup analyses post hoc... We present efficacy and safety outcomes from ARASENS...\"",
+        "assumptions": "The study is an original report of subgroup analyses from the ARASENS trial, which falls under the 'Original' category.",
+        "confidence": "high"
+      }
+    ],
+    "primary_value": "Original",
+    "found": true
+  }
+}
+```

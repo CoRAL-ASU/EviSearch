@@ -1,0 +1,75 @@
+============================================================
+INPUT
+============================================================
+You are extracting a value for a clinical trial data column from the provided document content.
+
+Column: Secondary Endpoint(s)
+Definition: What the secondary outcome(s) or objective(s) of the clinical trial, in addition to the primary endpoint, that are being measured or evaluated?. If reported, provide the value; otherwise use 'Not reported'.
+
+Extraction plan to follow:
+On page 3, in the 'Procedures' section under 'Study Assessments', the text states: 'Secondary end points included time to development of CRPC, defined either serologically or clinically from the time of random assignment until PSA progression, development of worsening symptoms, evidence of radiographic progression, or patient's deterioration as per investigator's opinion.' Also, 'the median time to clinical progression was 33.0 months for the combination arm versus 19.8 months in the ADT alone arm'. Tables 2 and 3 on page 6 provide data for 'Time to CRPC (PSA rise or clinical progression)' and 'Time to Clinical Progression' respectively, which are the secondary endpoints.
+
+Document content (grouped by type, in chronological page order):
+--- TEXT ---
+Kyriakopoulos et al
+
+function suitable for docetaxel. All patients provided written informed consent before study entry. The study was conducted in accordance with the Declaration of Helsinki for human subject protection.
+
+Procedures
+Eligible patients were randomly assigned at a one-to-one ratio to ADT alone versus ADT plus docetaxel at a dose of 75 mg/m² every 3 weeks for up to six cycles without daily prednisone. Randomization was stratified according to age (< 70 v ≥ 70 years), Eastern Cooperative Oncology Group performance status (0 to 1 v 2), duration of prior adjuvant therapy with ADT (> 12 v ≤ 12 months), planned use of combined androgen blockade for > 30 days (yes v no), and use of agents to prevent skeletal-related events (eg, zoledronic acid or denosumab). A key stratification factor was disease volume (high v low), with high-volume disease defined as presence of visceral metastases and/or at least four bone lesions with at least one lesion outside of the vertebral column and/or pelvis.
+
+Neither dose modification nor intermittent ADT was permitted. Use
+of nonsteroidal antiandrogens was at the discretion of the investigators.
+Patients were allowed only two dose reductions for docetaxel, the first to
+65 mg/m² and, if indicated, a second to 55 mg/m². Patients discontinued
+docetaxel permanently if there was a delay of > 3 weeks from the sched-
+uled treatment day. Growth factor support was at the discretion of the
+investigators.
+
+## Study Assessments
+
+Patients receiving chemohormonal therapy were evaluated every 3 weeks for the duration of treatment with chemotherapy and every 3 months thereafter, whereas patients receiving ADT alone were evaluated every 3 months. Radiographic disease assessment (with computed tomography [CT] of the abdomen and pelvis, x-ray or CT of the chest, and bone scan) was performed at baseline, at the time of development of CRPC, and/or as clinically indicated. For patients with measurable disease, disease evaluation was based on Response Evaluation Criteria in Solid Tumors (version 1.0). Serum prostate-specific antigen (PSA) concentration was checked with every visit. Complete PSA response was defined as a decrease to < 0.2 ng/mL confirmed by a second PSA 4 weeks later. Disease progression by PSA was defined as an increase in the PSA level by > 50% above nadir confirmed by a consecutive increase at least 2 weeks later. For patients with a PSA nadir of < 2 ng/mL, a PSA value of ≥ 2 ng/mL was required for disease progression by PSA only and qualified as CRPC.
+
+The primary end point of the study was OS, defined as time from random assignment until death resulting from any cause. Secondary end
+
+points included time to development of CRPC, defined either serologically
+or clinically from the time of random assignment until PSA progression,
+development of worsening symptoms, evidence of radiographic progression,
+or patient's deterioration as per investigator's opinion.
+
+**Statistical Analysis**
+The Kaplan-Meier method was used to characterize event-time distributions. Cox proportional hazards models, stratified on stratification factors at random assignment, were used to estimate HRs and test for significance for time-to-event end points.
+
+1082
+
+© 2018 by American Society of Clinical Oncology
+
+JOURNAL OF CLINICAL ONCOLOGY
+
+Downloaded from ascopubs.org by Mayo Foundation--Rochester on October 9, 2021 from 129.176.151.029 Copyright  2021 American Society of Clinical Oncology. All rights reserved.
+
+Task:
+1. Extract the value for this column following the plan. Return your best-effort value even if uncertain.
+2. If the plan seems wrong, incomplete, or ambiguous, still return the value you found and add a suggestion and/or alternative_plan.
+3. Use "not found" or "not reported" only if the value is genuinely absent from the content.
+
+Output a JSON object with:
+- value: the extracted value (string)
+- found: true if you found a value, false if not reported/absent
+- confidence: "high" | "medium" | "low"
+- suggestion: optional string with concerns or notes (null if none)
+- alternative_plan: optional string describing a different extraction approach to try (null if plan seems fine)
+
+
+============================================================
+OUTPUT
+============================================================
+```json
+{
+  "value": "Time to development of CRPC, defined either serologically or clinically from the time of random assignment until PSA progression, development of worsening symptoms, evidence of radiographic progression, or patient's deterioration as per investigator's opinion.",
+  "found": true,
+  "confidence": "high",
+  "suggestion": "The extraction plan mentioned 'the median time to clinical progression was 33.0 months for the combination arm versus 19.8 months in the ADT alone arm' and references to 'Tables 2 and 3 on page 6'. This specific sentence and the tables were not present in the provided document content. However, the core definition of the secondary endpoints was clearly found as described in the plan.",
+  "alternative_plan": null
+}
+```

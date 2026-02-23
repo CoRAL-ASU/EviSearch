@@ -1,41 +1,87 @@
-1. Median OS (mo) | Overall | Treatment
-   - **found_in_pdf**: true
-   - **page_number**: 16
-   - **source_type**: table
-   - **extraction_instructions**: In Table A1 (Figure A1) on page 16, locate the "Overall" row under the "Subgroup" column. In the "Darolutamide + ADT + Docetaxel Median" column, the value is "NE".
-   - **value**: NE
-
-2. Median OS (mo) | Overall | Control
-   - **found_in_pdf**: true
-   - **page_number**: 16
-   - **source_type**: table
-   - **extraction_instructions**: In Table A1 (Figure A1) on page 16, locate the "Overall" row under the "Subgroup" column. In the "Placebo + ADT + Docetaxel Median" column, the value is "42.4".
-   - **value**: 42.4
-
-3. Median OS (mo) | High volume | Treatment
-   - **found_in_pdf**: true
-   - **page_number**: 6
-   - **source_type**: figure
-   - **extraction_instructions**: In Figure 2, Panel A (page 6), which shows OS for high-volume disease, locate the "Darolutamide + ADT + docetaxel Median" line. The value is "NE".
-   - **value**: NE
-
-4. Median OS (mo) | High volume | Control
-   - **found_in_pdf**: true
-   - **page_number**: 6
-   - **source_type**: figure
-   - **extraction_instructions**: In Figure 2, Panel A (page 6), which shows OS for high-volume disease, locate the "Placebo + ADT + docetaxel Median" line. The value is "42.4 months".
-   - **value**: 42.4
-
-5. Median OS (mo) | Low volume | Treatment
-   - **found_in_pdf**: true
-   - **page_number**: 6
-   - **source_type**: figure
-   - **extraction_instructions**: In Figure 2, Panel B (page 6), which shows OS for low-volume disease, locate the "Darolutamide + ADT + docetaxel Median" line. The value is "NE".
-   - **value**: NE
-
-6. Median OS (mo) | Low volume | Control
-   - **found_in_pdf**: true
-   - **page_number**: 6
-   - **source_type**: figure
-   - **extraction_instructions**: In Figure 2, Panel B (page 6), which shows OS for low-volume disease, locate the "Placebo + ADT + docetaxel Median" line. The value is "NE".
-   - **value**: NE
+{
+  "group_name": "Median OS (mo)",
+  "columns": [
+    {
+      "column_index": 1,
+      "column_name": "Median OS (mo) | Overall | Treatment",
+      "found_in_pdf": true,
+      "page": 16,
+      "source_type": "table",
+      "sources": [
+        [16, "table"],
+        [6, "figure"]
+      ],
+      "confidence": "high",
+      "extraction_plan": "Extract 'NE' from the 'Overall' row under 'Darolutamide + ADT + Docetaxel' in the 'Median' column of Figure A1 (A) on page 16. Figure 2 (A) on page 6 also shows the Darolutamide curve not reaching the median."
+    },
+    {
+      "column_index": 2,
+      "column_name": "Median OS (mo) | Overall | Control",
+      "found_in_pdf": true,
+      "page": 16,
+      "source_type": "table",
+      "sources": [
+        [16, "table"],
+        [6, "figure"]
+      ],
+      "confidence": "high",
+      "extraction_plan": "Extract '42.4' from the 'Overall' row under 'Placebo + ADT + Docetaxel' in the 'Median' column of Figure A1 (A) on page 16. Figure 2 (A) on page 6 also shows the median for the placebo group at 42.4 months."
+    },
+    {
+      "column_index": 3,
+      "column_name": "Median OS (mo) | High volume | Treatment",
+      "found_in_pdf": true,
+      "page": 4,
+      "source_type": "text",
+      "sources": [
+        [4, "text"],
+        [6, "figure"],
+        [16, "table"]
+      ],
+      "confidence": "high",
+      "extraction_plan": "The text on page 4 states 'Median survival was not reached in the darolutamide group' for high-volume disease. Figure 2 (A) on page 6 also indicates 'NE' (Not Estimable) for the Darolutamide arm in the high-volume subgroup. Extract 'NE'."
+    },
+    {
+      "column_index": 4,
+      "column_name": "Median OS (mo) | High volume | Control",
+      "found_in_pdf": true,
+      "page": 4,
+      "source_type": "text",
+      "sources": [
+        [4, "text"],
+        [6, "figure"],
+        [16, "table"]
+      ],
+      "confidence": "high",
+      "extraction_plan": "The text on page 4 states 'Median survival... was 42.4 months (95% CI, 39.7 to 46.0 months) in the placebo group' for high-volume disease. Figure 2 (A) on page 6 also indicates '42.4 months' for the Placebo arm in the high-volume subgroup. Extract '42.4'."
+    },
+    {
+      "column_index": 5,
+      "column_name": "Median OS (mo) | Low volume | Treatment",
+      "found_in_pdf": true,
+      "page": 4,
+      "source_type": "text",
+      "sources": [
+        [4, "text"],
+        [6, "figure"],
+        [17, "table"]
+      ],
+      "confidence": "high",
+      "extraction_plan": "The text on page 4 states 'Median survival was not reached in either treatment group for low-volume patients'. Figure 2 (B) on page 6 and Figure A1 (B) on page 17 also indicate 'NE' (Not Estimable) for the Darolutamide arm in the low-volume subgroup. Extract 'NE'."
+    },
+    {
+      "column_index": 6,
+      "column_name": "Median OS (mo) | Low volume | Control",
+      "found_in_pdf": true,
+      "page": 4,
+      "source_type": "text",
+      "sources": [
+        [4, "text"],
+        [6, "figure"],
+        [17, "table"]
+      ],
+      "confidence": "high",
+      "extraction_plan": "The text on page 4 states 'Median survival was not reached in either treatment group for low-volume patients'. Figure 2 (B) on page 6 and Figure A1 (B) on page 17 also indicate 'NE' (Not Estimable) for the Placebo arm in the low-volume subgroup. Extract 'NE'."
+    }
+  ]
+}

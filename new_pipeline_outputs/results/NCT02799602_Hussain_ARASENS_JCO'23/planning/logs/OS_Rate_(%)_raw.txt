@@ -1,41 +1,141 @@
-Here's the analysis for each canonical column:
-
-1.  **OS Rate (%) | Overall | Treatment**
-    *   **found_in_pdf**: false
-    *   **explanation**: The overall survival (OS) for the entire treatment arm is reported in terms of median OS (not reached) and hazard ratio (HR, 0.68; 95% CI, 0.57 to 0.80) in the abstract (Chunk 8, page 1) and Figure A1 (Chunk 7, page 16). However, a specific OS rate (percentage) at the latest follow-up for the *overall* treatment arm is not reported. Figure 2 (Chunk 2, page 6) provides Kaplan-Meier curves for *subgroups* (high-volume, low-volume, high-risk, low-risk), not for the overall population.
-
-2.  **OS Rate (%) | Overall | Control**
-    *   **found_in_pdf**: false
-    *   **explanation**: The overall survival (OS) for the entire control arm is reported in terms of median OS (42.4 months; 95% CI, 39.7 to 46.0 months) and hazard ratio (HR, 0.68; 95% CI, 0.57 to 0.80) in the abstract (Chunk 8, page 1) and Figure A1 (Chunk 7, page 16). However, a specific OS rate (percentage) at the latest follow-up for the *overall* control arm is not reported. Figure 2 (Chunk 2, page 6) provides Kaplan-Meier curves for *subgroups* (high-volume, low-volume, high-risk, low-risk), not for the overall population.
-
-3.  **OS Rate (%) | Synchronous | Treatment**
-    *   **found_in_pdf**: false
-    *   **explanation**: For patients with de novo mHSPC (synchronous metastasis), the median OS for the darolutamide arm is reported as "NE" (not estimable) in Figure A1 (Chunk 7, page 16). The hazard ratio is also reported (HR, 0.71; 95% CI, 0.59 to 0.85) in the text (Chunk 8, page 2). However, a specific OS rate (percentage) at the latest follow-up is not reported.
-
-4.  **OS Rate (%) | Synchronous | Control**
-    *   **found_in_pdf**: false
-    *   **explanation**: For patients with de novo mHSPC (synchronous metastasis), the median OS for the placebo arm is reported as "NE" (not estimable) in Figure A1 (Chunk 7, page 16). The hazard ratio is also reported (HR, 0.71; 95% CI, 0.59 to 0.85) in the text (Chunk 8, page 2). However, a specific OS rate (percentage) at the latest follow-up is not reported.
-
-5.  **OS Rate (%) | Metachronous | Treatment**
-    *   **found_in_pdf**: false
-    *   **explanation**: For patients with recurrent mHSPC (metachronous metastasis), the median OS for the darolutamide arm is reported as "NE" (not estimable) in Figure A1 (Chunk 7, page 16). The hazard ratio is also reported (HR, 0.61; 95% CI, 0.35 to 1.05) in the text (Chunk 8, page 2). However, a specific OS rate (percentage) at the latest follow-up is not reported.
-
-6.  **OS Rate (%) | Metachronous | Control**
-    *   **found_in_pdf**: false
-    *   **explanation**: For patients with recurrent mHSPC (metachronous metastasis), the median OS for the placebo arm is reported as "NE" (not estimable) in Figure A1 (Chunk 7, page 16). The hazard ratio is also reported (HR, 0.61; 95% CI, 0.35 to 1.05) in the text (Chunk 8, page 2). However, a specific OS rate (percentage) at the latest follow-up is not reported.
-
-7.  **OS Rate (%) | High volume | Treatment**
-    *   **found_in_pdf**: true
-    *   **explanation**: In Figure 2A (Chunk 2, page 6), the Kaplan-Meier curve for "Darolutamide + ADT + docetaxel" in patients with high-volume disease shows an approximate OS rate of **55%** at the latest follow-up of 57 months. At this time point, 6 patients were still at risk.
-
-8.  **OS Rate (%) | High volume | Control**
-    *   **found_in_pdf**: true
-    *   **explanation**: In Figure 2A (Chunk 2, page 6), the Kaplan-Meier curve for "Placebo + ADT + docetaxel" in patients with high-volume disease shows an approximate OS rate of **45%** at the latest follow-up of 57 months. At this time point, 4 patients were still at risk.
-
-9.  **OS Rate (%) | Low volume | Treatment**
-    *   **found_in_pdf**: true
-    *   **explanation**: In Figure 2B (Chunk 2, page 6), the Kaplan-Meier curve for "Darolutamide + ADT + docetaxel" in patients with low-volume disease shows an approximate OS rate of **85%** at the latest follow-up of 54 months. At this time point, 3 patients were still at risk. The curve ends at 57 months with 0 patients at risk.
-
-10. **OS Rate (%) | Low volume | Control**
-    *   **found_in_pdf**: true
-    *   **explanation**: In Figure 2B (Chunk 2, page 6), the Kaplan-Meier curve for "Placebo + ADT + docetaxel" in patients with low-volume disease shows an approximate OS rate of **75%** at the latest follow-up of 54 months. At this time point, 2 patients were still at risk. The curve ends at 57 months with 0 patients at risk.
+{
+  "group_name": "OS Rate (%)",
+  "columns": [
+    {
+      "column_index": 1,
+      "column_name": "OS Rate (%) | Overall | Treatment",
+      "found_in_pdf": false,
+      "page": 16,
+      "source_type": "not_applicable",
+      "sources": [
+        [16, "table"],
+        [6, "figure"],
+        [4, "text"]
+      ],
+      "confidence": "high",
+      "extraction_plan": "The document reports median overall survival (OS) as 'Not Estimable' (NE) for the Darolutamide treatment group in the overall population (Figure A1, page 16, 'Overall' row). Specific OS rates (%) are not provided; instead, Kaplan-Meier curves are shown in Figure 2 (page 6) and median OS values are reported."
+    },
+    {
+      "column_index": 2,
+      "column_name": "OS Rate (%) | Overall | Control",
+      "found_in_pdf": false,
+      "page": 16,
+      "source_type": "not_applicable",
+      "sources": [
+        [16, "table"],
+        [6, "figure"],
+        [4, "text"]
+      ],
+      "confidence": "high",
+      "extraction_plan": "The document reports median overall survival (OS) as 42.4 months for the Placebo control group in the overall population (Figure A1, page 16, 'Overall' row). Specific OS rates (%) are not provided; instead, Kaplan-Meier curves are shown in Figure 2 (page 6) and median OS values are reported."
+    },
+    {
+      "column_index": 3,
+      "column_name": "OS Rate (%) | Synchronous | Treatment",
+      "found_in_pdf": false,
+      "page": 16,
+      "source_type": "not_applicable",
+      "sources": [
+        [16, "table"],
+        [4, "text"]
+      ],
+      "confidence": "high",
+      "extraction_plan": "The document reports median overall survival (OS) as 'Not Estimable' (NE) for the Darolutamide treatment group in the 'De novo' (synchronous) subgroup (Figure A1, page 16, 'Metastatic stage at initial diagnosis' section, 'De novo' row). Specific OS rates (%) are not provided; instead, median OS values are reported."
+    },
+    {
+      "column_index": 4,
+      "column_name": "OS Rate (%) | Synchronous | Control",
+      "found_in_pdf": false,
+      "page": 16,
+      "source_type": "not_applicable",
+      "sources": [
+        [16, "table"],
+        [4, "text"]
+      ],
+      "confidence": "high",
+      "extraction_plan": "The document reports median overall survival (OS) as 42.4 months for the Placebo control group in the 'De novo' (synchronous) subgroup (Figure A1, page 16, 'Metastatic stage at initial diagnosis' section, 'De novo' row). Specific OS rates (%) are not provided; instead, median OS values are reported."
+    },
+    {
+      "column_index": 5,
+      "column_name": "OS Rate (%) | Metachronous | Treatment",
+      "found_in_pdf": false,
+      "page": 16,
+      "source_type": "not_applicable",
+      "sources": [
+        [16, "table"],
+        [4, "text"]
+      ],
+      "confidence": "high",
+      "extraction_plan": "The document reports median overall survival (OS) as 'Not Estimable' (NE) for the Darolutamide treatment group in the 'Recurrent' (metachronous) subgroup (Figure A1, page 16, 'Metastatic stage at initial diagnosis' section, 'Recurrent' row). Specific OS rates (%) are not provided; instead, median OS values are reported."
+    },
+    {
+      "column_index": 6,
+      "column_name": "OS Rate (%) | Metachronous | Control",
+      "found_in_pdf": false,
+      "page": 16,
+      "source_type": "not_applicable",
+      "sources": [
+        [16, "table"],
+        [4, "text"]
+      ],
+      "confidence": "high",
+      "extraction_plan": "The document reports median overall survival (OS) as 'Not Estimable' (NE) for the Placebo control group in the 'Recurrent' (metachronous) subgroup (Figure A1, page 16, 'Metastatic stage at initial diagnosis' section, 'Recurrent' row). Specific OS rates (%) are not provided; instead, median OS values are reported."
+    },
+    {
+      "column_index": 7,
+      "column_name": "OS Rate (%) | High volume | Treatment",
+      "found_in_pdf": false,
+      "page": 6,
+      "source_type": "not_applicable",
+      "sources": [
+        [6, "figure"],
+        [4, "text"],
+        [16, "table"]
+      ],
+      "confidence": "high",
+      "extraction_plan": "The document reports median overall survival (OS) as 'Not Estimable' (NE) for the Darolutamide treatment group in the high-volume disease subgroup (Figure 2A, page 6; Figure A1, page 16, 'Extent of disease (eCRF)' section, 'High Volume' row). Specific OS rates (%) are not provided; instead, Kaplan-Meier curves and median OS values are reported."
+    },
+    {
+      "column_index": 8,
+      "column_name": "OS Rate (%) | High volume | Control",
+      "found_in_pdf": false,
+      "page": 6,
+      "source_type": "not_applicable",
+      "sources": [
+        [6, "figure"],
+        [4, "text"],
+        [16, "table"]
+      ],
+      "confidence": "high",
+      "extraction_plan": "The document reports median overall survival (OS) as 42.4 months (95% CI, 39.7 to 46.0 months) for the Placebo control group in the high-volume disease subgroup (Figure 2A, page 6; Figure A1, page 16, 'Extent of disease (eCRF)' section, 'High Volume' row). Specific OS rates (%) are not provided; instead, Kaplan-Meier curves and median OS values are reported."
+    },
+    {
+      "column_index": 9,
+      "column_name": "OS Rate (%) | Low volume | Treatment",
+      "found_in_pdf": false,
+      "page": 6,
+      "source_type": "not_applicable",
+      "sources": [
+        [6, "figure"],
+        [4, "text"],
+        [16, "table"]
+      ],
+      "confidence": "high",
+      "extraction_plan": "The document reports median overall survival (OS) as 'Not Estimable' (NE) for the Darolutamide treatment group in the low-volume disease subgroup (Figure 2B, page 6; Figure A1, page 16, 'Extent of disease (eCRF)' section, 'Low Volume' row). Specific OS rates (%) are not provided; instead, Kaplan-Meier curves and median OS values are reported."
+    },
+    {
+      "column_index": 10,
+      "column_name": "OS Rate (%) | Low volume | Control",
+      "found_in_pdf": false,
+      "page": 6,
+      "source_type": "not_applicable",
+      "sources": [
+        [6, "figure"],
+        [4, "text"],
+        [16, "table"]
+      ],
+      "confidence": "high",
+      "extraction_plan": "The document reports median overall survival (OS) as 'Not Estimable' (NE) for the Placebo control group in the low-volume disease subgroup (Figure 2B, page 6; Figure A1, page 16, 'Extent of disease (eCRF)' section, 'Low Volume' row). Specific OS rates (%) are not provided; instead, Kaplan-Meier curves and median OS values are reported."
+    }
+  ]
+}

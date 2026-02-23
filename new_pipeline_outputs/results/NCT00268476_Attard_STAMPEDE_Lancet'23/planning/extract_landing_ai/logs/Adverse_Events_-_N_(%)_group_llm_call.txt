@@ -1,0 +1,347 @@
+RETRIEVAL SOURCE: extraction_plan_pages
+
+============================================================
+INPUT
+============================================================
+You are extracting values for multiple clinical trial data columns from the same document content.
+All columns below share the same evidence pool. Extract each column following its plan.
+
+COLUMNS TO EXTRACT:
+
+Column 1: Adverse Events - N (%) | All-Cause Grade 3 or Higher | Treatment
+  Definition: What the number and percentage of patients experiencing adverse events of all causes with a grade of 3 or higher in the treatment arm of the trial? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.
+  Extraction plan: Extract the number and percentage for 'grade 3-5 toxic effects' for the 'abiraterone and enzalutamide' treatment group from the 'Findings' section on page 1: '302 [68%] of 445'. This is explicitly stated as the 'highest toxic effects'.
+
+Column 2: Adverse Events - N (%) | All-Cause Grade 3 or Higher | Control
+  Definition: What number and percentage of patients experiencing all-cause adverse events with a grade of 3 or higher in the control arm of the trial? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.
+  Extraction plan: Extract the number and percentage for 'grade 3-5 toxic effects' for the 'standard of care' group in the 'abiraterone and enzalutamide' trial from the 'Findings' section on page 1: '204 [45%] of 454'.
+
+Column 3: Adverse Events - N (%) | Treatment-related Grade 3 or Higher | Treatment
+  Definition: What number and percentage of patients experiencing treatment-related adverse events with a grade of 3 or higher in the treatment arm of the trial? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.
+  Extraction plan: The PDF reports 'grade 3-5 toxic effects' (all-cause) in the 'Findings' section on page 1 and 'Results' section on page 10, and detailed adverse events by grade in Table 2 on page 10. However, it does not provide a total N (%) specifically for 'treatment-related Grade 3 or Higher' adverse events.
+
+Column 4: Adverse Events - N (%) | Treatment-related Grade 3 or Higher | Control
+  Definition: What the number and percentage of patients experiencing adverse events that are related to the treatment and have a severity grade of 3 or higher in the control arm of the clinical trial? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.
+  Extraction plan: The PDF reports 'grade 3-5 toxic effects' (all-cause) in the 'Findings' section on page 1 and 'Results' section on page 10, and detailed adverse events by grade in Table 2 on page 10. However, it does not provide a total N (%) specifically for 'treatment-related Grade 3 or Higher' adverse events for the control group.
+
+Column 5: Adverse Events - N (%) | Treatment-related Grade 5 | Treatment
+  Definition: What the number and percentage of patients showing adverse events that are treatment-related and have a grade of 5 in the treatment arm of the trial? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.
+  Extraction plan: Extract the number of deaths 'attributed to treatment' from the 'Discussion' section on page 11: 'two attributed to treatment' for the 'standard of care plus abiraterone and enzalutamide' group. The total N for this group is 445, so the percentage is (2/445) * 100 = 0.45%.
+
+Column 6: Adverse Events - N (%) | Treatment-related Grade 5 | Control
+  Definition: What the number and percentage of patients experiencing treatment-related adverse events with a grade of 5 in the control arm of the clinical trial? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.
+  Extraction plan: The 'Discussion' section on page 11 mentions 'one (<1%) with standard of care in the abiraterone trial' for cardiac causes of death. However, it does not specify if this death was 'attributed to treatment', unlike the treatment group where it explicitly states 'two attributed to treatment'. Therefore, a specific N (%) for 'treatment-related Grade 5' for the control group is not reported.
+
+
+Document content (grouped by type, in chronological page order):
+--- TEXT ---
+Abiraterone acetate plus prednisolone with or without
+enzalutamide for patients with metastatic prostate cancer
+starting androgen deprivation therapy: final results from
+two randomised phase 3 trials of the STAMPEDE platform
+protocol
+
+Gerhardt Attard, Laura Murphy, Noel W Clarke, Ashwin Sachdeva, Craig Jones, Alex Hoyle, William Cross, Robert J Jones, Christopher C Parker,
+Silke Gillessen, Adrian Cook, Chris Brawley, Clare Gilson, Hannah Rush, Hoda Abdel-Aty, Claire L Amos, Claire Murphy, Simon Chowdhury,
+Zafar Malik, J Martin Russell, Nazia Parkar, Cheryl Pugh, Carlos Diaz-Montana, Carmel Pezaro, Warren Grant, Helen Saxby, Ian Pedley,
+Joe M O'Sullivan, Alison Birtle, Joanna Gale, Narayanan Srihari, Carys Thomas, Jacob Tanguay, John Wagstaff, Prantik Das, Emma Gray,
+Mymoona Alzouebi, Omi Parikh, Angus Robinson, Amir H Montazeri, James Wylie, Anjali Zarkar, Richard Cathomas, Michael D Brown, Yatin Jain,
+David P Dearnaley*, Malcolm D Mason*, Duncan Gilbert, Ruth E Langley, Robin Millman, David Matheson, Matthew R Sydest, Louise C Brownt,
+Mahesh K B Parmart, Nicholas D Jamest, for the STAMPEDE investigators‡
+
+Summary
+Background Abiraterone acetate plus prednisolone (herein referred to as abiraterone) or enzalutamide added at the start of androgen deprivation therapy improves outcomes for patients with metastatic prostate cancer. Here, we aimed to evaluate long-term outcomes and test whether combining enzalutamide with abiraterone and androgen deprivation therapy improves survival.
+
+**Methods** We analysed two open-label, randomised, controlled, phase 3 trials of the STAMPEDE platform protocol, with no overlapping controls, conducted at 117 sites in the UK and Switzerland. Eligible patients (no age restriction) had metastatic, histologically-confirmed prostate adenocarcinoma; a WHO performance status of 0–2; and adequate haematological, renal, and liver function. Patients were randomly assigned (1:1) using a computerised algorithm and a minimisation technique to either standard of care (androgen deprivation therapy; docetaxel 75 mg/m² intravenously for six cycles with prednisolone 10 mg orally once per day allowed from Dec 17, 2015) or standard of care plus abiraterone acetate 1000 mg and prednisolone 5 mg (in the abiraterone trial) orally or abiraterone acetate and prednisolone plus enzalutamide 160 mg orally once a day (in the abiraterone and enzalutamide trial). Patients were stratified by centre, age, WHO performance status, type of androgen deprivation therapy, use of aspirin or non-steroidal anti-inflammatory drugs, pelvic nodal status, planned radiotherapy, and planned docetaxel use. The primary outcome was overall survival assessed in the intention-to-treat population. Safety was assessed in all patients who started treatment. A fixed-effects meta-analysis of individual patient data was used to compare differences in survival between the two trials. STAMPEDE is registered with ClinicalTrials.gov (NCT00268476) and ISRCTN (ISRCTN78818544).
+
+Findings Between Nov 15, 2011, and Jan 17, 2014, 1003 patients were randomly assigned to standard of care (n=502) or standard of care plus abiraterone (n=501) in the abiraterone trial. Between July 29, 2014, and March 31, 2016, 916 patients were randomly assigned to standard of care (n=454) or standard of care plus abiraterone and enzalutamide (n=462) in the abiraterone and enzalutamide trial. Median follow-up was 96 months (IQR 86–107) in the abiraterone trial and 72 months (61–74) in the abiraterone and enzalutamide trial. In the abiraterone trial, median overall survival was 76.6 months (95% CI 67.8–86.9) in the abiraterone group versus 45.7 months (41.6–52.0) in the standard of care group (hazard ratio [HR] 0.62 [95% CI 0.53–0.73]; p<0.0001). In the abiraterone and enzalutamide trial, median overall survival was 73.1 months (61.9–81.3) in the abiraterone and enzalutamide group versus 51.8 months (45.3–59.0) in the standard of care group (HR 0.65 [0.55–0.77]; p<0.0001). We found no difference in the treatment effect between these two trials (interaction HR 1.05 [0.83–1.32]; Pinteraction=0.71) or between-trial heterogeneity (I2 p=0.70). In the first 5 years of treatment, grade 3–5 toxic effects were higher when abiraterone was added to standard of care (271 [54%] of 498 vs 192 [38%] of 502 with standard of care) and the highest toxic effects were seen when abiraterone and enzalutamide were added to standard of care (302 [68%] of 445 vs 204 [45%] of 454 with standard of care). Cardiac causes were the most common cause of death due to adverse events (five [1%] with standard of care plus abiraterone and enzalutamide [two attributed to treatment] and one (<1%) with standard of care in the abiraterone trial).
+
+Interpretation Enzalutamide and abiraterone should not be combined for patients with prostate cancer starting long-
+term androgen deprivation therapy. Clinically important improvements in survival from addition of abiraterone to
+androgen deprivation therapy are maintained for longer than 7 years.
+
+Lancet Oncol 2023; 24: 443–56
+See Comment page 416
+*Retired
+†Contributed equally
+‡Investigators listed in the
+appendix (p 217)
+
+Cancer Institute, University
+College London, London, UK
+(Prof G Attard PhD); University
+College London Hospitals,
+London, UK (Prof G Attard);
+Medical Research Council
+Clinical Trials Unit, University
+College London, London, UK
+(L Murphy PhD, A Cook MSc,
+C Brawley MSc, C Gilson MD,
+H Rush MRCP, CL Amos PhD,
+C Murphy BSc, N Parkar BSc,
+C Pugh MSc,
+C Diaz-Montana MSc,
+D Gilbert PhD,
+Prof R E Langley MRCP,
+R Millman, Prof M R Sydes MSc,
+Prof LC Brown PhD,
+Prof MK B Parmar DPhil); Christie
+and Salford Royal NHS
+Foundation Trusts, Manchester,
+UK (Prof N W Clarke ChM,
+A Sachdeva PhD, C Jones FRCS,
+A Hoyle FRCS, JWylie FRCR,
+MD Brown PhD, Y Jain FRCR);
+St James's University Hospital,
+Leeds, UK (W Cross FRCS);
+Beatson West of Scotland
+Cancer Centre (Prof RJ Jones MB)
+and Institute of Cancer Sciences
+(JM Russell FRCR), University of
+Glasgow, Glasgow, UK; Royal
+Marsden NHS Foundation Trust
+and Institute of Cancer
+Research, London, UK
+(Prof CC Parker MD,
+H Abdel-Aty FRCR,
+Prof D P Dearnaley FRCR,
+Prof N D James PhD); Oncology
+Institute of Southern
+
+www.thelancet.com/oncology Vol 24 May 2023
+
+443
+
+Articles
+
+use at randomisation (Pinteraction=0.037) and age Pinteraction=0.0020) in the abiraterone trial, which was not seen in the abiraterone and enzalutamide trial (figure 3A, B). There was a correlation between age and use of NSAID or aspirin in the abiraterone trial (Pearson x2 p=0.0015), with more patients aged 70 years or older using NSAID or aspirin (116 [33%] of 352 vs 154 [24%] of 651 aged <70 years). In the abiraterone and enzalutamide trial, a similar proportion of patients used NSAID or aspirin in both age groups (109 [26%] of 415 aged ≥70 vs 130 [26%] of 501 aged <70).
+
+There was no interaction with nodal status or WHO
+performance status. Docetaxel was allowed as standard of
+care for the last 148 (16%) patients randomly assigned
+in the abiraterone and enzalutamide trial. 80 (54%) of
+148 patients were planned for docetaxel and were younger
+than those who were not offered docetaxel (median
+age 66.5 years [IQR 61.5–71.0] vs 69.0 [65.0–73.0];
+appendix p 4). There was no interaction for planned
+docetaxel use (p_interaction=0·38; figure 3C). Additional
+
+prespecified subgroup analysis identified no difference in
+the effect of study treatment in patients split by low-
+volume (p=0.59) or high-volume metastatic disease
+(p=0.91; figure 3D, E) and no evidence of a different
+treatment effect between these patients (Pinteraction=0.45).
+
+325 (88%) of 371 deaths with standard of care and
+231 (79%) of 293 with addition of abiraterone were
+attributed to prostate cancer. Similarly, 256 (88%) of
+292 deaths with standard of care and 182 (80%)
+of 228 with addition of abiraterone and enzalutamide
+were attributed to prostate cancer. There was a
+statistically and clinically significant improvement in
+prostate cancer-specific survival in both trials with
+study drug treatment (HR 0.56 [95% CI 0.47-0.67];
+p<0.0001 in the abiraterone trial and HR 0.61
+[0.50-0.74]; p<0.0001 in the abiraterone and
+enzalutamide trial), with no difference in effect between
+the two trials (figure 4A, B). Improvements in all
+other secondary outcomes were significant and con-
+sistent across the abiraterone versus abiraterone and
+
+452
+
+www.thelancet.com/oncology Vol 24 May 2023
+
+Articles
+
+enzalutamide trials in terms of failure-free survival
+(HR 0.34 [0.29–0.39]; p<0.0001 vs HR 0.36
+[0.31–0.43]; p<0.0001; figure 4C, D; appendix pp 5, 18),
+progression-free survival (HR 0.47 [0.40–0.55];
+p<0.0001 vs HR 0.50 [0.42–0.59]; p<0.0001; appendix
+p 19), metastatic progression-free survival (HR 0.50
+[0.43–0.58]; p<0.0001 vs HR 0.52 [0.44–0.62];
+p<0.0001; figure 4E, F), and symptomatic skeletal-
+related events (HR 0.76 [0.57–0.99]; p=0.045 vs
+HR 0.61 [0.47–0.79]; p=0.00020; appendix p 20).
+
+Of patients who reported progression before trial
+closure, 322 (71%) of 455 and 266 (71%) of 377 in the
+control groups of the abiraterone or abiraterone and
+enzalutamide trials, respectively, started a life prolonging
+treatment. Whereas 175 (58%) of 301 who received
+standard of care with abiraterone and 115 (49%) of 237
+who received standard of care with abiraterone and
+enzalutamide started a life-prolonging treatment after
+progression. Of these patients, the proportion of those
+who received abiraterone or enzalutamide or docetaxel
+first at progression in the abiraterone trial was 82 (25%),
+85 (26%), and 147 (46%), respectively, after standard of
+care compared with six (3%), 22 (13%), and 126 (72%) after
+standard of care and abiraterone (appendix p 21). In the
+abiraterone and enzalutamide trial, the proportion of
+patients who received abiraterone or enzalutamide or
+docetaxel first was 60 (23%), 117 (44%), and 81 (30%),
+respectively, after standard of care compared with
+six (3%), seven (3%), and 88 (77%) after standard of care
+plus abiraterone and enzalutamide.
+
+Disease progression was the most common reason reported for permanently stopping treatment (202 [41%] of 498 in the abiraterone trial vs 151 [34%] of 445 stopping either treatment in the abiraterone and enzalutamide trial; appendix pp 6, 22). In the abiraterone and enzalutamide trial, 66 (15%) patients reported stopping both treatments because of adverse effects. 54 (12%) patients reported adverse effects as the reason for stopping abiraterone and 14 (3%) as the reason for stopping enzalutamide. Whereas 65 (13%) patients in the abiraterone trial reported stopping abiraterone due to toxic effects. In the first 5 years, grade 3–5 toxic effects were higher when abiraterone was added to standard of care (271 [54%] of 498 vs 192 [38%] of 502 with standard of care) and higher toxic effects were seen when abiraterone and enzalutamide were added to standard of care (302 [68%] of 445 vs 204 [45%] of 454 with standard of care; table 2; appendix pp 7–13).
+
+In a post-hoc analysis, the higher rates of grade 3–5
+adverse events with study treatment than with standard
+of care were observed from the start of treatment
+(appendix p 23). Grade 1–4 adverse events of interest that
+occurred most frequently were fatigue (342 [69%] of
+498 with standard of care plus abiraterone vs 272 [54%] of
+502 with standard of care in the abiraterone trial and
+382 [86%] of 445 with standard of care plus abiraterone
+and enzalutamide vs 309 [68%] of 454 with standard
+of care in the abiraterone and enzalutamide trial),
+
+hypertension (187 [37%] vs 64 [13%] and 256 [58%] vs
+72 [15%]), and alanine aminotransferase or aspartate
+aminotransferase increase (or both; 136 [27%] vs 72 [14%]
+and 166 [37%] vs 83 [18%]; table 2; appendix pp 7–13, 23).
+Cardiac causes were the most common cause of death
+due to adverse events (five [1%] with standard of care
+plus abiraterone and enzalutamide [two attributed to
+treatment] and one (<1%) with standard of care in the
+abiraterone trial; appendix pp 14, 24).
+
+## Discussion
+Combining abiraterone and enzalutamide with androgen deprivation therapy is more effective than androgen deprivation therapy alone, but from an indirect comparison we showed no improvement over abiraterone and androgen deprivation therapy. We have not formally compared the abiraterone and enzalutamide trial with trials testing enzalutamide. But, given the similar efficacy reported when combining enzalutamide with androgen deprivation therapy,¹² we also conclude that combining abiraterone with enzalutamide would not be more effective. Overall, increased toxicity with the combination of abiraterone and enzalutamide does not justify further exploration in unselected patients.
+
+Combining apalutamide or enzalutamide with abiraterone for patients with metastatic castration-resistant prostate cancer might improve progression-free survival but consistent with our findings, these trials showed no improvement in overall survival. 18-20 Similarly, there was no improvement in overall survival of patients with high-risk localised prostate cancer when abiraterone was indirectly compared with abiraterone and enzalutamide (administered as adjuvant therapy for 2 years). 14 Therefore, treatment efficacy with abiraterone is unlikely to be reduced by an increase in androgens or reactivation of ligand-binding domain-dependent reactivation of androgen receptor signalling (given that combining abiraterone with an effective androgen receptor antagonist, enzalutamide, has no discernible long-term benefit). This finding is consistent with the low response rate observed from sequential use of either treatment. 21
+
+The periods of accrual to both trials overlapped with another separate trial that randomly assigned patients with metastatic cancer to radiotherapy to the primary tumour and reported improved overall survival for those with low-volume metastatic disease.22 Although abiraterone-containing trials shared patients who received standard of care (control) with the radiotherapy trial, none were randomly assigned to the study drug groups so we are unable to comment on the interaction between radiotherapy and hormone intensification.
+
+By leveraging resources across several trials, our
+follow-up of patients allocated to abiraterone was longer
+than feasible in other trials, which allowed us to make
+additional observations. Notably, the survival benefit of
+starting abiraterone with androgen deprivation therapy
+
+www.thelancet.com/oncology Vol 24 May 2023
+
+453
+
+--- TABLES ---
+[Page 10]
+<table>
+<tr><td></td><td colspan="4">Standard of care in the abiraterone and enzalutamide trial (n=454)</td><td colspan="4">Standard of care plus abiraterone and enzalutamide in the abiraterone and enzalutamide trial (n=445)</td></tr>
+<tr><td></td><td>Grade 1-2</td><td>Grade 3</td><td>Grade 4</td><td>Grade 5</td><td>Grade 1-2</td><td>Grade 3</td><td>Grade 4</td><td>Grade 5</td></tr>
+<tr><td>Blood and lymphatic</td><td>193 (43%)</td><td>21 (5%)</td><td>5 (1%)</td><td>0</td><td>217 (49%)</td><td>9 (2%)</td><td>4 (1%)</td><td>0</td></tr>
+<tr><td>Cardiac</td><td>25 (6%)</td><td>10 (2%)</td><td>5 (1%)</td><td>0</td><td>45 (10%)</td><td>19 (4%)</td><td>7 (2%)</td><td>5 (1%)*</td></tr>
+<tr><td>Eye</td><td>54 (12%)</td><td>5 (1%)</td><td>0</td><td>0</td><td>73 (16%)</td><td>6 (1%)</td><td>0</td><td>0</td></tr>
+<tr><td>Gastrointestinal and hepatobiliary</td><td>242 (53%)</td><td>19 (4%)</td><td>4 (1%)</td><td>1 (&lt;1%)</td><td>305 (69%)</td><td>30 (7%)</td><td>6 (1%)</td><td>0</td></tr>
+<tr><td>General disorders and administration site conditions</td><td>329 (72%)</td><td>29 (6%)</td><td>1 (&lt;1%)</td><td>0</td><td>348 (78%)</td><td>54 (12%)</td><td>2(&lt;1%)</td><td>2 (&lt;1%)</td></tr>
+<tr><td>Fatigue</td><td>296 (65%)</td><td>13 (3%)</td><td>0</td><td>0</td><td>348 (78%)</td><td>34 (8%)</td><td>0</td><td>0</td></tr>
+<tr><td>Infections</td><td>89 (20%)</td><td>17 (4%)</td><td>1 (&lt;1%)</td><td>1 (&lt;1%)</td><td>101 (23%)</td><td>22 (5%)</td><td>3 (1%)</td><td>3 (1%)</td></tr>
+<tr><td>Injury</td><td>8 (2%)</td><td>6 (1%)</td><td>0</td><td>0</td><td>23 (5%)</td><td>11 (2%)</td><td>0</td><td>0</td></tr>
+<tr><td>Investigations</td><td>216 (48%)</td><td>25 (6%)</td><td>10 (2%)</td><td>0</td><td>246 (55%)</td><td>66 (15%)</td><td>10 (2%)</td><td>0</td></tr>
+<tr><td>Alanine aminotransferase increased</td><td>75 (17%)</td><td>3 (1%)</td><td>0</td><td>0</td><td>112 (25%)</td><td>44 (10%)</td><td>1(&lt;1%)</td><td>0</td></tr>
+<tr><td>Aspartate aminotransferase increased</td><td>17 (4%)</td><td>0</td><td>0</td><td>0</td><td>43 (10%)</td><td>9 (2%)</td><td>0</td><td>0</td></tr>
+<tr><td>Metabolism and nutrition</td><td>143 (31%)</td><td>6 (1%)</td><td>0</td><td>0</td><td>190 (43%)</td><td>17 (4%)</td><td>3 (1%)</td><td>0</td></tr>
+<tr><td>Glucose intolerance</td><td>31 (7%)</td><td>1 (&lt;1%)</td><td>0</td><td>0</td><td>23 (5%)</td><td>7 (2%)</td><td>0</td><td>0</td></tr>
+<tr><td>Hypokalaemia</td><td>21 (5%)</td><td>0</td><td>0</td><td>0</td><td>66 (15%)</td><td>7 (2%)</td><td>2 (&lt;1%)</td><td>0</td></tr>
+<tr><td>Musculoskeletal</td><td>288 (63%)</td><td>45 (10%)</td><td>0</td><td>0</td><td>292 (66%)</td><td>54 (12%)</td><td>0</td><td>0</td></tr>
+<tr><td>Nervous system</td><td>144 (32%)</td><td>15 (3%)</td><td>1 (&lt;1%)</td><td>0</td><td>232 (52%)</td><td>20 (4%)</td><td>6 (1%)</td><td>0</td></tr>
+<tr><td>Seizure</td><td>1 (&lt;1%)</td><td>0</td><td>0</td><td>0</td><td>0</td><td>4 (1%)</td><td>0</td><td>0</td></tr>
+<tr><td>Cognitive disturbance</td><td>22 (5%)</td><td>2(&lt;1%)</td><td>0</td><td>0</td><td>83 (19%)</td><td>2 (&lt;1%)</td><td>1 (&lt;1%)</td><td>0</td></tr>
+<tr><td>Psychiatric</td><td>187 (41%)</td><td>6 (1%)</td><td>0</td><td>0</td><td>230 (52%)</td><td>3 (1%)</td><td>1 (&lt;1%)</td><td>0</td></tr>
+<tr><td>Renal and urinary</td><td>292 (64%)</td><td>17 (4%)</td><td>5 (1%)</td><td>0</td><td>306 (69%)</td><td>18 (4%)</td><td>5 (1%)</td><td>2 (&lt;1%)</td></tr>
+<tr><td>Reproductive</td><td>179 (39%)</td><td>58 (13%)</td><td>0</td><td>0</td><td>194 (44%)</td><td>78 (18%)</td><td>0</td><td>0</td></tr>
+<tr><td>Respiratory</td><td>161 (35%)</td><td>9 (2%)</td><td>2 (&lt;1%)</td><td>0</td><td>196 (44%)</td><td>12 (3%)</td><td>1 (&lt;1%)</td><td>1 (&lt;1%)</td></tr>
+<tr><td>Skin</td><td>121 (27%)</td><td>4(1%)</td><td>1 (&lt;1%)</td><td>0</td><td>167 (38%)</td><td>3 (1%)</td><td>1 (&lt;1%)</td><td>0</td></tr>
+<tr><td>Vascular</td><td>365 (80%)</td><td>24 (5%)</td><td>1(&lt;1%)</td><td>0</td><td>324 (73%)</td><td>93 (21%)</td><td>1 (&lt;1%)</td><td>0</td></tr>
+<tr><td>Hypertension</td><td>60 (13%)</td><td>12 (3%)</td><td>0</td><td>0</td><td>187 (42%)</td><td>69 (16%)</td><td>0</td><td>0</td></tr>
+<tr><td>Hot flushes</td><td>365 (80%)</td><td>12 (3%)</td><td>0</td><td>0</td><td>374 (84%)</td><td>24 (5%)</td><td>0</td><td>0</td></tr>
+<tr><td colspan="9">Grade 1-2 adverse events occurring in 10% or more of patients in any treatment group or any grade 3, 4, or 5 adverse events stratified by body system, including adverse events of special interest. Abiraterone refers to abiraterone acetate and prednisolone. All adverse events in the abiraterone trial are shown in the appendix (p 7). *Events on old form categorised as &quot;Cardiovascular—other&quot; have been included in the cardiac body system.</td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+</table>
+Table 2: Summary of adverse events
+
+--- FIGURES ---
+[Page 1]
+<::logo: Articles
+Black sans-serif text centered on a white background::>
+
+[Page 1]
+<::logo: CrossMark
+CrossMark
+A red stylized bird-like shape, a red cursor with a plus sign, and a red circular emblem with a bookmark icon are displayed side by side.::>
+
+[Page 1]
+<::transcription of the content
+: A red square logo with "oa" in large white letters above "OPEN ACCESS" in smaller white letters.
+::>
+
+Task:
+For EACH column listed above, output a JSON object with:
+- candidates: array of 1-4 objects, each with value, evidence (string or null), assumptions (string or null), confidence ("high"|"medium"|"low")
+- primary_value: string (your best guess)
+- found: true if at least one value was found, false if not reported/absent
+
+Return a single JSON object with column names as keys. Each value is an object with candidates, primary_value, found.
+Example: {"Median PFS (mo) | Overall | Treatment": {"candidates": [{"value": "19.4", "evidence": "Table 2", "assumptions": null, "confidence": "high"}], "primary_value": "19.4", "found": true}, ...}
+
+
+============================================================
+OUTPUT
+============================================================
+```json
+{
+  "Adverse Events - N (%) | All-Cause Grade 3 or Higher | Treatment": {
+    "candidates": [
+      {
+        "value": "302 (68%) of 445",
+        "evidence": "In the first 5 years of treatment, grade 3–5 toxic effects were higher when abiraterone was added to standard of care (271 [54%] of 498 vs 192 [38%] of 502 with standard of care) and the highest toxic effects were seen when abiraterone and enzalutamide were added to standard of care (302 [68%] of 445 vs 204 [45%] of 454 with standard of care).",
+        "assumptions": null,
+        "confidence": "high"
+      }
+    ],
+    "primary_value": "302 (68%) of 445",
+    "found": true
+  },
+  "Adverse Events - N (%) | All-Cause Grade 3 or Higher | Control": {
+    "candidates": [
+      {
+        "value": "204 (45%) of 454",
+        "evidence": "In the first 5 years of treatment, grade 3–5 toxic effects were higher when abiraterone was added to standard of care (271 [54%] of 498 vs 192 [38%] of 502 with standard of care) and the highest toxic effects were seen when abiraterone and enzalutamide were added to standard of care (302 [68%] of 445 vs 204 [45%] of 454 with standard of care).",
+        "assumptions": null,
+        "confidence": "high"
+      }
+    ],
+    "primary_value": "204 (45%) of 454",
+    "found": true
+  },
+  "Adverse Events - N (%) | Treatment-related Grade 3 or Higher | Treatment": {
+    "candidates": [],
+    "primary_value": "Not reported",
+    "found": false
+  },
+  "Adverse Events - N (%) | Treatment-related Grade 3 or Higher | Control": {
+    "candidates": [],
+    "primary_value": "Not reported",
+    "found": false
+  },
+  "Adverse Events - N (%) | Treatment-related Grade 5 | Treatment": {
+    "candidates": [
+      {
+        "value": "2 (0.45%) of 445",
+        "evidence": "Cardiac causes were the most common cause of death due to adverse events (five [1%] with standard of care plus abiraterone and enzalutamide [two attributed to treatment] and one (<1%) with standard of care in the abiraterone trial; appendix pp 14, 24).",
+        "assumptions": "The total N for the 'standard of care plus abiraterone and enzalutamide' group for safety analysis is 445, as indicated by '302 [68%] of 445' for highest toxic effects in the same section and Table 2. The percentage is calculated as (2/445) * 100 = 0.45%.",
+        "confidence": "high"
+      }
+    ],
+    "primary_value": "2 (0.45%) of 445",
+    "found": true
+  },
+  "Adverse Events - N (%) | Treatment-related Grade 5 | Control": {
+    "candidates": [],
+    "primary_value": "Not reported",
+    "found": false
+  }
+}
+```

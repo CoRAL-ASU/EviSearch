@@ -34,10 +34,14 @@ from src.planning.plan_generator import Column, ColumnGroup, PlanGenerator
 from src.LLMProvider.provider import LLMProvider
 from src.table_definitions.definitions import load_definitions
 
-from extract_with_landing_ai import load_column_definitions, extract_column
+from extract_with_landing_ai import load_column_definitions, extract_column_multi_candidate, find_chunks_for_column_tiered
 
 # Config: if True, plan all columns in one LLM call; if False, one call per group
 GROUP_QUERIES = True
+
+# Keyword retrieval defaults (when --use-keywords)
+DEFAULT_KEYWORD_TOP_K = 5
+DEFAULT_KEYWORD_TOKEN_LIMIT = 150
 
 
 def _groups_containing_columns(
@@ -59,6 +63,9 @@ def plan_and_extract(
     results_root: Path,
     do_retry: bool = True,
     group_queries: bool = True,
+    use_keywords: bool = False,
+    keyword_top_k: int = DEFAULT_KEYWORD_TOP_K,
+    keyword_token_limit: int = DEFAULT_KEYWORD_TOKEN_LIMIT,
 ) -> Dict[str, Any]:
     """Plan + extract for the given columns."""
     pdf_path = Path(pdf_path)
@@ -81,7 +88,8 @@ def plan_and_extract(
 
     definitions_map = load_column_definitions()
     provider = LLMProvider(provider="gemini", model="gemini-2.5-flash")
-    out_dir = base_dir / "planning" / "plan_extract_columns"
+    out_subdir = "plan_extract_columns_with_keywords" if use_keywords else "plan_extract_columns"
+    out_dir = base_dir / "planning" / out_subdir
     out_dir.mkdir(parents=True, exist_ok=True)
     logs_dir = out_dir / "logs"
     logs_dir.mkdir(parents=True, exist_ok=True)
@@ -131,16 +139,44 @@ def plan_and_extract(
             if col_name not in col_set:
                 continue
             defn = definitions_map.get(col_name, "")
-            r = extract_column(col, group_name, defn, chunks, do_retry=do_retry, logs_dir=logs_dir)
-            results[col_name] = {
+            # Retrieval: tiered only, or tiered + keyword supplement
+            retrieval_meta: Dict[str, Any] = {}
+            if use_keywords:
+                try:
+                    from keyword_retrieval import find_chunks_for_column_with_keywords
+                    relevant_chunks, retrieval_source, retrieval_meta = find_chunks_for_column_with_keywords(
+                        col, chunks, defn,
+                        keyword_top_k=keyword_top_k,
+                        keyword_token_limit=keyword_token_limit,
+                    )
+                except ImportError:
+                    relevant_chunks, retrieval_source = find_chunks_for_column_tiered(col, chunks)
+                    retrieval_meta = {"keyword_error": "keyword_retrieval not available"}
+            else:
+                relevant_chunks, retrieval_source = find_chunks_for_column_tiered(col, chunks)
+            r = extract_column_multi_candidate(
+                col,
+                group_name,
+                defn,
+                chunks,
+                logs_dir=logs_dir,
+                relevant_chunks_override=relevant_chunks,
+                retrieval_source=retrieval_source,
+            )
+            row: Dict[str, Any] = {
                 "value": r.get("value"),
+                "primary_value": r.get("primary_value"),
+                "candidates": r.get("candidates", []),
                 "found": r.get("found"),
-                "confidence": r.get("confidence"),
                 "extraction_plan": col.get("extraction_plan"),
                 "page": col.get("page"),
                 "source_type": col.get("source_type"),
                 "sources": col.get("sources"),
+                "retrieval_source": retrieval_source,
             }
+            if retrieval_meta:
+                row["retrieval_meta"] = retrieval_meta
+            results[col_name] = row
 
     out_file = out_dir / "extraction_results.json"
     out_file.write_text(
@@ -176,6 +212,9 @@ def main() -> int:
     p.add_argument("--no-retry", action="store_true")
     p.add_argument("--group-queries", action="store_true", default=GROUP_QUERIES, help="Plan all columns in one LLM call (default: %(default)s)")
     p.add_argument("--no-group-queries", action="store_false", dest="group_queries", help="One planning call per group")
+    p.add_argument("--use-keywords", action="store_true", help="Add keyword (BM25) retrieval to supplement planner chunks")
+    p.add_argument("--keyword-top-k", type=int, default=DEFAULT_KEYWORD_TOP_K, help="Max keyword chunks per column (default: %(default)s)")
+    p.add_argument("--keyword-token-limit", type=int, default=DEFAULT_KEYWORD_TOKEN_LIMIT, help="Token budget for keyword supplement (default: %(default)s)")
     args = p.parse_args()
 
     col_names: List[str] = []
@@ -205,13 +244,17 @@ def main() -> int:
         print(f"PDF not found: {pdf_path}")
         return 1
 
-    print(f"Plan + extract for {len(col_names)} column(s) (group_queries={args.group_queries}): {col_names}")
+    kw_str = " +keywords" if args.use_keywords else ""
+    print(f"Plan + extract for {len(col_names)} column(s) (group_queries={args.group_queries}{kw_str}): {col_names}")
     result = plan_and_extract(
         pdf_path,
         col_names,
         results_root=results_root,
         do_retry=not args.no_retry,
         group_queries=args.group_queries,
+        use_keywords=args.use_keywords,
+        keyword_top_k=args.keyword_top_k,
+        keyword_token_limit=args.keyword_token_limit,
     )
 
     if not result.get("success"):
@@ -219,7 +262,12 @@ def main() -> int:
         return 1
 
     for name, r in result["results"].items():
-        print(f"  {name}: {r.get('value')} (confidence={r.get('confidence')})")
+        src = r.get("retrieval_source", "")
+        src_str = f" [retrieval: {src}]" if src else ""
+        cands = r.get("candidates", [])
+        n = len(cands)
+        conf = cands[0].get("confidence", "") if cands else ""
+        print(f"  {name}: {r.get('value')} ({n} candidate(s), confidence={conf}){src_str}")
     print(f"\nSaved to {result['output_file']}")
     return 0
 

@@ -1,0 +1,149 @@
+RETRIEVAL SOURCE: extraction_plan_pages
+
+============================================================
+INPUT
+============================================================
+You are extracting values for multiple clinical trial data columns from the same document content.
+All columns below share the same evidence pool. Extract each column following its plan.
+
+COLUMNS TO EXTRACT:
+
+Column 1: PS - N (%) | 0 | Treatment
+  Definition: What number and percentage of participants included in the treatment arm with a Performance Status (PS) score of 0? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.
+  Extraction plan: In Table 1, locate the row "ECOG PS, No. (%)" and the sub-row "0". Sum the values from the "Darolutamide (n = 497)" column under "High Volume" and the "Darolutamide (n = 154)" column under "Low Volume". High Volume - Darolutamide: 343, Low Volume - Darolutamide: 123. Total Darolutamide PS 0 = 343 + 123 = 466. Total Darolutamide patients = 497 (High Volume) + 154 (Low Volume) = 651. Percentage = (466 / 651) * 100 = 71.58%.
+
+Column 2: PS - N (%) | 0 | Control
+  Definition: What the number and percentage of patients with a Performance Status (PS) score of 0 in the control arm of the trial? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.
+  Extraction plan: In Table 1, locate the row "ECOG PS, No. (%)" and the sub-row "0". Sum the values from the "Placebo (n = 508)" column under "High Volume" and the "Placebo (n = 146)" column under "Low Volume". High Volume - Placebo: 349, Low Volume - Placebo: 113. Total Placebo PS 0 = 349 + 113 = 462. Total Placebo patients = 508 (High Volume) + 146 (Low Volume) = 654. Percentage = (462 / 654) * 100 = 70.64%.
+
+Column 3: PS - N (%) | 1-2 | Treatment
+  Definition: What number and percentage of participants with a Performance Status (PS) score of 1-2 in the treatment arm of the clinical trial? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.
+  Extraction plan: Table 1 (page 5) provides ECOG PS distribution for PS 0 and PS 1, but does not explicitly report PS 2. The footnote states "ECOG PS scores range from 0 to 5", and the sum of patients with PS 0, PS 1, and "Missing" accounts for all patients in the Darolutamide arm (466 + 185 + 0 = 651). Therefore, PS 2 is not reported as a distinct category, and a value for the range "1-2" cannot be provided. The value for PS 1 in the Darolutamide arm is 185 (28.4%).
+
+Column 4: PS - N (%) | 1-2 | Control
+  Definition: What number and percentage of patients with performance status (PS) score of 1-2 in the control arm of the clinical trial? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.
+  Extraction plan: Table 1 (page 5) provides ECOG PS distribution for PS 0 and PS 1, but does not explicitly report PS 2. The footnote states "ECOG PS scores range from 0 to 5", and the sum of patients with PS 0, PS 1, and "Missing" accounts for all patients in the Placebo arm (462 + 190 + 2 = 654). Therefore, PS 2 is not reported as a distinct category, and a value for the range "1-2" cannot be provided. The value for PS 1 in the Placebo arm is 190 (29.1%).
+
+
+Document content (grouped by type, in chronological page order):
+--- TEXT ---
+Abbreviations: ADT, androgen-deprivation therapy; ALP, alkaline phosphatase; ECOG PS, Eastern Cooperative Oncology Group performance status; LN, lymph node; mHSPC, metastatic hormone-sensitive prostate cancer; PSA, prostate-specific antigen; ULN, upper level of normal.
+
+*Disease volume defined by CHAARTED criteria: presence of visceral metastases or ≥ 4 bone metastases with ≥ 1 beyond vertebral bodies and pelvis (Sweeney et al).¹
+
+*Disease risk defined by LATITUDE criteria (two of the following three factors): Gleason score of ≥ 8, the presence of ≥ 3 bone lesions, or the presence of measurable visceral metastasis (Fizazi et al).²
+
+*ECOG PS scores range from 0 to 5, with higher scores indicating greater disability.
+
+*Gleason scores for the histologic pattern of carcinoma range from 6 to 10, with higher scores indicating a more aggressive form of prostate cancer.
+
+*One patient had lymph node metastasis alone per direct entry in case report form but was categorized as M1b in the high-volume subgroup using detailed tumor data.
+
+*These values were centrally assessed. Samples were obtained while patients were receiving ADT.
+
+5
+
+une 12, 2023 from 129.176.151.02
+y. All rights reserved.
+
+Journal of Clinical Oncology
+
+Darolutamide, ADT, and Docetaxel in mHSPC Volume/Risk Subgroups
+
+Downloaded from ascopubs.org by Mayo Foundation--Rochester on Ju
+Copyright © 2023 American Society of Clinical Oncolog
+
+--- TABLES ---
+[Page 5]
+TABLE 1. Baseline Demographics and Patient Characteristics for the Subgroups of Patients by Disease Volume and Disease Risk in ARASENS
+<table>
+<tr><td></td><td colspan="2">High Volumeª</td><td colspan="2">Low Volumeª</td><td colspan="2">High Riskᵇ</td><td colspan="2">Low Riskᵇ</td><td></td></tr>
+<tr><td>Characteristic at Baseline</td><td>Darolutamide (n = 497)</td><td>Placebo (n = 508)</td><td>Darolutamide (n = 154)</td><td>Placebo (n = 146)</td><td>Darolutamide (n = 452)</td><td>Placebo (n = 460)</td><td>Darolutamide (n = 199)</td><td>Placebo (n = 194)</td><td>All Patients (N = 1,305)</td></tr>
+<tr><td>Age, median, years (range)</td><td>67.0 (41-89)</td><td>67.0 (44-86)</td><td>67.0 (41-84)</td><td>67.5 (42-81)</td><td>67.0 (41-86)</td><td>67.0 (44-86)</td><td>67.0 (41-89)</td><td>67.0 (42-85)</td><td>67.0 (41-89)</td></tr>
+<tr><td colspan="10">ECOG PS, No. (%)</td></tr>
+<tr><td>0</td><td>343 (69.0)</td><td>349 (68.7)</td><td>123 (79.9)</td><td>113 (77.4)</td><td>317 (70.1)</td><td>318 (69.1)</td><td>149 (74.9)</td><td>144 (74.2)</td><td>928 (71.1)</td></tr>
+<tr><td>1</td><td>154 (31.0)</td><td>157 (30.9)</td><td>31 (20.1)</td><td>33 (22.6)</td><td>135 (29.9)</td><td>140 (30.4)</td><td>50 (25.1)</td><td>50 (25.8)</td><td>375 (28.7)</td></tr>
+<tr><td>Missing</td><td>0</td><td>2 (0.4)</td><td>0</td><td>0</td><td>0</td><td>2 (0.4)</td><td>0</td><td>0</td><td>2 (0.2)</td></tr>
+<tr><td colspan="10">Gleason score at initial diagnosis, No. (%)</td></tr>
+<tr><td>&lt; 8</td><td>96 (19.3)</td><td>87 (17.1)</td><td>26 (16.9)</td><td>31 (21.2)</td><td>16 (3.5)</td><td>16 (3.5)</td><td>106 (53.3)</td><td>102 (52.6)</td><td>240 (18.4)</td></tr>
+<tr><td>≥ 8</td><td>381 (76.7)</td><td>403 (79.3)</td><td>124 (80.5)</td><td>113 (77.4)</td><td>428 (94.7)</td><td>440 (95.7)</td><td>77 (38.7)</td><td>76 (39.2)</td><td>1,021 (78.2)</td></tr>
+<tr><td>Missing</td><td>20 (4.0)</td><td>18 (3.5)</td><td>4 (2.6)</td><td>2 (1.4)</td><td>8 (1.8)</td><td>4 (0.9)</td><td>16 (8.0)</td><td>16 (8.2)</td><td>44 (3.4)</td></tr>
+<tr><td colspan="10">Metastasis stage at initial diagnosis, No. (%)</td></tr>
+<tr><td>De novo mHSPC</td><td>432 (86.9)</td><td>445 (87.6)</td><td>126 (81.8)</td><td>121 (82.9)</td><td>416 (92.0)</td><td>419 (91.1)</td><td>142 (71.4)</td><td>147 (75.8)</td><td>1,124 (86.1)</td></tr>
+<tr><td>Recurrent mHSPC</td><td>58 (11.7)</td><td>59 (11.6)</td><td>28 (18.2)</td><td>23 (15.8)</td><td>33 (7.3)</td><td>39 (8.5)</td><td>53 (26.6)</td><td>43 (22.2)</td><td>168 (12.9)</td></tr>
+<tr><td>Missing</td><td>7 (1.4)</td><td>4 (0.8)</td><td>0</td><td>2 (1.4)</td><td>3 (0.7)</td><td>2 (0.4)</td><td>4 (2.0)</td><td>4 (2.1)</td><td>13 (1.0)</td></tr>
+<tr><td colspan="10">Metastasis stage at screening, No. (%)</td></tr>
+<tr><td>M1a, nonregional LN only</td><td>0</td><td>0</td><td>23 (14.9)</td><td>15 (10.3)</td><td>0</td><td>0</td><td>23 (11.6)</td><td>15 (7.7)</td><td>38 (2.9)</td></tr>
+<tr><td>M1b, bone metastases  LN</td><td>386 (77.7)</td><td>390 (76.8)</td><td>131 (85.1)</td><td>131 (89.7)</td><td>345 (76.3)</td><td>354 (77.0)</td><td>172 (86.4)</td><td>167 (86.1)</td><td>1,038 (79.5)</td></tr>
+<tr><td>M1c, visceral metastases  LN or bone</td><td>111 (22.3)</td><td>118 (23.2)</td><td>0</td><td>0</td><td>107 (23.7)</td><td>106 (23.0)</td><td>4 (2.0)</td><td>12 (6.2)</td><td>229 (17.5)</td></tr>
+<tr><td>Serum PSA level, ng/mL, median (range)</td><td>38.7 (0-9,219.0)</td><td>27.9 (0-11,947.0)</td><td>11.7 (0-3,771.0)</td><td>14.5 (0-3,372.9)</td><td>34.0 (0-9,219.0)</td><td>30.0 (0-11,947.0)</td><td>19.2 (0-4,173.0)</td><td>12.4 (0-3,372.9)</td><td>27.6 (0-11,947.0)</td></tr>
+<tr><td>Serum ALP level, U/L, median (range)</td><td>199.0 (46-4,885)</td><td>172.0 (41-7,680)</td><td>84.5 (40-2,116)</td><td>87.5 (36-735)</td><td>183.0 (44-4,885)</td><td>161.5 (41-7,680)</td><td>99.0 (40-4,793)</td><td>97.0 (36-3,227)</td><td>143.0 (36-7,680)</td></tr>
+<tr><td>ALP &lt; ULN, No. (%)</td><td>168 (33.8)</td><td>176 (34.6)</td><td>122 (79.2)</td><td>115 (78.8)</td><td>165 (36.5)</td><td>166 (36.1)</td><td>125 (62.8)</td><td>125 (64.4)</td><td>581 (44.5)</td></tr>
+<tr><td>ALP ≥ ULN, No. (%)</td><td>329 (66.2)</td><td>332 (65.4)</td><td>32 (20.8)</td><td>31 (21.2)</td><td>287 (63.5)</td><td>294 (63.9)</td><td>74 (37.2)</td><td>69 (35.6)</td><td>724 (55.5)</td></tr>
+</table>
+
+Task:
+For EACH column listed above, output a JSON object with:
+- candidates: array of 1-4 objects, each with value, evidence (string or null), assumptions (string or null), confidence ("high"|"medium"|"low")
+- primary_value: string (your best guess)
+- found: true if at least one value was found, false if not reported/absent
+
+Return a single JSON object with column names as keys. Each value is an object with candidates, primary_value, found.
+Example: {"Median PFS (mo) | Overall | Treatment": {"candidates": [{"value": "19.4", "evidence": "Table 2", "assumptions": null, "confidence": "high"}], "primary_value": "19.4", "found": true}, ...}
+
+
+============================================================
+OUTPUT
+============================================================
+```json
+{
+  "PS - N (%) | 0 | Treatment": {
+    "candidates": [
+      {
+        "value": "466 (71.6%)",
+        "evidence": "Table 1, row '0' under 'ECOG PS, No. (%)', columns 'Darolutamide (n = 497)' and 'Darolutamide (n = 154)'. High Volume - Darolutamide: 343, Low Volume - Darolutamide: 123. Total Darolutamide PS 0 = 343 + 123 = 466. Total Darolutamide patients = 497 (High Volume) + 154 (Low Volume) = 651. Percentage = (466 / 651) * 100 = 71.58%.",
+        "assumptions": "The total number of Darolutamide patients is the sum of patients in the High Volume and Low Volume Darolutamide arms. The percentage is calculated based on this total.",
+        "confidence": "high"
+      }
+    ],
+    "primary_value": "466 (71.6%)",
+    "found": true
+  },
+  "PS - N (%) | 0 | Control": {
+    "candidates": [
+      {
+        "value": "462 (70.6%)",
+        "evidence": "Table 1, row '0' under 'ECOG PS, No. (%)', columns 'Placebo (n = 508)' and 'Placebo (n = 146)'. High Volume - Placebo: 349, Low Volume - Placebo: 113. Total Placebo PS 0 = 349 + 113 = 462. Total Placebo patients = 508 (High Volume) + 146 (Low Volume) = 654. Percentage = (462 / 654) * 100 = 70.64%.",
+        "assumptions": "The total number of Placebo patients is the sum of patients in the High Volume and Low Volume Placebo arms. The percentage is calculated based on this total.",
+        "confidence": "high"
+      }
+    ],
+    "primary_value": "462 (70.6%)",
+    "found": true
+  },
+  "PS - N (%) | 1-2 | Treatment": {
+    "candidates": [
+      {
+        "value": "Not reported",
+        "evidence": "Table 1 (page 5) provides ECOG PS distribution for PS 0 and PS 1, but does not explicitly report PS 2. The footnote states 'ECOG PS scores range from 0 to 5', and the sum of patients with PS 0, PS 1, and 'Missing' accounts for all patients in the Darolutamide arm (466 + 185 + 0 = 651). Therefore, PS 2 is not reported as a distinct category, and a value for the range '1-2' cannot be provided.",
+        "assumptions": "The absence of an explicit 'PS 2' category, combined with the sum of reported categories (PS 0, PS 1, Missing) equaling the total patient count, implies that no patients had PS 2, 3, 4, or 5. However, the extraction plan explicitly states that a value for the range '1-2' cannot be provided.",
+        "confidence": "high"
+      }
+    ],
+    "primary_value": "Not reported",
+    "found": false
+  },
+  "PS - N (%) | 1-2 | Control": {
+    "candidates": [
+      {
+        "value": "Not reported",
+        "evidence": "Table 1 (page 5) provides ECOG PS distribution for PS 0 and PS 1, but does not explicitly report PS 2. The footnote states 'ECOG PS scores range from 0 to 5', and the sum of patients with PS 0, PS 1, and 'Missing' accounts for all patients in the Placebo arm (462 + 190 + 2 = 654). Therefore, PS 2 is not reported as a distinct category, and a value for the range '1-2' cannot be provided.",
+        "assumptions": "The absence of an explicit 'PS 2' category, combined with the sum of reported categories (PS 0, PS 1, Missing) equaling the total patient count, implies that no patients had PS 2, 3, 4, or 5. However, the extraction plan explicitly states that a value for the range '1-2' cannot be provided.",
+        "confidence": "high"
+      }
+    ],
+    "primary_value": "Not reported",
+    "found": false
+  }
+}
+```

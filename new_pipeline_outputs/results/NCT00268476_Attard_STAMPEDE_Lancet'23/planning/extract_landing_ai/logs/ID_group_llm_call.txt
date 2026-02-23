@@ -1,0 +1,394 @@
+RETRIEVAL SOURCE: extraction_plan_pages
+
+============================================================
+INPUT
+============================================================
+You are extracting values for multiple clinical trial data columns from the same document content.
+All columns below share the same evidence pool. Extract each column following its plan.
+
+COLUMNS TO EXTRACT:
+
+Column 1: NCT
+  Definition: What national Clinical Trial identifier, a unique identification number assigned to a clinical trial?. If reported, provide the value; otherwise use 'Not reported'.
+  Extraction plan: Extract the NCT number 'NCT00268476' from the 'Methods' section on page 1, which states 'STAMPEDE is registered with ClinicalTrials.gov (NCT00268476) and ISRCTN (ISRCTN78818544)'.
+
+Column 2: PubMed ID
+  Definition: What a unique identifier assigned to a clinical trial publication in the PubMed database?. If reported, provide the value; otherwise use 'Not reported'.
+  Extraction plan: The PubMed ID is not reported within the provided PDF content. It would typically be assigned by PubMed upon indexing the article.
+
+Column 3: Trial Name
+  Definition: What the title or identifier of the clinical trial being referred to in the study?. If reported, provide the value; otherwise use 'Not reported'.
+  Extraction plan: Extract the main title of the article on page 1: 'Abiraterone acetate plus prednisolone with or without enzalutamide for patients with metastatic prostate cancer starting androgen deprivation therapy: final results from two randomised phase 3 trials of the STAMPEDE platform protocol'.
+
+Column 4: Author
+  Definition: What the name of the person or people responsible for writing or publishing the clinical trial study? Your answer should be a name/ list of names (you can use th et al. format )or 'NA'. If reported, provide the value; otherwise use 'Not reported'.
+  Extraction plan: Extract the list of authors from the author byline on page 1, starting with 'Gerhardt Attard' and ending with 'Nicholas D James†, for the STAMPEDE investigators‡'.
+
+Column 5: Year
+  Definition: Publication year of the clinical trial. Use 'Not reported' if unclear.
+  Extraction plan: Extract the year '2023' from the journal citation 'Lancet Oncol 2023' at the top right of page 1 or from the footer 'Vol 24 May 2023' on any page.
+
+Column 6: Full Pub or Abstract
+  Definition: Indicates whether results are fully published or only an abstract is available. Use 'Full Pub' or 'Abstract'; use 'Not reported' if unclear.
+  Extraction plan: The document is a full publication, as indicated by its comprehensive structure, multiple sections (Summary, Methods, Findings, Interpretation, etc.), and length across several pages.
+
+Column 7: Phase
+  Definition: Clinical trial phase (e.g., I, II, III, IV) as reported. Use 'Not reported' if unclear.
+  Extraction plan: Extract 'phase 3' from the title of the article on page 1: 'final results from two randomised phase 3 trials'.
+
+Column 8: Original/Follow Up
+  Definition: Whether the study is an original report or a follow-up analysis. Use Original or Follow up; use 'Not reported' if unclear.
+  Extraction plan: The title on page 1 states 'final results' and the 'Summary' section on page 1 mentions 'evaluate long-term outcomes'. The 'Introduction' on page 2 further clarifies 'The STAMPEDE abiraterone trial has now closed, 10 years after initiation of accrual, providing the opportunity to assess new data on long-term efficacy', indicating this is a follow-up publication.
+
+
+Document content (grouped by type, in chronological page order):
+--- TEXT ---
+Abiraterone acetate plus prednisolone with or without
+enzalutamide for patients with metastatic prostate cancer
+starting androgen deprivation therapy: final results from
+two randomised phase 3 trials of the STAMPEDE platform
+protocol
+
+Gerhardt Attard, Laura Murphy, Noel W Clarke, Ashwin Sachdeva, Craig Jones, Alex Hoyle, William Cross, Robert J Jones, Christopher C Parker,
+Silke Gillessen, Adrian Cook, Chris Brawley, Clare Gilson, Hannah Rush, Hoda Abdel-Aty, Claire L Amos, Claire Murphy, Simon Chowdhury,
+Zafar Malik, J Martin Russell, Nazia Parkar, Cheryl Pugh, Carlos Diaz-Montana, Carmel Pezaro, Warren Grant, Helen Saxby, Ian Pedley,
+Joe M O'Sullivan, Alison Birtle, Joanna Gale, Narayanan Srihari, Carys Thomas, Jacob Tanguay, John Wagstaff, Prantik Das, Emma Gray,
+Mymoona Alzouebi, Omi Parikh, Angus Robinson, Amir H Montazeri, James Wylie, Anjali Zarkar, Richard Cathomas, Michael D Brown, Yatin Jain,
+David P Dearnaley*, Malcolm D Mason*, Duncan Gilbert, Ruth E Langley, Robin Millman, David Matheson, Matthew R Sydest, Louise C Brownt,
+Mahesh K B Parmart, Nicholas D Jamest, for the STAMPEDE investigators‡
+
+Summary
+Background Abiraterone acetate plus prednisolone (herein referred to as abiraterone) or enzalutamide added at the start of androgen deprivation therapy improves outcomes for patients with metastatic prostate cancer. Here, we aimed to evaluate long-term outcomes and test whether combining enzalutamide with abiraterone and androgen deprivation therapy improves survival.
+
+**Methods** We analysed two open-label, randomised, controlled, phase 3 trials of the STAMPEDE platform protocol, with no overlapping controls, conducted at 117 sites in the UK and Switzerland. Eligible patients (no age restriction) had metastatic, histologically-confirmed prostate adenocarcinoma; a WHO performance status of 0–2; and adequate haematological, renal, and liver function. Patients were randomly assigned (1:1) using a computerised algorithm and a minimisation technique to either standard of care (androgen deprivation therapy; docetaxel 75 mg/m² intravenously for six cycles with prednisolone 10 mg orally once per day allowed from Dec 17, 2015) or standard of care plus abiraterone acetate 1000 mg and prednisolone 5 mg (in the abiraterone trial) orally or abiraterone acetate and prednisolone plus enzalutamide 160 mg orally once a day (in the abiraterone and enzalutamide trial). Patients were stratified by centre, age, WHO performance status, type of androgen deprivation therapy, use of aspirin or non-steroidal anti-inflammatory drugs, pelvic nodal status, planned radiotherapy, and planned docetaxel use. The primary outcome was overall survival assessed in the intention-to-treat population. Safety was assessed in all patients who started treatment. A fixed-effects meta-analysis of individual patient data was used to compare differences in survival between the two trials. STAMPEDE is registered with ClinicalTrials.gov (NCT00268476) and ISRCTN (ISRCTN78818544).
+
+Findings Between Nov 15, 2011, and Jan 17, 2014, 1003 patients were randomly assigned to standard of care (n=502) or standard of care plus abiraterone (n=501) in the abiraterone trial. Between July 29, 2014, and March 31, 2016, 916 patients were randomly assigned to standard of care (n=454) or standard of care plus abiraterone and enzalutamide (n=462) in the abiraterone and enzalutamide trial. Median follow-up was 96 months (IQR 86–107) in the abiraterone trial and 72 months (61–74) in the abiraterone and enzalutamide trial. In the abiraterone trial, median overall survival was 76.6 months (95% CI 67.8–86.9) in the abiraterone group versus 45.7 months (41.6–52.0) in the standard of care group (hazard ratio [HR] 0.62 [95% CI 0.53–0.73]; p<0.0001). In the abiraterone and enzalutamide trial, median overall survival was 73.1 months (61.9–81.3) in the abiraterone and enzalutamide group versus 51.8 months (45.3–59.0) in the standard of care group (HR 0.65 [0.55–0.77]; p<0.0001). We found no difference in the treatment effect between these two trials (interaction HR 1.05 [0.83–1.32]; Pinteraction=0.71) or between-trial heterogeneity (I2 p=0.70). In the first 5 years of treatment, grade 3–5 toxic effects were higher when abiraterone was added to standard of care (271 [54%] of 498 vs 192 [38%] of 502 with standard of care) and the highest toxic effects were seen when abiraterone and enzalutamide were added to standard of care (302 [68%] of 445 vs 204 [45%] of 454 with standard of care). Cardiac causes were the most common cause of death due to adverse events (five [1%] with standard of care plus abiraterone and enzalutamide [two attributed to treatment] and one (<1%) with standard of care in the abiraterone trial).
+
+Interpretation Enzalutamide and abiraterone should not be combined for patients with prostate cancer starting long-
+term androgen deprivation therapy. Clinically important improvements in survival from addition of abiraterone to
+androgen deprivation therapy are maintained for longer than 7 years.
+
+Lancet Oncol 2023; 24: 443–56
+See Comment page 416
+*Retired
+†Contributed equally
+‡Investigators listed in the
+appendix (p 217)
+
+Cancer Institute, University
+College London, London, UK
+(Prof G Attard PhD); University
+College London Hospitals,
+London, UK (Prof G Attard);
+Medical Research Council
+Clinical Trials Unit, University
+College London, London, UK
+(L Murphy PhD, A Cook MSc,
+C Brawley MSc, C Gilson MD,
+H Rush MRCP, CL Amos PhD,
+C Murphy BSc, N Parkar BSc,
+C Pugh MSc,
+C Diaz-Montana MSc,
+D Gilbert PhD,
+Prof R E Langley MRCP,
+R Millman, Prof M R Sydes MSc,
+Prof LC Brown PhD,
+Prof MK B Parmar DPhil); Christie
+and Salford Royal NHS
+Foundation Trusts, Manchester,
+UK (Prof N W Clarke ChM,
+A Sachdeva PhD, C Jones FRCS,
+A Hoyle FRCS, JWylie FRCR,
+MD Brown PhD, Y Jain FRCR);
+St James's University Hospital,
+Leeds, UK (W Cross FRCS);
+Beatson West of Scotland
+Cancer Centre (Prof RJ Jones MB)
+and Institute of Cancer Sciences
+(JM Russell FRCR), University of
+Glasgow, Glasgow, UK; Royal
+Marsden NHS Foundation Trust
+and Institute of Cancer
+Research, London, UK
+(Prof CC Parker MD,
+H Abdel-Aty FRCR,
+Prof D P Dearnaley FRCR,
+Prof N D James PhD); Oncology
+Institute of Southern
+
+www.thelancet.com/oncology Vol 24 May 2023
+
+443
+
+Articles
+
+Switzerland, Bellinzona,
+Switzerland
+(Prof S Gillessen MD); CH and
+Universita della Svizzera
+Italiana, Lugano, Switzerland
+(Prof S Gillessen); Guy's and
+St Thomas' NHS Foundation
+Trust, London, UK (H Rush,
+S Chowdhury PhD); Clatterbridge
+Cancer Centre NHS Foundation
+Trust, Wirral, UK (Z Malik FRCR,
+A H Montazeri FRCR); Singleton
+Hospital, Swansea, UK
+(C Pezaro DMedSc,
+J Wagstaff ChB); Gloucestershire
+Oncology Centre, Cheltenham,
+UK (W Grant FRCR); Torbay and
+South Devon NHS Foundation
+Trust, Torbay, UK
+(H Saxby FRCR); Northern Centre
+for Cancer Care, Newcastle upon
+Tyne, UK (I Pedley FRCR);
+Queen's University Belfast,
+Belfast, UK
+(Prof J M O'Sullivan FRCR);
+Rosemere Cancer Centre, Royal
+Preston Hospital, Preston, UK
+(Prof A Birtle FRCR); Queen
+Alexandra Hospital,
+Portsmouth, UK (J Gale FRCR);
+Shrewsbury and Telford
+Hospital NHS Trust,
+Shrewsbury, UK (N Srihari FRCR);
+Kent Oncology Centre,
+Maidstone, UK (C Thomas FRCR);
+Velindre Cancer Centre, Cardiff,
+UK (J Tanguay FRCR); Royal
+Derby Hospital, Derby, UK
+(P Das FRCR); Yeovil District
+Hospital NHS Foundation Trust,
+Yeovil, UK (E Gray FRCR); Weston
+Park Hospital, Sheffield, UK
+(M Alzouebi FRCR); East
+Lancashire Hospitals NHS Trust,
+Preston, UK (O Parikh FRCR);
+Royal Sussex County Hospital,
+Brighton, UK (A Robinson FRCR);
+University Hospitals
+Birmingham NHS Foundation
+Trust, Birmingham, UK
+(A Zarkar FRCR); Division of
+Oncology and Hematology,
+Cantonal Hospital Graubünden,
+Chur, Switzerland
+(R Cathomas MD); Swiss Group
+for Clinical Cancer Research,
+Bern, Switzerland (R Cathomas);
+Cardiff University, Cardiff, UK
+(M D Mason FRCR); Faculty of
+Education Health and
+Wellbeing, University of
+Wolverhampton, Walsall, UK
+(D Matheson PhD)
+
+Correspondence to:
+Prof G Attard, Cancer Institute,
+University College London,
+London WC1E 6DD, UK
+g.attard@ucl.ac.uk
+See Online for appendix
+
+Funding Cancer Research UK, UK Medical Research Council, Swiss Group for Clinical Cancer Research, Janssen, and Astellas.
+
+Copyright © 2023 The Author(s). Published by Elsevier Ltd. This is an Open Access article under the CC BY 4.0 license
+
+# Introduction
+Until around 10 years ago, patients with metastatic prostate cancer had a median overall survival of approximately 42 months from the start of treatment with long-term androgen-deprivation therapy.1,2 Since October 2005, STAMPEDE has used a multiarm multistage platform design3 to test in a series of concurrent or sequential phase 3 trials whether additional treatments at the initiation of androgen deprivation therapy improve overall survival. The docetaxel and abiraterone trials4,5 of the STAMPEDE platform protocol reported improvements in overall survival and contributed to a change in standard of care for patients with metastatic prostate cancer. The STAMPEDE abiraterone trial6 reported survival outcomes for metastatic patients after a median follow-up of 73 months and other trials of second-generation hormone therapies started for the same indication reported final survival analysis after shorter durations of median follow-up, namely 52 months for abiraterone,7 44 months for apalutamide,8 and 45 months for enzalutamide.9 The STAMPEDE abiraterone trial has now closed, 10 years after initiation of accrual, providing the opportunity to assess new data on long-term efficacy of intensified hormone treatment for patients with metastatic prostate cancer.
+
+The STAMPEDE abiraterone and enzalutamide trial¹⁰ was initiated after completion of accrual to the abiraterone trial and aimed to improve the efficacy of abiraterone acetate and prednisolone (herein referred
+
+to as abiraterone) or enzalutamide by addressing
+previous observations of an increase in androgen
+synthesis in patients who received androgen receptor
+antagonists and of residual hormones that could
+activate androgen receptor signalling in those who
+received abiraterone. We hypothesised that the com-
+bination of abiraterone and enzalutamide would
+prevent these consequences of either treatment, delay
+resistance, and improve efficacy when initiated for
+patients starting long-term androgen deprivation
+therapy. Given the expected increased toxic effects,
+we concluded that a large treatment effect size would
+be required to change clinical practice. We designed
+a pragmatic strategy comparing this combination
+with the standard of care at the time (ie, androgen
+deprivation therapy) in the STAMPEDE platform
+protocol and planned to use meta-analysis methods to
+indirectly compare with the abiraterone trial.10
+
+Given that our group and others identified a larger than
+anticipated survival benefit for patients with metastatic
+cancer who received abiraterone⁴,¹¹ or enzalutamide,¹² in
+2019, we amended the trial statistical plan to extend the
+abiraterone and enzalutamide trial and obtain sufficient
+power to indirectly identify an approximately 15% reduction
+in risk of death compared with abiraterone alone.¹³ There
+were no shared control patients and patients in both trials
+met the same eligibility criteria, underwent similar
+schedules of assessments, and were recruited at the same
+
+## Research in context
+
+### Evidence before this study
+We searched for randomised controlled trials published in English in MEDLINE from Jan 1, 1966, to June 30, 2021, Embase from Jan 1, 1982, to June 30, 2021, and major urology and oncology conference proceedings from Jan 1, 1990, to June 30, 2021, using search terms including ("metastatic" AND "prostate cancer" AND "sensitive") AND ("abiraterone" OR "enzalutamide" OR "apalutamide" OR "darolutamide"). There were no randomised trials that tested the combination of abiraterone and one of the androgen receptor antagonists for patients with metastatic hormone-sensitive prostate cancer. However, six trials that randomly assigned patients to one of these agents reported improvements in survival and three of these reported final survival analysis after a maximum median follow-up of 51 months.
+
+**Added value of this study**
+To our knowledge, this is the first phase 3 randomised trial
+evaluating abiraterone with an androgen receptor antagonist
+added at the start of androgen deprivation therapy for patients
+with metastatic prostate cancer. Our meta-analysis on two trials
+
+performed using a platform protocol compares abiraterone and enzalutamide added to androgen deprivation therapy versus abiraterone plus androgen deprivation therapy, including updated survival data after a median follow-up of 96 months (IQR 86–107). Extended follow-up of patients starting intensified hormone therapy for metastatic prostate cancer—now the standard of care—shows clinically significant survival benefits of adding abiraterone to androgen deprivation therapy, which were maintained after 84 months. Combining androgen deprivation therapy, abiraterone, and enzalutamide increases toxic effects but does not improve efficacy versus abiraterone plus androgen deprivation therapy.
+
+**Implications of all the available evidence**
+Together with other trials in patients with metastatic castration-
+resistant and high-risk localised prostate cancer, we conclude
+that androgen receptor antagonists and abiraterone should not
+be combined for any disease setting. Clinically important
+improvements in survival and disease remission from addition
+of abiraterone to androgen deprivation therapy are maintained
+for longer than 7 years.
+
+444
+
+www.thelancet.com/oncology Vol 24 May 2023
+
+--- FIGURES ---
+[Page 1]
+<::logo: Articles
+Black sans-serif text centered on a white background::>
+
+[Page 1]
+<::logo: CrossMark
+CrossMark
+A red stylized bird-like shape, a red cursor with a plus sign, and a red circular emblem with a bookmark icon are displayed side by side.::>
+
+[Page 1]
+<::transcription of the content
+: A red square logo with "oa" in large white letters above "OPEN ACCESS" in smaller white letters.
+::>
+
+Task:
+For EACH column listed above, output a JSON object with:
+- candidates: array of 1-4 objects, each with value, evidence (string or null), assumptions (string or null), confidence ("high"|"medium"|"low")
+- primary_value: string (your best guess)
+- found: true if at least one value was found, false if not reported/absent
+
+Return a single JSON object with column names as keys. Each value is an object with candidates, primary_value, found.
+Example: {"Median PFS (mo) | Overall | Treatment": {"candidates": [{"value": "19.4", "evidence": "Table 2", "assumptions": null, "confidence": "high"}], "primary_value": "19.4", "found": true}, ...}
+
+
+============================================================
+OUTPUT
+============================================================
+```json
+{
+  "NCT": {
+    "candidates": [
+      {
+        "value": "NCT00268476",
+        "evidence": "STAMPEDE is registered with ClinicalTrials.gov (NCT00268476) and ISRCTN (ISRCTN78818544).",
+        "assumptions": null,
+        "confidence": "high"
+      }
+    ],
+    "primary_value": "NCT00268476",
+    "found": true
+  },
+  "PubMed ID": {
+    "candidates": [
+      {
+        "value": "Not reported",
+        "evidence": null,
+        "assumptions": "The PubMed ID is not explicitly mentioned anywhere in the provided document content.",
+        "confidence": "high"
+      }
+    ],
+    "primary_value": "Not reported",
+    "found": false
+  },
+  "Trial Name": {
+    "candidates": [
+      {
+        "value": "Abiraterone acetate plus prednisolone with or without enzalutamide for patients with metastatic prostate cancer starting androgen deprivation therapy: final results from two randomised phase 3 trials of the STAMPEDE platform protocol",
+        "evidence": "Abiraterone acetate plus prednisolone with or without enzalutamide for patients with metastatic prostate cancer starting androgen deprivation therapy: final results from two randomised phase 3 trials of the STAMPEDE platform protocol",
+        "assumptions": null,
+        "confidence": "high"
+      }
+    ],
+    "primary_value": "Abiraterone acetate plus prednisolone with or without enzalutamide for patients with metastatic prostate cancer starting androgen deprivation therapy: final results from two randomised phase 3 trials of the STAMPEDE platform protocol",
+    "found": true
+  },
+  "Author": {
+    "candidates": [
+      {
+        "value": "Gerhardt Attard, Laura Murphy, Noel W Clarke, Ashwin Sachdeva, Craig Jones, Alex Hoyle, William Cross, Robert J Jones, Christopher C Parker, Silke Gillessen, Adrian Cook, Chris Brawley, Clare Gilson, Hannah Rush, Hoda Abdel-Aty, Claire L Amos, Claire Murphy, Simon Chowdhury, Zafar Malik, J Martin Russell, Nazia Parkar, Cheryl Pugh, Carlos Diaz-Montana, Carmel Pezaro, Warren Grant, Helen Saxby, Ian Pedley, Joe M O'Sullivan, Alison Birtle, Joanna Gale, Narayanan Srihari, Carys Thomas, Jacob Tanguay, John Wagstaff, Prantik Das, Emma Gray, Mymoona Alzouebi, Omi Parikh, Angus Robinson, Amir H Montazeri, James Wylie, Anjali Zarkar, Richard Cathomas, Michael D Brown, Yatin Jain, David P Dearnaley, Malcolm D Mason, Duncan Gilbert, Ruth E Langley, Robin Millman, David Matheson, Matthew R Sydes, Louise C Brown, Mahesh K B Parmar, Nicholas D James, for the STAMPEDE investigators",
+        "evidence": "Gerhardt Attard, Laura Murphy, Noel W Clarke, Ashwin Sachdeva, Craig Jones, Alex Hoyle, William Cross, Robert J Jones, Christopher C Parker, Silke Gillessen, Adrian Cook, Chris Brawley, Clare Gilson, Hannah Rush, Hoda Abdel-Aty, Claire L Amos, Claire Murphy, Simon Chowdhury, Zafar Malik, J Martin Russell, Nazia Parkar, Cheryl Pugh, Carlos Diaz-Montana, Carmel Pezaro, Warren Grant, Helen Saxby, Ian Pedley, Joe M O'Sullivan, Alison Birtle, Joanna Gale, Narayanan Srihari, Carys Thomas, Jacob Tanguay, John Wagstaff, Prantik Das, Emma Gray, Mymoona Alzouebi, Omi Parikh, Angus Robinson, Amir H Montazeri, James Wylie, Anjali Zarkar, Richard Cathomas, Michael D Brown, Yatin Jain, David P Dearnaley*, Malcolm D Mason*, Duncan Gilbert, Ruth E Langley, Robin Millman, David Matheson, Matthew R Sydest, Louise C Brownt, Mahesh K B Parmart, Nicholas D Jamest, for the STAMPEDE investigators‡",
+        "assumptions": "The symbols *, †, ‡ are removed as they are typically not part of the author's name in a list.",
+        "confidence": "high"
+      }
+    ],
+    "primary_value": "Gerhardt Attard, Laura Murphy, Noel W Clarke, Ashwin Sachdeva, Craig Jones, Alex Hoyle, William Cross, Robert J Jones, Christopher C Parker, Silke Gillessen, Adrian Cook, Chris Brawley, Clare Gilson, Hannah Rush, Hoda Abdel-Aty, Claire L Amos, Claire Murphy, Simon Chowdhury, Zafar Malik, J Martin Russell, Nazia Parkar, Cheryl Pugh, Carlos Diaz-Montana, Carmel Pezaro, Warren Grant, Helen Saxby, Ian Pedley, Joe M O'Sullivan, Alison Birtle, Joanna Gale, Narayanan Srihari, Carys Thomas, Jacob Tanguay, John Wagstaff, Prantik Das, Emma Gray, Mymoona Alzouebi, Omi Parikh, Angus Robinson, Amir H Montazeri, James Wylie, Anjali Zarkar, Richard Cathomas, Michael D Brown, Yatin Jain, David P Dearnaley, Malcolm D Mason, Duncan Gilbert, Ruth E Langley, Robin Millman, David Matheson, Matthew R Sydes, Louise C Brown, Mahesh K B Parmar, Nicholas D James, for the STAMPEDE investigators",
+    "found": true
+  },
+  "Year": {
+    "candidates": [
+      {
+        "value": "2023",
+        "evidence": "Lancet Oncol 2023; 24: 443–56",
+        "assumptions": null,
+        "confidence": "high"
+      },
+      {
+        "value": "2023",
+        "evidence": "www.thelancet.com/oncology Vol 24 May 2023",
+        "assumptions": null,
+        "confidence": "high"
+      }
+    ],
+    "primary_value": "2023",
+    "found": true
+  },
+  "Full Pub or Abstract": {
+    "candidates": [
+      {
+        "value": "Full Pub",
+        "evidence": "The document contains multiple sections including Summary, Methods, Findings, Interpretation, Introduction, and Research in context, spanning several pages, which is characteristic of a full publication.",
+        "assumptions": null,
+        "confidence": "high"
+      }
+    ],
+    "primary_value": "Full Pub",
+    "found": true
+  },
+  "Phase": {
+    "candidates": [
+      {
+        "value": "3",
+        "evidence": "final results from two randomised phase 3 trials of the STAMPEDE platform protocol",
+        "assumptions": null,
+        "confidence": "high"
+      }
+    ],
+    "primary_value": "3",
+    "found": true
+  },
+  "Original/Follow Up": {
+    "candidates": [
+      {
+        "value": "Follow up",
+        "evidence": "Title: 'final results from two randomised phase 3 trials'. Summary: 'evaluate long-term outcomes'. Introduction: 'The STAMPEDE abiraterone trial has now closed, 10 years after initiation of accrual, providing the opportunity to assess new data on long-term efficacy'.",
+        "assumptions": null,
+        "confidence": "high"
+      }
+    ],
+    "primary_value": "Follow up",
+    "found": true
+  }
+}
+```

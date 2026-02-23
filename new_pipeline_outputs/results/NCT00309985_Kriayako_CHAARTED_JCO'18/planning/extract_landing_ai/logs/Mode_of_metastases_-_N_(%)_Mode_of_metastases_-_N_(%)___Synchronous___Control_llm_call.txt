@@ -1,0 +1,74 @@
+============================================================
+INPUT
+============================================================
+You are extracting a value for a clinical trial data column from the provided document content.
+
+Column: Mode of metastases - N (%) | Synchronous | Control
+Definition: What the number and percentage of participants with synchronous metastases (metastases at the time of diagnosis of prostate cancer) in the control arm of the clinical trial? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.
+
+Extraction plan to follow:
+The number of synchronous patients (de novo metastatic disease) in the control arm (ADT alone) is found by summing 'High volume/de novo' (207 patients) and 'Low volume/de novo' (79 patients) from Table 1 on page 3, resulting in 286 patients. The text on page 4 states '...versus 286 patients (72.8%) in the ADT alone arm had had no PLT and were considered to have de novo metastatic disease'. Note that the sum of subgroups for ADT Alone in Table 1 is 392, while the total is 393, with a footnote explaining one patient's prior local therapy status is unknown.
+
+Document content (grouped by type, in chronological page order):
+--- TEXT ---
+Long-Term Survival Analysis of CHAARTED Trial
+
+and 393 in the ADT alone arm. This report represents data with
+a cutoff date for survival of April 23, 2016, resulting in a median
+follow-up of 53.7 months. Treatment groups were well balanced, as
+previously described. The median age was 64 years (range, 36 to 88
+years) in the combination arm versus 63 years (range, 39 to 91
+years) in the ADT alone arm. In terms of tumor volume, 263
+patients (66.2%) in the combination arm and 250 patients (63.6%)
+in the ADT alone arm had high-volume disease. Furthermore, 289
+patients (72.8%) in the combination arm versus 286 patients
+(72.8%) in the ADT alone arm had had no PLT and were considered
+to have de novo metastatic disease.
+
+Efficacy
+At the time of this analysis, there were 188 deaths in the combination arm and 211 deaths in the ADT alone arm. For the overall population, the median OS was 10.4 months longer in the combination arm (57.6 v 47.2 months; HR for death in the combination arm, 0.72; 95% CI, 0.59 to 0.89; P = .0018; Table 1; Fig 2). Longer follow-up confirmed that the effect of docetaxel was more pronounced for patients with high-volume disease. In this prospectively defined subgroup, with a median follow-up of 53.7 months, there was a median OS benefit of 16.8 months (median OS, 51.2 v 34.4 months; HR for death in the combination
+
+Fig 3. Kaplan-Meier estimates of overall
+survival (OS) for (A) High-volume total pa-
+tient population, (B) Low-volume total pa-
+tient population, (C) High-volume de novo
+metastatic patients, (D) Low-volume de
+novo metastatic patients, (E) High-volume
+patients with prior local therapy, (F) Low-
+volume patients with prior local therapy. HR,
+hazard ratio; NR, not reached.
+
+jco.org
+
+© 2018 by American Society of Clinical Oncology
+
+1083
+
+Downloaded from ascopubs.org by Mayo Foundation--Rochester on October 9, 2021 from 129.176.151.029
+Copyright © 2021 American Society of Clinical Oncology. All rights reserved.
+
+Task:
+1. Extract the value for this column following the plan. Return your best-effort value even if uncertain.
+2. If the plan seems wrong, incomplete, or ambiguous, still return the value you found and add a suggestion and/or alternative_plan.
+3. Use "not found" or "not reported" only if the value is genuinely absent from the content.
+
+Output a JSON object with:
+- value: the extracted value (string)
+- found: true if you found a value, false if not reported/absent
+- confidence: "high" | "medium" | "low"
+- suggestion: optional string with concerns or notes (null if none)
+- alternative_plan: optional string describing a different extraction approach to try (null if plan seems fine)
+
+
+============================================================
+OUTPUT
+============================================================
+```json
+{
+  "value": "286 (72.8%)",
+  "found": true,
+  "confidence": "high",
+  "suggestion": "The extraction plan refers to 'Table 1 on page 3' for summing patient counts, but Table 1 is not included in the provided document content. However, the plan also correctly points to a sentence in the text that directly provides the required number and percentage, which was used for extraction.",
+  "alternative_plan": null
+}
+```

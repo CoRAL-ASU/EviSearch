@@ -1,7 +1,9 @@
+RETRIEVAL SOURCE: extraction_plan_pages
+
 ============================================================
 INPUT
 ============================================================
-You are extracting a value for a clinical trial data column from the provided document content.
+You are extracting values for a clinical trial data column from the provided document content.
 
 Column: Mode of metastases - N (%) | Synchronous | Treatment
 Definition: What the number and percentage of participants with synchronous metastases (metastases at the time of diagnosis of prostate cancer) in the treatment arm of the clinical trial? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.
@@ -295,16 +297,29 @@ A red stylized bird-like shape, a red cursor with a plus sign, and a red circula
 ::>
 
 Task:
-1. Extract the value for this column following the plan. Return your best-effort value even if uncertain.
-2. If the plan seems wrong, incomplete, or ambiguous, still return the value you found and add a suggestion and/or alternative_plan.
-3. Use "not found" or "not reported" only if the value is genuinely absent from the content.
+1. List 1-4 plausible values for this column. For each candidate: value, evidence (short excerpt or location), assumptions (if any), confidence.
+2. If only one interpretation is clear, return it as a single candidate.
+3. When the source is ambiguous, report all plausible interpretations as separate candidates:
+   - **Adverse events**: If the table does not specify whether it reports treatment-related or all-cause AEs (e.g. "Treatment-Emergent AEs" or "Any AE" without causality), report BOTH: one candidate as all-cause (what the table actually reports) and one as treatment-related (if that is what the column asks for), with assumptions noting the ambiguity.
+   - **PFS / progression endpoints**: If multiple progression times are reported in different tables (e.g. "Median Time to CRPC" in Table 2 vs "Median Time to Clinical Progression" in Table 3), report BOTH values as separate candidates with their source.
+4. Use a candidate with value "Not reported" only when the value is genuinely absent from the content.
+5. primary_value: your best guess for automated use (e.g. the most standard or commonly used form).
 
 Output a JSON object with:
-- value: the extracted value (string)
-- found: true if you found a value, false if not reported/absent
-- confidence: "high" | "medium" | "low"
-- suggestion: optional string with concerns or notes (null if none)
-- alternative_plan: optional string describing a different extraction approach to try (null if plan seems fine)
+- candidates: array of 1-4 objects, each with value, evidence (string or null), assumptions (string or null), confidence ("high"|"medium"|"low")
+- primary_value: string (your best guess)
+- found: true if at least one value was found in the content, false if not reported/absent
+
+Examples from our dataset:
+
+Median PFS with multiple progression endpoints (CHAARTED):
+{"candidates": [{"value": "14.9", "evidence": "Table 2, Median Time to CRPC (PSA rise or clinical progression), High volume, ADT Plus Docetaxel", "assumptions": "Time to CRPC used as PFS proxy", "confidence": "medium"}, {"value": "27.3", "evidence": "Table 3, Median Time to Clinical Progression, High volume, ADT Plus Docetaxel", "assumptions": "Clinical progression only", "confidence": "medium"}], "primary_value": "14.9", "found": true}
+
+Adverse events when table does not specify treatment-related vs all-cause (ARASENS Table 3):
+{"candidates": [{"value": "458 (70.2%)", "evidence": "Table 3, Any AE worst grade Grade 3-5, Darolutamide arm", "assumptions": "Table reports Treatment-Emergent AEs (all-cause)", "confidence": "medium"}, {"value": "458 (70.2%)", "evidence": "Table 3, same row", "assumptions": "Table does not specify causality; if treatment-related, value may be same or different", "confidence": "low"}], "primary_value": "458 (70.2%)", "found": true}
+
+Single clear value with optional CI:
+{"candidates": [{"value": "19.4", "evidence": "Table 2, page 6", "assumptions": null, "confidence": "high"}, {"value": "19.4 (95% CI 16.2-22.1)", "evidence": "Footnote b", "assumptions": "Included CI", "confidence": "medium"}], "primary_value": "19.4", "found": true}
 
 
 ============================================================
@@ -312,10 +327,27 @@ OUTPUT
 ============================================================
 ```json
 {
-  "value": "Not reported",
-  "found": false,
-  "confidence": "high",
-  "suggestion": "The document states that all eligible patients had metastatic prostate adenocarcinoma at the time of randomisation. However, the definition of 'synchronous metastases' is 'metastases at the time of diagnosis of prostate cancer'. Table 1 provides 'Time from diagnosis to randomisation, days' with a wide range (e.g., 3-5384 days for the abiraterone treatment arm), indicating that for many patients, metastases were not present at the initial diagnosis of prostate cancer. The document does not provide a breakdown of patients into synchronous versus metachronous metastases for any arm.",
-  "alternative_plan": null
+  "candidates": [
+    {
+      "value": "Not reported",
+      "evidence": "The document states that all eligible patients had metastatic prostate cancer at baseline, but it does not explicitly categorize or report the 'Mode of metastases' as 'Synchronous' with a specific count or percentage for the treatment arms. The extraction plan also notes: 'it does not explicitly report the 'Mode of metastases' categorized as 'Synchronous' for the treatment group. This specific breakdown was not found.'",
+      "assumptions": "Strict adherence to the requirement for explicit reporting of the term 'synchronous metastases' and its associated count/percentage.",
+      "confidence": "high"
+    },
+    {
+      "value": "Abiraterone arm: 501 (100%)",
+      "evidence": "Methods section (page 1): 'Eligible patients ... had metastatic, histologically-confirmed prostate adenocarcinoma'; Results section (page 3): '1003 patients with metastatic prostate cancer were randomly assigned to standard of care (n=502) or standard of care plus abiraterone (n=501) in the abiraterone trial.' Table 1 (page 5): 'Time from diagnosis to randomisation, days' (median 71-78 days).",
+      "assumptions": "All patients enrolled with metastatic prostate cancer at baseline, starting ADT, are considered to have synchronous metastases, given the short time from diagnosis to randomization and typical mHSPC trial design where 'metastatic prostate cancer starting ADT' implies de novo metastatic disease.",
+      "confidence": "medium"
+    },
+    {
+      "value": "Abiraterone and enzalutamide arm: 462 (100%)",
+      "evidence": "Methods section (page 1): 'Eligible patients ... had metastatic, histologically-confirmed prostate adenocarcinoma'; Results section (page 3): '916 patients were randomly assigned to standard of care (n=454) or standard of care plus abiraterone plus enzalutamide (n=462) in the abiraterone and enzalutamide trial.' Table 1 (page 5): 'Time from diagnosis to randomisation, days' (median 71-78 days).",
+      "assumptions": "All patients enrolled with metastatic prostate cancer at baseline, starting ADT, are considered to have synchronous metastases, given the short time from diagnosis to randomization and typical mHSPC trial design where 'metastatic prostate cancer starting ADT' implies de novo metastatic disease.",
+      "confidence": "medium"
+    }
+  ],
+  "primary_value": "Not reported",
+  "found": false
 }
 ```

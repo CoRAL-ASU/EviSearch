@@ -15,6 +15,7 @@ import os
 import sys
 from pathlib import Path
 from typing import Dict, Any
+from urllib.parse import unquote
 
 from flask import Flask, request, jsonify, render_template, send_from_directory
 from werkzeug.utils import secure_filename
@@ -23,6 +24,18 @@ PROJECT_ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(PROJECT_ROOT))
 
 from web.extraction_service import ExtractionService
+from web.comparison_service import (
+    list_documents,
+    get_document_status,
+    load_comparison_data,
+    get_report,
+    get_dashboard_report,
+)
+from web.highlight_service import (
+    get_highlights_for_column,
+    get_highlights_by_page_type,
+    resolve_pdf_path,
+)
 
 app = Flask(__name__)
 app.config['MAX_CONTENT_LENGTH'] = 50 * 1024 * 1024  # 50MB max file size
@@ -51,6 +64,12 @@ def get_extraction_service() -> ExtractionService:
 def index():
     """Serve the main interface."""
     return render_template('index.html')
+
+
+@app.route('/comparison')
+def comparison():
+    """Serve the comparison view (document list, report, comparison table)."""
+    return render_template('comparison.html')
 
 
 @app.route('/api/upload', methods=['POST'])
@@ -138,6 +157,164 @@ def extract_single():
         
         result = service.extract_single_column(column_name, definition)
         return jsonify(result), 200 if result.get("success") else 400
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+
+@app.route('/api/documents', methods=['GET'])
+def api_list_documents():
+    """List documents with extraction results from any method (comparison view)."""
+    try:
+        documents = list_documents()
+        return jsonify({
+            "success": True,
+            "documents": documents,
+            "count": len(documents),
+        }), 200
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+
+@app.route('/api/documents/<doc_id>/status', methods=['GET'])
+def api_document_status(doc_id):
+    """Get which extraction methods have run for this document."""
+    try:
+        status = get_document_status(doc_id)
+        return jsonify({
+            "success": True,
+            "doc_id": doc_id,
+            "status": status,
+        }), 200
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+
+@app.route('/api/documents/<doc_id>/comparison', methods=['GET'])
+def api_document_comparison(doc_id):
+    """Get comparison data from all methods for this document."""
+    try:
+        data = load_comparison_data(doc_id)
+        if not data.get("methods_available"):
+            return jsonify({
+                "success": False,
+                "error": f"No extraction results found for document: {doc_id}",
+            }), 404
+        return jsonify({
+            "success": True,
+            **data,
+        }), 200
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+
+@app.route('/api/documents/<doc_id>/comparison/group/<group_name>', methods=['GET'])
+def api_document_comparison_group(doc_id, group_name):
+    """Get comparison data for a specific group."""
+    try:
+        data = load_comparison_data(doc_id)
+        by_group = data.get("by_group", {})
+        group_name = unquote(group_name)
+        rows = by_group.get(group_name, [])
+        return jsonify({
+            "success": True,
+            "doc_id": doc_id,
+            "group_name": group_name,
+            "columns": rows,
+        }), 200
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+
+@app.route('/api/documents/<doc_id>/comparison/column/<path:column_name>', methods=['GET'])
+def api_document_comparison_column(doc_id, column_name):
+    """Get comparison data for a single column across all methods."""
+    try:
+        column_name = unquote(column_name)
+        data = load_comparison_data(doc_id)
+        methods = data.get("method_results", {})
+        result = {"column_name": column_name, "methods": {}}
+        for method_name, method_data in methods.items():
+            if column_name in method_data:
+                result["methods"][method_name] = method_data[column_name]
+        return jsonify({
+            "success": True,
+            **result,
+        }), 200
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+
+@app.route('/api/documents/<doc_id>/report', methods=['GET'])
+def api_document_report(doc_id):
+    """Get document analysis report (summary stats)."""
+    try:
+        report = get_report(doc_id)
+        return jsonify({
+            "success": True,
+            **report,
+        }), 200
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+
+@app.route('/api/documents/<path:doc_id>/highlights', methods=['GET'])
+def api_document_highlights(doc_id):
+    """Get highlight boxes for PDF overlay. Query params: column_name, or page + source_type."""
+    doc_id = unquote(doc_id)
+    column_name = request.args.get("column_name")
+    page = request.args.get("page", type=int)
+    source_type = request.args.get("source_type", "text")
+
+    try:
+        if column_name:
+            result = get_highlights_for_column(doc_id, column_name)
+        elif page is not None and page >= 1:
+            result = get_highlights_by_page_type(doc_id, page, source_type)
+        else:
+            return jsonify({
+                "success": False,
+                "error": "Provide column_name or page and source_type",
+            }), 400
+        return jsonify({"success": True, **result}), 200
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+
+@app.route('/api/documents/<path:doc_id>/pdf', methods=['GET'])
+def api_document_pdf(doc_id):
+    """Serve the PDF file for a document (for viewer)."""
+    doc_id = unquote(doc_id)
+    pdf_path = resolve_pdf_path(doc_id)
+    if not pdf_path or not pdf_path.exists():
+        return jsonify({"success": False, "error": "PDF not found"}), 404
+    try:
+        return send_from_directory(
+            pdf_path.parent,
+            pdf_path.name,
+            mimetype="application/pdf",
+            as_attachment=False,
+        )
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+
+@app.route('/api/documents/<path:doc_id>/dashboard', methods=['GET'])
+def api_document_dashboard(doc_id):
+    """Get dashboard payload: 3-method report + comparison + by_group."""
+    try:
+        dashboard = get_dashboard_report(doc_id)
+        comp = load_comparison_data(doc_id)
+        if not comp.get("methods_available"):
+            return jsonify({
+                "success": False,
+                "error": f"No extraction results found for document: {doc_id}",
+            }), 404
+        return jsonify({
+            "success": True,
+            **dashboard,
+            "comparison": comp.get("comparison", []),
+            "methods_available": comp.get("methods_available", []),
+        }), 200
     except Exception as e:
         return jsonify({"success": False, "error": str(e)}), 500
 

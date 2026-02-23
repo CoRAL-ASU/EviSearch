@@ -1,23 +1,53 @@
-1. **Gleason score - N (%) | ≤ 7 | Treatment**
-   * **Reported**: Yes
-   * **Found in**: Table 1 (page 5)
-   * **How to extract**: In Table 1, locate the row "Gleason score at initial diagnosis,d No. (%)" and the sub-row "<8". The treatment arm is Darolutamide. Sum the counts for "<8" from the "High Volume - Darolutamide (n = 497)" column (96) and the "Low Volume - Darolutamide (n = 154)" column (26). This totals 122 patients. The total number of patients in the Darolutamide arm is 651. Calculate the percentage: (122 / 651) * 100 = 18.7%.
-   * **Value**: 122 (18.7%)
-
-2. **Gleason score - N (%) | ≤ 7 | Control**
-   * **Reported**: Yes
-   * **Found in**: Table 1 (page 5)
-   * **How to extract**: In Table 1, locate the row "Gleason score at initial diagnosis,d No. (%)" and the sub-row "<8". The control arm is Placebo. Sum the counts for "<8" from the "High Volume - Placebo (n = 508)" column (87) and the "Low Volume - Placebo (n = 146)" column (31). This totals 118 patients. The total number of patients in the Placebo arm is 654. Calculate the percentage: (118 / 654) * 100 = 18.0%.
-   * **Value**: 118 (18.0%)
-
-3. **Gleason score - N (%) | ≥ 8 | Treatment**
-   * **Reported**: Yes
-   * **Found in**: Table 1 (page 5)
-   * **How to extract**: In Table 1, locate the row "Gleason score at initial diagnosis,d No. (%)" and the sub-row "≥ 8". The treatment arm is Darolutamide. Sum the counts for "≥ 8" from the "High Volume - Darolutamide (n = 497)" column (381) and the "Low Volume - Darolutamide (n = 154)" column (124). This totals 505 patients. The total number of patients in the Darolutamide arm is 651. Calculate the percentage: (505 / 651) * 100 = 77.6%.
-   * **Value**: 505 (77.6%)
-
-4. **Gleason score - N (%) | ≥ 8 | Control**
-   * **Reported**: Yes
-   * **Found in**: Table 1 (page 5)
-   * **How to extract**: In Table 1, locate the row "Gleason score at initial diagnosis,d No. (%)" and the sub-row "≥ 8". The control arm is Placebo. Sum the counts for "≥ 8" from the "High Volume - Placebo (n = 508)" column (403) and the "Low Volume - Placebo (n = 146)" column (113). This totals 516 patients. The total number of patients in the Placebo arm is 654. Calculate the percentage: (516 / 654) * 100 = 78.9%.
-   * **Value**: 516 (78.9%)
+{
+  "group_name": "Gleason score - N (%)",
+  "columns": [
+    {
+      "column_index": 1,
+      "column_name": "Gleason score - N (%) | ≤ 7 | Treatment",
+      "found_in_pdf": true,
+      "page": 5,
+      "source_type": "table",
+      "sources": [
+        [5, "table"]
+      ],
+      "confidence": "high",
+      "extraction_plan": "The 'All Patients' column in Table 1 (page 5) does not provide Gleason score data split by treatment arm. The value is derived by summing the 'Gleason score at initial diagnosis,d No. (%)' for '<8' from the 'High Volume' (96) and 'Low Volume' (26) Darolutamide subgroups, totaling 122 patients. The percentage is calculated based on the total Darolutamide patients (651): (122/651)*100 = 18.7%."
+    },
+    {
+      "column_index": 2,
+      "column_name": "Gleason score - N (%) | ≤ 7 | Control",
+      "found_in_pdf": true,
+      "page": 5,
+      "source_type": "table",
+      "sources": [
+        [5, "table"]
+      ],
+      "confidence": "high",
+      "extraction_plan": "The 'All Patients' column in Table 1 (page 5) does not provide Gleason score data split by treatment arm. The value is derived by summing the 'Gleason score at initial diagnosis,d No. (%)' for '<8' from the 'High Volume' (87) and 'Low Volume' (31) Placebo subgroups, totaling 118 patients. The percentage is calculated based on the total Placebo patients (654): (118/654)*100 = 18.0%."
+    },
+    {
+      "column_index": 3,
+      "column_name": "Gleason score - N (%) | ≥ 8 | Treatment",
+      "found_in_pdf": true,
+      "page": 5,
+      "source_type": "table",
+      "sources": [
+        [5, "table"]
+      ],
+      "confidence": "high",
+      "extraction_plan": "The 'All Patients' column in Table 1 (page 5) does not provide Gleason score data split by treatment arm. The value is derived by summing the 'Gleason score at initial diagnosis,d No. (%)' for '≥ 8' from the 'High Volume' (381) and 'Low Volume' (124) Darolutamide subgroups, totaling 505 patients. The percentage is calculated based on the total Darolutamide patients (651): (505/651)*100 = 77.6%."
+    },
+    {
+      "column_index": 4,
+      "column_name": "Gleason score - N (%) | ≥ 8 | Control",
+      "found_in_pdf": true,
+      "page": 5,
+      "source_type": "table",
+      "sources": [
+        [5, "table"]
+      ],
+      "confidence": "high",
+      "extraction_plan": "The 'All Patients' column in Table 1 (page 5) does not provide Gleason score data split by treatment arm. The value is derived by summing the 'Gleason score at initial diagnosis,d No. (%)' for '≥ 8' from the 'High Volume' (403) and 'Low Volume' (113) Placebo subgroups, totaling 516 patients. The percentage is calculated based on the total Placebo patients (654): (516/654)*100 = 78.9%."
+    }
+  ]
+}

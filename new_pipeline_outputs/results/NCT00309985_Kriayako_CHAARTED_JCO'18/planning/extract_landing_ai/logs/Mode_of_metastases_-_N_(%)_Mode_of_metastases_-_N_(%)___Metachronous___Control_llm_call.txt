@@ -1,0 +1,53 @@
+============================================================
+INPUT
+============================================================
+You are extracting a value for a clinical trial data column from the provided document content.
+
+Column: Mode of metastases - N (%) | Metachronous | Control
+Definition: What the number and percentage of patients with metachronous metastases (metastases that occur after the diagnosis of prostate cancer) in the control arm of the clinical trial? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.
+
+Extraction plan to follow:
+The number of metachronous patients (prior local therapy) in the control arm (ADT alone) is found by summing 'High volume/prior local therapy' (42 patients) and 'Low volume/prior local therapy' (64 patients) from Table 1 on page 3, resulting in 106 patients. The percentage is calculated as 106/393 = 27.0%. Note that the sum of subgroups for ADT Alone in Table 1 is 392, while the total is 393, with a footnote explaining one patient's prior local therapy status is unknown.
+
+Document content (grouped by type, in chronological page order):
+--- TABLES ---
+[Page 3]
+<table>
+<tr><td colspan="9">Table 1. OS and No. of Deaths by Subgroup</td></tr>
+<tr><td></td><td colspan="3">ADT Plus Docetaxel</td><td colspan="3">ADT Alone</td><td colspan="2"></td></tr>
+<tr><td>Subgroup</td><td>No. of Patients</td><td>No. of Deaths</td><td>Median OS (95% Cl; months)</td><td>No. of Patients</td><td>No. of Deaths</td><td>Median OS (95% Cl; months)</td><td>HR (95% CI)*</td><td>P</td></tr>
+<tr><td>Overall</td><td>397</td><td>188</td><td>57.6 (52.0 to 63.9)</td><td>393</td><td>211</td><td>47.2 (41.8 to 52.8)</td><td>0.72 (0.59 to 0.89)</td><td>.0018</td></tr>
+<tr><td>High volume</td><td>263</td><td>137</td><td>51.2 (45.2 to 58.1)</td><td>250+</td><td>162</td><td>34.4 (30.1 to 42.1)</td><td>0.63 (0.50 to 0.79)</td><td>&lt;.001</td></tr>
+<tr><td>Low volume</td><td>134</td><td>51</td><td>63.5 (58.3 to 78.5)</td><td>143</td><td>49</td><td>NR (59.8 to NR)</td><td>1.04 (0.70 to 1.55)</td><td>.86</td></tr>
+<tr><td>High volume/ de novo</td><td>214</td><td>112</td><td>48.0 (42.5 to 56.7)</td><td>207</td><td>141</td><td>33.1 (29.5 to 39.2)</td><td>0.63 (0.49 to 0.81)</td><td>&lt; .001</td></tr>
+<tr><td>High volume/ prior local therapy</td><td>49</td><td>25</td><td>66.9 (49.1 to 76.9)</td><td>42</td><td>21</td><td>51.7 (27.2 to NR)</td><td>0.72 (0.36 to 1.46)</td><td>.37</td></tr>
+<tr><td>Low volume/ de novo</td><td>75</td><td>33</td><td>58.3 (53.8 to 79.3)</td><td>79</td><td>34</td><td>59.8 (49.1 to NR)</td><td>0.86 (0.52 to 1.42)</td><td>.55</td></tr>
+<tr><td>Low volume/ prior local therapy</td><td>59</td><td>18</td><td>69.6 (59.6 to NR)</td><td>64</td><td>15</td><td>NR (NR to NR)</td><td>1.25 (0.60 to 2.60)</td><td>.55</td></tr>
+<tr><td colspan="9">Abbreviations: ADT: androgen-deprivation therapy; HR, hazard ratio; NR, not reached; OS, overall survival. *Stratified on stratification factors at random assignment. †On-study form not submitted for one patient so prior local therapy unknown.</td></tr>
+</table>
+
+Task:
+1. Extract the value for this column following the plan. Return your best-effort value even if uncertain.
+2. If the plan seems wrong, incomplete, or ambiguous, still return the value you found and add a suggestion and/or alternative_plan.
+3. Use "not found" or "not reported" only if the value is genuinely absent from the content.
+
+Output a JSON object with:
+- value: the extracted value (string)
+- found: true if you found a value, false if not reported/absent
+- confidence: "high" | "medium" | "low"
+- suggestion: optional string with concerns or notes (null if none)
+- alternative_plan: optional string describing a different extraction approach to try (null if plan seems fine)
+
+
+============================================================
+OUTPUT
+============================================================
+```json
+{
+  "value": "Control: 106 (27.0%)",
+  "found": true,
+  "confidence": "high",
+  "suggestion": null,
+  "alternative_plan": null
+}
+```

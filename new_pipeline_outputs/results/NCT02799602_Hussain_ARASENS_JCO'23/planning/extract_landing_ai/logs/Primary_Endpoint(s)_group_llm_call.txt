@@ -1,0 +1,47 @@
+RETRIEVAL SOURCE: extraction_plan_pages
+
+============================================================
+INPUT
+============================================================
+You are extracting values for multiple clinical trial data columns from the same document content.
+All columns below share the same evidence pool. Extract each column following its plan.
+
+COLUMNS TO EXTRACT:
+
+Column 1: Primary Endpoint(s)
+  Definition: What the main outcome(s) or objective(s) that the clinical trial is designed to measure or achieve?. If reported, provide the value; otherwise use 'Not reported'.
+  Extraction plan: In the "Study Assessments" subsection under "METHODS", locate the sentence "OS was the primary end point." Extract "Overall Survival (OS)".
+
+
+Document content (grouped by type, in chronological page order):
+No chunks available.
+
+Task:
+For EACH column listed above, output a JSON object with:
+- candidates: array of 1-4 objects, each with value, evidence (string or null), assumptions (string or null), confidence ("high"|"medium"|"low")
+- primary_value: string (your best guess)
+- found: true if at least one value was found, false if not reported/absent
+
+Return a single JSON object with column names as keys. Each value is an object with candidates, primary_value, found.
+Example: {"Median PFS (mo) | Overall | Treatment": {"candidates": [{"value": "19.4", "evidence": "Table 2", "assumptions": null, "confidence": "high"}], "primary_value": "19.4", "found": true}, ...}
+
+
+============================================================
+OUTPUT
+============================================================
+```json
+{
+  "Primary Endpoint(s)": {
+    "candidates": [
+      {
+        "value": "Not reported",
+        "evidence": null,
+        "assumptions": "The document content is empty, therefore the specified sentence 'OS was the primary end point.' cannot be located.",
+        "confidence": "high"
+      }
+    ],
+    "primary_value": "Not reported",
+    "found": false
+  }
+}
+```

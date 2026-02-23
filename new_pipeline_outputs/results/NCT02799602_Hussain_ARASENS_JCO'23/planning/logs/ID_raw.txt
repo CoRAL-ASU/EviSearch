@@ -1,37 +1,110 @@
-1.  **NCT**
-    *   **Reported**: Yes
-    *   **Location**: Page 12, Text
-    *   **Extraction Instructions**: Extract the value "NCT02799602" from the "CLINICAL TRIAL INFORMATION" section on page 12.
-
-2.  **PubMed ID**
-    *   **Reported**: No
-    *   **Location Examined**: I examined the header and footer of page 1, the "ASSOCIATED CONTENT" section on page 1, and the "CLINICAL TRIAL INFORMATION" section on page 12. No PubMed ID was found.
-
-3.  **Trial Name**
-    *   **Reported**: Yes
-    *   **Location**: Page 1, Text
-    *   **Extraction Instructions**: Extract "ARASENS" from the title "Darolutamide Plus Androgen-Deprivation Therapy and Docetaxel in Metastatic Hormone-Sensitive Prostate Cancer by Disease Volume and Risk Subgroups in the Phase III ARASENS Trial" on page 1.
-
-4.  **Author**
-    *   **Reported**: Yes
-    *   **Location**: Page 1, Text
-    *   **Extraction Instructions**: Extract the list of authors from the top of page 1: "Maha Hussain, MD; Bertrand Tombal, MD, PhD; Fred Saad, MD; Karim Fizazi, MD, PhD; Cora N. Sternberg, MD; E. David Crawford, MD; Neal Shore, MD; Evgeny Kopyltsov, MD; Arash Rezazadeh Kalebasty, MD; Martin Bögemann, MD; Dingwei Ye, MD; Felipe Cruz, MD, PhD; Hiroyoshi Suzuki, MD, PhD; Shivani Kapur, MD; Shankar Srinivasan, PhD; Frank Verholen, MD; Iris Kuss, MD; Heikki Joensuu, MD; and Matthew R. Smith, MD, PhD".
-
-5.  **Year**
-    *   **Reported**: Yes
-    *   **Location**: Page 1, Text
-    *   **Extraction Instructions**: Extract "2023" from the copyright information "© 2023 by American Society of Clinical Oncology" at the bottom of page 1.
-
-6.  **Full Pub or Abstract**
-    *   **Reported**: Full Pub
-    *   **Location Examined**: The document is a multi-page PDF (15 pages of content) with detailed methods, results, figures, and tables, indicating a full publication rather than just an abstract. The title also includes "original reports" on page 1.
-
-7.  **Phase**
-    *   **Reported**: Yes
-    *   **Location**: Page 1, Text
-    *   **Extraction Instructions**: Extract "Phase III" from the title "Darolutamide Plus Androgen-Deprivation Therapy and Docetaxel in Metastatic Hormone-Sensitive Prostate Cancer by Disease Volume and Risk Subgroups in the Phase III ARASENS Trial" on page 1.
-
-8.  **Original/Follow Up**
-    *   **Reported**: Original
-    *   **Location**: Page 1, Text
-    *   **Extraction Instructions**: The document is labeled "original reports" on page 1. The abstract and introduction describe the study as evaluating efficacy and safety from the ARASENS trial, and the "Knowledge Generated" section on page 2 states "These subgroup analyses of ARASENS showed...". This indicates it's an original report of subgroup analyses from the ARASENS trial.
+{
+  "group_name": "ID",
+  "columns": [
+    {
+      "column_index": 1,
+      "column_name": "NCT",
+      "found_in_pdf": true,
+      "page": 12,
+      "source_type": "text",
+      "sources": [
+        [12, "text"],
+        [1, "text"]
+      ],
+      "confidence": "high",
+      "extraction_plan": "Extract 'NCT02799602' from the 'CLINICAL TRIAL INFORMATION' section on page 12."
+    },
+    {
+      "column_index": 2,
+      "column_name": "PubMed ID",
+      "found_in_pdf": false,
+      "page": -1,
+      "source_type": "not_applicable",
+      "sources": [
+        [1, "text"],
+        [12, "text"]
+      ],
+      "confidence": "high",
+      "extraction_plan": "The PubMed ID is not explicitly reported in the PDF. The DOI for the article is provided on page 1 (https://doi.org/10.1200/JC0.23.00041), which could be used to find the PubMed ID externally."
+    },
+    {
+      "column_index": 3,
+      "column_name": "Trial Name",
+      "found_in_pdf": true,
+      "page": 1,
+      "source_type": "text",
+      "sources": [
+        [1, "text"],
+        [2, "text"]
+      ],
+      "confidence": "high",
+      "extraction_plan": "Extract 'ARASENS' from the title of the article on page 1: 'Darolutamide Plus Androgen-Deprivation Therapy and Docetaxel in Metastatic Hormone-Sensitive Prostate Cancer by Disease Volume and Risk Subgroups in the Phase III ARASENS Trial'."
+    },
+    {
+      "column_index": 4,
+      "column_name": "Author",
+      "found_in_pdf": true,
+      "page": 1,
+      "source_type": "text",
+      "sources": [
+        [1, "text"],
+        [11, "text"]
+      ],
+      "confidence": "high",
+      "extraction_plan": "Extract the list of authors from the top of page 1: 'Maha Hussain, MD¹; Bertrand Tombal, MD, PhD2; Fred Saad, MD³; Karim Fizazi, MD, PhD4; Cora N. Sternberg, MD5; E. David Crawford, MD; Neal Shore, MD7; Evgeny Kopyltsov, MD; Arash Rezazadeh Kalebasty, MD; Martin Bögemann, MD10; Dingwei Ye, MD11; Felipe Cruz, MD, PhD12; Hiroyoshi Suzuki, MD, PhD13; Shivani Kapur, MD14; Shankar Srinivasan, PhD15; Frank Verholen, MD16; Iris Kuss, MD17; Heikki Joensuu, MD18; and Matthew R. Smith, MD, PhD19'."
+    },
+    {
+      "column_index": 5,
+      "column_name": "Year",
+      "found_in_pdf": true,
+      "page": 1,
+      "source_type": "text",
+      "sources": [
+        [1, "text"],
+        [3, "text"]
+      ],
+      "confidence": "high",
+      "extraction_plan": "Extract '2023' from the publication information at the bottom of page 1: 'J Clin Oncol 00.© 2023 by American Society of Clinical Oncology'."
+    },
+    {
+      "column_index": 6,
+      "column_name": "Full Pub or Abstract",
+      "found_in_pdf": true,
+      "page": 1,
+      "source_type": "text",
+      "sources": [
+        [1, "text"],
+        [2, "text"]
+      ],
+      "confidence": "high",
+      "extraction_plan": "The document is a full publication, indicated by 'original reports' in the sidebar on page 1 and the extensive content (18 pages) including detailed methods, results, and discussion sections."
+    },
+    {
+      "column_index": 7,
+      "column_name": "Phase",
+      "found_in_pdf": true,
+      "page": 1,
+      "source_type": "text",
+      "sources": [
+        [1, "text"],
+        [2, "text"]
+      ],
+      "confidence": "high",
+      "extraction_plan": "Extract 'Phase III' from the title of the article on page 1: '...in the Phase III ARASENS Trial'. This is further confirmed in the 'Trial Design' section on page 2: 'ARASENS was a randomized, double-blind, placebo-controlled, phase III trial...'"
+    },
+    {
+      "column_index": 8,
+      "column_name": "Original/Follow Up",
+      "found_in_pdf": true,
+      "page": 1,
+      "source_type": "text",
+      "sources": [
+        [1, "text"],
+        [2, "text"],
+        [3, "text"]
+      ],
+      "confidence": "high",
+      "extraction_plan": "This is a follow-up/subgroup analysis. The title on page 1 specifies 'by Disease Volume and Risk Subgroups'. The 'METHODS' section on page 2 states: 'We conducted these subgroup analyses post hoc to determine if specific subgroups of patients by disease volume or risk would achieve greater benefit...'. Additionally, page 3 references the original ARASENS publication from 2022: 'From N Engl J Med, Smith MR, Hussain M, Saad F, et al, Darolutamide and Survival in Metastatic, Hormone-Sensitive Prostate Cancer, 386(12), 1132-1142,9 Copyright© 2022...'"
+    }
+  ]
+}

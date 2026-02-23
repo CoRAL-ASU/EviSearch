@@ -1,0 +1,251 @@
+RETRIEVAL SOURCE: extraction_plan_pages
+
+============================================================
+INPUT
+============================================================
+You are extracting values for multiple clinical trial data columns from the same document content.
+All columns below share the same evidence pool. Extract each column following its plan.
+
+COLUMNS TO EXTRACT:
+
+Column 1: Adverse Events - N (%) | All-Cause Grade 3 or Higher | Treatment
+  Definition: What the number and percentage of patients experiencing adverse events of all causes with a grade of 3 or higher in the treatment arm of the trial? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.
+  Extraction plan: Sum the counts and percentages for "Grade 3", "Grade 4", and "Grade 5 (death)" from the "All Patients - Darolutamide (n = 652)" column in Table 3.
+
+Column 2: Adverse Events - N (%) | All-Cause Grade 3 or Higher | Control
+  Definition: What number and percentage of patients experiencing all-cause adverse events with a grade of 3 or higher in the control arm of the trial? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.
+  Extraction plan: Sum the counts and percentages for "Grade 3", "Grade 4", and "Grade 5 (death)" from the "All Patients - Placebo (n = 650)" column in Table 3.
+
+Column 3: Adverse Events - N (%) | Treatment-related Grade 3 or Higher | Treatment
+  Definition: What number and percentage of patients experiencing treatment-related adverse events with a grade of 3 or higher in the treatment arm of the trial? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.
+  Extraction plan: Table 3 (Chunk 5, page 9) lists "Worst grade" for "Any AE" (all-cause), but does not specify "treatment-related" for these grades. The abstract (Chunk 8, page 1) mentions "Grade 3 or 4 AEs" but does not specify if they are treatment-related.
+
+Column 4: Adverse Events - N (%) | Treatment-related Grade 3 or Higher | Control
+  Definition: What the number and percentage of patients experiencing adverse events that are related to the treatment and have a severity grade of 3 or higher in the control arm of the clinical trial? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.
+  Extraction plan: Table 3 (Chunk 5, page 9) lists "Worst grade" for "Any AE" (all-cause), but does not specify "treatment-related" for these grades. The abstract (Chunk 8, page 1) mentions "Grade 3 or 4 AEs" but does not specify if they are treatment-related.
+
+Column 5: Adverse Events - N (%) | Treatment-related Grade 5 | Treatment
+  Definition: What the number and percentage of patients showing adverse events that are treatment-related and have a grade of 5 in the treatment arm of the trial? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.
+  Extraction plan: Table 3 (Chunk 5, page 9) lists "Grade 5 (death)" for "Any AE" (all-cause), which is 27 (4.1%) for the darolutamide arm. Footnote 'd' indicates that "Specific grade 5 events are provided in the supplementary appendix of Smith et al.", but this appendix is not provided in the available chunks.
+
+Column 6: Adverse Events - N (%) | Treatment-related Grade 5 | Control
+  Definition: What the number and percentage of patients experiencing treatment-related adverse events with a grade of 5 in the control arm of the clinical trial? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.
+  Extraction plan: Table 3 (Chunk 5, page 9) lists "Grade 5 (death)" for "Any AE" (all-cause), which is 26 (4.0%) for the placebo arm. Footnote 'd' indicates that "Specific grade 5 events are provided in the supplementary appendix of Smith et al.", but this appendix is not provided in the available chunks.
+
+
+Document content (grouped by type, in chronological page order):
+--- TEXT ---
+original reports
+
+Darolutamide Plus Androgen-Deprivation
+Therapy and Docetaxel in Metastatic
+Hormone-Sensitive Prostate Cancer by Disease
+Volume and Risk Subgroups in the Phase III
+ARASENS Trial
+
+Maha Hussain, MD¹; Bertrand Tombal, MD, PhD²; Fred Saad, MD³; Karim Fizazi, MD, PhD⁴; Cora N. Sternberg, MD⁵;
+E. David Crawford, MD⁶; Neal Shore, MD⁷; Evgeny Kopyltsov, MD⁸; Arash Rezazadeh Kalebasty, MD⁹; Martin Bögemann, MD¹⁰;
+Dingwei Ye, MD¹¹; Felipe Cruz, MD, PhD¹²; Hiroyoshi Suzuki, MD, PhD¹³; Shivani Kapur, MD¹⁴; Shankar Srinivasan, PhD¹⁵;
+Frank Verholen, MD¹⁶; Iris Kuss, MD¹⁷; Heikki Joensuu, MD¹⁸; and Matthew R. Smith, MD, PhD¹⁹
+
+PURPOSE For patients with metastatic hormone-sensitive prostate cancer, metastatic burden affects outcome.
+We examined efficacy and safety from the ARASENS trial for subgroups by disease volume and risk.
+
+abs1
+
+tract
+METHODS Patients with metastatic hormone-sensitive prostate cancer were randomly assigned to darolutamide or placebo plus androgen-deprivation therapy and docetaxel. High-volume disease was defined as visceral metastases and/or ≥ 4 bone metastases with ≥ 1 beyond the vertebral column/pelvis. High-risk disease was defined as ≥ 2 risk factors: Gleason score ≥ 8, ≥ 3 bone lesions, and presence of measurable visceral metastases.
+
+## RESULTS
+Of 1,305 patients, 1,005 (77%) had high-volume disease and 912 (70%) had high-risk disease. Darolutamide increased overall survival (OS) versus placebo in patients with high-volume (hazard ratio [HR], 0.69; 95% CI, 0.57 to 0.82), high-risk (HR, 0.71; 95% CI, 0.58 to 0.86), and low-risk disease (HR, 0.62; 95% CI, 0.42 to 0.90), and in the smaller low-volume subgroup, the results were also suggestive of survival benefit (HR, 0.68; 95% CI, 0.41 to 1.13). Darolutamide improved clinically relevant secondary end points of time to castration-resistant prostate cancer and subsequent systemic antineoplastic therapy versus placebo in all disease volume and risk subgroups. Adverse events (AEs) were similar between treatment groups across subgroups. Grade 3 or 4 AEs occurred in 64.9% of darolutamide patients versus 64.2% of placebo patients in the high-volume subgroup and 70.1% versus 61.1% in the low-volume subgroup. Among the most common AEs, many were known toxicities related to docetaxel.
+
+**CONCLUSION** In patients with high-volume and high-risk/low-risk metastatic hormone-sensitive prostate cancer, treatment intensification with darolutamide, androgen-deprivation therapy, and docetaxel increased OS with a similar AE profile in the subgroups, consistent with the overall population.
+
+J Clin Oncol 00. © 2023 by American Society of Clinical Oncology
+
+## INTRODUCTION
+In patients with metastatic hormone-sensitive prostate cancer, early treatment intensification with a combination of androgen-deprivation therapy (ADT) plus either docetaxel or an androgen receptor pathway inhibitor improved survival versus ADT alone in several randomized controlled trials.<sup>1-6</sup> The combination of ADT, docetaxel, and an androgen receptor pathway inhibitor was evaluated in several phase III trials (PEACE-1, ENZAMET, and ARASENS) with varying results.<sup>7-9</sup> PEACE-1 was a randomized, open-label trial using a 2 × 2 factorial design that was conducted in patients with de novo metastatic hormone-sensitive prostate cancer.<sup>8</sup> In a preplanned analysis of patients who received docetaxel, longer survival was observed with abiraterone in combination
+
+with ADT and docetaxel versus ADT and docetaxel
+alone (hazard ratio [HR], 0.75; 95% CI, 0.59 to 0.95).⁸
+The ENZAMET trial allowed for early administration of
+docetaxel with enzalutamide.⁷ Among patients who
+received docetaxel, the effect of enzalutamide on overall
+survival (OS) appeared to be smaller (HR, 0.82; 95% CI,
+0.63 to 1.06) than that observed for all patients (HR,
+0.70; 95% CI, 0.58 to 0.84).¹⁰ In ARASENS, patients
+with metastatic hormone-sensitive prostate cancer were
+randomly assigned to double-blind treatment with either
+darolutamide or placebo, in combination with ADT and
+docetaxel. The darolutamide group had a significant
+reduction in the risk of death by 32.5% (HR, 0.68; 95%
+CI, 0.57 to 0.80; P < .0001) compared with the placebo
+group.⁹
+
+ASSOCIATED
+CONTENT
+Appendix
+
+## Protocol
+Author affiliations
+and support
+information (if
+applicable) appear
+at the end of this
+article.
+
+Accepted on January
+19, 2023 and
+published at
+ascopubs.org/journal/
+jco on February 16,
+2023: DOI https://doi.
+org/10.1200/JC0.23.
+00041
+
+ASCO®
+
+Journal of Clinical Oncology®
+
+1
+
+Downloaded from ascopubs.org by Mayo Foundation--Rochester on June 12, 2023 from 129.176.151.029
+Copyright  2023 American Society of Clinical Oncology. All rights reserved.
+
+Abbreviations: AE, adverse event; EAIR, exposure-adjusted incidence rate.
+
+aDisease volume defined by CHAARTED criteria: presence of visceral metastases or ≥ 4 bone metastases with ≥ 1 beyond vertebral bodies and pelvis (Sweeney et al).¹
+bDisease risk defined by LATITUDE criteria (two of the following three factors): Gleason score of ≥ 8, the presence of ≥ 3 bone lesions, or the presence of measurable visceral metastasis (Fizazi et al).²
+cThree patients who underwent random assignment never received the assigned trial treatment; all three patients were in the placebo group. One patient who was assigned to the placebo group but received darolutamide was included in the darolutamide group of the safety analysis set.
+dSpecific grade 5 events are provided in the supplementary appendix of Smith et al.⁹
+eNeutropenia includes preferred terms of leukopenia, neutropenia, decreased neutrophil count, and decreased white blood cell count. Exposure adjustment is not applicable, as the majority of AEs occurred during concomitant docetaxel treatment.
+
+9
+
+Darolutamide, ADT, and Docetaxel in mHSPC Volume/Risk Subgroups
+
+Downloaded from ascopubs.org by Mayo Foundation--Rochester on June 12, 2023 from 129.176.151.029
+Copyright © 2023 American Society of Clinical Oncology. All rights reserved.
+
+Journal of Clinical Oncology
+
+--- TABLES ---
+[Page 9]
+TABLE 3. Treatment-Emergent AEs in the Subgroups of Patients by Disease Volume and Disease Risk in ARASENS
+<table>
+<tr><td></td><td colspan="2">High Volumeª</td><td colspan="2">Low Volumeª</td><td colspan="2">High Riskᵇ</td><td colspan="2">Low Riskⁿ</td><td colspan="2">All Patients⁹ (N = 1302ᶜ)</td></tr>
+<tr><td>AE</td><td>Darolutamide (n = 498)</td><td>Placebo (n = 506)</td><td>Darolutamide (n = 154)</td><td>Placebo (n = 144)</td><td>Darolutamide (n = 453)</td><td>Placebo (n = 457)</td><td>Darolutamide (n = 199)</td><td>Placebo (n = 193)</td><td>Darolutamide (n = 652)</td><td>Placebo (n = 650)</td></tr>
+<tr><td>Any AE</td><td>496 (99.6)</td><td>500 (98.8)</td><td>153 (99.4)</td><td>143 (99.3)</td><td>450 (99.3)</td><td>451 (98.7)</td><td>199 (100)</td><td>192 (99.5)</td><td>649 (99.5)</td><td>643 (98.9)</td></tr>
+<tr><td colspan="11">Worst grade</td></tr>
+<tr><td>Grade 1</td><td>21 (4.2)</td><td>23 (4.5)</td><td>7 (4.5)</td><td>12 (8.3)</td><td>19 (4.2)</td><td>20 (4.4)</td><td>9 (4.5)</td><td>15 (7.8)</td><td>28 (4.3)</td><td>35 (5.4)</td></tr>
+<tr><td>Grade 2</td><td>130 (26.1)</td><td>132 (26.1)</td><td>32 (20.8)</td><td>37 (25.7)</td><td>107 (23.6)</td><td>118 (25.8)</td><td>55 (27.6)</td><td>51 (26.4)</td><td>162 (24.8)</td><td>169 (26.0)</td></tr>
+<tr><td>Grade 3</td><td>188 (37.8)</td><td>189 (37.4)</td><td>60 (39.0)</td><td>43 (29.9)</td><td>169 (37.3)</td><td>167 (36.5)</td><td>79 (39.7)</td><td>65 (33.7)</td><td>248 (38.0)</td><td>232 (35.7)</td></tr>
+<tr><td>Grade 4</td><td>135 (27.1)</td><td>136 (26.9)</td><td>48 (31.2)</td><td>45 (31.3)</td><td>137 (30.2)</td><td>127 (27.8)</td><td>46 (23.1)</td><td>54 (28.0)</td><td>183 (28.1)</td><td>181 (27.8)</td></tr>
+<tr><td>Grade 5 (death)d</td><td>21 (4.2)</td><td>20 (4.0)</td><td>6 (3.9)</td><td>6 (4.2)</td><td>17 (3.8)</td><td>19 (4.2)</td><td>10 (5.0)</td><td>7 (3.6)</td><td>27 (4.1)</td><td>26 (4.0)</td></tr>
+<tr><td>Serious AE</td><td>226 (45.4)</td><td>220 (43.5)</td><td>66 (42.9)</td><td>55 (38.2)</td><td>205 (45.3)</td><td>196 (42.9)</td><td>87 (43.7)</td><td>79 (40.9)</td><td>292 (44.8)</td><td>275 (42.3)</td></tr>
+<tr><td colspan="11">AE leading to permanent discontinuation of trial agent</td></tr>
+<tr><td>Darolutamide or placebo</td><td>66 (13.3)</td><td>54 (10.7)</td><td>22 (14.3)</td><td>15 (10.4)</td><td>58 (12.8)</td><td>45 (9.8)</td><td>30 (15.1)</td><td>24 (12.4)</td><td>88 (13.5)</td><td>69 (10.6)</td></tr>
+<tr><td>Docetaxel</td><td>39 (7.8)</td><td>54 (10.7)</td><td>13 (8.4)</td><td>13 (9.0)</td><td>38 (8.4)</td><td>45 (9.8)</td><td>14 (7.0)</td><td>22 (11.4)</td><td>52 (8.0)</td><td>67 (10.3)</td></tr>
+<tr><td colspan="11">Most common AEs (≥ 25%), No. (%)/EAIR</td></tr>
+<tr><td>Alopecia</td><td>192 (38.6)/15.3</td><td>202 (39.9)/23.1</td><td>72 (46.8)/15.2</td><td>62 (43.1)/18.9</td><td>191 (42.2)/16.6</td><td>183 (40.0)/23.3</td><td>73 (36.7)/12.5</td><td>81 (42.0)/19.5</td><td>264 (40.5)/15.3</td><td>264 (40.6)/22.0</td></tr>
+<tr><td>Neutropenia</td><td>197 (39.6)</td><td>199 (39.3)</td><td>59 (38.3)</td><td>53 (36.8)</td><td>192 (42.4)</td><td>182 (39.8)</td><td>64 (32.2)</td><td>70 (36.3)</td><td>256 (39.3)</td><td>252 (38.8)</td></tr>
+<tr><td>Fatigue</td><td>166 (33.3)/13.2</td><td>165 (32.6)/18.9</td><td>50 (32.5)/10.6</td><td>49 (34.0)/15.0</td><td>141 (31.1)/12.3</td><td>130 (28.4)/16.5</td><td>75 (37.7)/12.9</td><td>84 (43.5)/20.2</td><td>216 (33.1)/12.5</td><td>214 (32.9)/17.8</td></tr>
+<tr><td>Anemia</td><td>140 (28.1)/11.1</td><td>132 (26.1)/15.1</td><td>41 (26.6)/8.7</td><td>31 (21.5)/9.5</td><td>134 (29.6)/11.7</td><td>105 (23.0)/13.4</td><td>47 (23.6)/8.1</td><td>58 (30.1)/13.9</td><td>181 (27.8)/10.5</td><td>163 (25.1)/13.6</td></tr>
+<tr><td>Peripheral edema</td><td>136 (27.3)/10.8</td><td>138 (27.3)/15.8</td><td>37 (24.0)/7.8</td><td>31 (21.5)/9.5</td><td>119 (26.3)/10.4</td><td>123 (26.9)/15.7</td><td>54 (27.1)/9.3</td><td>46 (23.8)/11.0</td><td>173 (26.5)/10.0</td><td>169 (26.0)/14.1</td></tr>
+<tr><td>Arthralgia</td><td>134 (26.9)/10.7</td><td>134 (26.5)/15.3</td><td>44 (28.6)/9.3</td><td>40 (27.8)/12.2</td><td>125 (27.6)/10.9</td><td>118 (25.8)/15.0</td><td>53 (26.6)/9.1</td><td>56 (29.0)/13.4</td><td>178 (27.3)/10.3</td><td>174 (26.8)/14.5</td></tr>
+<tr><td>Diarrhea</td><td>120 (24.1)/9.5</td><td>114 (22.5)/13.0</td><td>47 (30.5)/9.9</td><td>42 (29.2)/12.8</td><td>111 (24.5)/9.7</td><td>98 (21.4)/12.5</td><td>56 (28.1)/9.6</td><td>58 (30.1)/13.9</td><td>167 (25.6)/9.6</td><td>156 (24.0)/13.0</td></tr>
+</table>
+
+--- FIGURES ---
+[Page 1]
+<::logo: [Unknown] Check for updates A grey button with a colorful circular icon featuring a red banner and yellow arrow.::>
+
+Task:
+For EACH column listed above, output a JSON object with:
+- candidates: array of 1-4 objects, each with value, evidence (string or null), assumptions (string or null), confidence ("high"|"medium"|"low")
+- primary_value: string (your best guess)
+- found: true if at least one value was found, false if not reported/absent
+
+Return a single JSON object with column names as keys. Each value is an object with candidates, primary_value, found.
+Example: {"Median PFS (mo) | Overall | Treatment": {"candidates": [{"value": "19.4", "evidence": "Table 2", "assumptions": null, "confidence": "high"}], "primary_value": "19.4", "found": true}, ...}
+
+
+============================================================
+OUTPUT
+============================================================
+```json
+{
+  "Adverse Events - N (%) | All-Cause Grade 3 or Higher | Treatment": {
+    "candidates": [
+      {
+        "value": "458 (70.2%)",
+        "evidence": "TABLE 3. Treatment-Emergent AEs in the Subgroups of Patients by Disease Volume and Disease Risk in ARASENS\nAll Patients⁹ (N = 1302ᶜ)\nDarolutamide (n = 652)\nGrade 3: 248 (38.0)\nGrade 4: 183 (28.1)\nGrade 5 (death)d: 27 (4.1)",
+        "assumptions": "Summed the counts and percentages for Grade 3, Grade 4, and Grade 5 (death) from the 'All Patients - Darolutamide' column.",
+        "confidence": "high"
+      }
+    ],
+    "primary_value": "458 (70.2%)",
+    "found": true
+  },
+  "Adverse Events - N (%) | All-Cause Grade 3 or Higher | Control": {
+    "candidates": [
+      {
+        "value": "439 (67.5%)",
+        "evidence": "TABLE 3. Treatment-Emergent AEs in the Subgroups of Patients by Disease Volume and Disease Risk in ARASENS\nAll Patients⁹ (N = 1302ᶜ)\nPlacebo (n = 650)\nGrade 3: 232 (35.7)\nGrade 4: 181 (27.8)\nGrade 5 (death)d: 26 (4.0)",
+        "assumptions": "Summed the counts and percentages for Grade 3, Grade 4, and Grade 5 (death) from the 'All Patients - Placebo' column.",
+        "confidence": "high"
+      }
+    ],
+    "primary_value": "439 (67.5%)",
+    "found": true
+  },
+  "Adverse Events - N (%) | Treatment-related Grade 3 or Higher | Treatment": {
+    "candidates": [
+      {
+        "value": "Not reported",
+        "evidence": "Table 3 lists 'Worst grade' for 'Any AE' (all-cause), but does not specify 'treatment-related' for these grades. The abstract mentions 'Grade 3 or 4 AEs' but does not specify if they are treatment-related for the overall population.",
+        "assumptions": null,
+        "confidence": "high"
+      }
+    ],
+    "primary_value": "Not reported",
+    "found": false
+  },
+  "Adverse Events - N (%) | Treatment-related Grade 3 or Higher | Control": {
+    "candidates": [
+      {
+        "value": "Not reported",
+        "evidence": "Table 3 lists 'Worst grade' for 'Any AE' (all-cause), but does not specify 'treatment-related' for these grades. The abstract mentions 'Grade 3 or 4 AEs' but does not specify if they are treatment-related for the overall population.",
+        "assumptions": null,
+        "confidence": "high"
+      }
+    ],
+    "primary_value": "Not reported",
+    "found": false
+  },
+  "Adverse Events - N (%) | Treatment-related Grade 5 | Treatment": {
+    "candidates": [
+      {
+        "value": "Not reported",
+        "evidence": "Table 3, 'All Patients - Darolutamide' column, lists 'Grade 5 (death)' as 27 (4.1%) for 'Any AE' (all-cause). Footnote 'd' indicates that 'Specific grade 5 events are provided in the supplementary appendix of Smith et al.', but this appendix is not provided and does not confirm if these are treatment-related.",
+        "assumptions": "The available data for Grade 5 events are for 'Any AE' (all-cause), not specifically 'treatment-related'. The supplementary appendix mentioned is not available to verify if it contains the requested information.",
+        "confidence": "high"
+      }
+    ],
+    "primary_value": "Not reported",
+    "found": false
+  },
+  "Adverse Events - N (%) | Treatment-related Grade 5 | Control": {
+    "candidates": [
+      {
+        "value": "Not reported",
+        "evidence": "Table 3, 'All Patients - Placebo' column, lists 'Grade 5 (death)' as 26 (4.0%) for 'Any AE' (all-cause). Footnote 'd' indicates that 'Specific grade 5 events are provided in the supplementary appendix of Smith et al.', but this appendix is not provided and does not confirm if these are treatment-related.",
+        "assumptions": "The available data for Grade 5 events are for 'Any AE' (all-cause), not specifically 'treatment-related'. The supplementary appendix mentioned is not available to verify if it contains the requested information.",
+        "confidence": "high"
+      }
+    ],
+    "primary_value": "Not reported",
+    "found": false
+  }
+}
+```

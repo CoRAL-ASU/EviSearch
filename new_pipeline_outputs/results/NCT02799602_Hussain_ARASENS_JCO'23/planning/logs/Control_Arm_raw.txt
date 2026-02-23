@@ -1,9 +1,19 @@
-1. **Control Arm**
-   - **Reported**: Yes
-   - **Found in**: Chunk 8 (pages 1-4), Chunk 0 (page 3), Chunk 1 (page 5), Chunk 4 (page 8), Chunk 5 (page 9), Chunk 6 (page 10), Chunk 7 (page 16).
-   - **How to extract**:
-     - From the "abstract" section in Chunk 8 (page 1), under "METHODS": "Patients with metastatic hormone-sensitive prostate cancer were randomly assigned to darolutamide or placebo plus androgen-deprivation therapy and docetaxel." This indicates "placebo plus androgen-deprivation therapy and docetaxel" as the control arm.
-     - From Figure 1 (Chunk 0, page 3) flow diagram, the right arm is labeled "Placebo + docetaxel + ADT".
-     - From Table 1 (Chunk 1, page 5), the column headers for the placebo group are consistently "Placebo (n = X)". The full treatment is described in the table title as "Darolutamide Plus Androgen-Deprivation Therapy and Docetaxel". Therefore, the control arm is "Placebo + ADT + Docetaxel".
-     - From Table 2 (Chunk 4, page 8), Table 3 (Chunk 5, page 9), Table 4 (Chunk 6, page 10), and Figure A1 (Chunk 7, page 16), the placebo arm is consistently referred to as "Placebo + ADT + Docetaxel".
-   - **Value**: Placebo + ADT + Docetaxel
+{
+  "group_name": "Control Arm",
+  "columns": [
+    {
+      "column_index": 1,
+      "column_name": "Control Arm",
+      "found_in_pdf": true,
+      "page": 3,
+      "source_type": "figure",
+      "sources": [
+        [3, "figure"],
+        [2, "text"],
+        [1, "text"]
+      ],
+      "confidence": "high",
+      "extraction_plan": "The number of patients in the control arm (Placebo + docetaxel + ADT) analyzed for the primary end point is 654, as indicated in the 'Analyzed for primary end point' section of the CONSORT flow diagram (Figure 1) on page 3. The 'Trial Design' section on page 2 also states that patients were randomly assigned 1:1 to darolutamide or matched placebo."
+    }
+  ]
+}

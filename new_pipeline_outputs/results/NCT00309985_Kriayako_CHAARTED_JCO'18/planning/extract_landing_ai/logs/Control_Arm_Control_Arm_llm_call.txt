@@ -1,0 +1,83 @@
+============================================================
+INPUT
+============================================================
+You are extracting a value for a clinical trial data column from the provided document content.
+
+Column: Control Arm
+Definition: What the name of the arm in the clinical trial that does not receive the experimental treatment, serving as a comparison group?. If reported, provide the value; otherwise use 'Not reported'.
+
+Extraction plan to follow:
+The number of patients in the control arm (ADT alone) is 393, as indicated in Figure 1 (CONSORT diagram) on page 2, and confirmed in Table 1, Table 2, and Table 3 under the 'ADT Alone' 'No. of Patients' column for 'Overall' subgroup on pages 3 and 6.
+
+Document content (grouped by type, in chronological page order):
+--- FIGURES ---
+[Page 2]
+<::transcription of the content
+: flowchart::>
+Fig 1. CONSORT diagram. Overview of screened and randomly assigned patients.
+ADT, androgen-deprivation therapy; NA, not applicable.
+
+Metastatic hormone-sensitive prostate cancer
+
+Randomly assigned to ADT plus docetaxel (n = 397)
+  Ineligible (n = 4)
+  Eligibility status not finalized (n = 5)
+
+Did not start treatment (excluded from toxicity analysis)
+  Patient withdrawal or refusal before protocol therapy (n = 5)
+  Medical decision (n = 1)
+  No treatment information submitted (n = 1)
+
+Follow-up status
+  No follow-up (n = 0)
+  Follow-up submitted (n = 397)
+  Documented lost to follow-up (n = 3)
+  Withdrew consent or refused (n = 11)
+
+Included in
+  Primary analysis (n = 397)
+  Toxicity analysis (n = 390)
+
+Randomly assigned to ADT alone (n = 393)
+  Ineligible (n = 6)
+  Eligibility status not finalized (n = 2)
+
+Did not start treatment (excluded from toxicity analysis)
+  NA
+
+Follow-up status
+  No follow-up; excluded from toxicity analysis (n = 1)
+  Follow-up submitted (n = 392)
+  Documented lost to follow-up (n = 0)
+  Withdrew consent or refused (n = 14)
+
+Included in
+  Primary analysis (n = 393)
+  Toxicity analysis (n = 392)
+<::
+
+Task:
+1. Extract the value for this column following the plan. Return your best-effort value even if uncertain.
+2. If the plan seems wrong, incomplete, or ambiguous, still return the value you found and add a suggestion and/or alternative_plan.
+3. Use "not found" or "not reported" only if the value is genuinely absent from the content.
+
+Output a JSON object with:
+- value: the extracted value (string)
+- found: true if you found a value, false if not reported/absent
+- confidence: "high" | "medium" | "low"
+- suggestion: optional string with concerns or notes (null if none)
+- alternative_plan: optional string describing a different extraction approach to try (null if plan seems fine)
+
+
+============================================================
+OUTPUT
+============================================================
+```json
+{
+  "value": "ADT alone",
+  "found": true,
+  "confidence": "high",
+  "suggestion": null,
+  "alternative_plan": null
+}
+```

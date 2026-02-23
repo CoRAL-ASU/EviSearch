@@ -1,0 +1,60 @@
+============================================================
+INPUT
+============================================================
+You are extracting a value for a clinical trial data column from the provided document content.
+
+Column: TTPSA (mo) | Treatment
+Definition: What time To Progression of Serum Androgen (in months) in the treatment arm of the clinical trial? If reported, include the value; use 'Not reported' if missing.
+
+Extraction plan to follow:
+Extract the 'Median Time (95% Cl; months)' value for 'Overall' from the 'ADT Plus Docetaxel' column in Table 2, titled 'Time to CRPC (PSA rise or clinical progression)'. The value is 19.4 months.
+
+Document content (grouped by type, in chronological page order):
+--- TABLES ---
+[Page 6]
+<table>
+<tr><td colspan="9">Table 2. Time to CRPC (PSA rise or clinical progression)</td></tr>
+<tr><td></td><td colspan="3">ADT Plus Docetaxel</td><td colspan="3">ADT Alone</td><td></td><td></td></tr>
+<tr><td>Subgroup</td><td>No. of Patients</td><td>No. of CRPCs</td><td>Median Time (95% Cl; months)</td><td>No. of Patients</td><td>No. of CRPCs</td><td>Median Time (95% Cl; months)</td><td>HR (95% CI)*</td><td>P</td></tr>
+<tr><td>Overall</td><td>397</td><td>257</td><td>19.4 (16.8 to 22.6)</td><td>393</td><td>303</td><td>11.7 (10.8 to 14.4)</td><td>0.61 (0.52 to 0.73)</td><td>&lt;.001</td></tr>
+<tr><td>High volume</td><td>263</td><td>190</td><td>14.9 (12.4 to 17.2)</td><td>250</td><td>213</td><td>8.6 (6.8 to 10.5)</td><td>0.58 (0.47 to 0.71)</td><td>&lt;.001</td></tr>
+<tr><td>Low volume</td><td>134</td><td>67</td><td>31.0 (23.1 to 51.1)</td><td>143</td><td>90</td><td>22.7 (18.9 to 29.1)</td><td>0.70 (0.50 to 0.96)</td><td>.03</td></tr>
+<tr><td colspan="9">Abbreviations: ADT, androgen-deprivation therapy; CRPC, castration-resistant prostate cancer; HR, hazard ratio; PSA, prostate-specific antigen. *Stratified on stratification factors at random assignment.</td></tr>
+</table>
+
+[Page 6]
+<table>
+<tr><td colspan="9">Table 3. Time to Clinical Progression</td></tr>
+<tr><td></td><td colspan="3">ADT Plus Docetaxel</td><td colspan="3">ADT Alone</td><td></td><td></td></tr>
+<tr><td>Subgroup</td><td>No. of Patients</td><td>No. of PDs</td><td>Median (95% Cl; months)</td><td>No. of Patients</td><td>No. of PDs</td><td>Median (95% CI; months)</td><td>HR (95% CI)*</td><td>P</td></tr>
+<tr><td>Overall</td><td>397</td><td>194</td><td>33.0 (29.1 to 40.9)</td><td>393</td><td>242</td><td>19.8 (17.8 to 22.5)</td><td>0.62 (0.51 to 0.75)</td><td>&lt;.001</td></tr>
+<tr><td>High volume</td><td>263</td><td>142</td><td>27.3 (21.9 to 32.7)</td><td>250</td><td>176</td><td>13.0 (11.1 to 17.2)</td><td>0.53 (0.42 to 0.67)</td><td>&lt;.001</td></tr>
+<tr><td>Low volume</td><td>134</td><td>52</td><td>42.5 (34.0 to NR)</td><td>143</td><td>66</td><td>44.3 (28.9 to 66.5)</td><td>0.86 (0.60 to 1.25)</td><td>.43</td></tr>
+<tr><td colspan="9">Abbreviations: ADT, androgen-deprivation therapy; HR, hazard ratio; NR, not reached; PD, disease progression. *Stratified on stratification factors at random assignment.</td></tr>
+</table>
+
+Task:
+1. Extract the value for this column following the plan. Return your best-effort value even if uncertain.
+2. If the plan seems wrong, incomplete, or ambiguous, still return the value you found and add a suggestion and/or alternative_plan.
+3. Use "not found" or "not reported" only if the value is genuinely absent from the content.
+
+Output a JSON object with:
+- value: the extracted value (string)
+- found: true if you found a value, false if not reported/absent
+- confidence: "high" | "medium" | "low"
+- suggestion: optional string with concerns or notes (null if none)
+- alternative_plan: optional string describing a different extraction approach to try (null if plan seems fine)
+
+
+============================================================
+OUTPUT
+============================================================
+```json
+{
+  "value": "19.4",
+  "found": true,
+  "confidence": "high",
+  "suggestion": null,
+  "alternative_plan": null
+}
+```

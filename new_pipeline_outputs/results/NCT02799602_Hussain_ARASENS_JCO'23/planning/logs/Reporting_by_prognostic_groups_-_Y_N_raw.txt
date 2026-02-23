@@ -1,19 +1,61 @@
-1. **Reporting by prognostic groups - Y/N | Synchronous**
-    *   found_in_pdf: Y
-    *   Location: Text on page 2, Table 1 on page 5, Figure A1 on page 16.
-    *   Instruction: The "METHODS" section on page 2 states: "Timing of metastatic presentation and disease volume and risk have been used to assess prognosis in patients with metastatic hormone-sensitive prostate cancer.11-14 The presence of metastatic disease at initial diagnosis (de novo or synchronous disease) is associated with poorer outcomes compared with developing metastases after local therapy (recurrent or metachronous disease)." The "RESULTS" section on page 4 also mentions: "The effect of darolutamide treatment on OS across prespecified subgroups, including de novo and recurrent disease, was favorable across all subgroups of patients with high-volume and almost all subgroups with low-volume disease (Appendix Fig A1, online only)." Table 1 on page 5, under "Metastasis stage at initial diagnosis, No. (%)", provides data for "De novo mHSPC" (which is synonymous with synchronous disease). Figure A1 on page 16, under "Metastatic stage at initial diagnosis", presents OS data for the "De novo" subgroup.
-
-2. **Reporting by prognostic groups - Y/N | Metachronous**
-    *   found_in_pdf: Y
-    *   Location: Text on page 2, Table 1 on page 5, Figure A1 on page 16.
-    *   Instruction: The "METHODS" section on page 2 states: "Timing of metastatic presentation and disease volume and risk have been used to assess prognosis in patients with metastatic hormone-sensitive prostate cancer.11-14 The presence of metastatic disease at initial diagnosis (de novo or synchronous disease) is associated with poorer outcomes compared with developing metastases after local therapy (recurrent or metachronous disease)." The "RESULTS" section on page 4 also mentions: "The effect of darolutamide treatment on OS across prespecified subgroups, including de novo and recurrent disease, was favorable across all subgroups of patients with high-volume and almost all subgroups with low-volume disease (Appendix Fig A1, online only)." Table 1 on page 5, under "Metastasis stage at initial diagnosis, No. (%)", provides data for "Recurrent mHSPC" (which is synonymous with metachronous disease). Figure A1 on page 16, under "Metastatic stage at initial diagnosis", presents OS data for the "Recurrent" subgroup.
-
-3. **Reporting by prognostic groups - Y/N | High volume**
-    *   found_in_pdf: Y
-    *   Location: Abstract on page 1, Text on page 2, Table 1 on page 5, Figure 2 on page 6, Figure 3 on page 7, Table 2 on page 8, Table 3 on page 9, Table 4 on page 10, Figure A1 on page 16.
-    *   Instruction: The "abstract" on page 1 explicitly states: "Darolutamide increased overall survival (OS) versus placebo in patients with high-volume (hazard ratio [HR], 0.69; 95% CI, 0.57 to 0.82)". The "METHODS" section on page 2 defines "High-volume disease" and states that subgroups were assessed by disease volume. Table 1 on page 5, titled "Baseline Demographics and Patient Characteristics for the Subgroups of Patients by Disease Volume and Disease Risk in ARASENS", includes "High Volume" as a primary column header. Figure 2 (A) on page 6 shows OS for "high-volume disease". Figure 3 (A) on page 7 shows time to CRPC for "high-volume disease". Table 2 on page 8, Table 3 on page 9, and Table 4 on page 10 all include "High Volume" as a primary column header for secondary efficacy endpoints and adverse events. Figure A1 (A) on page 16 also presents OS data for "high-volume disease".
-
-4. **Reporting by prognostic groups - Y/N | Low volume**
-    *   found_in_pdf: Y
-    *   Location: Abstract on page 1, Text on page 2, Table 1 on page 5, Figure 2 on page 6, Figure 3 on page 7, Table 2 on page 8, Table 3 on page 9, Table 4 on page 10, Figure A1 on page 16.
-    *   Instruction: The "abstract" on page 1 explicitly states: "Darolutamide increased overall survival (OS) versus placebo... in low-risk disease (HR, 0.62; 95% CI, 0.42 to 0.90), and in the smaller low-volume subgroup, the results were also suggestive of survival benefit (HR, 0.68; 95% CI, 0.41 to 1.13)." The "METHODS" section on page 2 defines "Low-volume and low-risk disease" and states that subgroups were assessed by disease volume. Table 1 on page 5, titled "Baseline Demographics and Patient Characteristics for the Subgroups of Patients by Disease Volume and Disease Risk in ARASENS", includes "Low Volume" as a primary column header. Figure 2 (B) on page 6 shows OS for "low-volume disease". Figure 3 (B) on page 7 shows time to CRPC for "low-volume disease". Table 2 on page 8, Table 3 on page 9, and Table 4 on page 10 all include "Low Volume" as a primary column header for secondary efficacy endpoints and adverse events. Figure A1 (B) on page 17 also presents OS data for "low-volume disease".
+{
+  "group_name": "Reporting by prognostic groups - Y/N",
+  "columns": [
+    {
+      "column_index": 1,
+      "column_name": "Reporting by prognostic groups - Y/N | Synchronous",
+      "found_in_pdf": true,
+      "page": 5,
+      "source_type": "table",
+      "sources": [
+        [1, "text"],
+        [2, "text"],
+        [5, "table"]
+      ],
+      "confidence": "high",
+      "extraction_plan": "The PDF reports on 'de novo mHSPC' (synchronous) patients. This is found in the 'Metastasis stage at initial diagnosis' section of Table 1 on page 5, and also discussed in the abstract on page 1 and methods on page 2. Figure A1 on pages 16-17 also includes 'De novo' as a subgroup."
+    },
+    {
+      "column_index": 2,
+      "column_name": "Reporting by prognostic groups - Y/N | Metachronous",
+      "found_in_pdf": true,
+      "page": 5,
+      "source_type": "table",
+      "sources": [
+        [1, "text"],
+        [2, "text"],
+        [5, "table"]
+      ],
+      "confidence": "high",
+      "extraction_plan": "The PDF reports on 'Recurrent mHSPC' (metachronous) patients. This is found in the 'Metastasis stage at initial diagnosis' section of Table 1 on page 5, and also discussed in the abstract on page 1 and methods on page 2. Figure A1 on pages 16-17 also includes 'Recurrent' as a subgroup."
+    },
+    {
+      "column_index": 3,
+      "column_name": "Reporting by prognostic groups - Y/N | High volume",
+      "found_in_pdf": true,
+      "page": 5,
+      "source_type": "table",
+      "sources": [
+        [1, "text"],
+        [4, "text"],
+        [5, "table"]
+      ],
+      "confidence": "high",
+      "extraction_plan": "The PDF reports on 'High Volume' patients. This is explicitly stated in the abstract on page 1, in the results section on page 4, and is a primary column in Table 1 (page 5), Table 2 (page 8), Table 3 (page 9), Table 4 (page 10), and Table A1 (page 18). Figures 2 and 3 (pages 6-7) and Figure A1 (pages 16-17) also present data by high-volume disease."
+    },
+    {
+      "column_index": 4,
+      "column_name": "Reporting by prognostic groups - Y/N | Low volume",
+      "found_in_pdf": true,
+      "page": 5,
+      "source_type": "table",
+      "sources": [
+        [1, "text"],
+        [4, "text"],
+        [5, "table"]
+      ],
+      "confidence": "high",
+      "extraction_plan": "The PDF reports on 'Low Volume' patients. This is explicitly stated in the abstract on page 1, in the results section on page 4, and is a primary column in Table 1 (page 5), Table 2 (page 8), Table 3 (page 9), Table 4 (page 10), and Table A1 (page 18). Figures 2 and 3 (pages 6-7) and Figure A1 (pages 16-17) also present data by low-volume disease."
+    }
+  ]
+}

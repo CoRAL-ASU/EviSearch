@@ -1,6 +1,6 @@
 {
-  "total_groups": 38,
-  "total_columns": 131,
+  "total_groups": 39,
+  "total_columns": 133,
   "plans": [
     {
       "group_name": "Add-on Treatment",
@@ -11,24 +11,44 @@
           "found_in_pdf": true,
           "page": 1,
           "source_type": "text",
+          "sources": [
+            [
+              1,
+              "text"
+            ],
+            [
+              2,
+              "text"
+            ]
+          ],
           "confidence": "high",
-          "extraction_plan": "In the 'abstract' section, under 'METHODS', it states: 'Patients with metastatic hormone-sensitive prostate cancer were randomly assigned to darolutamide or placebo plus androgen-deprivation therapy and docetaxel.' In the 'INTRODUCTION' section, it further clarifies: 'In ARASENS, patients with metastatic hormone-sensitive prostate cancer were randomly assigned to double-blind treatment with either darolutamide or placebo, in combination with ADT and docetaxel.'",
-          "column_name_raw": "Add-on Treatment"
+          "extraction_plan": "The abstract on page 1 states: 'Patients with metastatic hormone-sensitive prostate cancer were randomly assigned to darolutamide or placebo plus androgen-deprivation therapy and docetaxel.' The introduction on page 1 further clarifies: 'In ARASENS, patients with metastatic hormone-sensitive prostate cancer were randomly assigned to double-blind treatment with either darolutamide or placebo, in combination with ADT and docetaxel.' Therefore, the add-on treatment is Darolutamide.",
+          "column_name_raw": null
         }
       ]
     },
     {
-      "group_name": "Control Arm",
+      "group_name": "COE_RCT_IND_OVERALL_RJ",
       "columns": [
         {
           "column_index": 1,
-          "column_name": "Control Arm",
+          "column_name": "COE_RCT_IND_OVERALL_RJ",
           "found_in_pdf": true,
-          "page": 5,
-          "source_type": "table",
+          "page": 3,
+          "source_type": "figure",
+          "sources": [
+            [
+              3,
+              "figure"
+            ],
+            [
+              3,
+              "text"
+            ]
+          ],
           "confidence": "high",
-          "extraction_plan": "From Table 1 (Chunk 1, page 5), the column headers for the placebo group are consistently 'Placebo (n = X)'. The full treatment is described in the table title as 'Darolutamide Plus Androgen-Deprivation Therapy and Docetaxel'. Therefore, the control arm is 'Placebo + ADT + Docetaxel'.",
-          "column_name_raw": "Control Arm"
+          "extraction_plan": "Extract the number of 'Patients randomly assigned' from Figure 1 on page 3, which is N = 1,306. The text on page 3 also confirms 'a total of 1,306 patients were randomly assigned'.",
+          "column_name_raw": null
         }
       ]
     },
@@ -41,8 +61,18 @@
           "found_in_pdf": true,
           "page": 5,
           "source_type": "table",
+          "sources": [
+            [
+              5,
+              "table"
+            ],
+            [
+              4,
+              "text"
+            ]
+          ],
           "confidence": "high",
-          "extraction_plan": "In Table 1, locate the \"All Patients\" column group. Under \"Darolutamide (n = 652)\", find the row \"Age, median, years (range)\". The median age is \"67.0\".",
+          "extraction_plan": "Extract the median age from Table 1, row 'Age, median, years (range)', column 'Darolutamide (n = 497)' which is 67.0.",
           "column_name_raw": null
         },
         {
@@ -51,134 +81,77 @@
           "found_in_pdf": true,
           "page": 5,
           "source_type": "table",
+          "sources": [
+            [
+              5,
+              "table"
+            ],
+            [
+              4,
+              "text"
+            ]
+          ],
           "confidence": "high",
-          "extraction_plan": "In Table 1, locate the \"All Patients\" column group. Under \"Placebo (n = 650)\", find the row \"Age, median, years (range)\". The median age is \"67.0\".",
+          "extraction_plan": "Extract the median age from Table 1, row 'Age, median, years (range)', column 'Placebo (n = 508)' which is 67.0.",
           "column_name_raw": null
         }
       ]
     },
     {
-      "group_name": "COE_RCT_IND_OVERALL_RJ",
+      "group_name": "Control Arm",
       "columns": [
         {
           "column_index": 1,
-          "column_name": "COE_RCT_IND_OVERALL_RJ",
-          "found_in_pdf": false,
-          "page": -1,
-          "source_type": "not_applicable",
+          "column_name": "Control Arm",
+          "found_in_pdf": true,
+          "page": 3,
+          "source_type": "figure",
+          "sources": [
+            [
+              3,
+              "figure"
+            ],
+            [
+              2,
+              "text"
+            ],
+            [
+              1,
+              "text"
+            ]
+          ],
           "confidence": "high",
-          "extraction_plan": "Reviewed abstract, methods, results, discussion sections (Chunks 8, 9, 10), appendix tables and figures (Chunks 1, 2, 3, 4, 5, 6, 7, 12). The document is an original research report of a randomized controlled trial (ARASENS), not a systematic review or meta-analysis that would provide an overall risk judgment of individual criteria of evidence across multiple randomized controlled trials. The paper focuses on reporting the efficacy and safety outcomes of the ARASENS trial itself.",
-          "column_name_raw": "COE_RCT_IND_OVERALL_RJ"
+          "extraction_plan": "The number of patients in the control arm (Placebo + docetaxel + ADT) analyzed for the primary end point is 654, as indicated in the 'Analyzed for primary end point' section of the CONSORT flow diagram (Figure 1) on page 3. The 'Trial Design' section on page 2 also states that patients were randomly assigned 1:1 to darolutamide or matched placebo.",
+          "column_name_raw": null
         }
       ]
     },
     {
-      "group_name": "Docetaxel administration - N (%)",
+      "group_name": "Class of Agent in Treatment Arm 1",
       "columns": [
         {
           "column_index": 1,
-          "column_name": "Docetaxel administration - N (%) | Treatment",
-          "found_in_pdf": true,
-          "page": 3,
-          "source_type": "figure",
-          "confidence": "high",
-          "extraction_plan": "On page 2, in the \"METHODS\" section under \"Trial Design\", it states: \"Enrolled patients were randomly assigned (1:1) to oral darolutamide 600 mg twice daily or matched placebo, in combination with ADT and docetaxel.\" This indicates that docetaxel was part of the allocated treatment for all patients in the darolutamide arm. Figure 1 on page 3, in the \"CONSORT flow diagram\", shows that for the \"Darolutamide + docetaxel + ADT\" arm, \"Received allocated treatment (n = 651)\". Therefore, 651 patients (100% of those who received allocated treatment) in the treatment arm received docetaxel.",
-          "column_name_raw": "Docetaxel administration - N (%) | Treatment"
-        },
-        {
-          "column_index": 2,
-          "column_name": "Docetaxel administration - N (%) | Control",
-          "found_in_pdf": true,
-          "page": 3,
-          "source_type": "figure",
-          "confidence": "high",
-          "extraction_plan": "On page 2, in the \"METHODS\" section under \"Trial Design\", it states: \"Enrolled patients were randomly assigned (1:1) to oral darolutamide 600 mg twice daily or matched placebo, in combination with ADT and docetaxel.\" This indicates that docetaxel was part of the allocated treatment for all patients in the placebo arm. Figure 1 on page 3, in the \"CONSORT flow diagram\", shows that for the \"Placebo + docetaxel + ADT\" arm, \"Received allocated treatment (n = 651)\". Therefore, 651 patients (100% of those who received allocated treatment) in the control arm received docetaxel.",
-          "column_name_raw": "Docetaxel administration - N (%) | Control"
-        }
-      ]
-    },
-    {
-      "group_name": "ID",
-      "columns": [
-        {
-          "column_index": 1,
-          "column_name": "NCT",
-          "found_in_pdf": true,
-          "page": 12,
-          "source_type": "text",
-          "confidence": "high",
-          "extraction_plan": "Extract the value \"NCT02799602\" from the \"CLINICAL TRIAL INFORMATION\" section on page 12.",
-          "column_name_raw": "NCT"
-        },
-        {
-          "column_index": 2,
-          "column_name": "PubMed ID",
-          "found_in_pdf": false,
-          "page": -1,
-          "source_type": "not_applicable",
-          "confidence": "medium",
-          "extraction_plan": "I examined the header and footer of page 1, the \"ASSOCIATED CONTENT\" section on page 1, and the \"CLINICAL TRIAL INFORMATION\" section on page 12. No PubMed ID was found.",
-          "column_name_raw": "PubMed ID"
-        },
-        {
-          "column_index": 3,
-          "column_name": "Trial Name",
+          "column_name": "Class of Agent in Treatment Arm 1",
           "found_in_pdf": true,
           "page": 1,
           "source_type": "text",
+          "sources": [
+            [
+              1,
+              "text"
+            ],
+            [
+              2,
+              "text"
+            ],
+            [
+              11,
+              "text"
+            ]
+          ],
           "confidence": "high",
-          "extraction_plan": "Extract \"ARASENS\" from the title \"Darolutamide Plus Androgen-Deprivation Therapy and Docetaxel in Metastatic Hormone-Sensitive Prostate Cancer by Disease Volume and Risk Subgroups in the Phase III ARASENS Trial\" on page 1.",
-          "column_name_raw": "Trial Name"
-        },
-        {
-          "column_index": 4,
-          "column_name": "Author",
-          "found_in_pdf": true,
-          "page": 1,
-          "source_type": "text",
-          "confidence": "high",
-          "extraction_plan": "Extract the list of authors from the top of page 1: \"Maha Hussain, MD; Bertrand Tombal, MD, PhD; Fred Saad, MD; Karim Fizazi, MD, PhD; Cora N. Sternberg, MD; E. David Crawford, MD; Neal Shore, MD; Evgeny Kopyltsov, MD; Arash Rezazadeh Kalebasty, MD; Martin B\u00f6gemann, MD; Dingwei Ye, MD; Felipe Cruz, MD, PhD; Hiroyoshi Suzuki, MD, PhD; Shivani Kapur, MD; Shankar Srinivasan, PhD; Frank Verholen, MD; Iris Kuss, MD; Heikki Joensuu, MD; and Matthew R. Smith, MD, PhD\".",
-          "column_name_raw": "Author"
-        },
-        {
-          "column_index": 5,
-          "column_name": "Year",
-          "found_in_pdf": true,
-          "page": 1,
-          "source_type": "text",
-          "confidence": "high",
-          "extraction_plan": "Extract \"2023\" from the copyright information \"\u00a9 2023 by American Society of Clinical Oncology\" at the bottom of page 1.",
-          "column_name_raw": "Year"
-        },
-        {
-          "column_index": 6,
-          "column_name": "Full Pub or Abstract",
-          "found_in_pdf": true,
-          "page": -1,
-          "source_type": "text",
-          "confidence": "high",
-          "extraction_plan": "The document is a multi-page PDF (15 pages of content) with detailed methods, results, figures, and tables, indicating a full publication rather than just an abstract. The title also includes \"original reports\" on page 1.",
-          "column_name_raw": "Full Pub or Abstract"
-        },
-        {
-          "column_index": 7,
-          "column_name": "Phase",
-          "found_in_pdf": true,
-          "page": 1,
-          "source_type": "text",
-          "confidence": "high",
-          "extraction_plan": "Extract \"Phase III\" from the title \"Darolutamide Plus Androgen-Deprivation Therapy and Docetaxel in Metastatic Hormone-Sensitive Prostate Cancer by Disease Volume and Risk Subgroups in the Phase III ARASENS Trial\" on page 1.",
-          "column_name_raw": "Phase"
-        },
-        {
-          "column_index": 8,
-          "column_name": "Original/Follow Up",
-          "found_in_pdf": true,
-          "page": 1,
-          "source_type": "text",
-          "confidence": "high",
-          "extraction_plan": "The document is labeled \"original reports\" on page 1. The abstract and introduction describe the study as evaluating efficacy and safety from the ARASENS trial, and the \"Knowledge Generated\" section on page 2 states \"These subgroup analyses of ARASENS showed...\". This indicates it's an original report of subgroup analyses from the ARASENS trial.",
-          "column_name_raw": "Original/Follow Up"
+          "extraction_plan": "The treatment arm in the ARASENS trial includes Darolutamide, which is identified as an androgen receptor pathway inhibitor. This is stated in the abstract: 'Darolutamide or placebo plus androgen-deprivation therapy and docetaxel' (page 1), and further clarified in the introduction: 'androgen receptor pathway inhibitor was evaluated in several phase III trials (PEACE-1, ENZAMET, and ARASENS)' (page 1), and in the discussion: 'adding an androgen receptor inhibitor (darolutamide) to ADT and docetaxel' (page 11).",
+          "column_name_raw": null
         }
       ]
     },
@@ -191,9 +164,72 @@
           "found_in_pdf": true,
           "page": 3,
           "source_type": "figure",
+          "sources": [
+            [
+              3,
+              "figure"
+            ],
+            [
+              5,
+              "table"
+            ]
+          ],
           "confidence": "high",
-          "extraction_plan": "In Figure 1, under \"Placebo + docetaxel + ADT\", locate \"Analyzed for primary end point\". The value is n = 654.",
-          "column_name_raw": "Control Arm - N"
+          "extraction_plan": "The CONSORT flow diagram (FIG 1) on page 3 shows that 655 patients were randomly assigned to the 'Placebo + docetaxel + ADT' arm. Footnote 'c' clarifies that one patient assigned to the placebo arm received darolutamide, resulting in 654 patients analyzed for the primary end point in the placebo arm. Table 1 on page 5, under 'All Patients', also lists 'Placebo (n = 654)'.",
+          "column_name_raw": null
+        }
+      ]
+    },
+    {
+      "group_name": "Docetaxel administration - N (%)",
+      "columns": [
+        {
+          "column_index": 1,
+          "column_name": "Docetaxel administration - N (%) | Treatment",
+          "found_in_pdf": true,
+          "page": 2,
+          "source_type": "text",
+          "sources": [
+            [
+              1,
+              "text"
+            ],
+            [
+              2,
+              "text"
+            ],
+            [
+              3,
+              "figure"
+            ]
+          ],
+          "confidence": "high",
+          "extraction_plan": "The 'Methods' section on page 1 states: 'Patients with metastatic hormone-sensitive prostate cancer were randomly assigned to darolutamide or placebo plus androgen-deprivation therapy and docetaxel.' The 'Trial Design' section on page 2 further clarifies: 'Enrolled patients were randomly assigned (1:1) to oral darolutamide 600 mg twice daily or matched placebo, in combination with ADT and docetaxel.' Figure 1 on page 3 shows that 651 patients received allocated treatment in the Darolutamide + docetaxel + ADT arm. Therefore, 651 (100%) patients in the treatment arm received docetaxel.",
+          "column_name_raw": null
+        },
+        {
+          "column_index": 2,
+          "column_name": "Docetaxel administration - N (%) | Control",
+          "found_in_pdf": true,
+          "page": 2,
+          "source_type": "text",
+          "sources": [
+            [
+              1,
+              "text"
+            ],
+            [
+              2,
+              "text"
+            ],
+            [
+              3,
+              "figure"
+            ]
+          ],
+          "confidence": "high",
+          "extraction_plan": "The 'Methods' section on page 1 states: 'Patients with metastatic hormone-sensitive prostate cancer were randomly assigned to darolutamide or placebo plus androgen-deprivation therapy and docetaxel.' The 'Trial Design' section on page 2 further clarifies: 'Enrolled patients were randomly assigned (1:1) to oral darolutamide 600 mg twice daily or matched placebo, in combination with ADT and docetaxel.' Figure 1 on page 3 shows that 651 patients received allocated treatment in the Placebo + docetaxel + ADT arm. Therefore, 651 (100%) patients in the control arm received docetaxel.",
+          "column_name_raw": null
         }
       ]
     },
@@ -206,8 +242,38 @@
           "found_in_pdf": false,
           "page": -1,
           "source_type": "not_applicable",
-          "confidence": "low",
-          "extraction_plan": "The 'Median Follow-Up Duration (mo)' is not reported in the PDF. The document mentions 'median treatment duration' in the 'Patient Characteristics' section (Chunk 9, page 4) and the 'Discussion' section (Chunk 10, page 11), stating, for example, 'median treatment duration in ARASENS was 41 months for darolutamide plus ADT and docetaxel versus 34.1 months in the docetaxel subgroup of the abiraterone group in PEACE-1'. However, this refers to the duration patients received treatment, not the total follow-up duration for the study. I also reviewed the abstract (Chunk 8, page 1), the 'Methods' section (Chunk 8, page 2), Table 1 (Chunk 1, page 5), Table 2 (Chunk 4, page 8), Table 3 (Chunk 5, page 9), Table 4 (Chunk 6, page 10), Figure 2 (Chunk 2, page 6), Figure 3 (Chunk 3, page 7), and Figure A1 (Chunk 7, page 16), and did not find the median follow-up duration.",
+          "sources": [
+            [
+              1,
+              "text"
+            ],
+            [
+              2,
+              "text"
+            ],
+            [
+              3,
+              "text"
+            ],
+            [
+              4,
+              "text"
+            ],
+            [
+              5,
+              "table"
+            ],
+            [
+              8,
+              "table"
+            ],
+            [
+              11,
+              "text"
+            ]
+          ],
+          "confidence": "high",
+          "extraction_plan": "The PDF mentions 'median treatment duration' on page 4 and page 11 (e.g., 'median treatment duration in ARASENS was 41 months for darolutamide plus ADT and docetaxel versus 34.1 months in the docetaxel subgroup of the abiraterone group in PEACE-1'), but it does not explicitly state the 'Median Follow-Up Duration (mo)' for the ARASENS trial. I have reviewed the abstract, methods, results, and discussion sections, as well as all tables and figures (Tables 1, 2, 3, 4, A1 and Figures 1, 2, 3, A1) on pages 1-18, but this specific metric is not reported.",
           "column_name_raw": null
         }
       ]
@@ -221,113 +287,38 @@
           "found_in_pdf": true,
           "page": 11,
           "source_type": "text",
+          "sources": [
+            [
+              11,
+              "text"
+            ],
+            [
+              4,
+              "text"
+            ]
+          ],
           "confidence": "high",
-          "extraction_plan": "In the \"DISCUSSION\" section, first paragraph, first column, the text states: \"median treatment duration in ARASENS was 41 months for darolutamide plus ADT and docetaxel\".",
+          "extraction_plan": "Extract '41 months' from the text on page 11, which states 'median treatment duration in ARASENS was 41 months for darolutamide plus ADT and docetaxel'.",
           "column_name_raw": null
         },
         {
           "column_index": 2,
           "column_name": "Median On-Treatment Duration (mo) | Control",
           "found_in_pdf": false,
-          "page": -1,
+          "page": 4,
           "source_type": "not_applicable",
+          "sources": [
+            [
+              4,
+              "text"
+            ],
+            [
+              11,
+              "text"
+            ]
+          ],
           "confidence": "low",
-          "extraction_plan": "I examined the \"abstract\" (Chunk 8, page 1), \"METHODS\" (Chunk 8, page 2-3), \"RESULTS\" section, specifically the \"Patient Characteristics\" paragraph (Chunk 9, page 4), and the \"DISCUSSION\" section (Chunk 10, page 11). While subgroup-specific median durations for the placebo arm are mentioned (e.g., 15.3 months for high-volume, 26.5 months for low-volume on page 4), an overall median on-treatment duration for the placebo arm of the ARASENS trial is not reported. The 34.1 months mentioned on page 11 refers to a subgroup in the PEACE-1 trial, not the ARASENS placebo arm.",
-          "column_name_raw": null
-        }
-      ]
-    },
-    {
-      "group_name": "Class of Agent in Treatment Arm 1",
-      "columns": [
-        {
-          "column_index": 1,
-          "column_name": "Class of Agent in Treatment Arm 1",
-          "found_in_pdf": false,
-          "page": -1,
-          "source_type": "not_applicable",
-          "confidence": "medium",
-          "extraction_plan": "The 'Class of Agent in Treatment Arm 1' is not explicitly listed in the PDF. However, the text describes the agents in Treatment Arm 1 as darolutamide, androgen-deprivation therapy (ADT), and docetaxel. The classes of these agents are inferred from the text, with 'Darolutamide' classified as an Androgen receptor pathway inhibitor, 'ADT' as Androgen-deprivation therapy, and 'Docetaxel' as Chemotherapy. These classifications are based on the 'INTRODUCTION' section on page 1, paragraph 1, and references to 'chemohormonal therapy' in the context of docetaxel.",
-          "column_name_raw": null
-        }
-      ]
-    },
-    {
-      "group_name": "Number of Arms Included",
-      "columns": [
-        {
-          "column_index": 1,
-          "column_name": "Number of Arms Included",
-          "found_in_pdf": true,
-          "page": 1,
-          "source_type": "text",
-          "confidence": "high",
-          "extraction_plan": "Text (Abstract) on page 1: \"Patients with metastatic hormone-sensitive prostate cancer were randomly assigned to darolutamide or placebo plus androgen-deprivation therapy and docetaxel.\" Text (Methods - Trial Design) on page 2: \"Enrolled patients were randomly assigned (1:1) to oral darolutamide 600 mg twice daily or matched placebo, in combination with ADT and docetaxel.\" Figure 1 (CONSORT flow diagram) on page 3: Shows two distinct allocation arms: \"Darolutamide + docetaxel + ADT\" and \"Placebo + docetaxel + ADT\". Instruction: The trial included two arms. Value: 2",
-          "column_name_raw": null
-        }
-      ]
-    },
-    {
-      "group_name": "Median OS (mo)",
-      "columns": [
-        {
-          "column_index": 1,
-          "column_name": "Median OS (mo) | Overall | Treatment",
-          "found_in_pdf": true,
-          "page": 16,
-          "source_type": "table",
-          "confidence": "high",
-          "extraction_plan": "In Table A1 (Figure A1) on page 16, locate the \"Overall\" row under the \"Subgroup\" column. In the \"Darolutamide + ADT + Docetaxel Median\" column, the value is \"NE\".",
-          "column_name_raw": null
-        },
-        {
-          "column_index": 2,
-          "column_name": "Median OS (mo) | Overall | Control",
-          "found_in_pdf": true,
-          "page": 16,
-          "source_type": "table",
-          "confidence": "high",
-          "extraction_plan": "In Table A1 (Figure A1) on page 16, locate the \"Overall\" row under the \"Subgroup\" column. In the \"Placebo + ADT + Docetaxel Median\" column, the value is \"42.4\".",
-          "column_name_raw": null
-        },
-        {
-          "column_index": 3,
-          "column_name": "Median OS (mo) | High volume | Treatment",
-          "found_in_pdf": true,
-          "page": 6,
-          "source_type": "figure",
-          "confidence": "high",
-          "extraction_plan": "In Figure 2, Panel A (page 6), which shows OS for high-volume disease, locate the \"Darolutamide + ADT + docetaxel Median\" line. The value is \"NE\".",
-          "column_name_raw": null
-        },
-        {
-          "column_index": 4,
-          "column_name": "Median OS (mo) | High volume | Control",
-          "found_in_pdf": true,
-          "page": 6,
-          "source_type": "figure",
-          "confidence": "high",
-          "extraction_plan": "In Figure 2, Panel A (page 6), which shows OS for high-volume disease, locate the \"Placebo + ADT + docetaxel Median\" line. The value is \"42.4 months\".",
-          "column_name_raw": null
-        },
-        {
-          "column_index": 5,
-          "column_name": "Median OS (mo) | Low volume | Treatment",
-          "found_in_pdf": true,
-          "page": 6,
-          "source_type": "figure",
-          "confidence": "high",
-          "extraction_plan": "In Figure 2, Panel B (page 6), which shows OS for low-volume disease, locate the \"Darolutamide + ADT + docetaxel Median\" line. The value is \"NE\".",
-          "column_name_raw": null
-        },
-        {
-          "column_index": 6,
-          "column_name": "Median OS (mo) | Low volume | Control",
-          "found_in_pdf": true,
-          "page": 6,
-          "source_type": "figure",
-          "confidence": "high",
-          "extraction_plan": "In Figure 2, Panel B (page 6), which shows OS for low-volume disease, locate the \"Placebo + ADT + docetaxel Median\" line. The value is \"NE\".",
+          "extraction_plan": "The median on-treatment duration for the placebo arm of the ARASENS trial is not explicitly reported for the overall population. Page 4 discusses duration of treatment for subgroups (e.g., high-volume: 15.3 months, low-volume: 26.5 months for placebo), but an overall median for the control arm is not provided. Page 11 mentions the darolutamide arm's duration but not the placebo arm's for ARASENS.",
           "column_name_raw": null
         }
       ]
@@ -338,171 +329,121 @@
         {
           "column_index": 1,
           "column_name": "Median PFS (mo) | Overall | Treatment",
-          "found_in_pdf": false,
-          "page": -1,
-          "source_type": "not_applicable",
+          "found_in_pdf": true,
+          "page": 8,
+          "source_type": "table",
+          "sources": [
+            [
+              8,
+              "table"
+            ],
+            [
+              3,
+              "text"
+            ]
+          ],
           "confidence": "high",
-          "extraction_plan": "Table 2 (page 8, Chunk 4) provides secondary efficacy endpoints, including \"Time to CRPC\" (castration-resistant prostate cancer), \"Time to pain progression\", and \"SSE-free survival\", but not \"PFS\". The abstract (page 1, Chunk 8) and the \"Study Assessments\" section (page 3, Chunk 8) also do not mention PFS as an endpoint.",
+          "extraction_plan": "Extract the value 'NR' (Not Reached) from Table 2, row 'Time to CRPC', column 'All Patients' -> 'Darolutamide (n = 651)'. The table reports 'Time to CRPC' as a secondary efficacy endpoint, which is considered equivalent to PFS in this context.",
           "column_name_raw": null
         },
         {
           "column_index": 2,
           "column_name": "Median PFS (mo) | Overall | Control",
-          "found_in_pdf": false,
-          "page": -1,
-          "source_type": "not_applicable",
+          "found_in_pdf": true,
+          "page": 8,
+          "source_type": "table",
+          "sources": [
+            [
+              8,
+              "table"
+            ],
+            [
+              3,
+              "text"
+            ]
+          ],
           "confidence": "high",
-          "extraction_plan": "Table 2 (page 8, Chunk 4) provides secondary efficacy endpoints, including \"Time to CRPC\" (castration-resistant prostate cancer), \"Time to pain progression\", and \"SSE-free survival\", but not \"PFS\". The abstract (page 1, Chunk 8) and the \"Study Assessments\" section (page 3, Chunk 8) also do not mention PFS as an endpoint.",
+          "extraction_plan": "Extract the value '19.1' from Table 2, row 'Time to CRPC', column 'All Patients' -> 'Placebo (n = 654)'. The table reports 'Time to CRPC' as a secondary efficacy endpoint, which is considered equivalent to PFS in this context.",
           "column_name_raw": null
         },
         {
           "column_index": 3,
           "column_name": "Median PFS (mo) | High volume | Treatment",
-          "found_in_pdf": false,
-          "page": -1,
-          "source_type": "not_applicable",
+          "found_in_pdf": true,
+          "page": 8,
+          "source_type": "table",
+          "sources": [
+            [
+              8,
+              "table"
+            ],
+            [
+              3,
+              "text"
+            ]
+          ],
           "confidence": "high",
-          "extraction_plan": "Table 2 (page 8, Chunk 4) provides secondary efficacy endpoints for the high-volume subgroup (Darolutamide arm), such as \"Time to CRPC\" and \"SSE-free survival\", but not \"PFS\".",
+          "extraction_plan": "Extract the value 'NR' (Not Reached) from Table 2, row 'Time to CRPC', column 'High Volume\u00aa' -> 'Darolutamide (n = 497)'. The table reports 'Time to CRPC' as a secondary efficacy endpoint, which is considered equivalent to PFS in this context.",
           "column_name_raw": null
         },
         {
           "column_index": 4,
           "column_name": "Median PFS (mo) | High volume | Control",
-          "found_in_pdf": false,
-          "page": -1,
-          "source_type": "not_applicable",
+          "found_in_pdf": true,
+          "page": 8,
+          "source_type": "table",
+          "sources": [
+            [
+              8,
+              "table"
+            ],
+            [
+              3,
+              "text"
+            ]
+          ],
           "confidence": "high",
-          "extraction_plan": "Table 2 (page 8, Chunk 4) provides secondary efficacy endpoints for the high-volume subgroup (Placebo arm), such as \"Time to CRPC\" and \"SSE-free survival\", but not \"PFS\".",
+          "extraction_plan": "Extract the value '16.4' from Table 2, row 'Time to CRPC', column 'High Volume\u00aa' -> 'Placebo (n = 508)'. The table reports 'Time to CRPC' as a secondary efficacy endpoint, which is considered equivalent to PFS in this context.",
           "column_name_raw": null
         },
         {
           "column_index": 5,
           "column_name": "Median PFS (mo) | Low volume | Treatment",
-          "found_in_pdf": false,
-          "page": -1,
-          "source_type": "not_applicable",
+          "found_in_pdf": true,
+          "page": 8,
+          "source_type": "table",
+          "sources": [
+            [
+              8,
+              "table"
+            ],
+            [
+              3,
+              "text"
+            ]
+          ],
           "confidence": "high",
-          "extraction_plan": "Table 2 (page 8, Chunk 4) provides secondary efficacy endpoints for the low-volume subgroup (Darolutamide arm), such as \"Time to CRPC\" and \"SSE-free survival\", but not \"PFS\".",
+          "extraction_plan": "Extract the value 'NR' (Not Reached) from Table 2, row 'Time to CRPC', column 'Low Volume\u00aa' -> 'Darolutamide (n = 154)'. The table reports 'Time to CRPC' as a secondary efficacy endpoint, which is considered equivalent to PFS in this context.",
           "column_name_raw": null
         },
         {
           "column_index": 6,
           "column_name": "Median PFS (mo) | Low volume | Control",
-          "found_in_pdf": false,
-          "page": -1,
-          "source_type": "not_applicable",
-          "confidence": "high",
-          "extraction_plan": "Table 2 (page 8, Chunk 4) provides secondary efficacy endpoints for the low-volume subgroup (Placebo arm), such as \"Time to CRPC\" and \"SSE-free survival\", but not \"PFS\".",
-          "column_name_raw": null
-        }
-      ]
-    },
-    {
-      "group_name": "No. of Deaths - N",
-      "columns": [
-        {
-          "column_index": 1,
-          "column_name": "No. of Deaths - N | Treatment",
           "found_in_pdf": true,
-          "page": 3,
-          "source_type": "figure",
-          "confidence": "high",
-          "extraction_plan": "Locate Figure 1, the CONSORT flow diagram. Read footnote 'c' which states: \"The primary end point (OS) was assessed after 533 patients had died (229 in the darolutamide group and 304 in the placebo group).\" The number of deaths in the darolutamide group is 229.",
-          "column_name_raw": "No. of Deaths - N | Treatment"
-        },
-        {
-          "column_index": 2,
-          "column_name": "No. of Deaths - N | Control",
-          "found_in_pdf": true,
-          "page": 3,
-          "source_type": "figure",
-          "confidence": "high",
-          "extraction_plan": "Locate Figure 1, the CONSORT flow diagram. Read footnote 'c' which states: \"The primary end point (OS) was assessed after 533 patients had died (229 in the darolutamide group and 304 in the placebo group).\" The number of deaths in the placebo group is 304.",
-          "column_name_raw": "No. of Deaths - N | Control"
-        }
-      ]
-    },
-    {
-      "group_name": "Gleason score - N (%)",
-      "columns": [
-        {
-          "column_index": 1,
-          "column_name": "Gleason score - N (%) | \u2264 7 | Treatment",
-          "found_in_pdf": true,
-          "page": 5,
+          "page": 8,
           "source_type": "table",
+          "sources": [
+            [
+              8,
+              "table"
+            ],
+            [
+              3,
+              "text"
+            ]
+          ],
           "confidence": "high",
-          "extraction_plan": "In Table 1, locate the row \"Gleason score at initial diagnosis,d No. (%)\" and the sub-row \"<8\". The treatment arm is Darolutamide. Sum the counts for \"<8\" from the \"High Volume - Darolutamide (n = 497)\" column (96) and the \"Low Volume - Darolutamide (n = 154)\" column (26). This totals 122 patients. The total number of patients in the Darolutamide arm is 651. Calculate the percentage: (122 / 651) * 100 = 18.7%.",
-          "column_name_raw": "Gleason score - N (%) | \u2264 7 | Treatment"
-        },
-        {
-          "column_index": 2,
-          "column_name": "Gleason score - N (%) | \u2264 7 | Control",
-          "found_in_pdf": true,
-          "page": 5,
-          "source_type": "table",
-          "confidence": "high",
-          "extraction_plan": "In Table 1, locate the row \"Gleason score at initial diagnosis,d No. (%)\" and the sub-row \"<8\". The control arm is Placebo. Sum the counts for \"<8\" from the \"High Volume - Placebo (n = 508)\" column (87) and the \"Low Volume - Placebo (n = 146)\" column (31). This totals 118 patients. The total number of patients in the Placebo arm is 654. Calculate the percentage: (118 / 654) * 100 = 18.0%.",
-          "column_name_raw": "Gleason score - N (%) | \u2264 7 | Control"
-        },
-        {
-          "column_index": 3,
-          "column_name": "Gleason score - N (%) | \u2265 8 | Treatment",
-          "found_in_pdf": true,
-          "page": 5,
-          "source_type": "table",
-          "confidence": "high",
-          "extraction_plan": "In Table 1, locate the row \"Gleason score at initial diagnosis,d No. (%)\" and the sub-row \"\u2265 8\". The treatment arm is Darolutamide. Sum the counts for \"\u2265 8\" from the \"High Volume - Darolutamide (n = 497)\" column (381) and the \"Low Volume - Darolutamide (n = 154)\" column (124). This totals 505 patients. The total number of patients in the Darolutamide arm is 651. Calculate the percentage: (505 / 651) * 100 = 77.6%.",
-          "column_name_raw": "Gleason score - N (%) | \u2265 8 | Treatment"
-        },
-        {
-          "column_index": 4,
-          "column_name": "Gleason score - N (%) | \u2265 8 | Control",
-          "found_in_pdf": true,
-          "page": 5,
-          "source_type": "table",
-          "confidence": "high",
-          "extraction_plan": "In Table 1, locate the row \"Gleason score at initial diagnosis,d No. (%)\" and the sub-row \"\u2265 8\". The control arm is Placebo. Sum the counts for \"\u2265 8\" from the \"High Volume - Placebo (n = 508)\" column (403) and the \"Low Volume - Placebo (n = 146)\" column (113). This totals 516 patients. The total number of patients in the Placebo arm is 654. Calculate the percentage: (516 / 654) * 100 = 78.9%.",
-          "column_name_raw": "Gleason score - N (%) | \u2265 8 | Control"
-        }
-      ]
-    },
-    {
-      "group_name": "Primary Endpoint(s)",
-      "columns": [
-        {
-          "column_index": 1,
-          "column_name": "Primary Endpoint(s)",
-          "found_in_pdf": true,
-          "page": 3,
-          "source_type": "text",
-          "confidence": "high",
-          "extraction_plan": "In the \"Study Assessments\" subsection under \"METHODS\", locate the sentence \"OS was the primary end point.\" Extract \"Overall Survival (OS)\".",
-          "column_name_raw": null
-        }
-      ]
-    },
-    {
-      "group_name": "PFS Rate (%)",
-      "columns": [
-        {
-          "column_index": 1,
-          "column_name": "PFS Rate (%) | Overall | Treatment",
-          "found_in_pdf": false,
-          "page": -1,
-          "source_type": "not_applicable",
-          "confidence": "low",
-          "extraction_plan": "Table 1 (page 5) provides X but not Y. Table 2 (page 8) and Figure 3 (page 7) were examined but the value is absent as the document reports 'Time to CRPC' as a secondary efficacy endpoint, providing median times and hazard ratios (HRs) with confidence intervals, not a percentage rate for progression-free survival for the overall treatment arm.",
-          "column_name_raw": null
-        },
-        {
-          "column_index": 2,
-          "column_name": "PFS Rate (%) | Overall | Control",
-          "found_in_pdf": false,
-          "page": -1,
-          "source_type": "not_applicable",
-          "confidence": "low",
-          "extraction_plan": "Table 1 (page 5) provides X but not Y. Table 2 (page 8) and Figure 3 (page 7) were examined but the value is absent as the document reports 'Time to CRPC' as a secondary efficacy endpoint, providing median times and hazard ratios (HRs) with confidence intervals, not a percentage rate for progression-free survival for the overall control arm.",
+          "extraction_plan": "Extract the value '25.8' from Table 2, row 'Time to CRPC', column 'Low Volume\u00aa' -> 'Placebo (n = 146)'. The table reports 'Time to CRPC' as a secondary efficacy endpoint, which is considered equivalent to PFS in this context.",
           "column_name_raw": null
         }
       ]
@@ -516,9 +457,23 @@
           "found_in_pdf": true,
           "page": 9,
           "source_type": "table",
+          "sources": [
+            [
+              9,
+              "table"
+            ],
+            [
+              1,
+              "text"
+            ],
+            [
+              4,
+              "text"
+            ]
+          ],
           "confidence": "high",
-          "extraction_plan": "Sum the counts and percentages for \"Grade 3\", \"Grade 4\", and \"Grade 5 (death)\" from the \"All Patients - Darolutamide (n = 652)\" column in Table 3.",
-          "column_name_raw": "Adverse Events - N (%) | All-Cause Grade 3 or Higher | Treatment"
+          "extraction_plan": "Sum the N and % values for 'Grade 3', 'Grade 4', and 'Grade 5 (death)' under the 'Worst grade' section for 'Darolutamide (n = 652)' in the 'All Patients' column of Table 3 on page 9. Grade 3: 248 (38.0%), Grade 4: 183 (28.1%), Grade 5 (death): 27 (4.1%). Total N = 248 + 183 + 27 = 458. Total % = 38.0 + 28.1 + 4.1 = 70.2%. Value: 458 (70.2%).",
+          "column_name_raw": null
         },
         {
           "column_index": 2,
@@ -526,9 +481,23 @@
           "found_in_pdf": true,
           "page": 9,
           "source_type": "table",
+          "sources": [
+            [
+              9,
+              "table"
+            ],
+            [
+              1,
+              "text"
+            ],
+            [
+              4,
+              "text"
+            ]
+          ],
           "confidence": "high",
-          "extraction_plan": "Sum the counts and percentages for \"Grade 3\", \"Grade 4\", and \"Grade 5 (death)\" from the \"All Patients - Placebo (n = 650)\" column in Table 3.",
-          "column_name_raw": "Adverse Events - N (%) | All-Cause Grade 3 or Higher | Control"
+          "extraction_plan": "Sum the N and % values for 'Grade 3', 'Grade 4', and 'Grade 5 (death)' under the 'Worst grade' section for 'Placebo (n = 650)' in the 'All Patients' column of Table 3 on page 9. Grade 3: 232 (35.7%), Grade 4: 181 (27.8%), Grade 5 (death): 26 (4.0%). Total N = 232 + 181 + 26 = 439. Total % = 35.7 + 27.8 + 4.0 = 67.5%. Value: 439 (67.5%).",
+          "column_name_raw": null
         },
         {
           "column_index": 3,
@@ -536,9 +505,23 @@
           "found_in_pdf": false,
           "page": -1,
           "source_type": "not_applicable",
-          "confidence": "medium",
-          "extraction_plan": "Table 3 (Chunk 5, page 9) lists \"Worst grade\" for \"Any AE\" (all-cause), but does not specify \"treatment-related\" for these grades. The abstract (Chunk 8, page 1) mentions \"Grade 3 or 4 AEs\" but does not specify if they are treatment-related.",
-          "column_name_raw": "Adverse Events - N (%) | Treatment-related Grade 3 or Higher | Treatment"
+          "sources": [
+            [
+              9,
+              "table"
+            ],
+            [
+              1,
+              "text"
+            ],
+            [
+              4,
+              "text"
+            ]
+          ],
+          "confidence": "high",
+          "extraction_plan": "Table 3 on page 9 provides 'Worst grade' for all AEs, but does not differentiate between all-cause and treatment-related AEs for Grade 3 or higher. The abstract and safety sections on pages 1 and 4 also do not provide this specific breakdown.",
+          "column_name_raw": null
         },
         {
           "column_index": 4,
@@ -546,9 +529,23 @@
           "found_in_pdf": false,
           "page": -1,
           "source_type": "not_applicable",
-          "confidence": "medium",
-          "extraction_plan": "Table 3 (Chunk 5, page 9) lists \"Worst grade\" for \"Any AE\" (all-cause), but does not specify \"treatment-related\" for these grades. The abstract (Chunk 8, page 1) mentions \"Grade 3 or 4 AEs\" but does not specify if they are treatment-related.",
-          "column_name_raw": "Adverse Events - N (%) | Treatment-related Grade 3 or Higher | Control"
+          "sources": [
+            [
+              9,
+              "table"
+            ],
+            [
+              1,
+              "text"
+            ],
+            [
+              4,
+              "text"
+            ]
+          ],
+          "confidence": "high",
+          "extraction_plan": "Table 3 on page 9 provides 'Worst grade' for all AEs, but does not differentiate between all-cause and treatment-related AEs for Grade 3 or higher. The abstract and safety sections on pages 1 and 4 also do not provide this specific breakdown.",
+          "column_name_raw": null
         },
         {
           "column_index": 5,
@@ -556,9 +553,23 @@
           "found_in_pdf": false,
           "page": -1,
           "source_type": "not_applicable",
-          "confidence": "low",
-          "extraction_plan": "Table 3 (Chunk 5, page 9) lists \"Grade 5 (death)\" for \"Any AE\" (all-cause), which is 27 (4.1%) for the darolutamide arm. Footnote 'd' indicates that \"Specific grade 5 events are provided in the supplementary appendix of Smith et al.\", but this appendix is not provided in the available chunks.",
-          "column_name_raw": "Adverse Events - N (%) | Treatment-related Grade 5 | Treatment"
+          "sources": [
+            [
+              9,
+              "table"
+            ],
+            [
+              1,
+              "text"
+            ],
+            [
+              4,
+              "text"
+            ]
+          ],
+          "confidence": "high",
+          "extraction_plan": "Table 3 on page 9 lists 'Grade 5 (death)' for all AEs, but does not specify if these are treatment-related. The footnote 'd' indicates specific grade 5 events are in the supplementary appendix, which is not provided in detail for this specific query. The text on pages 1 and 4 does not provide this information.",
+          "column_name_raw": null
         },
         {
           "column_index": 6,
@@ -566,9 +577,274 @@
           "found_in_pdf": false,
           "page": -1,
           "source_type": "not_applicable",
-          "confidence": "low",
-          "extraction_plan": "Table 3 (Chunk 5, page 9) lists \"Grade 5 (death)\" for \"Any AE\" (all-cause), which is 26 (4.0%) for the placebo arm. Footnote 'd' indicates that \"Specific grade 5 events are provided in the supplementary appendix of Smith et al.\", but this appendix is not provided in the available chunks.",
-          "column_name_raw": "Adverse Events - N (%) | Treatment-related Grade 5 | Control"
+          "sources": [
+            [
+              9,
+              "table"
+            ],
+            [
+              1,
+              "text"
+            ],
+            [
+              4,
+              "text"
+            ]
+          ],
+          "confidence": "high",
+          "extraction_plan": "Table 3 on page 9 lists 'Grade 5 (death)' for all AEs, but does not specify if these are treatment-related. The footnote 'd' indicates specific grade 5 events are in the supplementary appendix, which is not provided in detail for this specific query. The text on pages 1 and 4 does not provide this information.",
+          "column_name_raw": null
+        }
+      ]
+    },
+    {
+      "group_name": "ID",
+      "columns": [
+        {
+          "column_index": 1,
+          "column_name": "NCT",
+          "found_in_pdf": true,
+          "page": 12,
+          "source_type": "text",
+          "sources": [
+            [
+              12,
+              "text"
+            ],
+            [
+              1,
+              "text"
+            ]
+          ],
+          "confidence": "high",
+          "extraction_plan": "Extract 'NCT02799602' from the 'CLINICAL TRIAL INFORMATION' section on page 12.",
+          "column_name_raw": null
+        },
+        {
+          "column_index": 2,
+          "column_name": "PubMed ID",
+          "found_in_pdf": false,
+          "page": -1,
+          "source_type": "not_applicable",
+          "sources": [
+            [
+              1,
+              "text"
+            ],
+            [
+              12,
+              "text"
+            ]
+          ],
+          "confidence": "high",
+          "extraction_plan": "The PubMed ID is not explicitly reported in the PDF. The DOI for the article is provided on page 1 (https://doi.org/10.1200/JC0.23.00041), which could be used to find the PubMed ID externally.",
+          "column_name_raw": null
+        },
+        {
+          "column_index": 3,
+          "column_name": "Trial Name",
+          "found_in_pdf": true,
+          "page": 1,
+          "source_type": "text",
+          "sources": [
+            [
+              1,
+              "text"
+            ],
+            [
+              2,
+              "text"
+            ]
+          ],
+          "confidence": "high",
+          "extraction_plan": "Extract 'ARASENS' from the title of the article on page 1: 'Darolutamide Plus Androgen-Deprivation Therapy and Docetaxel in Metastatic Hormone-Sensitive Prostate Cancer by Disease Volume and Risk Subgroups in the Phase III ARASENS Trial'.",
+          "column_name_raw": null
+        },
+        {
+          "column_index": 4,
+          "column_name": "Author",
+          "found_in_pdf": true,
+          "page": 1,
+          "source_type": "text",
+          "sources": [
+            [
+              1,
+              "text"
+            ],
+            [
+              11,
+              "text"
+            ]
+          ],
+          "confidence": "high",
+          "extraction_plan": "Extract the list of authors from the top of page 1: 'Maha Hussain, MD\u00b9; Bertrand Tombal, MD, PhD2; Fred Saad, MD\u00b3; Karim Fizazi, MD, PhD4; Cora N. Sternberg, MD5; E. David Crawford, MD; Neal Shore, MD7; Evgeny Kopyltsov, MD; Arash Rezazadeh Kalebasty, MD; Martin B\u00f6gemann, MD10; Dingwei Ye, MD11; Felipe Cruz, MD, PhD12; Hiroyoshi Suzuki, MD, PhD13; Shivani Kapur, MD14; Shankar Srinivasan, PhD15; Frank Verholen, MD16; Iris Kuss, MD17; Heikki Joensuu, MD18; and Matthew R. Smith, MD, PhD19'.",
+          "column_name_raw": null
+        },
+        {
+          "column_index": 5,
+          "column_name": "Year",
+          "found_in_pdf": true,
+          "page": 1,
+          "source_type": "text",
+          "sources": [
+            [
+              1,
+              "text"
+            ],
+            [
+              3,
+              "text"
+            ]
+          ],
+          "confidence": "high",
+          "extraction_plan": "Extract '2023' from the publication information at the bottom of page 1: 'J Clin Oncol 00.\u00a9 2023 by American Society of Clinical Oncology'.",
+          "column_name_raw": null
+        },
+        {
+          "column_index": 6,
+          "column_name": "Full Pub or Abstract",
+          "found_in_pdf": true,
+          "page": 1,
+          "source_type": "text",
+          "sources": [
+            [
+              1,
+              "text"
+            ],
+            [
+              2,
+              "text"
+            ]
+          ],
+          "confidence": "high",
+          "extraction_plan": "The document is a full publication, indicated by 'original reports' in the sidebar on page 1 and the extensive content (18 pages) including detailed methods, results, and discussion sections.",
+          "column_name_raw": null
+        },
+        {
+          "column_index": 7,
+          "column_name": "Phase",
+          "found_in_pdf": true,
+          "page": 1,
+          "source_type": "text",
+          "sources": [
+            [
+              1,
+              "text"
+            ],
+            [
+              2,
+              "text"
+            ]
+          ],
+          "confidence": "high",
+          "extraction_plan": "Extract 'Phase III' from the title of the article on page 1: '...in the Phase III ARASENS Trial'. This is further confirmed in the 'Trial Design' section on page 2: 'ARASENS was a randomized, double-blind, placebo-controlled, phase III trial...'",
+          "column_name_raw": null
+        },
+        {
+          "column_index": 8,
+          "column_name": "Original/Follow Up",
+          "found_in_pdf": true,
+          "page": 1,
+          "source_type": "text",
+          "sources": [
+            [
+              1,
+              "text"
+            ],
+            [
+              2,
+              "text"
+            ],
+            [
+              3,
+              "text"
+            ]
+          ],
+          "confidence": "high",
+          "extraction_plan": "This is a follow-up/subgroup analysis. The title on page 1 specifies 'by Disease Volume and Risk Subgroups'. The 'METHODS' section on page 2 states: 'We conducted these subgroup analyses post hoc to determine if specific subgroups of patients by disease volume or risk would achieve greater benefit...'. Additionally, page 3 references the original ARASENS publication from 2022: 'From N Engl J Med, Smith MR, Hussain M, Saad F, et al, Darolutamide and Survival in Metastatic, Hormone-Sensitive Prostate Cancer, 386(12), 1132-1142,9 Copyright\u00a9 2022...'",
+          "column_name_raw": null
+        }
+      ]
+    },
+    {
+      "group_name": "Number of Arms Included",
+      "columns": [
+        {
+          "column_index": 1,
+          "column_name": "Number of Arms Included",
+          "found_in_pdf": true,
+          "page": 2,
+          "source_type": "text",
+          "sources": [
+            [
+              1,
+              "text"
+            ],
+            [
+              2,
+              "text"
+            ],
+            [
+              3,
+              "figure"
+            ]
+          ],
+          "confidence": "high",
+          "extraction_plan": "The 'abstract' on page 1 states, 'Patients with metastatic hormone-sensitive prostate cancer were randomly assigned to darolutamide or placebo plus androgen-deprivation therapy and docetaxel.' The 'Trial Design' section on page 2 further clarifies, 'Enrolled patients were randomly assigned (1:1) to oral darolutamide 600 mg twice daily or matched placebo, in combination with ADT and docetaxel.' This indicates two arms. Figure 1 on page 3, the CONSORT flow diagram, visually confirms the two arms: 'Darolutamide + docetaxel + ADT' and 'Placebo + docetaxel + ADT'.",
+          "column_name_raw": null
+        }
+      ]
+    },
+    {
+      "group_name": "PFS Rate (%)",
+      "columns": [
+        {
+          "column_index": 1,
+          "column_name": "PFS Rate (%) | Overall | Treatment",
+          "found_in_pdf": false,
+          "page": -1,
+          "source_type": "not_applicable",
+          "sources": [
+            [
+              1,
+              "text"
+            ],
+            [
+              8,
+              "table"
+            ],
+            [
+              7,
+              "figure"
+            ]
+          ],
+          "confidence": "high",
+          "extraction_plan": "PFS Rate (%) for the overall treatment group is not reported in the PDF. The document discusses Overall Survival (OS) and Time to Castration-Resistant Prostate Cancer (CRPC) as primary and secondary endpoints, respectively, but does not provide Progression-Free Survival (PFS) rates. I checked the abstract on page 1, the 'Study Assessments' section on page 3, and Table 2 on page 8 which lists secondary efficacy endpoints, and Figure 3 on page 7 which shows time to CRPC, but none report PFS rates.",
+          "column_name_raw": null
+        },
+        {
+          "column_index": 2,
+          "column_name": "PFS Rate (%) | Overall | Control",
+          "found_in_pdf": false,
+          "page": -1,
+          "source_type": "not_applicable",
+          "sources": [
+            [
+              1,
+              "text"
+            ],
+            [
+              8,
+              "table"
+            ],
+            [
+              7,
+              "figure"
+            ]
+          ],
+          "confidence": "high",
+          "extraction_plan": "PFS Rate (%) for the overall control group is not reported in the PDF. The document discusses Overall Survival (OS) and Time to Castration-Resistant Prostate Cancer (CRPC) as primary and secondary endpoints, respectively, but does not provide Progression-Free Survival (PFS) rates. I checked the abstract on page 1, the 'Study Assessments' section on page 3, and Table 2 on page 8 which lists secondary efficacy endpoints, and Figure 3 on page 7 which shows time to CRPC, but none report PFS rates.",
+          "column_name_raw": null
         }
       ]
     },
@@ -579,76 +855,215 @@
           "column_index": 1,
           "column_name": "Previous local therapy - N (%) | Prostatectomy | Treatment",
           "found_in_pdf": false,
-          "page": -1,
+          "page": 5,
           "source_type": "not_applicable",
-          "confidence": "low",
-          "extraction_plan": "Table 1 (page 5) provides X but not Y",
-          "column_name_raw": ""
+          "sources": [
+            [
+              5,
+              "table"
+            ],
+            [
+              2,
+              "text"
+            ],
+            [
+              3,
+              "text"
+            ]
+          ],
+          "confidence": "high",
+          "extraction_plan": "The PDF does not report the number and percentage of patients who received previous local therapy, specifically prostatectomy, for the treatment arm. I examined Table 1 (page 5) which details baseline demographics and patient characteristics, and the 'METHODS' section (page 2-3) for trial design and patient characteristics, but this specific information was not found.",
+          "column_name_raw": null
         },
         {
           "column_index": 2,
           "column_name": "Previous local therapy - N (%) | Prostatectomy | Control",
           "found_in_pdf": false,
-          "page": -1,
+          "page": 5,
           "source_type": "not_applicable",
-          "confidence": "low",
-          "extraction_plan": "Table 1 (page 5) provides X but not Y",
-          "column_name_raw": ""
+          "sources": [
+            [
+              5,
+              "table"
+            ],
+            [
+              2,
+              "text"
+            ],
+            [
+              3,
+              "text"
+            ]
+          ],
+          "confidence": "high",
+          "extraction_plan": "The PDF does not report the number and percentage of patients who received previous local therapy, specifically prostatectomy, for the control arm. I examined Table 1 (page 5) which details baseline demographics and patient characteristics, and the 'METHODS' section (page 2-3) for trial design and patient characteristics, but this specific information was not found.",
+          "column_name_raw": null
         },
         {
           "column_index": 3,
           "column_name": "Previous local therapy - N (%) | Orchiectomy | Treatment",
           "found_in_pdf": false,
-          "page": -1,
+          "page": 5,
           "source_type": "not_applicable",
-          "confidence": "low",
-          "extraction_plan": "Table 1 (page 5) provides X but not Y",
-          "column_name_raw": ""
+          "sources": [
+            [
+              5,
+              "table"
+            ],
+            [
+              2,
+              "text"
+            ],
+            [
+              3,
+              "text"
+            ]
+          ],
+          "confidence": "high",
+          "extraction_plan": "The PDF does not report the number and percentage of patients who received previous local therapy, specifically orchiectomy, for the treatment arm. I examined Table 1 (page 5) which details baseline demographics and patient characteristics, and the 'METHODS' section (page 2-3) for trial design and patient characteristics, but this specific information was not found.",
+          "column_name_raw": null
         },
         {
           "column_index": 4,
           "column_name": "Previous local therapy - N (%) | Orchiectomy | Control",
           "found_in_pdf": false,
-          "page": -1,
+          "page": 5,
           "source_type": "not_applicable",
-          "confidence": "low",
-          "extraction_plan": "Table 1 (page 5) provides X but not Y",
-          "column_name_raw": ""
+          "sources": [
+            [
+              5,
+              "table"
+            ],
+            [
+              2,
+              "text"
+            ],
+            [
+              3,
+              "text"
+            ]
+          ],
+          "confidence": "high",
+          "extraction_plan": "The PDF does not report the number and percentage of patients who received previous local therapy, specifically orchiectomy, for the control arm. I examined Table 1 (page 5) which details baseline demographics and patient characteristics, and the 'METHODS' section (page 2-3) for trial design and patient characteristics, but this specific information was not found.",
+          "column_name_raw": null
         },
         {
           "column_index": 5,
           "column_name": "Previous local therapy - N (%) | Radiotherapy | Treatment",
           "found_in_pdf": false,
-          "page": -1,
+          "page": 5,
           "source_type": "not_applicable",
-          "confidence": "low",
-          "extraction_plan": "Table 1 (page 5) provides X but not Y",
-          "column_name_raw": ""
+          "sources": [
+            [
+              5,
+              "table"
+            ],
+            [
+              2,
+              "text"
+            ],
+            [
+              3,
+              "text"
+            ]
+          ],
+          "confidence": "high",
+          "extraction_plan": "The PDF does not report the number and percentage of patients who received previous local therapy, specifically radiotherapy, for the treatment arm. I examined Table 1 (page 5) which details baseline demographics and patient characteristics, and the 'METHODS' section (page 2-3) for trial design and patient characteristics, but this specific information was not found.",
+          "column_name_raw": null
         },
         {
           "column_index": 6,
           "column_name": "Previous local therapy - N (%) | Radiotherapy | Control",
           "found_in_pdf": false,
-          "page": -1,
+          "page": 5,
           "source_type": "not_applicable",
-          "confidence": "low",
-          "extraction_plan": "Table 1 (page 5) provides X but not Y",
-          "column_name_raw": ""
+          "sources": [
+            [
+              5,
+              "table"
+            ],
+            [
+              2,
+              "text"
+            ],
+            [
+              3,
+              "text"
+            ]
+          ],
+          "confidence": "high",
+          "extraction_plan": "The PDF does not report the number and percentage of patients who received previous local therapy, specifically radiotherapy, for the control arm. I examined Table 1 (page 5) which details baseline demographics and patient characteristics, and the 'METHODS' section (page 2-3) for trial design and patient characteristics, but this specific information was not found.",
+          "column_name_raw": null
         }
       ]
     },
     {
-      "group_name": "Quality of Life reported",
+      "group_name": "No. of Deaths - N",
       "columns": [
         {
           "column_index": 1,
-          "column_name": "Quality of Life reported",
+          "column_name": "No. of Deaths - N | Treatment",
           "found_in_pdf": true,
           "page": 3,
           "source_type": "text",
+          "sources": [
+            [
+              3,
+              "text"
+            ],
+            [
+              1,
+              "text"
+            ]
+          ],
           "confidence": "high",
-          "extraction_plan": "On page 3, in the \"Study Assessments\" paragraph under the \"METHODS\" section, the text states: \"Secondary efficacy end points included... time to worsening of disease-related physical symptoms as measured by the Functional Assessment of Cancer Therapy-Prostate (National Comprehensive Cancer Network) symptom index 17-item questionnaire...\". This indicates that an aspect of quality of life (disease-related physical symptoms) was assessed and reported.",
-          "column_name_raw": "Quality of Life reported"
+          "extraction_plan": "The caption for Figure 1 on page 3 states: \"The primary end point (OS) was assessed after 533 patients had died (229 in the darolutamide group and 304 in the placebo group).\" The number of deaths for the darolutamide (treatment) group is 229.",
+          "column_name_raw": null
+        },
+        {
+          "column_index": 2,
+          "column_name": "No. of Deaths - N | Control",
+          "found_in_pdf": true,
+          "page": 3,
+          "source_type": "text",
+          "sources": [
+            [
+              3,
+              "text"
+            ],
+            [
+              1,
+              "text"
+            ]
+          ],
+          "confidence": "high",
+          "extraction_plan": "The caption for Figure 1 on page 3 states: \"The primary end point (OS) was assessed after 533 patients had died (229 in the darolutamide group and 304 in the placebo group).\" The number of deaths for the placebo (control) group is 304.",
+          "column_name_raw": null
+        }
+      ]
+    },
+    {
+      "group_name": "Primary Endpoint(s)",
+      "columns": [
+        {
+          "column_index": 1,
+          "column_name": "Primary Endpoint(s)",
+          "found_in_pdf": true,
+          "page": 3,
+          "source_type": "text",
+          "sources": [
+            [
+              3,
+              "text"
+            ],
+            [
+              4,
+              "text"
+            ]
+          ],
+          "confidence": "high",
+          "extraction_plan": "The primary endpoint is Overall Survival (OS), as stated on page 3 under the 'Study Assessments' section: 'OS was the primary end point.'",
+          "column_name_raw": null
         }
       ]
     },
@@ -661,9 +1076,23 @@
           "found_in_pdf": false,
           "page": -1,
           "source_type": "not_applicable",
-          "confidence": "low",
-          "extraction_plan": "Abstract (Chunk 8, page 1), the \"RESULTS\" section (Chunk 8, page 3, and Chunk 9, pages 4-7), Table 1 (Chunk 1, page 5), Table 2 (Chunk 4, page 8), Table 3 (Chunk 5, page 9), Table 4 (Chunk 6, page 10), and Figure 2 (Chunk 2, page 6) and Figure 3 (Chunk 3, page 7) were examined. None of these sections provide data on overall response rate for the treatment arm.",
-          "column_name_raw": "ORR - N (%) | Treatment | Overall"
+          "sources": [
+            [
+              1,
+              "text"
+            ],
+            [
+              3,
+              "text"
+            ],
+            [
+              8,
+              "table"
+            ]
+          ],
+          "confidence": "high",
+          "extraction_plan": "The Overall Response Rate (ORR) for the treatment arm is not reported in the PDF. The document focuses on Overall Survival (OS) as the primary endpoint and time to castration-resistant prostate cancer (CRPC) as a key secondary endpoint. I reviewed the abstract (page 1), the 'Study Assessments' section (page 3), and Table 2 (page 8) which lists secondary efficacy endpoints, but ORR was not included.",
+          "column_name_raw": null
         },
         {
           "column_index": 2,
@@ -671,9 +1100,23 @@
           "found_in_pdf": false,
           "page": -1,
           "source_type": "not_applicable",
-          "confidence": "low",
-          "extraction_plan": "Abstract (Chunk 8, page 1), the \"RESULTS\" section (Chunk 8, page 3, and Chunk 9, pages 4-7), Table 1 (Chunk 1, page 5), Table 2 (Chunk 4, page 8), Table 3 (Chunk 5, page 9), Table 4 (Chunk 6, page 10), and Figure 2 (Chunk 2, page 6) and Figure 3 (Chunk 3, page 7) were examined. None of these sections provide data on complete response rate for the treatment arm.",
-          "column_name_raw": "ORR - N (%) | Treatment | CR"
+          "sources": [
+            [
+              1,
+              "text"
+            ],
+            [
+              3,
+              "text"
+            ],
+            [
+              8,
+              "table"
+            ]
+          ],
+          "confidence": "high",
+          "extraction_plan": "Complete Response (CR) for the treatment arm is not reported in the PDF. The document focuses on Overall Survival (OS) as the primary endpoint and time to castration-resistant prostate cancer (CRPC) as a key secondary endpoint. I reviewed the abstract (page 1), the 'Study Assessments' section (page 3), and Table 2 (page 8) which lists secondary efficacy endpoints, but CR was not included.",
+          "column_name_raw": null
         },
         {
           "column_index": 3,
@@ -681,9 +1124,23 @@
           "found_in_pdf": false,
           "page": -1,
           "source_type": "not_applicable",
-          "confidence": "low",
-          "extraction_plan": "Abstract (Chunk 8, page 1), the \"RESULTS\" section (Chunk 8, page 3, and Chunk 9, pages 4-7), Table 1 (Chunk 1, page 5), Table 2 (Chunk 4, page 8), Table 3 (Chunk 5, page 9), Table 4 (Chunk 6, page 10), and Figure 2 (Chunk 2, page 6) and Figure 3 (Chunk 3, page 7) were examined. None of these sections provide data on stable disease rate for the treatment arm.",
-          "column_name_raw": "ORR - N (%) | Treatment | SD"
+          "sources": [
+            [
+              1,
+              "text"
+            ],
+            [
+              3,
+              "text"
+            ],
+            [
+              8,
+              "table"
+            ]
+          ],
+          "confidence": "high",
+          "extraction_plan": "Stable Disease (SD) for the treatment arm is not reported in the PDF. The document focuses on Overall Survival (OS) as the primary endpoint and time to castration-resistant prostate cancer (CRPC) as a key secondary endpoint. I reviewed the abstract (page 1), the 'Study Assessments' section (page 3), and Table 2 (page 8) which lists secondary efficacy endpoints, but SD was not included.",
+          "column_name_raw": null
         },
         {
           "column_index": 4,
@@ -691,9 +1148,23 @@
           "found_in_pdf": false,
           "page": -1,
           "source_type": "not_applicable",
-          "confidence": "low",
-          "extraction_plan": "Abstract (Chunk 8, page 1), the \"RESULTS\" section (Chunk 8, page 3, and Chunk 9, pages 4-7), Table 1 (Chunk 1, page 5), Table 2 (Chunk 4, page 8), Table 3 (Chunk 5, page 9), Table 4 (Chunk 6, page 10), and Figure 2 (Chunk 2, page 6) and Figure 3 (Chunk 3, page 7) were examined. None of these sections provide data on progressive disease rate for the treatment arm.",
-          "column_name_raw": "ORR - N (%) | Treatment | PD"
+          "sources": [
+            [
+              1,
+              "text"
+            ],
+            [
+              3,
+              "text"
+            ],
+            [
+              8,
+              "table"
+            ]
+          ],
+          "confidence": "high",
+          "extraction_plan": "Progressive Disease (PD) for the treatment arm is not reported in the PDF. The document focuses on Overall Survival (OS) as the primary endpoint and time to castration-resistant prostate cancer (CRPC) as a key secondary endpoint. I reviewed the abstract (page 1), the 'Study Assessments' section (page 3), and Table 2 (page 8) which lists secondary efficacy endpoints, but PD was not included.",
+          "column_name_raw": null
         },
         {
           "column_index": 5,
@@ -701,9 +1172,23 @@
           "found_in_pdf": false,
           "page": -1,
           "source_type": "not_applicable",
-          "confidence": "low",
-          "extraction_plan": "Abstract (Chunk 8, page 1), the \"RESULTS\" section (Chunk 8, page 3, and Chunk 9, pages 4-7), Table 1 (Chunk 1, page 5), Table 2 (Chunk 4, page 8), Table 3 (Chunk 5, page 9), Table 4 (Chunk 6, page 10), and Figure 2 (Chunk 2, page 6) and Figure 3 (Chunk 3, page 7) were examined. None of these sections provide data on overall response rate for the control arm.",
-          "column_name_raw": "ORR - N (%) | Control | Overall"
+          "sources": [
+            [
+              1,
+              "text"
+            ],
+            [
+              3,
+              "text"
+            ],
+            [
+              8,
+              "table"
+            ]
+          ],
+          "confidence": "high",
+          "extraction_plan": "The Overall Response Rate (ORR) for the control arm is not reported in the PDF. The document focuses on Overall Survival (OS) as the primary endpoint and time to castration-resistant prostate cancer (CRPC) as a key secondary endpoint. I reviewed the abstract (page 1), the 'Study Assessments' section (page 3), and Table 2 (page 8) which lists secondary efficacy endpoints, but ORR was not included.",
+          "column_name_raw": null
         },
         {
           "column_index": 6,
@@ -711,9 +1196,23 @@
           "found_in_pdf": false,
           "page": -1,
           "source_type": "not_applicable",
-          "confidence": "low",
-          "extraction_plan": "Abstract (Chunk 8, page 1), the \"RESULTS\" section (Chunk 8, page 3, and Chunk 9, pages 4-7), Table 1 (Chunk 1, page 5), Table 2 (Chunk 4, page 8), Table 3 (Chunk 5, page 9), Table 4 (Chunk 6, page 10), and Figure 2 (Chunk 2, page 6) and Figure 3 (Chunk 3, page 7) were examined. None of these sections provide data on complete response rate for the control arm.",
-          "column_name_raw": "ORR - N (%) | Control | CR"
+          "sources": [
+            [
+              1,
+              "text"
+            ],
+            [
+              3,
+              "text"
+            ],
+            [
+              8,
+              "table"
+            ]
+          ],
+          "confidence": "high",
+          "extraction_plan": "Complete Response (CR) for the control arm is not reported in the PDF. The document focuses on Overall Survival (OS) as the primary endpoint and time to castration-resistant prostate cancer (CRPC) as a key secondary endpoint. I reviewed the abstract (page 1), the 'Study Assessments' section (page 3), and Table 2 (page 8) which lists secondary efficacy endpoints, but CR was not included.",
+          "column_name_raw": null
         },
         {
           "column_index": 7,
@@ -721,9 +1220,23 @@
           "found_in_pdf": false,
           "page": -1,
           "source_type": "not_applicable",
-          "confidence": "low",
-          "extraction_plan": "Abstract (Chunk 8, page 1), the \"RESULTS\" section (Chunk 8, page 3, and Chunk 9, pages 4-7), Table 1 (Chunk 1, page 5), Table 2 (Chunk 4, page 8), Table 3 (Chunk 5, page 9), Table 4 (Chunk 6, page 10), and Figure 2 (Chunk 2, page 6) and Figure 3 (Chunk 3, page 7) were examined. None of these sections provide data on stable disease rate for the control arm.",
-          "column_name_raw": "ORR - N (%) | Control | SD"
+          "sources": [
+            [
+              1,
+              "text"
+            ],
+            [
+              3,
+              "text"
+            ],
+            [
+              8,
+              "table"
+            ]
+          ],
+          "confidence": "high",
+          "extraction_plan": "Stable Disease (SD) for the control arm is not reported in the PDF. The document focuses on Overall Survival (OS) as the primary endpoint and time to castration-resistant prostate cancer (CRPC) as a key secondary endpoint. I reviewed the abstract (page 1), the 'Study Assessments' section (page 3), and Table 2 (page 8) which lists secondary efficacy endpoints, but SD was not included.",
+          "column_name_raw": null
         },
         {
           "column_index": 8,
@@ -731,23 +1244,296 @@
           "found_in_pdf": false,
           "page": -1,
           "source_type": "not_applicable",
-          "confidence": "low",
-          "extraction_plan": "Abstract (Chunk 8, page 1), the \"RESULTS\" section (Chunk 8, page 3, and Chunk 9, pages 4-7), Table 1 (Chunk 1, page 5), Table 2 (Chunk 4, page 8), Table 3 (Chunk 5, page 9), Table 4 (Chunk 6, page 10), and Figure 2 (Chunk 2, page 6) and Figure 3 (Chunk 3, page 7) were examined. None of these sections provide data on progressive disease rate for the control arm.",
-          "column_name_raw": "ORR - N (%) | Control | PD"
+          "sources": [
+            [
+              1,
+              "text"
+            ],
+            [
+              3,
+              "text"
+            ],
+            [
+              8,
+              "table"
+            ]
+          ],
+          "confidence": "high",
+          "extraction_plan": "Progressive Disease (PD) for the control arm is not reported in the PDF. The document focuses on Overall Survival (OS) as the primary endpoint and time to castration-resistant prostate cancer (CRPC) as a key secondary endpoint. I reviewed the abstract (page 1), the 'Study Assessments' section (page 3), and Table 2 (page 8) which lists secondary efficacy endpoints, but PD was not included.",
+          "column_name_raw": null
         }
       ]
     },
     {
-      "group_name": "Quality of Life Scale",
+      "group_name": "Median OS (mo)",
       "columns": [
         {
           "column_index": 1,
-          "column_name": "Quality of Life Scale",
+          "column_name": "Median OS (mo) | Overall | Treatment",
           "found_in_pdf": true,
-          "page": 3,
-          "source_type": "text",
+          "page": 16,
+          "source_type": "table",
+          "sources": [
+            [
+              16,
+              "table"
+            ],
+            [
+              6,
+              "figure"
+            ]
+          ],
           "confidence": "high",
-          "extraction_plan": "The study used the \"Functional Assessment of Cancer Therapy-Prostate (National Comprehensive Cancer Network) symptom index 17-item questionnaire\" (FACT-P), which is a Quality of Life Scale. This is mentioned in the \"Study Assessments\" section on page 3 (Chunk 8). A specific endpoint derived from this scale, \"Time to worsening disease-related symptoms,\" is reported in Table 2, \"Secondary Efficacy End Points for the Subgroups of Patients by Disease Volume and Disease Risk in ARASENS,\" on page 8 (Chunk 4). For this endpoint, the table provides the median time in months, the number and percentage of patients with an event, and the Hazard Ratio (HR) with 95% Confidence Interval (CI) for various subgroups and for all patients. For example, for \"All Patients - Darolutamide (n = 651)\", the median time is 19.3 months, 351 (54%) patients had an event, and the HR (95% CI) is 1.04 (0.89 to 1.22).",
+          "extraction_plan": "Extract 'NE' from the 'Overall' row under 'Darolutamide + ADT + Docetaxel' in the 'Median' column of Figure A1 (A) on page 16. Figure 2 (A) on page 6 also shows the Darolutamide curve not reaching the median.",
+          "column_name_raw": null
+        },
+        {
+          "column_index": 2,
+          "column_name": "Median OS (mo) | Overall | Control",
+          "found_in_pdf": true,
+          "page": 16,
+          "source_type": "table",
+          "sources": [
+            [
+              16,
+              "table"
+            ],
+            [
+              6,
+              "figure"
+            ]
+          ],
+          "confidence": "high",
+          "extraction_plan": "Extract '42.4' from the 'Overall' row under 'Placebo + ADT + Docetaxel' in the 'Median' column of Figure A1 (A) on page 16. Figure 2 (A) on page 6 also shows the median for the placebo group at 42.4 months.",
+          "column_name_raw": null
+        },
+        {
+          "column_index": 3,
+          "column_name": "Median OS (mo) | High volume | Treatment",
+          "found_in_pdf": true,
+          "page": 4,
+          "source_type": "text",
+          "sources": [
+            [
+              4,
+              "text"
+            ],
+            [
+              6,
+              "figure"
+            ],
+            [
+              16,
+              "table"
+            ]
+          ],
+          "confidence": "high",
+          "extraction_plan": "The text on page 4 states 'Median survival was not reached in the darolutamide group' for high-volume disease. Figure 2 (A) on page 6 also indicates 'NE' (Not Estimable) for the Darolutamide arm in the high-volume subgroup. Extract 'NE'.",
+          "column_name_raw": null
+        },
+        {
+          "column_index": 4,
+          "column_name": "Median OS (mo) | High volume | Control",
+          "found_in_pdf": true,
+          "page": 4,
+          "source_type": "text",
+          "sources": [
+            [
+              4,
+              "text"
+            ],
+            [
+              6,
+              "figure"
+            ],
+            [
+              16,
+              "table"
+            ]
+          ],
+          "confidence": "high",
+          "extraction_plan": "The text on page 4 states 'Median survival... was 42.4 months (95% CI, 39.7 to 46.0 months) in the placebo group' for high-volume disease. Figure 2 (A) on page 6 also indicates '42.4 months' for the Placebo arm in the high-volume subgroup. Extract '42.4'.",
+          "column_name_raw": null
+        },
+        {
+          "column_index": 5,
+          "column_name": "Median OS (mo) | Low volume | Treatment",
+          "found_in_pdf": true,
+          "page": 4,
+          "source_type": "text",
+          "sources": [
+            [
+              4,
+              "text"
+            ],
+            [
+              6,
+              "figure"
+            ],
+            [
+              17,
+              "table"
+            ]
+          ],
+          "confidence": "high",
+          "extraction_plan": "The text on page 4 states 'Median survival was not reached in either treatment group for low-volume patients'. Figure 2 (B) on page 6 and Figure A1 (B) on page 17 also indicate 'NE' (Not Estimable) for the Darolutamide arm in the low-volume subgroup. Extract 'NE'.",
+          "column_name_raw": null
+        },
+        {
+          "column_index": 6,
+          "column_name": "Median OS (mo) | Low volume | Control",
+          "found_in_pdf": true,
+          "page": 4,
+          "source_type": "text",
+          "sources": [
+            [
+              4,
+              "text"
+            ],
+            [
+              6,
+              "figure"
+            ],
+            [
+              17,
+              "table"
+            ]
+          ],
+          "confidence": "high",
+          "extraction_plan": "The text on page 4 states 'Median survival was not reached in either treatment group for low-volume patients'. Figure 2 (B) on page 6 and Figure A1 (B) on page 17 also indicate 'NE' (Not Estimable) for the Placebo arm in the low-volume subgroup. Extract 'NE'.",
+          "column_name_raw": null
+        }
+      ]
+    },
+    {
+      "group_name": "Metastases - N (%)",
+      "columns": [
+        {
+          "column_index": 1,
+          "column_name": "Metastases - N (%) | Liver | Treatment",
+          "found_in_pdf": false,
+          "page": 5,
+          "source_type": "not_applicable",
+          "sources": [
+            [
+              5,
+              "table"
+            ]
+          ],
+          "confidence": "high",
+          "extraction_plan": "The PDF provides 'M1c, visceral metastases \u00b1 LN or bone' in Table 1 (page 5) for the Darolutamide arm, which includes 111 patients (17.0%) across high-volume and low-volume subgroups. However, it does not specifically break down visceral metastases into 'Liver' metastases. Therefore, the exact number and percentage for liver metastases in the treatment arm are not reported.",
+          "column_name_raw": null
+        },
+        {
+          "column_index": 2,
+          "column_name": "Metastases - N (%) | Liver | Control",
+          "found_in_pdf": false,
+          "page": 5,
+          "source_type": "not_applicable",
+          "sources": [
+            [
+              5,
+              "table"
+            ]
+          ],
+          "confidence": "high",
+          "extraction_plan": "The PDF provides 'M1c, visceral metastases \u00b1 LN or bone' in Table 1 (page 5) for the Placebo arm, which includes 118 patients (18.0%) across high-volume and low-volume subgroups. However, it does not specifically break down visceral metastases into 'Liver' metastases. Therefore, the exact number and percentage for liver metastases in the control arm are not reported.",
+          "column_name_raw": null
+        },
+        {
+          "column_index": 3,
+          "column_name": "Metastases - N (%) | Lungs | Treatment",
+          "found_in_pdf": false,
+          "page": 5,
+          "source_type": "not_applicable",
+          "sources": [
+            [
+              5,
+              "table"
+            ]
+          ],
+          "confidence": "high",
+          "extraction_plan": "The PDF provides 'M1c, visceral metastases \u00b1 LN or bone' in Table 1 (page 5) for the Darolutamide arm, which includes 111 patients (17.0%) across high-volume and low-volume subgroups. However, it does not specifically break down visceral metastases into 'Lungs' metastases. Therefore, the exact number and percentage for lung metastases in the treatment arm are not reported.",
+          "column_name_raw": null
+        },
+        {
+          "column_index": 4,
+          "column_name": "Metastases - N (%) | Lungs | Control",
+          "found_in_pdf": false,
+          "page": 5,
+          "source_type": "not_applicable",
+          "sources": [
+            [
+              5,
+              "table"
+            ]
+          ],
+          "confidence": "high",
+          "extraction_plan": "The PDF provides 'M1c, visceral metastases \u00b1 LN or bone' in Table 1 (page 5) for the Placebo arm, which includes 118 patients (18.0%) across high-volume and low-volume subgroups. However, it does not specifically break down visceral metastases into 'Lungs' metastases. Therefore, the exact number and percentage for lung metastases in the control arm are not reported.",
+          "column_name_raw": null
+        },
+        {
+          "column_index": 5,
+          "column_name": "Metastases - N (%) | Bone | Treatment",
+          "found_in_pdf": true,
+          "page": 5,
+          "source_type": "table",
+          "sources": [
+            [
+              5,
+              "table"
+            ]
+          ],
+          "confidence": "high",
+          "extraction_plan": "Extract 'M1b, bone metastases \u00b1 LN' from Table 1 (page 5). For the Darolutamide arm, sum the counts from 'High Volume' (386) and 'Low Volume' (131) subgroups to get a total of 517 patients. The total number of Darolutamide patients is 651 (497 in High Volume + 154 in Low Volume). Calculate the percentage as (517/651) * 100 = 79.4%. Value: 517 (79.4%).",
+          "column_name_raw": null
+        },
+        {
+          "column_index": 6,
+          "column_name": "Metastases - N (%) | Bone | Control",
+          "found_in_pdf": true,
+          "page": 5,
+          "source_type": "table",
+          "sources": [
+            [
+              5,
+              "table"
+            ]
+          ],
+          "confidence": "high",
+          "extraction_plan": "Extract 'M1b, bone metastases \u00b1 LN' from Table 1 (page 5). For the Placebo arm, sum the counts from 'High Volume' (390) and 'Low Volume' (131) subgroups to get a total of 521 patients. The total number of Placebo patients is 654 (508 in High Volume + 146 in Low Volume). Calculate the percentage as (521/654) * 100 = 79.7%. Value: 521 (79.7%).",
+          "column_name_raw": null
+        },
+        {
+          "column_index": 7,
+          "column_name": "Metastases - N (%) | Nodal | Treatment",
+          "found_in_pdf": true,
+          "page": 5,
+          "source_type": "table",
+          "sources": [
+            [
+              5,
+              "table"
+            ]
+          ],
+          "confidence": "high",
+          "extraction_plan": "Extract 'M1a, nonregional LN only' from Table 1 (page 5). For the Darolutamide arm, sum the counts from 'High Volume' (0) and 'Low Volume' (23) subgroups to get a total of 23 patients. The total number of Darolutamide patients is 651. Calculate the percentage as (23/651) * 100 = 3.5%. Value: 23 (3.5%).",
+          "column_name_raw": null
+        },
+        {
+          "column_index": 8,
+          "column_name": "Metastases - N (%) | Nodal | Control",
+          "found_in_pdf": true,
+          "page": 5,
+          "source_type": "table",
+          "sources": [
+            [
+              5,
+              "table"
+            ]
+          ],
+          "confidence": "high",
+          "extraction_plan": "Extract 'M1a, nonregional LN only' from Table 1 (page 5). For the Placebo arm, sum the counts from 'High Volume' (0) and 'Low Volume' (15) subgroups to get a total of 15 patients. The total number of Placebo patients is 654. Calculate the percentage as (15/654) * 100 = 2.3%. Value: 15 (2.3%).",
           "column_name_raw": null
         }
       ]
@@ -761,9 +1547,19 @@
           "found_in_pdf": true,
           "page": 5,
           "source_type": "table",
+          "sources": [
+            [
+              5,
+              "table"
+            ],
+            [
+              2,
+              "text"
+            ]
+          ],
           "confidence": "high",
-          "extraction_plan": "The number of patients with synchronous metastases in the Darolutamide treatment arm can be calculated by summing the \"De novo mHSPC\" counts from the \"Metastasis stage at initial diagnosis\" row in Table 1 (page 5) for the Darolutamide High Volume subgroup (432 patients) and the Darolutamide Low Volume subgroup (126 patients). This totals 432 + 126 = 558 patients. The total number of patients in the Darolutamide arm is 651 (Figure 1, page 3). Therefore, the percentage is (558 / 651) * 100 = 85.7%.",
-          "column_name_raw": "Mode of metastases - N (%) | Synchronous | Treatment"
+          "extraction_plan": "The 'Synchronous' mode of metastases is defined as 'De novo mHSPC' on page 2. The total count for 'De novo mHSPC' in the Darolutamide (Treatment) arm is calculated by summing the 'De novo mHSPC' counts from the 'High Volume' (432) and 'Low Volume' (126) subgroups in Table 1 (page 5). This sum is 432 + 126 = 558. The total number of patients in the Darolutamide arm is 651 (from Table 1 header). The percentage is (558 / 651) * 100 = 85.7%.",
+          "column_name_raw": null
         },
         {
           "column_index": 2,
@@ -771,9 +1567,19 @@
           "found_in_pdf": true,
           "page": 5,
           "source_type": "table",
+          "sources": [
+            [
+              5,
+              "table"
+            ],
+            [
+              2,
+              "text"
+            ]
+          ],
           "confidence": "high",
-          "extraction_plan": "The number of patients with synchronous metastases in the Placebo control arm can be calculated by summing the \"De novo mHSPC\" counts from the \"Metastasis stage at initial diagnosis\" row in Table 1 (page 5) for the Placebo High Volume subgroup (445 patients) and the Placebo Low Volume subgroup (121 patients). This totals 445 + 121 = 566 patients. The total number of patients in the Placebo arm is 654 (Figure 1, page 3). Therefore, the percentage is (566 / 654) * 100 = 86.5%.",
-          "column_name_raw": "Mode of metastases - N (%) | Synchronous | Control"
+          "extraction_plan": "The 'Synchronous' mode of metastases is defined as 'De novo mHSPC' on page 2. The total count for 'De novo mHSPC' in the Placebo (Control) arm is calculated by summing the 'De novo mHSPC' counts from the 'High Volume' (445) and 'Low Volume' (121) subgroups in Table 1 (page 5). This sum is 445 + 121 = 566. The total number of patients in the Placebo arm is 654 (from Table 1 header). The percentage is (566 / 654) * 100 = 86.5%.",
+          "column_name_raw": null
         },
         {
           "column_index": 3,
@@ -781,9 +1587,19 @@
           "found_in_pdf": true,
           "page": 5,
           "source_type": "table",
+          "sources": [
+            [
+              5,
+              "table"
+            ],
+            [
+              2,
+              "text"
+            ]
+          ],
           "confidence": "high",
-          "extraction_plan": "The number of patients with metachronous metastases in the Darolutamide treatment arm can be calculated by summing the \"Recurrent mHSPC\" counts from the \"Metastasis stage at initial diagnosis\" row in Table 1 (page 5) for the Darolutamide High Volume subgroup (58 patients) and the Darolutamide Low Volume subgroup (28 patients). This totals 58 + 28 = 86 patients. The total number of patients in the Darolutamide arm is 651 (Figure 1, page 3). Therefore, the percentage is (86 / 651) * 100 = 13.2%.",
-          "column_name_raw": "Mode of metastases - N (%) | Metachronous | Treatment"
+          "extraction_plan": "The 'Metachronous' mode of metastases is defined as 'Recurrent mHSPC' on page 2. The total count for 'Recurrent mHSPC' in the Darolutamide (Treatment) arm is calculated by summing the 'Recurrent mHSPC' counts from the 'High Volume' (58) and 'Low Volume' (28) subgroups in Table 1 (page 5). This sum is 58 + 28 = 86. The total number of patients in the Darolutamide arm is 651 (from Table 1 header). The percentage is (86 / 651) * 100 = 13.2%.",
+          "column_name_raw": null
         },
         {
           "column_index": 4,
@@ -791,9 +1607,122 @@
           "found_in_pdf": true,
           "page": 5,
           "source_type": "table",
+          "sources": [
+            [
+              5,
+              "table"
+            ],
+            [
+              2,
+              "text"
+            ]
+          ],
           "confidence": "high",
-          "extraction_plan": "The number of patients with metachronous metastases in the Placebo control arm can be calculated by summing the \"Recurrent mHSPC\" counts from the \"Metastasis stage at initial diagnosis\" row in Table 1 (page 5) for the Placebo High Volume subgroup (59 patients) and the Placebo Low Volume subgroup (23 patients). This totals 59 + 23 = 82 patients. The total number of patients in the Placebo arm is 654 (Figure 1, page 3). Therefore, the percentage is (82 / 654) * 100 = 12.5%.",
-          "column_name_raw": "Mode of metastases - N (%) | Metachronous | Control"
+          "extraction_plan": "The 'Metachronous' mode of metastases is defined as 'Recurrent mHSPC' on page 2. The total count for 'Recurrent mHSPC' in the Placebo (Control) arm is calculated by summing the 'Recurrent mHSPC' counts from the 'High Volume' (59) and 'Low Volume' (23) subgroups in Table 1 (page 5). This sum is 59 + 23 = 82. The total number of patients in the Placebo arm is 654 (from Table 1 header). The percentage is (82 / 654) * 100 = 12.5%.",
+          "column_name_raw": null
+        }
+      ]
+    },
+    {
+      "group_name": "Quality of Life Scale",
+      "columns": [
+        {
+          "column_index": 1,
+          "column_name": "Quality of Life Scale",
+          "found_in_pdf": true,
+          "page": 3,
+          "source_type": "text",
+          "sources": [
+            [
+              3,
+              "text"
+            ],
+            [
+              8,
+              "table"
+            ]
+          ],
+          "confidence": "high",
+          "extraction_plan": "The Functional Assessment of Cancer Therapy-Prostate (National Comprehensive Cancer Network) symptom index 17-item questionnaire was used to measure \"time to worsening of disease-related physical symptoms\" as a secondary efficacy end point. This is stated on page 3 under \"Study Assessments\". Table 2 on page 8 reports the results for \"Time to worsening disease-related symptoms\".",
+          "column_name_raw": null
+        }
+      ]
+    },
+    {
+      "group_name": "Quality of Life reported",
+      "columns": [
+        {
+          "column_index": 1,
+          "column_name": "Quality of Life reported",
+          "found_in_pdf": true,
+          "page": 8,
+          "source_type": "table",
+          "sources": [
+            [
+              3,
+              "text"
+            ],
+            [
+              8,
+              "table"
+            ]
+          ],
+          "confidence": "high",
+          "extraction_plan": "Quality of Life was assessed via secondary endpoints including 'Time to pain progression' (measured by Brief Pain Inventory Short-Form questionnaire) and 'Time to worsening disease-related symptoms' (measured by Functional Assessment of Cancer Therapy-Prostate symptom index 17-item questionnaire), as described on page 3 under 'Study Assessments'. The results for these endpoints, including median months, number of patients with events, and HR (95% CI) for Darolutamide and Placebo groups across various subgroups (High Volume, Low Volume, High Risk, Low Risk, and All Patients), are presented in Table 2 on page 8. Additionally, 'Time to opioid use \" 7 days' is also reported in Table 2, which is a related measure of quality of life.",
+          "column_name_raw": "Time to pain progression; Time to worsening disease-related symptoms; Time to opioid use \">= 7 days"
+        }
+      ]
+    },
+    {
+      "group_name": "TTPSA (mo)",
+      "columns": [
+        {
+          "column_index": 1,
+          "column_name": "TTPSA (mo) | Treatment",
+          "found_in_pdf": false,
+          "page": -1,
+          "source_type": "not_applicable",
+          "sources": [
+            [
+              8,
+              "table"
+            ],
+            [
+              4,
+              "text"
+            ],
+            [
+              3,
+              "text"
+            ]
+          ],
+          "confidence": "high",
+          "extraction_plan": "The PDF does not report 'Time to PSA progression' (TTPSA) for the treatment arm. Table 2 (page 8) lists secondary efficacy endpoints such as 'Time to CRPC' and 'Time to pain progression', but not TTPSA. The 'Secondary Efficacy End Points' section on page 4 and 'Study Assessments' on page 3 also do not mention TTPSA.",
+          "column_name_raw": null
+        },
+        {
+          "column_index": 2,
+          "column_name": "TTPSA (mo) | Control",
+          "found_in_pdf": false,
+          "page": -1,
+          "source_type": "not_applicable",
+          "sources": [
+            [
+              8,
+              "table"
+            ],
+            [
+              4,
+              "text"
+            ],
+            [
+              3,
+              "text"
+            ]
+          ],
+          "confidence": "high",
+          "extraction_plan": "The PDF does not report 'Time to PSA progression' (TTPSA) for the control arm. Table 2 (page 8) lists secondary efficacy endpoints such as 'Time to CRPC' and 'Time to pain progression', but not TTPSA. The 'Secondary Efficacy End Points' section on page 4 and 'Study Assessments' on page 3 also do not mention TTPSA.",
+          "column_name_raw": null
         }
       ]
     },
@@ -806,38 +1735,316 @@
           "found_in_pdf": true,
           "page": 3,
           "source_type": "text",
+          "sources": [
+            [
+              3,
+              "text"
+            ],
+            [
+              8,
+              "table"
+            ]
+          ],
           "confidence": "high",
-          "extraction_plan": "The secondary endpoints are explicitly listed in the 'Study Assessments' section on page 3, under the 'METHODS' heading. They are also summarized as row headers in Table 2, titled 'Secondary Efficacy End Points for the Subgroups of Patients by Disease Volume and Disease Risk in ARASENS,' on page 8.",
+          "extraction_plan": "The secondary efficacy end points are explicitly listed in the 'Study Assessments' section on page 3. These include: time to castration-resistant prostate cancer, time to pain progression, symptomatic skeletal event-free survival, time to first symptomatic-skeletal event, time to initiation of subsequent systemic antineoplastic therapy, time to worsening of disease-related physical symptoms, and time to initiation of opioid use for 7 or more days. Table 2 on page 8 provides the results for these secondary endpoints.",
           "column_name_raw": null
         }
       ]
     },
     {
-      "group_name": "Total Participants - N",
+      "group_name": "OS Rate (%)",
       "columns": [
         {
           "column_index": 1,
-          "column_name": "Total Participants - N",
+          "column_name": "OS Rate (%) | Overall | Treatment",
+          "found_in_pdf": false,
+          "page": 16,
+          "source_type": "not_applicable",
+          "sources": [
+            [
+              16,
+              "table"
+            ],
+            [
+              6,
+              "figure"
+            ],
+            [
+              4,
+              "text"
+            ]
+          ],
+          "confidence": "high",
+          "extraction_plan": "The document reports median overall survival (OS) as 'Not Estimable' (NE) for the Darolutamide treatment group in the overall population (Figure A1, page 16, 'Overall' row). Specific OS rates (%) are not provided; instead, Kaplan-Meier curves are shown in Figure 2 (page 6) and median OS values are reported.",
+          "column_name_raw": null
+        },
+        {
+          "column_index": 2,
+          "column_name": "OS Rate (%) | Overall | Control",
+          "found_in_pdf": false,
+          "page": 16,
+          "source_type": "not_applicable",
+          "sources": [
+            [
+              16,
+              "table"
+            ],
+            [
+              6,
+              "figure"
+            ],
+            [
+              4,
+              "text"
+            ]
+          ],
+          "confidence": "high",
+          "extraction_plan": "The document reports median overall survival (OS) as 42.4 months for the Placebo control group in the overall population (Figure A1, page 16, 'Overall' row). Specific OS rates (%) are not provided; instead, Kaplan-Meier curves are shown in Figure 2 (page 6) and median OS values are reported.",
+          "column_name_raw": null
+        },
+        {
+          "column_index": 3,
+          "column_name": "OS Rate (%) | Synchronous | Treatment",
+          "found_in_pdf": false,
+          "page": 16,
+          "source_type": "not_applicable",
+          "sources": [
+            [
+              16,
+              "table"
+            ],
+            [
+              4,
+              "text"
+            ]
+          ],
+          "confidence": "high",
+          "extraction_plan": "The document reports median overall survival (OS) as 'Not Estimable' (NE) for the Darolutamide treatment group in the 'De novo' (synchronous) subgroup (Figure A1, page 16, 'Metastatic stage at initial diagnosis' section, 'De novo' row). Specific OS rates (%) are not provided; instead, median OS values are reported.",
+          "column_name_raw": null
+        },
+        {
+          "column_index": 4,
+          "column_name": "OS Rate (%) | Synchronous | Control",
+          "found_in_pdf": false,
+          "page": 16,
+          "source_type": "not_applicable",
+          "sources": [
+            [
+              16,
+              "table"
+            ],
+            [
+              4,
+              "text"
+            ]
+          ],
+          "confidence": "high",
+          "extraction_plan": "The document reports median overall survival (OS) as 42.4 months for the Placebo control group in the 'De novo' (synchronous) subgroup (Figure A1, page 16, 'Metastatic stage at initial diagnosis' section, 'De novo' row). Specific OS rates (%) are not provided; instead, median OS values are reported.",
+          "column_name_raw": null
+        },
+        {
+          "column_index": 5,
+          "column_name": "OS Rate (%) | Metachronous | Treatment",
+          "found_in_pdf": false,
+          "page": 16,
+          "source_type": "not_applicable",
+          "sources": [
+            [
+              16,
+              "table"
+            ],
+            [
+              4,
+              "text"
+            ]
+          ],
+          "confidence": "high",
+          "extraction_plan": "The document reports median overall survival (OS) as 'Not Estimable' (NE) for the Darolutamide treatment group in the 'Recurrent' (metachronous) subgroup (Figure A1, page 16, 'Metastatic stage at initial diagnosis' section, 'Recurrent' row). Specific OS rates (%) are not provided; instead, median OS values are reported.",
+          "column_name_raw": null
+        },
+        {
+          "column_index": 6,
+          "column_name": "OS Rate (%) | Metachronous | Control",
+          "found_in_pdf": false,
+          "page": 16,
+          "source_type": "not_applicable",
+          "sources": [
+            [
+              16,
+              "table"
+            ],
+            [
+              4,
+              "text"
+            ]
+          ],
+          "confidence": "high",
+          "extraction_plan": "The document reports median overall survival (OS) as 'Not Estimable' (NE) for the Placebo control group in the 'Recurrent' (metachronous) subgroup (Figure A1, page 16, 'Metastatic stage at initial diagnosis' section, 'Recurrent' row). Specific OS rates (%) are not provided; instead, median OS values are reported.",
+          "column_name_raw": null
+        },
+        {
+          "column_index": 7,
+          "column_name": "OS Rate (%) | High volume | Treatment",
+          "found_in_pdf": false,
+          "page": 6,
+          "source_type": "not_applicable",
+          "sources": [
+            [
+              6,
+              "figure"
+            ],
+            [
+              4,
+              "text"
+            ],
+            [
+              16,
+              "table"
+            ]
+          ],
+          "confidence": "high",
+          "extraction_plan": "The document reports median overall survival (OS) as 'Not Estimable' (NE) for the Darolutamide treatment group in the high-volume disease subgroup (Figure 2A, page 6; Figure A1, page 16, 'Extent of disease (eCRF)' section, 'High Volume' row). Specific OS rates (%) are not provided; instead, Kaplan-Meier curves and median OS values are reported.",
+          "column_name_raw": null
+        },
+        {
+          "column_index": 8,
+          "column_name": "OS Rate (%) | High volume | Control",
+          "found_in_pdf": false,
+          "page": 6,
+          "source_type": "not_applicable",
+          "sources": [
+            [
+              6,
+              "figure"
+            ],
+            [
+              4,
+              "text"
+            ],
+            [
+              16,
+              "table"
+            ]
+          ],
+          "confidence": "high",
+          "extraction_plan": "The document reports median overall survival (OS) as 42.4 months (95% CI, 39.7 to 46.0 months) for the Placebo control group in the high-volume disease subgroup (Figure 2A, page 6; Figure A1, page 16, 'Extent of disease (eCRF)' section, 'High Volume' row). Specific OS rates (%) are not provided; instead, Kaplan-Meier curves and median OS values are reported.",
+          "column_name_raw": null
+        },
+        {
+          "column_index": 9,
+          "column_name": "OS Rate (%) | Low volume | Treatment",
+          "found_in_pdf": false,
+          "page": 6,
+          "source_type": "not_applicable",
+          "sources": [
+            [
+              6,
+              "figure"
+            ],
+            [
+              4,
+              "text"
+            ],
+            [
+              16,
+              "table"
+            ]
+          ],
+          "confidence": "high",
+          "extraction_plan": "The document reports median overall survival (OS) as 'Not Estimable' (NE) for the Darolutamide treatment group in the low-volume disease subgroup (Figure 2B, page 6; Figure A1, page 16, 'Extent of disease (eCRF)' section, 'Low Volume' row). Specific OS rates (%) are not provided; instead, Kaplan-Meier curves and median OS values are reported.",
+          "column_name_raw": null
+        },
+        {
+          "column_index": 10,
+          "column_name": "OS Rate (%) | Low volume | Control",
+          "found_in_pdf": false,
+          "page": 6,
+          "source_type": "not_applicable",
+          "sources": [
+            [
+              6,
+              "figure"
+            ],
+            [
+              4,
+              "text"
+            ],
+            [
+              16,
+              "table"
+            ]
+          ],
+          "confidence": "high",
+          "extraction_plan": "The document reports median overall survival (OS) as 'Not Estimable' (NE) for the Placebo control group in the low-volume disease subgroup (Figure 2B, page 6; Figure A1, page 16, 'Extent of disease (eCRF)' section, 'Low Volume' row). Specific OS rates (%) are not provided; instead, Kaplan-Meier curves and median OS values are reported.",
+          "column_name_raw": null
+        }
+      ]
+    },
+    {
+      "group_name": "PS - N (%)",
+      "columns": [
+        {
+          "column_index": 1,
+          "column_name": "PS - N (%) | 0 | Treatment",
           "found_in_pdf": true,
           "page": 5,
           "source_type": "table",
+          "sources": [
+            [
+              5,
+              "table"
+            ]
+          ],
           "confidence": "high",
-          "extraction_plan": "Extract the value 1,305 from Table 1, Column Header 'All Patients': '(N = 1,305)'",
+          "extraction_plan": "Extract the number and percentage of patients with ECOG PS 0 for the Darolutamide (Treatment) arm by summing the values from the 'High Volume' (343) and 'Low Volume' (123) subgroups in Table 1 on page 5. Total N = 343 + 123 = 466. Total Darolutamide patients = 497 + 154 = 651. Percentage = (466/651)*100 = 71.6%.",
           "column_name_raw": null
-        }
-      ]
-    },
-    {
-      "group_name": "Treatment Arm - N",
-      "columns": [
+        },
         {
-          "column_index": 1,
-          "column_name": "Treatment Arm - N",
+          "column_index": 2,
+          "column_name": "PS - N (%) | 0 | Control",
           "found_in_pdf": true,
-          "page": 3,
+          "page": 5,
           "source_type": "table",
+          "sources": [
+            [
+              5,
+              "table"
+            ]
+          ],
           "confidence": "high",
-          "extraction_plan": "From Figure 1 (page 3), under \"Darolutamide + docetaxel + ADT\", locate \"Received allocated treatment (n = 651)\" or \"Analyzed for primary end point (n = 651)\". From Table 1 (page 5), in the \"All Patients\" column, locate the \"Darolutamide (n = 651)\" header. From Table 2 (page 8), in the \"All Patients\" column, locate the \"Darolutamide (n = 651)\" header.",
+          "extraction_plan": "Extract the number and percentage of patients with ECOG PS 0 for the Placebo (Control) arm by summing the values from the 'High Volume' (349) and 'Low Volume' (113) subgroups in Table 1 on page 5. Total N = 349 + 113 = 462. Total Placebo patients = 508 + 146 = 654. Percentage = (462/654)*100 = 70.6%.",
+          "column_name_raw": null
+        },
+        {
+          "column_index": 3,
+          "column_name": "PS - N (%) | 1-2 | Treatment",
+          "found_in_pdf": true,
+          "page": 5,
+          "source_type": "table",
+          "sources": [
+            [
+              5,
+              "table"
+            ]
+          ],
+          "confidence": "high",
+          "extraction_plan": "Extract the number and percentage of patients with ECOG PS 1 for the Darolutamide (Treatment) arm by summing the values from the 'High Volume' (154) and 'Low Volume' (31) subgroups in Table 1 on page 5. Total N = 154 + 31 = 185. Total Darolutamide patients = 651. Percentage = (185/651)*100 = 28.4%. The table only reports ECOG PS 0 and 1, and the sum of PS 0 and PS 1 accounts for all patients in the Darolutamide arm (466 + 185 = 651), indicating no patients had PS 2 or higher. Therefore, PS 1-2 is equivalent to PS 1.",
+          "column_name_raw": null
+        },
+        {
+          "column_index": 4,
+          "column_name": "PS - N (%) | 1-2 | Control",
+          "found_in_pdf": true,
+          "page": 5,
+          "source_type": "table",
+          "sources": [
+            [
+              5,
+              "table"
+            ]
+          ],
+          "confidence": "high",
+          "extraction_plan": "Extract the number and percentage of patients with ECOG PS 1 for the Placebo (Control) arm by summing the values from the 'High Volume' (157) and 'Low Volume' (33) subgroups in Table 1 on page 5. Total N = 157 + 33 = 190. Total Placebo patients = 654. Percentage = (190/654)*100 = 29.1%. The table only reports ECOG PS 0 and 1, and the sum of PS 0, PS 1, and missing values accounts for all patients in the Placebo arm (462 + 190 + 2 = 654), indicating no patients had PS 2 or higher. Therefore, PS 1-2 is equivalent to PS 1.",
           "column_name_raw": null
         }
       ]
@@ -851,8 +2058,43 @@
           "found_in_pdf": true,
           "page": 1,
           "source_type": "text",
+          "sources": [
+            [
+              1,
+              "text"
+            ],
+            [
+              2,
+              "text"
+            ]
+          ],
           "confidence": "high",
-          "extraction_plan": "Extract the regimen for the experimental arm. The abstract states: \"Patients with metastatic hormone-sensitive prostate cancer were randomly assigned to darolutamide or placebo plus androgen-deprivation therapy and docetaxel.\" The Methods section on page 2 further specifies: \"Enrolled patients were randomly assigned (1:1) to oral darolutamide 600 mg twice daily or matched placebo, in combination with ADT and docetaxel.\" Therefore, Treatment Arm 1 Regimen is: \"oral darolutamide 600 mg twice daily in combination with ADT and docetaxel\".",
+          "extraction_plan": "The abstract on page 1 states: 'Patients with metastatic hormone-sensitive prostate cancer were randomly assigned to darolutamide or placebo plus androgen-deprivation therapy and docetaxel.' The introduction on page 1 further clarifies: 'In ARASENS, patients with metastatic hormone-sensitive prostate cancer were randomly assigned to double-blind treatment with either darolutamide or placebo, in combination with ADT and docetaxel.' The Methods section on page 2 confirms: 'Enrolled patients were randomly assigned (1:1) to oral darolutamide 600 mg twice daily or matched placebo, in combination with ADT and docetaxel.' Therefore, Treatment Arm 1 is Darolutamide + ADT + Docetaxel.",
+          "column_name_raw": null
+        }
+      ]
+    },
+    {
+      "group_name": "Total Participants - N",
+      "columns": [
+        {
+          "column_index": 1,
+          "column_name": "Total Participants - N",
+          "found_in_pdf": true,
+          "page": 3,
+          "source_type": "text",
+          "sources": [
+            [
+              3,
+              "text"
+            ],
+            [
+              3,
+              "figure"
+            ]
+          ],
+          "confidence": "high",
+          "extraction_plan": "The 'RESULTS Patient Characteristics' section on page 3 states: 'As previously reported, a total of 1,306 patients were randomly assigned, and 1,305 patients were included in'. Figure 1, the CONSORT flow diagram, shows 'Patients randomly assigned (N = 1,306)' and the total for 'Analyzed for primary end point' as 651 (Darolutamide) + 654 (Placebo) = 1305. The value 1305 represents the total participants included in the primary analysis.",
           "column_name_raw": null
         }
       ]
@@ -864,275 +2106,326 @@
           "column_index": 1,
           "column_name": "Treatment Arm(s)",
           "found_in_pdf": true,
-          "page": 5,
-          "source_type": "table",
-          "confidence": "high",
-          "extraction_plan": "Extract the name of the experimental arm as \"Darolutamide + ADT + docetaxel\" from Table 1 (Chunk 1, page 5) column headers.",
-          "column_name_raw": "Treatment Arm(s)"
-        }
-      ]
-    },
-    {
-      "group_name": "PS - N (%)",
-      "columns": [
-        {
-          "column_index": 1,
-          "column_name": "PS - N (%) | 0 | Treatment",
-          "found_in_pdf": true,
-          "page": 5,
-          "source_type": "table",
-          "confidence": "high",
-          "extraction_plan": "In Table 1, locate the row \"ECOG PS, No. (%)\" and the sub-row \"0\". Sum the values from the \"Darolutamide (n = 497)\" column under \"High Volume\" and the \"Darolutamide (n = 154)\" column under \"Low Volume\". High Volume - Darolutamide: 343, Low Volume - Darolutamide: 123. Total Darolutamide PS 0 = 343 + 123 = 466. Total Darolutamide patients = 497 (High Volume) + 154 (Low Volume) = 651. Percentage = (466 / 651) * 100 = 71.58%.",
-          "column_name_raw": null
-        },
-        {
-          "column_index": 2,
-          "column_name": "PS - N (%) | 0 | Control",
-          "found_in_pdf": true,
-          "page": 5,
-          "source_type": "table",
-          "confidence": "high",
-          "extraction_plan": "In Table 1, locate the row \"ECOG PS, No. (%)\" and the sub-row \"0\". Sum the values from the \"Placebo (n = 508)\" column under \"High Volume\" and the \"Placebo (n = 146)\" column under \"Low Volume\". High Volume - Placebo: 349, Low Volume - Placebo: 113. Total Placebo PS 0 = 349 + 113 = 462. Total Placebo patients = 508 (High Volume) + 146 (Low Volume) = 654. Percentage = (462 / 654) * 100 = 70.64%.",
-          "column_name_raw": null
-        },
-        {
-          "column_index": 3,
-          "column_name": "PS - N (%) | 1-2 | Treatment",
-          "found_in_pdf": false,
-          "page": -1,
-          "source_type": "not_applicable",
-          "confidence": "medium",
-          "extraction_plan": "Table 1 (page 5) provides ECOG PS distribution for PS 0 and PS 1, but does not explicitly report PS 2. The footnote states \"ECOG PS scores range from 0 to 5\", and the sum of patients with PS 0, PS 1, and \"Missing\" accounts for all patients in the Darolutamide arm (466 + 185 + 0 = 651). Therefore, PS 2 is not reported as a distinct category, and a value for the range \"1-2\" cannot be provided. The value for PS 1 in the Darolutamide arm is 185 (28.4%).",
-          "column_name_raw": null
-        },
-        {
-          "column_index": 4,
-          "column_name": "PS - N (%) | 1-2 | Control",
-          "found_in_pdf": false,
-          "page": -1,
-          "source_type": "not_applicable",
-          "confidence": "medium",
-          "extraction_plan": "Table 1 (page 5) provides ECOG PS distribution for PS 0 and PS 1, but does not explicitly report PS 2. The footnote states \"ECOG PS scores range from 0 to 5\", and the sum of patients with PS 0, PS 1, and \"Missing\" accounts for all patients in the Placebo arm (462 + 190 + 2 = 654). Therefore, PS 2 is not reported as a distinct category, and a value for the range \"1-2\" cannot be provided. The value for PS 1 in the Placebo arm is 190 (29.1%).",
-          "column_name_raw": null
-        }
-      ]
-    },
-    {
-      "group_name": "Metastases - N (%)",
-      "columns": [
-        {
-          "column_index": 1,
-          "column_name": "Metastases - N (%) | Liver | Treatment",
-          "found_in_pdf": false,
-          "page": -1,
-          "source_type": "not_applicable",
-          "confidence": "low",
-          "extraction_plan": "Table 1 (page 5) provides categories such as \"M1c, visceral metastases \u00b1 LN or bone\". While liver metastases would fall under \"visceral metastases\", the table does not provide a specific breakdown for liver involvement. Abstract and methods sections (Chunk 8, pages 1-4) define \"high-volume disease\" and \"high-risk disease\" by the presence of \"visceral metastases\" but do not specify individual organs like the liver.",
-          "column_name_raw": "Metastases - N (%) | Liver | Treatment"
-        },
-        {
-          "column_index": 2,
-          "column_name": "Metastases - N (%) | Liver | Control",
-          "found_in_pdf": false,
-          "page": -1,
-          "source_type": "not_applicable",
-          "confidence": "low",
-          "extraction_plan": "Table 1 (page 5) provides categories such as \"M1c, visceral metastases \u00b1 LN or bone\". While liver metastases would fall under \"visceral metastases\", the table does not provide a specific breakdown for liver involvement. Abstract and methods sections (Chunk 8, pages 1-4) define \"high-volume disease\" and \"high-risk disease\" by the presence of \"visceral metastases\" but do not specify individual organs like the liver.",
-          "column_name_raw": "Metastases - N (%) | Liver | Control"
-        },
-        {
-          "column_index": 3,
-          "column_name": "Metastases - N (%) | Lungs | Treatment",
-          "found_in_pdf": false,
-          "page": -1,
-          "source_type": "not_applicable",
-          "confidence": "low",
-          "extraction_plan": "Table 1 (page 5) provides categories such as \"M1c, visceral metastases \u00b1 LN or bone\". While lung metastases would fall under \"visceral metastases\", the table does not provide a specific breakdown for lung involvement. Abstract and methods sections (Chunk 8, pages 1-4) define \"high-volume disease\" and \"high-risk disease\" by the presence of \"visceral metastases\" but do not specify individual organs like the lungs.",
-          "column_name_raw": "Metastases - N (%) | Lungs | Treatment"
-        },
-        {
-          "column_index": 4,
-          "column_name": "Metastases - N (%) | Lungs | Control",
-          "found_in_pdf": false,
-          "page": -1,
-          "source_type": "not_applicable",
-          "confidence": "low",
-          "extraction_plan": "Table 1 (page 5) provides categories such as \"M1c, visceral metastases \u00b1 LN or bone\". While lung metastases would fall under \"visceral metastases\", the table does not provide a specific breakdown for lung involvement. Abstract and methods sections (Chunk 8, pages 1-4) define \"high-volume disease\" and \"high-risk disease\" by the presence of \"visceral metastases\" but do not specify individual organs like the lungs.",
-          "column_name_raw": "Metastases - N (%) | Lungs | Control"
-        },
-        {
-          "column_index": 5,
-          "column_name": "Metastases - N (%) | Bone | Treatment",
-          "found_in_pdf": true,
-          "page": 5,
-          "source_type": "table",
-          "confidence": "high",
-          "extraction_plan": "For the Darolutamide arm, sum the counts and total patients from the \"High Volume - Darolutamide (n = 497)\" and \"Low Volume - Darolutamide (n = 154)\" columns for the \"M1b, bone metastases \u00b1 LN\" row. High Volume - Darolutamide: 386 patients. Low Volume - Darolutamide: 131 patients. Total Darolutamide patients: 497 + 154 = 651. Total patients with bone metastases (M1b) in Darolutamide arm: 386 + 131 = 517. Percentage: (517 / 651) * 100 = 79.4%. Value: 517 (79.4%)",
-          "column_name_raw": "Metastases - N (%) | Bone | Treatment"
-        },
-        {
-          "column_index": 6,
-          "column_name": "Metastases - N (%) | Bone | Control",
-          "found_in_pdf": true,
-          "page": 5,
-          "source_type": "table",
-          "confidence": "high",
-          "extraction_plan": "For the Placebo arm, sum the counts and total patients from the \"High Volume - Placebo (n = 508)\" and \"Low Volume - Placebo (n = 146)\" columns for the \"M1b, bone metastases \u00b1 LN\" row. High Volume - Placebo: 390 patients. Low Volume - Placebo: 131 patients. Total Placebo patients: 508 + 146 = 654. Total patients with bone metastases (M1b) in Placebo arm: 390 + 131 = 521. Percentage: (521 / 654) * 100 = 79.7%. Value: 521 (79.7%)",
-          "column_name_raw": "Metastases - N (%) | Bone | Control"
-        },
-        {
-          "column_index": 7,
-          "column_name": "Metastases - N (%) | Nodal | Treatment",
-          "found_in_pdf": false,
-          "page": -1,
-          "source_type": "not_applicable",
-          "confidence": "low",
-          "extraction_plan": "Table 1 (page 5) provides \"M1a, nonregional LN only\" and also indicates \"\u00b1 LN\" in \"M1b, bone metastases \u00b1 LN\" and \"M1c, visceral metastases \u00b1 LN or bone\". While M1a specifically refers to nodal metastases, the \"\u00b1 LN\" in other categories means that patients with bone or visceral metastases could also have nodal involvement. The table does not provide a consolidated count or percentage for *all* patients with any nodal metastases across all categories. Therefore, the total N (%) for \"Nodal\" metastases cannot be accurately determined from the provided data.",
-          "column_name_raw": "Metastases - N (%) | Nodal | Treatment"
-        },
-        {
-          "column_index": 8,
-          "column_name": "Metastases - N (%) | Nodal | Control",
-          "found_in_pdf": false,
-          "page": -1,
-          "source_type": "not_applicable",
-          "confidence": "low",
-          "extraction_plan": "Table 1 (page 5) provides \"M1a, nonregional LN only\" and also indicates \"\u00b1 LN\" in \"M1b, bone metastases \u00b1 LN\" and \"M1c, visceral metastases \u00b1 LN or bone\". While M1a specifically refers to nodal metastases, the \"\u00b1 LN\" in other categories means that patients with bone or visceral metastases could also have nodal involvement. The table does not provide a consolidated count or percentage for *all* patients with any nodal metastases across all categories. Therefore, the total N (%) for \"Nodal\" metastases cannot be accurately determined from the provided data.",
-          "column_name_raw": "Metastases - N (%) | Nodal | Control"
-        }
-      ]
-    },
-    {
-      "group_name": "Trial",
-      "columns": [
-        {
-          "column_index": 1,
-          "column_name": "Trial",
-          "found_in_pdf": true,
           "page": 1,
           "source_type": "text",
+          "sources": [
+            [
+              1,
+              "text"
+            ],
+            [
+              2,
+              "text"
+            ],
+            [
+              3,
+              "figure"
+            ]
+          ],
           "confidence": "high",
-          "extraction_plan": "Extract the name of the clinical trial from the title of the paper: \"ARASENS\". It is also mentioned multiple times in the abstract and throughout the document (e.g., Chunk 8, Chunk 9, Chunk 10).",
+          "extraction_plan": "The abstract on page 1 states: 'Patients with metastatic hormone-sensitive prostate cancer were randomly assigned to darolutamide or placebo plus androgen-deprivation therapy and docetaxel.' The Methods section on page 2 further clarifies: 'Enrolled patients were randomly assigned (1:1) to oral darolutamide 600 mg twice daily or matched placebo, in combination with ADT and docetaxel.' Figure 1 on page 3, the CONSORT flow diagram, explicitly labels the two arms as 'Darolutamide + docetaxel + ADT' and 'Placebo + docetaxel + ADT'.",
           "column_name_raw": null
         }
       ]
     },
     {
-      "group_name": "OS Rate (%)",
+      "group_name": "Treatment Arm - N",
       "columns": [
         {
           "column_index": 1,
-          "column_name": "OS Rate (%) | Overall | Treatment",
-          "found_in_pdf": false,
-          "page": -1,
-          "source_type": "not_applicable",
-          "confidence": "low",
-          "extraction_plan": "Abstract (page 1) and Figure A1 (page 16) provide median OS and hazard ratio but not a specific OS rate (percentage) for the overall treatment arm. Figure 2 (page 6) provides subgroup data, not overall population data.",
-          "column_name_raw": "OS Rate (%) | Overall | Treatment"
+          "column_name": "Treatment Arm - N",
+          "found_in_pdf": true,
+          "page": 3,
+          "source_type": "figure",
+          "sources": [
+            [
+              3,
+              "figure"
+            ],
+            [
+              5,
+              "table"
+            ]
+          ],
+          "confidence": "high",
+          "extraction_plan": "The number of patients in the Darolutamide + docetaxel + ADT treatment arm is reported as 651 in the CONSORT flow diagram (Figure 1, page 3) under 'Patients randomly assigned' and 'Analyzed for primary end point'. This is further confirmed in Table 1 (page 5) under the 'All Patients' column for 'Darolutamide'.",
+          "column_name_raw": null
+        }
+      ]
+    },
+    {
+      "group_name": "Region - N (%)",
+      "columns": [
+        {
+          "column_index": 1,
+          "column_name": "Region - N (%) | North America | Treatment",
+          "found_in_pdf": true,
+          "page": 5,
+          "source_type": "table",
+          "sources": [
+            [
+              5,
+              "table"
+            ],
+            [
+              2,
+              "text"
+            ]
+          ],
+          "confidence": "high",
+          "extraction_plan": "Extract the 'N' value for 'North America' under the 'Darolutamide (n = 651)' column in the 'All Patients' section of the 'Geographical region' row in Table 1 on page 5. The value is 95.",
+          "column_name_raw": null
         },
         {
           "column_index": 2,
-          "column_name": "OS Rate (%) | Overall | Control",
-          "found_in_pdf": false,
-          "page": -1,
-          "source_type": "not_applicable",
-          "confidence": "low",
-          "extraction_plan": "Abstract (page 1) and Figure A1 (page 16) provide median OS and hazard ratio but not a specific OS rate (percentage) for the overall control arm. Figure 2 (page 6) provides subgroup data, not overall population data.",
-          "column_name_raw": "OS Rate (%) | Overall | Control"
+          "column_name": "Region - N (%) | North America | Control",
+          "found_in_pdf": true,
+          "page": 5,
+          "source_type": "table",
+          "sources": [
+            [
+              5,
+              "table"
+            ],
+            [
+              2,
+              "text"
+            ]
+          ],
+          "confidence": "high",
+          "extraction_plan": "Extract the 'N' value for 'North America' under the 'Placebo (n = 654)' column in the 'All Patients' section of the 'Geographical region' row in Table 1 on page 5. The value is 88.",
+          "column_name_raw": null
         },
         {
           "column_index": 3,
-          "column_name": "OS Rate (%) | Synchronous | Treatment",
+          "column_name": "Region - N (%) | South America | Treatment",
           "found_in_pdf": false,
-          "page": -1,
+          "page": 5,
           "source_type": "not_applicable",
-          "confidence": "low",
-          "extraction_plan": "Figure A1 (page 16) reports median OS as 'NE' and hazard ratio (HR, 0.71; 95% CI, 0.59 to 0.85) in text (page 2), but no specific OS rate (percentage) is provided.",
-          "column_name_raw": "OS Rate (%) | Synchronous | Treatment"
+          "sources": [
+            [
+              5,
+              "table"
+            ],
+            [
+              2,
+              "text"
+            ],
+            [
+              11,
+              "text"
+            ]
+          ],
+          "confidence": "high",
+          "extraction_plan": "South America is not explicitly reported as a separate geographical region in Table 1 (page 5) or in the text (pages 2, 11). It is likely included within the 'Rest of the world' category.",
+          "column_name_raw": null
         },
         {
           "column_index": 4,
-          "column_name": "OS Rate (%) | Synchronous | Control",
+          "column_name": "Region - N (%) | South America | Control",
           "found_in_pdf": false,
-          "page": -1,
+          "page": 5,
           "source_type": "not_applicable",
-          "confidence": "low",
-          "extraction_plan": "Figure A1 (page 16) reports median OS as 'NE' and hazard ratio (HR, 0.71; 95% CI, 0.59 to 0.85) in text (page 2), but no specific OS rate (percentage) is provided.",
-          "column_name_raw": "OS Rate (%) | Synchronous | Control"
+          "sources": [
+            [
+              5,
+              "table"
+            ],
+            [
+              2,
+              "text"
+            ],
+            [
+              11,
+              "text"
+            ]
+          ],
+          "confidence": "high",
+          "extraction_plan": "South America is not explicitly reported as a separate geographical region in Table 1 (page 5) or in the text (pages 2, 11). It is likely included within the 'Rest of the world' category.",
+          "column_name_raw": null
         },
         {
           "column_index": 5,
-          "column_name": "OS Rate (%) | Metachronous | Treatment",
+          "column_name": "Region - N (%) | Europe | Treatment",
           "found_in_pdf": false,
-          "page": -1,
+          "page": 5,
           "source_type": "not_applicable",
-          "confidence": "low",
-          "extraction_plan": "Figure A1 (page 16) reports median OS as 'NE' and hazard ratio (HR, 0.61; 95% CI, 0.35 to 1.05) in text (page 2), but no specific OS rate (percentage) is provided.",
-          "column_name_raw": "OS Rate (%) | Metachronous | Treatment"
+          "sources": [
+            [
+              5,
+              "table"
+            ],
+            [
+              2,
+              "text"
+            ],
+            [
+              11,
+              "text"
+            ]
+          ],
+          "confidence": "high",
+          "extraction_plan": "Europe is not explicitly reported as a separate geographical region in Table 1 (page 5) or in the text (pages 2, 11). It is likely included within the 'Rest of the world' category.",
+          "column_name_raw": null
         },
         {
           "column_index": 6,
-          "column_name": "OS Rate (%) | Metachronous | Control",
+          "column_name": "Region - N (%) | Europe | Control",
           "found_in_pdf": false,
-          "page": -1,
+          "page": 5,
           "source_type": "not_applicable",
-          "confidence": "low",
-          "extraction_plan": "Figure A1 (page 16) reports median OS as 'NE' and hazard ratio (HR, 0.61; 95% CI, 0.35 to 1.05) in text (page 2), but no specific OS rate (percentage) is provided.",
-          "column_name_raw": "OS Rate (%) | Metachronous | Control"
+          "sources": [
+            [
+              5,
+              "table"
+            ],
+            [
+              2,
+              "text"
+            ],
+            [
+              11,
+              "text"
+            ]
+          ],
+          "confidence": "high",
+          "extraction_plan": "Europe is not explicitly reported as a separate geographical region in Table 1 (page 5) or in the text (pages 2, 11). It is likely included within the 'Rest of the world' category.",
+          "column_name_raw": null
         },
         {
           "column_index": 7,
-          "column_name": "OS Rate (%) | High volume | Treatment",
-          "found_in_pdf": true,
-          "page": 6,
-          "source_type": "figure",
+          "column_name": "Region - N (%) | Africa | Treatment",
+          "found_in_pdf": false,
+          "page": 5,
+          "source_type": "not_applicable",
+          "sources": [
+            [
+              5,
+              "table"
+            ],
+            [
+              2,
+              "text"
+            ],
+            [
+              11,
+              "text"
+            ]
+          ],
           "confidence": "high",
-          "extraction_plan": "Figure 2A (page 6) provides an approximate OS rate of 55% at the latest follow-up of 57 months for the high-volume treatment group.",
-          "column_name_raw": "OS Rate (%) | High volume | Treatment"
+          "extraction_plan": "Africa is not explicitly reported as a separate geographical region in Table 1 (page 5) or in the text (pages 2, 11). It is likely included within the 'Rest of the world' category.",
+          "column_name_raw": null
         },
         {
           "column_index": 8,
-          "column_name": "OS Rate (%) | High volume | Control",
-          "found_in_pdf": true,
-          "page": 6,
-          "source_type": "figure",
+          "column_name": "Region - N (%) | Africa | Control",
+          "found_in_pdf": false,
+          "page": 5,
+          "source_type": "not_applicable",
+          "sources": [
+            [
+              5,
+              "table"
+            ],
+            [
+              2,
+              "text"
+            ],
+            [
+              11,
+              "text"
+            ]
+          ],
           "confidence": "high",
-          "extraction_plan": "Figure 2A (page 6) provides an approximate OS rate of 45% at the latest follow-up of 57 months for the high-volume control group.",
-          "column_name_raw": "OS Rate (%) | High volume | Control"
+          "extraction_plan": "Africa is not explicitly reported as a separate geographical region in Table 1 (page 5) or in the text (pages 2, 11). It is likely included within the 'Rest of the world' category.",
+          "column_name_raw": null
         },
         {
           "column_index": 9,
-          "column_name": "OS Rate (%) | Low volume | Treatment",
+          "column_name": "Region - N (%) | Asia | Treatment",
           "found_in_pdf": true,
-          "page": 6,
-          "source_type": "figure",
+          "page": 5,
+          "source_type": "table",
+          "sources": [
+            [
+              5,
+              "table"
+            ],
+            [
+              2,
+              "text"
+            ]
+          ],
           "confidence": "high",
-          "extraction_plan": "Figure 2B (page 6) provides an approximate OS rate of 85% at the latest follow-up of 54 months for the low-volume treatment group.",
-          "column_name_raw": "OS Rate (%) | Low volume | Treatment"
+          "extraction_plan": "Extract the 'N' value for 'Asia Pacific' under the 'Darolutamide (n = 651)' column in the 'All Patients' section of the 'Geographical region' row in Table 1 on page 5. The value is 175. 'Asia Pacific' is considered the closest match for 'Asia'.",
+          "column_name_raw": null
         },
         {
           "column_index": 10,
-          "column_name": "OS Rate (%) | Low volume | Control",
+          "column_name": "Region - N (%) | Asia | Control",
           "found_in_pdf": true,
-          "page": 6,
-          "source_type": "figure",
+          "page": 5,
+          "source_type": "table",
+          "sources": [
+            [
+              5,
+              "table"
+            ],
+            [
+              2,
+              "text"
+            ]
+          ],
           "confidence": "high",
-          "extraction_plan": "Figure 2B (page 6) provides an approximate OS rate of 75% at the latest follow-up of 54 months for the low-volume control group.",
-          "column_name_raw": "OS Rate (%) | Low volume | Control"
-        }
-      ]
-    },
-    {
-      "group_name": "Treatment Class",
-      "columns": [
+          "extraction_plan": "Extract the 'N' value for 'Asia Pacific' under the 'Placebo (n = 654)' column in the 'All Patients' section of the 'Geographical region' row in Table 1 on page 5. The value is 191. 'Asia Pacific' is considered the closest match for 'Asia'.",
+          "column_name_raw": null
+        },
         {
-          "column_index": 1,
-          "column_name": "Treatment Class",
-          "found_in_pdf": true,
-          "page": 1,
-          "source_type": "text",
+          "column_index": 11,
+          "column_name": "Region - N (%) | Oceania | Treatment",
+          "found_in_pdf": false,
+          "page": 5,
+          "source_type": "not_applicable",
+          "sources": [
+            [
+              5,
+              "table"
+            ],
+            [
+              2,
+              "text"
+            ],
+            [
+              11,
+              "text"
+            ]
+          ],
           "confidence": "high",
-          "extraction_plan": "The abstract on page 1 states: \"Patients with metastatic hormone-sensitive prostate cancer were randomly assigned to darolutamide or placebo plus androgen-deprivation therapy and docetaxel.\" The \"INTRODUCTION\" section on page 1 refers to this as \"early treatment intensification with a combination of androgen-deprivation therapy (ADT) plus either docetaxel or an androgen receptor pathway inhibitor\". The \"Relevance\" section on page 2 explicitly calls it \"Triplet therapy\". Therefore, the treatment class can be categorized as **Triplet therapy (Androgen receptor pathway inhibitor + ADT + Docetaxel)**.",
+          "extraction_plan": "Oceania is not explicitly reported as a separate geographical region in Table 1 (page 5) or in the text (pages 2, 11). It is likely included within the 'Rest of the world' or 'Asia Pacific' categories.",
+          "column_name_raw": null
+        },
+        {
+          "column_index": 12,
+          "column_name": "Region - N (%) | Oceania | Control",
+          "found_in_pdf": false,
+          "page": 5,
+          "source_type": "not_applicable",
+          "sources": [
+            [
+              5,
+              "table"
+            ],
+            [
+              2,
+              "text"
+            ],
+            [
+              11,
+              "text"
+            ]
+          ],
+          "confidence": "high",
+          "extraction_plan": "Oceania is not explicitly reported as a separate geographical region in Table 1 (page 5) or in the text (pages 2, 11). It is likely included within the 'Rest of the world' or 'Asia Pacific' categories.",
           "column_name_raw": null
         }
       ]
@@ -1146,8 +2439,80 @@
           "found_in_pdf": true,
           "page": 1,
           "source_type": "text",
+          "sources": [
+            [
+              1,
+              "text"
+            ],
+            [
+              2,
+              "text"
+            ]
+          ],
           "confidence": "high",
-          "extraction_plan": "From the \"abstract\" section on page 1 (Chunk 8), extract: \"darolutamide or placebo plus androgen-deprivation therapy and docetaxel\". From the \"METHODS\" section on page 2 (Chunk 8), extract: \"oral darolutamide 600 mg twice daily or matched placebo, in combination with ADT and docetaxel\". From Figure 1 (Chunk 0) on page 3, the treatment arms are labeled: \"Darolutamide + docetaxel + ADT\" and \"Placebo + docetaxel + ADT\". From Table 1 (Chunk 1) on page 5, the table title refers to \"Darolutamide Plus Androgen-Deprivation Therapy and Docetaxel\". From Figure 2 (Chunk 2) on page 6 and Figure 3 (Chunk 3) on page 7, the curve labels specify: \"Darolutamide + ADT + docetaxel\" and \"Placebo + ADT + docetaxel\".",
+          "extraction_plan": "The ARASENS trial involved two treatment arms: 'Darolutamide + androgen-deprivation therapy and docetaxel' and 'Placebo + androgen-deprivation therapy and docetaxel'. This is stated in the abstract on page 1 and the methods section on page 2.",
+          "column_name_raw": null
+        }
+      ]
+    },
+    {
+      "group_name": "Treatment Class",
+      "columns": [
+        {
+          "column_index": 1,
+          "column_name": "Treatment Class",
+          "found_in_pdf": true,
+          "page": 1,
+          "source_type": "text",
+          "sources": [
+            [
+              1,
+              "text"
+            ],
+            [
+              2,
+              "text"
+            ],
+            [
+              3,
+              "figure"
+            ],
+            [
+              5,
+              "table"
+            ]
+          ],
+          "confidence": "high",
+          "extraction_plan": "The ARASENS trial involved two treatment arms: 'Darolutamide + ADT + Docetaxel' and 'Placebo + ADT + Docetaxel'. This is explicitly stated in the abstract on page 1, the methods section on page 2, and shown in the CONSORT flow diagram (Figure 1, page 3) and all subsequent tables (e.g., Table 1, page 5).",
+          "column_name_raw": null
+        }
+      ]
+    },
+    {
+      "group_name": "Trial",
+      "columns": [
+        {
+          "column_index": 1,
+          "column_name": "Trial",
+          "found_in_pdf": true,
+          "page": 1,
+          "source_type": "text",
+          "sources": [
+            [
+              1,
+              "text"
+            ],
+            [
+              2,
+              "text"
+            ],
+            [
+              12,
+              "text"
+            ]
+          ],
+          "confidence": "high",
+          "extraction_plan": "The trial is named ARASENS, as stated in the title on page 1: 'Darolutamide Plus Androgen-Deprivation Therapy and Docetaxel in Metastatic Hormone-Sensitive Prostate Cancer by Disease Volume and Risk Subgroups in the Phase III ARASENS Trial'. The abstract on page 1 and the Methods section on page 2 also refer to 'the ARASENS trial'. The Clinical Trial Information on page 12 provides the identifier 'NCT02799602'.",
           "column_name_raw": null
         }
       ]
@@ -1159,40 +2524,96 @@
           "column_index": 1,
           "column_name": "Reporting by prognostic groups - Y/N | Synchronous",
           "found_in_pdf": true,
-          "page": 2,
-          "source_type": "text",
+          "page": 5,
+          "source_type": "table",
+          "sources": [
+            [
+              1,
+              "text"
+            ],
+            [
+              2,
+              "text"
+            ],
+            [
+              5,
+              "table"
+            ]
+          ],
           "confidence": "high",
-          "extraction_plan": "The 'METHODS' section on page 2 states: 'Timing of metastatic presentation and disease volume and risk have been used to assess prognosis in patients with metastatic hormone-sensitive prostate cancer.11-14 The presence of metastatic disease at initial diagnosis (de novo or synchronous disease) is associated with poorer outcomes compared with developing metastases after local therapy (recurrent or metachronous disease).' The 'RESULTS' section on page 4 also mentions: 'The effect of darolutamide treatment on OS across prespecified subgroups, including de novo and recurrent disease, was favorable across all subgroups of patients with high-volume and almost all subgroups with low-volume disease (Appendix Fig A1, online only).' Table 1 on page 5, under 'Metastasis stage at initial diagnosis, No. (%)', provides data for 'De novo mHSPC' (which is synonymous with synchronous disease). Figure A1 on page 16, under 'Metastatic stage at initial diagnosis', presents OS data for the 'De novo' subgroup.",
+          "extraction_plan": "The PDF reports on 'de novo mHSPC' (synchronous) patients. This is found in the 'Metastasis stage at initial diagnosis' section of Table 1 on page 5, and also discussed in the abstract on page 1 and methods on page 2. Figure A1 on pages 16-17 also includes 'De novo' as a subgroup.",
           "column_name_raw": null
         },
         {
           "column_index": 2,
           "column_name": "Reporting by prognostic groups - Y/N | Metachronous",
           "found_in_pdf": true,
-          "page": 2,
-          "source_type": "text",
+          "page": 5,
+          "source_type": "table",
+          "sources": [
+            [
+              1,
+              "text"
+            ],
+            [
+              2,
+              "text"
+            ],
+            [
+              5,
+              "table"
+            ]
+          ],
           "confidence": "high",
-          "extraction_plan": "The 'METHODS' section on page 2 states: 'Timing of metastatic presentation and disease volume and risk have been used to assess prognosis in patients with metastatic hormone-sensitive prostate cancer.11-14 The presence of metastatic disease at initial diagnosis (de novo or synchronous disease) is associated with poorer outcomes compared with developing metastases after local therapy (recurrent or metachronous disease).' The 'RESULTS' section on page 4 also mentions: 'The effect of darolutamide treatment on OS across prespecified subgroups, including de novo and recurrent disease, was favorable across all subgroups of patients with high-volume and almost all subgroups with low-volume disease (Appendix Fig A1, online only).' Table 1 on page 5, under 'Metastasis stage at initial diagnosis, No. (%)', provides data for 'Recurrent mHSPC' (which is synonymous with metachronous disease). Figure A1 on page 16, under 'Metastatic stage at initial diagnosis', presents OS data for the 'Recurrent' subgroup.",
+          "extraction_plan": "The PDF reports on 'Recurrent mHSPC' (metachronous) patients. This is found in the 'Metastasis stage at initial diagnosis' section of Table 1 on page 5, and also discussed in the abstract on page 1 and methods on page 2. Figure A1 on pages 16-17 also includes 'Recurrent' as a subgroup.",
           "column_name_raw": null
         },
         {
           "column_index": 3,
           "column_name": "Reporting by prognostic groups - Y/N | High volume",
           "found_in_pdf": true,
-          "page": 1,
-          "source_type": "text",
+          "page": 5,
+          "source_type": "table",
+          "sources": [
+            [
+              1,
+              "text"
+            ],
+            [
+              4,
+              "text"
+            ],
+            [
+              5,
+              "table"
+            ]
+          ],
           "confidence": "high",
-          "extraction_plan": "The 'abstract' on page 1 explicitly states: 'Darolutamide increased overall survival (OS) versus placebo in patients with high-volume (hazard ratio [HR], 0.69; 95% CI, 0.57 to 0.82).' The 'METHODS' section on page 2 defines 'High-volume disease' and states that subgroups were assessed by disease volume. Table 1 on page 5, titled 'Baseline Demographics and Patient Characteristics for the Subgroups of Patients by Disease Volume and Disease Risk in ARASENS', includes 'High Volume' as a primary column header. Figure 2 (A) on page 6 shows OS for 'high-volume disease'. Figure 3 (A) on page 7 shows time to CRPC for 'high-volume disease'. Table 2 on page 8, Table 3 on page 9, and Table 4 on page 10 all include 'High Volume' as a primary column header for secondary efficacy endpoints and adverse events. Figure A1 (A) on page 16 also presents OS data for 'high-volume disease'.",
+          "extraction_plan": "The PDF reports on 'High Volume' patients. This is explicitly stated in the abstract on page 1, in the results section on page 4, and is a primary column in Table 1 (page 5), Table 2 (page 8), Table 3 (page 9), Table 4 (page 10), and Table A1 (page 18). Figures 2 and 3 (pages 6-7) and Figure A1 (pages 16-17) also present data by high-volume disease.",
           "column_name_raw": null
         },
         {
           "column_index": 4,
           "column_name": "Reporting by prognostic groups - Y/N | Low volume",
           "found_in_pdf": true,
-          "page": 1,
-          "source_type": "text",
+          "page": 5,
+          "source_type": "table",
+          "sources": [
+            [
+              1,
+              "text"
+            ],
+            [
+              4,
+              "text"
+            ],
+            [
+              5,
+              "table"
+            ]
+          ],
           "confidence": "high",
-          "extraction_plan": "The 'abstract' on page 1 explicitly states: 'Darolutamide increased overall survival (OS) versus placebo... in low-risk disease (HR, 0.62; 95% CI, 0.42 to 0.90), and in the smaller low-volume subgroup, the results were also suggestive of survival benefit (HR, 0.68; 95% CI, 0.41 to 1.13).' The 'METHODS' section on page 2 defines 'Low-volume and low-risk disease' and states that subgroups were assessed by disease volume. Table 1 on page 5, titled 'Baseline Demographics and Patient Characteristics for the Subgroups of Patients by Disease Volume and Disease Risk in ARASENS', includes 'Low Volume' as a primary column header. Figure 2 (B) on page 6 shows OS for 'low-volume disease'. Figure 3 (B) on page 7 shows time to CRPC for 'low-volume disease'. Table 2 on page 8, Table 3 on page 9, and Table 4 on page 10 all include 'Low Volume' as a primary column header for secondary efficacy endpoints and adverse events. Figure A1 (B) on page 17 also presents OS data for 'low-volume disease'.",
+          "extraction_plan": "The PDF reports on 'Low Volume' patients. This is explicitly stated in the abstract on page 1, in the results section on page 4, and is a primary column in Table 1 (page 5), Table 2 (page 8), Table 3 (page 9), Table 4 (page 10), and Table A1 (page 18). Figures 2 and 3 (pages 6-7) and Figure A1 (pages 16-17) also present data by low-volume disease.",
           "column_name_raw": null
         }
       ]
@@ -1203,142 +2624,226 @@
         {
           "column_index": 1,
           "column_name": "Race - N (%) | White | Treatment",
-          "found_in_pdf": true,
+          "found_in_pdf": false,
           "page": 5,
-          "source_type": "table",
+          "source_type": "not_applicable",
+          "sources": [
+            [
+              5,
+              "table"
+            ]
+          ],
           "confidence": "high",
-          "extraction_plan": "In the \"All Patients\" column, under \"Darolutamide (n = 652)\", for the row \"White\", the value is 258 (39.6).",
-          "column_name_raw": "Race - N (%) | White | Treatment"
+          "extraction_plan": "Table 1 on page 5 provides baseline demographics for subgroups (High Volume, Low Volume, High Risk, Low Risk), but the 'All Patients' column for 'Race' is blank. Therefore, the overall number and percentage of White patients in the Darolutamide treatment arm is not reported.",
+          "column_name_raw": null
         },
         {
           "column_index": 2,
           "column_name": "Race - N (%) | White | Control",
-          "found_in_pdf": true,
+          "found_in_pdf": false,
           "page": 5,
-          "source_type": "table",
+          "source_type": "not_applicable",
+          "sources": [
+            [
+              5,
+              "table"
+            ]
+          ],
           "confidence": "high",
-          "extraction_plan": "In the \"All Patients\" column, under \"Placebo (n = 650)\", for the row \"White\", the value is 259 (39.8).",
-          "column_name_raw": "Race - N (%) | White | Control"
+          "extraction_plan": "Table 1 on page 5 provides baseline demographics for subgroups (High Volume, Low Volume, High Risk, Low Risk), but the 'All Patients' column for 'Race' is blank. Therefore, the overall number and percentage of White patients in the Placebo control arm is not reported.",
+          "column_name_raw": null
         },
         {
           "column_index": 3,
           "column_name": "Race - N (%) | Black or African American | Treatment",
-          "found_in_pdf": true,
+          "found_in_pdf": false,
           "page": 5,
-          "source_type": "table",
+          "source_type": "not_applicable",
+          "sources": [
+            [
+              5,
+              "table"
+            ]
+          ],
           "confidence": "high",
-          "extraction_plan": "In the \"All Patients\" column, under \"Darolutamide (n = 652)\", for the row \"Black or African American\", the value is 22 (3.4).",
-          "column_name_raw": "Race - N (%) | Black or African American | Treatment"
+          "extraction_plan": "Table 1 on page 5 provides baseline demographics for subgroups (High Volume, Low Volume, High Risk, Low Risk), but the 'All Patients' column for 'Race' is blank. Therefore, the overall number and percentage of Black or African American patients in the Darolutamide treatment arm is not reported.",
+          "column_name_raw": null
         },
         {
           "column_index": 4,
           "column_name": "Race - N (%) | Black or African American | Control",
-          "found_in_pdf": true,
+          "found_in_pdf": false,
           "page": 5,
-          "source_type": "table",
+          "source_type": "not_applicable",
+          "sources": [
+            [
+              5,
+              "table"
+            ]
+          ],
           "confidence": "high",
-          "extraction_plan": "In the \"All Patients\" column, under \"Placebo (n = 650)\", for the row \"Black or African American\", the value is 21 (3.2).",
-          "column_name_raw": "Race - N (%) | Black or African American | Control"
+          "extraction_plan": "Table 1 on page 5 provides baseline demographics for subgroups (High Volume, Low Volume, High Risk, Low Risk), but the 'All Patients' column for 'Race' is blank. Therefore, the overall number and percentage of Black or African American patients in the Placebo control arm is not reported.",
+          "column_name_raw": null
         },
         {
           "column_index": 5,
           "column_name": "Race - N (%) | Asian | Treatment",
-          "found_in_pdf": true,
+          "found_in_pdf": false,
           "page": 5,
-          "source_type": "table",
+          "source_type": "not_applicable",
+          "sources": [
+            [
+              5,
+              "table"
+            ]
+          ],
           "confidence": "high",
-          "extraction_plan": "In the \"All Patients\" column, under \"Darolutamide (n = 652)\", for the row \"Asian\", the value is 177 (27.1).",
-          "column_name_raw": "Race - N (%) | Asian | Treatment"
+          "extraction_plan": "Table 1 on page 5 provides baseline demographics for subgroups (High Volume, Low Volume, High Risk, Low Risk), but the 'All Patients' column for 'Race' is blank. Therefore, the overall number and percentage of Asian patients in the Darolutamide treatment arm is not reported.",
+          "column_name_raw": null
         },
         {
           "column_index": 6,
           "column_name": "Race - N (%) | Asian | Control",
-          "found_in_pdf": true,
+          "found_in_pdf": false,
           "page": 5,
-          "source_type": "table",
+          "source_type": "not_applicable",
+          "sources": [
+            [
+              5,
+              "table"
+            ]
+          ],
           "confidence": "high",
-          "extraction_plan": "In the \"All Patients\" column, under \"Placebo (n = 650)\", for the row \"Asian\", the value is 193 (29.7).",
-          "column_name_raw": "Race - N (%) | Asian | Control"
+          "extraction_plan": "Table 1 on page 5 provides baseline demographics for subgroups (High Volume, Low Volume, High Risk, Low Risk), but the 'All Patients' column for 'Race' is blank. Therefore, the overall number and percentage of Asian patients in the Placebo control arm is not reported.",
+          "column_name_raw": null
         },
         {
           "column_index": 7,
           "column_name": "Race - N (%) | Nat. Hawaiian or Pac. Islander | Treatment",
           "found_in_pdf": false,
-          "page": -1,
+          "page": 5,
           "source_type": "not_applicable",
-          "confidence": "medium",
-          "extraction_plan": "Table 1 (page 5) and Table A1 (pages 16-17) were examined. Table 1 lists race categories as \"White\", \"Asian\", \"Black or African American\", and \"Other or not reported\", but does not specifically report \"Native Hawaiian or Pacific Islander\".",
-          "column_name_raw": "Race - N (%) | Nat. Hawaiian or Pac. Islander | Treatment"
+          "sources": [
+            [
+              5,
+              "table"
+            ]
+          ],
+          "confidence": "high",
+          "extraction_plan": "Table 1 on page 5 provides baseline demographics for subgroups (High Volume, Low Volume, High Risk, Low Risk), but the 'All Patients' column for 'Race' is blank. The category 'Nat. Hawaiian or Pac. Islander' is not explicitly listed in the table, and overall race distribution is not reported.",
+          "column_name_raw": null
         },
         {
           "column_index": 8,
           "column_name": "Race - N (%) | Nat. Hawaiian or Pac. Islander | Control",
           "found_in_pdf": false,
-          "page": -1,
+          "page": 5,
           "source_type": "not_applicable",
-          "confidence": "medium",
-          "extraction_plan": "Table 1 (page 5) and Table A1 (pages 16-17) were examined. Table 1 lists race categories as \"White\", \"Asian\", \"Black or African American\", and \"Other or not reported\", but does not specifically report \"Native Hawaiian or Pacific Islander\".",
-          "column_name_raw": "Race - N (%) | Nat. Hawaiian or Pac. Islander | Control"
+          "sources": [
+            [
+              5,
+              "table"
+            ]
+          ],
+          "confidence": "high",
+          "extraction_plan": "Table 1 on page 5 provides baseline demographics for subgroups (High Volume, Low Volume, High Risk, Low Risk), but the 'All Patients' column for 'Race' is blank. The category 'Nat. Hawaiian or Pac. Islander' is not explicitly listed in the table, and overall race distribution is not reported.",
+          "column_name_raw": null
         },
         {
           "column_index": 9,
           "column_name": "Race - N (%) | Amer. Indian or Alaska Nat. | Treatment",
           "found_in_pdf": false,
-          "page": -1,
+          "page": 5,
           "source_type": "not_applicable",
-          "confidence": "medium",
-          "extraction_plan": "Table 1 (page 5) and Table A1 (pages 16-17) were examined. Table 1 lists race categories as \"White\", \"Asian\", \"Black or African American\", and \"Other or not reported\", but does not specifically report \"American Indian or Alaska Native\".",
-          "column_name_raw": "Race - N (%) | Amer. Indian or Alaska Nat. | Treatment"
+          "sources": [
+            [
+              5,
+              "table"
+            ]
+          ],
+          "confidence": "high",
+          "extraction_plan": "Table 1 on page 5 provides baseline demographics for subgroups (High Volume, Low Volume, High Risk, Low Risk), but the 'All Patients' column for 'Race' is blank. The category 'Amer. Indian or Alaska Nat.' is not explicitly listed in the table, and overall race distribution is not reported.",
+          "column_name_raw": null
         },
         {
           "column_index": 10,
           "column_name": "Race - N (%) | Amer. Indian or Alaska Nat. | Control",
           "found_in_pdf": false,
-          "page": -1,
+          "page": 5,
           "source_type": "not_applicable",
-          "confidence": "medium",
-          "extraction_plan": "Table 1 (page 5) and Table A1 (pages 16-17) were examined. Table 1 lists race categories as \"White\", \"Asian\", \"Black or African American\", and \"Other or not reported\", but does not specifically report \"American Indian or Alaska Native\".",
-          "column_name_raw": "Race - N (%) | Amer. Indian or Alaska Nat. | Control"
+          "sources": [
+            [
+              5,
+              "table"
+            ]
+          ],
+          "confidence": "high",
+          "extraction_plan": "Table 1 on page 5 provides baseline demographics for subgroups (High Volume, Low Volume, High Risk, Low Risk), but the 'All Patients' column for 'Race' is blank. The category 'Amer. Indian or Alaska Nat.' is not explicitly listed in the table, and overall race distribution is not reported.",
+          "column_name_raw": null
         },
         {
           "column_index": 11,
           "column_name": "Race - N (%) | Other | Treatment",
-          "found_in_pdf": true,
+          "found_in_pdf": false,
           "page": 5,
-          "source_type": "table",
+          "source_type": "not_applicable",
+          "sources": [
+            [
+              5,
+              "table"
+            ]
+          ],
           "confidence": "high",
-          "extraction_plan": "In the \"All Patients\" column, under \"Darolutamide (n = 652)\", for the row \"Other or not reported\", the value is 40 (6.1). This category combines \"Other\" and \"not reported\".",
-          "column_name_raw": "Race - N (%) | Other | Treatment"
+          "extraction_plan": "Table 1 on page 5 provides baseline demographics for subgroups (High Volume, Low Volume, High Risk, Low Risk), but the 'All Patients' column for 'Race' is blank. The table lists 'Other or not reported' for subgroups, but the overall number and percentage for 'Other' race in the Darolutamide treatment arm is not reported.",
+          "column_name_raw": null
         },
         {
           "column_index": 12,
           "column_name": "Race - N (%) | Other | Control",
-          "found_in_pdf": true,
+          "found_in_pdf": false,
           "page": 5,
-          "source_type": "table",
+          "source_type": "not_applicable",
+          "sources": [
+            [
+              5,
+              "table"
+            ]
+          ],
           "confidence": "high",
-          "extraction_plan": "In the \"All Patients\" column, under \"Placebo (n = 650)\", for the row \"Other or not reported\", the value is 35 (5.4). This category combines \"Other\" and \"not reported\".",
-          "column_name_raw": "Race - N (%) | Other | Control"
+          "extraction_plan": "Table 1 on page 5 provides baseline demographics for subgroups (High Volume, Low Volume, High Risk, Low Risk), but the 'All Patients' column for 'Race' is blank. The table lists 'Other or not reported' for subgroups, but the overall number and percentage for 'Other' race in the Placebo control arm is not reported.",
+          "column_name_raw": null
         },
         {
           "column_index": 13,
           "column_name": "Race - N (%) | Unknown | Treatment",
           "found_in_pdf": false,
-          "page": -1,
+          "page": 5,
           "source_type": "not_applicable",
-          "confidence": "medium",
-          "extraction_plan": "Table 1 (page 5) and Table A1 (pages 16-17) were examined. Table 1 has a category \"Other or not reported\", which may include unknown race, but \"Unknown\" is not reported as a distinct category.",
-          "column_name_raw": "Race - N (%) | Unknown | Treatment"
+          "sources": [
+            [
+              5,
+              "table"
+            ]
+          ],
+          "confidence": "high",
+          "extraction_plan": "Table 1 on page 5 provides baseline demographics for subgroups (High Volume, Low Volume, High Risk, Low Risk), but the 'All Patients' column for 'Race' is blank. The category 'Unknown' is not explicitly listed in the table, and overall race distribution is not reported.",
+          "column_name_raw": null
         },
         {
           "column_index": 14,
           "column_name": "Race - N (%) | Unknown | Control",
           "found_in_pdf": false,
-          "page": -1,
+          "page": 5,
           "source_type": "not_applicable",
-          "confidence": "medium",
-          "extraction_plan": "Table 1 (page 5) and Table A1 (pages 16-17) were examined. Table 1 has a category \"Other or not reported\", which may include unknown race, but \"Unknown\" is not reported as a distinct category.",
-          "column_name_raw": "Race - N (%) | Unknown | Control"
+          "sources": [
+            [
+              5,
+              "table"
+            ]
+          ],
+          "confidence": "high",
+          "extraction_plan": "Table 1 on page 5 provides baseline demographics for subgroups (High Volume, Low Volume, High Risk, Low Risk), but the 'All Patients' column for 'Race' is blank. The category 'Unknown' is not explicitly listed in the table, and overall race distribution is not reported.",
+          "column_name_raw": null
         }
       ]
     },
@@ -1351,9 +2856,19 @@
           "found_in_pdf": true,
           "page": 5,
           "source_type": "table",
+          "sources": [
+            [
+              5,
+              "table"
+            ],
+            [
+              3,
+              "figure"
+            ]
+          ],
           "confidence": "high",
-          "extraction_plan": "In Table 1, under the \"High Volumea\" section, for the \"Darolutamide (n = 497)\" column, the total number of patients is 497. The total number of patients in the Darolutamide arm is 651 (497 high-volume + 154 low-volume). Therefore, the percentage is (497 / 651) * 100 = 76.3%.",
-          "column_name_raw": "Volume of disease - N (%) | High | Treatment"
+          "extraction_plan": "Extract the 'n' value from the 'Darolutamide (n = 497)' column header under the 'High Volume' section in Table 1 on page 5. The percentage is calculated as (497 / 651 total Darolutamide patients) * 100 = 76.3%.",
+          "column_name_raw": null
         },
         {
           "column_index": 2,
@@ -1361,9 +2876,19 @@
           "found_in_pdf": true,
           "page": 5,
           "source_type": "table",
+          "sources": [
+            [
+              5,
+              "table"
+            ],
+            [
+              3,
+              "figure"
+            ]
+          ],
           "confidence": "high",
-          "extraction_plan": "In Table 1, under the \"High Volumea\" section, for the \"Placebo (n = 508)\" column, the total number of patients is 508. The total number of patients in the Placebo arm is 654 (508 high-volume + 146 low-volume). Therefore, the percentage is (508 / 654) * 100 = 77.7%.",
-          "column_name_raw": "Volume of disease - N (%) | High | Control"
+          "extraction_plan": "Extract the 'n' value from the 'Placebo (n = 508)' column header under the 'High Volume' section in Table 1 on page 5. The percentage is calculated as (508 / 654 total Placebo patients) * 100 = 77.7%.",
+          "column_name_raw": null
         },
         {
           "column_index": 3,
@@ -1371,134 +2896,88 @@
           "found_in_pdf": true,
           "page": 5,
           "source_type": "table",
+          "sources": [
+            [
+              5,
+              "table"
+            ],
+            [
+              3,
+              "figure"
+            ]
+          ],
           "confidence": "high",
-          "extraction_plan": "In Table 1, under the \"Low Volumea\" section, for the \"Placebo (n = 146)\" column, the total number of patients is 146. The total number of patients in the Placebo arm is 654 (508 high-volume + 146 low-volume). Therefore, the percentage is (146 / 654) * 100 = 22.3%.",
-          "column_name_raw": "Volume of disease - N (%) | Low | Control"
+          "extraction_plan": "Extract the 'n' value from the 'Placebo (n = 146)' column header under the 'Low Volume' section in Table 1 on page 5. The percentage is calculated as (146 / 654 total Placebo patients) * 100 = 22.3%.",
+          "column_name_raw": null
         }
       ]
     },
     {
-      "group_name": "Region - N (%)",
+      "group_name": "Gleason score - N (%)",
       "columns": [
         {
           "column_index": 1,
-          "column_name": "Region - N (%) | North America | Treatment",
+          "column_name": "Gleason score - N (%) | \u2264 7 | Treatment",
           "found_in_pdf": true,
-          "page": 16,
-          "source_type": "figure",
+          "page": 5,
+          "source_type": "table",
+          "sources": [
+            [
+              5,
+              "table"
+            ]
+          ],
           "confidence": "high",
-          "extraction_plan": "From Figure A1 (A) (High Volume): Darolutamide, North America: 95 patients. From Figure A1 (B) (Low Volume): Darolutamide, North America: 30 patients. Total Darolutamide, North America = 95 + 30 = 125 patients. Total Darolutamide patients (overall) = 651 (from Figure 1 on page 3 and Table 2 on page 8). Percentage = (125 / 651) * 100% = 19.20%. Value: 125 (19.20%)",
-          "column_name_raw": "Region - N (%) | North America | Treatment"
+          "extraction_plan": "The 'All Patients' column in Table 1 (page 5) does not provide Gleason score data split by treatment arm. The value is derived by summing the 'Gleason score at initial diagnosis,d No. (%)' for '<8' from the 'High Volume' (96) and 'Low Volume' (26) Darolutamide subgroups, totaling 122 patients. The percentage is calculated based on the total Darolutamide patients (651): (122/651)*100 = 18.7%.",
+          "column_name_raw": null
         },
         {
           "column_index": 2,
-          "column_name": "Region - N (%) | North America | Control",
+          "column_name": "Gleason score - N (%) | \u2264 7 | Control",
           "found_in_pdf": true,
-          "page": 16,
-          "source_type": "figure",
+          "page": 5,
+          "source_type": "table",
+          "sources": [
+            [
+              5,
+              "table"
+            ]
+          ],
           "confidence": "high",
-          "extraction_plan": "From Figure A1 (A) (High Volume): Placebo, North America: 88 patients. From Figure A1 (B) (Low Volume): Placebo, North America: 31 patients. Total Placebo, North America = 88 + 31 = 119 patients. Total Placebo patients (overall) = 654 (from Figure 1 on page 3 and Table 2 on page 8). Percentage = (119 / 654) * 100% = 18.19%. Value: 119 (18.19%)",
-          "column_name_raw": "Region - N (%) | North America | Control"
+          "extraction_plan": "The 'All Patients' column in Table 1 (page 5) does not provide Gleason score data split by treatment arm. The value is derived by summing the 'Gleason score at initial diagnosis,d No. (%)' for '<8' from the 'High Volume' (87) and 'Low Volume' (31) Placebo subgroups, totaling 118 patients. The percentage is calculated based on the total Placebo patients (654): (118/654)*100 = 18.0%.",
+          "column_name_raw": null
         },
         {
           "column_index": 3,
-          "column_name": "Region - N (%) | South America | Treatment",
-          "found_in_pdf": false,
-          "page": -1,
-          "source_type": "not_applicable",
-          "confidence": "low",
-          "extraction_plan": "Table 1 (page 5) and Figure A1 (pages 16-17) categorize geographical regions as \"North America\", \"Asia Pacific\", and \"Rest of the world\". South America is not reported as a distinct category.",
-          "column_name_raw": "Region - N (%) | South America | Treatment"
+          "column_name": "Gleason score - N (%) | \u2265 8 | Treatment",
+          "found_in_pdf": true,
+          "page": 5,
+          "source_type": "table",
+          "sources": [
+            [
+              5,
+              "table"
+            ]
+          ],
+          "confidence": "high",
+          "extraction_plan": "The 'All Patients' column in Table 1 (page 5) does not provide Gleason score data split by treatment arm. The value is derived by summing the 'Gleason score at initial diagnosis,d No. (%)' for '\u2265 8' from the 'High Volume' (381) and 'Low Volume' (124) Darolutamide subgroups, totaling 505 patients. The percentage is calculated based on the total Darolutamide patients (651): (505/651)*100 = 77.6%.",
+          "column_name_raw": null
         },
         {
           "column_index": 4,
-          "column_name": "Region - N (%) | South America | Control",
-          "found_in_pdf": false,
-          "page": -1,
-          "source_type": "not_applicable",
-          "confidence": "low",
-          "extraction_plan": "Table 1 (page 5) and Figure A1 (pages 16-17) categorize geographical regions as \"North America\", \"Asia Pacific\", and \"Rest of the world\". South America is not reported as a distinct category.",
-          "column_name_raw": "Region - N (%) | South America | Control"
-        },
-        {
-          "column_index": 5,
-          "column_name": "Region - N (%) | Europe | Treatment",
-          "found_in_pdf": false,
-          "page": -1,
-          "source_type": "not_applicable",
-          "confidence": "low",
-          "extraction_plan": "Table 1 (page 5) and Figure A1 (pages 16-17) categorize geographical regions as \"North America\", \"Asia Pacific\", and \"Rest of the world\". Europe is not reported as a distinct category.",
-          "column_name_raw": "Region - N (%) | Europe | Treatment"
-        },
-        {
-          "column_index": 6,
-          "column_name": "Region - N (%) | Europe | Control",
-          "found_in_pdf": false,
-          "page": -1,
-          "source_type": "not_applicable",
-          "confidence": "low",
-          "extraction_plan": "Table 1 (page 5) and Figure A1 (pages 16-17) categorize geographical regions as \"North America\", \"Asia Pacific\", and \"Rest of the world\". Europe is not reported as a distinct category.",
-          "column_name_raw": "Region - N (%) | Europe | Control"
-        },
-        {
-          "column_index": 7,
-          "column_name": "Region - N (%) | Africa | Treatment",
-          "found_in_pdf": false,
-          "page": -1,
-          "source_type": "not_applicable",
-          "confidence": "low",
-          "extraction_plan": "Table 1 (page 5) and Figure A1 (pages 16-17) categorize geographical regions as \"North America\", \"Asia Pacific\", and \"Rest of the world\". Africa is not reported as a distinct category.",
-          "column_name_raw": "Region - N (%) | Africa | Treatment"
-        },
-        {
-          "column_index": 8,
-          "column_name": "Region - N (%) | Africa | Control",
-          "found_in_pdf": false,
-          "page": -1,
-          "source_type": "not_applicable",
-          "confidence": "low",
-          "extraction_plan": "Table 1 (page 5) and Figure A1 (pages 16-17) categorize geographical regions as \"North America\", \"Asia Pacific\", and \"Rest of the world\". Africa is not reported as a distinct category.",
-          "column_name_raw": "Region - N (%) | Africa | Control"
-        },
-        {
-          "column_index": 9,
-          "column_name": "Region - N (%) | Asia | Treatment",
+          "column_name": "Gleason score - N (%) | \u2265 8 | Control",
           "found_in_pdf": true,
-          "page": 16,
-          "source_type": "figure",
+          "page": 5,
+          "source_type": "table",
+          "sources": [
+            [
+              5,
+              "table"
+            ]
+          ],
           "confidence": "high",
-          "extraction_plan": "From Figure A1 (A) (High Volume): Darolutamide, Asia Pacific: 175 patients. From Figure A1 (B) (Low Volume): Darolutamide, Asia Pacific: 54 patients. Total Darolutamide, Asia Pacific = 175 + 54 = 229 patients. Total Darolutamide patients (overall) = 651 (from Figure 1 on page 3 and Table 2 on page 8). Percentage = (229 / 651) * 100% = 35.18%. Value: 229 (35.18%)",
-          "column_name_raw": "Region - N (%) | Asia | Treatment"
-        },
-        {
-          "column_index": 10,
-          "column_name": "Region - N (%) | Asia | Control",
-          "found_in_pdf": true,
-          "page": 16,
-          "source_type": "figure",
-          "confidence": "high",
-          "extraction_plan": "From Figure A1 (A) (High Volume): Placebo, Asia Pacific: 191 patients. From Figure A1 (B) (Low Volume): Placebo, Asia Pacific: 53 patients. Total Placebo, Asia Pacific = 191 + 53 = 244 patients. Total Placebo patients (overall) = 654 (from Figure 1 on page 3 and Table 2 on page 8). Percentage = (244 / 654) * 100% = 37.31%. Value: 244 (37.31%)",
-          "column_name_raw": "Region - N (%) | Asia | Control"
-        },
-        {
-          "column_index": 11,
-          "column_name": "Region - N (%) | Oceania | Treatment",
-          "found_in_pdf": false,
-          "page": -1,
-          "source_type": "not_applicable",
-          "confidence": "low",
-          "extraction_plan": "Table 1 (page 5) and Figure A1 (pages 16-17) categorize geographical regions as \"North America\", \"Asia Pacific\", and \"Rest of the world\". Oceania is not reported as a distinct category.",
-          "column_name_raw": "Region - N (%) | Oceania | Treatment"
-        },
-        {
-          "column_index": 12,
-          "column_name": "Region - N (%) | Oceania | Control",
-          "found_in_pdf": false,
-          "page": -1,
-          "source_type": "not_applicable",
-          "confidence": "low",
-          "extraction_plan": "Table 1 (page 5) and Figure A1 (pages 16-17) categorize geographical regions as \"North America\", \"Asia Pacific\", and \"Rest of the world\". Oceania is not reported as a distinct category.",
-          "column_name_raw": "Region - N (%) | Oceania | Control"
+          "extraction_plan": "The 'All Patients' column in Table 1 (page 5) does not provide Gleason score data split by treatment arm. The value is derived by summing the 'Gleason score at initial diagnosis,d No. (%)' for '\u2265 8' from the 'High Volume' (403) and 'Low Volume' (113) Placebo subgroups, totaling 516 patients. The percentage is calculated based on the total Placebo patients (654): (516/654)*100 = 78.9%.",
+          "column_name_raw": null
         }
       ]
     }

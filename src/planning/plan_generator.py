@@ -55,7 +55,7 @@ class ColumnExtractionPlanV2(BaseModel):
     source_type: SourceType = Field(description="table/text/figure if found, else not_applicable")
     sources: List[List[Union[int, str]]] = Field(
         default_factory=list,
-        description="List of [page, modality] tuples; modality is text|table|figure; provide 2-3 when available; empty if not found",
+        description="List of [page, modality] tuples; modality is text|table|figure; always provide 2-3: where value is (if found) or where you looked (if not found)",
     )
     confidence: Confidence = Field(description="high/medium/low")
     extraction_plan: str = Field(
@@ -272,12 +272,12 @@ You have:
 TASK:
 For EACH of the following canonical columns, decide whether the value is reported in this PDF.
 If reported, identify WHERE and HOW to extract it.
-If not reported, you MUST still cite WHERE you looked: which pages, tables, figures you examined to reach that conclusion (e.g. "Table 1 (page 5) provides X but not Y").
+If not reported, you MUST still cite WHERE you lookedin the sources field: which pages, tables, figures you examined to reach that conclusion.
 If multiple trials are mentioned in the document you should provide treatment and control values for all arms as per the query.
 ⚠️ CRITICAL: Output MUST be valid JSON matching this schema exactly. No markdown, no explanations.
 For total pariticpants, sum the populaiton of treatment and control arms and provide totals for different trials separately.
 If the trial has multiple arms, always provide treatment or control values for all arms as per the query.
-
+Note that the queries might ask for specific values, but you are not sure what value the user is looking for (based on the medical knowledge), so provide all possible values.
 JSON SCHEMA:
 {schema_str}
 
@@ -289,8 +289,8 @@ EXPECTED_COLUMNS (ordered; column_index 1-based, column_name must match EXACTLY)
 Rules:
 - Return ONLY a JSON object with "group_name" and "columns" (array of {len(expected_columns)} items).
 - Each column item: column_index (1..{len(expected_columns)}), column_name (exact match), found_in_pdf, page, source_type (table/text/figure/not_applicable), sources, confidence (high/medium/low), extraction_plan.
-- sources: list of [page, modality] tuples (e.g. [[5, "table"], [1, "text"]]). Provide 2-3 when available; modality is "text"|"table"|"figure". Empty list [] if not found.
-- If found_in_pdf=false: source_type=not_applicable; page may indicate where you looked; extraction_plan MUST cite WHERE you looked (pages/tables/figures).
+- sources: list of [page, modality] tuples (e.g. [[5, "table"], [1, "text"]]). ALWAYS provide 2-3 sources: when found, list where the value is; when not found, list where you looked (pages/tables/figures examined). Modality is "text"|"table"|"figure".
+- If found_in_pdf=false: source_type=not_applicable; sources MUST list where you looked (pages/tables/figures examined); extraction_plan MUST cite WHERE you looked.
 - Be honest: many columns will NOT be reported.
 """
 

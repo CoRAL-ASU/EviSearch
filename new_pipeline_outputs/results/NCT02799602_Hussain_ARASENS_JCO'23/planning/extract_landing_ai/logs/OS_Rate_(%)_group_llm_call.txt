@@ -1,0 +1,445 @@
+RETRIEVAL SOURCE: extraction_plan_pages
+
+============================================================
+INPUT
+============================================================
+You are extracting values for multiple clinical trial data columns from the same document content.
+All columns below share the same evidence pool. Extract each column following its plan.
+
+COLUMNS TO EXTRACT:
+
+Column 1: OS Rate (%) | Overall | Treatment
+  Definition: What percentage of total patients in the experimental arm survived at the latest follow-up? If reported, include the rate (percentage) and any accompanying details. If multiple arms are reported, list each arm separately. Use 'Not reported' if missing.
+  Extraction plan: Abstract (page 1) and Figure A1 (page 16) provide median OS and hazard ratio but not a specific OS rate (percentage) for the overall treatment arm. Figure 2 (page 6) provides subgroup data, not overall population data.
+
+Column 2: OS Rate (%) | Overall | Control
+  Definition: What percentage of total patients in the control arm survived at the latest follow-up? If reported, include the rate (percentage) and any accompanying details. If multiple arms are reported, list each arm separately. Use 'Not reported' if missing.
+  Extraction plan: Abstract (page 1) and Figure A1 (page 16) provide median OS and hazard ratio but not a specific OS rate (percentage) for the overall control arm. Figure 2 (page 6) provides subgroup data, not overall population data.
+
+Column 3: OS Rate (%) | Synchronous | Treatment
+  Definition: What percentage of patients with metastasis at the time of diagnosis (synchronous metastasis) in the experimental arm survived at the latest follow-up? If reported, include the rate (percentage) and any accompanying details. If multiple arms are reported, list each arm separately. Use 'Not reported' if missing.
+  Extraction plan: Figure A1 (page 16) reports median OS as 'NE' and hazard ratio (HR, 0.71; 95% CI, 0.59 to 0.85) in text (page 2), but no specific OS rate (percentage) is provided.
+
+Column 4: OS Rate (%) | Synchronous | Control
+  Definition: What percentage of patients with metastasis at the time of diagnosis (synchronous metastasis) in the control arm survived at the latest follow-up? If reported, include the rate (percentage) and any accompanying details. If multiple arms are reported, list each arm separately. Use 'Not reported' if missing.
+  Extraction plan: Figure A1 (page 16) reports median OS as 'NE' and hazard ratio (HR, 0.71; 95% CI, 0.59 to 0.85) in text (page 2), but no specific OS rate (percentage) is provided.
+
+Column 5: OS Rate (%) | Metachronous | Treatment
+  Definition: What percentage of patients with metastasis after diagnosis (metachronous metastasis) in the experimental arm survived at the latest follow-up? If reported, include the rate (percentage) and any accompanying details. If multiple arms are reported, list each arm separately. Use 'Not reported' if missing.
+  Extraction plan: Figure A1 (page 16) reports median OS as 'NE' and hazard ratio (HR, 0.61; 95% CI, 0.35 to 1.05) in text (page 2), but no specific OS rate (percentage) is provided.
+
+Column 6: OS Rate (%) | Metachronous | Control
+  Definition: What percentage of patients with metastasis after diagnosis (metachronous metastasis) in the control arm survived at the latest follow-up? If reported, include the rate (percentage) and any accompanying details. If multiple arms are reported, list each arm separately. Use 'Not reported' if missing.
+  Extraction plan: Figure A1 (page 16) reports median OS as 'NE' and hazard ratio (HR, 0.61; 95% CI, 0.35 to 1.05) in text (page 2), but no specific OS rate (percentage) is provided.
+
+Column 7: OS Rate (%) | High volume | Treatment
+  Definition: What percentage of patients with high volume metastasis (by CHAARTED criteria) in the experimental arm survived at the latest follow-up? If reported, include the rate (percentage) and any accompanying details. If multiple arms are reported, list each arm separately. Use 'Not reported' if missing.
+  Extraction plan: Figure 2A (page 6) provides an approximate OS rate of 55% at the latest follow-up of 57 months for the high-volume treatment group.
+
+Column 8: OS Rate (%) | High volume | Control
+  Definition: What percentage of patients with high volume metastasis (by CHAARTED criteria) in the control arm survived at the latest follow-up? If reported, include the rate (percentage) and any accompanying details. If multiple arms are reported, list each arm separately. Use 'Not reported' if missing.
+  Extraction plan: Figure 2A (page 6) provides an approximate OS rate of 45% at the latest follow-up of 57 months for the high-volume control group.
+
+Column 9: OS Rate (%) | Low volume | Treatment
+  Definition: What percentage of patients with low volume metastasis (by CHAARTED criteria) in the experimental arm survived at the latest follow-up? If reported, include the rate (percentage) and any accompanying details. If multiple arms are reported, list each arm separately. Use 'Not reported' if missing.
+  Extraction plan: Figure 2B (page 6) provides an approximate OS rate of 85% at the latest follow-up of 54 months for the low-volume treatment group.
+
+Column 10: OS Rate (%) | Low volume | Control
+  Definition: What percentage of patients with low volume metastasis (by CHAARTED criteria) in the control arm survived at the latest follow-up? If reported, include the rate (percentage) and any accompanying details. If multiple arms are reported, list each arm separately. Use 'Not reported' if missing.
+  Extraction plan: Figure 2B (page 6) provides an approximate OS rate of 75% at the latest follow-up of 54 months for the low-volume control group.
+
+
+Document content (grouped by type, in chronological page order):
+--- TEXT ---
+original reports
+
+Darolutamide Plus Androgen-Deprivation
+Therapy and Docetaxel in Metastatic
+Hormone-Sensitive Prostate Cancer by Disease
+Volume and Risk Subgroups in the Phase III
+ARASENS Trial
+
+Maha Hussain, MD¹; Bertrand Tombal, MD, PhD²; Fred Saad, MD³; Karim Fizazi, MD, PhD⁴; Cora N. Sternberg, MD⁵;
+E. David Crawford, MD⁶; Neal Shore, MD⁷; Evgeny Kopyltsov, MD⁸; Arash Rezazadeh Kalebasty, MD⁹; Martin Bögemann, MD¹⁰;
+Dingwei Ye, MD¹¹; Felipe Cruz, MD, PhD¹²; Hiroyoshi Suzuki, MD, PhD¹³; Shivani Kapur, MD¹⁴; Shankar Srinivasan, PhD¹⁵;
+Frank Verholen, MD¹⁶; Iris Kuss, MD¹⁷; Heikki Joensuu, MD¹⁸; and Matthew R. Smith, MD, PhD¹⁹
+
+PURPOSE For patients with metastatic hormone-sensitive prostate cancer, metastatic burden affects outcome.
+We examined efficacy and safety from the ARASENS trial for subgroups by disease volume and risk.
+
+abs1
+
+tract
+METHODS Patients with metastatic hormone-sensitive prostate cancer were randomly assigned to darolutamide or placebo plus androgen-deprivation therapy and docetaxel. High-volume disease was defined as visceral metastases and/or ≥ 4 bone metastases with ≥ 1 beyond the vertebral column/pelvis. High-risk disease was defined as ≥ 2 risk factors: Gleason score ≥ 8, ≥ 3 bone lesions, and presence of measurable visceral metastases.
+
+## RESULTS
+Of 1,305 patients, 1,005 (77%) had high-volume disease and 912 (70%) had high-risk disease. Darolutamide increased overall survival (OS) versus placebo in patients with high-volume (hazard ratio [HR], 0.69; 95% CI, 0.57 to 0.82), high-risk (HR, 0.71; 95% CI, 0.58 to 0.86), and low-risk disease (HR, 0.62; 95% CI, 0.42 to 0.90), and in the smaller low-volume subgroup, the results were also suggestive of survival benefit (HR, 0.68; 95% CI, 0.41 to 1.13). Darolutamide improved clinically relevant secondary end points of time to castration-resistant prostate cancer and subsequent systemic antineoplastic therapy versus placebo in all disease volume and risk subgroups. Adverse events (AEs) were similar between treatment groups across subgroups. Grade 3 or 4 AEs occurred in 64.9% of darolutamide patients versus 64.2% of placebo patients in the high-volume subgroup and 70.1% versus 61.1% in the low-volume subgroup. Among the most common AEs, many were known toxicities related to docetaxel.
+
+**CONCLUSION** In patients with high-volume and high-risk/low-risk metastatic hormone-sensitive prostate cancer, treatment intensification with darolutamide, androgen-deprivation therapy, and docetaxel increased OS with a similar AE profile in the subgroups, consistent with the overall population.
+
+J Clin Oncol 00. © 2023 by American Society of Clinical Oncology
+
+## INTRODUCTION
+In patients with metastatic hormone-sensitive prostate cancer, early treatment intensification with a combination of androgen-deprivation therapy (ADT) plus either docetaxel or an androgen receptor pathway inhibitor improved survival versus ADT alone in several randomized controlled trials.<sup>1-6</sup> The combination of ADT, docetaxel, and an androgen receptor pathway inhibitor was evaluated in several phase III trials (PEACE-1, ENZAMET, and ARASENS) with varying results.<sup>7-9</sup> PEACE-1 was a randomized, open-label trial using a 2 × 2 factorial design that was conducted in patients with de novo metastatic hormone-sensitive prostate cancer.<sup>8</sup> In a preplanned analysis of patients who received docetaxel, longer survival was observed with abiraterone in combination
+
+with ADT and docetaxel versus ADT and docetaxel
+alone (hazard ratio [HR], 0.75; 95% CI, 0.59 to 0.95).⁸
+The ENZAMET trial allowed for early administration of
+docetaxel with enzalutamide.⁷ Among patients who
+received docetaxel, the effect of enzalutamide on overall
+survival (OS) appeared to be smaller (HR, 0.82; 95% CI,
+0.63 to 1.06) than that observed for all patients (HR,
+0.70; 95% CI, 0.58 to 0.84).¹⁰ In ARASENS, patients
+with metastatic hormone-sensitive prostate cancer were
+randomly assigned to double-blind treatment with either
+darolutamide or placebo, in combination with ADT and
+docetaxel. The darolutamide group had a significant
+reduction in the risk of death by 32.5% (HR, 0.68; 95%
+CI, 0.57 to 0.80; P < .0001) compared with the placebo
+group.⁹
+
+ASSOCIATED
+CONTENT
+Appendix
+
+## Protocol
+Author affiliations
+and support
+information (if
+applicable) appear
+at the end of this
+article.
+
+Accepted on January
+19, 2023 and
+published at
+ascopubs.org/journal/
+jco on February 16,
+2023: DOI https://doi.
+org/10.1200/JC0.23.
+00041
+
+ASCO®
+
+Journal of Clinical Oncology®
+
+1
+
+Downloaded from ascopubs.org by Mayo Foundation--Rochester on June 12, 2023 from 129.176.151.029
+Copyright  2023 American Society of Clinical Oncology. All rights reserved.
+
+Hussain et al
+
+## CONTEXT
+
+**Key Objective**
+We evaluated efficacy and safety outcomes from ARASENS in patients with metastatic hormone-sensitive prostate cancer by disease volume and disease risk to determine if specific subgroups of patients would achieve greater benefit from the combination of darolutamide, androgen-deprivation therapy (ADT), and docetaxel compared with ADT and docetaxel.
+
+**Knowledge Generated**
+These subgroup analyses of ARASENS showed that darolutamide plus ADT and docetaxel improves overall survival in high-volume and high- and low-risk patients with hazard ratios consistent across all subgroups and similar to the overall population. Darolutamide did not increase the toxicity associated with ADT and docetaxel in disease volume and risk subgroups.
+
+**Relevance (M.A. Carducci)**
+Triplet therapy for predominantly de novo docetaxel fit metastatic hormone-sensitive prostate cancer is supported by this subgroup analysis of the ARASENS study. This study provides useful information to guide providers and patients as to volume of disease and risk category.*
+
+*Relevance section written by *JCO* Associate Editor Michael A. Carducci, MD.
+
+Timing of metastatic presentation and disease volume and
+risk have been used to assess prognosis in patients with
+metastatic hormone-sensitive prostate cancer. 11-14 The
+presence of metastatic disease at initial diagnosis (de novo
+or synchronous disease) is associated with poorer out-
+comes compared with developing metastases after local
+therapy (recurrent or metachronous disease). Disease
+burden has been defined on the basis of extent (volume) of
+metastases as described in the CHAARTED trial. 1,15 In the
+LATITUDE trial, a benefit of adding an androgen receptor
+pathway inhibitor to ADT was demonstrated in patients with
+high-risk metastatic hormone-sensitive prostate cancer on
+the basis of factors associated with poor prognosis, in-
+cluding metastatic burden and Gleason score.2
+
+In ARASENS, the treatment effect of darolutamide on OS was favorable in patients with de novo (HR, 0.71; 95% CI, 0.59 to 0.85) and recurrent (HR, 0.61; 95% CI, 0.35 to 1.05) metastatic hormone-sensitive prostate cancer.⁹ When ARASENS was designed, the final analysis of CHAARTED had not been reported nor had data from LATITUDE been reported. Thus, subgroups on the basis of volume and risk categorizations were not prespecified in ARASENS.¹⁶ We conducted these subgroup analyses post hoc to determine if specific subgroups of patients by dis-ease volume or risk would achieve greater benefit from the combination of darolutamide, ADT, and docetaxel. We present efficacy and safety outcomes from ARASENS in patients with metastatic hormone-sensitive prostate can-cer by disease volume and disease risk according to CHAARTED and LATITUDE criteria, respectively.
+
+## METHODS
+### Trial Design
+ARASENS was a randomized, double-blind, placebo-controlled, phase III trial conducted at 286 centers in 23
+
+countries between November 2016 and June 2018. Complete study design and methodology have been published.9 The trial met ethical and clinical practice guidelines with approval from the institutional review boards of each participating center and informed consent received from all patients. All authors have reviewed and approved the manuscript that was submitted for publication and assume responsibility for its completeness and accuracy of the data.
+
+In brief, adult patients were eligible for enrollment into ARASENS if they had metastatic prostate cancer (beyond regional lymph nodes only) and were candidates for ADT and docetaxel on the basis of the investigator's assessment. Enrolled patients were randomly assigned (1:1) to oral darolutamide 600 mg twice daily or matched placebo, in combination with ADT and docetaxel. Random assignment was stratified by metastatic stage according to the TNM system (M1a, nonregional lymph node metastases only; M1b, bone metastases with or without lymph node me-tastases, or M1c, visceral metastases with or without lymph node or bone metastases) and alkaline phosphatase level. Patients were evaluated every 12 weeks for efficacy out-comes and AEs. Contrast-enhanced chest, abdomen, and pelvic computed tomography or magnetic resonance im-aging and bone scans were conducted at baseline, within 30 days of the last docetaxel cycle, and yearly during trial treatment.
+
+For this analysis, patient subgroups on the basis of disease
+volume and disease risk were assessed. High-volume dis-
+ease was defined as visceral metastases and/or four or more
+bone metastases with one or more beyond the vertebral
+column and pelvis. High-risk disease was defined as two of
+the following risk factors associated with poor prognosis:
+Gleason score ≥ 8, three or more bone metastases, and
+presence of measurable visceral metastasis. Low-volume
+and low-risk disease were defined as not meeting the
+
+2 © 2023 by American Society of Clinical Oncology
+
+Downloaded from ascopubs.org by Mayo Foundation--Rochester on June 12, 2023 from 129.176.151.029 Copyright  2023 American Society of Clinical Oncology. All rights reserved.
+
+Hussain et al
+
+FIG 2. OS in subgroups of patients by (A) high-volume disease, (B) low-volume disease, (C) high-risk disease, and (D) low-risk disease in ARASENS. High-volume disease was defined as the presence of visceral metastases or ≥ 4 bone lesions with ≥ 1 beyond the vertebral bodies and pelvis.¹ High-risk disease was defined by two of the following three risk factors: Gleason score ≥ 8, ≥ 3 bone lesions, and measurable visceral metastases.² ADT, androgen-deprivation therapy; HR, hazard ratio; OS, overall survival; NE, not estimable.
+
+with high-volume disease, with a risk reduction of 28% (HR, 0.72; 95.1% CI, 0.55 to 0.95). The risk reduction in patients with low-volume disease was 17% (HR, 0.83; 95.1% CI, 0.50 to 1.39), and data are currently immature for this subgroup. The open-label ENZAMET trial allowed for the use of docetaxel in patients with metastatic hormone-sensitive prostate cancer as a protocol amend- ment.7 Among 503 of 1,125 (45%) patients who received docetaxel, 359 (71%) patients had high-volume dis- ease.10 Exploratory analyses of OS for those who received docetaxel showed a 13% risk reduction for enzalutamide versus control in patients with high-volume disease (HR, 0.87; 95% CI, 0.66 to 1.17) and a 39% risk reduction in patients with low-volume disease (HR, 0.61; 95% CI, 0.33 to 1.10).10 A post hoc subgroup analysis suggested benefit of enzalutamide, ADT, and docetaxel in patients with de novo, high-volume disease (HR, 0.79; 95% CI, 0.57 to 1.10).
+
+The results of this post hoc analysis of the ARASENS trial, in which all patients received docetaxel, show that dar- olutamide in combination with ADT and docetaxel in- creases OS in patients with metastatic hormone-sensitive prostate cancer. HRs were consistent across all disease volume and risk subgroups, with risk reductions of 31% and 32% for high- and low-volume disease and 29% and 38% for high and low-risk disease, and similar to the overall ARASENS population. The small sample size in the low-volume subgroup (23% of ARASENS population) may have contributed to the HR CIs crossing 1.0 (HR, 0.68; 95% CI 0.41 to 1.13). Key patient-relevant secondary ef- ficacy end points of time to castration-resistant prostate cancer and time to initiation of subsequent systemic an- tineoplastic therapy were consistently improved with dar- olutamide versus placebo in high- and low-disease volume and risk subgroups. Time to pain progression and symp- tomatic skeletal events showed improvement with HRs
+
+6 © 2023 by American Society of Clinical Oncology
+
+Downloaded from ascopubs.org by Mayo Foundation--Rochester on June 12, 2023 from 129.176.151.029
+Copyright © 2023 American Society of Clinical Oncology. All rights reserved.
+
+Hussain et al
+
+APPENDIX
+
+FIG A1. OS in prespecified subgroups for patients with (A) high-volume and (B) low-volume disease. HR estimates were obtained from univariate analysis using unstratified Cox regression. High-volume disease was defined as the presence of visceral metastases or ≥4 bone lesions with ≥1 beyond the vertebral bodies and pelvis.¹ ADT, androgen-deprivation therapy; ALP, alkaline phosphatase; ECOG, Eastern Cooperative Oncology Group; eCRF, electronic case report form; HR, hazard ratio; PSA, prostate-specific antigen; OS, overall survival; NE, not estimable. (continued on following page)
+
+© 2023 by American Society of Clinical Oncology
+
+Downloaded from ascopubs.org by Mayo Foundation--Rochester on June 12, 2023 from 129.176.151.029 Copyright  2023 American Society of Clinical Oncology. All rights reserved.
+
+--- TABLES ---
+[Page 16]
+<table>
+<tr><td>A Subgroup</td><td>Darolutamide + ADT + Docetaxel No. of Events/</td><td>Placebo + ADT + Docetaxel No. of Patients</td><td>Darolutamide + ADT + Docetaxel Median</td><td>Placebo + ADT + Docetaxel Median</td><td></td><td>HR (95% CI)</td></tr>
+<tr><td>Overall</td><td>203/497</td><td>268/508</td><td>NE</td><td>42.4</td><td>diamond shape graph</td><td>0.685 (0.571 to 0.822)</td></tr>
+<tr><td>Extent of disease (eCRF) Bone metastasis</td><td>150/386</td><td>206/389</td><td>NE</td><td>42.5</td><td>line with square graph</td><td>0.653 (0.529 to 0.806)</td></tr>
+<tr><td>Visceral metastasis</td><td>53/111</td><td>62/118</td><td>49.0</td><td>42.0</td><td>line with square graph</td><td>0.792 (0.549 to 1.143)</td></tr>
+<tr><td>ALP stratification factor (eCRF)</td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+<tr><td>Below upper limit of normal</td><td>44/168</td><td>69/176</td><td>NE</td><td>51.8</td><td>chart (line with bars)</td><td>0.613 (0.420 to 0.896)</td></tr>
+<tr><td>At or above upper limit of normal</td><td>159/329</td><td>199/332</td><td>47.1</td><td>36.0</td><td>chart (line with bars)</td><td>0.689 (0.559 to 0.849)</td></tr>
+<tr><td>&lt; 65</td><td>70/184</td><td>103/182</td><td>NE</td><td>40.9</td><td>chart (line with bars)</td><td>0.573 (0.423 to 0.777)</td></tr>
+<tr><td>65-74</td><td>94/228</td><td>107/230</td><td>NE</td><td>51.8</td><td>chart (line with bars)</td><td>0.824 (0.624 to 1.087)</td></tr>
+<tr><td>75-84</td><td>37/82</td><td>55/92</td><td>NE</td><td>38.1</td><td>chart (line with bars)</td><td>0.627 (0.413 to 0.951)</td></tr>
+<tr><td>≥ 85 Race</td><td>2/3</td><td>3/4</td><td>33.7</td><td>27.8</td><td></td><td></td></tr>
+<tr><td>White</td><td>118/258</td><td>151/259</td><td>50.3</td><td>39.4</td><td>horizontal bar with blue square</td><td>0.672 (0.528 to 0.855)</td></tr>
+<tr><td>Asian</td><td>65/177</td><td>86/193</td><td>NE</td><td>51.8</td><td>horizontal bar with blue square</td><td>0.777 (0.563 to 1.072)</td></tr>
+<tr><td>Black or African American</td><td>6/22</td><td>14/21</td><td>NE</td><td>32.4</td><td>horizontal bar with blue square</td><td>0.346 (0.132 to 0.904)</td></tr>
+<tr><td>Other or not reported</td><td>14/40</td><td>17/35</td><td>NE</td><td>43.2</td><td>horizontal bar with blue square</td><td>0.562 (0.275 to 1.150)</td></tr>
+<tr><td>Geographical region</td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+<tr><td>North America</td><td>36/95</td><td>46/88</td><td>NE</td><td>41.1</td><td>(box plot with whisker)</td><td>0.592 (0.382 to 0.918)</td></tr>
+<tr><td>Asia Pacific</td><td>64/175</td><td>85/191</td><td>NE</td><td>51.8</td><td>(box plot with whisker)</td><td>0.774 (0.559 to 1.070)</td></tr>
+<tr><td>Rest of the world</td><td>103/227</td><td>137/229</td><td>49.0</td><td>39.3</td><td>(box plot with whisker)</td><td>0.655 (0.507 to 0.846)</td></tr>
+<tr><td>PSA at baseline Below median</td><td>94/220</td><td>121/252</td><td>NE</td><td>47.6</td><td>(box plot with whisker)</td><td>0.805 (0.615 to 1.055)</td></tr>
+<tr><td>At or above median ECOG at baseline</td><td>109/277</td><td>147/255</td><td>NE</td><td>40.6</td><td>horizontal line with blue squares</td><td>0.589 (0.459 to 0.754)</td></tr>
+<tr><td>0</td><td>130/343</td><td>165/349</td><td>NE</td><td>47.6</td><td>horizontal line with blue squares</td><td>0.743 (0.591 to 0.936)</td></tr>
+<tr><td>1</td><td>73/154</td><td>102/157</td><td>47.2</td><td>30.2</td><td>horizontal line with blue squares</td><td>0.580 (0.430 to 0.784)</td></tr>
+<tr><td>Gleason score</td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+<tr><td>&lt;8</td><td>30/96</td><td>39/87</td><td>NE</td><td>NE</td><td>horizontal line with blue squares</td><td>0.595 (0.369 to 0.958)</td></tr>
+<tr><td>≥ 8</td><td>165/381</td><td>217/403</td><td>NE</td><td>42.3</td><td>horizontal bar chart with square marker</td><td>0.724 (0.591 to 0.887)</td></tr>
+<tr><td>Metastatic stage at initial diagnosis De novo</td><td>181/432</td><td>239/445</td><td>NE</td><td>42.4</td><td>horizontal bar chart with square marker</td><td>0.696 (0.574 to 0.845)</td></tr>
+<tr><td>Recurrent</td><td>21/58</td><td>26/59</td><td>NE</td><td>NE</td><td>horizontal bar chart with square marker</td><td>0.695 (0.390 to 1.241)</td></tr>
+<tr><td></td><td></td><td></td><td></td><td>0</td><td>1 0.1 (chart scale)</td><td>10.0 (chart scale)</td></tr>
+<tr><td></td><td></td><td></td><td></td><td colspan="2">Darolutamide Better</td><td>Placebo Better</td></tr>
+</table>
+
+--- FIGURES ---
+[Page 1]
+<::logo: [Unknown] Check for updates A grey button with a colorful circular icon featuring a red banner and yellow arrow.::>
+
+[Page 6]
+A
+<::Kaplan-Meier curve showing percentage of patients who survived over time (months) for high-volume patients. The y-axis is "Patients Who Survived (%)" from 0 to 100 in increments of 10. The x-axis is "Time (months)" from 0 to 60 in increments of 3.
+
+Two survival curves are plotted:
+1. Darolutamide + ADT + docetaxel (solid line): Median, NE (95% CI, 50.3 months to NE)
+2. Placebo + ADT + docetaxel (dashed line): Median, 42.4 months (95% CI, 39.7 to 46.0)
+
+HR for death, 0.69 (95% CI, 0.57 to 0.82)
+
+Table: No. of high-volume patients at risk:
+| Time (months) | 0   | 3   | 6   | 9   | 12  | 15  | 18  | 21  | 24  | 27  | 30  | 33  | 36  | 39  | 42  | 45  | 48  | 51 | 54 | 57 | 60 |
+| :------------ | :-- | :-- | :-- | :-- | :-- | :-- | :-- | :-- | :-- | :-- | :-- | :-- | :-- | :-- | :-- | :-- | :-- | :-- | :-- | :-- | :-- |
+| Darolutamide  | 497 | 494 | 486 | 479 | 462 | 449 | 429 | 408 | 389 | 378 | 356 | 341 | 326 | 312 | 285 | 193 | 103 | 43 | 6  | 0  | 0  |
+| Placebo       | 508 | 502 | 491 | 469 | 444 | 430 | 401 | 378 | 358 | 341 | 319 | 304 | 286 | 269 | 233 | 153 | 72  | 23 | 4  | 1  | 0  |
+: chart and table::>
+B
+<::Kaplan-Meier curve showing percentage of patients who survived over time (months) for low-volume patients. The y-axis is "Patients Who Survived (%)" from 0 to 100 in increments of 10. The x-axis is "Time (months)" from 0 to 57 in increments of 3.
+
+Two survival curves are plotted:
+1. Darolutamide + ADT + docetaxel (solid line): Median, NE (95% CI, NE to NE)
+2. Placebo + ADT + docetaxel (dashed line): Median, NE (95% CI, NE to NE)
+
+HR for death, 0.68 (95% CI, 0.41 to 1.13)
+
+Table: No. of low-volume patients at risk:
+| Time (months) | 0   | 3   | 6   | 9   | 12  | 15  | 18  | 21  | 24  | 27  | 30  | 33  | 36  | 39  | 42  | 45  | 48 | 51 | 54 | 57 |
+| :------------ | :-- | :-- | :-- | :-- | :-- | :-- | :-- | :-- | :-- | :-- | :-- | :-- | :-- | :-- | :-- | :-- | :-- | :-- | :-- | :-- |
+| Darolutamide  | 154 | 151 | 151 | 148 | 146 | 144 | 141 | 140 | 136 | 131 | 130 | 127 | 126 | 124 | 117 | 74  | 36 | 13 | 3  | 0  |
+| Placebo       | 146 | 144 | 139 | 138 | 136 | 135 | 134 | 132 | 130 | 129 | 122 | 120 | 116 | 114 | 107 | 65  | 35 | 14 | 2  | 0  |
+: chart and table::>
+C
+<::Kaplan-Meier curve showing percentage of patients who survived over time (months) for high-risk patients. The y-axis is "Patients Who Survived (%)" from 0 to 100 in increments of 10. The x-axis is "Time (months)" from 0 to 57 in increments of 3.
+
+Two survival curves are plotted:
+1. Darolutamide + ADT + docetaxel (solid line): Median, NE (95% CI, NE to NE)
+2. Placebo + ADT + docetaxel (dashed line): Median, 43.2 months (95% CI, 40.0 to 48.9)
+
+HR for death, 0.71 (95% CI, 0.58 to 0.86)
+
+Table: No. of high-risk patients at risk:
+| Time (months) | 0   | 3   | 6   | 9   | 12  | 15  | 18  | 21  | 24  | 27  | 30  | 33  | 36  | 39  | 42  | 45  | 48 | 51 | 54 | 57 |
+| :------------ | :-- | :-- | :-- | :-- | :-- | :-- | :-- | :-- | :-- | :-- | :-- | :-- | :-- | :-- | :-- | :-- | :-- | :-- | :-- | :-- |
+| Darolutamide  | 452 | 450 | 443 | 437 | 419 | 407 | 389 | 369 | 352 | 344 | 322 | 308 | 294 | 282 | 257 | 177 | 99 | 42 | 6  | 0  |
+| Placebo       | 460 | 453 | 443 | 423 | 400 | 392 | 367 | 346 | 330 | 313 | 290 | 277 | 261 | 245 | 215 | 148 | 72 | 24 | 3  | 0  |
+: chart and table::>
+D
+<::Kaplan-Meier curve showing percentage of patients who survived over time (months) for low-risk patients. The y-axis is "Patients Who Survived (%)" from 0 to 100 in increments of 10. The x-axis is "Time (months)" from 0 to 60 in increments of 3.
+
+Two survival curves are plotted:
+1. Darolutamide + ADT + docetaxel (solid line): Median, NE (95% CI, NE to NE)
+2. Placebo + ADT + docetaxel (dashed line): Median, NE (95% CI, NE to NE)
+
+HR for death, 0.62 (95% CI, 0.42 to 0.90)
+
+Table: No. of low-risk patients at risk:
+| Time (months) | 0   | 3   | 6   | 9   | 12  | 15  | 18  | 21  | 24  | 27  | 30  | 33  | 36  | 39  | 42  | 45  | 48 | 51 | 54 | 57 | 60 |
+| :------------ | :-- | :-- | :-- | :-- | :-- | :-- | :-- | :-- | :-- | :-- | :-- | :-- | :-- | :-- | :-- | :-- | :-- | :-- | :-- | :-- | :-- |
+| Darolutamide  | 199 | 195 | 194 | 190 | 189 | 186 | 181 | 179 | 173 | 165 | 164 | 160 | 158 | 154 | 145 | 90  | 40 | 14 | 3  | 0  | 0  |
+| Placebo       | 194 | 193 | 187 | 184 | 180 | 173 | 168 | 164 | 158 | 157 | 151 | 147 | 141 | 138 | 125 | 70  | 35 | 13 | 3  | 1  | 0  |
+: chart and table::>
+
+Task:
+For EACH column listed above, output a JSON object with:
+- candidates: array of 1-4 objects, each with value, evidence (string or null), assumptions (string or null), confidence ("high"|"medium"|"low")
+- primary_value: string (your best guess)
+- found: true if at least one value was found, false if not reported/absent
+
+Return a single JSON object with column names as keys. Each value is an object with candidates, primary_value, found.
+Example: {"Median PFS (mo) | Overall | Treatment": {"candidates": [{"value": "19.4", "evidence": "Table 2", "assumptions": null, "confidence": "high"}], "primary_value": "19.4", "found": true}, ...}
+
+
+============================================================
+OUTPUT
+============================================================
+```json
+{
+  "OS Rate (%) | Overall | Treatment": {
+    "candidates": [
+      {
+        "value": "Not reported",
+        "evidence": "Abstract (page 1) and Figure A1 (page 16) provide median OS and hazard ratio but not a specific OS rate (percentage) for the overall treatment arm. Figure 2 (page 6) provides subgroup data, not overall population data.",
+        "assumptions": null,
+        "confidence": "high"
+      }
+    ],
+    "primary_value": "Not reported",
+    "found": false
+  },
+  "OS Rate (%) | Overall | Control": {
+    "candidates": [
+      {
+        "value": "Not reported",
+        "evidence": "Abstract (page 1) and Figure A1 (page 16) provide median OS and hazard ratio but not a specific OS rate (percentage) for the overall control arm. Figure 2 (page 6) provides subgroup data, not overall population data.",
+        "assumptions": null,
+        "confidence": "high"
+      }
+    ],
+    "primary_value": "Not reported",
+    "found": false
+  },
+  "OS Rate (%) | Synchronous | Treatment": {
+    "candidates": [
+      {
+        "value": "Not reported",
+        "evidence": "Figure A1 (page 16) reports median OS as 'NE' and hazard ratio (HR, 0.71; 95% CI, 0.59 to 0.85) in text (page 2), but no specific OS rate (percentage) is provided.",
+        "assumptions": null,
+        "confidence": "high"
+      }
+    ],
+    "primary_value": "Not reported",
+    "found": false
+  },
+  "OS Rate (%) | Synchronous | Control": {
+    "candidates": [
+      {
+        "value": "Not reported",
+        "evidence": "Figure A1 (page 16) reports median OS as 'NE' and hazard ratio (HR, 0.71; 95% CI, 0.59 to 0.85) in text (page 2), but no specific OS rate (percentage) is provided.",
+        "assumptions": null,
+        "confidence": "high"
+      }
+    ],
+    "primary_value": "Not reported",
+    "found": false
+  },
+  "OS Rate (%) | Metachronous | Treatment": {
+    "candidates": [
+      {
+        "value": "Not reported",
+        "evidence": "Figure A1 (page 16) reports median OS as 'NE' and hazard ratio (HR, 0.61; 95% CI, 0.35 to 1.05) in text (page 2), but no specific OS rate (percentage) is provided.",
+        "assumptions": null,
+        "confidence": "high"
+      }
+    ],
+    "primary_value": "Not reported",
+    "found": false
+  },
+  "OS Rate (%) | Metachronous | Control": {
+    "candidates": [
+      {
+        "value": "Not reported",
+        "evidence": "Figure A1 (page 16) reports median OS as 'NE' and hazard ratio (HR, 0.61; 95% CI, 0.35 to 1.05) in text (page 2), but no specific OS rate (percentage) is provided.",
+        "assumptions": null,
+        "confidence": "high"
+      }
+    ],
+    "primary_value": "Not reported",
+    "found": false
+  },
+  "OS Rate (%) | High volume | Treatment": {
+    "candidates": [
+      {
+        "value": "55% at 57 months",
+        "evidence": "Figure 2A (page 6) Kaplan-Meier curve for Darolutamide + ADT + docetaxel (solid line) for high-volume patients. At 57 months, the curve is approximately at 55%.",
+        "assumptions": "Reading the approximate value from the Kaplan-Meier curve at the latest time point where data is available for both groups (57 months).",
+        "confidence": "medium"
+      }
+    ],
+    "primary_value": "55% at 57 months",
+    "found": true
+  },
+  "OS Rate (%) | High volume | Control": {
+    "candidates": [
+      {
+        "value": "45% at 57 months",
+        "evidence": "Figure 2A (page 6) Kaplan-Meier curve for Placebo + ADT + docetaxel (dashed line) for high-volume patients. At 57 months, the curve is approximately at 45%.",
+        "assumptions": "Reading the approximate value from the Kaplan-Meier curve at the latest time point where data is available (57 months).",
+        "confidence": "medium"
+      }
+    ],
+    "primary_value": "45% at 57 months",
+    "found": true
+  },
+  "OS Rate (%) | Low volume | Treatment": {
+    "candidates": [
+      {
+        "value": "85% at 54 months",
+        "evidence": "Figure 2B (page 6) Kaplan-Meier curve for Darolutamide + ADT + docetaxel (solid line) for low-volume patients. At 54 months, the curve is approximately at 85%.",
+        "assumptions": "Reading the approximate value from the Kaplan-Meier curve at the latest time point where data is available for both groups (54 months).",
+        "confidence": "medium"
+      }
+    ],
+    "primary_value": "85% at 54 months",
+    "found": true
+  },
+  "OS Rate (%) | Low volume | Control": {
+    "candidates": [
+      {
+        "value": "75% at 54 months",
+        "evidence": "Figure 2B (page 6) Kaplan-Meier curve for Placebo + ADT + docetaxel (dashed line) for low-volume patients. At 54 months, the curve is approximately at 75%.",
+        "assumptions": "Reading the approximate value from the Kaplan-Meier curve at the latest time point where data is available (54 months).",
+        "confidence": "medium"
+      }
+    ],
+    "primary_value": "75% at 54 months",
+    "found": true
+  }
+}
+```

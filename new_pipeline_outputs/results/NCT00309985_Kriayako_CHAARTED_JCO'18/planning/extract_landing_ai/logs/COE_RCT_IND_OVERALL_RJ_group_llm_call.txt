@@ -1,0 +1,201 @@
+RETRIEVAL SOURCE: planner_sources
+
+============================================================
+INPUT
+============================================================
+You are extracting values for multiple clinical trial data columns from the same document content.
+All columns below share the same evidence pool. Extract each column following its plan.
+
+COLUMNS TO EXTRACT:
+
+Column 1: COE_RCT_IND_OVERALL_RJ
+  Definition: What is the overall risk judgment of individual criteria of evidence (COE) in randomized controlled trials (RCT)?.
+  Extraction plan: The abstract on page 1 states, 'In this phase III study, 790 patients with metastatic hormone-sensitive prostate cancer were equally randomly assigned'. The 'Patients' section on page 3 confirms '790 eligible patients were enrolled (Fig 1), including 397 in the ADT plus docetaxel arm'. Figure 1 on page 2 shows 397 patients assigned to ADT plus docetaxel and 393 to ADT alone, totaling 790 patients.
+
+
+Document content (grouped by type, in chronological page order):
+--- TEXT ---
+VOLUME 36 · NUMBER 11 · APRIL 10, 2018
+
+JOURNAL OF CLINICAL ONCOLOGY
+
+ORIGINAL REPORT
+
+Author affiliations and support information
+(if applicable) appear at the end of this
+article.
+
+Published at jco.org on January 31, 2018.
+
+The contents of this report are solely the
+responsibility of the authors and do not
+necessarily represent the official views of
+the National Cancer Institute. Sanofi was
+not involved in the design, analysis, or
+reporting of the results.
+
+Clinical trial information: NCT00309985.
+
+Corresponding author: Christopher J.
+Sweeney, MBBS, Dana-Farber Cancer
+Institute, D1230, 450 Brookline
+Ave, Boston, MA 02215; e-mail:
+christopher_sweeney@dfci.harvard.edu.
+
+&#169; 2018 by American Society of Clinical Oncology
+
+0732-183X/18/3611w-1080w/$20.00
+
+## ASSOCIATED CONTENT
+
+See accompanying Editorial
+on page 1060
+
+Data Supplements
+DOI: https://doi.org/10.1200/JCO.2017.75.3657
+
+DOI: https://doi.org/10.1200/JCO.2017.
+75.3657
+
+Chemohormonal Therapy in Metastatic Hormone-Sensitive
+Prostate Cancer: Long-Term Survival Analysis of the
+Randomized Phase III E3805 CHAARTED Trial
+Christos E. Kyriakopoulos, Yu-Hui Chen, Michael A. Carducci, Glenn Liu, David F. Jarrard, Noah M. Hahn,
+Daniel H. Shevrin, Robert Dreicer, Maha Hussain, Mario Eisenberger, Manish Kohli, Elizabeth R. Plimack,
+Nicholas J. Vogelzang, Joel Picus, Matthew M. Cooney, Jorge A. Garcia, Robert S. DiPaola, and Christopher J.
+Sweeney
+
+A B S T R A C T
+
+**Purpose**
+Docetaxel added to androgen-deprivation therapy (ADT) significantly increases the longevity of some patients with metastatic hormone-sensitive prostate cancer. Herein, we present the outcomes of the CHAARTED (Chemohormonal Therapy Versus Androgen Ablation Randomized Trial for Extensive Disease in Prostate Cancer) trial with more mature follow-up and focus on tumor volume.
+
+Patients and Methods
+In this phase III study, 790 patients with metastatic hormone-sensitive prostate cancer were equally randomly assigned to receive either ADT in combination with docetaxel 75 mg/m² for up to six cycles or ADT alone. The primary end point of the study was overall survival (OS). Additional analyses of the prospectively defined low- and high-volume disease subgroups were performed. High-volume disease was defined as presence of visceral metastases and/or ≥ four bone metastases with at least one outside of the vertebral column and pelvis.
+
+Results
+At a median follow-up of 53.7 months, the median OS was 57.6 months for the chemohormonal therapy arm versus 47.2 months for ADT alone (hazard ratio [HR], 0.72; 95% CI, 0.59 to 0.89; P= .0018). For patients with high-volume disease (n = 513), the median OS was 51.2 months with chemohormonal therapy versus 34.4 months with ADT alone (HR, 0.63; 95% CI, 0.50 to 0.79; P<.001). For those with low-volume disease (n = 277), no OS benefit was observed (HR, 1.04; 95% CI, 0.70 to 1.55; P = .86).
+
+**Conclusion**
+The clinical benefit from chemohormonal therapy in prolonging OS was confirmed for patients with high-volume disease; however, for patients with low-volume disease, no OS benefit was discerned.
+
+J Clin Oncol 36:1080-1087. © 2018 by American Society of Clinical Oncology
+
+# INTRODUCTION
+
+Although most patients with metastatic hormone-sensitive prostate cancer (mHSPC) initially respond to androgen-deprivation therapy (ADT),¹ the duration of response is variable, and invariably, all patients develop castration-resistant prostate cancer (CRPC). Several therapies have been shown to improve the overall survival (OS) of men with CRPC; however, most patients eventually die as a result of CRPC within a few years.² Combining novel therapies with ADT at the time of initiating systemic therapy for mHSPC has emerged as a strategy to potentially delay the development of CRPC and improve quality of life and OS.³⁻⁶
+
+Docetaxel was the first drug shown to improve the OS of men with mHSPC.3,4 Early treatment with docetaxel is hypothesized to attack castration-resistant clones that may already be present at the time of presentation with metastatic disease, a phenomenon that is probably proportional to disease burden. Thus, early treatment with cytotoxic chemotherapy may delay progression to CRPC. The first phase III study of docetaxel with ADT versus ADT alone in mHSPC (GETUG-AFU 15 [Groupe d'Etudes des Tumeurs Uro-Génitales and Association Française d'Urologie 15]) failed to show a survival benefit from docetaxel,7 although with longer follow-up, there was a nonsignificant trend in favor of the combination arm (median OS of 48.6 months with
+
+1080
+
+ 2018 by American Society of Clinical Oncology
+
+Downloaded from ascopubs.org by Mayo Foundation--Rochester on October 9, 2021 from 129.176.151.029
+Copyright © 2021 American Society of Clinical Oncology. All rights reserved.
+
+Kyriakopoulos et al
+
+function suitable for docetaxel. All patients provided written informed consent before study entry. The study was conducted in accordance with the Declaration of Helsinki for human subject protection.
+
+Procedures
+Eligible patients were randomly assigned at a one-to-one ratio to ADT alone versus ADT plus docetaxel at a dose of 75 mg/m² every 3 weeks for up to six cycles without daily prednisone. Randomization was stratified according to age (< 70 v ≥ 70 years), Eastern Cooperative Oncology Group performance status (0 to 1 v 2), duration of prior adjuvant therapy with ADT (> 12 v ≤ 12 months), planned use of combined androgen blockade for > 30 days (yes v no), and use of agents to prevent skeletal-related events (eg, zoledronic acid or denosumab). A key stratification factor was disease volume (high v low), with high-volume disease defined as presence of visceral metastases and/or at least four bone lesions with at least one lesion outside of the vertebral column and/or pelvis.
+
+Neither dose modification nor intermittent ADT was permitted. Use
+of nonsteroidal antiandrogens was at the discretion of the investigators.
+Patients were allowed only two dose reductions for docetaxel, the first to
+65 mg/m² and, if indicated, a second to 55 mg/m². Patients discontinued
+docetaxel permanently if there was a delay of > 3 weeks from the sched-
+uled treatment day. Growth factor support was at the discretion of the
+investigators.
+
+## Study Assessments
+
+Patients receiving chemohormonal therapy were evaluated every 3 weeks for the duration of treatment with chemotherapy and every 3 months thereafter, whereas patients receiving ADT alone were evaluated every 3 months. Radiographic disease assessment (with computed tomography [CT] of the abdomen and pelvis, x-ray or CT of the chest, and bone scan) was performed at baseline, at the time of development of CRPC, and/or as clinically indicated. For patients with measurable disease, disease evaluation was based on Response Evaluation Criteria in Solid Tumors (version 1.0). Serum prostate-specific antigen (PSA) concentration was checked with every visit. Complete PSA response was defined as a decrease to < 0.2 ng/mL confirmed by a second PSA 4 weeks later. Disease progression by PSA was defined as an increase in the PSA level by > 50% above nadir confirmed by a consecutive increase at least 2 weeks later. For patients with a PSA nadir of < 2 ng/mL, a PSA value of ≥ 2 ng/mL was required for disease progression by PSA only and qualified as CRPC.
+
+The primary end point of the study was OS, defined as time from random assignment until death resulting from any cause. Secondary end
+
+points included time to development of CRPC, defined either serologically
+or clinically from the time of random assignment until PSA progression,
+development of worsening symptoms, evidence of radiographic progression,
+or patient's deterioration as per investigator's opinion.
+
+**Statistical Analysis**
+The Kaplan-Meier method was used to characterize event-time distributions. Cox proportional hazards models, stratified on stratification factors at random assignment, were used to estimate HRs and test for significance for time-to-event end points.
+
+1082
+
+© 2018 by American Society of Clinical Oncology
+
+JOURNAL OF CLINICAL ONCOLOGY
+
+Downloaded from ascopubs.org by Mayo Foundation--Rochester on October 9, 2021 from 129.176.151.029 Copyright  2021 American Society of Clinical Oncology. All rights reserved.
+
+--- FIGURES ---
+[Page 2]
+<::transcription of the content
+: flowchart::>
+Fig 1. CONSORT diagram. Overview of screened and randomly assigned patients.
+ADT, androgen-deprivation therapy; NA, not applicable.
+
+Metastatic hormone-sensitive prostate cancer
+
+Randomly assigned to ADT plus docetaxel (n = 397)
+  Ineligible (n = 4)
+  Eligibility status not finalized (n = 5)
+
+Did not start treatment (excluded from toxicity analysis)
+  Patient withdrawal or refusal before protocol therapy (n = 5)
+  Medical decision (n = 1)
+  No treatment information submitted (n = 1)
+
+Follow-up status
+  No follow-up (n = 0)
+  Follow-up submitted (n = 397)
+  Documented lost to follow-up (n = 3)
+  Withdrew consent or refused (n = 11)
+
+Included in
+  Primary analysis (n = 397)
+  Toxicity analysis (n = 390)
+
+Randomly assigned to ADT alone (n = 393)
+  Ineligible (n = 6)
+  Eligibility status not finalized (n = 2)
+
+Did not start treatment (excluded from toxicity analysis)
+  NA
+
+Follow-up status
+  No follow-up; excluded from toxicity analysis (n = 1)
+  Follow-up submitted (n = 392)
+  Documented lost to follow-up (n = 0)
+  Withdrew consent or refused (n = 14)
+
+Included in
+  Primary analysis (n = 393)
+  Toxicity analysis (n = 392)
+<::
+
+Task:
+For EACH column listed above, output a JSON object with:
+- candidates: array of 1-4 objects, each with value, evidence (string or null), assumptions (string or null), confidence ("high"|"medium"|"low")
+- primary_value: string (your best guess)
+- found: true if at least one value was found, false if not reported/absent
+
+Return a single JSON object with column names as keys. Each value is an object with candidates, primary_value, found.
+Example: {"Median PFS (mo) | Overall | Treatment": {"candidates": [{"value": "19.4", "evidence": "Table 2", "assumptions": null, "confidence": "high"}], "primary_value": "19.4", "found": true}, ...}
+
+
+============================================================
+OUTPUT
+============================================================
+```json
+{
+  "COE_RCT_IND_OVERALL_RJ": {
+    "candidates": [],
+    "primary_value": null,
+    "found": false
+  }
+}
+```

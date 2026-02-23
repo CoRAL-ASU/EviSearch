@@ -1,7 +1,9 @@
+RETRIEVAL SOURCE: extraction_plan_pages
+
 ============================================================
 INPUT
 ============================================================
-You are extracting a value for a clinical trial data column from the provided document content.
+You are extracting values for a clinical trial data column from the provided document content.
 
 Column: TTPSA (mo) | Control
 Definition: What time to Progressive Serum Androgen (TTPSA) in months for participants in the control arm of the clinical trial? If reported, include the value; use 'Not reported' if missing.
@@ -61,16 +63,29 @@ protocol see http://www.
 stampdetrial.org
 
 Task:
-1. Extract the value for this column following the plan. Return your best-effort value even if uncertain.
-2. If the plan seems wrong, incomplete, or ambiguous, still return the value you found and add a suggestion and/or alternative_plan.
-3. Use "not found" or "not reported" only if the value is genuinely absent from the content.
+1. List 1-4 plausible values for this column. For each candidate: value, evidence (short excerpt or location), assumptions (if any), confidence.
+2. If only one interpretation is clear, return it as a single candidate.
+3. When the source is ambiguous, report all plausible interpretations as separate candidates:
+   - **Adverse events**: If the table does not specify whether it reports treatment-related or all-cause AEs (e.g. "Treatment-Emergent AEs" or "Any AE" without causality), report BOTH: one candidate as all-cause (what the table actually reports) and one as treatment-related (if that is what the column asks for), with assumptions noting the ambiguity.
+   - **PFS / progression endpoints**: If multiple progression times are reported in different tables (e.g. "Median Time to CRPC" in Table 2 vs "Median Time to Clinical Progression" in Table 3), report BOTH values as separate candidates with their source.
+4. Use a candidate with value "Not reported" only when the value is genuinely absent from the content.
+5. primary_value: your best guess for automated use (e.g. the most standard or commonly used form).
 
 Output a JSON object with:
-- value: the extracted value (string)
-- found: true if you found a value, false if not reported/absent
-- confidence: "high" | "medium" | "low"
-- suggestion: optional string with concerns or notes (null if none)
-- alternative_plan: optional string describing a different extraction approach to try (null if plan seems fine)
+- candidates: array of 1-4 objects, each with value, evidence (string or null), assumptions (string or null), confidence ("high"|"medium"|"low")
+- primary_value: string (your best guess)
+- found: true if at least one value was found in the content, false if not reported/absent
+
+Examples from our dataset:
+
+Median PFS with multiple progression endpoints (CHAARTED):
+{"candidates": [{"value": "14.9", "evidence": "Table 2, Median Time to CRPC (PSA rise or clinical progression), High volume, ADT Plus Docetaxel", "assumptions": "Time to CRPC used as PFS proxy", "confidence": "medium"}, {"value": "27.3", "evidence": "Table 3, Median Time to Clinical Progression, High volume, ADT Plus Docetaxel", "assumptions": "Clinical progression only", "confidence": "medium"}], "primary_value": "14.9", "found": true}
+
+Adverse events when table does not specify treatment-related vs all-cause (ARASENS Table 3):
+{"candidates": [{"value": "458 (70.2%)", "evidence": "Table 3, Any AE worst grade Grade 3-5, Darolutamide arm", "assumptions": "Table reports Treatment-Emergent AEs (all-cause)", "confidence": "medium"}, {"value": "458 (70.2%)", "evidence": "Table 3, same row", "assumptions": "Table does not specify causality; if treatment-related, value may be same or different", "confidence": "low"}], "primary_value": "458 (70.2%)", "found": true}
+
+Single clear value with optional CI:
+{"candidates": [{"value": "19.4", "evidence": "Table 2, page 6", "assumptions": null, "confidence": "high"}, {"value": "19.4 (95% CI 16.2-22.1)", "evidence": "Footnote b", "assumptions": "Included CI", "confidence": "medium"}], "primary_value": "19.4", "found": true}
 
 
 ============================================================
@@ -78,10 +93,15 @@ OUTPUT
 ============================================================
 ```json
 {
-  "value": "Not reported",
-  "found": false,
-  "confidence": "high",
-  "suggestion": null,
-  "alternative_plan": null
+  "candidates": [
+    {
+      "value": "Not reported",
+      "evidence": "The provided document content describes the study design, methods, and definitions (e.g., PSA progression), but does not report specific outcome values such as the median time to Progressive Serum Androgen (TTPSA) for the control group in the text, tables, or figures.",
+      "assumptions": null,
+      "confidence": "high"
+    }
+  ],
+  "primary_value": "Not reported",
+  "found": false
 }
 ```

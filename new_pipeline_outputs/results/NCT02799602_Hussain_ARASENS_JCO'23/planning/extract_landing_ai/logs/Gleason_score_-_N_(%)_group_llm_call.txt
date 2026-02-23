@@ -1,0 +1,67 @@
+RETRIEVAL SOURCE: extraction_plan_pages
+
+============================================================
+INPUT
+============================================================
+You are extracting values for multiple clinical trial data columns from the same document content.
+All columns below share the same evidence pool. Extract each column following its plan.
+
+COLUMNS TO EXTRACT:
+
+Column 1: Gleason score - N (%) | ≤ 7 | Treatment
+  Definition: What number and percentage of participants included in the treatment arm of the clinical trial with a Gleason score of 7 or less? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.
+  Extraction plan: In Table 1, locate the row "Gleason score at initial diagnosis,d No. (%)" and the sub-row "<8". The treatment arm is Darolutamide. Sum the counts for "<8" from the "High Volume - Darolutamide (n = 497)" column (96) and the "Low Volume - Darolutamide (n = 154)" column (26). This totals 122 patients. The total number of patients in the Darolutamide arm is 651. Calculate the percentage: (122 / 651) * 100 = 18.7%.
+
+Column 2: Gleason score - N (%) | ≤ 7 | Control
+  Definition: What number and percentage of patients with a Gleason score of 7 or less in the control arm of the trial? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.
+  Extraction plan: In Table 1, locate the row "Gleason score at initial diagnosis,d No. (%)" and the sub-row "<8". The control arm is Placebo. Sum the counts for "<8" from the "High Volume - Placebo (n = 508)" column (87) and the "Low Volume - Placebo (n = 146)" column (31). This totals 118 patients. The total number of patients in the Placebo arm is 654. Calculate the percentage: (118 / 654) * 100 = 18.0%.
+
+Column 3: Gleason score - N (%) | ≥ 8 | Treatment
+  Definition: What number and percentage of participants in the treatment arm of the clinical trial with a Gleason score of 8 or higher? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.
+  Extraction plan: In Table 1, locate the row "Gleason score at initial diagnosis,d No. (%)" and the sub-row "≥ 8". The treatment arm is Darolutamide. Sum the counts for "≥ 8" from the "High Volume - Darolutamide (n = 497)" column (381) and the "Low Volume - Darolutamide (n = 154)" column (124). This totals 505 patients. The total number of patients in the Darolutamide arm is 651. Calculate the percentage: (505 / 651) * 100 = 77.6%.
+
+Column 4: Gleason score - N (%) | ≥ 8 | Control
+  Definition: What number and percentage of patients in the control arm of the clinical trial with a Gleason score of 8 or higher? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.
+  Extraction plan: In Table 1, locate the row "Gleason score at initial diagnosis,d No. (%)" and the sub-row "≥ 8". The control arm is Placebo. Sum the counts for "≥ 8" from the "High Volume - Placebo (n = 508)" column (403) and the "Low Volume - Placebo (n = 146)" column (113). This totals 516 patients. The total number of patients in the Placebo arm is 654. Calculate the percentage: (516 / 654) * 100 = 78.9%.
+
+
+Document content (grouped by type, in chronological page order):
+No chunks available.
+
+Task:
+For EACH column listed above, output a JSON object with:
+- candidates: array of 1-4 objects, each with value, evidence (string or null), assumptions (string or null), confidence ("high"|"medium"|"low")
+- primary_value: string (your best guess)
+- found: true if at least one value was found, false if not reported/absent
+
+Return a single JSON object with column names as keys. Each value is an object with candidates, primary_value, found.
+Example: {"Median PFS (mo) | Overall | Treatment": {"candidates": [{"value": "19.4", "evidence": "Table 2", "assumptions": null, "confidence": "high"}], "primary_value": "19.4", "found": true}, ...}
+
+
+============================================================
+OUTPUT
+============================================================
+```json
+{
+  "Gleason score - N (%) | ≤ 7 | Treatment": {
+    "candidates": [],
+    "primary_value": "Not reported",
+    "found": false
+  },
+  "Gleason score - N (%) | ≤ 7 | Control": {
+    "candidates": [],
+    "primary_value": "Not reported",
+    "found": false
+  },
+  "Gleason score - N (%) | ≥ 8 | Treatment": {
+    "candidates": [],
+    "primary_value": "Not reported",
+    "found": false
+  },
+  "Gleason score - N (%) | ≥ 8 | Control": {
+    "candidates": [],
+    "primary_value": "Not reported",
+    "found": false
+  }
+}
+```

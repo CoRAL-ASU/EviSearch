@@ -1,0 +1,476 @@
+============================================================
+INPUT
+============================================================
+You are extracting a value for a clinical trial data column from the provided document content.
+
+Column: ORR - N (%) | Treatment | SD
+Definition: What percentage of total patients in the experimental arm showed stable metastatic disease? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.
+
+Extraction plan to follow:
+The document focuses on Overall Survival (OS), Time to CRPC, and Time to Clinical Progression. I reviewed the abstract (page 1), results section (page 3), and all tables (Table 1 on page 3, Table 2 and 3 on page 6) and figures (Figure 1 on page 2, Figure 2 on page 3, Figure 3 and 4 on page 4 and 5 respectively). No data on Objective Response Rate (ORR) specifically for Stable Disease (SD) for the treatment arm is reported.
+
+Document content (grouped by type, in chronological page order):
+--- TEXT ---
+VOLUME 36 · NUMBER 11 · APRIL 10, 2018
+
+JOURNAL OF CLINICAL ONCOLOGY
+
+ORIGINAL REPORT
+
+Author affiliations and support information
+(if applicable) appear at the end of this
+article.
+
+Published at jco.org on January 31, 2018.
+
+The contents of this report are solely the
+responsibility of the authors and do not
+necessarily represent the official views of
+the National Cancer Institute. Sanofi was
+not involved in the design, analysis, or
+reporting of the results.
+
+Clinical trial information: NCT00309985.
+
+Corresponding author: Christopher J.
+Sweeney, MBBS, Dana-Farber Cancer
+Institute, D1230, 450 Brookline
+Ave, Boston, MA 02215; e-mail:
+christopher_sweeney@dfci.harvard.edu.
+
+&#169; 2018 by American Society of Clinical Oncology
+
+0732-183X/18/3611w-1080w/$20.00
+
+## ASSOCIATED CONTENT
+
+See accompanying Editorial
+on page 1060
+
+Data Supplements
+DOI: https://doi.org/10.1200/JCO.2017.75.3657
+
+DOI: https://doi.org/10.1200/JCO.2017.
+75.3657
+
+Chemohormonal Therapy in Metastatic Hormone-Sensitive
+Prostate Cancer: Long-Term Survival Analysis of the
+Randomized Phase III E3805 CHAARTED Trial
+Christos E. Kyriakopoulos, Yu-Hui Chen, Michael A. Carducci, Glenn Liu, David F. Jarrard, Noah M. Hahn,
+Daniel H. Shevrin, Robert Dreicer, Maha Hussain, Mario Eisenberger, Manish Kohli, Elizabeth R. Plimack,
+Nicholas J. Vogelzang, Joel Picus, Matthew M. Cooney, Jorge A. Garcia, Robert S. DiPaola, and Christopher J.
+Sweeney
+
+A B S T R A C T
+
+**Purpose**
+Docetaxel added to androgen-deprivation therapy (ADT) significantly increases the longevity of some patients with metastatic hormone-sensitive prostate cancer. Herein, we present the outcomes of the CHAARTED (Chemohormonal Therapy Versus Androgen Ablation Randomized Trial for Extensive Disease in Prostate Cancer) trial with more mature follow-up and focus on tumor volume.
+
+Patients and Methods
+In this phase III study, 790 patients with metastatic hormone-sensitive prostate cancer were equally randomly assigned to receive either ADT in combination with docetaxel 75 mg/m² for up to six cycles or ADT alone. The primary end point of the study was overall survival (OS). Additional analyses of the prospectively defined low- and high-volume disease subgroups were performed. High-volume disease was defined as presence of visceral metastases and/or ≥ four bone metastases with at least one outside of the vertebral column and pelvis.
+
+Results
+At a median follow-up of 53.7 months, the median OS was 57.6 months for the chemohormonal therapy arm versus 47.2 months for ADT alone (hazard ratio [HR], 0.72; 95% CI, 0.59 to 0.89; P= .0018). For patients with high-volume disease (n = 513), the median OS was 51.2 months with chemohormonal therapy versus 34.4 months with ADT alone (HR, 0.63; 95% CI, 0.50 to 0.79; P<.001). For those with low-volume disease (n = 277), no OS benefit was observed (HR, 1.04; 95% CI, 0.70 to 1.55; P = .86).
+
+**Conclusion**
+The clinical benefit from chemohormonal therapy in prolonging OS was confirmed for patients with high-volume disease; however, for patients with low-volume disease, no OS benefit was discerned.
+
+J Clin Oncol 36:1080-1087. © 2018 by American Society of Clinical Oncology
+
+# INTRODUCTION
+
+Although most patients with metastatic hormone-sensitive prostate cancer (mHSPC) initially respond to androgen-deprivation therapy (ADT),¹ the duration of response is variable, and invariably, all patients develop castration-resistant prostate cancer (CRPC). Several therapies have been shown to improve the overall survival (OS) of men with CRPC; however, most patients eventually die as a result of CRPC within a few years.² Combining novel therapies with ADT at the time of initiating systemic therapy for mHSPC has emerged as a strategy to potentially delay the development of CRPC and improve quality of life and OS.³⁻⁶
+
+Docetaxel was the first drug shown to improve the OS of men with mHSPC.3,4 Early treatment with docetaxel is hypothesized to attack castration-resistant clones that may already be present at the time of presentation with metastatic disease, a phenomenon that is probably proportional to disease burden. Thus, early treatment with cytotoxic chemotherapy may delay progression to CRPC. The first phase III study of docetaxel with ADT versus ADT alone in mHSPC (GETUG-AFU 15 [Groupe d'Etudes des Tumeurs Uro-Génitales and Association Française d'Urologie 15]) failed to show a survival benefit from docetaxel,7 although with longer follow-up, there was a nonsignificant trend in favor of the combination arm (median OS of 48.6 months with
+
+1080
+
+ 2018 by American Society of Clinical Oncology
+
+Downloaded from ascopubs.org by Mayo Foundation--Rochester on October 9, 2021 from 129.176.151.029
+Copyright © 2021 American Society of Clinical Oncology. All rights reserved.
+
+Long-Term Survival Analysis of CHAARTED Trial
+
+ADT alone v 62.1 months with ADT plus docetaxel; P = .3).⁸
+Then, the interim analysis of the CHAARTED (Chemohormonal Therapy Versus Androgen Ablation Randomized Trial for Extensive Disease in Prostate Cancer) trial as well as that of the STAMPEDE (Systemic Therapy in Advancing or Metastatic Prostate Cancer: Evaluation of Drug Efficacy) trial demonstrated a survival benefit.³,⁴ One notable difference between GETUG-AFU 15 versus STAMPEDE and CHAARTED was access to newer life-prolonging therapies for CRPC. Interestingly, the ADT alone arms of CHAARTED and metastatic STAMPEDE cohort had a median OS of 44 and 45 months, respectively, suggesting a similar mix between patients with low and high tumor burden. CHAARTED and GETUG-AFU 15 used the same definition for low- and high-volume disease, but those with low-volume disease comprised 35% (277 of 790) of patients in CHAARTED and 52.5% (202 of 385) of patients in GETUG-AFU 15. The long-term follow-up of GETUG-AFU 15 noted a trend in improvement for OS with the high-volume subgroup, in line with STAMPEDE and CHAARTED.⁸,⁹ In contrast, there was no suggestion of benefit from early docetaxel in low-volume patients (hazard ratio [HR], for death, 1.02; 95% CI, 0.67 to 1.55; P = .9).⁸
+
+Another variable possibly associated with poorer outcome
+with ADT alone is de novo metastatic disease. 10,11 Furthermore,
+retrospective studies have suggested that treatment of the primary
+tumor in patients with metastatic disease may confer a survival
+benefit. 12-15 As such, several randomized phase III trials of systemic
+
+therapy with or without treatment of the primary tumor are under
+way (ClinicalTrials.gov identifiers NCT00268476, NCT01957436,
+NTR271, NCT01751438, and NCT02454543).
+
+We previously reported a survival benefit with the addition of docetaxel at an interim evaluation of the CHAARTED study.³ The survival benefit was noted for the study population as a whole (HR for death, 0.61; 95% CI, 0.47 to 0.80; P < .001), with the greatest benefit demonstrated in the high-volume subgroup (HR for death, 0.6; 95% CI, 0.45 to 0.81; P < .001), although the study was powered for the entire population and not the subgroups. At the time of the first report, there were only 44 deaths among 277 patients with low-volume disease, and there was a nonsignificant decrease in the risk of death (HR for death, 0.6; 95% CI, 0.32 to 1.13; P = .11). Here we present the updated analysis of the trial as a whole, by disease volume as prespecified, as well as by an un-planned analysis on the basis of prior local therapy (PLT) with or without curative intent.
+
+## PATIENTS AND METHODS
+
+### Study Design and Participants
+
+As detailed previously,³ this multicenter, randomized, open-label, phase III National Cancer Institute study led by the Eastern Cooperative Oncology Group—American College of Radiology Imaging Network enrolled patients with mHSPC who had performance status and organ
+
+jco.org
+
+© 2018 by American Society of Clinical Oncology
+
+1081
+
+Downloaded from ascopubs.org by Mayo Foundation--Rochester on October 9, 2021 from 129.176.151.029
+Copyright © 2021 American Society of Clinical Oncology. All rights reserved.
+
+Kyriakopoulos et al
+
+function suitable for docetaxel. All patients provided written informed consent before study entry. The study was conducted in accordance with the Declaration of Helsinki for human subject protection.
+
+Procedures
+Eligible patients were randomly assigned at a one-to-one ratio to ADT alone versus ADT plus docetaxel at a dose of 75 mg/m² every 3 weeks for up to six cycles without daily prednisone. Randomization was stratified according to age (< 70 v ≥ 70 years), Eastern Cooperative Oncology Group performance status (0 to 1 v 2), duration of prior adjuvant therapy with ADT (> 12 v ≤ 12 months), planned use of combined androgen blockade for > 30 days (yes v no), and use of agents to prevent skeletal-related events (eg, zoledronic acid or denosumab). A key stratification factor was disease volume (high v low), with high-volume disease defined as presence of visceral metastases and/or at least four bone lesions with at least one lesion outside of the vertebral column and/or pelvis.
+
+Neither dose modification nor intermittent ADT was permitted. Use
+of nonsteroidal antiandrogens was at the discretion of the investigators.
+Patients were allowed only two dose reductions for docetaxel, the first to
+65 mg/m² and, if indicated, a second to 55 mg/m². Patients discontinued
+docetaxel permanently if there was a delay of > 3 weeks from the sched-
+uled treatment day. Growth factor support was at the discretion of the
+investigators.
+
+## Study Assessments
+
+Patients receiving chemohormonal therapy were evaluated every 3 weeks for the duration of treatment with chemotherapy and every 3 months thereafter, whereas patients receiving ADT alone were evaluated every 3 months. Radiographic disease assessment (with computed tomography [CT] of the abdomen and pelvis, x-ray or CT of the chest, and bone scan) was performed at baseline, at the time of development of CRPC, and/or as clinically indicated. For patients with measurable disease, disease evaluation was based on Response Evaluation Criteria in Solid Tumors (version 1.0). Serum prostate-specific antigen (PSA) concentration was checked with every visit. Complete PSA response was defined as a decrease to < 0.2 ng/mL confirmed by a second PSA 4 weeks later. Disease progression by PSA was defined as an increase in the PSA level by > 50% above nadir confirmed by a consecutive increase at least 2 weeks later. For patients with a PSA nadir of < 2 ng/mL, a PSA value of ≥ 2 ng/mL was required for disease progression by PSA only and qualified as CRPC.
+
+The primary end point of the study was OS, defined as time from random assignment until death resulting from any cause. Secondary end
+
+points included time to development of CRPC, defined either serologically
+or clinically from the time of random assignment until PSA progression,
+development of worsening symptoms, evidence of radiographic progression,
+or patient's deterioration as per investigator's opinion.
+
+**Statistical Analysis**
+The Kaplan-Meier method was used to characterize event-time distributions. Cox proportional hazards models, stratified on stratification factors at random assignment, were used to estimate HRs and test for significance for time-to-event end points.
+
+1082
+
+© 2018 by American Society of Clinical Oncology
+
+JOURNAL OF CLINICAL ONCOLOGY
+
+Downloaded from ascopubs.org by Mayo Foundation--Rochester on October 9, 2021 from 129.176.151.029 Copyright  2021 American Society of Clinical Oncology. All rights reserved.
+
+Long-Term Survival Analysis of CHAARTED Trial
+
+and 393 in the ADT alone arm. This report represents data with
+a cutoff date for survival of April 23, 2016, resulting in a median
+follow-up of 53.7 months. Treatment groups were well balanced, as
+previously described. The median age was 64 years (range, 36 to 88
+years) in the combination arm versus 63 years (range, 39 to 91
+years) in the ADT alone arm. In terms of tumor volume, 263
+patients (66.2%) in the combination arm and 250 patients (63.6%)
+in the ADT alone arm had high-volume disease. Furthermore, 289
+patients (72.8%) in the combination arm versus 286 patients
+(72.8%) in the ADT alone arm had had no PLT and were considered
+to have de novo metastatic disease.
+
+Efficacy
+At the time of this analysis, there were 188 deaths in the combination arm and 211 deaths in the ADT alone arm. For the overall population, the median OS was 10.4 months longer in the combination arm (57.6 v 47.2 months; HR for death in the combination arm, 0.72; 95% CI, 0.59 to 0.89; P = .0018; Table 1; Fig 2). Longer follow-up confirmed that the effect of docetaxel was more pronounced for patients with high-volume disease. In this prospectively defined subgroup, with a median follow-up of 53.7 months, there was a median OS benefit of 16.8 months (median OS, 51.2 v 34.4 months; HR for death in the combination
+
+Fig 3. Kaplan-Meier estimates of overall
+survival (OS) for (A) High-volume total pa-
+tient population, (B) Low-volume total pa-
+tient population, (C) High-volume de novo
+metastatic patients, (D) Low-volume de
+novo metastatic patients, (E) High-volume
+patients with prior local therapy, (F) Low-
+volume patients with prior local therapy. HR,
+hazard ratio; NR, not reached.
+
+jco.org
+
+© 2018 by American Society of Clinical Oncology
+
+1083
+
+Downloaded from ascopubs.org by Mayo Foundation--Rochester on October 9, 2021 from 129.176.151.029
+Copyright © 2021 American Society of Clinical Oncology. All rights reserved.
+
+Long-Term Survival Analysis of CHAARTED Trial
+
+alone; only one risk factor (de novo presentation or high-volume
+disease) generated a median OS of approximately 5 years, and
+absence of both was associated with a median OS of approximately
+70 months. This was also noted in the GETUG-AFU 15 analysis. 20
+Moreover, the more indolent behavior of the low-volume subgroup
+was associated with no clear OS benefit from early docetaxel
+despite a modest delay in time to CRPC (mostly PSA rise). This is
+not to say that some patients with low-volume disease, especially
+those with de novo presentation, do not benefit. When studied as
+a unique subgroup, although there was a suggestion of benefit for
+a few patients in the early phase, there was no clear OS im-
+provement for the subgroup as a whole with longer follow-up.
+More precise biomarkers are urgently needed to determine the
+patient phenotype that might benefit from early chemotherapy in
+this setting. The findings also suggest that patients with delayed
+presentation of metastatic disease and lower tumor burden probably
+have a distinct underlying biology and thus may have a differential
+response to a given treatment. For example, patients with late relapse
+and low tumor burden may benefit from more intense androgen
+receptor (AR) pathway inhibition. In contrast, these data indicate that
+patients with a higher disease volume are more likely to benefit from
+early docetaxel with ADT than patients with a lower tumor burden.
+
+The benefit from early docetaxel in terms of delay to CRPC and subsequent clinical progression was more pronounced in the high-volume subgroup than in the low-volume subgroup. This suggests that there is a greater effect of secondary therapies for CRPC after early docetaxel, and this may contribute to the OS benefit in high-volume disease and may explain why no clear benefit was seen in GETUG-AFU 15, where there was less access to newer therapies for CRPC during the study conduct. In contrast, sequential therapies after ADT alone seem more effective as salvage treatments for patients with low-volume disease. This observation leads to the hypothesis that greater tumor debulking and attacking of AR-driven and AR-independent disease with
+
+upfront chemothormonal therapy in patients with greater tumor
+burden at baseline facilitate the greater benefit derived from the
+agents shown to prolong OS in the CRPC setting. Efforts are
+planned to more accurately capture treatment response to sub-
+sequent therapies in CHAARTED.
+
+Despite the limitations of subgroup analyses, the information derived can inform future trial design in terms of projections for outcomes to determine sample size, especially for oligometastatic disease. Moreover, the use of conventional CT and technetium bone scan imaging, although crude, provides a cut point that identifies patients who benefit from early docetaxel and can serve as a benchmark for future molecular and radiologic biomarker work. This knowledge can also help inform retrospective studies, such as whether treatment of the primary tumor in de novo metastatic disease is associated with better outcomes because patients with lower burden of disease may have been selected for treatment of the primary tumor.
+
+Finally, these results need to be interpreted in light of the recent data demonstrating a significant benefit from the addition of abiraterone to ADT to the same degree as docetaxel in high-volume disease (OS, not reached v 34.7 months; HR, 0.62; 95% CI, 0.51 to 0.76; P < .001 and progression-free survival, 33 v 14.8 months; HR, 0.47; 95% CI, 0.39 to 0.55; P < .001 [both in favor of the abiraterone plus ADT arm in the LATITUDE study]; HR for death, 0.63; 95% CI, 0.52 to 0.76; P < .001 and HR for treatment failure events, 0.29; 95% CI, 0.25 to 0.34; P < .001 [both in favor of the abiraterone plus ADT arm in the STAMPEDE trial]). 5,6 Notably, the predominant population accrued to these studies had de novo metastatic disease. The future question will be whether to add docetaxel to ADT and newer AR-targeting agents such abiraterone (or enzalutamide if proven to confer OS benefit in the mHSPC setting). Fortunately, three studies have or have nearly completed accrual and are stratified by docetaxel use and will allow an analysis of ADT plus docetaxel with or without abiraterone, enzalutamide,
+
+jco.org
+
+© 2018 by American Society of Clinical Oncology
+
+1085
+
+Downloaded from ascopubs.org by Mayo Foundation--Rochester on October 9, 2021 from 129.176.151.029 Copyright © 2021 American Society of Clinical Oncology. All rights reserved.
+
+--- TABLES ---
+[Page 3]
+<table>
+<tr><td colspan="9">Table 1. OS and No. of Deaths by Subgroup</td></tr>
+<tr><td></td><td colspan="3">ADT Plus Docetaxel</td><td colspan="3">ADT Alone</td><td colspan="2"></td></tr>
+<tr><td>Subgroup</td><td>No. of Patients</td><td>No. of Deaths</td><td>Median OS (95% Cl; months)</td><td>No. of Patients</td><td>No. of Deaths</td><td>Median OS (95% Cl; months)</td><td>HR (95% CI)*</td><td>P</td></tr>
+<tr><td>Overall</td><td>397</td><td>188</td><td>57.6 (52.0 to 63.9)</td><td>393</td><td>211</td><td>47.2 (41.8 to 52.8)</td><td>0.72 (0.59 to 0.89)</td><td>.0018</td></tr>
+<tr><td>High volume</td><td>263</td><td>137</td><td>51.2 (45.2 to 58.1)</td><td>250+</td><td>162</td><td>34.4 (30.1 to 42.1)</td><td>0.63 (0.50 to 0.79)</td><td>&lt;.001</td></tr>
+<tr><td>Low volume</td><td>134</td><td>51</td><td>63.5 (58.3 to 78.5)</td><td>143</td><td>49</td><td>NR (59.8 to NR)</td><td>1.04 (0.70 to 1.55)</td><td>.86</td></tr>
+<tr><td>High volume/ de novo</td><td>214</td><td>112</td><td>48.0 (42.5 to 56.7)</td><td>207</td><td>141</td><td>33.1 (29.5 to 39.2)</td><td>0.63 (0.49 to 0.81)</td><td>&lt; .001</td></tr>
+<tr><td>High volume/ prior local therapy</td><td>49</td><td>25</td><td>66.9 (49.1 to 76.9)</td><td>42</td><td>21</td><td>51.7 (27.2 to NR)</td><td>0.72 (0.36 to 1.46)</td><td>.37</td></tr>
+<tr><td>Low volume/ de novo</td><td>75</td><td>33</td><td>58.3 (53.8 to 79.3)</td><td>79</td><td>34</td><td>59.8 (49.1 to NR)</td><td>0.86 (0.52 to 1.42)</td><td>.55</td></tr>
+<tr><td>Low volume/ prior local therapy</td><td>59</td><td>18</td><td>69.6 (59.6 to NR)</td><td>64</td><td>15</td><td>NR (NR to NR)</td><td>1.25 (0.60 to 2.60)</td><td>.55</td></tr>
+<tr><td colspan="9">Abbreviations: ADT: androgen-deprivation therapy; HR, hazard ratio; NR, not reached; OS, overall survival. *Stratified on stratification factors at random assignment. †On-study form not submitted for one patient so prior local therapy unknown.</td></tr>
+</table>
+
+[Page 6]
+<table>
+<tr><td colspan="9">Table 2. Time to CRPC (PSA rise or clinical progression)</td></tr>
+<tr><td></td><td colspan="3">ADT Plus Docetaxel</td><td colspan="3">ADT Alone</td><td></td><td></td></tr>
+<tr><td>Subgroup</td><td>No. of Patients</td><td>No. of CRPCs</td><td>Median Time (95% Cl; months)</td><td>No. of Patients</td><td>No. of CRPCs</td><td>Median Time (95% Cl; months)</td><td>HR (95% CI)*</td><td>P</td></tr>
+<tr><td>Overall</td><td>397</td><td>257</td><td>19.4 (16.8 to 22.6)</td><td>393</td><td>303</td><td>11.7 (10.8 to 14.4)</td><td>0.61 (0.52 to 0.73)</td><td>&lt;.001</td></tr>
+<tr><td>High volume</td><td>263</td><td>190</td><td>14.9 (12.4 to 17.2)</td><td>250</td><td>213</td><td>8.6 (6.8 to 10.5)</td><td>0.58 (0.47 to 0.71)</td><td>&lt;.001</td></tr>
+<tr><td>Low volume</td><td>134</td><td>67</td><td>31.0 (23.1 to 51.1)</td><td>143</td><td>90</td><td>22.7 (18.9 to 29.1)</td><td>0.70 (0.50 to 0.96)</td><td>.03</td></tr>
+<tr><td colspan="9">Abbreviations: ADT, androgen-deprivation therapy; CRPC, castration-resistant prostate cancer; HR, hazard ratio; PSA, prostate-specific antigen. *Stratified on stratification factors at random assignment.</td></tr>
+</table>
+
+[Page 6]
+<table>
+<tr><td colspan="9">Table 3. Time to Clinical Progression</td></tr>
+<tr><td></td><td colspan="3">ADT Plus Docetaxel</td><td colspan="3">ADT Alone</td><td></td><td></td></tr>
+<tr><td>Subgroup</td><td>No. of Patients</td><td>No. of PDs</td><td>Median (95% Cl; months)</td><td>No. of Patients</td><td>No. of PDs</td><td>Median (95% CI; months)</td><td>HR (95% CI)*</td><td>P</td></tr>
+<tr><td>Overall</td><td>397</td><td>194</td><td>33.0 (29.1 to 40.9)</td><td>393</td><td>242</td><td>19.8 (17.8 to 22.5)</td><td>0.62 (0.51 to 0.75)</td><td>&lt;.001</td></tr>
+<tr><td>High volume</td><td>263</td><td>142</td><td>27.3 (21.9 to 32.7)</td><td>250</td><td>176</td><td>13.0 (11.1 to 17.2)</td><td>0.53 (0.42 to 0.67)</td><td>&lt;.001</td></tr>
+<tr><td>Low volume</td><td>134</td><td>52</td><td>42.5 (34.0 to NR)</td><td>143</td><td>66</td><td>44.3 (28.9 to 66.5)</td><td>0.86 (0.60 to 1.25)</td><td>.43</td></tr>
+<tr><td colspan="9">Abbreviations: ADT, androgen-deprivation therapy; HR, hazard ratio; NR, not reached; PD, disease progression. *Stratified on stratification factors at random assignment.</td></tr>
+</table>
+
+--- FIGURES ---
+[Page 1]
+<::logo: Google Chrome
+Check for updates
+A square icon with a circular emblem in blue, yellow, and red, and a red bookmark-like shape in the center.::>
+
+[Page 2]
+<::transcription of the content
+: flowchart::>
+Fig 1. CONSORT diagram. Overview of screened and randomly assigned patients.
+ADT, androgen-deprivation therapy; NA, not applicable.
+
+Metastatic hormone-sensitive prostate cancer
+
+Randomly assigned to ADT plus docetaxel (n = 397)
+  Ineligible (n = 4)
+  Eligibility status not finalized (n = 5)
+
+Did not start treatment (excluded from toxicity analysis)
+  Patient withdrawal or refusal before protocol therapy (n = 5)
+  Medical decision (n = 1)
+  No treatment information submitted (n = 1)
+
+Follow-up status
+  No follow-up (n = 0)
+  Follow-up submitted (n = 397)
+  Documented lost to follow-up (n = 3)
+  Withdrew consent or refused (n = 11)
+
+Included in
+  Primary analysis (n = 397)
+  Toxicity analysis (n = 390)
+
+Randomly assigned to ADT alone (n = 393)
+  Ineligible (n = 6)
+  Eligibility status not finalized (n = 2)
+
+Did not start treatment (excluded from toxicity analysis)
+  NA
+
+Follow-up status
+  No follow-up; excluded from toxicity analysis (n = 1)
+  Follow-up submitted (n = 392)
+  Documented lost to follow-up (n = 0)
+  Withdrew consent or refused (n = 14)
+
+Included in
+  Primary analysis (n = 393)
+  Toxicity analysis (n = 392)
+<::
+
+[Page 3]
+RESULTS
+
+**Patients**
+Between July 2006 and December 2012, 790 eligible patients
+were enrolled (Fig 1), including 397 in the ADT plus docetaxel arm
+
+<::chart
+: Overall survival (OS) by treatment arm among all patients
+
+**Kaplan-Meier Plot**
+Y-axis: Survival (proportion) [0.0, 0.2, 0.4, 0.6, 0.8, 1.0]
+X-axis: Time (months) [12, 24, 36, 48, 60, 72, 84, 96, 108]
+
+**Legend:**
+- ADT plus docetaxel (blue line)
+- ADT alone (yellow line)
+
+**Statistics:**
+Median OS (months):
+- ADT plus docetaxel: 57.6
+- ADT alone: 47.2
+HR, 0.72 (95% CI, 0.59 to 0.89); P = .0018
+
+**No. at risk table:**
+Time (months) | 12 | 24 | 36 | 48 | 60 | 72 | 84 | 96 | 108
+---|---|---|---|---|---|---|---|---|---
+ADT plus docetaxel | 397 | 366 | 314 | 245 | 155 | 67 | 28 | 7 | 2 | 0
+ADT alone | 393 | 352 | 278 | 198 | 126 | 45 | 21 | 2 | 0 | 0
+
+Fig 2. Overall survival (OS) by treatment arm among all patients. ADT, androgen-deprivation therapy; HR, hazard ratio.
+::>
+
+[Page 4]
+A<::Kaplan-Meier plot showing Survival (proportion) vs. Time (months).
+Legend:
+- ADT plus docetaxel (blue line)
+- ADT alone (yellow line)
+
+Median OS (months):
+- ADT plus docetaxel: 51.2
+- ADT alone: 34.4
+HR, 0.63 (95% CI, 0.50 to 0.79); P <.001
+
+No. at risk:
+Time (months)
+ADT plus docetaxel: 263 239 202 151 91 41 16 5 2 0
+ADT alone: 250 215 156 104 59 19 9 1 0 0
+: chart::>B<::Kaplan-Meier plot showing Survival (proportion) vs. Time (months).
+Legend:
+- ADT plus docetaxel (blue line)
+- ADT alone (yellow line)
+
+Median OS (months):
+- ADT plus docetaxel: 63.5
+- ADT alone: NR
+HR, 1.04 (95% CI, 0.70 to 1.55); P = .86
+
+No. at risk:
+Time (months)
+ADT plus docetaxel: 134 127 112 94 64 26 12 2 1 0
+ADT alone: 143 137 122 94 67 26 12 0 0 0
+: chart::>C<::Kaplan-Meier plot showing Survival (proportion) vs. Time (months).
+Legend:
+- ADT plus docetaxel (blue line)
+- ADT alone (yellow line)
+
+Median OS (months):
+- ADT plus docetaxel: 48.0
+- ADT alone: 33.1
+HR, 0.63 (95% CI, 0.49 to 0.81); P <.001
+
+No. at risk:
+Time (months)
+ADT plus docetaxel: 214 194 159 118 64 27 11 3 2 0
+ADT alone: 207 173 127 82 47 19 9 1 0 0
+: chart::>D<::Kaplan-Meier plot showing Survival (proportion) vs. Time (months).
+Legend:
+- ADT plus docetaxel (blue line)
+- ADT alone (yellow line)
+
+Median OS (months):
+- ADT plus docetaxel: 58.3
+- ADT alone: 59.8
+HR, 0.86 (95% CI, 0.52 to 1.42); P = .55
+
+No. at risk:
+Time (months)
+ADT plus docetaxel: 75 73 63 52 31 13 7 2 0 0
+ADT alone: 79 75 63 48 32 11 7 0 0 0
+: chart::>E<::Kaplan-Meier plot showing Survival (proportion) vs. Time (months).
+Legend:
+- ADT plus docetaxel (blue line)
+- ADT alone (yellow line)
+
+Median OS (months):
+- ADT plus docetaxel: 66.9
+- ADT alone: 51.7
+HR, 0.72 (95% CI, 0.36 to 1.46); P = .37
+
+No. at risk:
+Time (months)
+ADT plus docetaxel: 49 45 43 33 27 14 5 2 0 0
+ADT alone: 42 41 29 22 12 0 0 0 0 0
+: chart::>F<::Kaplan-Meier plot showing Survival (proportion) vs. Time (months).
+Legend:
+- ADT plus docetaxel (blue line)
+- ADT alone (yellow line)
+
+Median OS (months):
+- ADT plus docetaxel: 69.6
+- ADT alone: NR
+HR, 1.25 (95% CI, 0.60 to 2.60); P = .55
+
+No. at risk:
+Time (months)
+ADT plus docetaxel: 59 54 49 42 33 13 5 0 0 0
+ADT alone: 64 62 59 46 35 15 5 1 0 0
+: chart::>
+
+Task:
+1. Extract the value for this column following the plan. Return your best-effort value even if uncertain.
+2. If the plan seems wrong, incomplete, or ambiguous, still return the value you found and add a suggestion and/or alternative_plan.
+3. Use "not found" or "not reported" only if the value is genuinely absent from the content.
+
+Output a JSON object with:
+- value: the extracted value (string)
+- found: true if you found a value, false if not reported/absent
+- confidence: "high" | "medium" | "low"
+- suggestion: optional string with concerns or notes (null if none)
+- alternative_plan: optional string describing a different extraction approach to try (null if plan seems fine)
+
+
+============================================================
+OUTPUT
+============================================================
+```json
+{
+  "value": "Not reported",
+  "found": false,
+  "confidence": "high",
+  "suggestion": "The document mentions that 'disease evaluation was based on Response Evaluation Criteria in Solid Tumors (version 1.0)' in the Study Assessments section, indicating that tumor response was assessed. However, the results for Objective Response Rate (ORR), Complete Response (CR), Partial Response (PR), or Stable Disease (SD) are not presented in the provided text, tables, or figures.",
+  "alternative_plan": null
+}
+```

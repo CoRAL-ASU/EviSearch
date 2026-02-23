@@ -1,7 +1,9 @@
+RETRIEVAL SOURCE: extraction_plan_pages
+
 ============================================================
 INPUT
 ============================================================
-You are extracting a value for a clinical trial data column from the provided document content.
+You are extracting values for a clinical trial data column from the provided document content.
 
 Column: Volume of disease - N (%) | High | Control
 Definition: What the number and percentage of participants in the control arm of the clinical trial with high volume/burden metastasis? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.
@@ -10,6 +12,53 @@ Extraction plan to follow:
 Extract the value from Table 1, page 5, under the 'Abiraterone trial' section, in the 'Standard of care (n=502)' column, for the row 'Metastatic volume: High'. The value is 271 (54%). Note: 'Control' is interpreted as the 'Standard of care' arm of the Abiraterone trial, as it is the first control group listed in the table.
 
 Document content (grouped by type, in chronological page order):
+--- TEXT ---
+Articles
+
+predefined sample size for patients with metastatic disease
+alone. There were three interim analyses in the abiraterone
+trial and two in the abiraterone and enzalutamide trial that
+all concluded with a recommendation to continue as
+planned. The decision to close these trials and timing of
+these analyses was based on funding availability.
+
+Efficacy analyses were done in the intention-to-treat
+(ITT) population (defined as all randomly assigned
+patients). Toxic effects and adverse events were analysed
+in the safety population (defined as patients who started
+treatment within randomly assigned groups; reported as
+the maximum grade per patient for each adverse event)
+in the first 5 years of treatment to have enough
+representative patients in both control and study drug
+groups. To account for different durations of treatment
+exposure in each group, the time to any grade 3–5 event
+was analysed using a cumulative incidence curve.
+
+Standard survival analysis methods including Cox proportional hazards regression and Kaplan-Meier curves were used to analyse and present time-to-event data. 95% CIs were calculated using the standard error of Kaplan-Meier survival estimates or survival HRs. Estimates were adjusted for stratification factors (except randomisation centre and androgen deprivation therapy type) and stratified according to accrual time periods defined by other recruiting trials within STAMPEDE. Patients without an event triggering an outcome definition were censored when last known to be event free according to a completed follow-up case report form. Adverse events of interest were liver derangement, hypertension, and fatigue reported previously as commonly occurring with abiraterone or enzalutamide. 4,7,12 The proportional hazards assumption was tested using scaled Schoenfeld residuals regression over time. In case of non-proportional hazards in the treatment effect, restricted mean survival time-to-event difference was added from a flexible parametric model with time-varying treatment effect. Prostate cancer-specific survival used a competing risks approach with death from non-prostate cancer causes as the competing risk. Fixed-effects meta-analyses of individual patient data incorporating Cox proportional hazards were used to pool estimates from both trials using the ipdmetan module to compare inter-trial differences.17 Heterogeneity between trials was calculated using Cochran's Q test (I2).
+
+Prespecified subgroup analyses measured consistency
+of the treatment effect between both trials and across
+randomisation stratification factors (age, nodal stage,
+WHO status, NSAID or aspirin use, and planned docetaxel
+use as standard of care) using meta-analysis pooling of the
+interaction effect estimate between treatment allocation
+and each subgroup. Planned radiotherapy, randomising
+centre, and choice of androgen deprivation therapy were
+stratification factors but due to a small number of patients
+in one or more of the subgroups, were not included in the
+analysis. In case of unexpected significant interactions,
+a post-hoc Pearson correlation test was done to evaluate
+the association between subgroups.
+
+Given that metastatic volume is prognostic, outcomes split by low-volume and high-volume disease are of interest and were included as an additional prespecified subgroup analysis, in line with other trials of combination therapies in this setting. 8,9,12
+
+The significance threshold for p values was set at 0.05
+and data were analysed using Stata (version 17). STAMPEDE
+
+www.thelancet.com/oncology Vol 24 May 2023
+
+447
+
 --- TABLES ---
 [Page 5]
 <table>
@@ -58,16 +107,29 @@ Document content (grouped by type, in chronological page order):
 </table>
 
 Task:
-1. Extract the value for this column following the plan. Return your best-effort value even if uncertain.
-2. If the plan seems wrong, incomplete, or ambiguous, still return the value you found and add a suggestion and/or alternative_plan.
-3. Use "not found" or "not reported" only if the value is genuinely absent from the content.
+1. List 1-4 plausible values for this column. For each candidate: value, evidence (short excerpt or location), assumptions (if any), confidence.
+2. If only one interpretation is clear, return it as a single candidate.
+3. When the source is ambiguous, report all plausible interpretations as separate candidates:
+   - **Adverse events**: If the table does not specify whether it reports treatment-related or all-cause AEs (e.g. "Treatment-Emergent AEs" or "Any AE" without causality), report BOTH: one candidate as all-cause (what the table actually reports) and one as treatment-related (if that is what the column asks for), with assumptions noting the ambiguity.
+   - **PFS / progression endpoints**: If multiple progression times are reported in different tables (e.g. "Median Time to CRPC" in Table 2 vs "Median Time to Clinical Progression" in Table 3), report BOTH values as separate candidates with their source.
+4. Use a candidate with value "Not reported" only when the value is genuinely absent from the content.
+5. primary_value: your best guess for automated use (e.g. the most standard or commonly used form).
 
 Output a JSON object with:
-- value: the extracted value (string)
-- found: true if you found a value, false if not reported/absent
-- confidence: "high" | "medium" | "low"
-- suggestion: optional string with concerns or notes (null if none)
-- alternative_plan: optional string describing a different extraction approach to try (null if plan seems fine)
+- candidates: array of 1-4 objects, each with value, evidence (string or null), assumptions (string or null), confidence ("high"|"medium"|"low")
+- primary_value: string (your best guess)
+- found: true if at least one value was found in the content, false if not reported/absent
+
+Examples from our dataset:
+
+Median PFS with multiple progression endpoints (CHAARTED):
+{"candidates": [{"value": "14.9", "evidence": "Table 2, Median Time to CRPC (PSA rise or clinical progression), High volume, ADT Plus Docetaxel", "assumptions": "Time to CRPC used as PFS proxy", "confidence": "medium"}, {"value": "27.3", "evidence": "Table 3, Median Time to Clinical Progression, High volume, ADT Plus Docetaxel", "assumptions": "Clinical progression only", "confidence": "medium"}], "primary_value": "14.9", "found": true}
+
+Adverse events when table does not specify treatment-related vs all-cause (ARASENS Table 3):
+{"candidates": [{"value": "458 (70.2%)", "evidence": "Table 3, Any AE worst grade Grade 3-5, Darolutamide arm", "assumptions": "Table reports Treatment-Emergent AEs (all-cause)", "confidence": "medium"}, {"value": "458 (70.2%)", "evidence": "Table 3, same row", "assumptions": "Table does not specify causality; if treatment-related, value may be same or different", "confidence": "low"}], "primary_value": "458 (70.2%)", "found": true}
+
+Single clear value with optional CI:
+{"candidates": [{"value": "19.4", "evidence": "Table 2, page 6", "assumptions": null, "confidence": "high"}, {"value": "19.4 (95% CI 16.2-22.1)", "evidence": "Footnote b", "assumptions": "Included CI", "confidence": "medium"}], "primary_value": "19.4", "found": true}
 
 
 ============================================================
@@ -75,10 +137,15 @@ OUTPUT
 ============================================================
 ```json
 {
-  "value": "271 (54%)",
-  "found": true,
-  "confidence": "high",
-  "suggestion": null,
-  "alternative_plan": null
+  "candidates": [
+    {
+      "value": "271 (54%)",
+      "evidence": "Table 1, page 5, Abiraterone trial, Standard of care (n=502) column, Metastatic volume: High row",
+      "assumptions": "Control arm interpreted as 'Standard of care (n=502)' arm of the Abiraterone trial as per extraction plan.",
+      "confidence": "high"
+    }
+  ],
+  "primary_value": "271 (54%)",
+  "found": true
 }
 ```

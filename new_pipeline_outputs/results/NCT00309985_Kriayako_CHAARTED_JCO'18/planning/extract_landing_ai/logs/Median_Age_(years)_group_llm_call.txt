@@ -1,0 +1,98 @@
+RETRIEVAL SOURCE: planner_sources
+
+============================================================
+INPUT
+============================================================
+You are extracting values for multiple clinical trial data columns from the same document content.
+All columns below share the same evidence pool. Extract each column following its plan.
+
+COLUMNS TO EXTRACT:
+
+Column 1: Median Age (years) | Treatment
+  Definition: What median age in years of participants included in the treatment arm of the clinical trial? If reported, include the value; use 'Not reported' if missing.
+  Extraction plan: Extract the median age for the 'combination arm' (ADT plus docetaxel) from the 'Efficacy' section on page 4, which states 'The median age was 64 years (range, 36 to 88 years) in the combination arm'.
+
+Column 2: Median Age (years) | Control
+  Definition: What the median age of participants included in the control arm of the clinical trial? If reported, include the value; use 'Not reported' if missing.
+  Extraction plan: Extract the median age for the 'ADT alone arm' from the 'Efficacy' section on page 4, which states 'versus 63 years (range, 39 to 91 years) in the ADT alone arm'.
+
+
+Document content (grouped by type, in chronological page order):
+--- TEXT ---
+Long-Term Survival Analysis of CHAARTED Trial
+
+and 393 in the ADT alone arm. This report represents data with
+a cutoff date for survival of April 23, 2016, resulting in a median
+follow-up of 53.7 months. Treatment groups were well balanced, as
+previously described. The median age was 64 years (range, 36 to 88
+years) in the combination arm versus 63 years (range, 39 to 91
+years) in the ADT alone arm. In terms of tumor volume, 263
+patients (66.2%) in the combination arm and 250 patients (63.6%)
+in the ADT alone arm had high-volume disease. Furthermore, 289
+patients (72.8%) in the combination arm versus 286 patients
+(72.8%) in the ADT alone arm had had no PLT and were considered
+to have de novo metastatic disease.
+
+Efficacy
+At the time of this analysis, there were 188 deaths in the combination arm and 211 deaths in the ADT alone arm. For the overall population, the median OS was 10.4 months longer in the combination arm (57.6 v 47.2 months; HR for death in the combination arm, 0.72; 95% CI, 0.59 to 0.89; P = .0018; Table 1; Fig 2). Longer follow-up confirmed that the effect of docetaxel was more pronounced for patients with high-volume disease. In this prospectively defined subgroup, with a median follow-up of 53.7 months, there was a median OS benefit of 16.8 months (median OS, 51.2 v 34.4 months; HR for death in the combination
+
+Fig 3. Kaplan-Meier estimates of overall
+survival (OS) for (A) High-volume total pa-
+tient population, (B) Low-volume total pa-
+tient population, (C) High-volume de novo
+metastatic patients, (D) Low-volume de
+novo metastatic patients, (E) High-volume
+patients with prior local therapy, (F) Low-
+volume patients with prior local therapy. HR,
+hazard ratio; NR, not reached.
+
+jco.org
+
+© 2018 by American Society of Clinical Oncology
+
+1083
+
+Downloaded from ascopubs.org by Mayo Foundation--Rochester on October 9, 2021 from 129.176.151.029
+Copyright © 2021 American Society of Clinical Oncology. All rights reserved.
+
+Task:
+For EACH column listed above, output a JSON object with:
+- candidates: array of 1-4 objects, each with value, evidence (string or null), assumptions (string or null), confidence ("high"|"medium"|"low")
+- primary_value: string (your best guess)
+- found: true if at least one value was found, false if not reported/absent
+
+Return a single JSON object with column names as keys. Each value is an object with candidates, primary_value, found.
+Example: {"Median PFS (mo) | Overall | Treatment": {"candidates": [{"value": "19.4", "evidence": "Table 2", "assumptions": null, "confidence": "high"}], "primary_value": "19.4", "found": true}, ...}
+
+
+============================================================
+OUTPUT
+============================================================
+```json
+{
+  "Median Age (years) | Treatment": {
+    "candidates": [
+      {
+        "value": "64",
+        "evidence": "The median age was 64 years (range, 36 to 88 years) in the combination arm",
+        "assumptions": null,
+        "confidence": "high"
+      }
+    ],
+    "primary_value": "64",
+    "found": true
+  },
+  "Median Age (years) | Control": {
+    "candidates": [
+      {
+        "value": "63",
+        "evidence": "versus 63 years (range, 39 to 91 years) in the ADT alone arm",
+        "assumptions": null,
+        "confidence": "high"
+      }
+    ],
+    "primary_value": "63",
+    "found": true
+  }
+}
+```

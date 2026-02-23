@@ -1,0 +1,40 @@
+RETRIEVAL SOURCE: extraction_plan_pages
+
+============================================================
+INPUT
+============================================================
+You are extracting values for multiple clinical trial data columns from the same document content.
+All columns below share the same evidence pool. Extract each column following its plan.
+
+COLUMNS TO EXTRACT:
+
+Column 1: COE_RCT_IND_OVERALL_RJ
+  Definition: What is the overall risk judgment of individual criteria of evidence (COE) in randomized controlled trials (RCT)?.
+  Extraction plan: Reviewed abstract, methods, results, discussion sections (Chunks 8, 9, 10), appendix tables and figures (Chunks 1, 2, 3, 4, 5, 6, 7, 12). The document is an original research report of a randomized controlled trial (ARASENS), not a systematic review or meta-analysis that would provide an overall risk judgment of individual criteria of evidence across multiple randomized controlled trials. The paper focuses on reporting the efficacy and safety outcomes of the ARASENS trial itself.
+
+
+Document content (grouped by type, in chronological page order):
+No chunks available.
+
+Task:
+For EACH column listed above, output a JSON object with:
+- candidates: array of 1-4 objects, each with value, evidence (string or null), assumptions (string or null), confidence ("high"|"medium"|"low")
+- primary_value: string (your best guess)
+- found: true if at least one value was found, false if not reported/absent
+
+Return a single JSON object with column names as keys. Each value is an object with candidates, primary_value, found.
+Example: {"Median PFS (mo) | Overall | Treatment": {"candidates": [{"value": "19.4", "evidence": "Table 2", "assumptions": null, "confidence": "high"}], "primary_value": "19.4", "found": true}, ...}
+
+
+============================================================
+OUTPUT
+============================================================
+```json
+{
+  "COE_RCT_IND_OVERALL_RJ": {
+    "candidates": [],
+    "primary_value": null,
+    "found": false
+  }
+}
+```

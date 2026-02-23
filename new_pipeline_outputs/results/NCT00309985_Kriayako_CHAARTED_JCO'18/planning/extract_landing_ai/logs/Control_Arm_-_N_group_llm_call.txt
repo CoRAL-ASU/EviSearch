@@ -1,0 +1,144 @@
+RETRIEVAL SOURCE: planner_sources
+
+============================================================
+INPUT
+============================================================
+You are extracting values for multiple clinical trial data columns from the same document content.
+All columns below share the same evidence pool. Extract each column following its plan.
+
+COLUMNS TO EXTRACT:
+
+Column 1: Control Arm - N
+  Definition: What the total number of participants included in the control arm of the clinical trial?. If reported, provide the value; otherwise use 'Not reported'. If the trial contains multiple control arms, report for all separately
+  Extraction plan: The number of patients in the control arm (ADT alone) is explicitly stated as 393 in Figure 1 (CONSORT diagram) on page 2. This is further confirmed in the text on page 2 and page 4, and in Table 1 (page 3), Table 2 (page 6), and Table 3 (page 6) under the 'ADT Alone' column for 'No. of Patients' in the 'Overall' subgroup.
+
+
+Document content (grouped by type, in chronological page order):
+--- TEXT ---
+Long-Term Survival Analysis of CHAARTED Trial
+
+and 393 in the ADT alone arm. This report represents data with
+a cutoff date for survival of April 23, 2016, resulting in a median
+follow-up of 53.7 months. Treatment groups were well balanced, as
+previously described. The median age was 64 years (range, 36 to 88
+years) in the combination arm versus 63 years (range, 39 to 91
+years) in the ADT alone arm. In terms of tumor volume, 263
+patients (66.2%) in the combination arm and 250 patients (63.6%)
+in the ADT alone arm had high-volume disease. Furthermore, 289
+patients (72.8%) in the combination arm versus 286 patients
+(72.8%) in the ADT alone arm had had no PLT and were considered
+to have de novo metastatic disease.
+
+Efficacy
+At the time of this analysis, there were 188 deaths in the combination arm and 211 deaths in the ADT alone arm. For the overall population, the median OS was 10.4 months longer in the combination arm (57.6 v 47.2 months; HR for death in the combination arm, 0.72; 95% CI, 0.59 to 0.89; P = .0018; Table 1; Fig 2). Longer follow-up confirmed that the effect of docetaxel was more pronounced for patients with high-volume disease. In this prospectively defined subgroup, with a median follow-up of 53.7 months, there was a median OS benefit of 16.8 months (median OS, 51.2 v 34.4 months; HR for death in the combination
+
+Fig 3. Kaplan-Meier estimates of overall
+survival (OS) for (A) High-volume total pa-
+tient population, (B) Low-volume total pa-
+tient population, (C) High-volume de novo
+metastatic patients, (D) Low-volume de
+novo metastatic patients, (E) High-volume
+patients with prior local therapy, (F) Low-
+volume patients with prior local therapy. HR,
+hazard ratio; NR, not reached.
+
+jco.org
+
+© 2018 by American Society of Clinical Oncology
+
+1083
+
+Downloaded from ascopubs.org by Mayo Foundation--Rochester on October 9, 2021 from 129.176.151.029
+Copyright © 2021 American Society of Clinical Oncology. All rights reserved.
+
+--- TABLES ---
+[Page 3]
+<table>
+<tr><td colspan="9">Table 1. OS and No. of Deaths by Subgroup</td></tr>
+<tr><td></td><td colspan="3">ADT Plus Docetaxel</td><td colspan="3">ADT Alone</td><td colspan="2"></td></tr>
+<tr><td>Subgroup</td><td>No. of Patients</td><td>No. of Deaths</td><td>Median OS (95% Cl; months)</td><td>No. of Patients</td><td>No. of Deaths</td><td>Median OS (95% Cl; months)</td><td>HR (95% CI)*</td><td>P</td></tr>
+<tr><td>Overall</td><td>397</td><td>188</td><td>57.6 (52.0 to 63.9)</td><td>393</td><td>211</td><td>47.2 (41.8 to 52.8)</td><td>0.72 (0.59 to 0.89)</td><td>.0018</td></tr>
+<tr><td>High volume</td><td>263</td><td>137</td><td>51.2 (45.2 to 58.1)</td><td>250+</td><td>162</td><td>34.4 (30.1 to 42.1)</td><td>0.63 (0.50 to 0.79)</td><td>&lt;.001</td></tr>
+<tr><td>Low volume</td><td>134</td><td>51</td><td>63.5 (58.3 to 78.5)</td><td>143</td><td>49</td><td>NR (59.8 to NR)</td><td>1.04 (0.70 to 1.55)</td><td>.86</td></tr>
+<tr><td>High volume/ de novo</td><td>214</td><td>112</td><td>48.0 (42.5 to 56.7)</td><td>207</td><td>141</td><td>33.1 (29.5 to 39.2)</td><td>0.63 (0.49 to 0.81)</td><td>&lt; .001</td></tr>
+<tr><td>High volume/ prior local therapy</td><td>49</td><td>25</td><td>66.9 (49.1 to 76.9)</td><td>42</td><td>21</td><td>51.7 (27.2 to NR)</td><td>0.72 (0.36 to 1.46)</td><td>.37</td></tr>
+<tr><td>Low volume/ de novo</td><td>75</td><td>33</td><td>58.3 (53.8 to 79.3)</td><td>79</td><td>34</td><td>59.8 (49.1 to NR)</td><td>0.86 (0.52 to 1.42)</td><td>.55</td></tr>
+<tr><td>Low volume/ prior local therapy</td><td>59</td><td>18</td><td>69.6 (59.6 to NR)</td><td>64</td><td>15</td><td>NR (NR to NR)</td><td>1.25 (0.60 to 2.60)</td><td>.55</td></tr>
+<tr><td colspan="9">Abbreviations: ADT: androgen-deprivation therapy; HR, hazard ratio; NR, not reached; OS, overall survival. *Stratified on stratification factors at random assignment. †On-study form not submitted for one patient so prior local therapy unknown.</td></tr>
+</table>
+
+--- FIGURES ---
+[Page 2]
+<::transcription of the content
+: flowchart::>
+Fig 1. CONSORT diagram. Overview of screened and randomly assigned patients.
+ADT, androgen-deprivation therapy; NA, not applicable.
+
+Metastatic hormone-sensitive prostate cancer
+
+Randomly assigned to ADT plus docetaxel (n = 397)
+  Ineligible (n = 4)
+  Eligibility status not finalized (n = 5)
+
+Did not start treatment (excluded from toxicity analysis)
+  Patient withdrawal or refusal before protocol therapy (n = 5)
+  Medical decision (n = 1)
+  No treatment information submitted (n = 1)
+
+Follow-up status
+  No follow-up (n = 0)
+  Follow-up submitted (n = 397)
+  Documented lost to follow-up (n = 3)
+  Withdrew consent or refused (n = 11)
+
+Included in
+  Primary analysis (n = 397)
+  Toxicity analysis (n = 390)
+
+Randomly assigned to ADT alone (n = 393)
+  Ineligible (n = 6)
+  Eligibility status not finalized (n = 2)
+
+Did not start treatment (excluded from toxicity analysis)
+  NA
+
+Follow-up status
+  No follow-up; excluded from toxicity analysis (n = 1)
+  Follow-up submitted (n = 392)
+  Documented lost to follow-up (n = 0)
+  Withdrew consent or refused (n = 14)
+
+Included in
+  Primary analysis (n = 393)
+  Toxicity analysis (n = 392)
+<::
+
+Task:
+For EACH column listed above, output a JSON object with:
+- candidates: array of 1-4 objects, each with value, evidence (string or null), assumptions (string or null), confidence ("high"|"medium"|"low")
+- primary_value: string (your best guess)
+- found: true if at least one value was found, false if not reported/absent
+
+Return a single JSON object with column names as keys. Each value is an object with candidates, primary_value, found.
+Example: {"Median PFS (mo) | Overall | Treatment": {"candidates": [{"value": "19.4", "evidence": "Table 2", "assumptions": null, "confidence": "high"}], "primary_value": "19.4", "found": true}, ...}
+
+
+============================================================
+OUTPUT
+============================================================
+```json
+{
+  "Control Arm - N": {
+    "candidates": [
+      {
+        "value": "393",
+        "evidence": "Figure 1 (CONSORT diagram) on page 2 states 'Randomly assigned to ADT alone (n = 393)' and 'Included in Primary analysis (n = 393)' for the ADT alone arm. The text on page 2 states 'and 393 in the ADT alone arm'. Table 1 on page 3, under the 'ADT Alone' column for 'Overall' subgroup, lists 'No. of Patients' as '393'.",
+        "assumptions": null,
+        "confidence": "high"
+      }
+    ],
+    "primary_value": "393",
+    "found": true
+  }
+}
+```

@@ -1,0 +1,49 @@
+RETRIEVAL SOURCE: extraction_plan_pages
+
+============================================================
+INPUT
+============================================================
+You are extracting values for multiple clinical trial data columns from the same document content.
+All columns below share the same evidence pool. Extract each column following its plan.
+
+COLUMNS TO EXTRACT:
+
+Column 1: No. of Deaths - N | Treatment
+  Definition: What the number of participants who died in the treatment arm of the clinical trial?.
+  Extraction plan: Locate Figure 1, the CONSORT flow diagram. Read footnote 'c' which states: "The primary end point (OS) was assessed after 533 patients had died (229 in the darolutamide group and 304 in the placebo group)." The number of deaths in the darolutamide group is 229.
+
+Column 2: No. of Deaths - N | Control
+  Definition: What number of deaths that occurred in the control arm of the clinical trial?.
+  Extraction plan: Locate Figure 1, the CONSORT flow diagram. Read footnote 'c' which states: "The primary end point (OS) was assessed after 533 patients had died (229 in the darolutamide group and 304 in the placebo group)." The number of deaths in the placebo group is 304.
+
+
+Document content (grouped by type, in chronological page order):
+No chunks available.
+
+Task:
+For EACH column listed above, output a JSON object with:
+- candidates: array of 1-4 objects, each with value, evidence (string or null), assumptions (string or null), confidence ("high"|"medium"|"low")
+- primary_value: string (your best guess)
+- found: true if at least one value was found, false if not reported/absent
+
+Return a single JSON object with column names as keys. Each value is an object with candidates, primary_value, found.
+Example: {"Median PFS (mo) | Overall | Treatment": {"candidates": [{"value": "19.4", "evidence": "Table 2", "assumptions": null, "confidence": "high"}], "primary_value": "19.4", "found": true}, ...}
+
+
+============================================================
+OUTPUT
+============================================================
+```json
+{
+  "No. of Deaths - N | Treatment": {
+    "candidates": [],
+    "primary_value": null,
+    "found": false
+  },
+  "No. of Deaths - N | Control": {
+    "candidates": [],
+    "primary_value": null,
+    "found": false
+  }
+}
+```

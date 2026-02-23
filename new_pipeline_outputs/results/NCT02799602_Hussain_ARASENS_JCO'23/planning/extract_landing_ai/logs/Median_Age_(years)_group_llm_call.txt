@@ -1,0 +1,49 @@
+RETRIEVAL SOURCE: extraction_plan_pages
+
+============================================================
+INPUT
+============================================================
+You are extracting values for multiple clinical trial data columns from the same document content.
+All columns below share the same evidence pool. Extract each column following its plan.
+
+COLUMNS TO EXTRACT:
+
+Column 1: Median Age (years) | Treatment
+  Definition: What median age in years of participants included in the treatment arm of the clinical trial? If reported, include the value; use 'Not reported' if missing.
+  Extraction plan: In Table 1, locate the "All Patients" column group. Under "Darolutamide (n = 652)", find the row "Age, median, years (range)". The median age is "67.0".
+
+Column 2: Median Age (years) | Control
+  Definition: What the median age of participants included in the control arm of the clinical trial? If reported, include the value; use 'Not reported' if missing.
+  Extraction plan: In Table 1, locate the "All Patients" column group. Under "Placebo (n = 650)", find the row "Age, median, years (range)". The median age is "67.0".
+
+
+Document content (grouped by type, in chronological page order):
+No chunks available.
+
+Task:
+For EACH column listed above, output a JSON object with:
+- candidates: array of 1-4 objects, each with value, evidence (string or null), assumptions (string or null), confidence ("high"|"medium"|"low")
+- primary_value: string (your best guess)
+- found: true if at least one value was found, false if not reported/absent
+
+Return a single JSON object with column names as keys. Each value is an object with candidates, primary_value, found.
+Example: {"Median PFS (mo) | Overall | Treatment": {"candidates": [{"value": "19.4", "evidence": "Table 2", "assumptions": null, "confidence": "high"}], "primary_value": "19.4", "found": true}, ...}
+
+
+============================================================
+OUTPUT
+============================================================
+```json
+{
+  "Median Age (years) | Treatment": {
+    "candidates": [],
+    "primary_value": "Not reported",
+    "found": false
+  },
+  "Median Age (years) | Control": {
+    "candidates": [],
+    "primary_value": "Not reported",
+    "found": false
+  }
+}
+```

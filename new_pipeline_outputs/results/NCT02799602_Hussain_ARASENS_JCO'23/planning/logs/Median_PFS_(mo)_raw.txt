@@ -1,23 +1,83 @@
-1. **Median PFS (mo) | Overall | Treatment**
-    *   **found_in_pdf**: false
-    *   **explanation**: Progression-Free Survival (PFS) is not reported in the document. Table 2 (page 8, Chunk 4) lists secondary efficacy endpoints, including "Time to CRPC" (castration-resistant prostate cancer), "Time to pain progression", and "SSE-free survival", but not "PFS". The abstract (page 1, Chunk 8) and the "Study Assessments" section (page 3, Chunk 8) also do not mention PFS as an endpoint.
-
-2. **Median PFS (mo) | Overall | Control**
-    *   **found_in_pdf**: false
-    *   **explanation**: Progression-Free Survival (PFS) is not reported in the document. Table 2 (page 8, Chunk 4) lists secondary efficacy endpoints, including "Time to CRPC" (castration-resistant prostate cancer), "Time to pain progression", and "SSE-free survival", but not "PFS". The abstract (page 1, Chunk 8) and the "Study Assessments" section (page 3, Chunk 8) also do not mention PFS as an endpoint.
-
-3. **Median PFS (mo) | High volume | Treatment**
-    *   **found_in_pdf**: false
-    *   **explanation**: Progression-Free Survival (PFS) for the high-volume treatment group is not reported in the document. Table 2 (page 8, Chunk 4) provides secondary efficacy endpoints for the high-volume subgroup (Darolutamide arm), such as "Time to CRPC" and "SSE-free survival", but not "PFS".
-
-4. **Median PFS (mo) | High volume | Control**
-    *   **found_in_pdf**: false
-    *   **explanation**: Progression-Free Survival (PFS) for the high-volume control group is not reported in the document. Table 2 (page 8, Chunk 4) provides secondary efficacy endpoints for the high-volume subgroup (Placebo arm), such as "Time to CRPC" and "SSE-free survival", but not "PFS".
-
-5. **Median PFS (mo) | Low volume | Treatment**
-    *   **found_in_pdf**: false
-    *   **explanation**: Progression-Free Survival (PFS) for the low-volume treatment group is not reported in the document. Table 2 (page 8, Chunk 4) provides secondary efficacy endpoints for the low-volume subgroup (Darolutamide arm), such as "Time to CRPC" and "SSE-free survival", but not "PFS".
-
-6. **Median PFS (mo) | Low volume | Control**
-    *   **found_in_pdf**: false
-    *   **explanation**: Progression-Free Survival (PFS) for the low-volume control group is not reported in the document. Table 2 (page 8, Chunk 4) provides secondary efficacy endpoints for the low-volume subgroup (Placebo arm), such as "Time to CRPC" and "SSE-free survival", but not "PFS".
+{
+  "group_name": "Median PFS (mo)",
+  "columns": [
+    {
+      "column_index": 1,
+      "column_name": "Median PFS (mo) | Overall | Treatment",
+      "found_in_pdf": true,
+      "page": 8,
+      "source_type": "table",
+      "sources": [
+        [8, "table"],
+        [3, "text"]
+      ],
+      "confidence": "high",
+      "extraction_plan": "Extract the value 'NR' (Not Reached) from Table 2, row 'Time to CRPC', column 'All Patients' -> 'Darolutamide (n = 651)'. The table reports 'Time to CRPC' as a secondary efficacy endpoint, which is considered equivalent to PFS in this context."
+    },
+    {
+      "column_index": 2,
+      "column_name": "Median PFS (mo) | Overall | Control",
+      "found_in_pdf": true,
+      "page": 8,
+      "source_type": "table",
+      "sources": [
+        [8, "table"],
+        [3, "text"]
+      ],
+      "confidence": "high",
+      "extraction_plan": "Extract the value '19.1' from Table 2, row 'Time to CRPC', column 'All Patients' -> 'Placebo (n = 654)'. The table reports 'Time to CRPC' as a secondary efficacy endpoint, which is considered equivalent to PFS in this context."
+    },
+    {
+      "column_index": 3,
+      "column_name": "Median PFS (mo) | High volume | Treatment",
+      "found_in_pdf": true,
+      "page": 8,
+      "source_type": "table",
+      "sources": [
+        [8, "table"],
+        [3, "text"]
+      ],
+      "confidence": "high",
+      "extraction_plan": "Extract the value 'NR' (Not Reached) from Table 2, row 'Time to CRPC', column 'High Volumeª' -> 'Darolutamide (n = 497)'. The table reports 'Time to CRPC' as a secondary efficacy endpoint, which is considered equivalent to PFS in this context."
+    },
+    {
+      "column_index": 4,
+      "column_name": "Median PFS (mo) | High volume | Control",
+      "found_in_pdf": true,
+      "page": 8,
+      "source_type": "table",
+      "sources": [
+        [8, "table"],
+        [3, "text"]
+      ],
+      "confidence": "high",
+      "extraction_plan": "Extract the value '16.4' from Table 2, row 'Time to CRPC', column 'High Volumeª' -> 'Placebo (n = 508)'. The table reports 'Time to CRPC' as a secondary efficacy endpoint, which is considered equivalent to PFS in this context."
+    },
+    {
+      "column_index": 5,
+      "column_name": "Median PFS (mo) | Low volume | Treatment",
+      "found_in_pdf": true,
+      "page": 8,
+      "source_type": "table",
+      "sources": [
+        [8, "table"],
+        [3, "text"]
+      ],
+      "confidence": "high",
+      "extraction_plan": "Extract the value 'NR' (Not Reached) from Table 2, row 'Time to CRPC', column 'Low Volumeª' -> 'Darolutamide (n = 154)'. The table reports 'Time to CRPC' as a secondary efficacy endpoint, which is considered equivalent to PFS in this context."
+    },
+    {
+      "column_index": 6,
+      "column_name": "Median PFS (mo) | Low volume | Control",
+      "found_in_pdf": true,
+      "page": 8,
+      "source_type": "table",
+      "sources": [
+        [8, "table"],
+        [3, "text"]
+      ],
+      "confidence": "high",
+      "extraction_plan": "Extract the value '25.8' from Table 2, row 'Time to CRPC', column 'Low Volumeª' -> 'Placebo (n = 146)'. The table reports 'Time to CRPC' as a secondary efficacy endpoint, which is considered equivalent to PFS in this context."
+    }
+  ]
+}

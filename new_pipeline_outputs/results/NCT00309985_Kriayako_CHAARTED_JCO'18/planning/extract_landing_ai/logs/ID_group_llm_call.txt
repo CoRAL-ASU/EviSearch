@@ -1,0 +1,403 @@
+RETRIEVAL SOURCE: planner_sources
+
+============================================================
+INPUT
+============================================================
+You are extracting values for multiple clinical trial data columns from the same document content.
+All columns below share the same evidence pool. Extract each column following its plan.
+
+COLUMNS TO EXTRACT:
+
+Column 1: NCT
+  Definition: What national Clinical Trial identifier, a unique identification number assigned to a clinical trial?. If reported, provide the value; otherwise use 'Not reported'.
+  Extraction plan: Extract the NCT number associated with the CHAARTED trial from the 'Clinical trial information' section on page 1. The value is NCT00309985. Other NCTs are mentioned for different or ongoing trials.
+
+Column 2: PubMed ID
+  Definition: What a unique identifier assigned to a clinical trial publication in the PubMed database?. If reported, provide the value; otherwise use 'Not reported'.
+  Extraction plan: I looked on page 1 in the header, footer, and 'ASSOCIATED CONTENT' section, and also scanned the entire document for 'PMID' or 'PubMed ID', but could not find this information.
+
+Column 3: Trial Name
+  Definition: What the title or identifier of the clinical trial being referred to in the study?. If reported, provide the value; otherwise use 'Not reported'.
+  Extraction plan: Extract the full trial name from the title of the article on page 1: 'Chemohormonal Therapy in Metastatic Hormone-Sensitive Prostate Cancer: Long-Term Survival Analysis of the Randomized Phase III E3805 CHAARTED Trial'. The acronym CHAARTED is also defined on page 1 as 'Chemohormonal Therapy Versus Androgen Ablation Randomized Trial for Extensive Disease in Prostate Cancer'.
+
+Column 4: Author
+  Definition: What the name of the person or people responsible for writing or publishing the clinical trial study? Your answer should be a name/ list of names (you can use th et al. format )or 'NA'. If reported, provide the value; otherwise use 'Not reported'.
+  Extraction plan: Extract the list of authors from the author section on page 1: 'Christos E. Kyriakopoulos, Yu-Hui Chen, Michael A. Carducci, Glenn Liu, David F. Jarrard, Noah M. Hahn, Daniel H. Shevrin, Robert Dreicer, Maha Hussain, Mario Eisenberger, Manish Kohli, Elizabeth R. Plimack, Nicholas J. Vogelzang, Joel Picus, Matthew M. Cooney, Jorge A. Garcia, Robert S. DiPaola, and Christopher J. Sweeney'.
+
+Column 5: Year
+  Definition: Publication year of the clinical trial. Use 'Not reported' if unclear.
+  Extraction plan: Extract the publication year from the header and copyright information on page 1. The year is '2018'.
+
+Column 6: Full Pub or Abstract
+  Definition: Indicates whether results are fully published or only an abstract is available. Use 'Full Pub' or 'Abstract'; use 'Not reported' if unclear.
+  Extraction plan: The document is a 'FULL PUBLICATION'. This is indicated by the 'ORIGINAL REPORT' label on page 1, the extensive content including methods, results, discussion, and references spanning multiple pages, and the detailed nature of the information presented.
+
+Column 7: Phase
+  Definition: Clinical trial phase (e.g., I, II, III, IV) as reported. Use 'Not reported' if unclear.
+  Extraction plan: Extract the phase of the trial from the title on page 1, which states 'Randomized Phase III E3805 CHAARTED Trial'. This is confirmed in the 'Patients and Methods' section on page 2, stating 'In this phase III study'.
+
+Column 8: Original/Follow Up
+  Definition: Whether the study is an original report or a follow-up analysis. Use Original or Follow up; use 'Not reported' if unclear.
+  Extraction plan: This is a 'FOLLOW UP' analysis. The title on page 1 mentions 'Long-Term Survival Analysis'. The abstract on page 1 states 'Herein, we present the outcomes of the CHAARTED (...) trial with more mature follow-up'. The 'Patients and Methods' section on page 2 also states 'Here we present the updated analysis of the trial'. The 'Discussion' section on page 5 confirms 'The updated analysis of the CHAARTED trial'.
+
+
+Document content (grouped by type, in chronological page order):
+--- TEXT ---
+VOLUME 36 · NUMBER 11 · APRIL 10, 2018
+
+JOURNAL OF CLINICAL ONCOLOGY
+
+ORIGINAL REPORT
+
+Author affiliations and support information
+(if applicable) appear at the end of this
+article.
+
+Published at jco.org on January 31, 2018.
+
+The contents of this report are solely the
+responsibility of the authors and do not
+necessarily represent the official views of
+the National Cancer Institute. Sanofi was
+not involved in the design, analysis, or
+reporting of the results.
+
+Clinical trial information: NCT00309985.
+
+Corresponding author: Christopher J.
+Sweeney, MBBS, Dana-Farber Cancer
+Institute, D1230, 450 Brookline
+Ave, Boston, MA 02215; e-mail:
+christopher_sweeney@dfci.harvard.edu.
+
+&#169; 2018 by American Society of Clinical Oncology
+
+0732-183X/18/3611w-1080w/$20.00
+
+## ASSOCIATED CONTENT
+
+See accompanying Editorial
+on page 1060
+
+Data Supplements
+DOI: https://doi.org/10.1200/JCO.2017.75.3657
+
+DOI: https://doi.org/10.1200/JCO.2017.
+75.3657
+
+Chemohormonal Therapy in Metastatic Hormone-Sensitive
+Prostate Cancer: Long-Term Survival Analysis of the
+Randomized Phase III E3805 CHAARTED Trial
+Christos E. Kyriakopoulos, Yu-Hui Chen, Michael A. Carducci, Glenn Liu, David F. Jarrard, Noah M. Hahn,
+Daniel H. Shevrin, Robert Dreicer, Maha Hussain, Mario Eisenberger, Manish Kohli, Elizabeth R. Plimack,
+Nicholas J. Vogelzang, Joel Picus, Matthew M. Cooney, Jorge A. Garcia, Robert S. DiPaola, and Christopher J.
+Sweeney
+
+A B S T R A C T
+
+**Purpose**
+Docetaxel added to androgen-deprivation therapy (ADT) significantly increases the longevity of some patients with metastatic hormone-sensitive prostate cancer. Herein, we present the outcomes of the CHAARTED (Chemohormonal Therapy Versus Androgen Ablation Randomized Trial for Extensive Disease in Prostate Cancer) trial with more mature follow-up and focus on tumor volume.
+
+Patients and Methods
+In this phase III study, 790 patients with metastatic hormone-sensitive prostate cancer were equally randomly assigned to receive either ADT in combination with docetaxel 75 mg/m² for up to six cycles or ADT alone. The primary end point of the study was overall survival (OS). Additional analyses of the prospectively defined low- and high-volume disease subgroups were performed. High-volume disease was defined as presence of visceral metastases and/or ≥ four bone metastases with at least one outside of the vertebral column and pelvis.
+
+Results
+At a median follow-up of 53.7 months, the median OS was 57.6 months for the chemohormonal therapy arm versus 47.2 months for ADT alone (hazard ratio [HR], 0.72; 95% CI, 0.59 to 0.89; P= .0018). For patients with high-volume disease (n = 513), the median OS was 51.2 months with chemohormonal therapy versus 34.4 months with ADT alone (HR, 0.63; 95% CI, 0.50 to 0.79; P<.001). For those with low-volume disease (n = 277), no OS benefit was observed (HR, 1.04; 95% CI, 0.70 to 1.55; P = .86).
+
+**Conclusion**
+The clinical benefit from chemohormonal therapy in prolonging OS was confirmed for patients with high-volume disease; however, for patients with low-volume disease, no OS benefit was discerned.
+
+J Clin Oncol 36:1080-1087. © 2018 by American Society of Clinical Oncology
+
+# INTRODUCTION
+
+Although most patients with metastatic hormone-sensitive prostate cancer (mHSPC) initially respond to androgen-deprivation therapy (ADT),¹ the duration of response is variable, and invariably, all patients develop castration-resistant prostate cancer (CRPC). Several therapies have been shown to improve the overall survival (OS) of men with CRPC; however, most patients eventually die as a result of CRPC within a few years.² Combining novel therapies with ADT at the time of initiating systemic therapy for mHSPC has emerged as a strategy to potentially delay the development of CRPC and improve quality of life and OS.³⁻⁶
+
+Docetaxel was the first drug shown to improve the OS of men with mHSPC.3,4 Early treatment with docetaxel is hypothesized to attack castration-resistant clones that may already be present at the time of presentation with metastatic disease, a phenomenon that is probably proportional to disease burden. Thus, early treatment with cytotoxic chemotherapy may delay progression to CRPC. The first phase III study of docetaxel with ADT versus ADT alone in mHSPC (GETUG-AFU 15 [Groupe d'Etudes des Tumeurs Uro-Génitales and Association Française d'Urologie 15]) failed to show a survival benefit from docetaxel,7 although with longer follow-up, there was a nonsignificant trend in favor of the combination arm (median OS of 48.6 months with
+
+1080
+
+ 2018 by American Society of Clinical Oncology
+
+Downloaded from ascopubs.org by Mayo Foundation--Rochester on October 9, 2021 from 129.176.151.029
+Copyright © 2021 American Society of Clinical Oncology. All rights reserved.
+
+Long-Term Survival Analysis of CHAARTED Trial
+
+ADT alone v 62.1 months with ADT plus docetaxel; P = .3).⁸
+Then, the interim analysis of the CHAARTED (Chemohormonal Therapy Versus Androgen Ablation Randomized Trial for Extensive Disease in Prostate Cancer) trial as well as that of the STAMPEDE (Systemic Therapy in Advancing or Metastatic Prostate Cancer: Evaluation of Drug Efficacy) trial demonstrated a survival benefit.³,⁴ One notable difference between GETUG-AFU 15 versus STAMPEDE and CHAARTED was access to newer life-prolonging therapies for CRPC. Interestingly, the ADT alone arms of CHAARTED and metastatic STAMPEDE cohort had a median OS of 44 and 45 months, respectively, suggesting a similar mix between patients with low and high tumor burden. CHAARTED and GETUG-AFU 15 used the same definition for low- and high-volume disease, but those with low-volume disease comprised 35% (277 of 790) of patients in CHAARTED and 52.5% (202 of 385) of patients in GETUG-AFU 15. The long-term follow-up of GETUG-AFU 15 noted a trend in improvement for OS with the high-volume subgroup, in line with STAMPEDE and CHAARTED.⁸,⁹ In contrast, there was no suggestion of benefit from early docetaxel in low-volume patients (hazard ratio [HR], for death, 1.02; 95% CI, 0.67 to 1.55; P = .9).⁸
+
+Another variable possibly associated with poorer outcome
+with ADT alone is de novo metastatic disease. 10,11 Furthermore,
+retrospective studies have suggested that treatment of the primary
+tumor in patients with metastatic disease may confer a survival
+benefit. 12-15 As such, several randomized phase III trials of systemic
+
+therapy with or without treatment of the primary tumor are under
+way (ClinicalTrials.gov identifiers NCT00268476, NCT01957436,
+NTR271, NCT01751438, and NCT02454543).
+
+We previously reported a survival benefit with the addition of docetaxel at an interim evaluation of the CHAARTED study.³ The survival benefit was noted for the study population as a whole (HR for death, 0.61; 95% CI, 0.47 to 0.80; P < .001), with the greatest benefit demonstrated in the high-volume subgroup (HR for death, 0.6; 95% CI, 0.45 to 0.81; P < .001), although the study was powered for the entire population and not the subgroups. At the time of the first report, there were only 44 deaths among 277 patients with low-volume disease, and there was a nonsignificant decrease in the risk of death (HR for death, 0.6; 95% CI, 0.32 to 1.13; P = .11). Here we present the updated analysis of the trial as a whole, by disease volume as prespecified, as well as by an un-planned analysis on the basis of prior local therapy (PLT) with or without curative intent.
+
+## PATIENTS AND METHODS
+
+### Study Design and Participants
+
+As detailed previously,³ this multicenter, randomized, open-label, phase III National Cancer Institute study led by the Eastern Cooperative Oncology Group—American College of Radiology Imaging Network enrolled patients with mHSPC who had performance status and organ
+
+jco.org
+
+© 2018 by American Society of Clinical Oncology
+
+1081
+
+Downloaded from ascopubs.org by Mayo Foundation--Rochester on October 9, 2021 from 129.176.151.029
+Copyright © 2021 American Society of Clinical Oncology. All rights reserved.
+
+Kyriakopoulos et al
+
+arm, 0.63; 95% CI, 0.50 to 0.79; P < .001). In contrast, in the low-volume subgroup, with a median follow-up of 53.8 months, a survival benefit from docetaxel was not confirmed (median OS, 63.5 months for the chemohormonal arm v not reached for the ADT alone arm; HR for death in the combination arm, 1.04; 95% CI, 0.70 to 1.55; P = .86; Table 1; Fig 3). The interaction between treatment and disease volume was examined and showed heterogeneity between patients with high- and low-volume disease (P=.033; Fig 4). The benefit of docetaxel treatment was detected in all other subgroups analyzed and was similar to the initial analysis (Data Supplement).
+
+Other clinical end points assessed were time to development of CRPC (Table 2) and time to clinical progression (Table 3). The time to CRPC was 19.4 months in the combination arm versus 11.7 months in the ADT alone arm (HR in the combination arm, 0.61; 95% CI, 0.52 to 0.73; P < .001). For high-volume disease, the median time to CRPC was 14.9 months for the combination arm versus 8.6 months for the ADT alone arm (HR for the combination arm, 0.58; 95% CI, 0.47 to 0.71; P<.001); for low-volume disease, it was 31.0 months for the combination arm versus 22.7 months for the ADT alone arm (HR for the combination arm, 0.70; 95% CI, 0.50 to 0.96; P = .03). Similarly, the median time to clinical progression was 33.0 months for the combination arm versus 19.8 months in the ADT alone arm (HR in the combination arm, 0.62; 95% CI, 0.51 to 0.75; P < .001), a difference that was confirmed for patients with high-volume disease (median time to clinical progression, 27.3 months for the combination arm v 13.0 months for the ADT alone arm; HR in the combination arm, 0.53; 95% CI, 0.42 to 0.67; P<.001) but not for those with low-volume disease (median time to clinical progression, 42.5 months in the combination arm v 44.3 months in the ADT alone arm; HR in the combination arm, 0.86; 95% CI, 0.60 to 1.25; P = .43). An unplanned analysis of progression-free survival defined by survival and CRPC as well as survival and clinical progression was conducted and was consistent with the results presented (Data Supplement).
+
+When outcome was analyzed by type of presentation, patients
+with high-volume de novo metastatic disease (n = 421) were found
+to have a survival benefit of 14.9 months from addition of docetaxel
+to ADT (median OS, 48.0 v 33.1 months; HR for death in the
+combination arm, 0.63; 95% CI, 0.49 to 0.81; P < .001). In the
+smaller subgroup of patients with high-volume disease with PLT
+(n= 91), those who received ADT alone had a better outcome
+compared with their counterparts with de novo metastatic disease.
+When docetaxel was added, there was a numeric improvement in
+OS; however, this was not statistically significant (median OS, 66.9
+v 51.7 months; HR for death in the combination arm, 0.72; 95%
+
+CI, 0.36 to 1.46; P = .37; Table 1; Fig 3). In contrast, for the low-volume subgroups, neither patients with de novo metastatic disease nor patients with PLT were found to derive a survival benefit from docetaxel (de novo metastatic low-volume disease: median OS, 58.3 months for the combination arm v 59.8 months for the ADT alone arm; HR for death in the combination arm, 0.86; 95% CI, 0.52 to 1.42; P = .55; low-volume metastatic disease with PLT: median OS, 69.6 months for the combination arm v not reached for the ADT alone arm; HR for death in the combination arm, 1.25; 95% CI, 0.60 to 2.60; P = .55; Table 1; Fig 3).
+
+**Safety**
+A summary of the adverse effects observed in the combination arm was included in the initial publication; these were in accordance with previous experience with docetaxel. No additional long-term adverse effects were observed.
+
+## DISCUSSION
+
+The updated analysis of the CHAARTED trial with a median follow-up of 53.7 months confirms the OS benefit from early treatment with docetaxel seen at the interim analysis with a median follow-up of 28.9 months, which resulted in an early data release. In addition, all the secondary end points were in favor of the combination arm. With longer follow-up, the clinical benefit observed with chemohormonal therapy was confirmed for patients with high-volume disease regardless of whether they had relapsed after PLT of the prostate with or without curative intent. In contrast, the subgroup with low-volume disease showed no evidence of survival benefit when docetaxel was added (HR, 1.04 with 100 deaths), despite the early analysis showing a nonsignificant HR of 0.60 with 44 deaths.
+
+Although prospectively defined, the subgroups were not powered to be analyzed separately. The test for heterogeneity supports the observation that there was a differential effect of docetaxel in the high- and low-volume subgroups. The different outcomes between the two subgroups (namely, longer OS with ADT alone in the low- v high-volume subgroups and no clear benefit with early chemotherapy for the former) can guide biologic studies and future clinical trial design. Notably, previous studies in mHSPC have identified higher tumor volume and presence of de novo metastatic disease as risk factors associated with shorter OS with ADT alone. 18,19 In CHAARTED, the presence of both risk factors was associated with a median OS of approximately 3 years with ADT
+
+Fig 4. Test of heterogeneity between patients with high- and low-volume disease. ADT, androgen-deprivation therapy. The size of the squares is proportional to the inverse of the variance of the log hazard ratio (small squares correspond to large variances).
+
+1084
+
+© 2018 by American Society of Clinical Oncology
+
+JOURNAL OF CLINICAL ONCOLOGY
+
+Downloaded from ascopubs.org by Mayo Foundation--Rochester on October 9, 2021 from 129.176.151.029 Copyright © 2021 American Society of Clinical Oncology. All rights reserved.
+
+Kyriakopoulos et al
+
+or apalutamide (ClinicalTrials.gov identifiers NCT02446405, NCT01957436, and NCT02489318).
+
+In conclusion, the updated data confirm the benefit of docetaxel in combination with ADT for patients with mHSPC, which is clearly defined for patients with high-volume disease. Although burden of metastases determined by conventional imaging can assist in patient selection for treatment with docetaxel, additional studies should focus on identifying more accurate biomarkers and gaining a better understanding of the underlying mechanisms of resistance to ADT and the biologic basis for AR targeting and cytotoxics in prostate cancer.²¹⁻²³
+
+AUTHORS' DISCLOSURES OF POTENTIAL CONFLICTS
+OF INTEREST
+
+Disclosures provided by the authors are available with this article at jco.org.
+
+## AUTHOR CONTRIBUTIONS
+
+**Conception and design:** Michael A. Carducci, Robert S. DiPaola, Christopher J. Sweeney
+
+**Provision of study materials or patients:** Yu-Hui Chen, Michael A. Carducci, Glenn Liu, David F. Jarrard, Noah M. Hahn, Daniel H. Shevrin, Robert Dreicer, Maha Hussain, Mario Eisenberger, Manish Kohli, Elizabeth R. Plimack, Nicholas J. Vogelzang, Joel Picus, Matthew M. Cooney, Jorge A. Garcia, Robert S. DiPaola, Christopher J. Sweeney
+
+**Collection and assembly of data:** Christos E. Kyriakopoulos, Yu-Hui Chen, Christopher J. Sweeney
+
+**Data analysis and interpretation:** Christos E. Kyriakopoulos, Yu-Hui Chen, Michael A. Carducci, Glenn Liu, David F. Jarrard, Noah M. Hahn, Daniel H. Shevrin, Robert Dreicer, Maha Hussain, Mario Eisenberger, Manish Kohli, Elizabeth R. Plimack, Nicholas J. Vogelzang, Joel Picus, Matthew M. Cooney, Jorge A. Garcia, Christopher J. Sweeney
+
+**Manuscript writing:** All authors
+
+**Final approval of manuscript:** All authors
+
+**Accountable for all aspects of the work:** All authors
+
+## REFERENCES
+
+1.  Huggins C, Hodges CV: Studies on prostate cancer: I. The effect of castration, of estrogen and of androgen injection on serum phosphatases in metastatic carcinoma of the prostate. Cancer Res 1:293-297, 1941
+2.  Crawford ED, Higano CS, Shore ND, et al: Treating patients with metastatic castration resistant prostate cancer: A comprehensive review of available therapies. J Urol 194:1537-1547, 2015
+3.  Sweeney CJ, Chen YH, Carducci M, et al: Chemohormonal therapy in metastatic hormone-sensitive prostate cancer. N Engl J Med 373:737-746, 2015
+4.  James ND, Sydes MR, Clarke NW, et al: Addition of docetaxel, zoledronic acid, or both to first-line long-term hormone therapy in prostate cancer (STAMPEDE): Survival results from an adaptive, multiarm, multistage, platform randomised controlled trial. Lancet 387:1163-1177, 2016
+5.  Fizazi K, Tran N, Fein L, et al: Abiraterone plus prednisone in metastatic, castration-sensitive prostate cancer. N Engl J Med 377:352-360, 2017
+6.  James ND, de Bono JS, Spears MR, et al: Abiraterone for prostate cancer not previously treated with hormone therapy. N Engl J Med 377: 338-351, 2017
+7.  Gravis G, Fizazi K, Joly F, et al: Androgen-deprivation therapy alone or with docetaxel in non-castrate metastatic prostate cancer (GETUG-AFU 15): A randomised, open-label, phase 3 trial. Lancet Oncol 14:149-158, 2013
+
+8. Gravis G, Boher JM, Joly F, et al: Androgen deprivation therapy (ADT) plus docetaxel versus ADT alone in metastatic non castrate prostate cancer: Impact of metastatic burden and long-term survival analysis of the randomized phase 3 GETUG-AFU15 trial. Eur Urol 70:256-262, 2016
+9. Vale CL, Burdett S, Rydzewska LHM, et al: Addition of docetaxel or bisphosphonates to standard of care in men with localised or metastatic, hormone-sensitive prostate cancer: A systematic review and meta-analyses of aggregate data. Lancet Oncol 17:243-256, 2016
+10. Finianos AN, Gupta K, Meshikhes M, et al: Characterization of differences between prostate cancer (PCa) patients presenting as de novo versus primary progressive metastatic disease. J Clin Oncol 33, 2015 (suppl; abstr 285)
+11. Gupta K, Finianos AN, Clark B, et al: Survival outcomes for de novo versus primary progressive metastatic prostate cancer. J Clin Oncol 35, 2017 (suppl; abstr 258)
+12. Culp SH, Schellhammer PF, Williams MB: Might men diagnosed with metastatic prostate cancer benefit from definitive treatment of the primary tumor? A SEER-based study. Eur Urol 65:1058-1066, 2014
+13. Gratzke C, Engel J, Stief CG: Role of radical prostatectomy in metastatic prostate cancer: Data from the Munich Cancer Registry. Eur Urol 66:602-603, 2014
+14. Rusthoven CG, Jones BL, Flaig TW, et al: Improved survival with prostate radiation in addition to androgen deprivation therapy for men with newly diagnosed metastatic prostate cancer. J Clin Oncol 34:2835-2842, 2016
+
+15. Satkunasivam R, Kim AE, Desai M, et al:
+Radical prostatectomy or external beam radiation
+therapy vs no local therapy for survival benefit in
+metastatic prostate cancer: A SEER-Medicare anal-
+ysis. J Urol 194:378-385, 2015
+16. Kaplan EL, Meier P: Nonparametric estimation
+of incomplete observations. J Am Stat Assoc 53:
+457-481, 1958
+17. Cox DR: Regression models and life tables
+(with discussion). J R Stat Soc B 34:187-220, 1972
+18. Crawford ED, Eisenberger MA, McLeod DG,
+et al: A controlled trial of leuprolide with and without
+flutamide in prostatic carcinoma. N Engl J Med 321:
+419-424, 1989
+19. Eisenberger MA, Blumenstein BA, Crawford
+ED, et al: Bilateral orchiectomy with or without flu-
+tamide for metastatic prostate cancer. N Engl J Med
+339:1036-1042, 1998
+20. Gravis G, Boher JM, Chen YH, et al: Burden of
+metastatic hormone-sensitive prostate cancer to
+identify men more likely to benefit from early docetaxel.
+J Clin Oncol 35, 2017 (suppl; abstr 136)
+21. Polkinghorn WR, Parker JS, Lee MX, et al:
+Androgen receptor signaling regulates DNA repair in
+prostate cancers. Cancer Discov 3:1245-1253, 2013
+22. Goodwin JF, Schiewer MJ, Dean JL, et al: A
+hormone-DNA repair circuit governs the response to
+genotoxic insult. Cancer Discov 3:1254-1271, 2013
+23. Komura K, Jeong SH, Hinohara K, et al: Resistance
+to docetaxel in prostate cancer is associated with an-
+drogen receptor activation and loss of KDM5D ex-
+pression. Proc Natl Acad Sci USA 113:6259-6264, 2016
+
+**Affiliations**
+Christos E. Kyriakopoulos, Glenn Liu, and David F. Jarrard, University of Wisconsin (UW) School of Medicine and Public Health and UW Carbone Cancer Center, Madison, WI; Yu-Hui Chen and Christopher J. Sweeney, Dana-Farber Cancer Institute; Yu-Hui Chen, Eastern Cooperative Oncology Group—American College of Radiology Imaging Network Cancer Research Group; Christopher J. Sweeney, Harvard Medical School, Boston, MA; Michael A. Carducci, Noah M. Hahn, and Mario Eisenberger, Sidney Kimmel Comprehensive Cancer Center, Johns Hopkins University, Baltimore, MD; Daniel H. Shevrin, NorthShore University HealthSystem, Evanston; Maha Hussain, Robert H. Lurie Comprehensive Cancer Center, Northwestern University, Chicago, IL; Robert Dreicer, University of Virginia Cancer Center, Charlottesville, VA; Manish Kohli, Mayo Clinic, Rochester, MN; Elizabeth R. Plimack, Fox Chase Cancer Center, Temple Health, Philadelphia, PA; Nicholas J. Vogelzang, Comprehensive Cancer Centers of Nevada, Las Vegas, NV; Joel Picus, Siteman Cancer Center, Washington University School of Medicine, St Louis, MO; Matthew M. Cooney, Seidman Cancer Center, University Hospitals Cleveland Medical Center; Jorge A. Garcia, Cleveland Clinic Taussig Cancer Institute, Cleveland, OH; and Robert S. DiPaola, University of Kentucky College of Medicine, Lexington, KY.
+
+1086
+
+© 2018 by American Society of Clinical Oncology
+
+JOURNAL OF CLINICAL ONCOLOGY
+
+Downloaded from ascopubs.org by Mayo Foundation--Rochester on October 9, 2021 from 129.176.151.029 Copyright  2021 American Society of Clinical Oncology. All rights reserved.
+
+--- FIGURES ---
+[Page 1]
+<::logo: Google Chrome
+Check for updates
+A square icon with a circular emblem in blue, yellow, and red, and a red bookmark-like shape in the center.::>
+
+Task:
+For EACH column listed above, output a JSON object with:
+- candidates: array of 1-4 objects, each with value, evidence (string or null), assumptions (string or null), confidence ("high"|"medium"|"low")
+- primary_value: string (your best guess)
+- found: true if at least one value was found, false if not reported/absent
+
+Return a single JSON object with column names as keys. Each value is an object with candidates, primary_value, found.
+Example: {"Median PFS (mo) | Overall | Treatment": {"candidates": [{"value": "19.4", "evidence": "Table 2", "assumptions": null, "confidence": "high"}], "primary_value": "19.4", "found": true}, ...}
+
+
+============================================================
+OUTPUT
+============================================================
+```json
+{
+  "NCT": {
+    "candidates": [
+      {
+        "value": "NCT00309985",
+        "evidence": "Clinical trial information: NCT00309985.",
+        "assumptions": null,
+        "confidence": "high"
+      }
+    ],
+    "primary_value": "NCT00309985",
+    "found": true
+  },
+  "PubMed ID": {
+    "candidates": [
+      {
+        "value": "Not reported",
+        "evidence": null,
+        "assumptions": "Scanned the entire document for 'PMID' or 'PubMed ID' and found no mention.",
+        "confidence": "high"
+      }
+    ],
+    "primary_value": "Not reported",
+    "found": false
+  },
+  "Trial Name": {
+    "candidates": [
+      {
+        "value": "Chemohormonal Therapy in Metastatic Hormone-Sensitive Prostate Cancer: Long-Term Survival Analysis of the Randomized Phase III E3805 CHAARTED Trial (CHAARTED: Chemohormonal Therapy Versus Androgen Ablation Randomized Trial for Extensive Disease in Prostate Cancer)",
+        "evidence": "Title of the article: 'Chemohormonal Therapy in Metastatic Hormone-Sensitive Prostate Cancer: Long-Term Survival Analysis of the Randomized Phase III E3805 CHAARTED Trial'. Acronym definition in abstract: 'CHAARTED (Chemohormonal Therapy Versus Androgen Ablation Randomized Trial for Extensive Disease in Prostate Cancer) trial'.",
+        "assumptions": null,
+        "confidence": "high"
+      }
+    ],
+    "primary_value": "Chemohormonal Therapy in Metastatic Hormone-Sensitive Prostate Cancer: Long-Term Survival Analysis of the Randomized Phase III E3805 CHAARTED Trial (CHAARTED: Chemohormonal Therapy Versus Androgen Ablation Randomized Trial for Extensive Disease in Prostate Cancer)",
+    "found": true
+  },
+  "Author": {
+    "candidates": [
+      {
+        "value": "Christos E. Kyriakopoulos, Yu-Hui Chen, Michael A. Carducci, Glenn Liu, David F. Jarrard, Noah M. Hahn, Daniel H. Shevrin, Robert Dreicer, Maha Hussain, Mario Eisenberger, Manish Kohli, Elizabeth R. Plimack, Nicholas J. Vogelzang, Joel Picus, Matthew M. Cooney, Jorge A. Garcia, Robert S. DiPaola, and Christopher J. Sweeney",
+        "evidence": "Author list on page 1 directly under the title.",
+        "assumptions": null,
+        "confidence": "high"
+      }
+    ],
+    "primary_value": "Christos E. Kyriakopoulos, Yu-Hui Chen, Michael A. Carducci, Glenn Liu, David F. Jarrard, Noah M. Hahn, Daniel H. Shevrin, Robert Dreicer, Maha Hussain, Mario Eisenberger, Manish Kohli, Elizabeth R. Plimack, Nicholas J. Vogelzang, Joel Picus, Matthew M. Cooney, Jorge A. Garcia, Robert S. DiPaola, and Christopher J. Sweeney",
+    "found": true
+  },
+  "Year": {
+    "candidates": [
+      {
+        "value": "2018",
+        "evidence": "Header: 'VOLUME 36 · NUMBER 11 · APRIL 10, 2018'. Copyright: '© 2018 by American Society of Clinical Oncology'.",
+        "assumptions": null,
+        "confidence": "high"
+      }
+    ],
+    "primary_value": "2018",
+    "found": true
+  },
+  "Full Pub or Abstract": {
+    "candidates": [
+      {
+        "value": "Full Pub",
+        "evidence": "Label 'ORIGINAL REPORT' on page 1. The document contains extensive sections including Introduction, Patients and Methods, Results, Discussion, and References, indicating a full publication.",
+        "assumptions": null,
+        "confidence": "high"
+      }
+    ],
+    "primary_value": "Full Pub",
+    "found": true
+  },
+  "Phase": {
+    "candidates": [
+      {
+        "value": "III",
+        "evidence": "Title: 'Randomized Phase III E3805 CHAARTED Trial'. 'Patients and Methods' section on page 2: 'In this phase III study'.",
+        "assumptions": null,
+        "confidence": "high"
+      }
+    ],
+    "primary_value": "III",
+    "found": true
+  },
+  "Original/Follow Up": {
+    "candidates": [
+      {
+        "value": "Follow up",
+        "evidence": "Title: 'Long-Term Survival Analysis'. Abstract: 'Herein, we present the outcomes of the CHAARTED (...) trial with more mature follow-up'. 'Patients and Methods' section: 'Here we present the updated analysis of the trial'. 'Discussion' section: 'The updated analysis of the CHAARTED trial'.",
+        "assumptions": null,
+        "confidence": "high"
+      }
+    ],
+    "primary_value": "Follow up",
+    "found": true
+  }
+}
+```
