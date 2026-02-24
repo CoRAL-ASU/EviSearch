@@ -1,0 +1,84 @@
+=== PROMPT ===
+You are reconciling clinical trial extractions from three extractors (Method A, Method B, Method C).
+For each column below, produce: final_value, contradiction (true if methods disagree on atomic facts), contributing_methods (list of Method A/B/C that agree or contributed).
+Prefer more complete answers. If one method has partial info (e.g. one trial) and another has both, merge them.
+Treat all three methods equally. Output valid JSON only.
+
+=== COLUMNS ===
+
+Column 1: Adverse Events - N (%) | All-Cause Grade 3 or Higher | Control
+  Method A: value="204 (45%) of 454" | page=1 | evidence="In the first 5 years of treatment, grade 3–5 toxic effects were higher when abiraterone was added to standard of care (271 [54%] of 498 vs 192 [38%] of 502 with standard of care) and the highest toxic effects were seen when abiraterone and enzalutamide were added to standard of care (302 [68%] of 44"
+  Method B: value="Abiraterone trial: 192 (38%) of 502; Abiraterone and enzalutamide trial: 204 (45%) of 454" | page=None | evidence="Found in the 'Findings' section, paragraph 4, stating 'In the first 5 years of treatment, grade 3–5 toxic effects were higher when abiraterone was added to standard of care (271 [54%] of 498 vs 192 [38%] of 502 with standard of care) and the highest toxic effects were seen when abiraterone and enzal"
+  Method C: value="204 (45%) of 454" | page=None | evidence="Found in the 'Findings' section on page 1: 'In the first 5 years of treatment... the highest toxic effects were seen when abiraterone and enzalutamide were added to standard of care (302 [68%] of 445 vs 204 [45%] of 454 with standard of care).' This refers to all-cause grade 3-5 toxic effects in the"
+
+Column 2: Adverse Events - N (%) | All-Cause Grade 3 or Higher | Treatment
+  Method A: value="302 (68%) of 445" | page=1 | evidence="In the first 5 years of treatment, grade 3–5 toxic effects were higher when abiraterone was added to standard of care (271 [54%] of 498 vs 192 [38%] of 502 with standard of care) and the highest toxic effects were seen when abiraterone and enzalutamide were added to standard of care (302 [68%] of 44"
+  Method B: value="Abiraterone trial: 271 (54%) of 498; Abiraterone and enzalutamide trial: 302 (68%) of 445" | page=None | evidence="Found in the 'Findings' section, paragraph 4, stating 'In the first 5 years of treatment, grade 3–5 toxic effects were higher when abiraterone was added to standard of care (271 [54%] of 498 vs 192 [38%] of 502 with standard of care) and the highest toxic effects were seen when abiraterone and enzal"
+  Method C: value="302 (68%) of 445" | page=None | evidence="Found in the 'Findings' section on page 1: 'In the first 5 years of treatment... the highest toxic effects were seen when abiraterone and enzalutamide were added to standard of care (302 [68%] of 445...)' This refers to all-cause grade 3-5 toxic effects in the treatment arm of the abiraterone and en"
+
+Column 3: Adverse Events - N (%) | Treatment-related Grade 3 or Higher | Control
+  Method A: value="Not reported" | page=10 | evidence=""
+  Method B: value="not found" | page=None | evidence="The document provides overall Grade 3-5 toxic effects but does not specify the number and percentage of *treatment-related* Grade 3 or higher adverse events for the control arm."
+  Method C: value="not found" | page=None | evidence="The document reports all-cause grade 3-5 toxic effects but does not provide a general count or percentage for treatment-related adverse events of grade 3 or higher for the control arm."
+
+Column 4: Adverse Events - N (%) | Treatment-related Grade 3 or Higher | Treatment
+  Method A: value="Not reported" | page=10 | evidence=""
+  Method B: value="not found" | page=None | evidence="The document provides overall Grade 3-5 toxic effects but does not specify the number and percentage of *treatment-related* Grade 3 or higher adverse events for the treatment arm."
+  Method C: value="not found" | page=None | evidence="The document reports all-cause grade 3-5 toxic effects but does not provide a general count or percentage for treatment-related adverse events of grade 3 or higher for the treatment arm."
+
+Column 5: Adverse Events - N (%) | Treatment-related Grade 5 | Control
+  Method A: value="Not reported" | page=11 | evidence=""
+  Method B: value="not found" | page=None | evidence="The 'Findings' section, paragraph 4, mentions 'one (<1%) with standard of care in the abiraterone trial' for cardiac deaths, but it does not state that this death was *attributed to treatment*."
+  Method C: value="not found" | page=None | evidence="The document mentions 'one (<1%) with standard of care in the abiraterone trial' for cardiac causes of death, but it does not explicitly state that this event was attributed to treatment in the control arm. Therefore, treatment-related Grade 5 for the control arm is not found."
+
+Column 6: Adverse Events - N (%) | Treatment-related Grade 5 | Treatment
+  Method A: value="2 (0.45%) of 445" | page=11 | evidence="Cardiac causes were the most common cause of death due to adverse events (five [1%] with standard of care plus abiraterone and enzalutamide [two attributed to treatment] and one (<1%) with standard of care in the abiraterone trial; appendix pp 14, 24)."
+  Method B: value="Abiraterone and enzalutamide trial: 2 deaths (attributed to treatment)" | page=None | evidence="Found in the 'Findings' section, paragraph 4, stating 'Cardiac causes were the most common cause of death due to adverse events (five [1%] with standard of care plus abiraterone and enzalutamide [two attributed to treatment] and one (<1%) with standard of care in the abiraterone trial).' Only the ab"
+  Method C: value="2" | page=None | evidence="Found in the 'Discussion' section on page 11: 'Cardiac causes were the most common cause of death due to adverse events (five [1%] with standard of care plus abiraterone and enzalutamide [two attributed to treatment]...).' This indicates 2 treatment-related Grade 5 (death) events in the treatment ar"
+
+=== OUTPUT (JSON) ===
+{"reconciled": [{"column_name": "...", "final_value": "...", "contradiction": false, "contributing_methods": ["Method A", "Method B"]}, ...]}
+
+=== RESPONSE ===
+```json
+{
+  "reconciled": [
+    {
+      "column_name": "Adverse Events - N (%) | All-Cause Grade 3 or Higher | Control",
+      "final_value": "Abiraterone trial: 192 (38%) of 502; Abiraterone and enzalutamide trial: 204 (45%) of 454",
+      "contradiction": false,
+      "contributing_methods": ["Method A", "Method B", "Method C"]
+    },
+    {
+      "column_name": "Adverse Events - N (%) | All-Cause Grade 3 or Higher | Treatment",
+      "final_value": "Abiraterone trial: 271 (54%) of 498; Abiraterone and enzalutamide trial: 302 (68%) of 445",
+      "contradiction": false,
+      "contributing_methods": ["Method A", "Method B", "Method C"]
+    },
+    {
+      "column_name": "Adverse Events - N (%) | Treatment-related Grade 3 or Higher | Control",
+      "final_value": "Not reported",
+      "contradiction": false,
+      "contributing_methods": ["Method A", "Method B", "Method C"]
+    },
+    {
+      "column_name": "Adverse Events - N (%) | Treatment-related Grade 3 or Higher | Treatment",
+      "final_value": "Not reported",
+      "contradiction": false,
+      "contributing_methods": ["Method A", "Method B", "Method C"]
+    },
+    {
+      "column_name": "Adverse Events - N (%) | Treatment-related Grade 5 | Control",
+      "final_value": "Not reported",
+      "contradiction": false,
+      "contributing_methods": ["Method A", "Method B", "Method C"]
+    },
+    {
+      "column_name": "Adverse Events - N (%) | Treatment-related Grade 5 | Treatment",
+      "final_value": "Abiraterone and enzalutamide trial: 2 (0.45%) of 445",
+      "contradiction": false,
+      "contributing_methods": ["Method A", "Method B", "Method C"]
+    }
+  ]
+}
+```

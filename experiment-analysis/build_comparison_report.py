@@ -126,6 +126,37 @@ def load_eval(pdf_id: str, model_path: Path) -> dict | None:
 
 
 EXTRACTION_MODEL_ID = "extraction"
+RECONCILED_MODEL_ID = "reconciled"
+
+
+def load_reconciled_columns(pdf_id: str) -> dict[str, dict] | None:
+    """Load reconciled results from reconcile_extractions.py output."""
+    path = RESULTS_ROOT / pdf_id / "reconciliation" / "reconciled_results.json"
+    if not path.exists():
+        return None
+    d = json.loads(path.read_text(encoding="utf-8"))
+    out: dict[str, dict] = {}
+    for r in d.get("columns", []):
+        col = r.get("column_name")
+        if not col:
+            continue
+        out[col] = {
+            "value": r.get("final_value", ""),
+            "correctness": None,
+            "completeness": None,
+            "reason": "",
+            "contradiction": r.get("contradiction", False),
+            "contributing_methods": r.get("contributing_methods", []),
+        }
+    return out if out else None
+
+
+def list_reconciliation_logs(pdf_id: str) -> list[str]:
+    """List raw LLM log file paths (relative to repo root) for a PDF."""
+    logs_dir = RESULTS_ROOT / pdf_id / "reconciliation" / "logs"
+    if not logs_dir.exists():
+        return []
+    return sorted(p.relative_to(REPO_ROOT).as_posix() for p in logs_dir.glob("*_llm.txt"))
 
 
 def _parse_extraction_json(raw: str) -> dict | None:
@@ -229,6 +260,7 @@ def main() -> None:
 
     models_out = [{"id": f"m{i}", "name": name} for i, (name, _) in enumerate(MODELS)]
     models_out.append({"id": EXTRACTION_MODEL_ID, "name": "Extraction (Landing AI)"})
+    models_out.append({"id": RECONCILED_MODEL_ID, "name": "Reconciled"})
     pdfs_out = [{"id": pdf, "name": pdf} for pdf in PDF_LIST]
 
     # Load updated ground truth from Manual_Benchmark_GoldTable_cleaned.json (new benchmark)
@@ -260,6 +292,11 @@ def main() -> None:
         if ext_cols:
             for col_name, col_data in ext_cols.items():
                 data[pdf_id]["models"][EXTRACTION_MODEL_ID][col_name] = col_data
+        rec_cols = load_reconciled_columns(pdf_id)
+        if rec_cols:
+            for col_name, col_data in rec_cols.items():
+                data[pdf_id]["models"][RECONCILED_MODEL_ID][col_name] = col_data
+        data[pdf_id]["reconciliation_logs"] = list_reconciliation_logs(pdf_id)
 
     # Unique labels for filter dropdown (preserve order)
     labels_seen = []
@@ -276,7 +313,7 @@ def main() -> None:
             if not model_cols:
                 data[pdf_id]["summary"][mid] = None
                 continue
-            if mid == EXTRACTION_MODEL_ID:
+            if mid in (EXTRACTION_MODEL_ID, RECONCILED_MODEL_ID):
                 data[pdf_id]["summary"][mid] = None
                 continue
             by_cat: dict[str, list[tuple[float, float]]] = {"exact_match": [], "structured_text": [], "numeric_tolerance": []}
@@ -385,7 +422,9 @@ def build_html(payload: dict) -> str:
             if (!pdfData) {{ headerBand.style.display = 'none'; return; }}
             const hasSummary = pdfData.summary && Object.values(pdfData.summary).some(s => s);
             const ext = pdfData.extraction_stats;
-            if (!hasSummary && !ext) {{ headerBand.style.display = 'none'; return; }}
+            const recLogs = pdfData.reconciliation_logs || [];
+            const hasReconciled = (pdfData.models && pdfData.models.reconciled && Object.keys(pdfData.models.reconciled).length > 0);
+            if (!hasSummary && !ext && !hasReconciled) {{ headerBand.style.display = 'none'; return; }}
             headerBand.style.display = 'flex';
             headerBand.innerHTML = '';
             if (ext) {{
@@ -398,8 +437,20 @@ def build_html(payload: dict) -> str:
                     '<div class="by-cat"><span>Values matched: ' + ext.values_matched + '</span><span>Values differed: ' + ext.values_differed + '</span></div>';
                 headerBand.appendChild(div);
             }}
+            if (hasReconciled && recLogs.length > 0) {{
+                const div = document.createElement('div');
+                div.className = 'model-summary reconciliation-logs';
+                let logHtml = '<h3>Reconciled – raw LLM logs</h3><div class="by-cat">';
+                recLogs.forEach(fp => {{
+                    const name = fp.split('/').pop();
+                    logHtml += '<a href="../' + fp + '" target="_blank" style="color:#4ecca3;display:block;margin:4px 0;">' + escapeHtml(name) + '</a>';
+                }});
+                logHtml += '</div>';
+                div.innerHTML = logHtml;
+                headerBand.appendChild(div);
+            }}
             models.forEach(m => {{
-                if (m.id === 'extraction') return;
+                if (m.id === 'extraction' || m.id === 'reconciled') return;
                 const sum = pdfData.summary && pdfData.summary[m.id];
                 const div = document.createElement('div');
                 div.className = 'model-summary' + (sum ? '' : ' na');

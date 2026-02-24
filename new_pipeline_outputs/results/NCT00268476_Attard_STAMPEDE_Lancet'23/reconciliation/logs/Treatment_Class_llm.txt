@@ -1,0 +1,33 @@
+=== PROMPT ===
+You are reconciling clinical trial extractions from three extractors (Method A, Method B, Method C).
+For each column below, produce: final_value, contradiction (true if methods disagree on atomic facts), contributing_methods (list of Method A/B/C that agree or contributed).
+Prefer more complete answers. If one method has partial info (e.g. one trial) and another has both, merge them.
+Treat all three methods equally. Output valid JSON only.
+
+=== COLUMNS ===
+
+Column 1: Treatment Class
+  Method A: value="standard of care, standard of care plus abiraterone acetate and prednisolone, abiraterone acetate and prednisolone plus enzalutamide" | page=1 | evidence="Methods section on page 1: "Patients were randomly assigned (1:1) using a computerised algorithm and a minimisation technique to either standard of care (androgen deprivation therapy; docetaxel 75 mg/m² intravenously for six cycles with prednisolone 10 mg orally once per day allowed from Dec 17, 201"
+  Method B: value="Hormone Therapy" | page=None | evidence="The document describes the treatments as 'androgen deprivation therapy' and the addition of 'abiraterone acetate plus prednisolone' and 'enzalutamide'. The introduction and discussion sections also refer to these as 'intensified hormone treatment' and 'hormone intensification', indicating the classi"
+  Method C: value="Androgen Deprivation Therapy (ADT) and its combinations with abiraterone and/or enzalutamide" | page=None | evidence="The document describes the study as investigating "abiraterone acetate plus prednisolone with or without enzalutamide for patients with metastatic prostate cancer starting androgen deprivation therapy" (Page 1, Title). The treatment arms are categorized as "standard of care (androgen deprivation the"
+
+=== OUTPUT (JSON) ===
+{"reconciled": [{"column_name": "...", "final_value": "...", "contradiction": false, "contributing_methods": ["Method A", "Method B"]}, ...]}
+
+=== RESPONSE ===
+```json
+{
+  "reconciled": [
+    {
+      "column_name": "Treatment Class",
+      "final_value": "Hormone Therapy, primarily Androgen Deprivation Therapy (ADT) and its combinations with abiraterone and/or enzalutamide, administered as standard of care, standard of care plus abiraterone acetate and prednisolone, or abiraterone acetate and prednisolone plus enzalutamide.",
+      "contradiction": false,
+      "contributing_methods": [
+        "Method A",
+        "Method B",
+        "Method C"
+      ]
+    }
+  ]
+}
+```

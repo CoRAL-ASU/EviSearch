@@ -1,0 +1,48 @@
+=== PROMPT ===
+You are reconciling clinical trial extractions from three extractors (Method A, Method B, Method C).
+For each column below, produce: final_value, contradiction (true if methods disagree on atomic facts), contributing_methods (list of Method A/B/C that agree or contributed).
+Prefer more complete answers. If one method has partial info (e.g. one trial) and another has both, merge them.
+Treat all three methods equally. Output valid JSON only.
+
+=== COLUMNS ===
+
+Column 1: PFS Rate (%) | Overall | Control
+  Method A: value="Not reported" | page=9 | evidence=""
+  Method B: value="not found" | page=None | evidence="The document reports Hazard Ratios for progression-free survival (PFS) comparing treatment to standard of care, but does not provide a specific PFS rate (percentage) for the control arm alone. For the abiraterone trial, the HR for PFS was 0.47 (95% CI 0.40–0.55), and for the abiraterone and enzaluta"
+  Method C: value="not found" | page=None | evidence="A single overall progression-free survival (PFS) rate (percentage) for the control arm is not explicitly reported in the document. Hazard ratios comparing treatment to control are provided, but not a standalone percentage rate for the control arm."
+
+Column 2: PFS Rate (%) | Overall | Treatment
+  Method A: value="Not reported" | page=9 | evidence=""
+  Method B: value="not found" | page=None | evidence="The document reports Hazard Ratios for progression-free survival (PFS) comparing treatment to standard of care, but does not provide a specific PFS rate (percentage) for the treatment arm alone. For the abiraterone trial, the HR for PFS was 0.47 (95% CI 0.40–0.55), and for the abiraterone and enzalu"
+  Method C: value="not found" | page=None | evidence="A single overall progression-free survival (PFS) rate (percentage) for the treatment arm is not explicitly reported in the document. Hazard ratios comparing treatment to control are provided, but not a standalone percentage rate for the treatment arm."
+
+=== OUTPUT (JSON) ===
+{"reconciled": [{"column_name": "...", "final_value": "...", "contradiction": false, "contributing_methods": ["Method A", "Method B"]}, ...]}
+
+=== RESPONSE ===
+```json
+{
+  "reconciled": [
+    {
+      "column_name": "PFS Rate (%) | Overall | Control",
+      "final_value": "Not reported",
+      "contradiction": false,
+      "contributing_methods": [
+        "Method A",
+        "Method B",
+        "Method C"
+      ]
+    },
+    {
+      "column_name": "PFS Rate (%) | Overall | Treatment",
+      "final_value": "Not reported",
+      "contradiction": false,
+      "contributing_methods": [
+        "Method A",
+        "Method B",
+        "Method C"
+      ]
+    }
+  ]
+}
+```

@@ -1,0 +1,29 @@
+=== PROMPT ===
+You are reconciling clinical trial extractions from three extractors (Method A, Method B, Method C).
+For each column below, produce: final_value, contradiction (true if methods disagree on atomic facts), contributing_methods (list of Method A/B/C that agree or contributed).
+Prefer more complete answers. If one method has partial info (e.g. one trial) and another has both, merge them.
+Treat all three methods equally. Output valid JSON only.
+
+=== COLUMNS ===
+
+Column 1: Trial
+  Method A: value="STAMPEDE platform protocol" | page=1 | evidence="Abiraterone acetate plus prednisolone with or without enzalutamide for patients with metastatic prostate cancer starting androgen deprivation therapy: final results from two randomised phase 3 trials of the STAMPEDE platform protocol"
+  Method B: value="Extraction error" | page=None | evidence="Not applicable"
+  Method C: value="STAMPEDE platform protocol" | page=None | evidence="The title of the article states 'final results from two randomised phase 3 trials of the STAMPEDE platform protocol'. The Methods section also mentions 'two open-label, randomised, controlled, phase 3 trials of the STAMPEDE platform protocol' and that 'STAMPEDE is registered with ClinicalTrials.gov "
+
+=== OUTPUT (JSON) ===
+{"reconciled": [{"column_name": "...", "final_value": "...", "contradiction": false, "contributing_methods": ["Method A", "Method B"]}, ...]}
+
+=== RESPONSE ===
+```json
+{
+  "reconciled": [
+    {
+      "column_name": "Trial",
+      "final_value": "STAMPEDE platform protocol",
+      "contradiction": false,
+      "contributing_methods": ["Method A", "Method C"]
+    }
+  ]
+}
+```

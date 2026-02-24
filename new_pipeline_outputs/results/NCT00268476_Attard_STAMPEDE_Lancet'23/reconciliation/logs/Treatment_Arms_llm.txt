@@ -1,0 +1,33 @@
+=== PROMPT ===
+You are reconciling clinical trial extractions from three extractors (Method A, Method B, Method C).
+For each column below, produce: final_value, contradiction (true if methods disagree on atomic facts), contributing_methods (list of Method A/B/C that agree or contributed).
+Prefer more complete answers. If one method has partial info (e.g. one trial) and another has both, merge them.
+Treat all three methods equally. Output valid JSON only.
+
+=== COLUMNS ===
+
+Column 1: Treatment Arm(s)
+  Method A: value="standard of care (androgen deprivation therapy; docetaxel 75 mg/m² intravenously for six cycles with prednisolone 10 mg orally once per day allowed from Dec 17, 2015); standard of care plus abirateron" | page=1 | evidence="Methods section, page 1"
+  Method B: value="Standard of care plus abiraterone acetate 1000 mg and prednisolone 5 mg; Standard of care plus abiraterone acetate and prednisolone plus enzalutamide 160 mg" | page=None | evidence="The 'Methods' section states: 'Patients were randomly assigned (1:1) ... to either standard of care ... or standard of care plus abiraterone acetate 1000 mg and prednisolone 5 mg (in the abiraterone trial) orally or abiraterone acetate and prednisolone plus enzalutamide 160 mg orally once a day (in "
+  Method C: value="Standard of care plus abiraterone; Standard of care plus abiraterone and enzalutamide" | page=None | evidence="On page 1, in the 'Methods' section, it states: 'Patients were randomly assigned (1:1) using a computerised algorithm and a minimisation technique to either standard of care (androgen deprivation therapy; docetaxel 75 mg/m² intravenously for six cycles with prednisolone 10 mg orally once per day all"
+
+=== OUTPUT (JSON) ===
+{"reconciled": [{"column_name": "...", "final_value": "...", "contradiction": false, "contributing_methods": ["Method A", "Method B"]}, ...]}
+
+=== RESPONSE ===
+```json
+{
+  "reconciled": [
+    {
+      "column_name": "Treatment Arm(s)",
+      "final_value": "standard of care (androgen deprivation therapy; docetaxel 75 mg/m² intravenously for six cycles with prednisolone 10 mg orally once per day allowed from Dec 17, 2015); Standard of care plus abiraterone acetate 1000 mg and prednisolone 5 mg; Standard of care plus abiraterone acetate and prednisolone plus enzalutamide 160 mg",
+      "contradiction": true,
+      "contributing_methods": [
+        "Method A",
+        "Method B",
+        "Method C"
+      ]
+    }
+  ]
+}
+```

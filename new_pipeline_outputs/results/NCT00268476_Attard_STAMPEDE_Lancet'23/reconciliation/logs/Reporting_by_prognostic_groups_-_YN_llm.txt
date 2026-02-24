@@ -1,0 +1,70 @@
+=== PROMPT ===
+You are reconciling clinical trial extractions from three extractors (Method A, Method B, Method C).
+For each column below, produce: final_value, contradiction (true if methods disagree on atomic facts), contributing_methods (list of Method A/B/C that agree or contributed).
+Prefer more complete answers. If one method has partial info (e.g. one trial) and another has both, merge them.
+Treat all three methods equally. Output valid JSON only.
+
+=== COLUMNS ===
+
+Column 1: Reporting by prognostic groups - Y/N | High volume
+  Method A: value="" | page=5 | evidence=""
+  Method B: value="Extraction error" | page=None | evidence="Not applicable"
+  Method C: value="Yes" | page=None | evidence="The 'Statistical analysis' section on page 5 states: 'Given that metastatic volume is prognostic, outcomes split by low-volume and high-volume disease are of interest and were included as an additional prespecified subgroup analysis'. Table 1 on page 5 includes 'Metastatic volume' with 'High' as a c"
+
+Column 2: Reporting by prognostic groups - Y/N | Low volume
+  Method A: value="" | page=5 | evidence=""
+  Method B: value="Extraction error" | page=None | evidence="Not applicable"
+  Method C: value="Yes" | page=None | evidence="The 'Statistical analysis' section on page 5 states: 'Given that metastatic volume is prognostic, outcomes split by low-volume and high-volume disease are of interest and were included as an additional prespecified subgroup analysis'. Table 1 on page 5 includes 'Metastatic volume' with 'Low' as a ca"
+
+Column 3: Reporting by prognostic groups - Y/N | Metachronous
+  Method A: value="" | page=3 | evidence=""
+  Method B: value="Extraction error" | page=None | evidence="Not applicable"
+  Method C: value="not found" | page=None | evidence="The document does not mention or report results based on prognostic groups of patients with metachronous diseases."
+
+Column 4: Reporting by prognostic groups - Y/N | Synchronous
+  Method A: value="" | page=3 | evidence=""
+  Method B: value="Extraction error" | page=None | evidence="Not applicable"
+  Method C: value="not found" | page=None | evidence="The document describes the study population as patients with metastatic prostate cancer starting androgen deprivation therapy, with stratification based on the presence or absence of distant metastases at the time of random assignment (within 8 weeks). While this population largely aligns with the d"
+
+=== OUTPUT (JSON) ===
+{"reconciled": [{"column_name": "...", "final_value": "...", "contradiction": false, "contributing_methods": ["Method A", "Method B"]}, ...]}
+
+=== RESPONSE ===
+```json
+{
+  "reconciled": [
+    {
+      "column_name": "Reporting by prognostic groups - Y/N | High volume",
+      "final_value": "Yes",
+      "contradiction": false,
+      "contributing_methods": [
+        "Method C"
+      ]
+    },
+    {
+      "column_name": "Reporting by prognostic groups - Y/N | Low volume",
+      "final_value": "Yes",
+      "contradiction": false,
+      "contributing_methods": [
+        "Method C"
+      ]
+    },
+    {
+      "column_name": "Reporting by prognostic groups - Y/N | Metachronous",
+      "final_value": "not found",
+      "contradiction": false,
+      "contributing_methods": [
+        "Method C"
+      ]
+    },
+    {
+      "column_name": "Reporting by prognostic groups - Y/N | Synchronous",
+      "final_value": "not found",
+      "contradiction": false,
+      "contributing_methods": [
+        "Method C"
+      ]
+    }
+  ]
+}
+```

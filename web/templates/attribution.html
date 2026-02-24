@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CoRal — Attribution Viewer</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <style>
+        .gradient-text { @apply bg-gradient-to-r from-cyan-400 via-teal-400 to-emerald-400 bg-clip-text text-transparent; }
+        body { font-family: 'DM Sans', system-ui, sans-serif; }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen">
+    <header class="sticky top-0 z-50 bg-slate-900/95 border-b border-slate-700/50">
+        <div class="max-w-7xl mx-auto px-4 py-4">
+            <a href="/comparison" class="text-slate-400 hover:text-cyan-400 text-sm">&larr; Compare</a>
+            <h1 class="text-xl font-bold gradient-text mt-1">Attribution Viewer</h1>
+            <p class="text-slate-500 text-sm">View attributed chunks highlighted on the PDF</p>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 py-6 flex gap-6">
+        <!-- Left: Doc + Column list -->
+        <div class="w-80 shrink-0 space-y-4">
+            <div>
+                <label class="text-xs text-slate-500 uppercase tracking-wider">Document</label>
+                <div class="flex gap-2 mt-1">
+                    <select id="doc-select" class="flex-1 bg-slate-800 border border-slate-600 rounded px-3 py-2 text-sm">
+                        <option value="">Loading…</option>
+                    </select>
+                    <button id="refresh-attribution" type="button" disabled class="shrink-0 px-3 py-2 bg-cyan-600/80 hover:bg-cyan-500 rounded text-sm font-medium transition disabled:opacity-50 disabled:cursor-not-allowed" title="Re-run attribution (numeric + planner + semantic)">
+                        Refresh
+                    </button>
+                </div>
+            </div>
+            <div>
+                <label class="text-xs text-slate-500 uppercase tracking-wider">Column</label>
+                <div id="column-list" class="mt-1 max-h-96 overflow-y-auto space-y-1 text-sm">
+                    <p class="text-slate-500 py-4">Select a document</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right: PDF + highlights -->
+        <div class="flex-1 min-w-0 flex flex-col min-h-0">
+            <div id="pdf-wrapper" class="flex-1 overflow-y-auto rounded-lg bg-slate-800" style="display: none; max-height: 80vh;">
+                <div id="pdf-pages"></div>
+            </div>
+            <div id="pdf-empty" class="bg-slate-800/50 rounded-lg border border-dashed border-slate-600 flex items-center justify-center py-20 text-slate-500">
+                Select a column to see attributed chunks highlighted
+            </div>
+            <div id="column-detail" class="mt-4 space-y-2" style="display: none;">
+                <div class="text-sm font-medium text-cyan-400" id="sel-column-name"></div>
+                <div class="text-slate-400 text-sm" id="sel-column-value"></div>
+                <div id="method-values" class="space-y-1 text-xs border-l-2 border-slate-600 pl-3 text-slate-400"></div>
+                <div id="attributed-snippets" class="space-y-2 text-sm text-slate-300"></div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const API = {
+            documents: () => fetch('/api/documents').then(r => r.json()),
+            reconciled: (docId) => fetch(`/api/documents/${encodeURIComponent(docId)}/reconciled`).then(r => r.json()),
+            refreshAttribution: (docId) => fetch(`/api/documents/${encodeURIComponent(docId)}/attribution/refresh`, { method: 'POST' }).then(r => r.json()),
+            highlights: (docId, chunkIds) => {
+                const q = chunkIds.join(',');
+                return fetch(`/api/documents/${encodeURIComponent(docId)}/highlights?chunk_ids=${encodeURIComponent(q)}`).then(r => r.json());
+            },
+            pdf: (docId) => `/api/documents/${encodeURIComponent(docId)}/pdf`,
+        };
+
+        let pdfDoc = null;
+        let reconciledData = null;
+        let docList = [];
+
+        async function loadDocsWithReconciliation() {
+            try {
+                const res = await fetch('/api/documents/reconciled').then(r => r.json());
+                const docIds = res.documents || [];
+                console.log('[Attribution] Documents:', docIds);
+                docList = docIds;
+                const sel = document.getElementById('doc-select');
+                sel.innerHTML = '<option value="">Select document…</option>' + docIds.map(id =>
+                    `<option value="${escapeHtml(id)}">${escapeHtml(id)}</option>`
+                ).join('');
+            } catch (err) {
+                console.error('[Attribution] loadDocs failed:', err);
+                document.getElementById('doc-select').innerHTML = '<option value="">Failed to load</option>';
+            }
+        }
+
+        function escapeHtml(s) {
+            if (!s) return '';
+            const d = document.createElement('div');
+            d.textContent = s;
+            return d.innerHTML;
+        }
+
+        function renderColumnList(res) {
+            const list = document.getElementById('column-list');
+            reconciledData = res;
+            const cols = (res.columns || []).filter(c => {
+                const ids = c.attributed_chunks?.map(x => x.chunk_id) || c.chunk_ids || [];
+                return ids.length > 0;
+            });
+            reconciledData.filteredColumns = cols;
+            list.innerHTML = cols.length ? cols.map((c, i) =>
+                `<button type="button" class="block w-full text-left px-3 py-2 rounded hover:bg-slate-700/50 border border-transparent hover:border-cyan-500/30 transition column-btn" data-index="${i}">
+                    ${escapeHtml(c.column_name)}
+                </button>`
+            ).join('') : '<p class="text-slate-500 py-4">No attributed columns</p>';
+            list.querySelectorAll('.column-btn').forEach(btn => {
+                btn.addEventListener('click', () => selectColumn(parseInt(btn.dataset.index)));
+            });
+        }
+
+        document.getElementById('doc-select').addEventListener('change', async (e) => {
+            const docId = e.target.value;
+            const list = document.getElementById('column-list');
+            document.getElementById('refresh-attribution').disabled = !docId;
+            if (!docId) {
+                list.innerHTML = '<p class="text-slate-500 py-4">Select a document</p>';
+                return;
+            }
+            const res = await API.reconciled(docId);
+            if (!res.success) {
+                list.innerHTML = '<p class="text-slate-500 py-4">No reconciled results</p>';
+                return;
+            }
+            renderColumnList(res);
+        });
+
+        document.getElementById('refresh-attribution').addEventListener('click', async () => {
+            const docId = document.getElementById('doc-select').value;
+            if (!docId) return;
+            const btn = document.getElementById('refresh-attribution');
+            btn.disabled = true;
+            btn.textContent = '…';
+            try {
+                const res = await API.refreshAttribution(docId);
+                if (res.success) {
+                    renderColumnList(res);
+                    document.getElementById('pdf-empty').textContent = 'Attribution refreshed. Select a column.';
+                    document.getElementById('pdf-wrapper').style.display = 'none';
+                    document.getElementById('pdf-empty').style.display = 'flex';
+                    document.getElementById('column-detail').style.display = 'none';
+                } else {
+                    console.error('[Attribution] Refresh failed:', res.error);
+                    alert('Refresh failed: ' + (res.error || 'Unknown error'));
+                }
+            } catch (err) {
+                console.error('[Attribution] Refresh error:', err);
+                alert('Refresh failed: ' + err.message);
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Refresh';
+            }
+        });
+
+        async function selectColumn(idx) {
+            if (!reconciledData || !reconciledData.doc_id) return;
+            const col = (reconciledData.filteredColumns || reconciledData.columns || [])[idx];
+            if (!col) return;
+            const chunkIds = col.attributed_chunks?.map(c => c.chunk_id) || col.chunk_ids || [];
+            if (!chunkIds.length) return;
+
+            document.getElementById('sel-column-name').textContent = col.column_name;
+            document.getElementById('sel-column-value').textContent = col.final_value || '';
+            const mvEl = document.getElementById('method-values');
+            const methodLabels = { gemini_native: 'Gemini', landing_ai_baseline: 'Landing AI', pipeline: 'Pipeline' };
+            if (col.method_values && Object.keys(col.method_values).length > 0) {
+                mvEl.innerHTML = Object.entries(col.method_values).map(([k, v]) => {
+                    const label = methodLabels[k] || k;
+                    const val = String(v || '').slice(0, 100);
+                    return val ? `<div><span class="text-slate-500">${escapeHtml(label)}:</span> ${escapeHtml(val)}${String(v).length > 100 ? '…' : ''}</div>` : '';
+                }).filter(Boolean).join('') || '<span class="text-slate-500">No method values</span>';
+                mvEl.style.display = 'block';
+            } else {
+                mvEl.innerHTML = '';
+                mvEl.style.display = 'none';
+            }
+            const snippets = document.getElementById('attributed-snippets');
+            const ac = col.attributed_chunks || [];
+            snippets.innerHTML = ac.map((c, i) =>
+                `<div class="p-2 bg-slate-800/50 rounded text-xs"><span class="text-cyan-400">#${i+1}</span> (score ${(c.score||0).toFixed(2)}) ${escapeHtml((c.snippet || '').slice(0, 120))}…</div>`
+            ).join('') || '';
+            document.getElementById('column-detail').style.display = 'block';
+
+            await loadPdfAndHighlights(reconciledData.doc_id, chunkIds);
+        }
+
+        async function loadPdfAndHighlights(docId, chunkIds) {
+            const wrapper = document.getElementById('pdf-wrapper');
+            const pagesEl = document.getElementById('pdf-pages');
+            const empty = document.getElementById('pdf-empty');
+
+            if (!pdfDoc || pdfDoc._docId !== docId) {
+                pdfDoc = null;
+                const pdfjs = window['pdfjs-dist/build/pdf'];
+                pdfjs.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+                try {
+                    pdfDoc = await pdfjs.getDocument(API.pdf(docId)).promise;
+                    pdfDoc._docId = docId;
+                } catch (err) {
+                    empty.textContent = 'Could not load PDF';
+                    empty.style.display = 'flex';
+                    wrapper.style.display = 'none';
+                    return;
+                }
+            }
+
+            const res = await API.highlights(docId, chunkIds);
+            if (!res.success || !res.highlights?.length) {
+                empty.textContent = 'No highlight positions for these chunks';
+                empty.style.display = 'flex';
+                wrapper.style.display = 'none';
+                return;
+            }
+
+            empty.style.display = 'none';
+            wrapper.style.display = 'block';
+            pagesEl.innerHTML = '';
+
+            const scale = 1.2;
+            const numPages = pdfDoc.numPages;
+            const highlightsByPage = {};
+            res.highlights.forEach(hl => {
+                const p = hl.page;
+                if (!highlightsByPage[p]) highlightsByPage[p] = [];
+                highlightsByPage[p].push(hl);
+            });
+
+            for (let p = 1; p <= numPages; p++) {
+                const page = await pdfDoc.getPage(p);
+                const viewport = page.getViewport({ scale });
+                const pageWidth = page.getViewport({ scale: 1 }).width;
+                const pageHeight = page.getViewport({ scale: 1 }).height;
+
+                const pageBlock = document.createElement('div');
+                pageBlock.className = 'flex flex-col items-center py-4 border-b border-slate-700/50 last:border-0';
+                const pageLabel = document.createElement('div');
+                pageLabel.className = 'text-xs text-slate-500 mb-2';
+                pageLabel.textContent = `Page ${p}${(highlightsByPage[p] || []).length ? ' • ' + highlightsByPage[p].length + ' highlight(s)' : ''}`;
+                const inner = document.createElement('div');
+                inner.className = 'relative';
+                const canvas = document.createElement('canvas');
+                canvas.height = viewport.height;
+                canvas.width = viewport.width;
+                const overlay = document.createElement('div');
+                overlay.className = 'absolute left-0 top-0 pointer-events-none';
+                overlay.style.width = viewport.width + 'px';
+                overlay.style.height = viewport.height + 'px';
+
+                inner.appendChild(canvas);
+                inner.appendChild(overlay);
+                pageBlock.appendChild(pageLabel);
+                pageBlock.appendChild(inner);
+                pagesEl.appendChild(pageBlock);
+
+                const ctx = canvas.getContext('2d');
+                await page.render({ canvasContext: ctx, viewport }).promise;
+
+                (highlightsByPage[p] || []).forEach((hl) => {
+                    const box = hl.box || {};
+                    const l = box.left || 0, t = box.top || 0, r = box.right || 1, b = box.bottom || 1;
+                    const xMin = l * pageWidth, xMax = r * pageWidth;
+                    const yMin = (1 - b) * pageHeight, yMax = (1 - t) * pageHeight;
+                    const rect = viewport.convertToViewportRectangle([xMin, yMin, xMax, yMax]);
+                    const x = Math.min(rect[0], rect[2]), y = Math.min(rect[1], rect[3]);
+                    const w = Math.abs(rect[2] - rect[0]), boxH = Math.abs(rect[3] - rect[1]);
+                    const div = document.createElement('div');
+                    div.className = 'absolute bg-cyan-400/30 border-2 border-cyan-400/60 rounded';
+                    div.style.left = x + 'px';
+                    div.style.top = y + 'px';
+                    div.style.width = w + 'px';
+                    div.style.height = boxH + 'px';
+                    overlay.appendChild(div);
+                });
+            }
+        }
+
+        loadDocsWithReconciliation();
+    </script>
+</body>
+</html>

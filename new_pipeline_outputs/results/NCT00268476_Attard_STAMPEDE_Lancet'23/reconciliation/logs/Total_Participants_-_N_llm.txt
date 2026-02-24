@@ -1,0 +1,31 @@
+=== PROMPT ===
+You are reconciling clinical trial extractions from three extractors (Method A, Method B, Method C).
+For each column below, produce: final_value, contradiction (true if methods disagree on atomic facts), contributing_methods (list of Method A/B/C that agree or contributed).
+Prefer more complete answers. If one method has partial info (e.g. one trial) and another has both, merge them.
+Treat all three methods equally. Output valid JSON only.
+
+=== COLUMNS ===
+
+Column 1: Total Participants - N
+  Method A: value="5488" | page=4 | evidence="5488 patients randomly assigned (from Nov 15, 2011, to Jan 17, 2014, and from July 29, 2014, to March 31, 2016)"
+  Method B: value="1919" | page=None | evidence="In the 'Findings' section, it states: 'Between Nov 15, 2011, and Jan 17, 2014, 1003 patients were randomly assigned to standard of care (n=502) or standard of care plus abiraterone (n=501) in the abiraterone trial.' and 'Between July 29, 2014, and March 31, 2016, 916 patients were randomly assigned "
+  Method C: value="1919" | page=None | evidence="On page 1, in the 'Findings' section, it states: 'Between Nov 15, 2011, and Jan 17, 2014, 1003 patients were randomly assigned to standard of care (n=502) or standard of care plus abiraterone (n=501) in the abiraterone trial. Between July 29, 2014, and March 31, 2016, 916 patients were randomly assi"
+
+=== OUTPUT (JSON) ===
+{"reconciled": [{"column_name": "...", "final_value": "...", "contradiction": false, "contributing_methods": ["Method A", "Method B"]}, ...]}
+
+=== RESPONSE ===
+```json
+{
+  "reconciled": [
+    {
+      "column_name": "Total Participants - N",
+      "final_value": "5488",
+      "contradiction": false,
+      "contributing_methods": [
+        "Method A"
+      ]
+    }
+  ]
+}
+```

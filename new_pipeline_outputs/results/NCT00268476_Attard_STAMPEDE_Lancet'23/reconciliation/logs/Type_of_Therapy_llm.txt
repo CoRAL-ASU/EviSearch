@@ -1,0 +1,29 @@
+=== PROMPT ===
+You are reconciling clinical trial extractions from three extractors (Method A, Method B, Method C).
+For each column below, produce: final_value, contradiction (true if methods disagree on atomic facts), contributing_methods (list of Method A/B/C that agree or contributed).
+Prefer more complete answers. If one method has partial info (e.g. one trial) and another has both, merge them.
+Treat all three methods equally. Output valid JSON only.
+
+=== COLUMNS ===
+
+Column 1: Type of Therapy
+  Method A: value="Planned or current hormone therapy: Orchiectomy (Abiraterone trial - Standard of care: 3 (1%), Standard of care plus abiraterone: 3 (1%); Abiraterone and enzalutamide trial - Standard of care: 0, Stan" | page=6 | evidence="Table 1 on page 6, under 'Planned or current hormone therapy' section."
+  Method B: value="Standard of care (androgen deprivation therapy; docetaxel 75 mg/m² intravenously for six cycles with prednisolone 10 mg orally once per day allowed from Dec 17, 2015) or standard of care plus abirater" | page=None | evidence="The 'Methods' section, specifically the paragraph describing patient assignment, details the different treatment arms: 'Patients were randomly assigned (1:1) ... to either standard of care (androgen deprivation therapy; docetaxel 75 mg/m² intravenously for six cycles with prednisolone 10 mg orally o"
+  Method C: value="The clinical trial provided several types of treatment: 1. Standard of care, which included androgen deprivation therapy (luteinising hormone-releasing hormone agonists or antagonists or bilateral orc" | page=None | evidence="The description of the treatment arms is found in the 'Methods' section on page 1 and further detailed in the 'Procedures' section on page 3. Specifically, page 1 states: 'Patients were randomly assigned (1:1) ... to either standard of care (androgen deprivation therapy; docetaxel 75 mg/m² intraveno"
+
+=== OUTPUT (JSON) ===
+{"reconciled": [{"column_name": "...", "final_value": "...", "contradiction": false, "contributing_methods": ["Method A", "Method B"]}, ...]}
+
+=== RESPONSE ===
+```json
+{
+  "reconciled": [
+    {
+      "column_name": "Type of Therapy",
+      "final_value": "The trial involved planned or current hormone therapy, with two main treatment arms: Standard of care and Standard of care plus abiraterone. The Standard of care arm included androgen deprivation therapy (ADT), which could consist of luteinising hormone-releasing hormone agonists or antagonists, or bilateral orchiectomy. Docetaxel 75 mg/m² intravenously for six cycles with prednisolone 10 mg orally once per day was also allowed as part of standard of care (from Dec 17, 2015).",
+      "contradiction": false,
+      "contributing_methods": ["Method A", "Method B", "Method C"]
+    }
+  ]
+}
+```

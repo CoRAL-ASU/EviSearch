@@ -1,0 +1,36 @@
+=== PROMPT ===
+You are reconciling clinical trial extractions from three extractors (Method A, Method B, Method C).
+For each column below, produce: final_value, contradiction (true if methods disagree on atomic facts), contributing_methods (list of Method A/B/C that agree or contributed).
+Prefer more complete answers. If one method has partial info (e.g. one trial) and another has both, merge them.
+Treat all three methods equally. Output valid JSON only.
+
+=== COLUMNS ===
+
+Column 1: Secondary Endpoint(s)
+  Method A: value="prostate cancer-specific survival (defined as the time from randomisation to death from prostate cancer); failure-free survival (defined as biochemical failure, local or lymph node progression, distan" | page=4 | evidence="## Outcomes
+The primary outcome was overall survival for both trials (defined as the time from randomisation to death from any cause).
+
+Secondary outcomes were prostate cancer-specific survival (defined as the time from randomisation to death from prostate cancer); failure-free survival (defined as "
+  Method B: value="prostate cancer-specific survival (defined as the time from randomisation to death from prostate cancer); failure-free survival (defined as biochemical failure, local or lymph node progression, distan" | page=None | evidence="The 'Outcomes' subsection under 'Methods' on page 446 explicitly states: 'Secondary outcomes were prostate cancer-specific survival (defined as the time from randomisation to death from prostate cancer); failure-free survival (defined as biochemical failure, local or lymph node progression, distant "
+  Method C: value="prostate cancer-specific survival (defined as the time from randomisation to death from prostate cancer); failure-free survival (defined as biochemical failure, local or lymph node progression, distan" | page=None | evidence="The 'Outcomes' section on page 4 explicitly states: 'Secondary outcomes were prostate cancer-specific survival (defined as the time from randomisation to death from prostate cancer); failure-free survival (defined as biochemical failure, local or lymph node progression, distant metastases, or death "
+
+=== OUTPUT (JSON) ===
+{"reconciled": [{"column_name": "...", "final_value": "...", "contradiction": false, "contributing_methods": ["Method A", "Method B"]}, ...]}
+
+=== RESPONSE ===
+```json
+{
+  "reconciled": [
+    {
+      "column_name": "Secondary Endpoint(s)",
+      "final_value": "prostate cancer-specific survival (defined as the time from randomisation to death from prostate cancer); failure-free survival (defined as biochemical failure, local or lymph node progression, distan",
+      "contradiction": false,
+      "contributing_methods": [
+        "Method A",
+        "Method B",
+        "Method C"
+      ]
+    }
+  ]
+}
+```

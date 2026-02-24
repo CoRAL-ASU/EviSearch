@@ -1,0 +1,138 @@
+=== PROMPT ===
+You are reconciling clinical trial extractions from three extractors (Method A, Method B, Method C).
+For each column below, produce: final_value, contradiction (true if methods disagree on atomic facts), contributing_methods (list of Method A/B/C that agree or contributed).
+Prefer more complete answers. If one method has partial info (e.g. one trial) and another has both, merge them.
+Treat all three methods equally. Output valid JSON only.
+
+=== COLUMNS ===
+
+Column 1: ORR - N (%) | Control | CR
+  Method A: value="Not reported" | page=-1 | evidence=""
+  Method B: value="not found" | page=None | evidence="The document discusses various survival outcomes and adverse events, but does not report Objective Response Rate (ORR) or its components, including Complete Response (CR), for the control arm."
+  Method C: value="not found" | page=None | evidence="The document focuses on overall survival, prostate cancer-specific survival, failure-free survival, metastatic progression-free survival, and adverse events. It does not report the Complete Response (CR) as N (%) for the control arm."
+
+Column 2: ORR - N (%) | Control | Overall
+  Method A: value="Not reported" | page=-1 | evidence=""
+  Method B: value="not found" | page=None | evidence="The document discusses various survival outcomes (overall survival, prostate cancer-specific survival, failure-free survival, progression-free survival, metastatic progression-free survival) and adverse events, but does not report Objective Response Rate (ORR) or its components (Complete Response, P"
+  Method C: value="not found" | page=None | evidence="The document focuses on overall survival, prostate cancer-specific survival, failure-free survival, metastatic progression-free survival, and adverse events. It does not report the Overall Response Rate (ORR) as N (%) for the control arm."
+
+Column 3: ORR - N (%) | Control | PD
+  Method A: value="Not reported" | page=-1 | evidence=""
+  Method B: value="not found" | page=None | evidence="The document discusses various survival outcomes and adverse events, but does not report Objective Response Rate (ORR) or its components, including Progressive Disease (PD), for the control arm."
+  Method C: value="not found" | page=None | evidence="The document mentions 'Disease progression was the most common reason reported for permanently stopping treatment (202 [41%] of 498 in the abiraterone trial vs 151 [34%] of 445 stopping either treatment in the abiraterone and enzalutamide trial; appendix pp 6, 22)' on page 11. However, this refers t"
+
+Column 4: ORR - N (%) | Control | SD
+  Method A: value="Not reported" | page=-1 | evidence=""
+  Method B: value="not found" | page=None | evidence="The document discusses various survival outcomes and adverse events, but does not report Objective Response Rate (ORR) or its components, including Stable Disease (SD), for the control arm."
+  Method C: value="not found" | page=None | evidence="The document focuses on overall survival, prostate cancer-specific survival, failure-free survival, metastatic progression-free survival, and adverse events. It does not report Stable Disease (SD) as N (%) for the control arm."
+
+Column 5: ORR - N (%) | Treatment | CR
+  Method A: value="Not reported" | page=-1 | evidence=""
+  Method B: value="not found" | page=None | evidence="The document discusses various survival outcomes and adverse events, but does not report Objective Response Rate (ORR) or its components, including Complete Response (CR), for the treatment arm."
+  Method C: value="not found" | page=None | evidence="The document focuses on overall survival, prostate cancer-specific survival, failure-free survival, metastatic progression-free survival, and adverse events. It does not report the Complete Response (CR) as N (%) for the treatment arm."
+
+Column 6: ORR - N (%) | Treatment | Overall
+  Method A: value="Not reported" | page=-1 | evidence=""
+  Method B: value="not found" | page=None | evidence="The document discusses various survival outcomes (overall survival, prostate cancer-specific survival, failure-free survival, progression-free survival, metastatic progression-free survival) and adverse events, but does not report Objective Response Rate (ORR) or its components (Complete Response, P"
+  Method C: value="not found" | page=None | evidence="The document focuses on overall survival, prostate cancer-specific survival, failure-free survival, metastatic progression-free survival, and adverse events. It does not report the Overall Response Rate (ORR) as N (%) for the treatment arm."
+
+Column 7: ORR - N (%) | Treatment | PD
+  Method A: value="Not reported" | page=-1 | evidence=""
+  Method B: value="not found" | page=None | evidence="The document discusses various survival outcomes and adverse events, but does not report Objective Response Rate (ORR) or its components, including Progressive Disease (PD), for the treatment arm."
+  Method C: value="not found" | page=None | evidence="The document mentions 'Disease progression was the most common reason reported for permanently stopping treatment (202 [41%] of 498 in the abiraterone trial vs 151 [34%] of 445 stopping either treatment in the abiraterone and enzalutamide trial; appendix pp 6, 22)' on page 11. However, this refers t"
+
+Column 8: ORR - N (%) | Treatment | SD
+  Method A: value="Not reported" | page=-1 | evidence=""
+  Method B: value="not found" | page=None | evidence="The document discusses various survival outcomes and adverse events, but does not report Objective Response Rate (ORR) or its components, including Stable Disease (SD), for the treatment arm."
+  Method C: value="not found" | page=None | evidence="The document focuses on overall survival, prostate cancer-specific survival, failure-free survival, metastatic progression-free survival, and adverse events. It does not report Stable Disease (SD) as N (%) for the treatment arm."
+
+=== OUTPUT (JSON) ===
+{"reconciled": [{"column_name": "...", "final_value": "...", "contradiction": false, "contributing_methods": ["Method A", "Method B"]}, ...]}
+
+=== RESPONSE ===
+```json
+{
+  "reconciled": [
+    {
+      "column_name": "ORR - N (%) | Control | CR",
+      "final_value": "Not reported",
+      "contradiction": false,
+      "contributing_methods": [
+        "Method A",
+        "Method B",
+        "Method C"
+      ]
+    },
+    {
+      "column_name": "ORR - N (%) | Control | Overall",
+      "final_value": "Not reported",
+      "contradiction": false,
+      "contributing_methods": [
+        "Method A",
+        "Method B",
+        "Method C"
+      ]
+    },
+    {
+      "column_name": "ORR - N (%) | Control | PD",
+      "final_value": "Not reported",
+      "contradiction": false,
+      "contributing_methods": [
+        "Method A",
+        "Method B",
+        "Method C"
+      ]
+    },
+    {
+      "column_name": "ORR - N (%) | Control | SD",
+      "final_value": "Not reported",
+      "contradiction": false,
+      "contributing_methods": [
+        "Method A",
+        "Method B",
+        "Method C"
+      ]
+    },
+    {
+      "column_name": "ORR - N (%) | Treatment | CR",
+      "final_value": "Not reported",
+      "contradiction": false,
+      "contributing_methods": [
+        "Method A",
+        "Method B",
+        "Method C"
+      ]
+    },
+    {
+      "column_name": "ORR - N (%) | Treatment | Overall",
+      "final_value": "Not reported",
+      "contradiction": false,
+      "contributing_methods": [
+        "Method A",
+        "Method B",
+        "Method C"
+      ]
+    },
+    {
+      "column_name": "ORR - N (%) | Treatment | PD",
+      "final_value": "Not reported",
+      "contradiction": false,
+      "contributing_methods": [
+        "Method A",
+        "Method B",
+        "Method C"
+      ]
+    },
+    {
+      "column_name": "ORR - N (%) | Treatment | SD",
+      "final_value": "Not reported",
+      "contradiction": false,
+      "contributing_methods": [
+        "Method A",
+        "Method B",
+        "Method C"
+      ]
+    }
+  ]
+}
+```

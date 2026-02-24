@@ -1,0 +1,168 @@
+=== PROMPT ===
+You are reconciling clinical trial extractions from three extractors (Method A, Method B, Method C).
+For each column below, produce: final_value, contradiction (true if methods disagree on atomic facts), contributing_methods (list of Method A/B/C that agree or contributed).
+Prefer more complete answers. If one method has partial info (e.g. one trial) and another has both, merge them.
+Treat all three methods equally. Output valid JSON only.
+
+=== COLUMNS ===
+
+Column 1: OS Rate (%) | High volume | Control
+  Method A: value="Not reported" | page=7 | evidence=""
+  Method B: value="not found" | page=None | evidence="The document discusses outcomes split by high-volume metastatic disease and provides median overall survival for these subgroups (Figure 3E), but does not report the OS rate as a percentage at a specific time point for the control arm."
+  Method C: value="Abiraterone trial: approximately 18% at 84 months; Abiraterone and enzalutamide trial: approximately 15% at 84 months" | page=None | evidence="For Abiraterone trial, derived from Figure 2E (Overall survival (%) vs Time since randomisation (months)) on page 7, where the 'Standard of care' curve for high-volume disease is approximately 18% at 84 months. For Abiraterone and enzalutamide trial, derived from Figure 2F (Overall survival (%) vs T"
+
+Column 2: OS Rate (%) | High volume | Treatment
+  Method A: value="Not reported" | page=7 | evidence=""
+  Method B: value="not found" | page=None | evidence="The document discusses outcomes split by high-volume metastatic disease and provides median overall survival for these subgroups (Figure 3E), but does not report the OS rate as a percentage at a specific time point for the treatment arm."
+  Method C: value="Abiraterone trial: approximately 38% at 84 months; Abiraterone and enzalutamide trial: approximately 30% at 84 months" | page=None | evidence="For Abiraterone trial, derived from Figure 2E (Overall survival (%) vs Time since randomisation (months)) on page 7, where the 'Standard of care plus abiraterone' curve for high-volume disease is approximately 38% at 84 months. For Abiraterone and enzalutamide trial, derived from Figure 2F (Overall "
+
+Column 3: OS Rate (%) | Low volume | Control
+  Method A: value="Not reported" | page=7 | evidence=""
+  Method B: value="not found" | page=None | evidence="The document discusses outcomes split by low-volume metastatic disease and provides median overall survival for these subgroups (Figure 3D), but does not report the OS rate as a percentage at a specific time point for the control arm."
+  Method C: value="Abiraterone trial: approximately 50% at 84 months; Abiraterone and enzalutamide trial: approximately 40% at 84 months" | page=None | evidence="For Abiraterone trial, derived from Figure 2C (Overall survival (%) vs Time since randomisation (months)) on page 7, where the 'Standard of care' curve for low-volume disease is approximately 50% at 84 months. For Abiraterone and enzalutamide trial, derived from Figure 2D (Overall survival (%) vs Ti"
+
+Column 4: OS Rate (%) | Low volume | Treatment
+  Method A: value="Not reported" | page=7 | evidence=""
+  Method B: value="not found" | page=None | evidence="The document discusses outcomes split by low-volume metastatic disease and provides median overall survival for these subgroups (Figure 3D), but does not report the OS rate as a percentage at a specific time point for the treatment arm."
+  Method C: value="Abiraterone trial: approximately 68% at 84 months; Abiraterone and enzalutamide trial: approximately 58% at 84 months" | page=None | evidence="For Abiraterone trial, derived from Figure 2C (Overall survival (%) vs Time since randomisation (months)) on page 7, where the 'Standard of care plus abiraterone' curve for low-volume disease is approximately 68% at 84 months. For Abiraterone and enzalutamide trial, derived from Figure 2D (Overall s"
+
+Column 5: OS Rate (%) | Metachronous | Control
+  Method A: value="Not reported" | page=3 | evidence=""
+  Method B: value="not found" | page=None | evidence="The document mentions 'metastatic disease' but does not provide OS rates specifically for patients with 'metachronous metastasis' in the control arm."
+  Method C: value="not found" | page=None | evidence="The document does not report OS rates specifically for metachronous metastasis in the control arm."
+
+Column 6: OS Rate (%) | Metachronous | Treatment
+  Method A: value="Not reported" | page=3 | evidence=""
+  Method B: value="not found" | page=None | evidence="The document mentions 'metastatic disease' but does not provide OS rates specifically for patients with 'metachronous metastasis' in the treatment arm."
+  Method C: value="not found" | page=None | evidence="The document does not report OS rates specifically for metachronous metastasis in the treatment arm."
+
+Column 7: OS Rate (%) | Overall | Control
+  Method A: value="30%" | page=9 | evidence="At 84 months in the abiraterone trial, overall survival was 30% (95% CI 26–34) with standard of care..."
+  Method B: value="30% (95% CI 26–34) at 84 months (Abiraterone trial)" | page=None | evidence="Found in the 'Findings' section: 'At 84 months in the abiraterone trial, overall survival was 30% (95% CI 26–34) with standard of care'. The OS rate for the abiraterone and enzalutamide trial control arm is not reported as a percentage at a specific time point in the text."
+  Method C: value="Abiraterone trial: 30% (95% CI 26-34) at 84 months; Abiraterone and enzalutamide trial: approximately 25% at 84 months" | page=None | evidence="For Abiraterone trial, found in the last paragraph of 'Results' section on page 9: 'At 84 months in the abiraterone trial, overall survival was 30% (95% CI 26-34) with standard of care'. For Abiraterone and enzalutamide trial, derived from Figure 2B (Overall survival (%) vs Time since randomisation "
+
+Column 8: OS Rate (%) | Overall | Treatment
+  Method A: value="48%" | page=9 | evidence="At 84 months in the abiraterone trial, overall survival was ... 48% (43–52) with standard of care plus abiraterone."
+  Method B: value="48% (95% CI 43–52) at 84 months (Abiraterone trial)" | page=None | evidence="Found in the 'Findings' section: 'At 84 months in the abiraterone trial, overall survival was ... 48% (43–52) with standard of care plus abiraterone.' The OS rate for the abiraterone and enzalutamide trial treatment arm is not reported as a percentage at a specific time point in the text."
+  Method C: value="Abiraterone trial: 48% (95% CI 43-52) at 84 months; Abiraterone and enzalutamide trial: approximately 40% at 84 months" | page=None | evidence="For Abiraterone trial, found in the last paragraph of 'Results' section on page 9: 'At 84 months in the abiraterone trial, overall survival was ... 48% (43-52) with standard of care plus abiraterone.' For Abiraterone and enzalutamide trial, derived from Figure 2B (Overall survival (%) vs Time since "
+
+Column 9: OS Rate (%) | Synchronous | Control
+  Method A: value="Not reported" | page=5 | evidence=""
+  Method B: value="not found" | page=None | evidence="The document mentions 'metastatic disease' but does not provide OS rates specifically for patients with 'synchronous metastasis' in the control arm."
+  Method C: value="not found" | page=None | evidence="The document does not report OS rates specifically for synchronous metastasis in the control arm."
+
+Column 10: OS Rate (%) | Synchronous | Treatment
+  Method A: value="Not reported" | page=5 | evidence=""
+  Method B: value="not found" | page=None | evidence="The document mentions 'metastatic disease' but does not provide OS rates specifically for patients with 'synchronous metastasis' in the treatment arm."
+  Method C: value="not found" | page=None | evidence="The document does not report OS rates specifically for synchronous metastasis in the treatment arm."
+
+=== OUTPUT (JSON) ===
+{"reconciled": [{"column_name": "...", "final_value": "...", "contradiction": false, "contributing_methods": ["Method A", "Method B"]}, ...]}
+
+=== RESPONSE ===
+```json
+{
+  "reconciled": [
+    {
+      "column_name": "OS Rate (%) | High volume | Control",
+      "final_value": "Abiraterone trial: approximately 18% at 84 months; Abiraterone and enzalutamide trial: approximately 15% at 84 months",
+      "contradiction": true,
+      "contributing_methods": [
+        "Method A",
+        "Method B",
+        "Method C"
+      ]
+    },
+    {
+      "column_name": "OS Rate (%) | High volume | Treatment",
+      "final_value": "Abiraterone trial: approximately 38% at 84 months; Abiraterone and enzalutamide trial: approximately 30% at 84 months",
+      "contradiction": true,
+      "contributing_methods": [
+        "Method A",
+        "Method B",
+        "Method C"
+      ]
+    },
+    {
+      "column_name": "OS Rate (%) | Low volume | Control",
+      "final_value": "Abiraterone trial: approximately 50% at 84 months; Abiraterone and enzalutamide trial: approximately 40% at 84 months",
+      "contradiction": true,
+      "contributing_methods": [
+        "Method A",
+        "Method B",
+        "Method C"
+      ]
+    },
+    {
+      "column_name": "OS Rate (%) | Low volume | Treatment",
+      "final_value": "Abiraterone trial: approximately 68% at 84 months; Abiraterone and enzalutamide trial: approximately 58% at 84 months",
+      "contradiction": true,
+      "contributing_methods": [
+        "Method A",
+        "Method B",
+        "Method C"
+      ]
+    },
+    {
+      "column_name": "OS Rate (%) | Metachronous | Control",
+      "final_value": "Not reported",
+      "contradiction": false,
+      "contributing_methods": [
+        "Method A",
+        "Method B",
+        "Method C"
+      ]
+    },
+    {
+      "column_name": "OS Rate (%) | Metachronous | Treatment",
+      "final_value": "Not reported",
+      "contradiction": false,
+      "contributing_methods": [
+        "Method A",
+        "Method B",
+        "Method C"
+      ]
+    },
+    {
+      "column_name": "OS Rate (%) | Overall | Control",
+      "final_value": "Abiraterone trial: 30% (95% CI 26-34) at 84 months; Abiraterone and enzalutamide trial: approximately 25% at 84 months",
+      "contradiction": true,
+      "contributing_methods": [
+        "Method A",
+        "Method B",
+        "Method C"
+      ]
+    },
+    {
+      "column_name": "OS Rate (%) | Overall | Treatment",
+      "final_value": "Abiraterone trial: 48% (95% CI 43-52) at 84 months; Abiraterone and enzalutamide trial: approximately 40% at 84 months",
+      "contradiction": true,
+      "contributing_methods": [
+        "Method A",
+        "Method B",
+        "Method C"
+      ]
+    },
+    {
+      "column_name": "OS Rate (%) | Synchronous | Control",
+      "final_value": "Not reported",
+      "contradiction": false,
+      "contributing_methods": [
+        "Method A",
+        "Method B",
+        "Method C"
+      ]
+    },
+    {
+      "column_name": "OS Rate (%) | Synchronous | Treatment",
+      "final_value": "Not reported",
+      "contradiction": false,
+      "contributing_methods": [
+        "Method A",
+        "Method B",
+        "Method C"
+      ]
+    }
+  ]
+}
+```

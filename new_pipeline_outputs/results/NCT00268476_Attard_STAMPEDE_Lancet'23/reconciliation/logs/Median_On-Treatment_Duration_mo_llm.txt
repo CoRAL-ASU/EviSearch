@@ -1,0 +1,48 @@
+=== PROMPT ===
+You are reconciling clinical trial extractions from three extractors (Method A, Method B, Method C).
+For each column below, produce: final_value, contradiction (true if methods disagree on atomic facts), contributing_methods (list of Method A/B/C that agree or contributed).
+Prefer more complete answers. If one method has partial info (e.g. one trial) and another has both, merge them.
+Treat all three methods equally. Output valid JSON only.
+
+=== COLUMNS ===
+
+Column 1: Median On-Treatment Duration (mo) | Control
+  Method A: value="Not reported" | page=-1 | evidence="The document mentions 'median follow-up' (pages 1, 2, 6) and 'time from randomisation to starting treatment' (page 6), and reasons for 'stopping treatment' (page 11), but not the median duration of the treatment itself for the control arm."
+  Method B: value="not found" | page=None | evidence="The document states that the standard of care was androgen deprivation therapy, which patients were required to start no longer than 12 weeks before random assignment and was intended to be 'life-long'. It provides median overall survival for the control arms (e.g., 45.7 months in the abiraterone tr"
+  Method C: value="not found" | page=None | evidence="The document reports median overall survival and median follow-up durations, but does not explicitly state the 'Median On-Treatment Duration (mo)' for the control arm."
+
+Column 2: Median On-Treatment Duration (mo) | Treatment
+  Method A: value="Not reported" | page=-1 | evidence="The document mentions 'median follow-up' (pages 1, 2, 6) and 'time from randomisation to starting treatment' (page 6), and reasons for 'stopping treatment' (page 11), but not the median duration of the treatment itself for the treatment arm."
+  Method B: value="not found" | page=None | evidence="The document provides median overall survival for the treatment arms (e.g., 76.6 months for abiraterone group, 73.1 months for abiraterone and enzalutamide group) and mentions that study treatment was administered until radiographical progression or discontinuation. It also states that 23% of patien"
+  Method C: value="not found" | page=None | evidence="The document reports median overall survival and median follow-up durations, but does not explicitly state the 'Median On-Treatment Duration (mo)' for the treatment arm."
+
+=== OUTPUT (JSON) ===
+{"reconciled": [{"column_name": "...", "final_value": "...", "contradiction": false, "contributing_methods": ["Method A", "Method B"]}, ...]}
+
+=== RESPONSE ===
+```json
+{
+  "reconciled": [
+    {
+      "column_name": "Median On-Treatment Duration (mo) | Control",
+      "final_value": "Not reported",
+      "contradiction": false,
+      "contributing_methods": [
+        "Method A",
+        "Method B",
+        "Method C"
+      ]
+    },
+    {
+      "column_name": "Median On-Treatment Duration (mo) | Treatment",
+      "final_value": "Not reported",
+      "contradiction": false,
+      "contributing_methods": [
+        "Method A",
+        "Method B",
+        "Method C"
+      ]
+    }
+  ]
+}
+```

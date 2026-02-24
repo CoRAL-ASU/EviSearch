@@ -1,0 +1,40 @@
+=== PROMPT ===
+You are reconciling clinical trial extractions from three extractors (Method A, Method B, Method C).
+For each column below, produce: final_value, contradiction (true if methods disagree on atomic facts), contributing_methods (list of Method A/B/C that agree or contributed).
+Prefer more complete answers. If one method has partial info (e.g. one trial) and another has both, merge them.
+Treat all three methods equally. Output valid JSON only.
+
+=== COLUMNS ===
+
+Column 1: No. of Deaths - N | Control
+  Method A: value="663" | page=12 | evidence="We also report fewer deaths attributed to prostate cancer in patients who received abiraterone with or without enzalutamide than in those who received standard of care (413 [79%] of 521 in treatment groups vs 581 [88%] of 663 in standard of care groups)"
+  Method B: value="371" | page=None | evidence="Found in Figure 1, 'Trial profile', under the 'Abiraterone trial' section. The number of deaths for the 'Standard of care' arm was 371."
+  Method C: value="371" | page=None | evidence="Found in Figure 1: Trial profile on page 4, under the 'Abiraterone trial' section, for the 'standard of care' arm, it states '371 died'. This is further confirmed on page 10 in the 'Discussion' section which mentions '325 (88%) of 371 deaths with standard of care'."
+
+Column 2: No. of Deaths - N | Treatment
+  Method A: value="521" | page=12 | evidence="We also report fewer deaths attributed to prostate cancer in patients who received abiraterone with or without enzalutamide than in those who received standard of care (413 [79%] of 521 in treatment groups vs 581 [88%] of 663 in standard of care groups)"
+  Method B: value="293" | page=None | evidence="Found in Figure 1, 'Trial profile', under the 'Abiraterone trial' section. The number of deaths for the 'Standard of care plus abiraterone' arm was 293."
+  Method C: value="293" | page=None | evidence="Found in Figure 1: Trial profile on page 4, under the 'Abiraterone trial' section, for the 'standard of care plus abiraterone' arm, it states '293 died'. This is further confirmed on page 10 in the 'Discussion' section which mentions '231 (79%) of 293 with addition of abiraterone were attributed to "
+
+=== OUTPUT (JSON) ===
+{"reconciled": [{"column_name": "...", "final_value": "...", "contradiction": false, "contributing_methods": ["Method A", "Method B"]}, ...]}
+
+=== RESPONSE ===
+```json
+{
+  "reconciled": [
+    {
+      "column_name": "No. of Deaths - N | Control",
+      "final_value": "371",
+      "contradiction": true,
+      "contributing_methods": ["Method B", "Method C"]
+    },
+    {
+      "column_name": "No. of Deaths - N | Treatment",
+      "final_value": "293",
+      "contradiction": true,
+      "contributing_methods": ["Method B", "Method C"]
+    }
+  ]
+}
+```

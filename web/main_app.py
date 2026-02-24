@@ -32,6 +32,7 @@ from web.comparison_service import (
     get_dashboard_report,
 )
 from web.highlight_service import (
+    get_highlights_by_chunk_ids,
     get_highlights_for_column,
     get_highlights_by_page_type,
     resolve_pdf_path,
@@ -70,6 +71,85 @@ def index():
 def comparison():
     """Serve the comparison view (document list, report, comparison table)."""
     return render_template('comparison.html')
+
+
+RESULTS_ROOT = PROJECT_ROOT / "new_pipeline_outputs" / "results"
+
+
+@app.route('/attribution')
+def attribution_index():
+    """Serve attribution viewer — select doc and column, see highlighted chunks on PDF."""
+    return render_template('attribution.html')
+
+
+@app.route('/api/documents/reconciled', methods=['GET'])
+def api_list_reconciled_documents():
+    """List document IDs that have reconciled results."""
+    if not RESULTS_ROOT.exists():
+        return jsonify({"success": True, "documents": []}), 200
+    docs = []
+    for d in RESULTS_ROOT.iterdir():
+        if d.is_dir():
+            f = d / "reconciliation" / "reconciled_results.json"
+            if f.exists():
+                docs.append(d.name)
+    return jsonify({"success": True, "documents": sorted(docs)}), 200
+
+
+@app.route('/api/documents/<path:doc_id>/attribution/refresh', methods=['POST'])
+def api_refresh_attribution(doc_id):
+    """Re-run attribution using the custom matcher and save to reconciled_results.json."""
+    doc_id = unquote(doc_id)
+    path = RESULTS_ROOT / doc_id / "reconciliation" / "reconciled_results.json"
+    if not path.exists():
+        return jsonify({"success": False, "error": f"No reconciled results for {doc_id}"}), 404
+    try:
+        from web.comparison_service import load_comparison_data
+        from web.attribution_service import enrich_reconciled_with_attribution
+        data = json.loads(path.read_text(encoding="utf-8"))
+        columns = data.get("columns") or []
+        comparison = load_comparison_data(doc_id)
+        rows = comparison.get("comparison") or []
+        enriched = enrich_reconciled_with_attribution(
+            doc_id,
+            columns,
+            comparison_rows=rows,
+            top_k=3,
+        )
+        result = {"doc_id": doc_id, "columns": enriched}
+        path.write_text(json.dumps(result, indent=2), encoding="utf-8")
+        return jsonify({"success": True, **result}), 200
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+
+@app.route('/api/documents/<path:doc_id>/reconciled', methods=['GET'])
+def api_document_reconciled(doc_id):
+    """Get reconciled results with attributed chunks for a document."""
+    doc_id = unquote(doc_id)
+    path = RESULTS_ROOT / doc_id / "reconciliation" / "reconciled_results.json"
+    if not path.exists():
+        return jsonify({"success": False, "error": f"No reconciled results for {doc_id}"}), 404
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+        # Merge method values from comparison data for UI display
+        try:
+            from web.comparison_service import load_comparison_data
+            comparison = load_comparison_data(doc_id)
+            col_to_row = {r.get("column_name"): r for r in (comparison.get("comparison") or [])}
+        except Exception:
+            col_to_row = {}
+        columns = data.get("columns") or []
+        for col in columns:
+            row = col_to_row.get(col.get("column_name", ""))
+            if row and row.get("methods"):
+                col["method_values"] = {
+                    k: (v.get("value") or v.get("primary_value", ""))
+                    for k, v in row["methods"].items()
+                }
+        return jsonify({"success": True, **data}), 200
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
 
 
 @app.route('/api/upload', methods=['POST'])
@@ -259,21 +339,25 @@ def api_document_report(doc_id):
 
 @app.route('/api/documents/<path:doc_id>/highlights', methods=['GET'])
 def api_document_highlights(doc_id):
-    """Get highlight boxes for PDF overlay. Query params: column_name, or page + source_type."""
+    """Get highlight boxes for PDF overlay. Query params: column_name, chunk_ids, or page + source_type."""
     doc_id = unquote(doc_id)
     column_name = request.args.get("column_name")
+    chunk_ids_str = request.args.get("chunk_ids")
     page = request.args.get("page", type=int)
     source_type = request.args.get("source_type", "text")
 
     try:
-        if column_name:
+        if chunk_ids_str:
+            chunk_ids = [x.strip() for x in chunk_ids_str.split(",") if x.strip()]
+            result = get_highlights_by_chunk_ids(doc_id, chunk_ids)
+        elif column_name:
             result = get_highlights_for_column(doc_id, column_name)
         elif page is not None and page >= 1:
             result = get_highlights_by_page_type(doc_id, page, source_type)
         else:
             return jsonify({
                 "success": False,
-                "error": "Provide column_name or page and source_type",
+                "error": "Provide column_name, chunk_ids, or page and source_type",
             }), 400
         return jsonify({"success": True, **result}), 200
     except Exception as e:

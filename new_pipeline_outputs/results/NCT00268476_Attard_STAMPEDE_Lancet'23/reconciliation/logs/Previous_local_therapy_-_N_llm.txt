@@ -1,0 +1,84 @@
+=== PROMPT ===
+You are reconciling clinical trial extractions from three extractors (Method A, Method B, Method C).
+For each column below, produce: final_value, contradiction (true if methods disagree on atomic facts), contributing_methods (list of Method A/B/C that agree or contributed).
+Prefer more complete answers. If one method has partial info (e.g. one trial) and another has both, merge them.
+Treat all three methods equally. Output valid JSON only.
+
+=== COLUMNS ===
+
+Column 1: Previous local therapy - N (%) | Orchiectomy | Control
+  Method A: value="" | page=6 | evidence=""
+  Method B: value="Extraction error" | page=None | evidence="Not applicable"
+  Method C: value="not found" | page=None | evidence="The document provides a general category 'Previous treatment to prostate' in Table 1: Baseline characteristics on page 6, but does not specify the type of previous local therapy such as orchiectomy for the control arm."
+
+Column 2: Previous local therapy - N (%) | Orchiectomy | Treatment
+  Method A: value="" | page=6 | evidence=""
+  Method B: value="Extraction error" | page=None | evidence="Not applicable"
+  Method C: value="not found" | page=None | evidence="The document provides a general category 'Previous treatment to prostate' in Table 1: Baseline characteristics on page 6, but does not specify the type of previous local therapy such as orchiectomy for the treatment arm."
+
+Column 3: Previous local therapy - N (%) | Prostatectomy | Control
+  Method A: value="" | page=6 | evidence=""
+  Method B: value="Extraction error" | page=None | evidence="Not applicable"
+  Method C: value="not found" | page=None | evidence="The document provides a general category 'Previous treatment to prostate' in Table 1: Baseline characteristics on page 6, but does not specify the type of previous local therapy such as prostatectomy for the control arm."
+
+Column 4: Previous local therapy - N (%) | Prostatectomy | Treatment
+  Method A: value="" | page=6 | evidence=""
+  Method B: value="Extraction error" | page=None | evidence="Not applicable"
+  Method C: value="not found" | page=None | evidence="The document provides a general category 'Previous treatment to prostate' in Table 1: Baseline characteristics on page 6, but does not specify the type of previous local therapy such as prostatectomy for the treatment arm."
+
+Column 5: Previous local therapy - N (%) | Radiotherapy | Control
+  Method A: value="" | page=6 | evidence=""
+  Method B: value="Extraction error" | page=None | evidence="Not applicable"
+  Method C: value="not found" | page=None | evidence="The document provides a general category 'Previous treatment to prostate' in Table 1: Baseline characteristics on page 6, but does not specify the type of previous local therapy such as radiotherapy for the control arm. 'Palliative radiotherapy planned as standard of care' is listed, but this refers"
+
+Column 6: Previous local therapy - N (%) | Radiotherapy | Treatment
+  Method A: value="" | page=6 | evidence=""
+  Method B: value="Extraction error" | page=None | evidence="Not applicable"
+  Method C: value="not found" | page=None | evidence="The document provides a general category 'Previous treatment to prostate' in Table 1: Baseline characteristics on page 6, but does not specify the type of previous local therapy such as radiotherapy for the treatment arm. 'Palliative radiotherapy planned as standard of care' is listed, but this refe"
+
+=== OUTPUT (JSON) ===
+{"reconciled": [{"column_name": "...", "final_value": "...", "contradiction": false, "contributing_methods": ["Method A", "Method B"]}, ...]}
+
+=== RESPONSE ===
+```json
+{
+  "reconciled": [
+    {
+      "column_name": "Previous local therapy - N (%) | Orchiectomy | Control",
+      "final_value": "not found",
+      "contradiction": false,
+      "contributing_methods": ["Method A", "Method B", "Method C"]
+    },
+    {
+      "column_name": "Previous local therapy - N (%) | Orchiectomy | Treatment",
+      "final_value": "not found",
+      "contradiction": false,
+      "contributing_methods": ["Method A", "Method B", "Method C"]
+    },
+    {
+      "column_name": "Previous local therapy - N (%) | Prostatectomy | Control",
+      "final_value": "not found",
+      "contradiction": false,
+      "contributing_methods": ["Method A", "Method B", "Method C"]
+    },
+    {
+      "column_name": "Previous local therapy - N (%) | Prostatectomy | Treatment",
+      "final_value": "not found",
+      "contradiction": false,
+      "contributing_methods": ["Method A", "Method B", "Method C"]
+    },
+    {
+      "column_name": "Previous local therapy - N (%) | Radiotherapy | Control",
+      "final_value": "not found",
+      "contradiction": false,
+      "contributing_methods": ["Method A", "Method B", "Method C"]
+    },
+    {
+      "column_name": "Previous local therapy - N (%) | Radiotherapy | Treatment",
+      "final_value": "not found",
+      "contradiction": false,
+      "contributing_methods": ["Method A", "Method B", "Method C"]
+    }
+  ]
+}
+```

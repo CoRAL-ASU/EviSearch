@@ -1,0 +1,33 @@
+=== PROMPT ===
+You are reconciling clinical trial extractions from three extractors (Method A, Method B, Method C).
+For each column below, produce: final_value, contradiction (true if methods disagree on atomic facts), contributing_methods (list of Method A/B/C that agree or contributed).
+Prefer more complete answers. If one method has partial info (e.g. one trial) and another has both, merge them.
+Treat all three methods equally. Output valid JSON only.
+
+=== COLUMNS ===
+
+Column 1: Number of Arms Included
+  Method A: value="4" | page=1 | evidence="The 'Methods' section on page 1 states: "We analysed two open-label, randomised, controlled, phase 3 trials of the STAMPEDE platform protocol, with no overlapping controls...". The 'Findings' section on page 1 details the arms for each trial: the abiraterone trial had 'standard of care' and 'standar"
+  Method B: value="4" | page=None | evidence="The 'Methods' section states, 'We analysed two open-label, randomised, controlled, phase 3 trials of the STAMPEDE platform protocol, with no overlapping controls'. It then describes the random assignment for each trial: 'standard of care... or standard of care plus abiraterone acetate and prednisolo"
+  Method C: value="4" | page=None | evidence="The 'Methods' section on page 1 states, 'We analysed two open-label, randomised, controlled, phase 3 trials of the STAMPEDE platform protocol'. The 'Findings' section on page 1 details the arms for each trial: the 'abiraterone trial' had 'standard of care' and 'standard of care plus abiraterone' (2 "
+
+=== OUTPUT (JSON) ===
+{"reconciled": [{"column_name": "...", "final_value": "...", "contradiction": false, "contributing_methods": ["Method A", "Method B"]}, ...]}
+
+=== RESPONSE ===
+```json
+{
+  "reconciled": [
+    {
+      "column_name": "Number of Arms Included",
+      "final_value": "4",
+      "contradiction": false,
+      "contributing_methods": [
+        "Method A",
+        "Method B",
+        "Method C"
+      ]
+    }
+  ]
+}
+```

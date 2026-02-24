@@ -1,0 +1,78 @@
+=== PROMPT ===
+You are reconciling clinical trial extractions from three extractors (Method A, Method B, Method C).
+For each column below, produce: final_value, contradiction (true if methods disagree on atomic facts), contributing_methods (list of Method A/B/C that agree or contributed).
+Prefer more complete answers. If one method has partial info (e.g. one trial) and another has both, merge them.
+Treat all three methods equally. Output valid JSON only.
+
+=== COLUMNS ===
+
+Column 1: Mode of metastases - N (%) | Metachronous | Control
+  Method A: value="Not reported" | page=-1 | evidence=""
+  Method B: value="Extraction error" | page=None | evidence="Not applicable"
+  Method C: value="not found" | page=None | evidence="The document states that all eligible patients had metastatic disease at baseline (page 1, Methods), meaning they were already diagnosed with metastases at the time of trial entry. The term 'metachronous metastases' (metastases that occur after the diagnosis of prostate cancer) is not reported or ap"
+
+Column 2: Mode of metastases - N (%) | Metachronous | Treatment
+  Method A: value="Not reported" | page=-1 | evidence=""
+  Method B: value="Extraction error" | page=None | evidence="Not applicable"
+  Method C: value="not found" | page=None | evidence="The document states that all eligible patients had metastatic disease at baseline (page 1, Methods), meaning they were already diagnosed with metastases at the time of trial entry. The term 'metachronous metastases' (metastases that occur after the diagnosis of prostate cancer) is not reported or ap"
+
+Column 3: Mode of metastases - N (%) | Synchronous | Control
+  Method A: value="Not reported" | page=-1 | evidence=""
+  Method B: value="Extraction error" | page=None | evidence="Not applicable"
+  Method C: value="not found" | page=None | evidence="The document states that all eligible patients had metastatic, histologically-confirmed prostate adenocarcinoma at baseline (page 1, Methods) and were recruited with distant metastases within 8 weeks of random assignment (page 3, Methods), which aligns with the definition of synchronous metastases. "
+
+Column 4: Mode of metastases - N (%) | Synchronous | Treatment
+  Method A: value="Not reported" | page=-1 | evidence=""
+  Method B: value="Extraction error" | page=None | evidence="Not applicable"
+  Method C: value="not found" | page=None | evidence="The document states that all eligible patients had metastatic, histologically-confirmed prostate adenocarcinoma at baseline (page 1, Methods) and were recruited with distant metastases within 8 weeks of random assignment (page 3, Methods), which aligns with the definition of synchronous metastases. "
+
+=== OUTPUT (JSON) ===
+{"reconciled": [{"column_name": "...", "final_value": "...", "contradiction": false, "contributing_methods": ["Method A", "Method B"]}, ...]}
+
+=== RESPONSE ===
+```json
+{
+  "reconciled": [
+    {
+      "column_name": "Mode of metastases - N (%) | Metachronous | Control",
+      "final_value": "Not found. The document states that all eligible patients had metastatic disease at baseline (page 1, Methods), meaning they were already diagnosed with metastases at the time of trial entry. The term 'metachronous metastases' (metastases that occur after the diagnosis of prostate cancer) is not reported or applicable.",
+      "contradiction": false,
+      "contributing_methods": [
+        "Method A",
+        "Method B",
+        "Method C"
+      ]
+    },
+    {
+      "column_name": "Mode of metastases - N (%) | Metachronous | Treatment",
+      "final_value": "Not found. The document states that all eligible patients had metastatic disease at baseline (page 1, Methods), meaning they were already diagnosed with metastases at the time of trial entry. The term 'metachronous metastases' (metastases that occur after the diagnosis of prostate cancer) is not reported or applicable.",
+      "contradiction": false,
+      "contributing_methods": [
+        "Method A",
+        "Method B",
+        "Method C"
+      ]
+    },
+    {
+      "column_name": "Mode of metastases - N (%) | Synchronous | Control",
+      "final_value": "Not found. The document states that all eligible patients had metastatic, histologically-confirmed prostate adenocarcinoma at baseline (page 1, Methods) and were recruited with distant metastases within 8 weeks of random assignment (page 3, Methods), which aligns with the definition of synchronous metastases. However, a specific N (%) value for synchronous metastases is not explicitly reported.",
+      "contradiction": false,
+      "contributing_methods": [
+        "Method A",
+        "Method B",
+        "Method C"
+      ]
+    },
+    {
+      "column_name": "Mode of metastases - N (%) | Synchronous | Treatment",
+      "final_value": "Not found. The document states that all eligible patients had metastatic, histologically-confirmed prostate adenocarcinoma at baseline (page 1, Methods) and were recruited with distant metastases within 8 weeks of random assignment (page 3, Methods), which aligns with the definition of synchronous metastases. However, a specific N (%) value for synchronous metastases is not explicitly reported.",
+      "contradiction": false,
+      "contributing_methods": [
+        "Method A",
+        "Method B",
+        "Method C"
+      ]
+    }
+  ]
+}
+```

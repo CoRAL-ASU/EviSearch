@@ -137,6 +137,50 @@ def get_highlights_by_value(
     }
 
 
+def get_highlights_by_chunk_ids(
+    doc_id: str,
+    chunk_ids: List[str],
+) -> Dict[str, Any]:
+    """
+    Get highlight boxes for specific chunk IDs (e.g. from attribution).
+    Returns { available, highlights: [{ page, box, chunk_id }] }.
+    """
+    parse_data = load_landing_ai_parse(doc_id)
+    if not parse_data:
+        return {"available": False, "highlights": [], "doc_id": doc_id}
+
+    ids_set = {c.strip() for c in chunk_ids if c and str(c).strip()}
+    chunks = parse_data.get("chunks") or []
+    chunk_by_id = {c.get("id"): c for c in chunks if c.get("id")}
+
+    highlights: List[Dict[str, Any]] = []
+    for cid in ids_set:
+        chunk = chunk_by_id.get(cid)
+        if not chunk:
+            continue
+        grounding = chunk.get("grounding") or {}
+        if not isinstance(grounding, dict):
+            continue
+        box = grounding.get("box")
+        page_0 = grounding.get("page", 0)
+        if not box or not isinstance(box, dict):
+            continue
+        b = {
+            "left": float(box.get("left", 0)),
+            "top": float(box.get("top", 0)),
+            "right": float(box.get("right", 1)),
+            "bottom": float(box.get("bottom", 1)),
+        }
+        highlights.append({"page": int(page_0) + 1, "box": b, "chunk_id": cid})
+
+    return {
+        "available": len(highlights) > 0,
+        "highlights": highlights,
+        "doc_id": doc_id,
+        "match_source": "chunk_ids",
+    }
+
+
 def get_highlights_by_page_type(
     doc_id: str,
     page: int,

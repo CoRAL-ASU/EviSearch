@@ -1,0 +1,33 @@
+=== PROMPT ===
+You are reconciling clinical trial extractions from three extractors (Method A, Method B, Method C).
+For each column below, produce: final_value, contradiction (true if methods disagree on atomic facts), contributing_methods (list of Method A/B/C that agree or contributed).
+Prefer more complete answers. If one method has partial info (e.g. one trial) and another has both, merge them.
+Treat all three methods equally. Output valid JSON only.
+
+=== COLUMNS ===
+
+Column 1: Median Follow-Up Duration (mo)
+  Method A: value="Abiraterone trial: 96 months (IQR 86–107); Abiraterone and enzalutamide trial: 72 months (61–74)" | page=1 | evidence="Median follow-up was 96 months (IQR 86–107) in the abiraterone trial and 72 months (61–74) in the abiraterone and enzalutamide trial."
+  Method B: value="96 months (IQR 86–107) in the abiraterone trial and 72 months (61–74) in the abiraterone and enzalutamide trial" | page=None | evidence="Found in the 'Findings' section on page 3, which states: 'Median follow-up was 96 months (IQR 86–107) in the abiraterone trial and 72 months (61–74) in the abiraterone and enzalutamide trial.'"
+  Method C: value="96 months (IQR 86–107) in the abiraterone trial and 72 months (61–74) in the abiraterone and enzalutamide trial" | page=None | evidence="Found in the 'Findings' section on page 1, stating the median follow-up for both the abiraterone trial and the abiraterone and enzalutamide trial."
+
+=== OUTPUT (JSON) ===
+{"reconciled": [{"column_name": "...", "final_value": "...", "contradiction": false, "contributing_methods": ["Method A", "Method B"]}, ...]}
+
+=== RESPONSE ===
+```json
+{
+  "reconciled": [
+    {
+      "column_name": "Median Follow-Up Duration (mo)",
+      "final_value": "Abiraterone trial: 96 months (IQR 86–107); Abiraterone and enzalutamide trial: 72 months (61–74)",
+      "contradiction": false,
+      "contributing_methods": [
+        "Method A",
+        "Method B",
+        "Method C"
+      ]
+    }
+  ]
+}
+```

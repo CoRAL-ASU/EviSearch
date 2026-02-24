@@ -1,0 +1,32 @@
+=== PROMPT ===
+You are reconciling clinical trial extractions from three extractors (Method A, Method B, Method C).
+For each column below, produce: final_value, contradiction (true if methods disagree on atomic facts), contributing_methods (list of Method A/B/C that agree or contributed).
+Prefer more complete answers. If one method has partial info (e.g. one trial) and another has both, merge them.
+Treat all three methods equally. Output valid JSON only.
+
+=== COLUMNS ===
+
+Column 1: COE_RCT_IND_OVERALL_RJ
+  Method A: value="HR 1.05 (95% CI 0.83–1.32); Pinteraction=0.71" | page=1 | evidence="We found no difference in the treatment effect between these two trials (interaction HR 1.05 [0.83–1.32]; Pinteraction=0.71) or between-trial heterogeneity (I2 p=0.70)."
+  Method B: value="not found" | page=None | evidence="The document describes the methods, findings, and interpretation of two randomized controlled trials, but it does not provide an explicit 'overall risk judgment of individual criteria of evidence (COE)' for these trials or any other RCTs. There is no section or statement that assesses the risk of bi"
+  Method C: value="not found" | page=None | evidence="The document is a report on two randomized controlled trials (RCTs) within the STAMPEDE platform protocol. It describes the methods, findings, and interpretation of these trials. It does not provide an 'overall risk judgment of individual criteria of evidence (COE) in randomized controlled trials (R"
+
+=== OUTPUT (JSON) ===
+{"reconciled": [{"column_name": "...", "final_value": "...", "contradiction": false, "contributing_methods": ["Method A", "Method B"]}, ...]}
+
+=== RESPONSE ===
+```json
+{
+  "reconciled": [
+    {
+      "column_name": "COE_RCT_IND_OVERALL_RJ",
+      "final_value": "not found",
+      "contradiction": true,
+      "contributing_methods": [
+        "Method B",
+        "Method C"
+      ]
+    }
+  ]
+}
+```

@@ -1,0 +1,48 @@
+=== PROMPT ===
+You are reconciling clinical trial extractions from three extractors (Method A, Method B, Method C).
+For each column below, produce: final_value, contradiction (true if methods disagree on atomic facts), contributing_methods (list of Method A/B/C that agree or contributed).
+Prefer more complete answers. If one method has partial info (e.g. one trial) and another has both, merge them.
+Treat all three methods equally. Output valid JSON only.
+
+=== COLUMNS ===
+
+Column 1: TTPSA (mo) | Control
+  Method A: value="Not reported" | page=4 | evidence="The document mentions 'PSA progression (biochemical failure)' as an outcome and how it's calculated, but no specific median time (TTPSA) for the control group is reported in the provided text, tables, or figures."
+  Method B: value="not found" | page=None | evidence="The document does not report 'Time To Progression of Serum Androgen (TTPSA)' in months for the control arm. While 'PSA testing' and 'PSA progression (biochemical failure)' are mentioned as part of 'failure-free survival', TTPSA as a specific endpoint is not reported."
+  Method C: value="not found" | page=None | evidence="The document discusses 'PSA progression (biochemical failure)' as a secondary outcome, but it does not provide a specific median time to PSA progression (TTPSA) in months for the control arm. The survival curves in the figures are for overall survival, prostate cancer-specific survival, failure-free"
+
+Column 2: TTPSA (mo) | Treatment
+  Method A: value="Not reported" | page=4 | evidence="The document mentions 'PSA progression (biochemical failure)' as an outcome and how it's calculated, but no specific median time (TTPSA) for the treatment group is reported in the provided text, tables, or figures."
+  Method B: value="not found" | page=None | evidence="The document does not report 'Time To Progression of Serum Androgen (TTPSA)' in months for the treatment arm. While 'PSA testing' and 'PSA progression (biochemical failure)' are mentioned as part of 'failure-free survival', TTPSA as a specific endpoint is not reported."
+  Method C: value="not found" | page=None | evidence="The document discusses 'PSA progression (biochemical failure)' as a secondary outcome, but it does not provide a specific median time to PSA progression (TTPSA) in months for the treatment arm. The survival curves in the figures are for overall survival, prostate cancer-specific survival, failure-fr"
+
+=== OUTPUT (JSON) ===
+{"reconciled": [{"column_name": "...", "final_value": "...", "contradiction": false, "contributing_methods": ["Method A", "Method B"]}, ...]}
+
+=== RESPONSE ===
+```json
+{
+  "reconciled": [
+    {
+      "column_name": "TTPSA (mo) | Control",
+      "final_value": "Not reported",
+      "contradiction": false,
+      "contributing_methods": [
+        "Method A",
+        "Method B",
+        "Method C"
+      ]
+    },
+    {
+      "column_name": "TTPSA (mo) | Treatment",
+      "final_value": "Not reported",
+      "contradiction": false,
+      "contributing_methods": [
+        "Method A",
+        "Method B",
+        "Method C"
+      ]
+    }
+  ]
+}
+```

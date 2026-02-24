@@ -1,0 +1,33 @@
+=== PROMPT ===
+You are reconciling clinical trial extractions from three extractors (Method A, Method B, Method C).
+For each column below, produce: final_value, contradiction (true if methods disagree on atomic facts), contributing_methods (list of Method A/B/C that agree or contributed).
+Prefer more complete answers. If one method has partial info (e.g. one trial) and another has both, merge them.
+Treat all three methods equally. Output valid JSON only.
+
+=== COLUMNS ===
+
+Column 1: Treatment Arm - N
+  Method A: value="Abiraterone trial: Standard of care (n=502); Abiraterone trial: Standard of care plus abiraterone (n=501); Abiraterone and enzalutamide trial: Standard of care (n=454); Abiraterone and enzalutamide tr" | page=5 | evidence="Table 1, page 5, column header"
+  Method B: value="501 (standard of care plus abiraterone); 462 (standard of care plus abiraterone and enzalutamide)" | page=None | evidence="In the 'Findings' section, it states: 'Between Nov 15, 2011, and Jan 17, 2014, 1003 patients were randomly assigned to standard of care (n=502) or standard of care plus abiraterone (n=501) in the abiraterone trial.' and 'Between July 29, 2014, and March 31, 2016, 916 patients were randomly assigned "
+  Method C: value="501 (standard of care plus abiraterone); 462 (standard of care plus abiraterone and enzalutamide)" | page=None | evidence="The 'Findings' section on page 1 states: 'Between Nov 15, 2011, and Jan 17, 2014, 1003 patients were randomly assigned to standard of care (n=502) or standard of care plus abiraterone (n=501) in the abiraterone trial.' And 'Between July 29, 2014, and March 31, 2016, 916 patients were randomly assign"
+
+=== OUTPUT (JSON) ===
+{"reconciled": [{"column_name": "...", "final_value": "...", "contradiction": false, "contributing_methods": ["Method A", "Method B"]}, ...]}
+
+=== RESPONSE ===
+```json
+{
+  "reconciled": [
+    {
+      "column_name": "Treatment Arm - N",
+      "final_value": "Abiraterone trial: Standard of care (n=502); Standard of care plus abiraterone (n=501); Abiraterone and enzalutamide trial: Standard of care (n=454); Standard of care plus abiraterone and enzalutamide (n=462)",
+      "contradiction": false,
+      "contributing_methods": [
+        "Method A",
+        "Method B",
+        "Method C"
+      ]
+    }
+  ]
+}
+```

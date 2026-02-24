@@ -1,0 +1,108 @@
+=== PROMPT ===
+You are reconciling clinical trial extractions from three extractors (Method A, Method B, Method C).
+For each column below, produce: final_value, contradiction (true if methods disagree on atomic facts), contributing_methods (list of Method A/B/C that agree or contributed).
+Prefer more complete answers. If one method has partial info (e.g. one trial) and another has both, merge them.
+Treat all three methods equally. Output valid JSON only.
+
+=== COLUMNS ===
+
+Column 1: Median PFS (mo) | High volume | Control
+  Method A: value="Not reported" | page=9 | evidence=""
+  Method B: value="not found" | page=None | evidence="The document discusses 'progression-free survival' and 'metastatic progression-free survival' as secondary outcomes and provides Hazard Ratios (HRs) for these, including subgroup analysis by metastatic volume for overall survival (Figure 3D, E), but it does not explicitly state the median progressio"
+  Method C: value="not found" | page=None | evidence="The document discusses progression-free survival as a secondary outcome and presents survival curves for it in Figure 4 (E, F) on page 9, which are for 'Metastatic progression-free survival' and include high-volume disease. However, the median progression-free survival values in months for patients "
+
+Column 2: Median PFS (mo) | High volume | Treatment
+  Method A: value="Not reported" | page=9 | evidence=""
+  Method B: value="not found" | page=None | evidence="The document discusses 'progression-free survival' and 'metastatic progression-free survival' as secondary outcomes and provides Hazard Ratios (HRs) for these, including subgroup analysis by metastatic volume for overall survival (Figure 3D, E), but it does not explicitly state the median progressio"
+  Method C: value="not found" | page=None | evidence="The document discusses progression-free survival as a secondary outcome and presents survival curves for it in Figure 4 (E, F) on page 9, which are for 'Metastatic progression-free survival' and include high-volume disease. However, the median progression-free survival values in months for patients "
+
+Column 3: Median PFS (mo) | Low volume | Control
+  Method A: value="Not reported" | page=9 | evidence=""
+  Method B: value="not found" | page=None | evidence="The document discusses 'progression-free survival' and 'metastatic progression-free survival' as secondary outcomes and provides Hazard Ratios (HRs) for these, including subgroup analysis by metastatic volume for overall survival (Figure 3D, E), but it does not explicitly state the median progressio"
+  Method C: value="not found" | page=None | evidence="The document discusses progression-free survival as a secondary outcome and presents survival curves for it in Figure 4 (C, D) on page 9, which are for 'Failure-free survival' and include low-volume disease. However, the median progression-free survival values in months for patients with low volume "
+
+Column 4: Median PFS (mo) | Low volume | Treatment
+  Method A: value="Not reported" | page=9 | evidence=""
+  Method B: value="not found" | page=None | evidence="The document discusses 'progression-free survival' and 'metastatic progression-free survival' as secondary outcomes and provides Hazard Ratios (HRs) for these, including subgroup analysis by metastatic volume for overall survival (Figure 3D, E), but it does not explicitly state the median progressio"
+  Method C: value="not found" | page=None | evidence="The document discusses progression-free survival as a secondary outcome and presents survival curves for it in Figure 4 (C, D) on page 9, which are for 'Failure-free survival' and include low-volume disease. However, the median progression-free survival values in months for patients with low volume "
+
+Column 5: Median PFS (mo) | Overall | Control
+  Method A: value="Not reported" | page=9 | evidence=""
+  Method B: value="not found" | page=None | evidence="The document discusses 'progression-free survival' and 'metastatic progression-free survival' as secondary outcomes and provides Hazard Ratios (HRs) for these, but it does not explicitly state the median progression-free survival in months for the overall control group in the main text or figures."
+  Method C: value="not found" | page=None | evidence="The document discusses progression-free survival as a secondary outcome and presents survival curves for it in Figure 4 (C, D, E, F) on page 9. However, the median progression-free survival values in months for the overall population in the control arm are not explicitly reported in the text or any "
+
+Column 6: Median PFS (mo) | Overall | Treatment
+  Method A: value="Not reported" | page=9 | evidence=""
+  Method B: value="not found" | page=None | evidence="The document discusses 'progression-free survival' and 'metastatic progression-free survival' as secondary outcomes and provides Hazard Ratios (HRs) for these, but it does not explicitly state the median progression-free survival in months for the overall treatment group in the main text or figures."
+  Method C: value="not found" | page=None | evidence="The document discusses progression-free survival as a secondary outcome and presents survival curves for it in Figure 4 (C, D, E, F) on page 9. However, the median progression-free survival values in months for the overall population in the treatment arm are not explicitly reported in the text or an"
+
+=== OUTPUT (JSON) ===
+{"reconciled": [{"column_name": "...", "final_value": "...", "contradiction": false, "contributing_methods": ["Method A", "Method B"]}, ...]}
+
+=== RESPONSE ===
+```json
+{
+  "reconciled": [
+    {
+      "column_name": "Median PFS (mo) | High volume | Control",
+      "final_value": "Not reported",
+      "contradiction": false,
+      "contributing_methods": [
+        "Method A",
+        "Method B",
+        "Method C"
+      ]
+    },
+    {
+      "column_name": "Median PFS (mo) | High volume | Treatment",
+      "final_value": "Not reported",
+      "contradiction": false,
+      "contributing_methods": [
+        "Method A",
+        "Method B",
+        "Method C"
+      ]
+    },
+    {
+      "column_name": "Median PFS (mo) | Low volume | Control",
+      "final_value": "Not reported",
+      "contradiction": false,
+      "contributing_methods": [
+        "Method A",
+        "Method B",
+        "Method C"
+      ]
+    },
+    {
+      "column_name": "Median PFS (mo) | Low volume | Treatment",
+      "final_value": "Not reported",
+      "contradiction": false,
+      "contributing_methods": [
+        "Method A",
+        "Method B",
+        "Method C"
+      ]
+    },
+    {
+      "column_name": "Median PFS (mo) | Overall | Control",
+      "final_value": "Not reported",
+      "contradiction": false,
+      "contributing_methods": [
+        "Method A",
+        "Method B",
+        "Method C"
+      ]
+    },
+    {
+      "column_name": "Median PFS (mo) | Overall | Treatment",
+      "final_value": "Not reported",
+      "contradiction": false,
+      "contributing_methods": [
+        "Method A",
+        "Method B",
+        "Method C"
+      ]
+    }
+  ]
+}
+```

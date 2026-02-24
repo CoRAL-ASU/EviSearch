@@ -1,0 +1,136 @@
+=== PROMPT ===
+You are reconciling clinical trial extractions from three extractors (Method A, Method B, Method C).
+For each column below, produce: final_value, contradiction (true if methods disagree on atomic facts), contributing_methods (list of Method A/B/C that agree or contributed).
+Prefer more complete answers. If one method has partial info (e.g. one trial) and another has both, merge them.
+Treat all three methods equally. Output valid JSON only.
+
+=== COLUMNS ===
+
+Column 1: Author
+  Method A: value="Gerhardt Attard, Laura Murphy, Noel W Clarke, Ashwin Sachdeva, Craig Jones, Alex Hoyle, William Cross, Robert J Jones, Christopher C Parker, Silke Gillessen, Adrian Cook, Chris Brawley, Clare Gilson, " | page=1 | evidence="Gerhardt Attard, Laura Murphy, Noel W Clarke, Ashwin Sachdeva, Craig Jones, Alex Hoyle, William Cross, Robert J Jones, Christopher C Parker, Silke Gillessen, Adrian Cook, Chris Brawley, Clare Gilson, Hannah Rush, Hoda Abdel-Aty, Claire L Amos, Claire Murphy, Simon Chowdhury, Zafar Malik, J Martin Ru"
+  Method B: value="Gerhardt Attard, Laura Murphy, Noel W Clarke, Ashwin Sachdeva, Craig Jones, Alex Hoyle, William Cross, Robert J Jones, Christopher C Parker, Silke Gillessen, Adrian Cook, Chris Brawley, Clare Gilson, " | page=None | evidence="The full list of authors is provided directly under the article title."
+  Method C: value="Gerhardt Attard et al." | page=None | evidence="Found in the author list on page 1: 'Gerhardt Attard, Laura Murphy, Noel W Clarke, Ashwin Sachdeva, Craig Jones, Alex Hoyle, William Cross, Robert J Jones, Christopher C Parker, Silke Gillessen, Adrian Cook, Chris Brawley, Clare Gilson, Hannah Rush, Hoda Abdel-Aty, Claire L Amos, Claire Murphy, Simo"
+
+Column 2: Full Pub or Abstract
+  Method A: value="Full Pub" | page=1 | evidence="The document contains multiple sections including Summary, Methods, Findings, Interpretation, Introduction, and Research in context, spanning several pages, which is characteristic of a full publication."
+  Method B: value="Full Pub" | page=None | evidence="The document contains a comprehensive structure including a summary, detailed methods, findings, interpretation, discussion, and extensive references, indicating it is a full publication rather than just an abstract."
+  Method C: value="Full Pub" | page=None | evidence="The document is extensive, spanning multiple pages with detailed methods, results, discussion, and references, indicating it is a full publication rather than just an abstract."
+
+Column 3: NCT
+  Method A: value="NCT00268476" | page=1 | evidence="STAMPEDE is registered with ClinicalTrials.gov (NCT00268476) and ISRCTN (ISRCTN78818544)."
+  Method B: value="NCT00268476" | page=None | evidence="Found in the 'Methods' section: 'STAMPEDE is registered with ClinicalTrials.gov (NCT00268476)'."
+  Method C: value="NCT00268476" | page=None | evidence="Found in the 'Methods' section on page 1: 'STAMPEDE is registered with ClinicalTrials.gov (NCT00268476) and ISRCTN (ISRCTN78818544).' Also confirmed on page 6: 'is registered with ClinicalTrials.gov (NCT00268476) and ISRCTN (ISRCTN78818544).'"
+
+Column 4: Original/Follow Up
+  Method A: value="Follow up" | page=1 | evidence="Title: 'final results from two randomised phase 3 trials'. Summary: 'evaluate long-term outcomes'. Introduction: 'The STAMPEDE abiraterone trial has now closed, 10 years after initiation of accrual, providing the opportunity to assess new data on long-term efficacy'."
+  Method B: value="Follow Up" | page=None | evidence="The title states 'final results' and the introduction mentions 'evaluate long-term outcomes' and 'assess new data on long-term efficacy' from trials that have now closed, with median follow-up times of 96 and 72 months, indicating a follow-up analysis."
+  Method C: value="Follow Up" | page=None | evidence="The title mentions 'final results' and the 'Summary' and 'Introduction' sections on page 1 and 2 refer to 'long-term outcomes' and 'updated survival data after a median follow-up of 96 months', indicating this is a follow-up report of previously initiated trials."
+
+Column 5: Phase
+  Method A: value="3" | page=1 | evidence="final results from two randomised phase 3 trials of the STAMPEDE platform protocol"
+  Method B: value="Phase 3" | page=None | evidence="Stated explicitly in the 'Methods' section: 'We analysed two open-label, randomised, controlled, phase 3 trials of the STAMPEDE platform protocol'."
+  Method C: value="Phase 3" | page=None | evidence="Found in the title of the article on page 1: 'final results from two randomised phase 3 trials'. Also in the 'Methods' section on page 1: 'phase 3 trials of the STAMPEDE platform protocol'."
+
+Column 6: PubMed ID
+  Method A: value="Not reported" | page=-1 | evidence=""
+  Method B: value="not found" | page=None | evidence="The PubMed ID is not explicitly reported in the document."
+  Method C: value="not found" | page=None | evidence="PubMed ID is not explicitly reported in the document."
+
+Column 7: Trial Name
+  Method A: value="Abiraterone acetate plus prednisolone with or without enzalutamide for patients with metastatic prostate cancer starting androgen deprivation therapy: final results from two randomised phase 3 trials " | page=1 | evidence="Abiraterone acetate plus prednisolone with or without enzalutamide for patients with metastatic prostate cancer starting androgen deprivation therapy: final results from two randomised phase 3 trials of the STAMPEDE platform protocol"
+  Method B: value="STAMPEDE platform protocol (specifically, two randomised phase 3 trials: abiraterone trial and abiraterone and enzalutamide trial)" | page=None | evidence="The main title of the article states 'final results from two randomised phase 3 trials of the STAMPEDE platform protocol'. The 'Methods' section also refers to 'two open-label, randomised, controlled, phase 3 trials of the STAMPEDE platform protocol'."
+  Method C: value="Abiraterone acetate plus prednisolone with or without enzalutamide for patients with metastatic prostate cancer starting androgen deprivation therapy: final results from two randomised phase 3 trials " | page=None | evidence="This is the main title of the article on page 1, which describes the clinical trial."
+
+Column 8: Year
+  Method A: value="2023" | page=1 | evidence="Lancet Oncol 2023; 24: 443–56"
+  Method B: value="2023" | page=None | evidence="The publication year is indicated in the journal citation 'Lancet Oncol 2023; 24: 443–56'."
+  Method C: value="2023" | page=None | evidence="Found in the footer of each page (e.g., page 1, 2, 3, etc.): 'Lancet Oncol 2023; 24: 443-56' and 'Vol 24 May 2023'."
+
+=== OUTPUT (JSON) ===
+{"reconciled": [{"column_name": "...", "final_value": "...", "contradiction": false, "contributing_methods": ["Method A", "Method B"]}, ...]}
+
+=== RESPONSE ===
+```json
+{
+  "reconciled": [
+    {
+      "column_name": "Author",
+      "final_value": "Gerhardt Attard, Laura Murphy, Noel W Clarke, Ashwin Sachdeva, Craig Jones, Alex Hoyle, William Cross, Robert J Jones, Christopher C Parker, Silke Gillessen, Adrian Cook, Chris Brawley, Clare Gilson, ",
+      "contradiction": true,
+      "contributing_methods": [
+        "Method A",
+        "Method B"
+      ]
+    },
+    {
+      "column_name": "Full Pub or Abstract",
+      "final_value": "Full Pub",
+      "contradiction": false,
+      "contributing_methods": [
+        "Method A",
+        "Method B",
+        "Method C"
+      ]
+    },
+    {
+      "column_name": "NCT",
+      "final_value": "NCT00268476",
+      "contradiction": false,
+      "contributing_methods": [
+        "Method A",
+        "Method B",
+        "Method C"
+      ]
+    },
+    {
+      "column_name": "Original/Follow Up",
+      "final_value": "Follow Up",
+      "contradiction": false,
+      "contributing_methods": [
+        "Method A",
+        "Method B",
+        "Method C"
+      ]
+    },
+    {
+      "column_name": "Phase",
+      "final_value": "Phase 3",
+      "contradiction": false,
+      "contributing_methods": [
+        "Method A",
+        "Method B",
+        "Method C"
+      ]
+    },
+    {
+      "column_name": "PubMed ID",
+      "final_value": "Not found",
+      "contradiction": false,
+      "contributing_methods": [
+        "Method A",
+        "Method B",
+        "Method C"
+      ]
+    },
+    {
+      "column_name": "Trial Name",
+      "final_value": "Abiraterone acetate plus prednisolone with or without enzalutamide for patients with metastatic prostate cancer starting androgen deprivation therapy: final results from two randomised phase 3 trials ",
+      "contradiction": true,
+      "contributing_methods": [
+        "Method A",
+        "Method C"
+      ]
+    },
+    {
+      "column_name": "Year",
+      "final_value": "2023",
+      "contradiction": false,
+      "contributing_methods": [
+        "Method A",
+        "Method B",
+        "Method C"
+      ]
+    }
+  ]
+}
+```

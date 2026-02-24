@@ -1,0 +1,108 @@
+=== PROMPT ===
+You are reconciling clinical trial extractions from three extractors (Method A, Method B, Method C).
+For each column below, produce: final_value, contradiction (true if methods disagree on atomic facts), contributing_methods (list of Method A/B/C that agree or contributed).
+Prefer more complete answers. If one method has partial info (e.g. one trial) and another has both, merge them.
+Treat all three methods equally. Output valid JSON only.
+
+=== COLUMNS ===
+
+Column 1: Median OS (mo) | High volume | Control
+  Method A: value="Not reported" | page=8 | evidence=""
+  Method B: value="36 (32-42)" | page=None | evidence="Found in Figure 3E, under 'High-volume disease', 'Abiraterone trial', 'Standard of care' column, the median overall survival is 36 (32-42) months."
+  Method C: value="37" | page=None | evidence="Found in Figure 3, Panel E ('High-volume disease'), 'Overall' row, under the 'Median overall survival, months (95% CI)' column for 'Standard of care': 37 (34-42)."
+
+Column 2: Median OS (mo) | High volume | Treatment
+  Method A: value="Not reported" | page=8 | evidence=""
+  Method B: value="56 (45-66)" | page=None | evidence="Found in Figure 3E, under 'High-volume disease', 'Abiraterone trial', 'Standard of care plus abiraterone' column, the median overall survival is 56 (45-66) months."
+  Method C: value="54" | page=None | evidence="Found in Figure 3, Panel E ('High-volume disease'), 'Overall' row, under the 'Median overall survival, months (95% CI)' column for 'Study drug treatment': 54 (47-65)."
+
+Column 3: Median OS (mo) | Low volume | Control
+  Method A: value="Not reported" | page=8 | evidence=""
+  Method B: value="68 (57-84)" | page=None | evidence="Found in Figure 3D, under 'Low-volume disease', 'Abiraterone trial', 'Standard of care' column, the median overall survival is 68 (57-84) months."
+  Method C: value="65" | page=None | evidence="Found in Figure 3, Panel D ('Low-volume disease'), 'Overall' row, under the 'Median overall survival, months (95% CI)' column for 'Standard of care': 65 (58-76)."
+
+Column 4: Median OS (mo) | Low volume | Treatment
+  Method A: value="Not reported" | page=8 | evidence=""
+  Method B: value="100 (95-NR)" | page=None | evidence="Found in Figure 3D, under 'Low-volume disease', 'Abiraterone trial', 'Standard of care plus abiraterone' column, the median overall survival is 100 (95-NR) months."
+  Method C: value="97" | page=None | evidence="Found in Figure 3, Panel D ('Low-volume disease'), 'Overall' row, under the 'Median overall survival, months (95% CI)' column for 'Study drug treatment': 97 (92-NR)."
+
+Column 5: Median OS (mo) | Overall | Control
+  Method A: value="45.7" | page=1 | evidence="In the abiraterone trial, median overall survival was 76.6 months (95% CI 67.8–86.9) in the abiraterone group versus 45.7 months (41.6–52.0) in the standard of care group (hazard ratio [HR] 0.62 [95% CI 0.53–0.73]; p<0.0001)."
+  Method B: value="45.7 months" | page=None | evidence="Found in the 'Findings' section on page 3: 'In the abiraterone trial, median overall survival was ... versus 45.7 months (41.6–52.0) in the standard of care group'."
+  Method C: value="not found" | page=None | evidence="The document reports median overall survival for the control arm in two separate trials: 45.7 months for the abiraterone trial and 51.8 months for the abiraterone and enzalutamide trial (page 1, 'Findings' section). A single meta-analyzed median overall survival for the overall population across bot"
+
+Column 6: Median OS (mo) | Overall | Treatment
+  Method A: value="76.6" | page=1 | evidence="In the abiraterone trial, median overall survival was 76.6 months (95% CI 67.8–86.9) in the abiraterone group versus 45.7 months (41.6–52.0) in the standard of care group (hazard ratio [HR] 0.62 [95% CI 0.53–0.73]; p<0.0001)."
+  Method B: value="76.6 months" | page=None | evidence="Found in the 'Findings' section on page 3: 'In the abiraterone trial, median overall survival was 76.6 months (95% CI 67.8–86.9) in the abiraterone group'."
+  Method C: value="not found" | page=None | evidence="The document reports median overall survival for the treatment arm in two separate trials: 76.6 months for the abiraterone trial and 73.1 months for the abiraterone and enzalutamide trial (page 1, 'Findings' section). A single meta-analyzed median overall survival for the overall population across b"
+
+=== OUTPUT (JSON) ===
+{"reconciled": [{"column_name": "...", "final_value": "...", "contradiction": false, "contributing_methods": ["Method A", "Method B"]}, ...]}
+
+=== RESPONSE ===
+```json
+{
+  "reconciled": [
+    {
+      "column_name": "Median OS (mo) | High volume | Control",
+      "final_value": "36 (32-42)",
+      "contradiction": true,
+      "contributing_methods": [
+        "Method A",
+        "Method B",
+        "Method C"
+      ]
+    },
+    {
+      "column_name": "Median OS (mo) | High volume | Treatment",
+      "final_value": "56 (45-66)",
+      "contradiction": true,
+      "contributing_methods": [
+        "Method A",
+        "Method B",
+        "Method C"
+      ]
+    },
+    {
+      "column_name": "Median OS (mo) | Low volume | Control",
+      "final_value": "68 (57-84)",
+      "contradiction": true,
+      "contributing_methods": [
+        "Method A",
+        "Method B",
+        "Method C"
+      ]
+    },
+    {
+      "column_name": "Median OS (mo) | Low volume | Treatment",
+      "final_value": "100 (95-NR)",
+      "contradiction": true,
+      "contributing_methods": [
+        "Method A",
+        "Method B",
+        "Method C"
+      ]
+    },
+    {
+      "column_name": "Median OS (mo) | Overall | Control",
+      "final_value": "45.7 months",
+      "contradiction": false,
+      "contributing_methods": [
+        "Method A",
+        "Method B",
+        "Method C"
+      ]
+    },
+    {
+      "column_name": "Median OS (mo) | Overall | Treatment",
+      "final_value": "76.6 months",
+      "contradiction": false,
+      "contributing_methods": [
+        "Method A",
+        "Method B",
+        "Method C"
+      ]
+    }
+  ]
+}
+```

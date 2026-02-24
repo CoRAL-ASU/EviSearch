@@ -1,0 +1,78 @@
+=== PROMPT ===
+You are reconciling clinical trial extractions from three extractors (Method A, Method B, Method C).
+For each column below, produce: final_value, contradiction (true if methods disagree on atomic facts), contributing_methods (list of Method A/B/C that agree or contributed).
+Prefer more complete answers. If one method has partial info (e.g. one trial) and another has both, merge them.
+Treat all three methods equally. Output valid JSON only.
+
+=== COLUMNS ===
+
+Column 1: PS - N (%) | 0 | Control
+  Method A: value="370 (74%)" | page=5 | evidence="Table 1, page 5, row 'WHO performance status: 0', column 'Abiraterone trial: Standard of care (n=502)'"
+  Method B: value="Abiraterone trial: 370 (74%); Abiraterone and enzalutamide trial: 315 (69%)" | page=None | evidence="Extracted from Table 1, 'WHO performance status' row '0'. For 'Abiraterone trial', 'Standard of care' column: 370 (74%). For 'Abiraterone and enzalutamide trial', 'Standard of care' column: 315 (69%)."
+  Method C: value="Abiraterone trial: 370 (74%); Abiraterone and enzalutamide trial: 315 (69%)" | page=None | evidence="Found in Table 1, 'Baseline characteristics', under 'WHO performance status', row '0'. For the Abiraterone trial, 'Standard of care (n=502)' column, value is 370 (74%). For the Abiraterone and enzalutamide trial, 'Standard of care (n=454)' column, value is 315 (69%)."
+
+Column 2: PS - N (%) | 0 | Treatment
+  Method A: value="376 (75%)" | page=5 | evidence="Table 1, page 5, row 'WHO performance status: 0', column 'Abiraterone trial: Standard of care plus abiraterone (n=501)'"
+  Method B: value="Abiraterone trial: 376 (75%); Abiraterone and enzalutamide trial: 325 (70%)" | page=None | evidence="Extracted from Table 1, 'WHO performance status' row '0'. For 'Abiraterone trial', 'Standard of care plus abiraterone' column: 376 (75%). For 'Abiraterone and enzalutamide trial', 'Standard of care plus enzalutamide and abiraterone' column: 325 (70%)."
+  Method C: value="Abiraterone trial: 376 (75%); Abiraterone and enzalutamide trial: 325 (70%)" | page=None | evidence="Found in Table 1, 'Baseline characteristics', under 'WHO performance status', row '0'. For the Abiraterone trial, 'Standard of care plus abiraterone (n=501)' column, value is 376 (75%). For the Abiraterone and enzalutamide trial, 'Standard of care plus enzalutamide and abiraterone (n=462)' column, v"
+
+Column 3: PS - N (%) | 1-2 | Control
+  Method A: value="132 (26%)" | page=5 | evidence="Table 1, page 5, rows 'WHO performance status: 1' (125 (25%)) and 'WHO performance status: 2' (7 (1%)), under column 'Abiraterone trial: Standard of care (n=502)'"
+  Method B: value="Abiraterone trial: 132 (26%); Abiraterone and enzalutamide trial: 139 (31%)" | page=None | evidence="Extracted from Table 1, 'WHO performance status' rows '1' and '2'. For 'Abiraterone trial', 'Standard of care' column: sum of 125 (25%) for PS 1 and 7 (1%) for PS 2, totaling 132 (26%). For 'Abiraterone and enzalutamide trial', 'Standard of care' column: sum of 134 (30%) for PS 1 and 5 (1%) for PS 2"
+  Method C: value="Abiraterone trial: 132 (26%); Abiraterone and enzalutamide trial: 139 (31%)" | page=None | evidence="Found in Table 1, 'Baseline characteristics', under 'WHO performance status', rows '1' and '2'. For the Abiraterone trial, 'Standard of care (n=502)' column, PS 1 is 125 (25%) and PS 2 is 7 (1%), summed to 132 (26%). For the Abiraterone and enzalutamide trial, 'Standard of care (n=454)' column, PS 1"
+
+Column 4: PS - N (%) | 1-2 | Treatment
+  Method A: value="125 (25%)" | page=5 | evidence="Table 1, page 5, rows 'WHO performance status: 1' (118 (24%)) and 'WHO performance status: 2' (7 (1%)), under column 'Abiraterone trial: Standard of care plus abiraterone (n=501)'"
+  Method B: value="Abiraterone trial: 125 (25%); Abiraterone and enzalutamide trial: 137 (30%)" | page=None | evidence="Extracted from Table 1, 'WHO performance status' rows '1' and '2'. For 'Abiraterone trial', 'Standard of care plus abiraterone' column: sum of 118 (24%) for PS 1 and 7 (1%) for PS 2, totaling 125 (25%). For 'Abiraterone and enzalutamide trial', 'Standard of care plus enzalutamide and abiraterone' co"
+  Method C: value="Abiraterone trial: 125 (25%); Abiraterone and enzalutamide trial: 137 (30%)" | page=None | evidence="Found in Table 1, 'Baseline characteristics', under 'WHO performance status', rows '1' and '2'. For the Abiraterone trial, 'Standard of care plus abiraterone (n=501)' column, PS 1 is 118 (24%) and PS 2 is 7 (1%), summed to 125 (25%). For the Abiraterone and enzalutamide trial, 'Standard of care plus"
+
+=== OUTPUT (JSON) ===
+{"reconciled": [{"column_name": "...", "final_value": "...", "contradiction": false, "contributing_methods": ["Method A", "Method B"]}, ...]}
+
+=== RESPONSE ===
+```json
+{
+  "reconciled": [
+    {
+      "column_name": "PS - N (%) | 0 | Control",
+      "final_value": "Abiraterone trial: 370 (74%); Abiraterone and enzalutamide trial: 315 (69%)",
+      "contradiction": false,
+      "contributing_methods": [
+        "Method A",
+        "Method B",
+        "Method C"
+      ]
+    },
+    {
+      "column_name": "PS - N (%) | 0 | Treatment",
+      "final_value": "Abiraterone trial: 376 (75%); Abiraterone and enzalutamide trial: 325 (70%)",
+      "contradiction": false,
+      "contributing_methods": [
+        "Method A",
+        "Method B",
+        "Method C"
+      ]
+    },
+    {
+      "column_name": "PS - N (%) | 1-2 | Control",
+      "final_value": "Abiraterone trial: 132 (26%); Abiraterone and enzalutamide trial: 139 (31%)",
+      "contradiction": false,
+      "contributing_methods": [
+        "Method A",
+        "Method B",
+        "Method C"
+      ]
+    },
+    {
+      "column_name": "PS - N (%) | 1-2 | Treatment",
+      "final_value": "Abiraterone trial: 125 (25%); Abiraterone and enzalutamide trial: 137 (30%)",
+      "contradiction": false,
+      "contributing_methods": [
+        "Method A",
+        "Method B",
+        "Method C"
+      ]
+    }
+  ]
+}
+```

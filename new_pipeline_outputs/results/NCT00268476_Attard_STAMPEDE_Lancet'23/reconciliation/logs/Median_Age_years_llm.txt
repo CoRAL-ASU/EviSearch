@@ -1,0 +1,40 @@
+=== PROMPT ===
+You are reconciling clinical trial extractions from three extractors (Method A, Method B, Method C).
+For each column below, produce: final_value, contradiction (true if methods disagree on atomic facts), contributing_methods (list of Method A/B/C that agree or contributed).
+Prefer more complete answers. If one method has partial info (e.g. one trial) and another has both, merge them.
+Treat all three methods equally. Output valid JSON only.
+
+=== COLUMNS ===
+
+Column 1: Median Age (years) | Control
+  Method A: value="67; 68" | page=5 | evidence="Table 1, 'Age, years' row, 'Median' for 'Abiraterone trial: Standard of care (n=502)' column"
+  Method B: value="68 (64-73)" | page=None | evidence="Found in Table 1: Baseline characteristics, under the 'Abiraterone and enzalutamide trial' section, row 'Age, years', median value for 'Standard of care (n=454)' column."
+  Method C: value="68" | page=None | evidence="The median age for the control arm ('Standard of care') in the 'Abiraterone and enzalutamide trial' is reported as 68 years in Table 1, 'Baseline characteristics', under the 'Age, years' section on page 5."
+
+Column 2: Median Age (years) | Treatment
+  Method A: value="67; 69" | page=5 | evidence="Table 1, 'Age, years' row, 'Median' for 'Abiraterone trial: Standard of care plus abiraterone (n=501)' column"
+  Method B: value="69 (63-74)" | page=None | evidence="Found in Table 1: Baseline characteristics, under the 'Abiraterone and enzalutamide trial' section, row 'Age, years', median value for 'Standard of care plus enzalutamide and abiraterone (n=462)' column."
+  Method C: value="69" | page=None | evidence="The median age for the treatment arm ('Standard of care plus enzalutamide and abiraterone') in the 'Abiraterone and enzalutamide trial' is reported as 69 years in Table 1, 'Baseline characteristics', under the 'Age, years' section on page 5."
+
+=== OUTPUT (JSON) ===
+{"reconciled": [{"column_name": "...", "final_value": "...", "contradiction": false, "contributing_methods": ["Method A", "Method B"]}, ...]}
+
+=== RESPONSE ===
+```json
+{
+  "reconciled": [
+    {
+      "column_name": "Median Age (years) | Control",
+      "final_value": "67; 68 (64-73)",
+      "contradiction": false,
+      "contributing_methods": ["Method A", "Method B", "Method C"]
+    },
+    {
+      "column_name": "Median Age (years) | Treatment",
+      "final_value": "67; 69 (63-74)",
+      "contradiction": false,
+      "contributing_methods": ["Method A", "Method B", "Method C"]
+    }
+  ]
+}
+```

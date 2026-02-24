@@ -1,0 +1,128 @@
+=== PROMPT ===
+You are reconciling clinical trial extractions from three extractors (Method A, Method B, Method C).
+For each column below, produce: final_value, contradiction (true if methods disagree on atomic facts), contributing_methods (list of Method A/B/C that agree or contributed).
+Prefer more complete answers. If one method has partial info (e.g. one trial) and another has both, merge them.
+Treat all three methods equally. Output valid JSON only.
+
+=== COLUMNS ===
+
+Column 1: Metastases - N (%) | Bone | Control
+  Method A: value="" | page=4 | evidence=""
+  Method B: value="Extraction error" | page=None | evidence="Not applicable"
+  Method C: value="not found" | page=None | evidence="The document provides baseline characteristics in Table 1, but it does not break down distant metastatic sites by specific organs like bone for the control arms. It only categorizes 'Metastatic volume' as 'Low' or 'High'."
+
+Column 2: Metastases - N (%) | Bone | Treatment
+  Method A: value="" | page=4 | evidence=""
+  Method B: value="Extraction error" | page=None | evidence="Not applicable"
+  Method C: value="not found" | page=None | evidence="The document provides baseline characteristics in Table 1, but it does not break down distant metastatic sites by specific organs like bone for the treatment arms. It only categorizes 'Metastatic volume' as 'Low' or 'High'."
+
+Column 3: Metastases - N (%) | Liver | Control
+  Method A: value="" | page=4 | evidence=""
+  Method B: value="Extraction error" | page=None | evidence="Not applicable"
+  Method C: value="not found" | page=None | evidence="The document provides baseline characteristics in Table 1, but it does not break down distant metastatic sites by specific organs like liver for the control arms. It only categorizes 'Metastatic volume' as 'Low' or 'High'."
+
+Column 4: Metastases - N (%) | Liver | Treatment
+  Method A: value="" | page=4 | evidence=""
+  Method B: value="Extraction error" | page=None | evidence="Not applicable"
+  Method C: value="not found" | page=None | evidence="The document provides baseline characteristics in Table 1, but it does not break down distant metastatic sites by specific organs like liver for the treatment arms. It only categorizes 'Metastatic volume' as 'Low' or 'High'."
+
+Column 5: Metastases - N (%) | Lungs | Control
+  Method A: value="" | page=4 | evidence=""
+  Method B: value="Extraction error" | page=None | evidence="Not applicable"
+  Method C: value="not found" | page=None | evidence="The document provides baseline characteristics in Table 1, but it does not break down distant metastatic sites by specific organs like lungs for the control arms. It only categorizes 'Metastatic volume' as 'Low' or 'High'."
+
+Column 6: Metastases - N (%) | Lungs | Treatment
+  Method A: value="" | page=4 | evidence=""
+  Method B: value="Extraction error" | page=None | evidence="Not applicable"
+  Method C: value="not found" | page=None | evidence="The document provides baseline characteristics in Table 1, but it does not break down distant metastatic sites by specific organs like lungs for the treatment arms. It only categorizes 'Metastatic volume' as 'Low' or 'High'."
+
+Column 7: Metastases - N (%) | Nodal | Control
+  Method A: value="" | page=5 | evidence=""
+  Method B: value="Extraction error" | page=None | evidence="Not applicable"
+  Method C: value="Abiraterone trial: 291 (58%); Abiraterone and enzalutamide trial: 278 (61%)" | page=None | evidence="Found in Table 1 'Baseline characteristics' on page 5, under 'N stage (pelvic nodes)' row 'N+'. For the 'Abiraterone trial', 'Standard of care' column shows 291 (58%). For the 'Abiraterone and enzalutamide trial', 'Standard of care' column shows 278 (61%)."
+
+Column 8: Metastases - N (%) | Nodal | Treatment
+  Method A: value="" | page=5 | evidence=""
+  Method B: value="Extraction error" | page=None | evidence="Not applicable"
+  Method C: value="Abiraterone trial: 293 (58%); Abiraterone and enzalutamide trial: 278 (60%)" | page=None | evidence="Found in Table 1 'Baseline characteristics' on page 5, under 'N stage (pelvic nodes)' row 'N+'. For the 'Abiraterone trial', 'Standard of care plus abiraterone' column shows 293 (58%). For the 'Abiraterone and enzalutamide trial', 'Standard of care plus enzalutamide and abiraterone' column shows 278"
+
+=== OUTPUT (JSON) ===
+{"reconciled": [{"column_name": "...", "final_value": "...", "contradiction": false, "contributing_methods": ["Method A", "Method B"]}, ...]}
+
+=== RESPONSE ===
+```json
+{
+  "reconciled": [
+    {
+      "column_name": "Metastases - N (%) | Bone | Control",
+      "final_value": "not found",
+      "contradiction": false,
+      "contributing_methods": [
+        "Method B",
+        "Method C"
+      ]
+    },
+    {
+      "column_name": "Metastases - N (%) | Bone | Treatment",
+      "final_value": "not found",
+      "contradiction": false,
+      "contributing_methods": [
+        "Method B",
+        "Method C"
+      ]
+    },
+    {
+      "column_name": "Metastases - N (%) | Liver | Control",
+      "final_value": "not found",
+      "contradiction": false,
+      "contributing_methods": [
+        "Method B",
+        "Method C"
+      ]
+    },
+    {
+      "column_name": "Metastases - N (%) | Liver | Treatment",
+      "final_value": "not found",
+      "contradiction": false,
+      "contributing_methods": [
+        "Method B",
+        "Method C"
+      ]
+    },
+    {
+      "column_name": "Metastases - N (%) | Lungs | Control",
+      "final_value": "not found",
+      "contradiction": false,
+      "contributing_methods": [
+        "Method B",
+        "Method C"
+      ]
+    },
+    {
+      "column_name": "Metastases - N (%) | Lungs | Treatment",
+      "final_value": "not found",
+      "contradiction": false,
+      "contributing_methods": [
+        "Method B",
+        "Method C"
+      ]
+    },
+    {
+      "column_name": "Metastases - N (%) | Nodal | Control",
+      "final_value": "Abiraterone trial: 291 (58%); Abiraterone and enzalutamide trial: 278 (61%)",
+      "contradiction": false,
+      "contributing_methods": [
+        "Method C"
+      ]
+    },
+    {
+      "column_name": "Metastases - N (%) | Nodal | Treatment",
+      "final_value": "Abiraterone trial: 293 (58%); Abiraterone and enzalutamide trial: 278 (60%)",
+      "contradiction": false,
+      "contributing_methods": [
+        "Method C"
+      ]
+    }
+  ]
+}
+```

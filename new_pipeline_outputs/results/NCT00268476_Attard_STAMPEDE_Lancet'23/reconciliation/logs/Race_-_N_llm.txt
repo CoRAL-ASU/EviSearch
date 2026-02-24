@@ -1,0 +1,228 @@
+=== PROMPT ===
+You are reconciling clinical trial extractions from three extractors (Method A, Method B, Method C).
+For each column below, produce: final_value, contradiction (true if methods disagree on atomic facts), contributing_methods (list of Method A/B/C that agree or contributed).
+Prefer more complete answers. If one method has partial info (e.g. one trial) and another has both, merge them.
+Treat all three methods equally. Output valid JSON only.
+
+=== COLUMNS ===
+
+Column 1: Race - N (%) | Amer. Indian or Alaska Nat. | Control
+  Method A: value="Not reported" | page=4 | evidence="Race or ethnicity data were not collected."
+  Method B: value="Extraction error" | page=None | evidence="Not applicable"
+  Method C: value="not found" | page=None | evidence="Race demographic data, including for American Indian or Alaska Native participants in the control arm, is not reported in Table 1: Baseline characteristics or elsewhere in the document."
+
+Column 2: Race - N (%) | Amer. Indian or Alaska Nat. | Treatment
+  Method A: value="Not reported" | page=4 | evidence="Race or ethnicity data were not collected."
+  Method B: value="Extraction error" | page=None | evidence="Not applicable"
+  Method C: value="not found" | page=None | evidence="Race demographic data, including for American Indian or Alaska Native participants in the treatment arm, is not reported in Table 1: Baseline characteristics or elsewhere in the document."
+
+Column 3: Race - N (%) | Asian | Control
+  Method A: value="Not reported" | page=4 | evidence="Race or ethnicity data were not collected."
+  Method B: value="Extraction error" | page=None | evidence="Not applicable"
+  Method C: value="not found" | page=None | evidence="Race demographic data, including for Asian participants in the control arm, is not reported in Table 1: Baseline characteristics or elsewhere in the document."
+
+Column 4: Race - N (%) | Asian | Treatment
+  Method A: value="Not reported" | page=4 | evidence="Race or ethnicity data were not collected."
+  Method B: value="Extraction error" | page=None | evidence="Not applicable"
+  Method C: value="not found" | page=None | evidence="Race demographic data, including for Asian participants in the treatment arm, is not reported in Table 1: Baseline characteristics or elsewhere in the document."
+
+Column 5: Race - N (%) | Black or African American | Control
+  Method A: value="Not reported" | page=4 | evidence="Race or ethnicity data were not collected."
+  Method B: value="Extraction error" | page=None | evidence="Not applicable"
+  Method C: value="not found" | page=None | evidence="Race demographic data, including for Black or African American participants in the control arm, is not reported in Table 1: Baseline characteristics or elsewhere in the document."
+
+Column 6: Race - N (%) | Black or African American | Treatment
+  Method A: value="Not reported" | page=4 | evidence="Race or ethnicity data were not collected."
+  Method B: value="Extraction error" | page=None | evidence="Not applicable"
+  Method C: value="not found" | page=None | evidence="Race demographic data, including for Black or African American participants in the treatment arm, is not reported in Table 1: Baseline characteristics or elsewhere in the document."
+
+Column 7: Race - N (%) | Nat. Hawaiian or Pac. Islander | Control
+  Method A: value="Not reported" | page=4 | evidence="Race or ethnicity data were not collected."
+  Method B: value="Extraction error" | page=None | evidence="Not applicable"
+  Method C: value="not found" | page=None | evidence="Race demographic data, including for Native Hawaiian or Pacific Islander participants in the control arm, is not reported in Table 1: Baseline characteristics or elsewhere in the document."
+
+Column 8: Race - N (%) | Nat. Hawaiian or Pac. Islander | Treatment
+  Method A: value="Not reported" | page=4 | evidence="Race or ethnicity data were not collected."
+  Method B: value="Extraction error" | page=None | evidence="Not applicable"
+  Method C: value="not found" | page=None | evidence="Race demographic data, including for Native Hawaiian or Pacific Islander participants in the treatment arm, is not reported in Table 1: Baseline characteristics or elsewhere in the document."
+
+Column 9: Race - N (%) | Other | Control
+  Method A: value="Not reported" | page=4 | evidence="Race or ethnicity data were not collected."
+  Method B: value="Extraction error" | page=None | evidence="Not applicable"
+  Method C: value="not found" | page=None | evidence="Race demographic data, including for 'Other' race participants in the control arm, is not reported in Table 1: Baseline characteristics or elsewhere in the document."
+
+Column 10: Race - N (%) | Other | Treatment
+  Method A: value="Not reported" | page=4 | evidence="Race or ethnicity data were not collected."
+  Method B: value="Extraction error" | page=None | evidence="Not applicable"
+  Method C: value="not found" | page=None | evidence="Race demographic data, including for 'Other' race participants in the treatment arm, is not reported in Table 1: Baseline characteristics or elsewhere in the document."
+
+Column 11: Race - N (%) | Unknown | Control
+  Method A: value="Not reported" | page=4 | evidence="Race or ethnicity data were not collected."
+  Method B: value="Extraction error" | page=None | evidence="Not applicable"
+  Method C: value="not found" | page=None | evidence="Race demographic data, including for 'Unknown' race participants in the control arm, is not reported in Table 1: Baseline characteristics or elsewhere in the document."
+
+Column 12: Race - N (%) | Unknown | Treatment
+  Method A: value="Not reported" | page=4 | evidence="Race or ethnicity data were not collected."
+  Method B: value="Extraction error" | page=None | evidence="Not applicable"
+  Method C: value="not found" | page=None | evidence="Race demographic data, including for 'Unknown' race participants in the treatment arm, is not reported in Table 1: Baseline characteristics or elsewhere in the document."
+
+Column 13: Race - N (%) | White | Control
+  Method A: value="Not reported" | page=4 | evidence="Race or ethnicity data were not collected."
+  Method B: value="Extraction error" | page=None | evidence="Not applicable"
+  Method C: value="not found" | page=None | evidence="Race demographic data, including for White participants in the control arm, is not reported in Table 1: Baseline characteristics or elsewhere in the document."
+
+Column 14: Race - N (%) | White | Treatment
+  Method A: value="Not reported" | page=4 | evidence="Race or ethnicity data were not collected."
+  Method B: value="Extraction error" | page=None | evidence="Not applicable"
+  Method C: value="not found" | page=None | evidence="Race demographic data, including for White participants in the treatment arm, is not reported in Table 1: Baseline characteristics or elsewhere in the document."
+
+=== OUTPUT (JSON) ===
+{"reconciled": [{"column_name": "...", "final_value": "...", "contradiction": false, "contributing_methods": ["Method A", "Method B"]}, ...]}
+
+=== RESPONSE ===
+```json
+{
+  "reconciled": [
+    {
+      "column_name": "Race - N (%) | Amer. Indian or Alaska Nat. | Control",
+      "final_value": "Not reported",
+      "contradiction": false,
+      "contributing_methods": [
+        "Method A",
+        "Method B",
+        "Method C"
+      ]
+    },
+    {
+      "column_name": "Race - N (%) | Amer. Indian or Alaska Nat. | Treatment",
+      "final_value": "Not reported",
+      "contradiction": false,
+      "contributing_methods": [
+        "Method A",
+        "Method B",
+        "Method C"
+      ]
+    },
+    {
+      "column_name": "Race - N (%) | Asian | Control",
+      "final_value": "Not reported",
+      "contradiction": false,
+      "contributing_methods": [
+        "Method A",
+        "Method B",
+        "Method C"
+      ]
+    },
+    {
+      "column_name": "Race - N (%) | Asian | Treatment",
+      "final_value": "Not reported",
+      "contradiction": false,
+      "contributing_methods": [
+        "Method A",
+        "Method B",
+        "Method C"
+      ]
+    },
+    {
+      "column_name": "Race - N (%) | Black or African American | Control",
+      "final_value": "Not reported",
+      "contradiction": false,
+      "contributing_methods": [
+        "Method A",
+        "Method B",
+        "Method C"
+      ]
+    },
+    {
+      "column_name": "Race - N (%) | Black or African American | Treatment",
+      "final_value": "Not reported",
+      "contradiction": false,
+      "contributing_methods": [
+        "Method A",
+        "Method B",
+        "Method C"
+      ]
+    },
+    {
+      "column_name": "Race - N (%) | Nat. Hawaiian or Pac. Islander | Control",
+      "final_value": "Not reported",
+      "contradiction": false,
+      "contributing_methods": [
+        "Method A",
+        "Method B",
+        "Method C"
+      ]
+    },
+    {
+      "column_name": "Race - N (%) | Nat. Hawaiian or Pac. Islander | Treatment",
+      "final_value": "Not reported",
+      "contradiction": false,
+      "contributing_methods": [
+        "Method A",
+        "Method B",
+        "Method C"
+      ]
+    },
+    {
+      "column_name": "Race - N (%) | Other | Control",
+      "final_value": "Not reported",
+      "contradiction": false,
+      "contributing_methods": [
+        "Method A",
+        "Method B",
+        "Method C"
+      ]
+    },
+    {
+      "column_name": "Race - N (%) | Other | Treatment",
+      "final_value": "Not reported",
+      "contradiction": false,
+      "contributing_methods": [
+        "Method A",
+        "Method B",
+        "Method C"
+      ]
+    },
+    {
+      "column_name": "Race - N (%) | Unknown | Control",
+      "final_value": "Not reported",
+      "contradiction": false,
+      "contributing_methods": [
+        "Method A",
+        "Method B",
+        "Method C"
+      ]
+    },
+    {
+      "column_name": "Race - N (%) | Unknown | Treatment",
+      "final_value": "Not reported",
+      "contradiction": false,
+      "contributing_methods": [
+        "Method A",
+        "Method B",
+        "Method C"
+      ]
+    },
+    {
+      "column_name": "Race - N (%) | White | Control",
+      "final_value": "Not reported",
+      "contradiction": false,
+      "contributing_methods": [
+        "Method A",
+        "Method B",
+        "Method C"
+      ]
+    },
+    {
+      "column_name": "Race - N (%) | White | Treatment",
+      "final_value": "Not reported",
+      "contradiction": false,
+      "contributing_methods": [
+        "Method A",
+        "Method B",
+        "Method C"
+      ]
+    }
+  ]
+}
+```

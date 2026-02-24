@@ -1,0 +1,33 @@
+=== PROMPT ===
+You are reconciling clinical trial extractions from three extractors (Method A, Method B, Method C).
+For each column below, produce: final_value, contradiction (true if methods disagree on atomic facts), contributing_methods (list of Method A/B/C that agree or contributed).
+Prefer more complete answers. If one method has partial info (e.g. one trial) and another has both, merge them.
+Treat all three methods equally. Output valid JSON only.
+
+=== COLUMNS ===
+
+Column 1: Control Arm
+  Method A: value="standard of care (androgen deprivation therapy; docetaxel 75 mg/m² intravenously for six cycles with prednisolone 10 mg orally once per day allowed from Dec 17, 2015)" | page=1 | evidence="Patients were randomly assigned (1:1) using a computerised algorithm and a minimisation technique to either standard of care (androgen deprivation therapy; docetaxel 75 mg/m² intravenously for six cycles with prednisolone 10 mg orally once per day allowed from Dec 17, 2015) or standard of care plus "
+  Method B: value="standard of care" | page=None | evidence="In the 'Methods' section, under 'Randomisation and masking', it states: 'Patients were randomly assigned (1:1) to either standard of care (control group) or standard of care plus abiraterone (in the abiraterone trial) or plus abiraterone and enzalutamide (in the abiraterone and enzalutamide trial). "
+  Method C: value="standard of care" | page=None | evidence="On page 1, in the 'Methods' section, it states: 'Patients were randomly assigned (1:1) using a computerised algorithm and a minimisation technique to either standard of care (androgen deprivation therapy; docetaxel 75 mg/m² intravenously for six cycles with prednisolone 10 mg orally once per day all"
+
+=== OUTPUT (JSON) ===
+{"reconciled": [{"column_name": "...", "final_value": "...", "contradiction": false, "contributing_methods": ["Method A", "Method B"]}, ...]}
+
+=== RESPONSE ===
+```json
+{
+  "reconciled": [
+    {
+      "column_name": "Control Arm",
+      "final_value": "standard of care (androgen deprivation therapy; docetaxel 75 mg/m² intravenously for six cycles with prednisolone 10 mg orally once per day allowed from Dec 17, 2015)",
+      "contradiction": false,
+      "contributing_methods": [
+        "Method A",
+        "Method B",
+        "Method C"
+      ]
+    }
+  ]
+}
+```

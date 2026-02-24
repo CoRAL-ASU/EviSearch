@@ -1,0 +1,33 @@
+=== PROMPT ===
+You are reconciling clinical trial extractions from three extractors (Method A, Method B, Method C).
+For each column below, produce: final_value, contradiction (true if methods disagree on atomic facts), contributing_methods (list of Method A/B/C that agree or contributed).
+Prefer more complete answers. If one method has partial info (e.g. one trial) and another has both, merge them.
+Treat all three methods equally. Output valid JSON only.
+
+=== COLUMNS ===
+
+Column 1: Treatment Arm 1 Regimen
+  Method A: value="androgen deprivation therapy; docetaxel 75 mg/m² intravenously for six cycles with prednisolone 10 mg orally once per day allowed from Dec 17, 2015" | page=1 | evidence="Patients were randomly assigned (1:1) using a computerised algorithm and a minimisation technique to either standard of care (androgen deprivation therapy; docetaxel 75 mg/m² intravenously for six cycles with prednisolone 10 mg orally once per day allowed from Dec 17, 2015) or standard of care plus "
+  Method B: value="standard of care plus abiraterone acetate 1000 mg and prednisolone 5 mg orally" | page=None | evidence="The 'Methods' section under 'Randomisation and masking' states: 'Patients were randomly assigned (1:1) ... to either standard of care ... or standard of care plus abiraterone acetate 1000 mg and prednisolone 5 mg (in the abiraterone trial) orally'. This describes the first experimental treatment arm"
+  Method C: value="standard of care plus abiraterone acetate 1000 mg and prednisolone 5 mg orally" | page=None | evidence="Found in the 'Methods' section on page 1, under the description of patient randomization and treatment assignment, specifically for the 'abiraterone trial'."
+
+=== OUTPUT (JSON) ===
+{"reconciled": [{"column_name": "...", "final_value": "...", "contradiction": false, "contributing_methods": ["Method A", "Method B"]}, ...]}
+
+=== RESPONSE ===
+```json
+{
+  "reconciled": [
+    {
+      "column_name": "Treatment Arm 1 Regimen",
+      "final_value": "androgen deprivation therapy; docetaxel 75 mg/m² intravenously for six cycles with prednisolone 10 mg orally once per day allowed from Dec 17, 2015 plus abiraterone acetate 1000 mg and prednisolone 5 mg orally",
+      "contradiction": false,
+      "contributing_methods": [
+        "Method A",
+        "Method B",
+        "Method C"
+      ]
+    }
+  ]
+}
+```

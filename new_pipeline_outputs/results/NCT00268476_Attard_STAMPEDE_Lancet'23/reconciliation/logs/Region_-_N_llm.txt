@@ -1,0 +1,194 @@
+=== PROMPT ===
+You are reconciling clinical trial extractions from three extractors (Method A, Method B, Method C).
+For each column below, produce: final_value, contradiction (true if methods disagree on atomic facts), contributing_methods (list of Method A/B/C that agree or contributed).
+Prefer more complete answers. If one method has partial info (e.g. one trial) and another has both, merge them.
+Treat all three methods equally. Output valid JSON only.
+
+=== COLUMNS ===
+
+Column 1: Region - N (%) | Africa | Control
+  Method A: value="Not reported" | page=-1 | evidence=""
+  Method B: value="not found" | page=None | evidence="The 'Methods' section (585a7693-214e-4ae1-88d5-dc9bc1414761) states that the trials were conducted at 117 sites in the UK and Switzerland. No participants from Africa were reported."
+  Method C: value="not found" | page=None | evidence="The document provides baseline characteristics in Table 1 (pages 5-6), but 'Region' or 'Country' of participants is not listed as a characteristic. The text mentions trials were conducted at '117 sites in the UK and Switzerland' (page 3), but this refers to trial sites, not participant origin by reg"
+
+Column 2: Region - N (%) | Africa | Treatment
+  Method A: value="Not reported" | page=-1 | evidence=""
+  Method B: value="not found" | page=None | evidence="The 'Methods' section (585a7693-214e-4ae1-88d5-dc9bc1414761) states that the trials were conducted at 117 sites in the UK and Switzerland. No participants from Africa were reported."
+  Method C: value="not found" | page=None | evidence="The document provides baseline characteristics in Table 1 (pages 5-6), but 'Region' or 'Country' of participants is not listed as a characteristic. The text mentions trials were conducted at '117 sites in the UK and Switzerland' (page 3), but this refers to trial sites, not participant origin by reg"
+
+Column 3: Region - N (%) | Asia | Control
+  Method A: value="Not reported" | page=-1 | evidence=""
+  Method B: value="not found" | page=None | evidence="The 'Methods' section (585a7693-214e-4ae1-88d5-dc9bc1414761) states that the trials were conducted at 117 sites in the UK and Switzerland. No participants from Asia were reported."
+  Method C: value="not found" | page=None | evidence="The document provides baseline characteristics in Table 1 (pages 5-6), but 'Region' or 'Country' of participants is not listed as a characteristic. The text mentions trials were conducted at '117 sites in the UK and Switzerland' (page 3), but this refers to trial sites, not participant origin by reg"
+
+Column 4: Region - N (%) | Asia | Treatment
+  Method A: value="Not reported" | page=-1 | evidence=""
+  Method B: value="not found" | page=None | evidence="The 'Methods' section (585a7693-214e-4ae1-88d5-dc9bc1414761) states that the trials were conducted at 117 sites in the UK and Switzerland. No participants from Asia were reported."
+  Method C: value="not found" | page=None | evidence="The document provides baseline characteristics in Table 1 (pages 5-6), but 'Region' or 'Country' of participants is not listed as a characteristic. The text mentions trials were conducted at '117 sites in the UK and Switzerland' (page 3), but this refers to trial sites, not participant origin by reg"
+
+Column 5: Region - N (%) | Europe | Control
+  Method A: value="Not reported" | page=-1 | evidence=""
+  Method B: value="502 (Abiraterone trial); 454 (Abiraterone and enzalutamide trial)" | page=None | evidence="The 'Findings' section (e7859fa5-d214-4ae1-88d5-dc9bc1414761) states 502 patients were assigned to 'standard of care' in the abiraterone trial and 454 patients were assigned to 'standard of care' in the abiraterone and enzalutamide trial. The 'Methods' section (585a7693-214e-4ae1-88d5-dc9bc1414761) "
+  Method C: value="not found" | page=None | evidence="The document provides baseline characteristics in Table 1 (pages 5-6), but 'Region' or 'Country' of participants is not listed as a characteristic. The text mentions trials were conducted at '117 sites in the UK and Switzerland' (page 3), which are in Europe, but this refers to trial sites, not part"
+
+Column 6: Region - N (%) | Europe | Treatment
+  Method A: value="Not reported" | page=-1 | evidence=""
+  Method B: value="501 (Abiraterone trial); 462 (Abiraterone and enzalutamide trial)" | page=None | evidence="The 'Findings' section (e7859fa5-d214-4ae1-88d5-dc9bc1414761) states 501 patients were assigned to 'standard of care plus abiraterone' in the abiraterone trial and 462 patients were assigned to 'standard of care plus abiraterone and enzalutamide' in the abiraterone and enzalutamide trial. The 'Metho"
+  Method C: value="not found" | page=None | evidence="The document provides baseline characteristics in Table 1 (pages 5-6), but 'Region' or 'Country' of participants is not listed as a characteristic. The text mentions trials were conducted at '117 sites in the UK and Switzerland' (page 3), which are in Europe, but this refers to trial sites, not part"
+
+Column 7: Region - N (%) | North America | Control
+  Method A: value="Not reported" | page=-1 | evidence=""
+  Method B: value="not found" | page=None | evidence="The 'Methods' section (585a7693-214e-4ae1-88d5-dc9bc1414761) states that the trials were conducted at 117 sites in the UK and Switzerland. No participants from North America were reported."
+  Method C: value="not found" | page=None | evidence="The document provides baseline characteristics in Table 1 (pages 5-6), but 'Region' or 'Country' of participants is not listed as a characteristic. The text mentions trials were conducted at '117 sites in the UK and Switzerland' (page 3), but this refers to trial sites, not participant origin by reg"
+
+Column 8: Region - N (%) | North America | Treatment
+  Method A: value="Not reported" | page=-1 | evidence=""
+  Method B: value="not found" | page=None | evidence="The 'Methods' section (585a7693-214e-4ae1-88d5-dc9bc1414761) states that the trials were conducted at 117 sites in the UK and Switzerland. No participants from North America were reported."
+  Method C: value="not found" | page=None | evidence="The document provides baseline characteristics in Table 1 (pages 5-6), but 'Region' or 'Country' of participants is not listed as a characteristic. The text mentions trials were conducted at '117 sites in the UK and Switzerland' (page 3), but this refers to trial sites, not participant origin by reg"
+
+Column 9: Region - N (%) | Oceania | Control
+  Method A: value="Not reported" | page=-1 | evidence=""
+  Method B: value="not found" | page=None | evidence="The 'Methods' section (585a7693-214e-4ae1-88d5-dc9bc1414761) states that the trials were conducted at 117 sites in the UK and Switzerland. No participants from Oceania were reported."
+  Method C: value="not found" | page=None | evidence="The document provides baseline characteristics in Table 1 (pages 5-6), but 'Region' or 'Country' of participants is not listed as a characteristic. The text mentions trials were conducted at '117 sites in the UK and Switzerland' (page 3), but this refers to trial sites, not participant origin by reg"
+
+Column 10: Region - N (%) | Oceania | Treatment
+  Method A: value="Not reported" | page=-1 | evidence=""
+  Method B: value="not found" | page=None | evidence="The 'Methods' section (585a7693-214e-4ae1-88d5-dc9bc1414761) states that the trials were conducted at 117 sites in the UK and Switzerland. No participants from Oceania were reported."
+  Method C: value="not found" | page=None | evidence="The document provides baseline characteristics in Table 1 (pages 5-6), but 'Region' or 'Country' of participants is not listed as a characteristic. The text mentions trials were conducted at '117 sites in the UK and Switzerland' (page 3), but this refers to trial sites, not participant origin by reg"
+
+Column 11: Region - N (%) | South America | Control
+  Method A: value="Not reported" | page=-1 | evidence=""
+  Method B: value="not found" | page=None | evidence="The 'Methods' section (585a7693-214e-4ae1-88d5-dc9bc1414761) states that the trials were conducted at 117 sites in the UK and Switzerland. No participants from South America were reported."
+  Method C: value="not found" | page=None | evidence="The document provides baseline characteristics in Table 1 (pages 5-6), but 'Region' or 'Country' of participants is not listed as a characteristic. The text mentions trials were conducted at '117 sites in the UK and Switzerland' (page 3), but this refers to trial sites, not participant origin by reg"
+
+Column 12: Region - N (%) | South America | Treatment
+  Method A: value="Not reported" | page=-1 | evidence=""
+  Method B: value="not found" | page=None | evidence="The 'Methods' section (585a7693-214e-4ae1-88d5-dc9bc1414761) states that the trials were conducted at 117 sites in the UK and Switzerland. No participants from South America were reported."
+  Method C: value="not found" | page=None | evidence="The document provides baseline characteristics in Table 1 (pages 5-6), but 'Region' or 'Country' of participants is not listed as a characteristic. The text mentions trials were conducted at '117 sites in the UK and Switzerland' (page 3), but this refers to trial sites, not participant origin by reg"
+
+=== OUTPUT (JSON) ===
+{"reconciled": [{"column_name": "...", "final_value": "...", "contradiction": false, "contributing_methods": ["Method A", "Method B"]}, ...]}
+
+=== RESPONSE ===
+```json
+{
+  "reconciled": [
+    {
+      "column_name": "Region - N (%) | Africa | Control",
+      "final_value": "not found",
+      "contradiction": false,
+      "contributing_methods": [
+        "Method A",
+        "Method B",
+        "Method C"
+      ]
+    },
+    {
+      "column_name": "Region - N (%) | Africa | Treatment",
+      "final_value": "not found",
+      "contradiction": false,
+      "contributing_methods": [
+        "Method A",
+        "Method B",
+        "Method C"
+      ]
+    },
+    {
+      "column_name": "Region - N (%) | Asia | Control",
+      "final_value": "not found",
+      "contradiction": false,
+      "contributing_methods": [
+        "Method A",
+        "Method B",
+        "Method C"
+      ]
+    },
+    {
+      "column_name": "Region - N (%) | Asia | Treatment",
+      "final_value": "not found",
+      "contradiction": false,
+      "contributing_methods": [
+        "Method A",
+        "Method B",
+        "Method C"
+      ]
+    },
+    {
+      "column_name": "Region - N (%) | Europe | Control",
+      "final_value": "502 (Abiraterone trial); 454 (Abiraterone and enzalutamide trial)",
+      "contradiction": true,
+      "contributing_methods": [
+        "Method B"
+      ]
+    },
+    {
+      "column_name": "Region - N (%) | Europe | Treatment",
+      "final_value": "501 (Abiraterone trial); 462 (Abiraterone and enzalutamide trial)",
+      "contradiction": true,
+      "contributing_methods": [
+        "Method B"
+      ]
+    },
+    {
+      "column_name": "Region - N (%) | North America | Control",
+      "final_value": "not found",
+      "contradiction": false,
+      "contributing_methods": [
+        "Method A",
+        "Method B",
+        "Method C"
+      ]
+    },
+    {
+      "column_name": "Region - N (%) | North America | Treatment",
+      "final_value": "not found",
+      "contradiction": false,
+      "contributing_methods": [
+        "Method A",
+        "Method B",
+        "Method C"
+      ]
+    },
+    {
+      "column_name": "Region - N (%) | Oceania | Control",
+      "final_value": "not found",
+      "contradiction": false,
+      "contributing_methods": [
+        "Method A",
+        "Method B",
+        "Method C"
+      ]
+    },
+    {
+      "column_name": "Region - N (%) | Oceania | Treatment",
+      "final_value": "not found",
+      "contradiction": false,
+      "contributing_methods": [
+        "Method A",
+        "Method B",
+        "Method C"
+      ]
+    },
+    {
+      "column_name": "Region - N (%) | South America | Control",
+      "final_value": "not found",
+      "contradiction": false,
+      "contributing_methods": [
+        "Method A",
+        "Method B",
+        "Method C"
+      ]
+    },
+    {
+      "column_name": "Region - N (%) | South America | Treatment",
+      "final_value": "not found",
+      "contradiction": false,
+      "contributing_methods": [
+        "Method A",
+        "Method B",
+        "Method C"
+      ]
+    }
+  ]
+}
+```

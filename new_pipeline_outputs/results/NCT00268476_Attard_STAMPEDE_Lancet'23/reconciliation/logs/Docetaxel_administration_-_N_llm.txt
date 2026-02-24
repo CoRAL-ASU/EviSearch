@@ -1,0 +1,40 @@
+=== PROMPT ===
+You are reconciling clinical trial extractions from three extractors (Method A, Method B, Method C).
+For each column below, produce: final_value, contradiction (true if methods disagree on atomic facts), contributing_methods (list of Method A/B/C that agree or contributed).
+Prefer more complete answers. If one method has partial info (e.g. one trial) and another has both, merge them.
+Treat all three methods equally. Output valid JSON only.
+
+=== COLUMNS ===
+
+Column 1: Docetaxel administration - N (%) | Control
+  Method A: value="Abiraterone trial: 0 (0%); Abiraterone and Enzalutamide trial: 39 (9%)" | page=6 | evidence="Table 1, page 6"
+  Method B: value="Extraction error" | page=None | evidence="Not applicable"
+  Method C: value="Abiraterone trial: 0 (0%); Abiraterone and enzalutamide trial: 39 (9%)" | page=None | evidence="Found in Table 1: Baseline characteristics on page 6, row 'Docetaxel planned as standard of care'. For the Abiraterone trial, the 'Standard of care' arm (n=502) shows 0 (0%) for 'Yes'. For the Abiraterone and enzalutamide trial, the 'Standard of care' arm (n=454) shows 39 (9%) for 'Yes'. These value"
+
+Column 2: Docetaxel administration - N (%) | Treatment
+  Method A: value="Abiraterone trial: 0 (0%); Abiraterone and Enzalutamide trial: 41 (9%)" | page=6 | evidence="Table 1, page 6"
+  Method B: value="Extraction error" | page=None | evidence="Not applicable"
+  Method C: value="Abiraterone trial: 0 (0%); Abiraterone and enzalutamide trial: 41 (9%)" | page=None | evidence="Found in Table 1: Baseline characteristics on page 6, row 'Docetaxel planned as standard of care'. For the Abiraterone trial, the 'Standard of care plus abiraterone' arm (n=501) shows 0 (0%) for 'Yes'. For the Abiraterone and enzalutamide trial, the 'Standard of care plus enzalutamide and abirateron"
+
+=== OUTPUT (JSON) ===
+{"reconciled": [{"column_name": "...", "final_value": "...", "contradiction": false, "contributing_methods": ["Method A", "Method B"]}, ...]}
+
+=== RESPONSE ===
+```json
+{
+  "reconciled": [
+    {
+      "column_name": "Docetaxel administration - N (%) | Control",
+      "final_value": "Abiraterone trial: 0 (0%); Abiraterone and Enzalutamide trial: 39 (9%)",
+      "contradiction": false,
+      "contributing_methods": ["Method A", "Method C"]
+    },
+    {
+      "column_name": "Docetaxel administration - N (%) | Treatment",
+      "final_value": "Abiraterone trial: 0 (0%); Abiraterone and Enzalutamide trial: 41 (9%)",
+      "contradiction": false,
+      "contributing_methods": ["Method A", "Method C"]
+    }
+  ]
+}
+```

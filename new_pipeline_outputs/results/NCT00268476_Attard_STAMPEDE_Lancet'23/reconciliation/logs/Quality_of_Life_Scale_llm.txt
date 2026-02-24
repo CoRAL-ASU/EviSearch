@@ -1,0 +1,32 @@
+=== PROMPT ===
+You are reconciling clinical trial extractions from three extractors (Method A, Method B, Method C).
+For each column below, produce: final_value, contradiction (true if methods disagree on atomic facts), contributing_methods (list of Method A/B/C that agree or contributed).
+Prefer more complete answers. If one method has partial info (e.g. one trial) and another has both, merge them.
+Treat all three methods equally. Output valid JSON only.
+
+=== COLUMNS ===
+
+Column 1: Quality of Life Scale
+  Method A: value="" | page=4 | evidence=""
+  Method B: value="not found" | page=None | evidence="The document details various outcomes such as overall survival, prostate cancer-specific survival, failure-free survival, progression-free survival, metastatic progression-free survival, symptomatic skeletal-related events, toxic effects, adverse events, and cost-effectiveness. However, there is no "
+  Method C: value="not found" | page=None | evidence="The document extensively details various outcomes such as overall survival, prostate cancer-specific survival, failure-free survival, progression-free survival, metastatic progression-free survival, symptomatic skeletal-related events, toxic effects, adverse events, and cost-effectiveness. However, "
+
+=== OUTPUT (JSON) ===
+{"reconciled": [{"column_name": "...", "final_value": "...", "contradiction": false, "contributing_methods": ["Method A", "Method B"]}, ...]}
+
+=== RESPONSE ===
+```json
+{
+  "reconciled": [
+    {
+      "column_name": "Quality of Life Scale",
+      "final_value": "not found",
+      "contradiction": true,
+      "contributing_methods": [
+        "Method B",
+        "Method C"
+      ]
+    }
+  ]
+}
+```
