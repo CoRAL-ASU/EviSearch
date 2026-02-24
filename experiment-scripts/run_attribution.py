@@ -2,15 +2,12 @@
 """
 Run attribution scoring on EXISTING reconciled results.
 Does NOT run extractions or LLM reconciliation — only scores chunks and picks top 3-4.
-
-Chunk embeddings are cached per doc at new_pipeline_outputs/chunk_embeddings/{doc_id}.npz.
-First run builds the cache; subsequent runs load from cache (fast).
+Uses attribution/numeric/planner matching (no semantic embeddings).
 
 Usage:
   python experiment-scripts/run_attribution.py "NCT00268476_Attard_STAMPEDE_Lancet'23"
   python experiment-scripts/run_attribution.py "NCT00268476_Attard_STAMPEDE_Lancet'23" -o attributed.json
   python experiment-scripts/run_attribution.py --list   # list docs with reconciliation
-  python experiment-scripts/run_attribution.py DOC_ID --rebuild-cache  # force rebuild chunk embeddings
 """
 from __future__ import annotations
 
@@ -24,11 +21,7 @@ sys.path.insert(0, str(PROJECT_ROOT))
 RESULTS_ROOT = PROJECT_ROOT / "new_pipeline_outputs" / "results"
 
 from web.comparison_service import load_comparison_data, list_documents
-from web.attribution_service import (
-    CACHE_DIR,
-    _safe_cache_name,
-    enrich_reconciled_with_attribution,
-)
+from web.attribution_service import enrich_reconciled_with_attribution
 
 
 def main():
@@ -37,7 +30,6 @@ def main():
     parser.add_argument("-o", "--output", help="Output JSON path (default: overwrite reconciled_results.json)")
     parser.add_argument("--list", action="store_true", help="List docs that have reconciled results")
     parser.add_argument("--top-k", type=int, default=3, help="Top K chunks per column (default 3)")
-    parser.add_argument("--rebuild-cache", action="store_true", help="Force rebuild chunk embeddings cache for doc")
     args = parser.parse_args()
 
     if args.list:
@@ -81,13 +73,7 @@ def main():
     comparison = load_comparison_data(doc_id)
     rows = comparison.get("comparison") or []
 
-    if getattr(args, "rebuild_cache", False):
-        cache_name = _safe_cache_name(doc_id)
-        for p in CACHE_DIR.glob(f"{cache_name}*"):
-            p.unlink(missing_ok=True)
-            print(f"Cleared cache {p}", file=sys.stderr)
-
-    print(f"Running attribution (top {args.top_k} chunks, semantic retrieval)…", file=sys.stderr)
+    print(f"Running attribution (top {args.top_k} chunks)…", file=sys.stderr)
     enriched = enrich_reconciled_with_attribution(
         doc_id,
         columns,

@@ -127,6 +127,29 @@ def load_eval(pdf_id: str, model_path: Path) -> dict | None:
 
 EXTRACTION_MODEL_ID = "extraction"
 RECONCILED_MODEL_ID = "reconciled"
+AGENT_MODEL_ID = "agent"
+
+
+def load_agent_columns(pdf_id: str) -> dict[str, dict] | None:
+    """Load agent extractor results from agent_extractor/extraction_results.json."""
+    path = RESULTS_ROOT / pdf_id / "agent_extractor" / "extraction_results.json"
+    if not path.exists():
+        return None
+    try:
+        d = json.loads(path.read_text(encoding="utf-8"))
+        columns = d.get("columns", {})
+        if not isinstance(columns, dict):
+            return None
+        out = {}
+        for col, v in columns.items():
+            if isinstance(v, dict):
+                val = v.get("value")
+            else:
+                val = v
+            out[col] = {"value": str(val) if val is not None else ""}
+        return out
+    except Exception:
+        return None
 
 
 def load_reconciled_columns(pdf_id: str) -> dict[str, dict] | None:
@@ -260,6 +283,7 @@ def main() -> None:
 
     models_out = [{"id": f"m{i}", "name": name} for i, (name, _) in enumerate(MODELS)]
     models_out.append({"id": EXTRACTION_MODEL_ID, "name": "Extraction (Landing AI)"})
+    models_out.append({"id": AGENT_MODEL_ID, "name": "Agent"})
     models_out.append({"id": RECONCILED_MODEL_ID, "name": "Reconciled"})
     pdfs_out = [{"id": pdf, "name": pdf} for pdf in PDF_LIST]
 
@@ -270,11 +294,13 @@ def main() -> None:
     # data[pdf_id] = { ground_truth: { col: str }, ground_truth_updated: { col: str }, models: ..., extraction_stats: ... }
     data: dict = {}
     for pdf_id in PDF_LIST:
+        agent_cols = load_agent_columns(pdf_id)
         data[pdf_id] = {
             "ground_truth": {},
             "ground_truth_updated": ground_truth_updated.get(pdf_id, {}),
             "models": {m["id"]: {} for m in models_out},
             "extraction_stats": load_extraction_stats(pdf_id),
+            "agent_stats": {"columns_filled": len(agent_cols)} if agent_cols else None,
         }
         for mi, (_, model_path) in enumerate(MODELS):
             mid = models_out[mi]["id"]
@@ -292,6 +318,9 @@ def main() -> None:
         if ext_cols:
             for col_name, col_data in ext_cols.items():
                 data[pdf_id]["models"][EXTRACTION_MODEL_ID][col_name] = col_data
+        if agent_cols:
+            for col_name, col_data in agent_cols.items():
+                data[pdf_id]["models"][AGENT_MODEL_ID][col_name] = col_data
         rec_cols = load_reconciled_columns(pdf_id)
         if rec_cols:
             for col_name, col_data in rec_cols.items():
@@ -313,7 +342,7 @@ def main() -> None:
             if not model_cols:
                 data[pdf_id]["summary"][mid] = None
                 continue
-            if mid in (EXTRACTION_MODEL_ID, RECONCILED_MODEL_ID):
+            if mid in (EXTRACTION_MODEL_ID, AGENT_MODEL_ID, RECONCILED_MODEL_ID):
                 data[pdf_id]["summary"][mid] = None
                 continue
             by_cat: dict[str, list[tuple[float, float]]] = {"exact_match": [], "structured_text": [], "numeric_tolerance": []}
@@ -422,9 +451,10 @@ def build_html(payload: dict) -> str:
             if (!pdfData) {{ headerBand.style.display = 'none'; return; }}
             const hasSummary = pdfData.summary && Object.values(pdfData.summary).some(s => s);
             const ext = pdfData.extraction_stats;
+            const agentStats = pdfData.agent_stats;
             const recLogs = pdfData.reconciliation_logs || [];
             const hasReconciled = (pdfData.models && pdfData.models.reconciled && Object.keys(pdfData.models.reconciled).length > 0);
-            if (!hasSummary && !ext && !hasReconciled) {{ headerBand.style.display = 'none'; return; }}
+            if (!hasSummary && !ext && !agentStats && !hasReconciled) {{ headerBand.style.display = 'none'; return; }}
             headerBand.style.display = 'flex';
             headerBand.innerHTML = '';
             if (ext) {{
@@ -435,6 +465,12 @@ def build_html(payload: dict) -> str:
                     '<div class="by-cat"><span>Columns: ' + ext.total_columns + '</span><span>Retries: ' + ext.retries_done + '</span></div>' +
                     '<div class="by-cat"><span>Avg confidence: ' + ext.avg_confidence.toFixed(2) + '</span><span>H/M/L: ' + ext.confidence_high + '/' + ext.confidence_medium + '/' + ext.confidence_low + '</span></div>' +
                     '<div class="by-cat"><span>Values matched: ' + ext.values_matched + '</span><span>Values differed: ' + ext.values_differed + '</span></div>';
+                headerBand.appendChild(div);
+            }}
+            if (agentStats) {{
+                const div = document.createElement('div');
+                div.className = 'model-summary';
+                div.innerHTML = '<h3>Agent</h3><div class="overall">Columns filled: ' + agentStats.columns_filled + '</div>';
                 headerBand.appendChild(div);
             }}
             if (hasReconciled && recLogs.length > 0) {{
@@ -450,7 +486,7 @@ def build_html(payload: dict) -> str:
                 headerBand.appendChild(div);
             }}
             models.forEach(m => {{
-                if (m.id === 'extraction' || m.id === 'reconciled') return;
+                if (m.id === 'extraction' || m.id === 'agent' || m.id === 'reconciled') return;
                 const sum = pdfData.summary && pdfData.summary[m.id];
                 const div = document.createElement('div');
                 div.className = 'model-summary' + (sum ? '' : ' na');

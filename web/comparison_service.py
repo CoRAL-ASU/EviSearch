@@ -148,6 +148,63 @@ def _load_pipeline_extract_landing_ai(pdf_stem: str) -> Optional[Dict[str, Dict[
         return None
 
 
+def _expand_attribution_map(attribution_list: list, column_names: set) -> Dict[str, list]:
+    """Inverted map (source -> columns) -> per-column attribution."""
+    col_to_sources: Dict[str, list] = {c: [] for c in column_names}
+    for src in attribution_list or []:
+        if not isinstance(src, dict):
+            continue
+        cols = src.get("columns")
+        if not isinstance(cols, list):
+            continue
+        src_copy = {k: v for k, v in src.items() if k != "columns"}
+        for col in cols:
+            if col in col_to_sources:
+                col_to_sources[col].append(src_copy)
+    return col_to_sources
+
+
+def _load_agent(pdf_stem: str) -> Optional[Dict[str, Dict[str, Any]]]:
+    """Load agent extractor results. Expects {columns, attribution} format (modality->columns map)."""
+    path = RESULTS_PATHS["pipeline"] / pdf_stem / "agent_extractor" / "extraction_results.json"
+    if not path.exists():
+        return None
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+        columns = data.get("columns", {})
+        if not isinstance(columns, dict):
+            return None
+        attribution_map = data.get("attribution")
+        col_to_attr = _expand_attribution_map(attribution_map, set(columns)) if isinstance(attribution_map, list) else {}
+        out = {}
+        for col_name, col_data in columns.items():
+            if isinstance(col_data, dict):
+                v = col_data.get("value", "")
+                evidence = (col_data.get("reasoning") or "").strip()
+                attribution = col_to_attr.get(col_name, [])
+                v = str(v) if v is not None else ""
+            else:
+                v = str(col_data) if col_data else ""
+                evidence = ""
+                attribution = col_to_attr.get(col_name, [])
+            out[col_name] = {
+                "column_name": col_name,
+                "group_name": "",
+                "value": v,
+                "primary_value": v,
+                "found": bool(v and v not in ("Not reported", "not found", "Not applicable", "")),
+                "page": None,
+                "source_type": "text",
+                "evidence": evidence,
+                "attribution_snippet": "",
+                "attribution": attribution,
+                "candidates": [{"value": v, "evidence": evidence, "assumptions": None, "confidence": "medium"}],
+            }
+        return out
+    except Exception:
+        return None
+
+
 def _load_plan_extract(pdf_stem: str, with_keywords: bool) -> Optional[Dict[str, Dict[str, Any]]]:
     """Load plan_extract_columns or plan_extract_columns_with_keywords results."""
     subdir = "plan_extract_columns_with_keywords" if with_keywords else "plan_extract_columns"
@@ -190,6 +247,7 @@ def get_document_status(pdf_stem: str) -> Dict[str, bool]:
         "pipeline": _load_pipeline_extract_landing_ai(pdf_stem) is not None,
         "pipeline_plan_extract": _load_plan_extract(pdf_stem, with_keywords=False) is not None,
         "pipeline_keywords": _load_plan_extract(pdf_stem, with_keywords=True) is not None,
+        "agent": _load_agent(pdf_stem) is not None,
     }
 
 
@@ -230,6 +288,12 @@ def load_comparison_data(pdf_stem: str) -> Dict[str, Any]:
     if plan_kw:
         methods["pipeline_keywords"] = plan_kw
         all_columns.update(plan_kw.keys())
+
+    # Agent extractor
+    agent = _load_agent(pdf_stem)
+    if agent:
+        methods["agent"] = agent
+        all_columns.update(agent.keys())
 
     # Build comparison rows: one per column, with values per method
     columns_sorted = sorted(all_columns)
@@ -313,24 +377,6 @@ def list_documents() -> List[Dict[str, Any]]:
     return documents
 
 
-# Methods shown in dashboard (Landing AI, Gemini, Pipeline)
-DASHBOARD_METHODS = ["landing_ai_baseline", "gemini_native", "pipeline"]
-DASHBOARD_METHOD_LABELS = {
-    "landing_ai_baseline": "Landing AI",
-    "gemini_native": "Gemini Native",
-    "pipeline": "Pipeline",
-}
-
-
-def _is_not_found(col: Dict[str, Any]) -> bool:
-    """True if column value is considered empty/not found."""
-    v = col.get("value") or col.get("primary_value")
-    if v is None:
-        return True
-    s = str(v).strip().lower()
-    return s in ("not found", "not reported", "not applicable", "", "—", "-")
-
-
 def get_report(pdf_stem: str) -> Dict[str, Any]:
     """Generate document analysis report (summary stats)."""
     data = load_comparison_data(pdf_stem)
@@ -349,57 +395,3 @@ def get_report(pdf_stem: str) -> Dict[str, Any]:
             "not_found": len(method_data) - found,
         }
     return report
-
-
-def get_dashboard_report(pdf_stem: str) -> Dict[str, Any]:
-    """
-    Report for dashboard: 3 methods only (Landing AI, Gemini, Pipeline),
-    with total, found, empty, and empty_groups per method.
-    """
-    data = load_comparison_data(pdf_stem)
-    by_group = data.get("by_group", {})
-    methods = data.get("method_results", {})
-    all_columns = set()
-    for m in methods.values():
-        all_columns.update(m.keys())
-
-    # Filter to dashboard methods only
-    methods_filtered = {k: v for k, v in methods.items() if k in DASHBOARD_METHODS}
-    if not methods_filtered:
-        methods_filtered = methods  # fallback to all
-
-    by_method: Dict[str, Dict[str, Any]] = {}
-    for method_name, method_data in methods_filtered.items():
-        total = len(method_data)
-        found = sum(1 for c in method_data.values() if c.get("found"))
-        empty = total - found
-
-        # Empty groups: groups where ALL columns in that group are empty for this method
-        empty_groups: List[str] = []
-        for group_name, rows in by_group.items():
-            cols_in_group = [r["column_name"] for r in rows]
-            if not cols_in_group:
-                continue
-            all_empty = True
-            for col_name in cols_in_group:
-                col_data = method_data.get(col_name)
-                if col_data and not _is_not_found(col_data):
-                    all_empty = False
-                    break
-            if all_empty and cols_in_group:
-                empty_groups.append(group_name)
-
-        by_method[method_name] = {
-            "total": total,
-            "found": found,
-            "empty": empty,
-            "empty_groups": empty_groups[:15],  # limit for display
-        }
-
-    return {
-        "pdf_stem": pdf_stem,
-        "total_columns": len(all_columns),
-        "methods_available": list(methods_filtered.keys()),
-        "by_method": by_method,
-        "by_group": by_group,
-    }

@@ -123,10 +123,11 @@ class LLMProvider:
             api_key = os.getenv("GEMINI_API_KEY")
             if not api_key:
                 raise ValueError("GEMINI_API_KEY environment variable not set")
-            # 30s timeout per API call to avoid hanging
+            # 120s timeout for PDF-heavy extraction (504 DEADLINE_EXCEEDED on large prompts)
+            timeout_ms = int(os.getenv("GEMINI_TIMEOUT_MS", "36000"))
             self._client = genai.Client(
                 api_key=api_key,
-                http_options=types.HttpOptions(timeout=30_000),
+                http_options=types.HttpOptions(timeout=timeout_ms),
             )
         
         elif self.provider == "openai":
@@ -172,7 +173,9 @@ class LLMProvider:
         prompt: str,
         system_prompt: str = None,
         temperature: float = 0.0,
-        max_tokens: int = 16000
+        max_tokens: int = 16000,
+        response_mime_type: str = None,
+        response_schema: dict = None,
     ) -> LLMResponse:
         """
         Generate text response.
@@ -188,7 +191,11 @@ class LLMProvider:
         """
         try:
             if self.provider == "gemini":
-                return self._generate_gemini_api(prompt, system_prompt, temperature, max_tokens)
+                return self._generate_gemini_api(
+                    prompt, system_prompt, temperature, max_tokens,
+                    response_mime_type=response_mime_type,
+                    response_schema=response_schema,
+                )
             else:
                 return self._generate_openai_compatible(prompt, system_prompt, temperature, max_tokens)
         
@@ -209,16 +216,22 @@ class LLMProvider:
         prompt: str, 
         system_prompt: str, 
         temperature: float, 
-        max_tokens: int
+        max_tokens: int,
+        response_mime_type: str = None,
+        response_schema: dict = None,
     ) -> LLMResponse:
         """Generate using Gemini API with proper system_instruction."""
         _ensure_genai()
-        # Build config with system_instruction inside GenerateContentConfig
-        config = types.GenerateContentConfig(
+        config_kwargs = dict(
             temperature=temperature,
             max_output_tokens=max_tokens,
-            system_instruction=system_prompt if system_prompt else None
+            system_instruction=system_prompt if system_prompt else None,
         )
+        if response_mime_type:
+            config_kwargs["response_mime_type"] = response_mime_type
+        if response_schema:
+            config_kwargs["response_schema"] = response_schema
+        config = types.GenerateContentConfig(**config_kwargs)
         
         response = self._client.models.generate_content(
             model=self.model,

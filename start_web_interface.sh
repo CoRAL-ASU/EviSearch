@@ -56,7 +56,7 @@ fi
 echo "✅ All checks passed!"
 echo ""
 echo "Starting web interface..."
-echo "Access at: http://127.0.0.1:5000"
+echo "Access at: http://127.0.0.1:8007"
 echo ""
 echo "Press Ctrl+C to stop the server"
 echo "=========================================="

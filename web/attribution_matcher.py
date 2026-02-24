@@ -3,11 +3,12 @@ attribution_matcher.py
 
 Custom keyword matching for attribution: numeric parts + column-name tokens only.
 No free-form words from values (they can mislead).
-Implements Phase 1 (numeric match) and Phase 2 (planner page/type) per ATTRIBUTION_ALGORITHM_SPEC.md.
+Implements Phase 0 (attribution: text/table/figure), Phase 1 (numeric match), Phase 2 (planner page/type) per ATTRIBUTION_ALGORITHM_SPEC.md.
 """
 from __future__ import annotations
 
 import re
+from difflib import SequenceMatcher
 from typing import Any, Dict, List, Optional, Tuple
 
 # Column-name stopwords: short/common words that add noise
@@ -120,6 +121,186 @@ def chunk_contains_all_parts(parts: List[str], chunk_text: str) -> bool:
             if p.lower() not in chunk_lower:
                 return False
     return True
+
+
+def normalize_for_search(text: str) -> str:
+    """
+    Normalize text for snippet matching: collapse [ ] and ( ) around numbers/percentages,
+    unify whitespace, preserve numbers and structure.
+    """
+    if not text or not isinstance(text, str):
+        return ""
+    s = str(text).strip()
+    # Collapse multiple spaces/newlines
+    s = re.sub(r"\s+", " ", s)
+    # Normalize [38%] and (38%) to 38% for matching
+    s = re.sub(r"[(\[]\s*(\d+)\s*%\s*[)\]]", r"\1%", s)
+    s = re.sub(r"[(\[]\s*(\d+(?:\.\d+)?)\s*[)\]]", r"\1", s)
+    return s.strip()
+
+
+def snippet_match_score(snippet: str, chunk_text: str) -> float:
+    """
+    Score how well snippet matches chunk. Returns 0 if no match.
+    - 1.0: exact/normalized substring (snippet in chunk)
+    - 0.95: best local alignment >= 90% of snippet length + all numbers in chunk
+    - 0.85: best local alignment >= 80% of snippet + all numbers in chunk
+    """
+    if not snippet or len(snippet.strip()) < 10:
+        return 0.0
+    snippet_norm = normalize_for_search(snippet)
+    chunk_norm = normalize_for_search(chunk_text)
+    if not snippet_norm or len(snippet_norm) < 10:
+        return 0.0
+    # Exact/normalized substring
+    if snippet_norm in chunk_norm:
+        return 1.0
+    # Fuzzy: find longest matching block — snippet-like span in chunk
+    matcher = SequenceMatcher(None, snippet_norm, chunk_norm)
+    match = matcher.find_longest_match(0, len(snippet_norm), 0, len(chunk_norm))
+    if match and match.size > 0:
+        overlap_ratio = match.size / len(snippet_norm)
+        parts = extract_numeric_parts(snippet)
+        if overlap_ratio >= 0.9 and (not parts or chunk_contains_all_parts(parts, chunk_text)):
+            return 0.95
+        if overlap_ratio >= 0.8 and (not parts or chunk_contains_all_parts(parts, chunk_text)):
+            return 0.85
+    return 0.0
+
+
+def _chunk_contains_identifier(chunk_text: str, identifier: str) -> bool:
+    """True if chunk text contains identifier (case-insensitive, normalized whitespace)."""
+    if not identifier or not chunk_text:
+        return False
+    id_norm = " ".join(str(identifier).strip().lower().split())
+    chunk_norm = " ".join(chunk_text.lower().split())
+    return id_norm in chunk_norm
+
+
+def phase0_text_source(
+    valid_chunks: List[Dict],
+    page: int,
+    snippet: str,
+    chunk_text_fn,
+    landing_type_to_pipeline_fn,
+    top_k: int = 2,
+) -> List[Tuple[Dict, float]]:
+    """Text source: filter by page+text type, match snippet in chunk."""
+    if not snippet or len(snippet.strip()) < 10:
+        return []
+    scored = []
+    for c in valid_chunks:
+        if not _chunk_on_page_and_type(c, page, "text", landing_type_to_pipeline_fn):
+            continue
+        text = chunk_text_fn(c)
+        score = snippet_match_score(snippet, text)
+        if score >= 0.8:
+            scored.append((c, score))
+    scored.sort(key=lambda x: -x[1])
+    return scored[:top_k]
+
+
+def phase0_table_source(
+    valid_chunks: List[Dict],
+    page: int,
+    table_number: str,
+    caption: str,
+    chunk_text_fn,
+    landing_type_to_pipeline_fn,
+    top_k: int = 2,
+) -> List[Tuple[Dict, float]]:
+    """Table source: filter by page+table type, prefer chunks containing table_number."""
+    if not table_number:
+        return []
+    candidates = []
+    for c in valid_chunks:
+        if not _chunk_on_page_and_type(c, page, "table", landing_type_to_pipeline_fn):
+            continue
+        text = chunk_text_fn(c)
+        has_num = _chunk_contains_identifier(text, table_number)
+        has_cap = _chunk_contains_identifier(text, caption) if caption else False
+        score = 0.95 if has_num else (0.85 if has_cap else 0.8)
+        candidates.append((c, score))
+    candidates.sort(key=lambda x: -x[1])
+    return candidates[:top_k]
+
+
+def phase0_figure_source(
+    valid_chunks: List[Dict],
+    page: int,
+    figure_number: str,
+    caption: str,
+    chunk_text_fn,
+    landing_type_to_pipeline_fn,
+    top_k: int = 2,
+) -> List[Tuple[Dict, float]]:
+    """Figure source: filter by page+figure type, prefer chunks containing figure_number."""
+    if not figure_number:
+        return []
+    candidates = []
+    for c in valid_chunks:
+        if not _chunk_on_page_and_type(c, page, "figure", landing_type_to_pipeline_fn):
+            continue
+        text = chunk_text_fn(c)
+        has_num = _chunk_contains_identifier(text, figure_number)
+        has_cap = _chunk_contains_identifier(text, caption) if caption else False
+        score = 0.95 if has_num else (0.85 if has_cap else 0.8)
+        candidates.append((c, score))
+    candidates.sort(key=lambda x: -x[1])
+    return candidates[:top_k]
+
+
+def phase0_attribution_match(
+    valid_chunks: List[Dict],
+    attribution: List[Dict[str, Any]],
+    chunk_text_fn,
+    landing_type_to_pipeline_fn,
+    top_k: int = 3,
+) -> List[Tuple[Dict, float]]:
+    """
+    Structured attribution: for each source (text/table/figure), find matching chunks.
+    Merge, dedupe by chunk id, return top_k.
+    """
+    if not attribution or not isinstance(attribution, list):
+        return []
+    seen_ids: set = set()
+    merged: List[Tuple[Dict, float]] = []
+    for src in attribution:
+        if not isinstance(src, dict):
+            continue
+        st = str(src.get("source_type") or "").lower()
+        page = src.get("page")
+        try:
+            page = int(page) if page is not None else None
+        except (TypeError, ValueError):
+            page = None
+        if not page or page < 1:
+            continue
+        results: List[Tuple[Dict, float]] = []
+        if st == "text":
+            snippet = (src.get("snippet") or "").strip()
+            results = phase0_text_source(
+                valid_chunks, page, snippet, chunk_text_fn, landing_type_to_pipeline_fn, top_k=2
+            )
+        elif st == "table":
+            table_number = (src.get("table_number") or "").strip()
+            caption = (src.get("caption") or "").strip()
+            results = phase0_table_source(
+                valid_chunks, page, table_number, caption, chunk_text_fn, landing_type_to_pipeline_fn, top_k=2
+            )
+        elif st == "figure":
+            figure_number = (src.get("figure_number") or "").strip()
+            caption = (src.get("caption") or "").strip()
+            results = phase0_figure_source(
+                valid_chunks, page, figure_number, caption, chunk_text_fn, landing_type_to_pipeline_fn, top_k=2
+            )
+        for c, score in results:
+            cid = c.get("id")
+            if cid and cid not in seen_ids:
+                seen_ids.add(cid)
+                merged.append((c, score))
+    merged.sort(key=lambda x: -x[1])
+    return merged[:top_k]
 
 
 def count_parts_in_chunk(parts: List[str], chunk_text: str) -> int:
