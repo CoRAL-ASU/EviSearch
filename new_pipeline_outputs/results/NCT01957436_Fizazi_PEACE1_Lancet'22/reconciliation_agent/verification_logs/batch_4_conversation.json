@@ -1,0 +1,303 @@
+{
+  "doc_id": "NCT01957436_Fizazi_PEACE1_Lancet'22",
+  "tool_calls_sequence": [
+    {
+      "name": "submit_verification",
+      "args": {
+        "results_keys": [
+          "Median OS (mo) | Overall | Control",
+          "Median PFS (mo) | High volume | Treatment",
+          "Median OS (mo) | High volume | Treatment",
+          "Median PFS (mo) | Overall | Control",
+          "Median OS (mo) | High volume | Control",
+          "Median OS (mo) | Overall | Treatment",
+          "Median PFS (mo) | High volume | Control",
+          "Median PFS (mo) | Overall | Treatment",
+          "Median PFS (mo) | Low volume | Control"
+        ]
+      }
+    },
+    {
+      "name": "get_page",
+      "args": {
+        "page_numbers": [
+          7,
+          9
+        ]
+      }
+    },
+    {
+      "name": "submit_verification",
+      "args": {
+        "results_keys": [
+          "Median OS (mo) | Low volume | Treatment",
+          "Median OS (mo) | Low volume | Control",
+          "Median PFS (mo) | Low volume | Treatment"
+        ]
+      }
+    }
+  ],
+  "conversation": [
+    {
+      "turn": 0,
+      "role": "user",
+      "content": "Reconcile the following columns. Document has 13 pages. Sources are anonymous (A and B).\n\nCOLUMNS:\n\n---\nColumn 1: Median OS (mo) | Overall | Treatment\nDefinition: What is the median overall survival (in months) for all patients in the experimental arm? If reported, include the value; use 'Not reported' if missing.\n  A: value=\"68.4\" | page=9 | modality=table | reasoning=\"From Table 2, 'Primary outcomes in the overall population', 'Overall survival' for 'SOC plus abiraterone groups' is 5.7 years. Converted to months: 5.7 * 12 = 68.4.\"\n  B: value=\"68.4\" | page=6 | modality=text | reasoning=\"From page 6, the median overall survival for the overall population in the abiraterone group was 5.72 years. From page 9, Table 2, 'Overall survival' for 'SOC with abiraterone groups' is 5.7 years. Converted to months: 5.7 * 12 = 68.4.\"\n\n---\nColumn 2: Median OS (mo) | Overall | Control\nDefinition: What is the median overall survival (in months) for all patients in the control arm? If reported, include the value; use 'Not reported' if missing.\n  A: value=\"56.4\" | page=9 | modality=table | reasoning=\"From Table 2, 'Primary outcomes in the overall population', 'Overall survival' for 'SOC without abiraterone groups' is 4.7 years. Converted to months: 4.7 * 12 = 56.4.\"\n  B: value=\"56.4\" | page=6 | modality=text | reasoning=\"From page 6, the median overall survival for the overall population in the no abiraterone group was 4.72 years. From page 9, Table 2, 'Overall survival' for 'SOC without abiraterone groups' is 4.7 years. Converted to months: 4.7 * 12 = 56.4.\"\n\n---\nColumn 3: Median OS (mo) | High volume | Treatment\nDefinition: What is the median overall survival (in months) for patients with high volume metastasis (by CHAARTED criteria) in the experimental arm? If reported, include the value; use 'Not reported' if missing.\n  A: value=\"61.2\" | page=9 | modality=table | reasoning=\"From Table 2, 'Secondary outcomes in the ADT with docetaxel population', 'Overall survival in patients with high-volume metastatic burden' for 'SOC plus abiraterone groups' is 5.1 years. Converted to months: 5.1 * 12 = 61.2.\"\n  B: value=\"61.2\" | page=7 | modality=text | reasoning=\"From page 7, the median overall survival for patients with high metastatic burden when abiraterone was added was 5.14 years. From page 9, Table 2, 'Overall survival in patients with high-volume metastatic burden' for 'SOC with abiraterone groups' is 5.1 years. Converted to months: 5.1 * 12 = 61.2.\"\n\n---\nColumn 4: Median OS (mo) | High volume | Control\nDefinition: What is the median overall survival (in months) for patients with high volume metastasis (by CHAARTED criteria) in the control arm? If reported, include the value; use 'Not reported' if missing.\n  A: value=\"42\" | page=9 | modality=table | reasoning=\"From Table 2, 'Secondary outcomes in the ADT with docetaxel population', 'Overall survival in patients with high-volume metastatic burden' for 'SOC without abiraterone groups' is 3.5 years. Converted to months: 3.5 * 12 = 42.\"\n  B: value=\"42\" | page=7 | modality=text | reasoning=\"From page 7, the median overall survival for patients with high metastatic burden with SOC without abiraterone was 3.47 years. From page 9, Table 2, 'Overall survival in patients with high-volume metastatic burden' for 'SOC without abiraterone groups' is 3.5 years. Converted to months: 3.5 * 12 = 42\"\n\n---\nColumn 5: Median OS (mo) | Low volume | Treatment\nDefinition: What is the median overall survival (in months) for patients with low volume metastasis (by CHAARTED criteria) in the experimental arm? If reported, include the value; use 'Not reported' if missing.\n  A: value=\"Not reached\" | page=9 | modality=table | reasoning=\"From Table 2, 'Secondary outcomes in the ADT with docetaxel population', 'Overall survival in patients with low-volume metastatic burden' for 'SOC plus abiraterone groups' is 'NR' (Not reached).\"\n  B: value=\"Not reported\" | page=None | modality=text | reasoning=\"From page 7, it states that 'no conclusive response in overall survival could be shown for patients with low metastatic burden'. From page 9, Table 2, 'Overall survival in patients with low-volume metastatic burden' for 'SOC with abiraterone groups' is 'NR' (Not Reached).\"\n\n---\nColumn 6: Median OS (mo) | Low volume | Control\nDefinition: What is the median overall survival (in months) for patients with low volume metastasis (by CHAARTED criteria) in the control arm? If reported, include the value; use 'Not reported' if missing.\n  A: value=\"Not reached\" | page=9 | modality=table | reasoning=\"From Table 2, 'Secondary outcomes in the ADT with docetaxel population', 'Overall survival in patients with low-volume metastatic burden' for 'SOC without abiraterone groups' is 'NR' (Not reached).\"\n  B: value=\"Not reported\" | page=None | modality=text | reasoning=\"From page 7, it states that 'no conclusive response in overall survival could be shown for patients with low metastatic burden'. From page 9, Table 2, 'Overall survival in patients with low-volume metastatic burden' for 'SOC without abiraterone groups' is 'NR' (Not Reached).\"\n\n---\nColumn 7: Median PFS (mo) | Overall | Treatment\nDefinition: What is the median progression free survival (in months) for all patients in the experimental arm? If reported, include the value; use 'Not reported' if missing.\n  A: value=\"54\" | page=9 | modality=table | reasoning=\"From Table 2, 'Primary outcomes in the overall population', 'Radiographic progression-free survival' for 'SOC plus abiraterone groups' is 4.5 years. Converted to months: 4.5 * 12 = 54.\"\n  B: value=\"54\" | page=6 | modality=text | reasoning=\"From page 6, the median progression-free survival for the overall population in the abiraterone group was 4.46 years. From page 9, Table 2, 'Radiographic progression-free survival' for 'SOC with abiraterone groups' is 4.5 years. Converted to months: 4.5 * 12 = 54.\"\n\n---\nColumn 8: Median PFS (mo) | Overall | Control\nDefinition: What is the median progression free survival (in months) for all patients in the control arm? If reported, include the value; use 'Not reported' if missing.\n  A: value=\"26.4\" | page=9 | modality=table | reasoning=\"From Table 2, 'Primary outcomes in the overall population', 'Radiographic progression-free survival' for 'SOC without abiraterone groups' is 2.2 years. Converted to months: 2.2 * 12 = 26.4.\"\n  B: value=\"26.4\" | page=6 | modality=text | reasoning=\"From page 6, the median progression-free survival for the overall population in the no abiraterone group was 2.22 years. From page 9, Table 2, 'Radiographic progression-free survival' for 'SOC without abiraterone groups' is 2.2 years. Converted to months: 2.2 * 12 = 26.4.\"\n\n---\nColumn 9: Median PFS (mo) | High volume | Treatment\nDefinition: What is the median progression free survival (in months) for patients with high volume metastasis (by CHAARTED criteria) in the experimental arm? If reported, include the value; use 'Not reported' if missing.\n  A: value=\"49.2\" | page=9 | modality=table | reasoning=\"From Table 2, 'Secondary outcomes in the ADT with docetaxel population', 'Radiographic progression-free survival in patients with high-volume metastatic burden' for 'SOC plus abiraterone groups' is 4.1 years. Converted to months: 4.1 * 12 = 49.2.\"\n  B: value=\"49.2\" | page=7 | modality=text | reasoning=\"From page 7, the median high-volume burden radiographic progression-free survival for the abiraterone group was 4.1 years. From page 9, Table 2, 'Radiographic progression-free survival in patients with high-volume metastatic burden' for 'SOC with abiraterone groups' is 4.1 years. Converted to months\"\n\n---\nColumn 10: Median PFS (mo) | High volume | Control\nDefinition: What is the median progression free survival (in months) for patients with high volume metastasis (by CHAARTED criteria) in the control arm? If reported, include the value; use 'Not reported' if missing.\n  A: value=\"19.2\" | page=9 | modality=table | reasoning=\"From Table 2, 'Secondary outcomes in the ADT with docetaxel population', 'Radiographic progression-free survival in patients with high-volume metastatic burden' for 'SOC without abiraterone groups' is 1.6 years. Converted to months: 1.6 * 12 = 19.2.\"\n  B: value=\"19.2\" | page=7 | modality=text | reasoning=\"From page 7, the median high-volume burden radiographic progression-free survival for the no abiraterone group was 1.6 years. From page 9, Table 2, 'Radiographic progression-free survival in patients with high-volume metastatic burden' for 'SOC without abiraterone groups' is 1.6 years. Converted to \"\n\n---\nColumn 11: Median PFS (mo) | Low volume | Treatment\nDefinition: What is the median progression free survival (in months) for patients with low volume metastasis (by CHAARTED criteria) in the experimental arm? If reported, include the value; use 'Not reported' if missing.\n  A: value=\"Not reached\" | page=9 | modality=table | reasoning=\"From Table 2, 'Secondary outcomes in the ADT with docetaxel population', 'Radiographic progression-free survival in patients with low-volume metastatic burden' for 'SOC plus abiraterone groups' is 'NR' (Not reached).\"\n  B: value=\"Not reported\" | page=None | modality=text | reasoning=\"From page 7, the median low-volume burden radiographic progression-free survival for the abiraterone group was 'not reached'. From page 9, Table 2, 'Radiographic progression- free survival in patients with low-volume metastatic burden' for 'SOC with abiraterone groups' is 'NR' (Not Reached).\"\n\n---\nColumn 12: Median PFS (mo) | Low volume | Control\nDefinition: What is the median progression free survival (in months) for patients with low volume metastasis (by CHAARTED criteria) in the control arm? If reported, include the value; use 'Not reported' if missing.\n  A: value=\"32.4\" | page=9 | modality=table | reasoning=\"From Table 2, 'Secondary outcomes in the ADT with docetaxel population', 'Radiographic progression-free survival in patients with low-volume metastatic burden' for 'SOC without abiraterone groups' is 2.7 years. Converted to months: 2.7 * 12 = 32.4.\"\n  B: value=\"32.4\" | page=7 | modality=text | reasoning=\"From page 7, the median low-volume burden radiographic progression-free survival for the no abiraterone group was 2.7 years. From page 9, Table 2, 'Radiographic progression- free survival in patients with low-volume metastatic burden' for 'SOC without abiraterone groups' is 2.7 years. Converted to m\"\n\n\nSubmit verification for easy columns first. For disputed columns, use get_page then submit."
+    },
+    {
+      "turn": 2,
+      "role": "tool",
+      "name": "submit_verification",
+      "args": {
+        "results_keys": [
+          "Median OS (mo) | Overall | Control",
+          "Median PFS (mo) | High volume | Treatment",
+          "Median OS (mo) | High volume | Treatment",
+          "Median PFS (mo) | Overall | Control",
+          "Median OS (mo) | High volume | Control",
+          "Median OS (mo) | Overall | Treatment",
+          "Median PFS (mo) | High volume | Control",
+          "Median PFS (mo) | Overall | Treatment",
+          "Median PFS (mo) | Low volume | Control"
+        ]
+      },
+      "response": {
+        "submitted": [
+          "Median OS (mo) | Overall | Control",
+          "Median PFS (mo) | High volume | Treatment",
+          "Median OS (mo) | High volume | Treatment",
+          "Median PFS (mo) | Overall | Control",
+          "Median OS (mo) | High volume | Control",
+          "Median OS (mo) | Overall | Treatment",
+          "Median PFS (mo) | High volume | Control",
+          "Median PFS (mo) | Overall | Treatment",
+          "Median PFS (mo) | Low volume | Control"
+        ]
+      }
+    },
+    {
+      "turn": 3,
+      "role": "tool",
+      "name": "get_page",
+      "args": {
+        "page_numbers": [
+          7,
+          9
+        ]
+      },
+      "response": {
+        "formatted_chunks": "[Page 7]\n## Page 7\n\nArticles\n\n\n\nfrom 55 to 41 and from 156 to 97, and reduced the\nrelative risk of radiographic progression or death by\n42% and 53%, in patients with low metastatic burden\nand patients with high metastatic burden, respectively\n(low-volume burden median not reached vs 2.7 years;\nadjusted HR 0.58, 99.9% CI 0.29-1.15; p=0.0061;\nhigh-volume burden median 4.1 years vs 1.6 years;\nadjusted HR 0.47, 99.9% CI 0.30-0.72; p<0.0001;\nappendix p 10, table 2). Median overall survival in\npatients with high metastatic burden improved from\n3.47 years with SOC without abiraterone to 5.14 years\nwhen abiraterone was added, corresponding to a 28%\nreduction in relative risk of death from any cause\n(adjusted HR 0.72, 95.1% CI 0.55-0.95; p=0.019;\nfigure 2F, table 2). As the data were not mature, no\nconclusive response in overall survival could be shown\nfor patients with low metastatic burden (figures 2E, 3D,\ntable 2).\n\n\n\nIn the ADT with docetaxel population, compared with\nSOC without abiraterone, the addition of abiraterone\ndelayed castration resistance (median CRPC-free survival\n1.45 years vs 3.21 years; HR 0.38, 95% CI 0.31\u20130.47;\np<0.0001; table 2, appendix p 11). Among patients in\nthe ADT with docetaxel population who developed\ncastration resistance and were alive at the data cutoff\ndate, 221 (84%) of 263 patients were subsequently\ntreated by at least one life-prolonging therapy and\n213 (81%) of 263 by at least one next-generation\nhormonal therapy in the SOC without abiraterone\ngroups, compared with 104 (74%) of 141 and 65 (46%)\nof 141, respectively, in the SOC plus abiraterone groups\n(appendix p 14). Prostate-cancer-specific survival was\nalso improved by the addition of abiraterone in the ADT\nwith docetaxel population (median 4.72 years vs not\nreached; HR 0.69, 95% CI 0.53\u20130.90; p=0.0062;\ntable 2, appendix p 11).\n\n\n\nAdding abiraterone to ADT with docetaxel (with or without radiotherapy) had no effect on the number of docetaxel cycles administered (median 6 [IQR 6-6] in both groups). 138 (61%) of 226 patients in the ADT with docetaxel population and 183 (53%) of 347 in the ADT without docetaxel population had abiraterone treatment discontinued, including 29 (21%) of 138 and 32 (17%) of 183 due to toxicity, respectively (appendix p 14). Overall, the median abiraterone treatment duration before discontinuation was 33.2 months (95% CI 25.5-43.2) in the ADT without docetaxel population and 34.1 months (30.0-43.5) in the ADT with docetaxel population.\n\n\n\nIn the ADT with docetaxel safety population, 217 (63%)\nof 347 patients who received abiraterone versus 181 (52%)\nof 350 who did not receive abiraterone had at least\none severe adverse event (grade 3 or worse) and\nseven (2%) versus three (1%) had a fatal adverse event\n(table 3, appendix p 14). In the ADT without docetaxel\npopulation, 149 (66%) of 226 patients who received\nabiraterone had at least one severe adverse event and\neight (4%) had a fatal adverse event (table 2). Therefore,\n\n\n\n|  |  |  |  |  |\n| --- | --- | --- | --- | --- |\n|  | Overall population (n=1172) | Overall population (n=1172) | ADT with docetaxel population (n=710)\\* |  |\n|  | SOC plus abiraterone groups (with or without radiotherapy; n=583) | SOC without abiraterone groups (with or without radiotherapy; n=589) | SOC plus abiraterone groups (with or without radiotherapy; n=355) | SOC without abiraterone groups (with or without radiotherapy; n=355) |\n| (Continued from previous page) | (Continued from previous page) | (Continued from previous page) | (Continued from previous page) | (Continued from previous page) |\n| Gleason score | Gleason score | Gleason score | Gleason score | Gleason score |\n| \u22647 | 145 (25%) | 133 (23%) | 79 (23%) | 71 (20%) |\n| 8-10 | 429 (75%) | 441 (77%) | 270 (77%) | 276 (80%) |\n| Missing data | 9 (2%) | 15 (3%) | 6 (2%) | 8 (2%) |\n| PSA at randomisation, ng/mL | PSA at randomisation, ng/mL | PSA at randomisation, ng/mL | PSA at randomisation, ng/mL | PSA at randomisation, ng/mL |\n| Median | 14 (3-62) | 11 (3-55) | 14 (2-59) | 12 (3-60) |\n| Missing data | 2 (<1%) | 4 (1%) | 0 | 2 (<1%) |\n| Medical history | Medical history | Medical history | Medical history | Medical history |\n| Hypertension | 270 (47%); N=574 | 241 (43%); N=562 | 156 (44%); N=352 | 148 (43%); N=344 |\n| Type 2 diabetes | 62 (11%); N=566 | 80 (14%); N=556 | 33 (9%); N=351 | 56 (16%); N=344 |\n| High cholesterol | 229 (40%); N=568 | 229 (41%); N=556 | 136 (39%); N=351 | 130 (38%); N=343 |\nData are n (%) or median (IQR) unless otherwise stated. All numbers are rounded to the nearest integer. Ethnicity-related information are not presented, as French laws forbid the collection of such data. SOC in the overall population was ADT with or without docetaxel. SOC in the ADT with docetaxel population was ADT with docetaxel. ADT=androgen deprivation therapy. ECOG=Eastern Cooperative Oncology Group. PSA=prostate-specific antigen. SOC=standard of care. *The median number of docetaxel cycles was 6 (IQR 6\u20136) in both the SOC with abiraterone and SOC without abiraterone groups. \u2020Without visceral metastases. \u2021With or without lymph node and bone metastases. \u00a7The metastatic burden was classified as reported by Sweeney and colleagues (2015), with a high burden characterised by four or more bone metastases with one or more outside the vertebral bodies or pelvis, or visceral metastases, or both; all other assessable situations were classified as low burden.\nTable 1: Baseline characteristics in the intention-to-treat population\n\n\n\nthe addition of docetaxel to abiraterone did not increase the incidence of severe or fatal adverse events. In the ADT with docetaxel population, 49 severe adverse events occurred per 100 person-years in patients who received abiraterone compared with 55 per 100 person-years in patients who did not receive abiraterone (appendix p 14). The incidence of frequent severe adverse events (grade 3 or worse adverse events that were reported in \u22655% of patients) was similar between patients who received abiraterone and patients who did not in the ADT with docetaxel population, except for hypertension (76 [22%] of 347 patients vs 45 [13%] of 350) and hepatotoxicity with increased aminotransferases (20 [6%] of 347 vs two [1%] of 350), which were more frequent among those who received abiraterone (table 3). Although the incidence of severe hypertension and hepatotoxicity were similar in patients who received abiraterone in the ADT with docetaxel and ADT without docetaxel populations, there was a difference, as expected, in the incidence of severe neutropenia, which occurred in 34 (10%) of 347 patients versus none of 226, respectively (appendix p 15). Although severe fatigue and peripheral neuropathy events did not reach the frequency cutoff of 5% in the ADT with docetaxel population, ten (3%) of 347 patients who received abiraterone and 15 (4%) of 350 who did not receive abiraterone had at least one event of severe fatigue, and four (1%) and six (2%) had at least one severe peripheral neuropathy event (table 3).\n\n\n\nwww.thelancet.com Published online April 8, 2022 https://doi.org/10.1016/ S0140-6736(22)00367-1\n\n\n\n7\n\n---\n\n[Page 9]\n## Page 9\n\nArticles\n\n\n\n|  |  |  |  |  |  |  |  |\n| --- | --- | --- | --- | --- | --- | --- | --- |\n|  | Patients assessed, n | Patients assessed, n | Median, years | Median, years | Median difference, years | Hazard ratio | p value |\n|  | SOC with abiraterone groups | SOC without abiraterone groups | SOC with abiraterone groups | SOC without abiraterone groups |  |  |  |\n| Primary outcomes in the overall population | Primary outcomes in the overall population | Primary outcomes in the overall population | Primary outcomes in the overall population | Primary outcomes in the overall population | Primary outcomes in the overall population | Primary outcomes in the overall population | Primary outcomes in the overall population |\n| Overall survival | 583 | 589 | 5-7 | 4-7 | 0-9 (95-1% CI 0-0-2-0) | 0-82 (95-1% CI 0-69-0-98) | 0.030 |\n| Radiographic progression-free survival | 583 | 589 | 4-5 | 2-2 | 2-1 (99.9% CI 0-7-2-9) | 0-54 (99.9% CI 0-41-0-71) | <0.0001 |\n| Secondary outcomes in the overall population | Secondary outcomes in the overall population | Secondary outcomes in the overall population | Secondary outcomes in the overall population | Secondary outcomes in the overall population | Secondary outcomes in the overall population | Secondary outcomes in the overall population | Secondary outcomes in the overall population |\n| CRPC-free survival | 583 | 589 | 3-8 | 1.5 | 2-3 (95% CI 1-6-3-0) | 0-40 (95% CI 0-35-0-47) | <0.0001 |\n| Prostate-cancer-specific survival | 583 | 589 | NR | 5.8 | NA | 0-75 (95% CI 0-61-0-91) | 0-0038 |\n| Primary outcomes in the ADT with docetaxel population | Primary outcomes in the ADT with docetaxel population | Primary outcomes in the ADT with docetaxel population | Primary outcomes in the ADT with docetaxel population | Primary outcomes in the ADT with docetaxel population | Primary outcomes in the ADT with docetaxel population | Primary outcomes in the ADT with docetaxel population | Primary outcomes in the ADT with docetaxel population |\n| Overall survival | 355 | 355 | NR | 4-4 | NA | 0.75 (95-1% CI 0-59-0-95) | 0-017 |\n| Radiographic progression- free survival | 355 | 355 | 4-5 | 2.0 | 2-2 (99.9% CI 0-6-2-8) | 0-50 (99.9% CI 0-34-0-71) | <0.0001 |\n| Secondary outcomes in the ADT with docetaxel population | Secondary outcomes in the ADT with docetaxel population | Secondary outcomes in the ADT with docetaxel population | Secondary outcomes in the ADT with docetaxel population | Secondary outcomes in the ADT with docetaxel population | Secondary outcomes in the ADT with docetaxel population | Secondary outcomes in the ADT with docetaxel population | Secondary outcomes in the ADT with docetaxel population |\n| Overall survival in patients with low-volume metastatic burden | 131 | 123 | NR | NR | NA | 0-83 (95-1% CI 0-50-1-39) | 0.66 |\n| Overall survival in patients with high-volume metastatic burden | 224 | 232 | 5-1 | 3.5 | 1-1 (95-1% CI 0-2-1-9) | 0-72 (95-1% CI 0-55-0-95) | 0-019 |\n| Radiographic progression- free survival in patients with low-volume metastatic burden | 129 | 122 | NR | 2.7 | NA | 0-58 (99-9% CI 0-29-1-15) | 0-0061 |\n| Radiographic progression-free survival in patients with high-volume metastatic burden | 225 | 231 | 4-1 | 1-6 | 2.2 (99.9% CI 0.6-3.2) | 0.47 (99.9% CI 0.30-0.72) | <0.0001 |\n| CRPC-free survival | 355 | 355 | 3-2 | 1-4 | 2.0 (95% CI 1.5-3.1) | 0.38 (95% CI 0.31-0.47) | <0.0001 |\n| Prostate-cancer-specific survival | 355 | 355 | NR | 4-7 | NA | 0.69 (95% CI 0.53-0.90) | 0.0062 |\n| ADT=androgen deprivation therapy. CRPC=castration-resistant prostate cancer. NA=not available. NR=not reached. SOC=standard of care (with or without radiotherapy). | ADT=androgen deprivation therapy. CRPC=castration-resistant prostate cancer. NA=not available. NR=not reached. SOC=standard of care (with or without radiotherapy). | ADT=androgen deprivation therapy. CRPC=castration-resistant prostate cancer. NA=not available. NR=not reached. SOC=standard of care (with or without radiotherapy). | ADT=androgen deprivation therapy. CRPC=castration-resistant prostate cancer. NA=not available. NR=not reached. SOC=standard of care (with or without radiotherapy). | ADT=androgen deprivation therapy. CRPC=castration-resistant prostate cancer. NA=not available. NR=not reached. SOC=standard of care (with or without radiotherapy). | ADT=androgen deprivation therapy. CRPC=castration-resistant prostate cancer. NA=not available. NR=not reached. SOC=standard of care (with or without radiotherapy). | ADT=androgen deprivation therapy. CRPC=castration-resistant prostate cancer. NA=not available. NR=not reached. SOC=standard of care (with or without radiotherapy). | ADT=androgen deprivation therapy. CRPC=castration-resistant prostate cancer. NA=not available. NR=not reached. SOC=standard of care (with or without radiotherapy). |\n| Table 2: Efficacy outcomes in the intention-to-treat population | Table 2: Efficacy outcomes in the intention-to-treat population | Table 2: Efficacy outcomes in the intention-to-treat population | Table 2: Efficacy outcomes in the intention-to-treat population | Table 2: Efficacy outcomes in the intention-to-treat population | Table 2: Efficacy outcomes in the intention-to-treat population | Table 2: Efficacy outcomes in the intention-to-treat population | Table 2: Efficacy outcomes in the intention-to-treat population |\n\n\n\nmCSPC who received enzalutamide in addition to ADT with docetaxel compared with those who did not receive enzalutamide. However, with enzalutamide addition, higher incidences of fatigue, syncope, and therapy discontinuation were reported, whereas we did not observe a rise in such events in PEACE-1 with the addition of abiraterone to ADT with docetaxel. Aminotransferase increase, a common side-effect of abiraterone, was observed in this trial (6% of patients who received abiraterone vs 1% of those who did not), but occurred at a similar frequency with or without docetaxel. This aminotransferase increase had no detectable clinical consequences, as recommended management was followed. 29 Notably, the addition of abiraterone to ADT with docetaxel did not affect severe neutropenia incidence (10% of patients who received abiraterone vs 9% of those who did not). The impact of toxicity on participants will be better understood after the formal analysis of quality-of-life data, at which time the triplet therapy oncological benefits might still outweigh the adverse effect of the additional toxicity.\n\n\n\nAside from the limitations inherently associated with\nopen-label trials, the rapid clinical practice evolution\nfor mCSPC that took place during the conduct of\nthis trial prompted the sequential amendment of the\nPEACE-1 protocol and statistical analysis plan to reflect\nthose changes, answer meaningful questions, and\nimplement the best treatment options to all participants\n(appendix pp 7-8). In particular, as an overall survival\nbenefit for patients with mCSPC treated with abiraterone\ncombined with ADT alone was shown in 2017, accrual was\nthen restricted to patients receiving ADT with docetaxel as\nSOC, and our pre-established statistical analysis was\nrevised to specifically include the assessment of the\nefficacy of abiraterone in terms of survival outcomes in\nthe ADT with docetaxel population. De facto, further\nallocating men to ADT only would have been unethical,\ngiven that the ADT plus abiraterone combination was\nalready known to improve overall survival.\nOur findings show that combining abiraterone with\nADT and docetaxel improves both radiographic\nprogression-free survival and overall survival compared\n\n\n\nwww.thelancet.com Published online April 8, 2022 https://doi.org/10.1016/S0140-6736(22)00367-1\n\n\n\n9",
+        "pages_returned": [
+          7,
+          9
+        ]
+      }
+    },
+    {
+      "turn": 4,
+      "role": "tool",
+      "name": "submit_verification",
+      "args": {
+        "results_keys": [
+          "Median OS (mo) | Low volume | Treatment",
+          "Median OS (mo) | Low volume | Control",
+          "Median PFS (mo) | Low volume | Treatment"
+        ]
+      },
+      "response": {
+        "submitted": [
+          "Median OS (mo) | Low volume | Treatment",
+          "Median OS (mo) | Low volume | Control",
+          "Median PFS (mo) | Low volume | Treatment"
+        ]
+      }
+    }
+  ],
+  "results": {
+    "Median OS (mo) | Overall | Control": {
+      "value": "56.4",
+      "reasoning": "",
+      "verification": "both_correct",
+      "source": {
+        "page": 9,
+        "modality": "table"
+      },
+      "attribution": [
+        {
+          "page": 9,
+          "modality": "table"
+        }
+      ]
+    },
+    "Median PFS (mo) | High volume | Treatment": {
+      "value": "49.2",
+      "reasoning": "",
+      "verification": "both_correct",
+      "source": {
+        "page": 9,
+        "modality": "table"
+      },
+      "attribution": [
+        {
+          "page": 9,
+          "modality": "table"
+        }
+      ]
+    },
+    "Median OS (mo) | High volume | Treatment": {
+      "value": "61.2",
+      "reasoning": "",
+      "verification": "both_correct",
+      "source": {
+        "page": 9,
+        "modality": "table"
+      },
+      "attribution": [
+        {
+          "page": 9,
+          "modality": "table"
+        }
+      ]
+    },
+    "Median PFS (mo) | Overall | Control": {
+      "value": "26.4",
+      "reasoning": "",
+      "verification": "both_correct",
+      "source": {
+        "page": 9,
+        "modality": "table"
+      },
+      "attribution": [
+        {
+          "page": 9,
+          "modality": "table"
+        }
+      ]
+    },
+    "Median OS (mo) | High volume | Control": {
+      "value": "42",
+      "reasoning": "",
+      "verification": "both_correct",
+      "source": {
+        "page": 9,
+        "modality": "table"
+      },
+      "attribution": [
+        {
+          "page": 9,
+          "modality": "table"
+        }
+      ]
+    },
+    "Median OS (mo) | Overall | Treatment": {
+      "value": "68.4",
+      "reasoning": "",
+      "verification": "both_correct",
+      "source": {
+        "page": 9,
+        "modality": "table"
+      },
+      "attribution": [
+        {
+          "page": 9,
+          "modality": "table"
+        }
+      ]
+    },
+    "Median PFS (mo) | High volume | Control": {
+      "value": "19.2",
+      "reasoning": "",
+      "verification": "both_correct",
+      "source": {
+        "page": 9,
+        "modality": "table"
+      },
+      "attribution": [
+        {
+          "page": 9,
+          "modality": "table"
+        }
+      ]
+    },
+    "Median PFS (mo) | Overall | Treatment": {
+      "value": "54",
+      "reasoning": "",
+      "verification": "both_correct",
+      "source": {
+        "page": 9,
+        "modality": "table"
+      },
+      "attribution": [
+        {
+          "page": 9,
+          "modality": "table"
+        }
+      ]
+    },
+    "Median PFS (mo) | Low volume | Control": {
+      "value": "32.4",
+      "reasoning": "",
+      "verification": "both_correct",
+      "source": {
+        "page": 9,
+        "modality": "table"
+      },
+      "attribution": [
+        {
+          "page": 9,
+          "modality": "table"
+        }
+      ]
+    },
+    "Median OS (mo) | Low volume | Treatment": {
+      "value": "Not reached",
+      "reasoning": "",
+      "verification": "A_correct_B_wrong",
+      "source": {
+        "page": 9,
+        "modality": "table",
+        "verbatim_quote": "NR (Not reached)"
+      },
+      "attribution": [
+        {
+          "page": 9,
+          "modality": "table",
+          "verbatim_quote": "NR (Not reached)"
+        }
+      ]
+    },
+    "Median OS (mo) | Low volume | Control": {
+      "value": "Not reached",
+      "reasoning": "",
+      "verification": "A_correct_B_wrong",
+      "source": {
+        "page": 9,
+        "modality": "table",
+        "verbatim_quote": "NR (Not reached)"
+      },
+      "attribution": [
+        {
+          "page": 9,
+          "modality": "table",
+          "verbatim_quote": "NR (Not reached)"
+        }
+      ]
+    },
+    "Median PFS (mo) | Low volume | Treatment": {
+      "value": "Not reached",
+      "reasoning": "",
+      "verification": "A_correct_B_wrong",
+      "source": {
+        "page": 9,
+        "modality": "table",
+        "verbatim_quote": "NR (Not reached)"
+      },
+      "attribution": [
+        {
+          "page": 9,
+          "modality": "table",
+          "verbatim_quote": "NR (Not reached)"
+        }
+      ]
+    }
+  }
+}

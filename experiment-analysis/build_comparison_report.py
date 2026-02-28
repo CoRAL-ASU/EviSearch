@@ -2,7 +2,7 @@
 Build comparison_report.html with embedded data for PDF selector and filters.
 Run from repo root: python experiment-analysis/build_comparison_report.py
 
-Data: 10 PDFs, extensible model list (native + landing_ai for now).
+Data: 10 PDFs, 5 models: landing_ai_new, gemini_native, agent_extractor, search_agent, reconciliation_agent.
 Output: experiment-analysis/comparison_report.html
 """
 from __future__ import annotations
@@ -18,7 +18,7 @@ DEFINITIONS_CSV = REPO_ROOT / "src/table_definitions/Definitions_with_eval_categ
 GOLD_TABLE_JSON = REPO_ROOT / "dataset/Manual_Benchmark_GoldTable_cleaned.json"
 OUT_HTML = REPO_ROOT / "experiment-analysis/comparison_report.html"
 
-# PDFs common to gemini_native and landing_ai_new (10)
+# PDFs common across baselines (10)
 PDF_LIST = [
     "NCT00104715_Gravis_GETUG_EU'15",
     "NCT00268476_Attard_STAMPEDE_Lancet'23",
@@ -32,12 +32,15 @@ PDF_LIST = [
     "NCT02799602_Smith_ARASENS_NEJM'22",
 ]
 
-# Extensible: (display_name, path to results dir containing {pdf_id}/evaluation/evaluation_results.json)
+# 5 models: (id, display_name, path_or_key)
+# For eval models: path to dir with {pdf_id}/evaluation/evaluation_results.json
+# For agent models: path key ("agent_extractor", "search_agent", "reconciliation_agent")
 MODELS = [
-    ("Gemini 2.5 Flash (native)", SCRIPT_BASE / "baselines_file_search_results/gemini_native/gemini-2.5-flash"),
-    ("LandingAI (ADE)", SCRIPT_BASE / "baselines_landing_ai_new_results"),
-    ("Our Pipeline", RESULTS_ROOT),
-    # ("Gemini 2.5 Flash (free-form)", SCRIPT_BASE / "baselines_file_search_results/free_form/gemini-2.5-flash"),
+    ("landing_ai_new", "Landing AI (new results)", SCRIPT_BASE / "baselines_landing_ai_new_results"),
+    ("gemini_native", "Gemini Native 2.5 Flash", SCRIPT_BASE / "baselines_file_search_results/gemini_native/gemini-2.5-flash"),
+    ("agent_extractor", "Agent Extractor", "agent_extractor"),
+    ("search_agent", "Search Agent", "search_agent"),
+    ("reconciliation_agent", "Reconciliation Agent", "reconciliation_agent"),
 ]
 
 
@@ -125,11 +128,6 @@ def load_eval(pdf_id: str, model_path: Path) -> dict | None:
     return None
 
 
-EXTRACTION_MODEL_ID = "extraction"
-RECONCILED_MODEL_ID = "reconciled"
-AGENT_MODEL_ID = "agent"
-
-
 def load_agent_columns(pdf_id: str) -> dict[str, dict] | None:
     """Load agent extractor results from agent_extractor/extraction_results.json."""
     path = RESULTS_ROOT / pdf_id / "agent_extractor" / "extraction_results.json"
@@ -152,128 +150,56 @@ def load_agent_columns(pdf_id: str) -> dict[str, dict] | None:
         return None
 
 
-def load_reconciled_columns(pdf_id: str) -> dict[str, dict] | None:
-    """Load reconciled results from reconcile_extractions.py output."""
-    path = RESULTS_ROOT / pdf_id / "reconciliation" / "reconciled_results.json"
+def load_search_agent_columns(pdf_id: str) -> dict[str, dict] | None:
+    """Load search agent results from search_agent/extraction_results.json."""
+    path = RESULTS_ROOT / pdf_id / "search_agent" / "extraction_results.json"
     if not path.exists():
         return None
-    d = json.loads(path.read_text(encoding="utf-8"))
-    out: dict[str, dict] = {}
-    for r in d.get("columns", []):
-        col = r.get("column_name")
-        if not col:
-            continue
-        out[col] = {
-            "value": r.get("final_value", ""),
-            "correctness": None,
-            "completeness": None,
-            "reason": "",
-            "contradiction": r.get("contradiction", False),
-            "contributing_methods": r.get("contributing_methods", []),
-        }
-    return out if out else None
-
-
-def list_reconciliation_logs(pdf_id: str) -> list[str]:
-    """List raw LLM log file paths (relative to repo root) for a PDF."""
-    logs_dir = RESULTS_ROOT / pdf_id / "reconciliation" / "logs"
-    if not logs_dir.exists():
-        return []
-    return sorted(p.relative_to(REPO_ROOT).as_posix() for p in logs_dir.glob("*_llm.txt"))
-
-
-def _parse_extraction_json(raw: str) -> dict | None:
-    """Parse JSON from raw LLM response (may be wrapped in ```json ... ```)."""
-    if not raw or not isinstance(raw, str):
-        return None
-    text = raw.strip()
-    if "```" in text:
-        start = text.find("{")
-        end = text.rfind("}") + 1
-        if start >= 0 and end > start:
-            text = text[start:end]
     try:
-        return json.loads(text)
+        d = json.loads(path.read_text(encoding="utf-8"))
+        columns = d.get("columns", {})
+        if not isinstance(columns, dict):
+            return None
+        out = {}
+        for col, v in columns.items():
+            if isinstance(v, dict):
+                val = v.get("value")
+            else:
+                val = v
+            out[col] = {"value": str(val) if val is not None else ""}
+        return out
     except Exception:
         return None
 
 
-def load_extraction_columns(pdf_id: str) -> dict[str, dict] | None:
-    """Load per-column extraction results; return {column_name: {value, confidence, ...}}.
-    Value is parsed from raw_response JSON (LLM output); top-level value is fallback."""
-    path = RESULTS_ROOT / pdf_id / "planning" / "extract_landing_ai" / "extraction_results.json"
+def load_reconciliation_agent_columns(pdf_id: str) -> dict[str, dict] | None:
+    """Load reconciliation agent results from reconciliation_agent/reconciled_results.json."""
+    path = RESULTS_ROOT / pdf_id / "reconciliation_agent" / "reconciled_results.json"
     if not path.exists():
         return None
-    d = json.loads(path.read_text(encoding="utf-8"))
-    out: dict[str, dict] = {}
-    for r in d.get("results", []):
-        col = r.get("column_name")
-        if not col:
-            continue
-        raw = r.get("raw_response") or ""
-        parsed = _parse_extraction_json(raw)
-        value = ""
-        confidence = "low"
-        found = False
-        suggestion = None
-        if parsed and isinstance(parsed, dict):
-            v = parsed.get("value")
-            value = str(v) if v is not None else ""
-            confidence = str(parsed.get("confidence", "low")).lower() or "low"
-            found = bool(parsed.get("found", False))
-            suggestion = parsed.get("suggestion")
-        if not value:
-            value = str(r.get("value") or "")
-        if not confidence or confidence == "low":
-            confidence = r.get("confidence") or "low"
-        if suggestion is None:
-            suggestion = r.get("suggestion")
-        out[col] = {
-            "value": value,
-            "confidence": confidence,
-            "found": found,
-            "suggestion": suggestion,
-            "alternative_plan": r.get("alternative_plan"),
-            "retry_value": r.get("retry_value"),
-            "values_match": r.get("values_match"),
-            "correctness": None,
-            "completeness": None,
-            "reason": (suggestion or "") if suggestion else "",
-        }
-    return out if out else None
+    try:
+        d = json.loads(path.read_text(encoding="utf-8"))
+        columns = d.get("columns", {})
+        if not isinstance(columns, dict):
+            return None
+        out = {}
+        for col, v in columns.items():
+            if isinstance(v, dict):
+                val = v.get("value")
+            else:
+                val = v
+            out[col] = {"value": str(val) if val is not None else "", "reason": str(v.get("reasoning", "")) if isinstance(v, dict) else ""}
+        return out if out else None
+    except Exception:
+        return None
 
 
-def load_extraction_stats(pdf_id: str) -> dict | None:
-    """Load extraction stats from extract_landing_ai/extraction_results.json."""
-    path = RESULTS_ROOT / pdf_id / "planning" / "extract_landing_ai" / "extraction_results.json"
-    if not path.exists():
-        return None
-    d = json.loads(path.read_text(encoding="utf-8"))
-    r = d.get("results", [])
-    if not r:
-        return None
-    with_alt = sum(1 for x in r if x.get("alternative_plan"))
-    total_cols = len(r)
-    retries = sum(1 for x in r if x.get("retry_value") is not None)
-    total_calls = total_cols + retries
-    conf_map = {"high": 3, "medium": 2, "low": 1}
-    confs = [conf_map.get(x.get("confidence", "low"), 1) for x in r]
-    avg_conf = sum(confs) / len(confs) if confs else 0
-    high_c = sum(1 for x in r if x.get("confidence") == "high")
-    med_c = sum(1 for x in r if x.get("confidence") == "medium")
-    low_c = sum(1 for x in r if x.get("confidence") == "low")
-    return {
-        "with_alternative_plan": with_alt,
-        "total_columns": total_cols,
-        "retries_done": retries,
-        "total_calls": total_calls,
-        "avg_confidence": round(avg_conf, 2),
-        "confidence_high": high_c,
-        "confidence_medium": med_c,
-        "confidence_low": low_c,
-        "values_matched": d.get("values_matched", 0),
-        "values_differed": d.get("values_differed", 0),
-    }
+def list_reconciliation_agent_logs(pdf_id: str) -> list[str]:
+    """List conversation log paths for reconciliation agent (relative to repo root)."""
+    logs_dir = RESULTS_ROOT / pdf_id / "reconciliation_agent" / "verification_logs"
+    if not logs_dir.exists():
+        return []
+    return sorted(p.relative_to(REPO_ROOT).as_posix() for p in logs_dir.glob("*_conversation.json"))
 
 
 def main() -> None:
@@ -281,51 +207,47 @@ def main() -> None:
     col_to_label = {d["column"]: d["label"] for d in definitions}
     col_to_eval = {d["column"]: d["eval_category"] for d in definitions}
 
-    models_out = [{"id": f"m{i}", "name": name} for i, (name, _) in enumerate(MODELS)]
-    models_out.append({"id": EXTRACTION_MODEL_ID, "name": "Extraction (Landing AI)"})
-    models_out.append({"id": AGENT_MODEL_ID, "name": "Agent"})
-    models_out.append({"id": RECONCILED_MODEL_ID, "name": "Reconciled"})
+    models_out = [{"id": mid, "name": name} for mid, name, _ in MODELS]
     pdfs_out = [{"id": pdf, "name": pdf} for pdf in PDF_LIST]
 
-    # Load updated ground truth from Manual_Benchmark_GoldTable_cleaned.json (new benchmark)
     definition_columns = [d["column"] for d in definitions]
     ground_truth_updated = load_updated_gold_table(PDF_LIST, definition_columns)
 
-    # data[pdf_id] = { ground_truth: { col: str }, ground_truth_updated: { col: str }, models: ..., extraction_stats: ... }
     data: dict = {}
     for pdf_id in PDF_LIST:
         agent_cols = load_agent_columns(pdf_id)
+        search_agent_cols = load_search_agent_columns(pdf_id)
+        rec_cols = load_reconciliation_agent_columns(pdf_id)
         data[pdf_id] = {
             "ground_truth": {},
             "ground_truth_updated": ground_truth_updated.get(pdf_id, {}),
             "models": {m["id"]: {} for m in models_out},
-            "extraction_stats": load_extraction_stats(pdf_id),
             "agent_stats": {"columns_filled": len(agent_cols)} if agent_cols else None,
+            "search_agent_stats": {"columns_filled": len(search_agent_cols)} if search_agent_cols else None,
+            "reconciliation_agent_stats": {"columns_filled": len(rec_cols)} if rec_cols else None,
+            "reconciliation_logs": list_reconciliation_agent_logs(pdf_id),
         }
-        for mi, (_, model_path) in enumerate(MODELS):
-            mid = models_out[mi]["id"]
-            ev = load_eval(pdf_id, model_path)
-            if ev is None:
-                continue
-            for col_name, col_data in ev.get("columns", {}).items():
-                data[pdf_id]["models"][mid][col_name] = {
-                    "value": col_data.get("predicted", ""),
-                    "correctness": float(col_data.get("correctness", 0)),
-                    "completeness": float(col_data.get("completeness", 0)),
-                    "reason": col_data.get("reason", ""),
-                }
-        ext_cols = load_extraction_columns(pdf_id)
-        if ext_cols:
-            for col_name, col_data in ext_cols.items():
-                data[pdf_id]["models"][EXTRACTION_MODEL_ID][col_name] = col_data
-        if agent_cols:
-            for col_name, col_data in agent_cols.items():
-                data[pdf_id]["models"][AGENT_MODEL_ID][col_name] = col_data
-        rec_cols = load_reconciled_columns(pdf_id)
-        if rec_cols:
-            for col_name, col_data in rec_cols.items():
-                data[pdf_id]["models"][RECONCILED_MODEL_ID][col_name] = col_data
-        data[pdf_id]["reconciliation_logs"] = list_reconciliation_logs(pdf_id)
+        for mid, _name, path_or_key in MODELS:
+            if isinstance(path_or_key, Path):
+                ev = load_eval(pdf_id, path_or_key)
+                if ev is None:
+                    continue
+                for col_name, col_data in ev.get("columns", {}).items():
+                    data[pdf_id]["models"][mid][col_name] = {
+                        "value": col_data.get("predicted", ""),
+                        "correctness": float(col_data.get("correctness", 0)),
+                        "completeness": float(col_data.get("completeness", 0)),
+                        "reason": col_data.get("reason", ""),
+                    }
+            elif path_or_key == "agent_extractor" and agent_cols:
+                for col_name, col_data in agent_cols.items():
+                    data[pdf_id]["models"][mid][col_name] = col_data
+            elif path_or_key == "search_agent" and search_agent_cols:
+                for col_name, col_data in search_agent_cols.items():
+                    data[pdf_id]["models"][mid][col_name] = col_data
+            elif path_or_key == "reconciliation_agent" and rec_cols:
+                for col_name, col_data in rec_cols.items():
+                    data[pdf_id]["models"][mid][col_name] = col_data
 
     # Unique labels for filter dropdown (preserve order)
     labels_seen = []
@@ -333,7 +255,8 @@ def main() -> None:
         if d["label"] not in labels_seen:
             labels_seen.append(d["label"])
 
-    # Per-PDF, per-model: average correctness/completeness overall and by eval_category
+    # Per-PDF, per-model: average correctness/completeness for eval models (landing_ai_new, gemini_native)
+    eval_model_ids = ("landing_ai_new", "gemini_native")
     for pdf_id in PDF_LIST:
         data[pdf_id]["summary"] = {}
         for m in models_out:
@@ -342,7 +265,7 @@ def main() -> None:
             if not model_cols:
                 data[pdf_id]["summary"][mid] = None
                 continue
-            if mid in (EXTRACTION_MODEL_ID, AGENT_MODEL_ID, RECONCILED_MODEL_ID):
+            if mid not in eval_model_ids:
                 data[pdf_id]["summary"][mid] = None
                 continue
             by_cat: dict[str, list[tuple[float, float]]] = {"exact_match": [], "structured_text": [], "numeric_tolerance": []}
@@ -449,59 +372,37 @@ def build_html(payload: dict) -> str:
         function renderHeaderBand(pdfId) {{
             const pdfData = data[pdfId];
             if (!pdfData) {{ headerBand.style.display = 'none'; return; }}
-            const hasSummary = pdfData.summary && Object.values(pdfData.summary).some(s => s);
-            const ext = pdfData.extraction_stats;
-            const agentStats = pdfData.agent_stats;
-            const recLogs = pdfData.reconciliation_logs || [];
-            const hasReconciled = (pdfData.models && pdfData.models.reconciled && Object.keys(pdfData.models.reconciled).length > 0);
-            if (!hasSummary && !ext && !agentStats && !hasReconciled) {{ headerBand.style.display = 'none'; return; }}
+            const hasAny = pdfData.summary && Object.values(pdfData.summary).some(s => s)
+                || pdfData.agent_stats || pdfData.search_agent_stats || pdfData.reconciliation_agent_stats;
+            if (!hasAny) {{ headerBand.style.display = 'none'; return; }}
             headerBand.style.display = 'flex';
             headerBand.innerHTML = '';
-            if (ext) {{
-                const div = document.createElement('div');
-                div.className = 'model-summary extraction-stats';
-                div.innerHTML = '<h3>Extraction (Landing AI)</h3>' +
-                    '<div class="overall">Alt plans: ' + ext.with_alternative_plan + ' / Total calls: ' + ext.total_calls + '</div>' +
-                    '<div class="by-cat"><span>Columns: ' + ext.total_columns + '</span><span>Retries: ' + ext.retries_done + '</span></div>' +
-                    '<div class="by-cat"><span>Avg confidence: ' + ext.avg_confidence.toFixed(2) + '</span><span>H/M/L: ' + ext.confidence_high + '/' + ext.confidence_medium + '/' + ext.confidence_low + '</span></div>' +
-                    '<div class="by-cat"><span>Values matched: ' + ext.values_matched + '</span><span>Values differed: ' + ext.values_differed + '</span></div>';
-                headerBand.appendChild(div);
-            }}
-            if (agentStats) {{
+            models.forEach(m => {{
                 const div = document.createElement('div');
                 div.className = 'model-summary';
-                div.innerHTML = '<h3>Agent</h3><div class="overall">Columns filled: ' + agentStats.columns_filled + '</div>';
-                headerBand.appendChild(div);
-            }}
-            if (hasReconciled && recLogs.length > 0) {{
-                const div = document.createElement('div');
-                div.className = 'model-summary reconciliation-logs';
-                let logHtml = '<h3>Reconciled – raw LLM logs</h3><div class="by-cat">';
-                recLogs.forEach(fp => {{
-                    const name = fp.split('/').pop();
-                    logHtml += '<a href="../' + fp + '" target="_blank" style="color:#4ecca3;display:block;margin:4px 0;">' + escapeHtml(name) + '</a>';
-                }});
-                logHtml += '</div>';
-                div.innerHTML = logHtml;
-                headerBand.appendChild(div);
-            }}
-            models.forEach(m => {{
-                if (m.id === 'extraction' || m.id === 'agent' || m.id === 'reconciled') return;
-                const sum = pdfData.summary && pdfData.summary[m.id];
-                const div = document.createElement('div');
-                div.className = 'model-summary' + (sum ? '' : ' na');
                 let html = '<h3>' + escapeHtml(m.name) + '</h3>';
-                if (!sum) {{
-                    html += '<div>N/A</div>';
+                const sum = pdfData.summary && pdfData.summary[m.id];
+                if (m.id === 'landing_ai_new' || m.id === 'gemini_native') {{
+                    if (!sum) {{ div.classList.add('na'); html += '<div>N/A</div>'; }}
+                    else {{
+                        const o = sum.overall;
+                        html += '<div class="overall">Overall: C ' + (o.correctness * 100).toFixed(1) + '%, K ' + (o.completeness * 100).toFixed(1) + '%</div>';
+                        html += '<div class="by-cat">';
+                        ['exact_match', 'structured_text', 'numeric_tolerance'].forEach(cat => {{
+                            const c = sum[cat];
+                            if (c) html += '<span>' + cat + ': C ' + (c.correctness * 100).toFixed(1) + '%, K ' + (c.completeness * 100).toFixed(1) + '%</span>';
+                        }});
+                        html += '</div>';
+                    }}
                 }} else {{
-                    const o = sum.overall;
-                    html += '<div class="overall">Overall: C ' + (o.correctness * 100).toFixed(1) + '%, K ' + (o.completeness * 100).toFixed(1) + '%</div>';
-                    html += '<div class="by-cat">';
-                    ['exact_match', 'structured_text', 'numeric_tolerance'].forEach(cat => {{
-                        const c = sum[cat];
-                        if (c) html += '<span>' + cat + ': C ' + (c.correctness * 100).toFixed(1) + '%, K ' + (c.completeness * 100).toFixed(1) + '%</span>';
-                    }});
-                    html += '</div>';
+                    const stats = m.id === 'agent_extractor' ? pdfData.agent_stats
+                        : m.id === 'search_agent' ? pdfData.search_agent_stats
+                        : pdfData.reconciliation_agent_stats;
+                    if (stats) html += '<div class="overall">Columns filled: ' + stats.columns_filled + '</div>';
+                    else {{ div.classList.add('na'); html += '<div>N/A</div>'; }}
+                    if (m.id === 'reconciliation_agent' && (pdfData.reconciliation_logs || []).length > 0) {{
+                        html += '<div class="by-cat"><a href="../' + pdfData.reconciliation_logs[0] + '" target="_blank" style="color:#4ecca3;">View logs</a></div>';
+                    }}
                 }}
                 div.innerHTML = html;
                 headerBand.appendChild(div);

@@ -1,0 +1,165 @@
+## Page 2
+
+Articles
+
+
+
+Switzerland, Bellinzona,
+Switzerland
+(Prof S Gillessen MD); CH and
+Universita della Svizzera
+Italiana, Lugano, Switzerland
+(Prof S Gillessen); Guy's and
+St Thomas' NHS Foundation
+Trust, London, UK (H Rush,
+S Chowdhury PhD); Clatterbridge
+Cancer Centre NHS Foundation
+Trust, Wirral, UK (Z Malik FRCR,
+A H Montazeri FRCR); Singleton
+Hospital, Swansea, UK
+(C Pezaro DMedSc,
+J Wagstaff ChB); Gloucestershire
+Oncology Centre, Cheltenham,
+UK (W Grant FRCR); Torbay and
+South Devon NHS Foundation
+Trust, Torbay, UK
+(H Saxby FRCR); Northern Centre
+for Cancer Care, Newcastle upon
+Tyne, UK (I Pedley FRCR);
+Queen's University Belfast,
+Belfast, UK
+(Prof J M O'Sullivan FRCR);
+Rosemere Cancer Centre, Royal
+Preston Hospital, Preston, UK
+(Prof A Birtle FRCR); Queen
+Alexandra Hospital,
+Portsmouth, UK (J Gale FRCR);
+Shrewsbury and Telford
+Hospital NHS Trust,
+Shrewsbury, UK (N Srihari FRCR);
+Kent Oncology Centre,
+Maidstone, UK (C Thomas FRCR);
+Velindre Cancer Centre, Cardiff,
+UK (J Tanguay FRCR); Royal
+Derby Hospital, Derby, UK
+(P Das FRCR); Yeovil District
+Hospital NHS Foundation Trust,
+Yeovil, UK (E Gray FRCR); Weston
+Park Hospital, Sheffield, UK
+(M Alzouebi FRCR); East
+Lancashire Hospitals NHS Trust,
+Preston, UK (O Parikh FRCR);
+Royal Sussex County Hospital,
+Brighton, UK (A Robinson FRCR);
+University Hospitals
+Birmingham NHS Foundation
+Trust, Birmingham, UK
+(A Zarkar FRCR); Division of
+Oncology and Hematology,
+Cantonal Hospital Graubünden,
+Chur, Switzerland
+(R Cathomas MD); Swiss Group
+for Clinical Cancer Research,
+Bern, Switzerland (R Cathomas);
+Cardiff University, Cardiff, UK
+(M D Mason FRCR); Faculty of
+Education Health and
+Wellbeing, University of
+Wolverhampton, Walsall, UK
+(D Matheson PhD)
+
+Correspondence to:
+Prof G Attard, Cancer Institute,
+University College London,
+London WC1E 6DD, UK
+g.attard@ucl.ac.uk
+See Online for appendix
+
+
+
+Funding Cancer Research UK, UK Medical Research Council, Swiss Group for Clinical Cancer Research, Janssen, and Astellas.
+
+
+
+Copyright © 2023 The Author(s). Published by Elsevier Ltd. This is an Open Access article under the CC BY 4.0 license
+
+
+
+# Introduction
+Until around 10 years ago, patients with metastatic prostate cancer had a median overall survival of approximately 42 months from the start of treatment with long-term androgen-deprivation therapy.1,2 Since October 2005, STAMPEDE has used a multiarm multistage platform design3 to test in a series of concurrent or sequential phase 3 trials whether additional treatments at the initiation of androgen deprivation therapy improve overall survival. The docetaxel and abiraterone trials4,5 of the STAMPEDE platform protocol reported improvements in overall survival and contributed to a change in standard of care for patients with metastatic prostate cancer. The STAMPEDE abiraterone trial6 reported survival outcomes for metastatic patients after a median follow-up of 73 months and other trials of second-generation hormone therapies started for the same indication reported final survival analysis after shorter durations of median follow-up, namely 52 months for abiraterone,7 44 months for apalutamide,8 and 45 months for enzalutamide.9 The STAMPEDE abiraterone trial has now closed, 10 years after initiation of accrual, providing the opportunity to assess new data on long-term efficacy of intensified hormone treatment for patients with metastatic prostate cancer.
+
+
+
+The STAMPEDE abiraterone and enzalutamide trial¹⁰ was initiated after completion of accrual to the abiraterone trial and aimed to improve the efficacy of abiraterone acetate and prednisolone (herein referred
+
+
+
+to as abiraterone) or enzalutamide by addressing
+previous observations of an increase in androgen
+synthesis in patients who received androgen receptor
+antagonists and of residual hormones that could
+activate androgen receptor signalling in those who
+received abiraterone. We hypothesised that the com-
+bination of abiraterone and enzalutamide would
+prevent these consequences of either treatment, delay
+resistance, and improve efficacy when initiated for
+patients starting long-term androgen deprivation
+therapy. Given the expected increased toxic effects,
+we concluded that a large treatment effect size would
+be required to change clinical practice. We designed
+a pragmatic strategy comparing this combination
+with the standard of care at the time (ie, androgen
+deprivation therapy) in the STAMPEDE platform
+protocol and planned to use meta-analysis methods to
+indirectly compare with the abiraterone trial.10
+
+
+
+Given that our group and others identified a larger than
+anticipated survival benefit for patients with metastatic
+cancer who received abiraterone⁴,¹¹ or enzalutamide,¹² in
+2019, we amended the trial statistical plan to extend the
+abiraterone and enzalutamide trial and obtain sufficient
+power to indirectly identify an approximately 15% reduction
+in risk of death compared with abiraterone alone.¹³ There
+were no shared control patients and patients in both trials
+met the same eligibility criteria, underwent similar
+schedules of assessments, and were recruited at the same
+
+
+
+## Research in context
+
+### Evidence before this study
+We searched for randomised controlled trials published in English in MEDLINE from Jan 1, 1966, to June 30, 2021, Embase from Jan 1, 1982, to June 30, 2021, and major urology and oncology conference proceedings from Jan 1, 1990, to June 30, 2021, using search terms including ("metastatic" AND "prostate cancer" AND "sensitive") AND ("abiraterone" OR "enzalutamide" OR "apalutamide" OR "darolutamide"). There were no randomised trials that tested the combination of abiraterone and one of the androgen receptor antagonists for patients with metastatic hormone-sensitive prostate cancer. However, six trials that randomly assigned patients to one of these agents reported improvements in survival and three of these reported final survival analysis after a maximum median follow-up of 51 months.
+
+
+
+**Added value of this study**
+To our knowledge, this is the first phase 3 randomised trial
+evaluating abiraterone with an androgen receptor antagonist
+added at the start of androgen deprivation therapy for patients
+with metastatic prostate cancer. Our meta-analysis on two trials
+
+
+
+performed using a platform protocol compares abiraterone and enzalutamide added to androgen deprivation therapy versus abiraterone plus androgen deprivation therapy, including updated survival data after a median follow-up of 96 months (IQR 86–107). Extended follow-up of patients starting intensified hormone therapy for metastatic prostate cancer—now the standard of care—shows clinically significant survival benefits of adding abiraterone to androgen deprivation therapy, which were maintained after 84 months. Combining androgen deprivation therapy, abiraterone, and enzalutamide increases toxic effects but does not improve efficacy versus abiraterone plus androgen deprivation therapy.
+
+
+
+**Implications of all the available evidence**
+Together with other trials in patients with metastatic castration-
+resistant and high-risk localised prostate cancer, we conclude
+that androgen receptor antagonists and abiraterone should not
+be combined for any disease setting. Clinically important
+improvements in survival and disease remission from addition
+of abiraterone to androgen deprivation therapy are maintained
+for longer than 7 years.
+
+
+
+444
+
+
+
+www.thelancet.com/oncology Vol 24 May 2023

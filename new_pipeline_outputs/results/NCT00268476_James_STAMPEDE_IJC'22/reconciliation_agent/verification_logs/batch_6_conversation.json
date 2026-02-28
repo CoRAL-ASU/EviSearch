@@ -1,0 +1,178 @@
+{
+  "doc_id": "NCT00268476_James_STAMPEDE_IJC'22",
+  "tool_calls_sequence": [
+    {
+      "name": "submit_verification",
+      "args": {
+        "results_keys": [
+          "Metastases - N (%) | Liver | Treatment",
+          "Metastases - N (%) | Bone | Control",
+          "Metastases - N (%) | Bone | Treatment",
+          "Metastases - N (%) | Nodal | Treatment",
+          "Metastases - N (%) | Liver | Control",
+          "Metastases - N (%) | Lungs | Treatment",
+          "Metastases - N (%) | Nodal | Control",
+          "Metastases - N (%) | Lungs | Control"
+        ]
+      }
+    }
+  ],
+  "conversation": [
+    {
+      "turn": 0,
+      "role": "user",
+      "content": "Reconcile the following columns. Document has 13 pages. Sources are anonymous (A and B).\n\nCOLUMNS:\n\n---\nColumn 1: Metastases - N (%) | Liver | Treatment\nDefinition: What the number and percentage of participants in the treatment of the trial who had liver as the metastatic site? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.\n  A: value=\"7 (1%)\" | page=5 | modality=table | reasoning=\"Table 1, under 'Site of metastases' for 'Liver' in the 'SOC + AAP' column.\"\n  B: value=\"7 (1%)\" | page=5 | modality=table | reasoning=\"Extracted from Table 1 'Baseline characteristics' on page 5, under 'Site of metastases' for the SOC + AAP arm.\"\n\n---\nColumn 2: Metastases - N (%) | Liver | Control\nDefinition: What the number and percentage of participants in the control arm of the trial who had liver as the metastatic site? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.\n  A: value=\"8 (2%)\" | page=5 | modality=table | reasoning=\"Table 1, under 'Site of metastases' for 'Liver' in the 'SOC-alone' column.\"\n  B: value=\"8 (2%)\" | page=5 | modality=table | reasoning=\"Extracted from Table 1 'Baseline characteristics' on page 5, under 'Site of metastases' for the SOC-alone arm.\"\n\n---\nColumn 3: Metastases - N (%) | Lungs | Treatment\nDefinition: What the number and percentage of participants in the treatment arm of the trial who had lungs as the metastatic site? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.\n  A: value=\"21 (4%)\" | page=5 | modality=table | reasoning=\"Table 1, under 'Site of metastases' for 'Lung' in the 'SOC + AAP' column.\"\n  B: value=\"21 (4%)\" | page=5 | modality=table | reasoning=\"Extracted from Table 1 'Baseline characteristics' on page 5, under 'Site of metastases' for the SOC + AAP arm.\"\n\n---\nColumn 4: Metastases - N (%) | Lungs | Control\nDefinition: What the number and percentage of participants in the control arm of the trial who had lungs as the metastatic site? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.\n  A: value=\"21 (4%)\" | page=5 | modality=table | reasoning=\"Table 1, under 'Site of metastases' for 'Lung' in the 'SOC-alone' column.\"\n  B: value=\"21 (4%)\" | page=5 | modality=table | reasoning=\"Extracted from Table 1 'Baseline characteristics' on page 5, under 'Site of metastases' for the SOC-alone arm.\"\n\n---\nColumn 5: Metastases - N (%) | Bone | Treatment\nDefinition: What number and percentage of participants in the treatment arm of the clinical trial who have metastases in the bone? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.\n  A: value=\"434 (87%)\" | page=5 | modality=table | reasoning=\"Table 1, under 'Site of metastases' for 'Bone' in the 'SOC + AAP' column.\"\n  B: value=\"434 (87%)\" | page=5 | modality=table | reasoning=\"Extracted from Table 1 'Baseline characteristics' on page 5, under 'Site of metastases' for the SOC + AAP arm.\"\n\n---\nColumn 6: Metastases - N (%) | Bone | Control\nDefinition: What the number and percentage of patients showing metastases in the bone in the control arm of the trial? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.\n  A: value=\"448 (89%)\" | page=5 | modality=table | reasoning=\"Table 1, under 'Site of metastases' for 'Bone' in the 'SOC-alone' column.\"\n  B: value=\"448 (89%)\" | page=5 | modality=table | reasoning=\"Extracted from Table 1 'Baseline characteristics' on page 5, under 'Site of metastases' for the SOC-alone arm.\"\n\n---\nColumn 7: Metastases - N (%) | Nodal | Treatment\nDefinition: What the number and percentage of participants in the treatment arm of the clinical trial who have metastases in the lymph nodes? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.\n  A: value=\"143 (29%)\" | page=5 | modality=table | reasoning=\"Table 1, under 'Site of metastases' for 'Distant lymph nodes' in the 'SOC + AAP' column.\"\n  B: value=\"143 (29%)\" | page=5 | modality=table | reasoning=\"Extracted from Table 1 'Baseline characteristics' on page 5, under 'Site of metastases' for 'Distant lymph nodes' for the SOC + AAP arm.\"\n\n---\nColumn 8: Metastases - N (%) | Nodal | Control\nDefinition: What the number and percentage of patients showing metastases in the nodal region in the control arm of the trial? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.\n  A: value=\"150 (30%)\" | page=5 | modality=table | reasoning=\"Table 1, under 'Site of metastases' for 'Distant lymph nodes' in the 'SOC-alone' column.\"\n  B: value=\"150 (30%)\" | page=5 | modality=table | reasoning=\"Extracted from Table 1 'Baseline characteristics' on page 5, under 'Site of metastases' for 'Distant lymph nodes' for the SOC-alone arm.\"\n\n\nSubmit verification for easy columns first. For disputed columns, use get_page then submit."
+    },
+    {
+      "turn": 2,
+      "role": "tool",
+      "name": "submit_verification",
+      "args": {
+        "results_keys": [
+          "Metastases - N (%) | Liver | Treatment",
+          "Metastases - N (%) | Bone | Control",
+          "Metastases - N (%) | Bone | Treatment",
+          "Metastases - N (%) | Nodal | Treatment",
+          "Metastases - N (%) | Liver | Control",
+          "Metastases - N (%) | Lungs | Treatment",
+          "Metastases - N (%) | Nodal | Control",
+          "Metastases - N (%) | Lungs | Control"
+        ]
+      },
+      "response": {
+        "submitted": [
+          "Metastases - N (%) | Liver | Treatment",
+          "Metastases - N (%) | Bone | Control",
+          "Metastases - N (%) | Bone | Treatment",
+          "Metastases - N (%) | Nodal | Treatment",
+          "Metastases - N (%) | Liver | Control",
+          "Metastases - N (%) | Lungs | Treatment",
+          "Metastases - N (%) | Nodal | Control",
+          "Metastases - N (%) | Lungs | Control"
+        ]
+      }
+    }
+  ],
+  "results": {
+    "Metastases - N (%) | Liver | Treatment": {
+      "value": "7 (1%)",
+      "reasoning": "Both sources provided the same value, page, and modality.",
+      "verification": "both_correct",
+      "source": {
+        "page": 5,
+        "modality": "table"
+      },
+      "attribution": [
+        {
+          "page": 5,
+          "modality": "table"
+        }
+      ]
+    },
+    "Metastases - N (%) | Bone | Control": {
+      "value": "448 (89%)",
+      "reasoning": "Both sources provided the same value, page, and modality.",
+      "verification": "both_correct",
+      "source": {
+        "page": 5,
+        "modality": "table"
+      },
+      "attribution": [
+        {
+          "page": 5,
+          "modality": "table"
+        }
+      ]
+    },
+    "Metastases - N (%) | Bone | Treatment": {
+      "value": "434 (87%)",
+      "reasoning": "Both sources provided the same value, page, and modality.",
+      "verification": "both_correct",
+      "source": {
+        "page": 5,
+        "modality": "table"
+      },
+      "attribution": [
+        {
+          "page": 5,
+          "modality": "table"
+        }
+      ]
+    },
+    "Metastases - N (%) | Nodal | Treatment": {
+      "value": "143 (29%)",
+      "reasoning": "Both sources provided the same value, page, and modality.",
+      "verification": "both_correct",
+      "source": {
+        "page": 5,
+        "modality": "table"
+      },
+      "attribution": [
+        {
+          "page": 5,
+          "modality": "table"
+        }
+      ]
+    },
+    "Metastases - N (%) | Liver | Control": {
+      "value": "8 (2%)",
+      "reasoning": "Both sources provided the same value, page, and modality.",
+      "verification": "both_correct",
+      "source": {
+        "page": 5,
+        "modality": "table"
+      },
+      "attribution": [
+        {
+          "page": 5,
+          "modality": "table"
+        }
+      ]
+    },
+    "Metastases - N (%) | Lungs | Treatment": {
+      "value": "21 (4%)",
+      "reasoning": "Both sources provided the same value, page, and modality.",
+      "verification": "both_correct",
+      "source": {
+        "page": 5,
+        "modality": "table"
+      },
+      "attribution": [
+        {
+          "page": 5,
+          "modality": "table"
+        }
+      ]
+    },
+    "Metastases - N (%) | Nodal | Control": {
+      "value": "150 (30%)",
+      "reasoning": "Both sources provided the same value, page, and modality.",
+      "verification": "both_correct",
+      "source": {
+        "page": 5,
+        "modality": "table"
+      },
+      "attribution": [
+        {
+          "page": 5,
+          "modality": "table"
+        }
+      ]
+    },
+    "Metastases - N (%) | Lungs | Control": {
+      "value": "21 (4%)",
+      "reasoning": "Both sources provided the same value, page, and modality.",
+      "verification": "both_correct",
+      "source": {
+        "page": 5,
+        "modality": "table"
+      },
+      "attribution": [
+        {
+          "page": 5,
+          "modality": "table"
+        }
+      ]
+    }
+  }
+}

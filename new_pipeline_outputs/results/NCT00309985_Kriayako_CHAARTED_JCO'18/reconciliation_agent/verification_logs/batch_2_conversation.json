@@ -1,0 +1,316 @@
+{
+  "doc_id": "NCT00309985_Kriayako_CHAARTED_JCO'18",
+  "tool_calls_sequence": [
+    {
+      "name": "submit_verification",
+      "args": {
+        "results_keys": [
+          "PS - N (%) | 1-2 | Control",
+          "Volume of disease - N (%) | High | Control",
+          "Gleason score - N (%) | \u2265 8 | Treatment",
+          "PS - N (%) | 0 | Control",
+          "Volume of disease - N (%) | Low | Control",
+          "Gleason score - N (%) | \u2265 8 | Control",
+          "PS - N (%) | 1-2 | Treatment",
+          "Gleason score - N (%) | \u2264 7 | Treatment",
+          "Volume of disease - N (%) | High | Treatment",
+          "PS - N (%) | 0 | Treatment",
+          "Gleason score - N (%) | \u2264 7 | Control"
+        ]
+      }
+    },
+    {
+      "name": "get_page",
+      "args": {
+        "page_numbers": [
+          4
+        ]
+      }
+    },
+    {
+      "name": "submit_verification",
+      "args": {
+        "results_keys": [
+          "Mode of metastases - N (%) | Metachronous | Control",
+          "Mode of metastases - N (%) | Metachronous | Treatment",
+          "Mode of metastases - N (%) | Synchronous | Treatment",
+          "Mode of metastases - N (%) | Synchronous | Control"
+        ]
+      }
+    }
+  ],
+  "conversation": [
+    {
+      "turn": 0,
+      "role": "user",
+      "content": "Reconcile the following columns. Document has 10 pages. Sources are anonymous (A and B).\n\nCOLUMNS:\n\n---\nColumn 1: Volume of disease - N (%) | High | Treatment\nDefinition: What the number and percentage of participants in the treatment arm of the clinical trial with a high volume or burden of metastatic disease? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.\n  A: value=\"263 (66.2%)\" | page=4 | modality=text | reasoning=\"The text on page 4 states: 'In terms of tumor volume, 263 patients (66.2%) in the combination arm... had high-volume disease.' Table 1 also shows 263 patients for 'High volume' in the 'ADT Plus Docetaxel' arm.\"\n  B: value=\"263 (66.2%)\" | page=3 | modality=table | reasoning=\"From Table 1 on page 3, 'High volume' row, 'ADT Plus Docetaxel' column, 'No. of Patients' is 263. Confirmed by text on page 4: '263 patients (66.2%) in the combination arm... had high-volume disease.'\"\n\n---\nColumn 2: Volume of disease - N (%) | High | Control\nDefinition: What the number and percentage of participants in the control arm of the clinical trial with high volume/burden metastasis? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.\n  A: value=\"250 (63.6%)\" | page=4 | modality=text | reasoning=\"The text on page 4 states: '...and 250 patients (63.6%) in the ADT alone arm had high-volume disease.' Table 1 also shows 250 patients for 'High volume' in the 'ADT Alone' arm.\"\n  B: value=\"250 (63.6%)\" | page=3 | modality=table | reasoning=\"From Table 1 on page 3, 'High volume' row, 'ADT Alone' column, 'No. of Patients' is 250. Confirmed by text on page 4: '250 patients (63.6%) in the ADT alone arm had high-volume disease.'\"\n\n---\nColumn 3: Volume of disease - N (%) | Low | Control\nDefinition: What the number and percentage of participants in the control arm of the trial with low volume/burden metastases? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.\n  A: value=\"143 (36.4%)\" | page=3 | modality=table | reasoning=\"Table 1, under 'ADT Alone' and 'Low volume', reports 'No. of Patients' as 143. The total patients in the ADT alone arm were 393 (from Fig 1 and text on page 4). The percentage is (143/393)*100 = 36.39%.\"\n  B: value=\"143 (36.4%)\" | page=3 | modality=table | reasoning=\"From Table 1 on page 3, 'Low volume' row, 'ADT Alone' column, 'No. of Patients' is 143. Percentage calculated as (143/393) * 100 = 36.39%, rounded to 36.4%. Total patients in control arm is 393 (from Fig 1 on page 2).\"\n\n---\nColumn 4: Gleason score - N (%) | \u2264 7 | Treatment\nDefinition: What number and percentage of participants included in the treatment arm of the clinical trial with a Gleason score of 7 or less? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.\n  A: value=\"Not reported\" | page=None | modality=text | reasoning=\"Gleason score breakdown by N (%) for <=7 in the treatment arm is not reported in the document.\"\n  B: value=\"Not reported\" | page=None | modality=text | reasoning=\"Information not found in the provided document pages or through targeted searches for baseline characteristics or Gleason score.\"\n\n---\nColumn 5: Gleason score - N (%) | \u2264 7 | Control\nDefinition: What number and percentage of patients with a Gleason score of 7 or less in the control arm of the trial? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.\n  A: value=\"Not reported\" | page=None | modality=text | reasoning=\"Gleason score breakdown by N (%) for <=7 in the control arm is not reported in the document.\"\n  B: value=\"Not reported\" | page=None | modality=text | reasoning=\"Information not found in the provided document pages or through targeted searches for baseline characteristics or Gleason score.\"\n\n---\nColumn 6: Gleason score - N (%) | \u2265 8 | Treatment\nDefinition: What number and percentage of participants in the treatment arm of the clinical trial with a Gleason score of 8 or higher? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.\n  A: value=\"Not reported\" | page=None | modality=text | reasoning=\"Gleason score breakdown by N (%) for >=8 in the treatment arm is not reported in the document.\"\n  B: value=\"Not reported\" | page=None | modality=text | reasoning=\"Information not found in the provided document pages or through targeted searches for baseline characteristics or Gleason score.\"\n\n---\nColumn 7: Gleason score - N (%) | \u2265 8 | Control\nDefinition: What number and percentage of patients in the control arm of the clinical trial with a Gleason score of 8 or higher? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.\n  A: value=\"Not reported\" | page=None | modality=text | reasoning=\"Gleason score breakdown by N (%) for >=8 in the control arm is not reported in the document.\"\n  B: value=\"Not reported\" | page=None | modality=text | reasoning=\"Information not found in the provided document pages or through targeted searches for baseline characteristics or Gleason score.\"\n\n---\nColumn 8: Mode of metastases - N (%) | Synchronous | Treatment\nDefinition: What the number and percentage of participants with synchronous metastases (metastases at the time of diagnosis of prostate cancer) in the treatment arm of the clinical trial? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.\n  A: value=\"289 (72.8%)\" | page=4 | modality=text | reasoning=\"The text on page 4 states: '289 patients (72.8%) in the combination arm... had had no PLT and were considered to have de novo metastatic disease.' 'De novo metastatic disease' is equivalent to synchronous metastases. This is also consistent with the sum of 'High volume/de novo' (214) and 'Low volume\"\n  B: value=\"Not reported\" | page=None | modality=text | reasoning=\"Information not found in the provided document pages or through targeted searches for baseline characteristics or mode of metastases.\"\n\n---\nColumn 9: Mode of metastases - N (%) | Synchronous | Control\nDefinition: What the number and percentage of participants with synchronous metastases (metastases at the time of diagnosis of prostate cancer) in the control arm of the clinical trial? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.\n  A: value=\"286 (72.8%)\" | page=4 | modality=text | reasoning=\"The text on page 4 states: '...versus 286 patients (72.8%) in the ADT alone arm had had no PLT and were considered to have de novo metastatic disease.' 'De novo metastatic disease' is equivalent to synchronous metastases. This is also consistent with the sum of 'High volume/de novo' (207) and 'Low v\"\n  B: value=\"Not reported\" | page=None | modality=text | reasoning=\"Information not found in the provided document pages or through targeted searches for baseline characteristics or mode of metastases.\"\n\n---\nColumn 10: Mode of metastases - N (%) | Metachronous | Treatment\nDefinition: What number and percentage of participants with metachronous metastases (metastases that occur after the diagnosis of prostate cancer) in the treatment arm of the clinical trial? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.\n  A: value=\"108 (27.2%)\" | page=4 | modality=text | reasoning=\"The total patients in the treatment arm were 397 (Fig 1). The text on page 4 states 289 patients (72.8%) had 'de novo metastatic disease' (synchronous). Therefore, the number of patients with metachronous metastases (prior local therapy) is 397 - 289 = 108. The percentage is (108/397)*100 = 27.2%. T\"\n  B: value=\"Not reported\" | page=None | modality=text | reasoning=\"Information not found in the provided document pages or through targeted searches for baseline characteristics or mode of metastases.\"\n\n---\nColumn 11: Mode of metastases - N (%) | Metachronous | Control\nDefinition: What the number and percentage of patients with metachronous metastases (metastases that occur after the diagnosis of prostate cancer) in the control arm of the clinical trial? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.\n  A: value=\"107 (27.2%)\" | page=4 | modality=text | reasoning=\"The total patients in the control arm were 393 (Fig 1). The text on page 4 states 286 patients (72.8%) had 'de novo metastatic disease' (synchronous). Therefore, the number of patients with metachronous metastases (prior local therapy) is 393 - 286 = 107. The percentage is (107/393)*100 = 27.2%.\"\n  B: value=\"Not reported\" | page=None | modality=text | reasoning=\"Information not found in the provided document pages or through targeted searches for baseline characteristics or mode of metastases.\"\n\n---\nColumn 12: PS - N (%) | 0 | Treatment\nDefinition: What number and percentage of participants included in the treatment arm with a Performance Status (PS) score of 0? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.\n  A: value=\"Not reported\" | page=None | modality=text | reasoning=\"The document mentions 'Eastern Cooperative Oncology Group performance status (0 to 1 v 2)' as a stratification factor on page 3, but does not provide the specific number and percentage of participants with a PS score of 0 in the treatment arm.\"\n  B: value=\"Not reported\" | page=None | modality=text | reasoning=\"Information not found in the provided document pages or through targeted searches for baseline characteristics or Performance Status (PS). While PS was a stratification factor, no specific numbers or percentages for each arm were reported.\"\n\n---\nColumn 13: PS - N (%) | 0 | Control\nDefinition: What the number and percentage of patients with a Performance Status (PS) score of 0 in the control arm of the trial? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.\n  A: value=\"Not reported\" | page=None | modality=text | reasoning=\"The document mentions 'Eastern Cooperative Oncology Group performance status (0 to 1 v 2)' as a stratification factor on page 3, but does not provide the specific number and percentage of participants with a PS score of 0 in the control arm.\"\n  B: value=\"Not reported\" | page=None | modality=text | reasoning=\"Information not found in the provided document pages or through targeted searches for baseline characteristics or Performance Status (PS). While PS was a stratification factor, no specific numbers or percentages for each arm were reported.\"\n\n---\nColumn 14: PS - N (%) | 1-2 | Treatment\nDefinition: What number and percentage of participants with a Performance Status (PS) score of 1-2 in the treatment arm of the clinical trial? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.\n  A: value=\"Not reported\" | page=None | modality=text | reasoning=\"The document mentions 'Eastern Cooperative Oncology Group performance status (0 to 1 v 2)' as a stratification factor on page 3, but does not provide the specific number and percentage of participants with a PS score of 1-2 in the treatment arm.\"\n  B: value=\"Not reported\" | page=None | modality=text | reasoning=\"Information not found in the provided document pages or through targeted searches for baseline characteristics or Performance Status (PS). While PS was a stratification factor, no specific numbers or percentages for each arm were reported.\"\n\n---\nColumn 15: PS - N (%) | 1-2 | Control\nDefinition: What number and percentage of patients with performance status (PS) score of 1-2 in the control arm of the clinical trial? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.\n  A: value=\"Not reported\" | page=None | modality=text | reasoning=\"The document mentions 'Eastern Cooperative Oncology Group performance status (0 to 1 v 2)' as a stratification factor on page 3, but does not provide the specific number and percentage of participants with a PS score of 1-2 in the control arm.\"\n  B: value=\"Not reported\" | page=None | modality=text | reasoning=\"Information not found in the provided document pages or through targeted searches for baseline characteristics or Performance Status (PS). While PS was a stratification factor, no specific numbers or percentages for each arm were reported.\"\n\n\nSubmit verification for easy columns first. For disputed columns, use get_page then submit."
+    },
+    {
+      "turn": 2,
+      "role": "tool",
+      "name": "submit_verification",
+      "args": {
+        "results_keys": [
+          "PS - N (%) | 1-2 | Control",
+          "Volume of disease - N (%) | High | Control",
+          "Gleason score - N (%) | \u2265 8 | Treatment",
+          "PS - N (%) | 0 | Control",
+          "Volume of disease - N (%) | Low | Control",
+          "Gleason score - N (%) | \u2265 8 | Control",
+          "PS - N (%) | 1-2 | Treatment",
+          "Gleason score - N (%) | \u2264 7 | Treatment",
+          "Volume of disease - N (%) | High | Treatment",
+          "PS - N (%) | 0 | Treatment",
+          "Gleason score - N (%) | \u2264 7 | Control"
+        ]
+      },
+      "response": {
+        "submitted": [
+          "PS - N (%) | 1-2 | Control",
+          "Volume of disease - N (%) | High | Control",
+          "Gleason score - N (%) | \u2265 8 | Treatment",
+          "PS - N (%) | 0 | Control",
+          "Volume of disease - N (%) | Low | Control",
+          "Gleason score - N (%) | \u2265 8 | Control",
+          "PS - N (%) | 1-2 | Treatment",
+          "Gleason score - N (%) | \u2264 7 | Treatment",
+          "Volume of disease - N (%) | High | Treatment",
+          "PS - N (%) | 0 | Treatment",
+          "Gleason score - N (%) | \u2264 7 | Control"
+        ]
+      }
+    },
+    {
+      "turn": 3,
+      "role": "tool",
+      "name": "get_page",
+      "args": {
+        "page_numbers": [
+          4
+        ]
+      },
+      "response": {
+        "formatted_chunks": "[Page 4]\n## Page 4\n\nLong-Term Survival Analysis of CHAARTED Trial\n\n\n\nand 393 in the ADT alone arm. This report represents data with\na cutoff date for survival of April 23, 2016, resulting in a median\nfollow-up of 53.7 months. Treatment groups were well balanced, as\npreviously described. The median age was 64 years (range, 36 to 88\nyears) in the combination arm versus 63 years (range, 39 to 91\nyears) in the ADT alone arm. In terms of tumor volume, 263\npatients (66.2%) in the combination arm and 250 patients (63.6%)\nin the ADT alone arm had high-volume disease. Furthermore, 289\npatients (72.8%) in the combination arm versus 286 patients\n(72.8%) in the ADT alone arm had had no PLT and were considered\nto have de novo metastatic disease.\n\n\n\nEfficacy\nAt the time of this analysis, there were 188 deaths in the combination arm and 211 deaths in the ADT alone arm. For the overall population, the median OS was 10.4 months longer in the combination arm (57.6 v 47.2 months; HR for death in the combination arm, 0.72; 95% CI, 0.59 to 0.89; P = .0018; Table 1; Fig 2). Longer follow-up confirmed that the effect of docetaxel was more pronounced for patients with high-volume disease. In this prospectively defined subgroup, with a median follow-up of 53.7 months, there was a median OS benefit of 16.8 months (median OS, 51.2 v 34.4 months; HR for death in the combination\n\n\n\nA<::Kaplan-Meier plot showing Survival (proportion) vs. Time (months).\nLegend:\n- ADT plus docetaxel (blue line)\n- ADT alone (yellow line)\n\nMedian OS (months):\n- ADT plus docetaxel: 51.2\n- ADT alone: 34.4\nHR, 0.63 (95% CI, 0.50 to 0.79); P <.001\n\nNo. at risk:\nTime (months)\nADT plus docetaxel: 263 239 202 151 91 41 16 5 2 0\nADT alone: 250 215 156 104 59 19 9 1 0 0\n: chart::>B<::Kaplan-Meier plot showing Survival (proportion) vs. Time (months).\nLegend:\n- ADT plus docetaxel (blue line)\n- ADT alone (yellow line)\n\nMedian OS (months):\n- ADT plus docetaxel: 63.5\n- ADT alone: NR\nHR, 1.04 (95% CI, 0.70 to 1.55); P = .86\n\nNo. at risk:\nTime (months)\nADT plus docetaxel: 134 127 112 94 64 26 12 2 1 0\nADT alone: 143 137 122 94 67 26 12 0 0 0\n: chart::>C<::Kaplan-Meier plot showing Survival (proportion) vs. Time (months).\nLegend:\n- ADT plus docetaxel (blue line)\n- ADT alone (yellow line)\n\nMedian OS (months):\n- ADT plus docetaxel: 48.0\n- ADT alone: 33.1\nHR, 0.63 (95% CI, 0.49 to 0.81); P <.001\n\nNo. at risk:\nTime (months)\nADT plus docetaxel: 214 194 159 118 64 27 11 3 2 0\nADT alone: 207 173 127 82 47 19 9 1 0 0\n: chart::>D<::Kaplan-Meier plot showing Survival (proportion) vs. Time (months).\nLegend:\n- ADT plus docetaxel (blue line)\n- ADT alone (yellow line)\n\nMedian OS (months):\n- ADT plus docetaxel: 58.3\n- ADT alone: 59.8\nHR, 0.86 (95% CI, 0.52 to 1.42); P = .55\n\nNo. at risk:\nTime (months)\nADT plus docetaxel: 75 73 63 52 31 13 7 2 0 0\nADT alone: 79 75 63 48 32 11 7 0 0 0\n: chart::>E<::Kaplan-Meier plot showing Survival (proportion) vs. Time (months).\nLegend:\n- ADT plus docetaxel (blue line)\n- ADT alone (yellow line)\n\nMedian OS (months):\n- ADT plus docetaxel: 66.9\n- ADT alone: 51.7\nHR, 0.72 (95% CI, 0.36 to 1.46); P = .37\n\nNo. at risk:\nTime (months)\nADT plus docetaxel: 49 45 43 33 27 14 5 2 0 0\nADT alone: 42 41 29 22 12 0 0 0 0 0\n: chart::>F<::Kaplan-Meier plot showing Survival (proportion) vs. Time (months).\nLegend:\n- ADT plus docetaxel (blue line)\n- ADT alone (yellow line)\n\nMedian OS (months):\n- ADT plus docetaxel: 69.6\n- ADT alone: NR\nHR, 1.25 (95% CI, 0.60 to 2.60); P = .55\n\nNo. at risk:\nTime (months)\nADT plus docetaxel: 59 54 49 42 33 13 5 0 0 0\nADT alone: 64 62 59 46 35 15 5 1 0 0\n: chart::>\n\n\n\nFig 3. Kaplan-Meier estimates of overall\nsurvival (OS) for (A) High-volume total pa-\ntient population, (B) Low-volume total pa-\ntient population, (C) High-volume de novo\nmetastatic patients, (D) Low-volume de\nnovo metastatic patients, (E) High-volume\npatients with prior local therapy, (F) Low-\nvolume patients with prior local therapy. HR,\nhazard ratio; NR, not reached.\n\n\n\njco.org\n\n\n\n\u00a9 2018 by American Society of Clinical Oncology\n\n\n\n1083\n\n\n\nDownloaded from ascopubs.org by Mayo Foundation--Rochester on October 9, 2021 from 129.176.151.029\nCopyright \u00a9 2021 American Society of Clinical Oncology. All rights reserved.",
+        "pages_returned": [
+          4
+        ]
+      }
+    },
+    {
+      "turn": 4,
+      "role": "tool",
+      "name": "submit_verification",
+      "args": {
+        "results_keys": [
+          "Mode of metastases - N (%) | Metachronous | Control",
+          "Mode of metastases - N (%) | Metachronous | Treatment",
+          "Mode of metastases - N (%) | Synchronous | Treatment",
+          "Mode of metastases - N (%) | Synchronous | Control"
+        ]
+      },
+      "response": {
+        "submitted": [
+          "Mode of metastases - N (%) | Metachronous | Control",
+          "Mode of metastases - N (%) | Metachronous | Treatment",
+          "Mode of metastases - N (%) | Synchronous | Treatment",
+          "Mode of metastases - N (%) | Synchronous | Control"
+        ]
+      }
+    }
+  ],
+  "results": {
+    "PS - N (%) | 1-2 | Control": {
+      "value": "Not reported",
+      "reasoning": "",
+      "verification": "both_correct",
+      "source": {
+        "page": null,
+        "modality": "text"
+      },
+      "attribution": []
+    },
+    "Volume of disease - N (%) | High | Control": {
+      "value": "250 (63.6%)",
+      "reasoning": "",
+      "verification": "both_correct",
+      "source": {
+        "page": 4,
+        "modality": "text"
+      },
+      "attribution": [
+        {
+          "page": 4,
+          "modality": "text"
+        }
+      ]
+    },
+    "Gleason score - N (%) | \u2265 8 | Treatment": {
+      "value": "Not reported",
+      "reasoning": "",
+      "verification": "both_correct",
+      "source": {
+        "page": null,
+        "modality": "text"
+      },
+      "attribution": []
+    },
+    "PS - N (%) | 0 | Control": {
+      "value": "Not reported",
+      "reasoning": "",
+      "verification": "both_correct",
+      "source": {
+        "page": null,
+        "modality": "text"
+      },
+      "attribution": []
+    },
+    "Volume of disease - N (%) | Low | Control": {
+      "value": "143 (36.4%)",
+      "reasoning": "",
+      "verification": "both_correct",
+      "source": {
+        "page": 3,
+        "modality": "table"
+      },
+      "attribution": [
+        {
+          "page": 3,
+          "modality": "table"
+        }
+      ]
+    },
+    "Gleason score - N (%) | \u2265 8 | Control": {
+      "value": "Not reported",
+      "reasoning": "",
+      "verification": "both_correct",
+      "source": {
+        "page": null,
+        "modality": "text"
+      },
+      "attribution": []
+    },
+    "PS - N (%) | 1-2 | Treatment": {
+      "value": "Not reported",
+      "reasoning": "",
+      "verification": "both_correct",
+      "source": {
+        "page": null,
+        "modality": "text"
+      },
+      "attribution": []
+    },
+    "Gleason score - N (%) | \u2264 7 | Treatment": {
+      "value": "Not reported",
+      "reasoning": "",
+      "verification": "both_correct",
+      "source": {
+        "page": null,
+        "modality": "text"
+      },
+      "attribution": []
+    },
+    "Volume of disease - N (%) | High | Treatment": {
+      "value": "263 (66.2%)",
+      "reasoning": "",
+      "verification": "both_correct",
+      "source": {
+        "page": 4,
+        "modality": "text"
+      },
+      "attribution": [
+        {
+          "page": 4,
+          "modality": "text"
+        }
+      ]
+    },
+    "PS - N (%) | 0 | Treatment": {
+      "value": "Not reported",
+      "reasoning": "",
+      "verification": "both_correct",
+      "source": {
+        "page": null,
+        "modality": "text"
+      },
+      "attribution": []
+    },
+    "Gleason score - N (%) | \u2264 7 | Control": {
+      "value": "Not reported",
+      "reasoning": "",
+      "verification": "both_correct",
+      "source": {
+        "page": null,
+        "modality": "text"
+      },
+      "attribution": []
+    },
+    "Mode of metastases - N (%) | Metachronous | Control": {
+      "value": "107 (27.2%)",
+      "reasoning": "",
+      "verification": "A_correct_B_wrong",
+      "source": {
+        "page": 4,
+        "modality": "text",
+        "verbatim_quote": "and 393 in the ADT alone arm. ... versus 286 patients (72.8%) in the ADT alone arm had had no PLT and were considered to have de novo metastatic disease."
+      },
+      "attribution": [
+        {
+          "page": 4,
+          "modality": "text",
+          "verbatim_quote": "and 393 in the ADT alone arm. ... versus 286 patients (72.8%) in the ADT alone arm had had no PLT and were considered to have de novo metastatic disease."
+        }
+      ]
+    },
+    "Mode of metastases - N (%) | Metachronous | Treatment": {
+      "value": "108 (27.2%)",
+      "reasoning": "",
+      "verification": "A_correct_B_wrong",
+      "source": {
+        "page": 4,
+        "modality": "text",
+        "verbatim_quote": "289 patients (72.8%) in the combination arm versus 286 patients (72.8%) in the ADT alone arm had had no PLT and were considered to have de novo metastatic disease."
+      },
+      "attribution": [
+        {
+          "page": 4,
+          "modality": "text",
+          "verbatim_quote": "289 patients (72.8%) in the combination arm versus 286 patients (72.8%) in the ADT alone arm had had no PLT and were considered to have de novo metastatic disease."
+        }
+      ]
+    },
+    "Mode of metastases - N (%) | Synchronous | Treatment": {
+      "value": "289 (72.8%)",
+      "reasoning": "",
+      "verification": "A_correct_B_wrong",
+      "source": {
+        "page": 4,
+        "modality": "text",
+        "verbatim_quote": "289 patients (72.8%) in the combination arm versus 286 patients (72.8%) in the ADT alone arm had had no PLT and were considered to have de novo metastatic disease."
+      },
+      "attribution": [
+        {
+          "page": 4,
+          "modality": "text",
+          "verbatim_quote": "289 patients (72.8%) in the combination arm versus 286 patients (72.8%) in the ADT alone arm had had no PLT and were considered to have de novo metastatic disease."
+        }
+      ]
+    },
+    "Mode of metastases - N (%) | Synchronous | Control": {
+      "value": "286 (72.8%)",
+      "reasoning": "",
+      "verification": "A_correct_B_wrong",
+      "source": {
+        "page": 4,
+        "modality": "text",
+        "verbatim_quote": "289 patients (72.8%) in the combination arm versus 286 patients (72.8%) in the ADT alone arm had had no PLT and were considered to have de novo metastatic disease."
+      },
+      "attribution": [
+        {
+          "page": 4,
+          "modality": "text",
+          "verbatim_quote": "289 patients (72.8%) in the combination arm versus 286 patients (72.8%) in the ADT alone arm had had no PLT and were considered to have de novo metastatic disease."
+        }
+      ]
+    }
+  }
+}

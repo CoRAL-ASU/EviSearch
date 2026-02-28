@@ -25,24 +25,35 @@
 # python experiment-scripts/baseline_file_search_gemini_native.py --pdf "dataset/NCT00268476_Attard_STAMPEDE_Lancet'23.pdf" --model gemini-2.5-flash --workers 10 --run-eval-only
 
 # -----------------------------------------------------------------------------
-# Baseline: Landing-AI parsed markdown + Gemini (END-TO-END for all trials)
+# Baseline: Landing-AI parsed markdown (END-TO-END for all trials)
 # Discovers every trial folder that has parsed_markdown.md and runs full pipeline
 # (extraction + evaluation) for each trial.
 #
 # Usage:
-#   bash run_baselines.sh
+#   bash run_baselines.sh                    # Gemini (default)
+#   BASELINE=gpt4 bash run_baselines.sh      # GPT-4.1
 #
 # Optional overrides:
 #   MODEL=gemini-2.5-flash WORKERS=10 bash run_baselines.sh
+#   BASELINE=gpt4 MODEL=gpt-4.1 bash run_baselines.sh
 # -----------------------------------------------------------------------------
-MODEL="${MODEL:-gemini-2.5-flash}"
+BASELINE="${BASELINE:-gemini}"
+if [ "$BASELINE" = "gpt4" ]; then
+  MODEL="${MODEL:-gpt-4.1}"
+  SCRIPT="experiment-scripts/baseline_landing_ai_w_gpt4.py"
+  OUT_BASE="experiment-scripts/baseline_landing_ai_w_gpt4/results"
+else
+  MODEL="${MODEL:-gemini-2.5-flash}"
+  SCRIPT="experiment-scripts/baseline_landing_ai_w_gemini.py"
+  OUT_BASE="experiment-scripts/baseline_landing_ai_w_gemini/results"
+fi
 WORKERS="${WORKERS:-10}"
 PARSED_ROOT="experiment-scripts/baselines_landing_ai_new_results"
 
 if [ -d "$PARSED_ROOT" ]; then
-  echo "Running baseline_landing_ai_w_gemini end-to-end for all discovered trials"
+  echo "Running baseline_landing_ai_w_${BASELINE} end-to-end for all discovered trials"
   echo "Model: $MODEL | Workers: $WORKERS"
-  OUT_ROOT="experiment-scripts/baseline_landing_ai_w_gemini/results/$MODEL"
+  OUT_ROOT="$OUT_BASE/$MODEL"
   for parsed_md in "$PARSED_ROOT"/*/parsed_markdown.md; do
     [ -f "$parsed_md" ] || continue
     trial="$(basename "$(dirname "$parsed_md")")"
@@ -58,7 +69,7 @@ if [ -d "$PARSED_ROOT" ]; then
     echo "============================================================"
     echo "Trial: $trial"
     echo "============================================================"
-    python experiment-scripts/baseline_landing_ai_w_gemini.py \
+    python "$SCRIPT" \
       --trial "$trial" \
       --model "$MODEL" \
       --workers "$WORKERS" || echo "FAILED trial: $trial (continuing)"

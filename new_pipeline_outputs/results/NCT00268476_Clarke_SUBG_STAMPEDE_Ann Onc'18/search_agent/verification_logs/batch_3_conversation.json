@@ -1,0 +1,162 @@
+{
+  "doc_id": "NCT00268476_Clarke_SUBG_STAMPEDE_Ann Onc'18",
+  "tool_calls_sequence": [
+    {
+      "name": "search_chunks",
+      "args": {
+        "query": "Reporting by prognostic groups synchronous metastases, metachronous diseases, high volume, low volume"
+      }
+    },
+    {
+      "name": "search_chunks",
+      "args": {
+        "query": "Adverse Events All-Cause Grade 3 or Higher Treatment, Adverse Events All-Cause Grade 3 or Higher Control, Adverse Events Treatment-related Grade 3 or Higher Treatment, Adverse Events Treatment-related Grade 3 or Higher Control, Adverse Events Treatment-related Grade 5 Treatment, Adverse Events Treatment-related Grade 5 Control"
+      }
+    },
+    {
+      "name": "submit_extraction",
+      "args": {
+        "results_keys": [
+          "Reporting by prognostic groups - Y/N | High volume",
+          "Adverse Events - N (%) | All-Cause Grade 3 or Higher | Control",
+          "Reporting by prognostic groups - Y/N | Metachronous",
+          "Adverse Events - N (%) | Treatment-related Grade 5 | Treatment",
+          "Adverse Events - N (%) | Treatment-related Grade 5 | Control",
+          "Reporting by prognostic groups - Y/N | Low volume",
+          "Adverse Events - N (%) | All-Cause Grade 3 or Higher | Treatment",
+          "Adverse Events - N (%) | Treatment-related Grade 3 or Higher | Treatment",
+          "Reporting by prognostic groups - Y/N | Synchronous",
+          "Adverse Events - N (%) | Treatment-related Grade 3 or Higher | Control"
+        ]
+      }
+    }
+  ],
+  "conversation": [
+    {
+      "turn": 0,
+      "role": "user",
+      "content": "Extract values for these columns. Document has 0 pages.\n\nCOLUMNS:\n\n---\nColumn 1: Reporting by prognostic groups - Y/N | Synchronous\nDefinition: What indicates whether the results of the clinical trial were reported based on prognostic groups with synchronous metastases, where synchronous metastases refers to metastases present at the time of diagnosis of prostate cancer. with a response of either \"yes\" (Y) or \"no\" (N)? Answer Yes or No;\n---\nColumn 2: Reporting by prognostic groups - Y/N | Metachronous\nDefinition: What indicates whether the results of the clinical trial were reported based on prognostic groups of patients with metachronous diseases (diseases that occur at different times). with a response of either \"yes\" (Y) or \"no\" (N)? Answer Yes or No\n---\nColumn 3: Reporting by prognostic groups - Y/N | High volume\nDefinition: What indicates whether the results of the clinical trial were reported based on prognostic groups with high volume/burden of metastases, with a response of either \"yes\" (Y) or \"no\" (N)? Answer Yes or No\n---\nColumn 4: Reporting by prognostic groups - Y/N | Low volume\nDefinition: What indicates whether the results were reported based on prognostic groups having a low volume of metastasis, with a yes or no response (Y/N)? Answer Yes or No\n---\nColumn 5: Adverse Events - N (%) | All-Cause Grade 3 or Higher | Treatment\nDefinition: What the number and percentage of patients experiencing adverse events of all causes with a grade of 3 or higher in the treatment arm of the trial? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.\n---\nColumn 6: Adverse Events - N (%) | All-Cause Grade 3 or Higher | Control\nDefinition: What number and percentage of patients experiencing all-cause adverse events with a grade of 3 or higher in the control arm of the trial? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.\n---\nColumn 7: Adverse Events - N (%) | Treatment-related Grade 3 or Higher | Treatment\nDefinition: What number and percentage of patients experiencing treatment-related adverse events with a grade of 3 or higher in the treatment arm of the trial? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.\n---\nColumn 8: Adverse Events - N (%) | Treatment-related Grade 3 or Higher | Control\nDefinition: What the number and percentage of patients experiencing adverse events that are related to the treatment and have a severity grade of 3 or higher in the control arm of the clinical trial? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.\n---\nColumn 9: Adverse Events - N (%) | Treatment-related Grade 5 | Treatment\nDefinition: What the number and percentage of patients showing adverse events that are treatment-related and have a grade of 5 in the treatment arm of the trial? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.\n---\nColumn 10: Adverse Events - N (%) | Treatment-related Grade 5 | Control\nDefinition: What the number and percentage of patients experiencing treatment-related adverse events with a grade of 5 in the control arm of the clinical trial? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.\n\nFor informational columns (trial name, arms, etc.), use get_chunks_by_page([1, 2]) first. For specific columns, use search_chunks. Submit when you have enough information."
+    },
+    {
+      "turn": 2,
+      "role": "tool",
+      "name": "search_chunks",
+      "args": {
+        "query": "Reporting by prognostic groups synchronous metastases, metachronous diseases, high volume, low volume"
+      },
+      "response": {
+        "matches": [],
+        "formatted_chunks": "No matching chunks found. Try different search terms.",
+        "pages_returned": []
+      }
+    },
+    {
+      "turn": 3,
+      "role": "tool",
+      "name": "search_chunks",
+      "args": {
+        "query": "Adverse Events All-Cause Grade 3 or Higher Treatment, Adverse Events All-Cause Grade 3 or Higher Control, Adverse Events Treatment-related Grade 3 or Higher Treatment, Adverse Events Treatment-related Grade 3 or Higher Control, Adverse Events Treatment-related Grade 5 Treatment, Adverse Events Treatment-related Grade 5 Control"
+      },
+      "response": {
+        "matches": [],
+        "formatted_chunks": "No matching chunks found. Try different search terms.",
+        "pages_returned": []
+      }
+    },
+    {
+      "turn": 4,
+      "role": "tool",
+      "name": "submit_extraction",
+      "args": {
+        "results_keys": [
+          "Reporting by prognostic groups - Y/N | High volume",
+          "Adverse Events - N (%) | All-Cause Grade 3 or Higher | Control",
+          "Reporting by prognostic groups - Y/N | Metachronous",
+          "Adverse Events - N (%) | Treatment-related Grade 5 | Treatment",
+          "Adverse Events - N (%) | Treatment-related Grade 5 | Control",
+          "Reporting by prognostic groups - Y/N | Low volume",
+          "Adverse Events - N (%) | All-Cause Grade 3 or Higher | Treatment",
+          "Adverse Events - N (%) | Treatment-related Grade 3 or Higher | Treatment",
+          "Reporting by prognostic groups - Y/N | Synchronous",
+          "Adverse Events - N (%) | Treatment-related Grade 3 or Higher | Control"
+        ]
+      },
+      "response": {
+        "submitted": [
+          "Reporting by prognostic groups - Y/N | High volume",
+          "Adverse Events - N (%) | All-Cause Grade 3 or Higher | Control",
+          "Reporting by prognostic groups - Y/N | Metachronous",
+          "Adverse Events - N (%) | Treatment-related Grade 5 | Treatment",
+          "Adverse Events - N (%) | Treatment-related Grade 5 | Control",
+          "Reporting by prognostic groups - Y/N | Low volume",
+          "Adverse Events - N (%) | All-Cause Grade 3 or Higher | Treatment",
+          "Adverse Events - N (%) | Treatment-related Grade 3 or Higher | Treatment",
+          "Reporting by prognostic groups - Y/N | Synchronous",
+          "Adverse Events - N (%) | Treatment-related Grade 3 or Higher | Control"
+        ]
+      }
+    }
+  ],
+  "results": {
+    "Reporting by prognostic groups - Y/N | High volume": {
+      "value": "Not reported",
+      "reasoning": "No information found in the document regarding reporting by prognostic groups with high volume of metastases.",
+      "found": false,
+      "attribution": []
+    },
+    "Adverse Events - N (%) | All-Cause Grade 3 or Higher | Control": {
+      "value": "Not reported",
+      "reasoning": "No information found in the document regarding all-cause grade 3 or higher adverse events in the control arm.",
+      "found": false,
+      "attribution": []
+    },
+    "Reporting by prognostic groups - Y/N | Metachronous": {
+      "value": "Not reported",
+      "reasoning": "No information found in the document regarding reporting by prognostic groups with metachronous diseases.",
+      "found": false,
+      "attribution": []
+    },
+    "Adverse Events - N (%) | Treatment-related Grade 5 | Treatment": {
+      "value": "Not reported",
+      "reasoning": "No information found in the document regarding treatment-related grade 5 adverse events in the treatment arm.",
+      "found": false,
+      "attribution": []
+    },
+    "Adverse Events - N (%) | Treatment-related Grade 5 | Control": {
+      "value": "Not reported",
+      "reasoning": "No information found in the document regarding treatment-related grade 5 adverse events in the control arm.",
+      "found": false,
+      "attribution": []
+    },
+    "Reporting by prognostic groups - Y/N | Low volume": {
+      "value": "Not reported",
+      "reasoning": "No information found in the document regarding reporting by prognostic groups with low volume of metastases.",
+      "found": false,
+      "attribution": []
+    },
+    "Adverse Events - N (%) | All-Cause Grade 3 or Higher | Treatment": {
+      "value": "Not reported",
+      "reasoning": "No information found in the document regarding all-cause grade 3 or higher adverse events in the treatment arm.",
+      "found": false,
+      "attribution": []
+    },
+    "Adverse Events - N (%) | Treatment-related Grade 3 or Higher | Treatment": {
+      "value": "Not reported",
+      "reasoning": "No information found in the document regarding treatment-related grade 3 or higher adverse events in the treatment arm.",
+      "found": false,
+      "attribution": []
+    },
+    "Reporting by prognostic groups - Y/N | Synchronous": {
+      "value": "Not reported",
+      "reasoning": "No information found in the document regarding reporting by prognostic groups with synchronous metastases.",
+      "found": false,
+      "attribution": []
+    },
+    "Adverse Events - N (%) | Treatment-related Grade 3 or Higher | Control": {
+      "value": "Not reported",
+      "reasoning": "No information found in the document regarding treatment-related grade 3 or higher adverse events in the control arm.",
+      "found": false,
+      "attribution": []
+    }
+  }
+}

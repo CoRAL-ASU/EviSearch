@@ -1,0 +1,318 @@
+{
+  "doc_id": "NCT00268476_Attard_STAMPEDE_Lancet'23",
+  "tool_calls_sequence": [
+    {
+      "name": "submit_verification",
+      "args": {
+        "results_keys": [
+          "Trial",
+          "Median Age (years) | Treatment",
+          "Median Age (years) | Control",
+          "No. of Deaths - N | Treatment",
+          "PFS Rate (%) | Overall | Treatment",
+          "Median On-Treatment Duration (mo) | Control",
+          "No. of Deaths - N | Control",
+          "Median On-Treatment Duration (mo) | Treatment",
+          "PFS Rate (%) | Overall | Control",
+          "TTPSA (mo) | Control",
+          "TTPSA (mo) | Treatment"
+        ]
+      }
+    },
+    {
+      "name": "get_page",
+      "args": {
+        "page_numbers": [
+          1,
+          5,
+          12
+        ]
+      }
+    },
+    {
+      "name": "submit_verification",
+      "args": {
+        "results_keys": [
+          "Treatment Class",
+          "Type of Therapy",
+          "Docetaxel administration - N (%) | Control",
+          "Docetaxel administration - N (%) | Treatment"
+        ]
+      }
+    }
+  ],
+  "conversation": [
+    {
+      "turn": 0,
+      "role": "user",
+      "content": "Reconcile the following columns. Document has 14 pages. Sources are anonymous (A and B).\n\nCOLUMNS:\n\n---\nColumn 1: Treatment Class\nDefinition: What is the categorization or classification of the treatment or therapy received by participants in the clinical trial?. If reported, provide the value; otherwise use 'Not reported'.\n  A: value=\"hormone intensification\" | page=12 | modality=text | reasoning=\"The paper refers to the treatments as 'intensified hormone treatment' and 'hormone intensification'.\"\n  B: value=\"Hormone therapy\" | page=1 | modality=text | reasoning=\"The treatments involve 'Abiraterone acetate plus prednisolone' and 'enzalutamide' which are hormone therapies or androgen deprivation therapies.\"\n\n---\nColumn 2: Trial\nDefinition: What name of the clinical study or experiment being referenced?. If reported, provide the value; otherwise use 'Not reported'.\n  A: value=\"STAMPEDE platform protocol\" | page=1 | modality=text | reasoning=\"The trial is consistently referred to as the 'STAMPEDE platform protocol' throughout the document.\"\n  B: value=\"STAMPEDE platform protocol\" | page=1 | modality=text | reasoning=\"The title of the paper refers to 'STAMPEDE platform protocol'.\"\n\n---\nColumn 3: Type of Therapy\nDefinition: What is the description of the type of treatment or intervention provided to participants in the clinical trial?. If reported, provide the value; otherwise use 'Not reported'.\n  A: value=\"abiraterone acetate plus prednisolone (abiraterone trial); abiraterone acetate and prednisolone plus enzalutamide (abiraterone and enzalutamide trial)\" | page=1 | modality=text | reasoning=\"The 'Summary' and 'Methods' sections describe the specific drug regimens for each trial.\"\n  B: value=\"Androgen deprivation therapy with abiraterone acetate and prednisolone, with or without enzalutamide\" | page=1 | modality=text | reasoning=\"The methods section describes the standard of care as 'androgen deprivation therapy' and the treatment arms as 'standard of care plus abiraterone acetate and prednisolone' or 'standard of care plus abiraterone acetate and prednisolone plus enzalutamide'.\"\n\n---\nColumn 4: Docetaxel administration - N (%) | Treatment\nDefinition: What percentage of participants in the treatment arm of the clinical trial who received docetaxel before or during the trial? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.\n  A: value=\"Abiraterone trial: 0 (0%); Abiraterone and enzalutamide trial: 41 (9%)\" | page=5 | modality=table | reasoning=\"Table 1, 'Docetaxel planned as standard of care' section, shows 'Not applicable (before change in standard of care)' for the abiraterone trial, indicating 0% for both arms. For the abiraterone and enzalutamide trial, the 'Standard of care plus abiraterone and enzalutamide' arm (treatment arm) had 41\"\n  B: value=\"Not reported\" | page=None | modality=text | reasoning=\"While docetaxel was allowed as part of standard of care, the N (%) of participants who *received* it in the overall treatment arm is not explicitly stated. Information found refers to *planned* docetaxel use in a subset of patients in one trial.\"\n\n---\nColumn 5: Docetaxel administration - N (%) | Control\nDefinition: What number and percentage of participants who received docetaxel before or during the trial in the control arm of the clinical trial? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.\n  A: value=\"Abiraterone trial: 0 (0%); Abiraterone and enzalutamide trial: 39 (9%)\" | page=5 | modality=table | reasoning=\"Table 1, 'Docetaxel planned as standard of care' section, shows 'Not applicable (before change in standard of care)' for the abiraterone trial, indicating 0% for both arms. For the abiraterone and enzalutamide trial, the 'Standard of care' arm (control arm) had 39 (9%) planned docetaxel.\"\n  B: value=\"Not reported\" | page=None | modality=text | reasoning=\"While docetaxel was allowed as part of standard of care, the N (%) of participants who *received* it in the overall control arm is not explicitly stated. Information found refers to *planned* docetaxel use in a subset of patients in one trial.\"\n\n---\nColumn 6: Median Age (years) | Treatment\nDefinition: What median age in years of participants included in the treatment arm of the clinical trial? If reported, include the value; use 'Not reported' if missing.\n  A: value=\"Abiraterone trial: 67; Abiraterone and enzalutamide trial: 69\" | page=5 | modality=table | reasoning=\"Table 1, 'Age, years' section, provides the median age for 'Standard of care plus abiraterone' (67) and 'Standard of care plus enzalutamide and abiraterone' (69).\"\n  B: value=\"Abiraterone trial: 67 years; Abiraterone and enzalutamide trial: 69 years\" | page=5 | modality=table | reasoning=\"Extracted from Table 1, 'Baseline characteristics' on page 5.\"\n\n---\nColumn 7: Median Age (years) | Control\nDefinition: What the median age of participants included in the control arm of the clinical trial? If reported, include the value; use 'Not reported' if missing.\n  A: value=\"Abiraterone trial: 67; Abiraterone and enzalutamide trial: 68\" | page=5 | modality=table | reasoning=\"Table 1, 'Age, years' section, provides the median age for 'Standard of care' in both the abiraterone trial (67) and the abiraterone and enzalutamide trial (68).\"\n  B: value=\"Abiraterone trial: 67 years; Abiraterone and enzalutamide trial: 68 years\" | page=5 | modality=table | reasoning=\"Extracted from Table 1, 'Baseline characteristics' on page 5.\"\n\n---\nColumn 8: Median On-Treatment Duration (mo) | Treatment\nDefinition: What is the median duration in months that participants in the treatment arm of the trial received on-treatment therapy? If reported, include the value; use 'Not reported' if missing.\n  A: value=\"Not reported\" | page=None | modality=text | reasoning=\"The document reports median follow-up for the trials and information about patients continuing treatment, but not a specific median on-treatment duration for the entire treatment arm.\"\n  B: value=\"Not reported\" | page=None | modality=text | reasoning=\"Information about 'median time from randomisation to starting abiraterone' was found, but not 'median on-treatment duration'.\"\n\n---\nColumn 9: Median On-Treatment Duration (mo) | Control\nDefinition: What is the median duration in months of participants receiving treatment in the control arm of the clinical trial? If reported, include the value; use 'Not reported' if missing.\n  A: value=\"Not reported\" | page=None | modality=text | reasoning=\"The document reports median follow-up for the trials and mentions 'life-long androgen deprivation therapy' for standard of care, but not a specific median on-treatment duration for the entire control arm.\"\n  B: value=\"Not reported\" | page=None | modality=text | reasoning=\"Information about 'median time from randomisation to starting abiraterone' was found, but not 'median on-treatment duration'.\"\n\n---\nColumn 10: No. of Deaths - N | Treatment\nDefinition: What the number of participants who died in the treatment arm of the clinical trial?.\n  A: value=\"Abiraterone trial: 293; Abiraterone and enzalutamide trial: 228\" | page=4 | modality=figure | reasoning=\"Figure 1, 'Trial profile' section, under 'standard of care plus abiraterone' and 'standard of care plus abiraterone plus enzalutamide', reports the number of deaths.\"\n  B: value=\"Abiraterone trial: 293; Abiraterone and enzalutamide trial: 228\" | page=4 | modality=figure | reasoning=\"Extracted from Figure 1, 'Trial profile' on page 4.\"\n\n---\nColumn 11: No. of Deaths - N | Control\nDefinition: What number of deaths that occurred in the control arm of the clinical trial?.\n  A: value=\"Abiraterone trial: 371; Abiraterone and enzalutamide trial: 292\" | page=4 | modality=figure | reasoning=\"Figure 1, 'Trial profile' section, under 'standard of care' for both trials, reports the number of deaths.\"\n  B: value=\"Abiraterone trial: 371; Abiraterone and enzalutamide trial: 292\" | page=4 | modality=figure | reasoning=\"Extracted from Figure 1, 'Trial profile' on page 4.\"\n\n---\nColumn 12: PFS Rate (%) | Overall | Treatment\nDefinition: What the hazard ratio with confidence intervals of progression-free survival (PFS) of all comparisons in all participants, regardless of metastasis type or volume, in the treatment arm of the trial? If reported, include the rate (percentage) and any accompanying details. If multiple arms are reported, list each arm separately. Use 'Not reported' if missing.\n  A: value=\"Not reported\" | page=None | modality=text | reasoning=\"The document provides Hazard Ratios for 'failure-free survival' (which includes PFS) comparing treatment to control, but does not explicitly state an overall PFS rate (percentage) for the treatment arm alone.\"\n  B: value=\"Not reported\" | page=None | modality=text | reasoning=\"While HR and CI for *metastatic* PFS were found, the column asks for 'PFS Rate (%) | Overall', which is not explicitly stated.\"\n\n---\nColumn 13: PFS Rate (%) | Overall | Control\nDefinition: What hazard ratio with confidence intervals of Progression-Free Survival (PFS) of all comparisons in all participants in the control arm of the trial? If reported, include the rate (percentage) and any accompanying details. If multiple arms are reported, list each arm separately. Use 'Not reported' if missing.\n  A: value=\"Not reported\" | page=None | modality=text | reasoning=\"The document provides Hazard Ratios for 'failure-free survival' (which includes PFS) comparing treatment to control, but does not explicitly state an overall PFS rate (percentage) for the control arm alone.\"\n  B: value=\"Not reported\" | page=None | modality=text | reasoning=\"While HR and CI for *metastatic* PFS were found, the column asks for 'PFS Rate (%) | Overall', which is not explicitly stated.\"\n\n---\nColumn 14: TTPSA (mo) | Treatment\nDefinition: What time To Progression of Serum Androgen (in months) in the treatment arm of the clinical trial? If reported, include the value; use 'Not reported' if missing.\n  A: value=\"Not reported\" | page=None | modality=text | reasoning=\"The document defines 'PSA progression (biochemical failure)' as an outcome but does not report a specific median time to PSA progression (TTPSA) for the treatment arm.\"\n  B: value=\"Not reported\" | page=None | modality=text | reasoning=\"No mention of 'TTPSA' was found in the document.\"\n\n---\nColumn 15: TTPSA (mo) | Control\nDefinition: What time to Progressive Serum Androgen (TTPSA) in months for participants in the control arm of the clinical trial? If reported, include the value; use 'Not reported' if missing.\n  A: value=\"Not reported\" | page=None | modality=text | reasoning=\"The document defines 'PSA progression (biochemical failure)' as an outcome but does not report a specific median time to PSA progression (TTPSA) for the control arm.\"\n  B: value=\"Not reported\" | page=None | modality=text | reasoning=\"No mention of 'TTPSA' was found in the document.\"\n\n\nSubmit verification for easy columns first. For disputed columns, use get_page then submit."
+    },
+    {
+      "turn": 2,
+      "role": "tool",
+      "name": "submit_verification",
+      "args": {
+        "results_keys": [
+          "Trial",
+          "Median Age (years) | Treatment",
+          "Median Age (years) | Control",
+          "No. of Deaths - N | Treatment",
+          "PFS Rate (%) | Overall | Treatment",
+          "Median On-Treatment Duration (mo) | Control",
+          "No. of Deaths - N | Control",
+          "Median On-Treatment Duration (mo) | Treatment",
+          "PFS Rate (%) | Overall | Control",
+          "TTPSA (mo) | Control",
+          "TTPSA (mo) | Treatment"
+        ]
+      },
+      "response": {
+        "submitted": [
+          "Trial",
+          "Median Age (years) | Treatment",
+          "Median Age (years) | Control",
+          "No. of Deaths - N | Treatment",
+          "PFS Rate (%) | Overall | Treatment",
+          "Median On-Treatment Duration (mo) | Control",
+          "No. of Deaths - N | Control",
+          "Median On-Treatment Duration (mo) | Treatment",
+          "PFS Rate (%) | Overall | Control",
+          "TTPSA (mo) | Control",
+          "TTPSA (mo) | Treatment"
+        ]
+      }
+    },
+    {
+      "turn": 3,
+      "role": "tool",
+      "name": "get_page",
+      "args": {
+        "page_numbers": [
+          1,
+          5,
+          12
+        ]
+      },
+      "response": {
+        "formatted_chunks": "[Page 1]\n## Page 1\n\n<::logo: Articles\nBlack sans-serif text centered on a white background::>\n\n\n\nAbiraterone acetate plus prednisolone with or without\nenzalutamide for patients with metastatic prostate cancer\nstarting androgen deprivation therapy: final results from\ntwo randomised phase 3 trials of the STAMPEDE platform\nprotocol\n\n\n\n<::logo: CrossMark\nCrossMark\nA red stylized bird-like shape, a red cursor with a plus sign, and a red circular emblem with a bookmark icon are displayed side by side.::>\n\n\n\n<::transcription of the content\n: A red square logo with \"oa\" in large white letters above \"OPEN ACCESS\" in smaller white letters.\n::>\n\n\n\nGerhardt Attard, Laura Murphy, Noel W Clarke, Ashwin Sachdeva, Craig Jones, Alex Hoyle, William Cross, Robert J Jones, Christopher C Parker,\nSilke Gillessen, Adrian Cook, Chris Brawley, Clare Gilson, Hannah Rush, Hoda Abdel-Aty, Claire L Amos, Claire Murphy, Simon Chowdhury,\nZafar Malik, J Martin Russell, Nazia Parkar, Cheryl Pugh, Carlos Diaz-Montana, Carmel Pezaro, Warren Grant, Helen Saxby, Ian Pedley,\nJoe M O'Sullivan, Alison Birtle, Joanna Gale, Narayanan Srihari, Carys Thomas, Jacob Tanguay, John Wagstaff, Prantik Das, Emma Gray,\nMymoona Alzouebi, Omi Parikh, Angus Robinson, Amir H Montazeri, James Wylie, Anjali Zarkar, Richard Cathomas, Michael D Brown, Yatin Jain,\nDavid P Dearnaley*, Malcolm D Mason*, Duncan Gilbert, Ruth E Langley, Robin Millman, David Matheson, Matthew R Sydest, Louise C Brownt,\nMahesh K B Parmart, Nicholas D Jamest, for the STAMPEDE investigators\u2021\n\n\n\nSummary\nBackground Abiraterone acetate plus prednisolone (herein referred to as abiraterone) or enzalutamide added at the start of androgen deprivation therapy improves outcomes for patients with metastatic prostate cancer. Here, we aimed to evaluate long-term outcomes and test whether combining enzalutamide with abiraterone and androgen deprivation therapy improves survival.\n\n\n\n**Methods** We analysed two open-label, randomised, controlled, phase 3 trials of the STAMPEDE platform protocol, with no overlapping controls, conducted at 117 sites in the UK and Switzerland. Eligible patients (no age restriction) had metastatic, histologically-confirmed prostate adenocarcinoma; a WHO performance status of 0\u20132; and adequate haematological, renal, and liver function. Patients were randomly assigned (1:1) using a computerised algorithm and a minimisation technique to either standard of care (androgen deprivation therapy; docetaxel 75 mg/m\u00b2 intravenously for six cycles with prednisolone 10 mg orally once per day allowed from Dec 17, 2015) or standard of care plus abiraterone acetate 1000 mg and prednisolone 5 mg (in the abiraterone trial) orally or abiraterone acetate and prednisolone plus enzalutamide 160 mg orally once a day (in the abiraterone and enzalutamide trial). Patients were stratified by centre, age, WHO performance status, type of androgen deprivation therapy, use of aspirin or non-steroidal anti-inflammatory drugs, pelvic nodal status, planned radiotherapy, and planned docetaxel use. The primary outcome was overall survival assessed in the intention-to-treat population. Safety was assessed in all patients who started treatment. A fixed-effects meta-analysis of individual patient data was used to compare differences in survival between the two trials. STAMPEDE is registered with ClinicalTrials.gov (NCT00268476) and ISRCTN (ISRCTN78818544).\n\n\n\nFindings Between Nov 15, 2011, and Jan 17, 2014, 1003 patients were randomly assigned to standard of care (n=502) or standard of care plus abiraterone (n=501) in the abiraterone trial. Between July 29, 2014, and March 31, 2016, 916 patients were randomly assigned to standard of care (n=454) or standard of care plus abiraterone and enzalutamide (n=462) in the abiraterone and enzalutamide trial. Median follow-up was 96 months (IQR 86\u2013107) in the abiraterone trial and 72 months (61\u201374) in the abiraterone and enzalutamide trial. In the abiraterone trial, median overall survival was 76.6 months (95% CI 67.8\u201386.9) in the abiraterone group versus 45.7 months (41.6\u201352.0) in the standard of care group (hazard ratio [HR] 0.62 [95% CI 0.53\u20130.73]; p<0.0001). In the abiraterone and enzalutamide trial, median overall survival was 73.1 months (61.9\u201381.3) in the abiraterone and enzalutamide group versus 51.8 months (45.3\u201359.0) in the standard of care group (HR 0.65 [0.55\u20130.77]; p<0.0001). We found no difference in the treatment effect between these two trials (interaction HR 1.05 [0.83\u20131.32]; Pinteraction=0.71) or between-trial heterogeneity (I2 p=0.70). In the first 5 years of treatment, grade 3\u20135 toxic effects were higher when abiraterone was added to standard of care (271 [54%] of 498 vs 192 [38%] of 502 with standard of care) and the highest toxic effects were seen when abiraterone and enzalutamide were added to standard of care (302 [68%] of 445 vs 204 [45%] of 454 with standard of care). Cardiac causes were the most common cause of death due to adverse events (five [1%] with standard of care plus abiraterone and enzalutamide [two attributed to treatment] and one (<1%) with standard of care in the abiraterone trial).\n\n\n\nInterpretation Enzalutamide and abiraterone should not be combined for patients with prostate cancer starting long-\nterm androgen deprivation therapy. Clinically important improvements in survival from addition of abiraterone to\nandrogen deprivation therapy are maintained for longer than 7 years.\n\n\n\nLancet Oncol 2023; 24: 443\u201356\nSee Comment page 416\n*Retired\n\u2020Contributed equally\n\u2021Investigators listed in the\nappendix (p 217)\n\n\n\nCancer Institute, University\nCollege London, London, UK\n(Prof G Attard PhD); University\nCollege London Hospitals,\nLondon, UK (Prof G Attard);\nMedical Research Council\nClinical Trials Unit, University\nCollege London, London, UK\n(L Murphy PhD, A Cook MSc,\nC Brawley MSc, C Gilson MD,\nH Rush MRCP, CL Amos PhD,\nC Murphy BSc, N Parkar BSc,\nC Pugh MSc,\nC Diaz-Montana MSc,\nD Gilbert PhD,\nProf R E Langley MRCP,\nR Millman, Prof M R Sydes MSc,\nProf LC Brown PhD,\nProf MK B Parmar DPhil); Christie\nand Salford Royal NHS\nFoundation Trusts, Manchester,\nUK (Prof N W Clarke ChM,\nA Sachdeva PhD, C Jones FRCS,\nA Hoyle FRCS, JWylie FRCR,\nMD Brown PhD, Y Jain FRCR);\nSt James's University Hospital,\nLeeds, UK (W Cross FRCS);\nBeatson West of Scotland\nCancer Centre (Prof RJ Jones MB)\nand Institute of Cancer Sciences\n(JM Russell FRCR), University of\nGlasgow, Glasgow, UK; Royal\nMarsden NHS Foundation Trust\nand Institute of Cancer\nResearch, London, UK\n(Prof CC Parker MD,\nH Abdel-Aty FRCR,\nProf D P Dearnaley FRCR,\nProf N D James PhD); Oncology\nInstitute of Southern\n\n\n\nwww.thelancet.com/oncology Vol 24 May 2023\n\n\n\n443\n\n---\n\n[Page 5]\n## Page 5\n\nArticles\n\n\n\npredefined sample size for patients with metastatic disease\nalone. There were three interim analyses in the abiraterone\ntrial and two in the abiraterone and enzalutamide trial that\nall concluded with a recommendation to continue as\nplanned. The decision to close these trials and timing of\nthese analyses was based on funding availability.\n\n\n\nEfficacy analyses were done in the intention-to-treat\n(ITT) population (defined as all randomly assigned\npatients). Toxic effects and adverse events were analysed\nin the safety population (defined as patients who started\ntreatment within randomly assigned groups; reported as\nthe maximum grade per patient for each adverse event)\nin the first 5 years of treatment to have enough\nrepresentative patients in both control and study drug\ngroups. To account for different durations of treatment\nexposure in each group, the time to any grade 3\u20135 event\nwas analysed using a cumulative incidence curve.\n\n\n\nStandard survival analysis methods including Cox proportional hazards regression and Kaplan-Meier curves were used to analyse and present time-to-event data. 95% CIs were calculated using the standard error of Kaplan-Meier survival estimates or survival HRs. Estimates were adjusted for stratification factors (except randomisation centre and androgen deprivation therapy type) and stratified according to accrual time periods defined by other recruiting trials within STAMPEDE. Patients without an event triggering an outcome definition were censored when last known to be event free according to a completed follow-up case report form. Adverse events of interest were liver derangement, hypertension, and fatigue reported previously as commonly occurring with abiraterone or enzalutamide. 4,7,12 The proportional hazards assumption was tested using scaled Schoenfeld residuals regression over time. In case of non-proportional hazards in the treatment effect, restricted mean survival time-to-event difference was added from a flexible parametric model with time-varying treatment effect. Prostate cancer-specific survival used a competing risks approach with death from non-prostate cancer causes as the competing risk. Fixed-effects meta-analyses of individual patient data incorporating Cox proportional hazards were used to pool estimates from both trials using the ipdmetan module to compare inter-trial differences.17 Heterogeneity between trials was calculated using Cochran's Q test (I2).\n\n\n\nPrespecified subgroup analyses measured consistency\nof the treatment effect between both trials and across\nrandomisation stratification factors (age, nodal stage,\nWHO status, NSAID or aspirin use, and planned docetaxel\nuse as standard of care) using meta-analysis pooling of the\ninteraction effect estimate between treatment allocation\nand each subgroup. Planned radiotherapy, randomising\ncentre, and choice of androgen deprivation therapy were\nstratification factors but due to a small number of patients\nin one or more of the subgroups, were not included in the\nanalysis. In case of unexpected significant interactions,\na post-hoc Pearson correlation test was done to evaluate\nthe association between subgroups.\n\n\n\nGiven that metastatic volume is prognostic, outcomes split by low-volume and high-volume disease are of interest and were included as an additional prespecified subgroup analysis, in line with other trials of combination therapies in this setting. 8,9,12\n\n\n\nThe significance threshold for p values was set at 0.05\nand data were analysed using Stata (version 17). STAMPEDE\n\n\n\n|  |  |  |  |  |\n| --- | --- | --- | --- | --- |\n|  | Abiraterone trial | Abiraterone trial | Abiraterone and enzalutamide trial |  |\n|  | Standard of care (n=502) | Standard of care plus abiraterone (n=501) | Standard of care (n=454) | Standard of care plus enzalutamide and abiraterone (n=462) |\n| Age, years | Age, years | Age, years | Age, years | Age, years |\n| Median | 67 (62-72) | 67 (62-71) | 68 (64-73) | 69 (63-74) |\n| Min-max | 39-84 | 42-85 | 37-83 | 48-84 |\n| Prostate-specific antigen before androgen deprivation therapy, ng/mL | Prostate-specific antigen before androgen deprivation therapy, ng/mL | Prostate-specific antigen before androgen deprivation therapy, ng/mL | Prostate-specific antigen before androgen deprivation therapy, ng/mL | Prostate-specific antigen before androgen deprivation therapy, ng/mL |\n| Median | 97 (26-358) | 96 (29-371) | 97 (25-319) | 85 (26-337) |\n| Min-max | 1-10530 | 0-21460 | 0-20590 | 1-6881 |\n| Time from diagnosis to randomisation, days | Time from diagnosis to randomisation, days | Time from diagnosis to randomisation, days | Time from diagnosis to randomisation, days | Time from diagnosis to randomisation, days |\n| Median | 71 (51-95) | 77 (54-97) | 75 (56-99) | 78 (59-100) |\n| Min-max | 0-4866 | 3-5384 | 4-5346 | 2-4676 |\n| T stage | T stage | T stage | T stage | T stage |\n| T0-T2 | 56 (11%) | 51 (10%) | 42 (9%) | 47 (10%) |\n| T3 | 270 (54%) | 289 (58%) | 252 (56%) | 273 (59%) |\n| T4 | 137 (27%) | 118 (24%) | 117 (26%) | 95 (21%) |\n| Tx | 39 (8%) | 43 (9%) | 43 (9%) | 47 (10%) |\n| N stage (pelvic nodes) | N stage (pelvic nodes) | N stage (pelvic nodes) | N stage (pelvic nodes) | N stage (pelvic nodes) |\n| NO | 175 (35%) | 167 (33%) | 150 (33%) | 157 (34%) |\n| N+ | 291 (58%) | 293 (58%) | 278 (61%) | 278 (60%) |\n| NX | 36 (7%) | 41 (8%) | 26 (6%) | 27 (6%) |\n| Metastatic volume | Metastatic volume | Metastatic volume | Metastatic volume | Metastatic volume |\n| Low | 204 (41%) | 222 (44%) | 162 (36%) | 195 (42%) |\n| High | 271 (54%) | 253 (51%) | 209 (46%) | 196 (42%) |\n| Missing | 27 (5%) | 26 (5%) | 83 (18%) | 71 (15%) |\n| Gleason Score | Gleason Score | Gleason Score | Gleason Score | Gleason Score |\n| <7 | 118 (24%) | 115 (23%) | 92 (20%) | 79 (17%) |\n| 8 | 106 (21%) | 117 (23%) | 88 (19%) | 94 (20%) |\n| 9 | 245 (49%) | 231 (46%) | 239 (53%) | 258 (56%) |\n| 10 | 23 (5%) | 18 (4%) | 18 (4%) | 17 (4%) |\n| Unknown | 10 (2%) | 20 (4%) | 17 (4%) | 14 (3%) |\n| WHO performance status | WHO performance status | WHO performance status | WHO performance status | WHO performance status |\n| 0 | 370 (74%) | 376 (75%) | 315 (69%) | 325 (70%) |\n| 1 | 125 (25%) | 118 (24%) | 134 (30%) | 129 (28%) |\n| 2 | 7 (1%) | 7 (1%) | 5 (1%) | 8 (2%) |\n| Pain from prostate cancer | Pain from prostate cancer | Pain from prostate cancer | Pain from prostate cancer | Pain from prostate cancer |\n| Absent | 396 (79%) | 389 (78%) | 374 (82%) | 368 (80%) |\n| Present | 102 (20%) | 107 (21%) | 78 (17%) | 86 (19%) |\n| Unknown | 4(1%) | 5 (1%) | 2(<1%) | 8 (2%) |\n| Aspirin use | Aspirin use | Aspirin use | Aspirin use | Aspirin use |\n| No | 412 (82%) | 411 (82%) | 374 (82%) | 377 (82%) |\n| Yes | 90 (18%) | 90 (18%) | 80 (18%) | 85 (18%) |\n| (Table 1 continues on next page) | (Table 1 continues on next page) | (Table 1 continues on next page) | (Table 1 continues on next page) | (Table 1 continues on next page) |\n\n\n\nwww.thelancet.com/oncology Vol 24 May 2023\n\n\n\n447\n\n---\n\n[Page 12]\n## Page 12\n\nArticles\n\n\n\nis maintained with longer follow-up and 23% of patients\nin the abiraterone trial and 22% in the abiraterone\nand enzalutamide trial continued abiraterone with no\nindication for a treatment change after more than\n82 months of follow-up.\n\n\n\nWe also report fewer deaths attributed to prostate cancer in patients who received abiraterone with or without enzalutamide than in those who received standard of care (413 [79%] of 521 in treatment groups vs 581 [88%] of 663 in standard of care groups), suggesting that for some patients with metastatic disease hormone intensification at the start of androgen deprivation therapy controls the prostate cancer for long enough for death from other causes to occur.\n\n\n\nSince 2022, the benefit of triplet therapy with androgen\ndeprivation therapy supplemented by docetaxel and\neither abiraterone or enzalutamide, or darolutamide has\nbeen debated. As with previous trials, 8,12,23,24 none of the\npatients who received androgen deprivation therapy and\nabiraterone or enzalutamide were randomly assigned to\ndocetaxel but a small subgroup in the abiraterone and\nenzalutamide trial received docetaxel as standard of care.\nThe point estimates for risk of death in patients with\nplanned use of docetaxel versus those with no planned use\nof docetaxel were numerically different but we found no\nstatistically significant interaction. Conclusions on the\nefficacy of docetaxel given before abiraterone and\nenzalutamide are confounded by physicians electing to\nuse docetaxel for younger patients and putatively more\naggressive cancers on clinical and pathological criteria\nand are limited by the small number of patients.\n\n\n\nThe interaction with NSAID or aspirin is statistically\nsignificant but not clinically significant. Moreover, the\ninteraction is in the opposite direction to that observed\nin patients with non-metastatic disease recruited to\nSTAMPEDE trials. \u00b9\u2074\n\n\n\nOur trial design was limited to only detect large benefits from combining enzalutamide and abiraterone with androgen deprivation therapy. However, given the toxicity and cost of abiraterone and enzalutamide, missing small differences in treatment effect is an acceptable limitation. There was a 2-year difference in accrual periods that, given the changes in clinical practice in the past 10 years, resulted in patients allocated to the abiraterone and enzalutamide trial receiving different treatment sequences after progression than those in the abiraterone trial. We provided updated information on first therapy instituted at trial-defined progression in the abiraterone trial and new data from the abiraterone and enzalutamide trial. Given that funding for these agents before chemotherapy became more widely available in the UK National Health Service after 2015, more patients had this option at progression in the abiraterone and enzalutamide trial than in the abiraterone trial. Collection and reporting of treatment after progression can be difficult, particularly for later lines and when patients move hospitals or join subsequent trials. Although we anticipate the use of\n\n\n\nsubsequent treatments might be under-reported, we have no reason to think there is bias according to the allocated treatment in these trials. We do not have a detailed assessment of the long-term metabolic toxic effects of intensified hormone treatment plus androgen deprivation therapy and abiraterone with or without enzalutamide. Any increase in mortality from treatment toxicity is offset by the improvement in prostate cancer control, but given the increased life expectancy, management of long-term treatment effects should be prioritised in clinical practice and future trials.\n\n\n\nThe excellent outcomes for 23% of patients who continued abiraterone or abiraterone and enzalutamide at trial closure introduces concerns regarding the risks of harm from continuous treatment to progression, especially for unselected patients with low-volume disease for whom treatment deintensification clinical trial protocols should be considered. Conversely, these and previous trials have reported that despite hormone intensification, a substantial proportion of patients with metastatic prostate cancer relapse and die within 36 months and identification of these patients to offer additional treatment options is a high priority for future trials. Both our trials have closed to further data collection, although we might explore long-term patient outcome monitoring using linkage with health-care systems data.25 In conclusion, enzalutamide and abiraterone should not be combined for patients with prostate cancer starting long-term androgen deprivation therapy; but clinically important improvements in overall survival from addition of abiraterone to androgen deprivation therapy are maintained for longer than 7 years.\n\n\n\n**Contributors**\nGA was the chief investigator of the abiraterone and enzalutamide trial.\nNDJ was the chief investigator of the abiraterone and STAMPEDE trials.\nGA, NWC, MDM, MRS, LCB, MKBP, and NDJ designed the trials. GA,\nAC, CB, LM, MRS, MKBP, and NDJ contributed to the statistical analysis\nplan. CLA, CPu, CD-M, CM, and NP contributed to the trial operations.\nRM and DM were patient representatives. AS, CJ, AH, and YJ analysed\nscans for disease volume with support from MDB. NWC was chair of the\nsafety review committee. WC was chair of the site advisory team. GA,\nNWC, WC, RJJ, CCP, SG, SC, ZM, JMR, DPD, DG, REL, RM, DM, MRS,\nLCB, MKBP, NDJ, HR, HA-A are members and MDM and CG were\nmembers of the trial management group. GA, NWC, WC, RJJ, CCP, SG,\nSC, ZM, JMR, CPe, WG, HS, IP, JMO, AB, JG, NS, CT, JT, JW, PD, EG,\nMA, OP, AR, AHM, JW, AZ, RC, DPD, MDM, and NDJ recruited\npatients. MKBP conceived the original multi-arm multistage platform\ndesign idea. GA wrote the first draft of the manuscript with crucial input\nfrom LM, MRS, LCB and NDJ. All authors approved the final manuscript,\nhad full access to all the data in the study, and accept responsibility to\nsubmit for publication. LM, AC, and CB have accessed and verified the\ndata all the data in the study.\n\n\n\nDeclaration of interests\nGA reports personal fees, grants, and travel support from Janssen and Astellas; personal fees or travel support from Pfizer, Ipsen, Novartis (Advanced Accelerator Applications), Abbott Laboratories, Ferring, ESSA Pharmaceuticals, Bayer Healthcare Pharmaceuticals, BeiGene, Takeda, AstraZeneca, and Sanofi Aventis; grant support from AstraZeneca, Innocrin Pharma, and Arno Therapeutics; receives a share of the royalty income from The Institute of Cancer Research Rewards to Discoverers Scheme for abiraterone; and holds a patent on plasma methylation signatures as biomarkers for prostate cancer\n\n\n\n454\n\n\n\nwww.thelancet.com/oncology Vol 24 May 2023",
+        "pages_returned": [
+          1,
+          5,
+          12
+        ]
+      }
+    },
+    {
+      "turn": 4,
+      "role": "tool",
+      "name": "submit_verification",
+      "args": {
+        "results_keys": [
+          "Treatment Class",
+          "Type of Therapy",
+          "Docetaxel administration - N (%) | Control",
+          "Docetaxel administration - N (%) | Treatment"
+        ]
+      },
+      "response": {
+        "submitted": [
+          "Treatment Class",
+          "Type of Therapy",
+          "Docetaxel administration - N (%) | Control",
+          "Docetaxel administration - N (%) | Treatment"
+        ]
+      }
+    }
+  ],
+  "results": {
+    "Trial": {
+      "value": "STAMPEDE platform protocol",
+      "reasoning": "",
+      "verification": "both_correct",
+      "source": {
+        "page": 1,
+        "modality": "text"
+      },
+      "attribution": [
+        {
+          "page": 1,
+          "modality": "text"
+        }
+      ]
+    },
+    "Median Age (years) | Treatment": {
+      "value": "Abiraterone trial: 67 years; Abiraterone and enzalutamide trial: 69 years",
+      "reasoning": "",
+      "verification": "both_correct",
+      "source": {
+        "page": 5,
+        "modality": "table"
+      },
+      "attribution": [
+        {
+          "page": 5,
+          "modality": "table"
+        }
+      ]
+    },
+    "Median Age (years) | Control": {
+      "value": "Abiraterone trial: 67 years; Abiraterone and enzalutamide trial: 68 years",
+      "reasoning": "",
+      "verification": "both_correct",
+      "source": {
+        "page": 5,
+        "modality": "table"
+      },
+      "attribution": [
+        {
+          "page": 5,
+          "modality": "table"
+        }
+      ]
+    },
+    "No. of Deaths - N | Treatment": {
+      "value": "Abiraterone trial: 293; Abiraterone and enzalutamide trial: 228",
+      "reasoning": "",
+      "verification": "both_correct",
+      "source": {
+        "page": 4,
+        "modality": "figure"
+      },
+      "attribution": [
+        {
+          "page": 4,
+          "modality": "figure"
+        }
+      ]
+    },
+    "PFS Rate (%) | Overall | Treatment": {
+      "value": "Not reported",
+      "reasoning": "",
+      "verification": "both_correct",
+      "source": {
+        "page": null,
+        "modality": "text"
+      },
+      "attribution": []
+    },
+    "Median On-Treatment Duration (mo) | Control": {
+      "value": "Not reported",
+      "reasoning": "",
+      "verification": "both_correct",
+      "source": {
+        "page": null,
+        "modality": "text"
+      },
+      "attribution": []
+    },
+    "No. of Deaths - N | Control": {
+      "value": "Abiraterone trial: 371; Abiraterone and enzalutamide trial: 292",
+      "reasoning": "",
+      "verification": "both_correct",
+      "source": {
+        "page": 4,
+        "modality": "figure"
+      },
+      "attribution": [
+        {
+          "page": 4,
+          "modality": "figure"
+        }
+      ]
+    },
+    "Median On-Treatment Duration (mo) | Treatment": {
+      "value": "Not reported",
+      "reasoning": "",
+      "verification": "both_correct",
+      "source": {
+        "page": null,
+        "modality": "text"
+      },
+      "attribution": []
+    },
+    "PFS Rate (%) | Overall | Control": {
+      "value": "Not reported",
+      "reasoning": "",
+      "verification": "both_correct",
+      "source": {
+        "page": null,
+        "modality": "text"
+      },
+      "attribution": []
+    },
+    "TTPSA (mo) | Control": {
+      "value": "Not reported",
+      "reasoning": "",
+      "verification": "both_correct",
+      "source": {
+        "page": null,
+        "modality": "text"
+      },
+      "attribution": []
+    },
+    "TTPSA (mo) | Treatment": {
+      "value": "Not reported",
+      "reasoning": "",
+      "verification": "both_correct",
+      "source": {
+        "page": null,
+        "modality": "text"
+      },
+      "attribution": []
+    },
+    "Treatment Class": {
+      "value": "Hormone therapy",
+      "reasoning": "",
+      "verification": "B_correct_A_wrong",
+      "source": {
+        "page": 1,
+        "modality": "text",
+        "verbatim_quote": "Abiraterone acetate plus prednisolone with or without enzalutamide for patients with metastatic prostate cancer starting androgen deprivation therapy"
+      },
+      "attribution": [
+        {
+          "page": 1,
+          "modality": "text",
+          "verbatim_quote": "Abiraterone acetate plus prednisolone with or without enzalutamide for patients with metastatic prostate cancer starting androgen deprivation therapy"
+        }
+      ]
+    },
+    "Type of Therapy": {
+      "value": "abiraterone acetate plus prednisolone (abiraterone trial); abiraterone acetate and prednisolone plus enzalutamide (abiraterone and enzalutamide trial)",
+      "reasoning": "",
+      "verification": "A_correct_B_wrong",
+      "source": {
+        "page": 1,
+        "modality": "text",
+        "verbatim_quote": "standard of care plus abiraterone acetate 1000 mg and prednisolone 5 mg (in the abiraterone trial) orally or abiraterone acetate and prednisolone plus enzalutamide 160 mg orally once a day (in the abiraterone and enzalutamide trial)."
+      },
+      "attribution": [
+        {
+          "page": 1,
+          "modality": "text",
+          "verbatim_quote": "standard of care plus abiraterone acetate 1000 mg and prednisolone 5 mg (in the abiraterone trial) orally or abiraterone acetate and prednisolone plus enzalutamide 160 mg orally once a day (in the abiraterone and enzalutamide trial)."
+        }
+      ]
+    },
+    "Docetaxel administration - N (%) | Control": {
+      "value": "Not reported",
+      "reasoning": "",
+      "verification": "B_correct_A_wrong",
+      "source": {
+        "page": null,
+        "modality": "text"
+      },
+      "attribution": []
+    },
+    "Docetaxel administration - N (%) | Treatment": {
+      "value": "Not reported",
+      "reasoning": "",
+      "verification": "B_correct_A_wrong",
+      "source": {
+        "page": null,
+        "modality": "text"
+      },
+      "attribution": []
+    }
+  }
+}

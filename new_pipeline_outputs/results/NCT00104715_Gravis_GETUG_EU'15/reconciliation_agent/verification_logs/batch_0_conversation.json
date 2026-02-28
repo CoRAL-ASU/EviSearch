@@ -1,0 +1,363 @@
+{
+  "doc_id": "NCT00104715_Gravis_GETUG_EU'15",
+  "tool_calls_sequence": [
+    {
+      "name": "submit_verification",
+      "args": {
+        "results_keys": [
+          "Control Arm",
+          "Number of Arms Included",
+          "Control Arm - N",
+          "Add-on Treatment",
+          "Treatment Arm - N",
+          "Total Participants - N",
+          "COE_RCT_IND_OVERALL_RJ",
+          "Quality of Life reported",
+          "Quality of Life Scale"
+        ]
+      }
+    },
+    {
+      "name": "get_page",
+      "args": {
+        "page_numbers": [
+          1,
+          2,
+          3
+        ]
+      }
+    },
+    {
+      "name": "submit_verification",
+      "args": {
+        "results_keys": [
+          "Secondary Endpoint(s)",
+          "Treatment Arm 1 Regimen",
+          "Class of Agent in Treatment Arm 1",
+          "Primary Endpoint(s)",
+          "Treatment Arm(s)",
+          "Median Follow-Up Duration (mo)"
+        ]
+      }
+    }
+  ],
+  "conversation": [
+    {
+      "turn": 0,
+      "role": "user",
+      "content": "Reconcile the following columns. Document has 7 pages. Sources are anonymous (A and B).\n\nCOLUMNS:\n\n---\nColumn 1: Add-on Treatment\nDefinition: What is the name of additional therapy or intervention given in combination with the primary treatment in the clinical trial?. If reported, provide the value; otherwise use 'Not reported'.\n  A: value=\"Docetaxel\" | page=1 | modality=text | reasoning=\"The title of the paper clearly states 'Androgen Deprivation Therapy (ADT) Plus Docetaxel Versus ADT Alone'. Docetaxel is the add-on treatment to ADT.\"\n  B: value=\"Docetaxel\" | page=1 | modality=text | reasoning=\"The title and abstract clearly state 'Androgen Deprivation Therapy (ADT) Plus Docetaxel Versus ADT Alone'. Docetaxel is the add-on treatment.\"\n\n---\nColumn 2: COE_RCT_IND_OVERALL_RJ\nDefinition: What is the overall risk judgment of individual criteria of evidence (COE) in randomized controlled trials (RCT)?.\n  A: value=\"Not reported\" | page=None | modality=text | reasoning=\"This information is not typically reported within a clinical trial paper itself, as it is a qualitative assessment usually performed by external reviewers or meta-analyses.\"\n  B: value=\"Not reported\" | page=None | modality=text | reasoning=\"No information regarding 'overall risk judgment of individual criteria of evidence (COE) in randomized controlled trials (RCT)' was found in the provided pages or search results.\"\n\n---\nColumn 3: Class of Agent in Treatment Arm 1\nDefinition: What the type or category of therapeutic agent used in the first experimental arm of the clinical trial?. If reported, provide the value; otherwise use 'Not reported'.\n  A: value=\"Chemotherapy\" | page=1 | modality=text | reasoning=\"Docetaxel is a chemotherapy agent, as indicated by its use in the treatment arm.\"\n  B: value=\"Chemotherapy (Docetaxel) and Hormone therapy (ADT)\" | page=1 | modality=text | reasoning=\"Treatment Arm 1 is ADT plus Docetaxel. Docetaxel is a chemotherapy agent, and ADT is hormone therapy.\"\n\n---\nColumn 4: Control Arm\nDefinition: What the name of the arm in the clinical trial that does not receive the experimental treatment, serving as a comparison group?. If reported, provide the value; otherwise use 'Not reported'.\n  A: value=\"ADT alone\" | page=1 | modality=text | reasoning=\"The title and abstract specify 'ADT Alone' as the comparison arm.\"\n  B: value=\"ADT Alone\" | page=1 | modality=text | reasoning=\"The title, abstract, and methods section consistently refer to 'ADT Alone' as the control arm.\"\n\n---\nColumn 5: Control Arm - N\nDefinition: What the total number of participants included in the control arm of the clinical trial?. If reported, provide the value; otherwise use 'Not reported'. If the trial contains multiple control arms, report for all separately\n  A: value=\"193\" | page=2 | modality=text | reasoning=\"The text states '385 patients were enrolled including 193 in the ADT arm' and Table 1 confirms 'ADT (n = 193)'.\"\n  B: value=\"193\" | page=2 | modality=text | reasoning=\"Page 2, under '2. Patients and methods', states: '385 patients were enrolled including 193 in the ADT arm and 192 in the ADT plus D arm.' The ADT arm is the control arm.\"\n\n---\nColumn 6: Median Follow-Up Duration (mo)\nDefinition: What the median length of time, measured in months, that participants in the clinical trial were followed up or monitored after the start of the trial? If reported, include the value; use 'Not reported' if missing.\n  A: value=\"83.9\" | page=3 | modality=text | reasoning=\"The abstract states 'median follow-up of 7 yr' and later in the results section 'After a median follow-up of 83.9 mo'. Table 2 also confirms 'Median follow-up, mo: 83.9'.\"\n  B: value=\"83.9 mo\" | page=1 | modality=text | reasoning=\"The abstract states: 'After a median follow-up of 83.9 mo'. Page 3 also confirms 'After a median follow-up of 83.9 mo'.\"\n\n---\nColumn 7: Number of Arms Included\nDefinition: What is the total count of experimental treatment arms and control arms included in the clinical trial?. If reported, provide the value; otherwise use 'Not reported'.\n  A: value=\"2\" | page=1 | modality=text | reasoning=\"The trial compares 'ADT plus D' versus 'ADT alone', indicating two arms.\"\n  B: value=\"2\" | page=1 | modality=text | reasoning=\"The abstract and methods section describe a trial comparing 'ADT plus D versus ADT alone', indicating two arms.\"\n\n---\nColumn 8: Primary Endpoint(s)\nDefinition: What the main outcome(s) or objective(s) that the clinical trial is designed to measure or achieve?. If reported, provide the value; otherwise use 'Not reported'.\n  A: value=\"OS\" | page=1 | modality=text | reasoning=\"The abstract states 'Primary end point was OS'.\"\n  B: value=\"Overall Survival (OS)\" | page=1 | modality=text | reasoning=\"The abstract and section '2.1. Statistics' both state: 'Primary end point was OS.'\"\n\n---\nColumn 9: Quality of Life Scale\nDefinition: What a measure of the participants' overall well-being and satisfaction with their health status, as assessed through a standardized questionnaire or survey, reflecting their perceived quality of life during the clinical trial?.\n  A: value=\"Not reported\" | page=None | modality=text | reasoning=\"The document does not mention any specific quality of life scale used for the GETUG-AFU15 trial.\"\n  B: value=\"Not reported\" | page=None | modality=text | reasoning=\"No specific quality of life scale was mentioned as being used in the GETUG-AFU15 trial in the provided pages or search results.\"\n\n---\nColumn 10: Quality of Life reported\nDefinition: Does the clinical trial report results on the quality of life of participants? Answer Yes or No\n  A: value=\"No\" | page=None | modality=text | reasoning=\"The abstract and main text do not report any quality of life results for the GETUG-AFU15 trial. A reference to GETUG 12 trial mentions QoL, but not for this study.\"\n  B: value=\"No\" | page=6 | modality=text | reasoning=\"While 'quality of life' was mentioned in reference to a different trial (GETUG 12 trial) on page 6, there is no indication that quality of life results were reported for the GETUG-AFU15 trial itself.\"\n\n---\nColumn 11: Secondary Endpoint(s)\nDefinition: What the secondary outcome(s) or objective(s) of the clinical trial, in addition to the primary endpoint, that are being measured or evaluated?. If reported, provide the value; otherwise use 'Not reported'.\n  A: value=\"biochemical progression-free survival (bPFS) and radiographic progression-free survival (rPFS)\" | page=1 | modality=text | reasoning=\"The abstract states 'Secondary end points were biochemical progression-free survival (bPFS) and radiographic progression-free survival (rPFS)'.\"\n  B: value=\"Biochemical progression-free survival (bPFS), Radiographic progression-free survival (rPFS)\" | page=1 | modality=text | reasoning=\"The abstract and section '2.1. Statistics' both state: 'Secondary end points were biochemical progression-free survival (bPFS) and radiographic progression-free survival (rPFS).'\"\n\n---\nColumn 12: Total Participants - N\nDefinition: What are the total number of participants included in the clinical trial? These include only participants who were inlcuded in either the treatment or control arm of the clinical trial. If reported, provide the value; otherwise use 'Not reported'.If multiple comparative trials are mentioned, report for all separately\n  A: value=\"385\" | page=1 | modality=text | reasoning=\"The abstract states 'Randomized phase 3 trial of ADT plus D versus ADT alone in 385 mNCPC patients'. The 'Patients and methods' section also confirms '385 patients were enrolled'.\"\n  B: value=\"385\" | page=1 | modality=text | reasoning=\"The abstract states '385 mNCPC patients'. Page 2, under '2. Patients and methods', also states '385 patients were enrolled'.\"\n\n---\nColumn 13: Treatment Arm - N\nDefinition: What are the total number of participants included in the experimental arm of the clinical trial?. If reported, provide the value; otherwise use 'Not reported'. If the trial contains multiple treatment arms, report for all separately\n  A: value=\"192\" | page=2 | modality=text | reasoning=\"The text states '385 patients were enrolled including... 192 in the ADT plus D arm' and Table 1 confirms 'ADT plus D (n = 192)'.\"\n  B: value=\"192\" | page=2 | modality=text | reasoning=\"Page 2, under '2. Patients and methods', states: '385 patients were enrolled including 193 in the ADT arm and 192 in the ADT plus D arm.' The ADT plus D arm is the treatment arm.\"\n\n---\nColumn 14: Treatment Arm 1 Regimen\nDefinition: What the specific treatment protocol or regimen used in the experimental arms of the clinical trial?. If reported, provide the treament regimen used ; otherwise use 'Not reported'.\n  A: value=\"ADT plus D (75 mg/m\u00b2 for 21 d, up to nine cycles)\" | page=2 | modality=text | reasoning=\"The 'Patients and methods' section describes the regimen: 'ADT plus D (75 mg/m\u00b2 for 21 d, up to nine cycles)'.\"\n  B: value=\"ADT plus Docetaxel (75 mg/m\u00b2 for 21 d, up to nine cycles)\" | page=2 | modality=text | reasoning=\"Page 2, under '2. Patients and methods', specifies: 'Eligible patients were randomized in a 1:1 ratio to ADT plus D (75 mg/m\u00b2 for 21 d, up to nine cycles) or ADT alone.'\"\n\n---\nColumn 15: Treatment Arm(s)\nDefinition: What name of the experimental arm or arms in the clinical trial?. If reported, provide the value; otherwise use 'Not reported'.\n  A: value=\"ADT plus D\" | page=1 | modality=text | reasoning=\"The title and abstract clearly identify 'ADT Plus Docetaxel' as the experimental arm.\"\n  B: value=\"ADT plus Docetaxel\" | page=1 | modality=text | reasoning=\"The title and abstract clearly identify 'Androgen Deprivation Therapy (ADT) Plus Docetaxel' as the experimental arm.\"\n\n\nSubmit verification for easy columns first. For disputed columns, use get_page then submit."
+    },
+    {
+      "turn": 2,
+      "role": "tool",
+      "name": "submit_verification",
+      "args": {
+        "results_keys": [
+          "Control Arm",
+          "Number of Arms Included",
+          "Control Arm - N",
+          "Add-on Treatment",
+          "Treatment Arm - N",
+          "Total Participants - N",
+          "COE_RCT_IND_OVERALL_RJ",
+          "Quality of Life reported",
+          "Quality of Life Scale"
+        ]
+      },
+      "response": {
+        "submitted": [
+          "Control Arm",
+          "Number of Arms Included",
+          "Control Arm - N",
+          "Add-on Treatment",
+          "Treatment Arm - N",
+          "Total Participants - N",
+          "COE_RCT_IND_OVERALL_RJ",
+          "Quality of Life reported",
+          "Quality of Life Scale"
+        ]
+      }
+    },
+    {
+      "turn": 3,
+      "role": "tool",
+      "name": "get_page",
+      "args": {
+        "page_numbers": [
+          1,
+          2,
+          3
+        ]
+      },
+      "response": {
+        "formatted_chunks": "[Page 1]\n## Page 1\n\nEUROPEAN UROLOGY 70 (2016) 256-262\n\n\n\navailable at www.sciencedirect.com\njournal homepage: www.europeanurology.com\n\n\n\n<::logo: EAU\nEuropean Association of Urology\nThe logo features the letters \"eau\" in a stylized, lowercase font, with the \"e\" and \"a\" connected, and a small dot above the \"u\".::>\n\n\n\n<::logo: European Association of Urology\neau\nThe logo features the letters \"eau\" in a stylized, lowercase font, with a black dot on the 'e', above the full organization name in a standard black sans-serif font::>\n\n\n\nPlatinum Priority \u2013 Prostate Cancer\nEditorial by Srikala S. Sridhar and Christopher J. Sweeney on pp. 263\u2013264 of this issue\n\n\n\nAndrogen Deprivation Therapy (ADT) Plus Docetaxel Versus\nADT Alone in Metastatic Non castrate Prostate Cancer:\nImpact of Metastatic Burden and Long-term Survival\nAnalysis of the Randomized Phase 3 GETUG-AFU15 Trial\n\n\n\nGwenaelle Gravis a,*, Jean-Marie Boher b, Florence Joly c, Michel Souli\u00e9 d, Laurence Albiges e,\nFranck Priou f, Igor Latorzeff g, Remy Delva h, Ivan Krakowski i, Brigitte Laguerre j,\nFr\u00e9d\u00e9ric Rolland k, Christine Th\u00e9odore l, Gael Deplanque m, Jean-Marc Ferrero n,\nSt\u00e9phane Culine o, Lo\u00efc Mourey p, Philippe Beuzeboc q, Muriel Habibian r,\nSt\u00e9phane Oudard s, Karim Fizazi e,\n\n\n\non behalf of the GETUG\n\n\u00aa Medical Oncology, Institut Paoli-Calmettes, Marseille, France; \u1d47 Biostatistics, Institut Paoli-Calmettes, Marseille, France; Aix-Marseille Universit\u00e9, UMR_S 912 (SESSTIM), IRD, Marseille, France; INSERM, UMR_S 912 (SESSTIM), Marseille, France; \u1d9c Medical Oncology, Centre Fran\u00e7ois Baclesse - CHU C\u00f4te de Nacre, Caen, France; \u1d48 Urology Department, Centre Hospitalier Universitaire Rangueil, Toulouse, France; \u1d49 Department of Cancer Medicine, Institut Gustave Roussy, University of Paris Sud, Villejuif, France; \u1da0 Medical Oncology, Centre Hospitalier Les Oudairies, La Roche-sur-Yon, France; \u1d4d Radiotherapy Department, Clinique Pasteur, Toulouse, France; \u02b0 Department of Medical Oncology, Centre Paul Papin, Angers, France; \u2071 Medical Oncology, Centre Alexis Vautrin, Vandoeuvre-les-Nancy, France; \u02b2 Medical Oncology, Centre Eug\u00e8ne Marquis, Rennes, France; \u1d4f Medical Oncology, Centre Ren\u00e9 Gauducheau, Saint-Herblain, France; \u02e1 Medical Oncology, H\u00f4pital Foch, Suresnes, France; \u1d50 Medical Oncology, Groupe Hospitalier Saint Joseph, Paris, France; \u207f Medical Oncology, Centre Antoine Lacassagne, Nice, France; \u1d52 Medical Oncology, H\u00f4pital Saint-Louis, Paris, France; \u1d56 Institut Claudius R\u00e9gaud, Toulouse, France; \u146b Medical Oncology, Institut Curie, Paris, France; \u02b3 UNICANCER, Paris, France; \u02e2 Medical Oncology Department, Georges Pompidou Hospital and Ren\u00e9 Descartes University, Paris, France\n\n\n\n**Article info**\n---\n*Article history:*\nAccepted November 2, 2015\n\n*Associate Editor:*\nJames Catto\n\n\n\nKeywords:\nAndrogen deprivation therapy\nDocetaxel\nMetastatic noncastrate prostate\ncancer\nMetastatic volume\n\n\n\n# Abstract\n\n**Background:** The role of chemotherapy in metastatic non castrate prostate cancer (mNCPC) is debated. Survival benefits of docetaxel (D) added to androgen-deprivation therapy (ADT) were shown in the CHAARTED trial in patients with metastatic high-volume disease (HVD).\n**Objective:** To assess the impact of metastatic burden and to update overall survival (OS) data of the GETUG-AFU15 study.\n**Design, setting, and participants:** Randomized phase 3 trial of ADT plus D versus ADT alone in 385 mNCPC patients; median follow-up of 7 yr.\n**Outcome measurements and statistical analysis:** Primary end point was OS. Secondary end points were biochemical progression-free survival (bPFS) and radiographic progression-free survival (rPFS). Retrospective analysis was by tumor volume.\n**Results and limitations:** After a median follow-up of 83.9 mo, median OS in the overall population was 62.1 mo (95% confidence interval [CI], 49.5\u201373.7) and 48.6 mo (95% CI, 40.9\u201360.6) for ADT plus D and ADT arms, respectively (hazard ratio [HR]: 0.88 [95% CI, 0.68\u20131.14]; p = 0.3). Median OS in ADT plus D and ADT arms, respectively, was for HVD\n\n\n\n* Corresponding author. Institut Paoli-Calmettes, Medical Oncology, Centre de Recherche en Can-c\u00e9rologie de Marseille, UMR1068 Inserm, 232 Boulevard de Sainte Marguerite, 13009 Marseille, France. Tel. +33 4 91 22 37 40; Fax: +33 4 91 22 36 18. E-mail address: gravisg@ipc.unicancer.fr (G. Gravis).\n\n\n\nhttp://dx.doi.org/10.1016/j.eururo.2015.11.005\n0302-2838/\u00a9 2015 European Association of Urology. Published by Elsevier B.V. All rights reserved.\n\n\n\n<::logo: CrossMark\nCrossMark\nA red bookmark-like flag inside a blue and white circle.::>\n\n---\n\n[Page 2]\n## Page 2\n\nEUROPEAN UROLOGY 70 (2016) 256\u2013262\n\n\n\n257\n\n\n\npatients: 39.8 mo (95% CI, 28.0\u201353.4) versus 35.1 mo (95% CI, 29.9\u201343.6) (HR: 0.78 [95% CI, 0.56\u20131.09]; p = 0.14), for low-volume disease (LVD) patients; median was not reached (NR; 95% CI, 69.5\u2013NR) and 83.4 mo (95% CI, 61.8\u2013NR) (HR: 1.02 [95% CI, 0.67\u20131.55]; p = 0.9). For upfront metastatic patients, OS was 52.6 mo (95% CI, 43.3\u201366.8) and 41.5 mo (95% CI, 36.3\u201354.5), respectively (HR: 0.93 [95% CI, 0.69\u20131.25]; p = 0.6). The bPFS (HR: 0.73 [95% CI, 0.56\u20130.94]; p = 0.014) and rPFS (HR: 0.75 [95% CI, 0.58\u20130.97]; p = 0.030) were significantly longer in the ADT plus D arm. Limitations included the retrospective analysis of metastatic extent and the lack of statistical power to detect a significant difference in subgroups.\n\n**Conclusions:** The post hoc analyses of the GETUG-AFU15 study demonstrated a nonsignificant 20% reduction in the risk of death in the HVD subgroup. Patients with LVD had no survival improvement with early D.\n\n**Patient summary:** In this study, docetaxel added to castration did not improve survival in patients with metastatic hormone-sensitive prostate cancer, partly due to methodological issues. However, early chemotherapy should be discussed with all patients, given the data of three randomized trials including GETUG-AFU15.\n\n\u00a9 2015 European Association of Urology. Published by Elsevier B.V. All rights reserved.\n\n\n\n## 1. Introduction\n\nAndrogen-deprivation therapy (ADT) has been the standard of care for decades in metastatic prostate cancer (PCa) [1]. In the setting of metastatic castration-resistant prostate cancer (mCRPC), docetaxel (D) demonstrated an improvement in overall survival (OS) and became the mainstay of treatment [2,3]. In recent years, several other compounds have shown survival benefits in mCRPC, such as abiraterone, enzalutamide, cabazitaxel, radium-223, and sipuleucel-T, either before or after D [4-8]. Therefore the treatment landscape of mCRPC has evolved dramatically. In contrast, no new strategy has been validated in metastatic noncastrate prostate cancer (mNCPC). However, it has been shown that patients with a high metastatic burden, whatever its definition, have a poor prognosis [9-12].\n\n\n\nIn the phase 3 GETUG-AFU15 study, we assessed the benefits of the addition of D to ADT in patients with mNCPC and previously showed that OS was not different in both arms after a median follow-up of 49.9 mo (54.2 and 58.9 mo in the ADT and ADT plus D arms, respectively (hazard ratio [HR]: 1.01; p = 0.9) [13]. Only biochemical progression-free survival (bPFS) and radiographic progression-free survival (rPFS) were improved in the D plus ADT arm.\n\n\n\nThe results of the CHAARTED trial that had the same\ndesign as ours were presented in 2014 [14] and published in\n2015 [15]. Median OS was significantly improved in the ADT\nplus D arm (57.6 vs 44.0 mo; HR: 0.61; p < 0.001). There was\na 17.0-mo difference between arms in patients with high-\nvolume disease (HVD; 49.2 vs 32.2 mo; HR: 0.60; p < 0.001).\n\n\n\nWe retrospectively retrieved data on metastatic volume\nfrom medical files of all patients included in the GETUG-\nAFU15 study, applying the CHAARTED definition of HVD\nand low-volume disease (LVD) and updated survival\nanalyses. We present long-term outcomes in the overall\npopulation and in the HVD and LVD subgroups.\n\n\n\n## 2. Patients and methods\n\nThe GETUG-AFU15 trial is a French multicenter open-label randomized study [13]. From October 2004 to December 2008, 385 patients were\n\n\n\nenrolled including 193 in the ADT arm and 192 in the ADT plus D arm.\nEligible patients were randomized in a 1:1 ratio to ADT plus D (75 mg/m\u00b2\nfor 21 d, up to nine cycles) or ADT alone. ADT consisted of orchiectomy or\nluteinizing hormone-releasing hormone agonists, alone or combined\nwith nonsteroidal androgen receptor inhibitors. Randomization was\nstratified according to systematic treatment for primary PCa, systemic\ntherapy for biochemical relapse, and risk groups as defined by Glass et al\n(Supplementary Table 1) [16].\n\n\n\nThe investigators took the site of bone disease into account to classify patients among Glass risk groups at study entry; however, they did not specifically mention the number of bone metastases in case report forms or whether they were appendicular or axial. These data were retrieved retrospectively through chart review for all patients in 2014 to better define the metastatic burden, and investigators reviews all baseline bone scans to confirm the data. As in the CHAARTED study, HVD was defined as the presence of visceral metastases and/or at least four bone lesions, including at least one lesion in any bone structure beyond the spine or pelvis. Other patients were considered to have LVD.\n\n\n\nFollowing the Prostate Specific Antigen (PSA) Working Group\ndefinition, biochemical progression was defined as a previous confirmed\nPSA decrease of at least 50% and an increase of at least 50% above the nadir,\nwith a minimum increase of 5 ng/ml. For patients without a previous PSA\ndecrease of 50%, progression was defined as a PSA increase at least 25%\nabove the nadir and at least 5 ng/ml [17]. In patients with measurable\nlesions, radiographic progression was defined using Response Evaluation\nCriteria in Solid Tumors (RECIST) v.1.0 criteria [18]. In patients with bone\nlesions only, radiographic progression was defined as one or more new\nbone lesions on bone scan. Radiographic progression was the occurrence of\nnew bone lesions or RECIST progression, whichever happened first. Death\nwas considered as an event.\n\n\n\n2.1. _Statistics_\n\nThe primary end point was OS. Secondary end points included bPFS and rPFS. Survival end points were defined as the time between randomiza- tion and death from any cause (OS), radiographic progression or death (rPFS), PSA progression or radiographic progression or death (bPFS). The study was initially planned to detect a true HR for death of 0.62 (two- sided test with 0.05 significance level). According to standard design criteria [19], 146 deaths were needed to detect this HR in the ADT plus D arm versus ADT arm with 80% power. The planned number of patients (_n_ = 385) was determined assuming a 3-yr accrual period, a 3-yr follow- up period for each patient, and a 36-mo median OS in the ADT arm.\n\n\n\nThe main objective of the present study was to conduct a post hoc\nsubgroup analysis to assess separately the survival benefits of ADT plus D\n\n---\n\n[Page 3]\n## Page 3\n\n258\n\n\n\nEUROPEAN UROLOGY 70 (2016) 256\u2013262\n\n\n\nand ADT alone in HVD and LVD patients enrolled in the GETUG-AFU15\ntrial. Our secondary objective was to update survival outcomes and to\nassess the homogeneity of the treatment effect in the different\nsubgroups. The HRs for ADT plus D versus ADT alone were estimated\nwith 95% confidence intervals (CIs) through a Cox proportional hazards\nregression model with terms for the randomized treatment arm and all\nfactors taken into account in the random allocation process. A test of\nhomogeneity of the treatment effects among the different subgroups\nwas conducted by adding a treatment by stratum interaction term in our\nstratified Cox regression modeling approach.\n\n\n\nSurvival rates were estimated using the Kaplan-Meier method and compared with the log-rank test. Because the overall 0.05 type I error rate was used at the first analysis planned per protocol, no adjustment for multiple testing was performed to control the family error rate. All statistical analyses were done with R software v.2.15.1 (R Foundation for Statistical Computing, Vienna, Austria; http://www.R-project.org/). Kaplan-Meier survival curves were plotted using SAS software v.9.3 (SAS Institute, Inc., Cary, NC, USA). The trial is registered with ClinicalTrials.gov (NCT00104715).\n\n\n\n3. Results\n\nTheThe GETUG-AFU15 trial randomized 385 patients including 193 in the ADT arm and 192 in the ADT plus D arm. We identified 183 patients (48%) with HVD and 202 patients (52%) with LVD. Table 1 presents their characteristics. Patients were equally distributed in the two arms with regard to their metastatic burden (percentages of patients with visceral metastases and HVD/LVD distribution).\n\n\n\n3.1. **Overall survival**\n\nAfter a median follow-up of 83.9 mo (95% CI, 82.9\u201384.7),\n242 patients had died (127 in the ADT arm and 115 in the ADT\nplus D arm; 147 and 95 in the HVD and LVD subgroups,\n\n\n\nTable 1 \u2013 Characteristics of the patients (_n_ = 385)\n|  |  |  |\n| --- | --- | --- |\n| (blank orange box) | ADT (n = 193) | ADT plus D (n = 192) |\n| Age, yr, median (IQR) | 64.0 (58.0-70.0) | 63.0 (57.0-68.2) |\n| ECOG performance status, n (%) | ECOG performance status, n (%) | ECOG performance status, n (%) |\n| 0 | 176 (96) | 181 (99) |\n| 1-2 | 7(4) | 2 (1) |\n| Gleason score, n (%) | Gleason score, n (%) | Gleason score, n (%) |\n| <7 | 78 (41) | 84 (45) |\n| \u22658 | 113 (59) | 103 (55) |\n| Metastases after treatment for local disease, n (%) | 46 (24) | 62 (33) |\n| Metastases at diagnosis, n (%) | 144 (76) | 128 (67) |\n| PSA, ng/ml, median (IQR) | 25.8 (5.0-126) | 26.7 (5.0-106) |\n| Alkaline phosphatase, n (%) | Alkaline phosphatase, n (%) | Alkaline phosphatase, n (%) |\n| Normal | 113 (61) | 106 (57) |\n| Elevated | 71 (39) | 79 (43) |\n| Bone metastases, n (%) | 156 (81) | 155 (81) |\n| Visceral metastases, n (%) | 23 (12) | 28 (15) |\n| Four or more bone metastases with one or more beyond | 95 (49) | 82 (43) |\n| pelvis or spine, n (%) | pelvis or spine, n (%) | pelvis or spine, n (%) |\n| Low-volume disease (%) | 102 (53) | 100 (52) |\n| High-volume disease (%) | 91 (47) | 92 (48) |\n| ADT = androgen deprivation therapy; ECOG = Eastern Cooperative Oncology Group; IQR = interquartile range; PSA = prostate-specific antigen. | ADT = androgen deprivation therapy; ECOG = Eastern Cooperative Oncology Group; IQR = interquartile range; PSA = prostate-specific antigen. | ADT = androgen deprivation therapy; ECOG = Eastern Cooperative Oncology Group; IQR = interquartile range; PSA = prostate-specific antigen. |\n\n\n\n<::Overall survival Kaplan-Meier curve: chart::>\nOverall survival\nY-axis: Overall survival, ranging from 0.0 to 1.0 in increments of 0.1.\nX-axis: Follow-up, yr, ranging from 0 to 8 in increments of 1.\n\nLegend:\nADT (orange, solid line)\nADT plus D (blue, dashed line)\n\nStatistical data:\nADT: 48.6 (40.9\u201360.6)\nADT plus D: 62.1 (49.5\u201373.7)\nHR (95% CI): 0.88 (0.68\u20131.14)\np = 0.3\n\nNumber of patients at risk:\nFollow-up, yr: 0, 1, 2, 3, 4, 5, 6, 7\nADT: 193, 171, 148, 116, 94, 76, 61, 33\nADT plus D: 192, 175, 145, 119, 102, 87, 72, 32\n\nFig. 1 \u2013 Overall survival in the overall population.\nADT = androgen-deprivation therapy; CI = confidence interval;\nD = docetaxel; HR = hazard ratio.\n<::>\n\n\n\nrespectively). Causes of deaths were disease progression for 82%, other causes for 9.5%, and unknown for 8.2% of patients.\n\n\n\nIn the overall population, the median OS was not significantly different between the two arms: 62.1 mo (95% CI, 49.5\u201373.7) in the ADT plus D arm and 48.6 mo (95% CI, 40.9\u201360.6) in the ADT arm (HR: 0.88 [95% CI, 0.68\u20131.14]; p = 0.3) (Fig. 1, Table 2).\n\n\n\nIn patients with HVD, median OS was 4.7 mo longer in the\nADT plus D arm, but the difference was not statistically\nsignificant: 39.8 mo (95% CI, 28.0\u201353.4) versus 35.1 mo (95%\nCI, 29.9\u201343.6) (HR: 0.78 [95% CI, 0.56\u20131.09]; p = 0.14) (Fig. 2).\n\n\n\nIn patients with LVD, median OS was not reached (NR;\n95% CI, 69.5\u2013NR) in the ADT plus D arm and 83.4 mo (95% CI,\n61.8\u2013NR) in the ADT arm (HR: 1.02 [95% CI, 0.67\u20131.55];\np = 0.9) (Fig. 3). The test of homogeneity of treatment effects\namong HVD and LVD subgroups did not reveal a significant\ndifference between the estimated HRs in the two subgroups\n(p = 0.40) (Supplementary Table 2).\n\n\n\nPatients with metastatic disease after failure of local treatment (28%) had a significantly longer median OS than those with metastases at diagnosis (72%) at 83.1 mo (95% CI, 68.6\u2013NR) versus 46.5 mo (95% CI, 40.5\u201354.6)\n\n<::chart: Kaplan-Meier curve showing overall survival for patients with high-volume disease. The x-axis is \"Follow-up, yr\" ranging from 0 to 8. The y-axis is \"Overall survival\" ranging from 0.0 to 1.0.\n\nTwo survival curves are plotted:\n- ADT (solid orange line)\n- ADT plus D (dashed blue line)\n\nLegend:\n- ADT: 35.1 (29.9\u201343.6)\n- ADT plus D: 39.8 (28\u201353.4)\n- HR (95% CI): 0.78 (0.56\u20131.09)\n- p = 0.1\n\nTable: Number at risk\n| Follow-up, yr | 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 |\n|---|---|---|---|---|---|---|---|---|\n| ADT | 91 | 76 | 60 | 43 | 30 | 21 | 13 | 10 |\n| ADT plus D | 92 | 81 | 59 | 46 | 38 | 31 | 26 | 11 |\n\nFig. 2 \u2013 Overall survival for patients with high-volume disease.\nADT = androgen-deprivation therapy; CI = confidence interval; D = docetaxel; HR = hazard ratio.::>",
+        "pages_returned": [
+          1,
+          2,
+          3
+        ]
+      }
+    },
+    {
+      "turn": 4,
+      "role": "tool",
+      "name": "submit_verification",
+      "args": {
+        "results_keys": [
+          "Secondary Endpoint(s)",
+          "Treatment Arm 1 Regimen",
+          "Class of Agent in Treatment Arm 1",
+          "Primary Endpoint(s)",
+          "Treatment Arm(s)",
+          "Median Follow-Up Duration (mo)"
+        ]
+      },
+      "response": {
+        "submitted": [
+          "Secondary Endpoint(s)",
+          "Treatment Arm 1 Regimen",
+          "Class of Agent in Treatment Arm 1",
+          "Primary Endpoint(s)",
+          "Treatment Arm(s)",
+          "Median Follow-Up Duration (mo)"
+        ]
+      }
+    }
+  ],
+  "results": {
+    "Control Arm": {
+      "value": "ADT Alone",
+      "reasoning": "Both sources agree on the value and page.",
+      "verification": "both_correct",
+      "source": {
+        "page": 1,
+        "modality": "text",
+        "verbatim_quote": "ADT Alone"
+      },
+      "attribution": [
+        {
+          "page": 1,
+          "modality": "text",
+          "verbatim_quote": "ADT Alone"
+        }
+      ]
+    },
+    "Number of Arms Included": {
+      "value": "2",
+      "reasoning": "Both sources agree on the value and page.",
+      "verification": "both_correct",
+      "source": {
+        "page": 1,
+        "modality": "text",
+        "verbatim_quote": "ADT Plus Docetaxel Versus ADT Alone"
+      },
+      "attribution": [
+        {
+          "page": 1,
+          "modality": "text",
+          "verbatim_quote": "ADT Plus Docetaxel Versus ADT Alone"
+        }
+      ]
+    },
+    "Control Arm - N": {
+      "value": "193",
+      "reasoning": "Both sources agree on the value and page.",
+      "verification": "both_correct",
+      "source": {
+        "page": 2,
+        "modality": "text",
+        "verbatim_quote": "193 in the ADT arm"
+      },
+      "attribution": [
+        {
+          "page": 2,
+          "modality": "text",
+          "verbatim_quote": "193 in the ADT arm"
+        }
+      ]
+    },
+    "Add-on Treatment": {
+      "value": "Docetaxel",
+      "reasoning": "Both sources agree on the value and page.",
+      "verification": "both_correct",
+      "source": {
+        "page": 1,
+        "modality": "text",
+        "verbatim_quote": "Androgen Deprivation Therapy (ADT) Plus Docetaxel Versus ADT Alone"
+      },
+      "attribution": [
+        {
+          "page": 1,
+          "modality": "text",
+          "verbatim_quote": "Androgen Deprivation Therapy (ADT) Plus Docetaxel Versus ADT Alone"
+        }
+      ]
+    },
+    "Treatment Arm - N": {
+      "value": "192",
+      "reasoning": "Both sources agree on the value and page.",
+      "verification": "both_correct",
+      "source": {
+        "page": 2,
+        "modality": "text",
+        "verbatim_quote": "192 in the ADT plus D arm"
+      },
+      "attribution": [
+        {
+          "page": 2,
+          "modality": "text",
+          "verbatim_quote": "192 in the ADT plus D arm"
+        }
+      ]
+    },
+    "Total Participants - N": {
+      "value": "385",
+      "reasoning": "Both sources agree on the value and page.",
+      "verification": "both_correct",
+      "source": {
+        "page": 1,
+        "modality": "text",
+        "verbatim_quote": "385 mNCPC patients"
+      },
+      "attribution": [
+        {
+          "page": 1,
+          "modality": "text",
+          "verbatim_quote": "385 mNCPC patients"
+        }
+      ]
+    },
+    "COE_RCT_IND_OVERALL_RJ": {
+      "value": "Not reported",
+      "reasoning": "Both sources agree that the information is not reported.",
+      "verification": "both_correct",
+      "source": {
+        "page": null,
+        "modality": "text"
+      },
+      "attribution": []
+    },
+    "Quality of Life reported": {
+      "value": "No",
+      "reasoning": "Both sources agree that quality of life results are not reported for this trial.",
+      "verification": "both_correct",
+      "source": {
+        "page": null,
+        "modality": "text"
+      },
+      "attribution": []
+    },
+    "Quality of Life Scale": {
+      "value": "Not reported",
+      "reasoning": "Both sources agree that the information is not reported.",
+      "verification": "both_correct",
+      "source": {
+        "page": null,
+        "modality": "text"
+      },
+      "attribution": []
+    },
+    "Secondary Endpoint(s)": {
+      "value": "biochemical progression-free survival (bPFS) and radiographic progression-free survival (rPFS)",
+      "reasoning": "Page 1 abstract states 'Secondary end points were biochemical progression-free survival (bPFS) and radiographic progression-free survival (rPFS)'. A's value is verbatim from the abstract, while B uses a comma instead of 'and'.",
+      "verification": "A_correct_B_wrong",
+      "source": {
+        "page": 1,
+        "modality": "text",
+        "verbatim_quote": "Secondary end points were biochemical progression-free survival (bPFS) and radiographic progression-free survival (rPFS)."
+      },
+      "attribution": [
+        {
+          "page": 1,
+          "modality": "text",
+          "verbatim_quote": "Secondary end points were biochemical progression-free survival (bPFS) and radiographic progression-free survival (rPFS)."
+        }
+      ]
+    },
+    "Treatment Arm 1 Regimen": {
+      "value": "ADT plus D (75 mg/m\u00b2 for 21 d, up to nine cycles)",
+      "reasoning": "Page 2, section '2. Patients and methods', states 'ADT plus D (75 mg/m\u00b2 for 21 d, up to nine cycles)'. A's value is verbatim, while B replaces 'D' with 'Docetaxel', which is an interpretation.",
+      "verification": "A_correct_B_wrong",
+      "source": {
+        "page": 2,
+        "modality": "text",
+        "verbatim_quote": "ADT plus D (75 mg/m\u00b2 for 21 d, up to nine cycles)"
+      },
+      "attribution": [
+        {
+          "page": 2,
+          "modality": "text",
+          "verbatim_quote": "ADT plus D (75 mg/m\u00b2 for 21 d, up to nine cycles)"
+        }
+      ]
+    },
+    "Class of Agent in Treatment Arm 1": {
+      "value": "Chemotherapy (Docetaxel) and Hormone therapy (ADT)",
+      "reasoning": "Page 1 abstract clearly states 'Androgen Deprivation Therapy (ADT) Plus Docetaxel'. Docetaxel is chemotherapy and ADT is hormone therapy, making B more complete and accurate.",
+      "verification": "B_correct_A_wrong",
+      "source": {
+        "page": 1,
+        "modality": "text",
+        "verbatim_quote": "Androgen Deprivation Therapy (ADT) Plus Docetaxel"
+      },
+      "attribution": [
+        {
+          "page": 1,
+          "modality": "text",
+          "verbatim_quote": "Androgen Deprivation Therapy (ADT) Plus Docetaxel"
+        }
+      ]
+    },
+    "Primary Endpoint(s)": {
+      "value": "Overall Survival (OS)",
+      "reasoning": "Page 1 abstract and section 2.1 state 'Primary end point was OS'. B provides the full name 'Overall Survival (OS)', which is more complete.",
+      "verification": "B_correct_A_wrong",
+      "source": {
+        "page": 1,
+        "modality": "text",
+        "verbatim_quote": "Primary end point was OS."
+      },
+      "attribution": [
+        {
+          "page": 1,
+          "modality": "text",
+          "verbatim_quote": "Primary end point was OS."
+        }
+      ]
+    },
+    "Treatment Arm(s)": {
+      "value": "ADT plus Docetaxel",
+      "reasoning": "The title on page 1 uses 'Androgen Deprivation Therapy (ADT) Plus Docetaxel', while the abstract uses 'ADT plus D'. B uses the full name 'ADT plus Docetaxel', which is more complete.",
+      "verification": "B_correct_A_wrong",
+      "source": {
+        "page": 1,
+        "modality": "text",
+        "verbatim_quote": "Androgen Deprivation Therapy (ADT) Plus Docetaxel"
+      },
+      "attribution": [
+        {
+          "page": 1,
+          "modality": "text",
+          "verbatim_quote": "Androgen Deprivation Therapy (ADT) Plus Docetaxel"
+        }
+      ]
+    },
+    "Median Follow-Up Duration (mo)": {
+      "value": "83.9 mo",
+      "reasoning": "Both sources provide the correct numerical value. B includes 'mo' which is explicitly stated on page 1 and 3, making it slightly more complete.",
+      "verification": "both_correct",
+      "source": {
+        "page": 1,
+        "modality": "text",
+        "verbatim_quote": "After a median follow-up of 83.9 mo"
+      },
+      "attribution": [
+        {
+          "page": 1,
+          "modality": "text",
+          "verbatim_quote": "After a median follow-up of 83.9 mo"
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,345 @@
+{
+  "doc_id": "NCT02799602_Smith_ARASENS_NEJM'22",
+  "tool_calls_sequence": [
+    {
+      "name": "submit_verification",
+      "args": {
+        "results_keys": [
+          "Treatment Arm(s)",
+          "Primary Endpoint(s)",
+          "Median Follow-Up Duration (mo)",
+          "COE_RCT_IND_OVERALL_RJ",
+          "Total Participants - N",
+          "Class of Agent in Treatment Arm 1",
+          "Control Arm - N",
+          "Number of Arms Included",
+          "Quality of Life Scale",
+          "Treatment Arm 1 Regimen",
+          "Secondary Endpoint(s)",
+          "Treatment Arm - N",
+          "Control Arm",
+          "Quality of Life reported"
+        ]
+      }
+    },
+    {
+      "name": "get_page",
+      "args": {
+        "page_numbers": [
+          1
+        ]
+      }
+    },
+    {
+      "name": "submit_verification",
+      "args": {
+        "results_keys": [
+          "Add-on Treatment"
+        ]
+      }
+    }
+  ],
+  "conversation": [
+    {
+      "turn": 0,
+      "role": "user",
+      "content": "Reconcile the following columns. Document has 11 pages. Sources are anonymous (A and B).\n\nCOLUMNS:\n\n---\nColumn 1: Add-on Treatment\nDefinition: What is the name of additional therapy or intervention given in combination with the primary treatment in the clinical trial?. If reported, provide the value; otherwise use 'Not reported'.\n  A: value=\"Darolutamide\" | page=1 | modality=text | reasoning=\"The trial compares darolutamide + ADT + docetaxel with placebo + ADT + docetaxel, indicating darolutamide is the additional agent being studied.\"\n  B: value=\"Androgen-deprivation therapy and docetaxel\" | page=1 | modality=text | reasoning=\"From Page 1, METHODS section: 'darolutamide ... or matching placebo, both in combination with androgen-deprivation therapy and docetaxel.'\"\n\n---\nColumn 2: COE_RCT_IND_OVERALL_RJ\nDefinition: What is the overall risk judgment of individual criteria of evidence (COE) in randomized controlled trials (RCT)?.\n  A: value=\"Not reported\" | page=None | modality=text | reasoning=\"The document describes the trial design and conduct but does not provide an overall risk judgment of individual criteria of evidence (COE) for the RCT itself.\"\n  B: value=\"Not reported\" | page=None | modality=text | reasoning=\"The document does not explicitly state the overall risk judgment of individual criteria of evidence (COE) in randomized controlled trials (RCT).\"\n\n---\nColumn 3: Class of Agent in Treatment Arm 1\nDefinition: What the type or category of therapeutic agent used in the first experimental arm of the clinical trial?. If reported, provide the value; otherwise use 'Not reported'.\n  A: value=\"Androgen-receptor inhibitor, hormonal therapy, chemotherapy\" | page=1 | modality=text | reasoning=\"Darolutamide is an androgen-receptor inhibitor (page 1, abstract). The regimen includes androgen-deprivation therapy (ADT), which is hormonal therapy, and docetaxel, which is chemotherapy (page 1, abstract).\"\n  B: value=\"Androgen-receptor inhibitor\" | page=1 | modality=text | reasoning=\"From Page 1, BACKGROUND section: 'Darolutamide is a potent androgen-receptor inhibitor'.\"\n\n---\nColumn 4: Control Arm\nDefinition: What the name of the arm in the clinical trial that does not receive the experimental treatment, serving as a comparison group?. If reported, provide the value; otherwise use 'Not reported'.\n  A: value=\"Placebo + Androgen-deprivation therapy (ADT) + Docetaxel\" | page=1 | modality=text | reasoning=\"Patients were randomly assigned to receive darolutamide or matching placebo, both in combination with androgen-deprivation therapy and docetaxel (page 1, abstract).\"\n  B: value=\"Placebo + androgen-deprivation therapy + docetaxel\" | page=1 | modality=text | reasoning=\"From Page 1, METHODS section: 'matching placebo, both in combination with androgen-deprivation therapy and docetaxel.'\"\n\n---\nColumn 5: Control Arm - N\nDefinition: What the total number of participants included in the control arm of the clinical trial?. If reported, provide the value; otherwise use 'Not reported'. If the trial contains multiple control arms, report for all separately\n  A: value=\"655\" | page=1 | modality=text | reasoning=\"The primary analysis involved 1306 patients (651 in the darolutamide group and 655 in the placebo group) (page 1, abstract).\"\n  B: value=\"655\" | page=1 | modality=text | reasoning=\"From Page 1, RESULTS section: '1306 patients (651 in the darolutamide group and 655 in the placebo group)'.\"\n\n---\nColumn 6: Median Follow-Up Duration (mo)\nDefinition: What the median length of time, measured in months, that participants in the clinical trial were followed up or monitored after the start of the trial? If reported, include the value; use 'Not reported' if missing.\n  A: value=\"43.7 months (darolutamide group) and 42.4 months (placebo group)\" | page=4 | modality=text | reasoning=\"The median follow-up for overall survival was 43.7 months in the darolutamide group and 42.4 months in the placebo group (page 4, Results - Patients).\"\n  B: value=\"Darolutamide group: 43.7 months; Placebo group: 42.4 months\" | page=4 | modality=text | reasoning=\"Page 4 states, 'The median follow-up for overall survival was 43.7 months in the darolutamide group and 42.4 months in the placebo group.'\"\n\n---\nColumn 7: Number of Arms Included\nDefinition: What is the total count of experimental treatment arms and control arms included in the clinical trial?. If reported, provide the value; otherwise use 'Not reported'.\n  A: value=\"2\" | page=1 | modality=text | reasoning=\"Patients were randomly assigned in a 1:1 ratio to receive darolutamide or matching placebo (page 1, abstract), indicating two arms.\"\n  B: value=\"2\" | page=1 | modality=text | reasoning=\"From Page 1, METHODS section: 'randomly assigned patients ... in a 1:1 ratio to receive darolutamide ... or matching placebo'.\"\n\n---\nColumn 8: Primary Endpoint(s)\nDefinition: What the main outcome(s) or objective(s) that the clinical trial is designed to measure or achieve?. If reported, provide the value; otherwise use 'Not reported'.\n  A: value=\"Overall survival\" | page=1 | modality=text | reasoning=\"The primary end point was overall survival (page 1, abstract; page 3, End Points).\"\n  B: value=\"Overall survival\" | page=1 | modality=text | reasoning=\"From Page 1, METHODS section: 'The primary end point was overall survival.'\"\n\n---\nColumn 9: Quality of Life Scale\nDefinition: What a measure of the participants' overall well-being and satisfaction with their health status, as assessed through a standardized questionnaire or survey, reflecting their perceived quality of life during the clinical trial?.\n  A: value=\"Brief Pain Inventory Short-Form questionnaire, Functional Assessment of Cancer Therapy-Prostate (National Comprehensive Cancer Network) symptom index 17-item questionnaire\" | page=3 | modality=text | reasoning=\"Pain was assessed with the use of the Brief Pain Inventory Short-Form questionnaire, and disease-related physical symptoms were assessed with the use of the Functional Assessment of Cancer Therapy-Prostate (National Comprehensive Cancer Network) symptom index 17-item questionnaire (page 3, Assessmen\"\n  B: value=\"Brief Pain Inventory Short-Form questionnaire; Functional Assessment of Cancer Therapy-Prostate (National Comprehensive Cancer Network) symptom index 17-item questionnaire\" | page=3 | modality=text | reasoning=\"Page 3, ASSESSMENTS section, states: 'Pain was assessed with the use of the Brief Pain Inventory Short-Form questionnaire, and disease-related physical symptoms were assessed with the use of the Functional Assessment of Cancer Therapy-Prostate (National Comprehensive Cancer Network) symptom index 17\"\n\n---\nColumn 10: Quality of Life reported\nDefinition: Does the clinical trial report results on the quality of life of participants? Answer Yes or No\n  A: value=\"Yes\" | page=3 | modality=text | reasoning=\"Disease-related physical symptoms were assessed using a standardized questionnaire, and time to worsening of disease-related physical symptoms was a secondary endpoint (page 3, End Points; page 6, Table 2).\"\n  B: value=\"Yes\" | page=3 | modality=text | reasoning=\"Page 3, ASSESSMENTS section, mentions the use of 'Brief Pain Inventory Short-Form questionnaire' and 'Functional Assessment of Cancer Therapy-Prostate (National Comprehensive Cancer Network) symptom index 17-item questionnaire' to assess pain and disease-related physical symptoms, which are componen\"\n\n---\nColumn 11: Secondary Endpoint(s)\nDefinition: What the secondary outcome(s) or objective(s) of the clinical trial, in addition to the primary endpoint, that are being measured or evaluated?. If reported, provide the value; otherwise use 'Not reported'.\n  A: value=\"Time to castration-resistant prostate cancer, time to pain progression, symptomatic skeletal event-free survival, time to a first symptomatic skeletal event, time to initiation of subsequent systemic \" | page=3 | modality=text | reasoning=\"The secondary end points were time to castration-resistant prostate cancer, time to pain progression, symptomatic skeletal event-free survival, time to a first symptomatic skeletal event, time to initiation of subsequent systemic antineoplastic therapy, time to worsening of disease-related physical \"\n  B: value=\"Time to castration-resistant prostate cancer, time to pain progression, symptomatic skeletal event-free survival, time to a first symptomatic skeletal event, time to initiation of subsequent systemic \" | page=3 | modality=text | reasoning=\"Page 3, END POINTS section, explicitly lists all the secondary endpoints.\"\n\n---\nColumn 12: Total Participants - N\nDefinition: What are the total number of participants included in the clinical trial? These include only participants who were inlcuded in either the treatment or control arm of the clinical trial. If reported, provide the value; otherwise use 'Not reported'.If multiple comparative trials are mentioned, report for all separately\n  A: value=\"1306\" | page=1 | modality=text | reasoning=\"The primary analysis involved 1306 patients (page 1, abstract). A total of 1306 patients underwent randomization (page 4, Results - Patients).\"\n  B: value=\"1306\" | page=1 | modality=text | reasoning=\"From Page 1, RESULTS section: 'The primary analysis involved 1306 patients'.\"\n\n---\nColumn 13: Treatment Arm - N\nDefinition: What are the total number of participants included in the experimental arm of the clinical trial?. If reported, provide the value; otherwise use 'Not reported'. If the trial contains multiple treatment arms, report for all separately\n  A: value=\"651\" | page=1 | modality=text | reasoning=\"The primary analysis involved 1306 patients (651 in the darolutamide group and 655 in the placebo group) (page 1, abstract).\"\n  B: value=\"651\" | page=1 | modality=text | reasoning=\"From Page 1, RESULTS section: '651 in the darolutamide group'.\"\n\n---\nColumn 14: Treatment Arm 1 Regimen\nDefinition: What the specific treatment protocol or regimen used in the experimental arms of the clinical trial?. If reported, provide the treament regimen used ; otherwise use 'Not reported'.\n  A: value=\"Darolutamide (600 mg twice daily) + Androgen-deprivation therapy (ADT) + Docetaxel (six cycles of 75 mg per square meter)\" | page=1 | modality=text | reasoning=\"Patients were randomly assigned to receive darolutamide (at a dose of 600 mg [two 300-mg tablets] twice daily) or matching placebo, both in combination with androgen-deprivation therapy and docetaxel (page 1, abstract). Docetaxel was given as six cycles of 75 mg per square meter (page 3, Patients an\"\n  B: value=\"Darolutamide (600 mg twice daily) + androgen-deprivation therapy + docetaxel\" | page=1 | modality=text | reasoning=\"From Page 1, METHODS section: 'darolutamide (at a dose of 600 mg [two 300-mg tablets] twice daily) ... in combination with androgen-deprivation therapy and docetaxel.'\"\n\n---\nColumn 15: Treatment Arm(s)\nDefinition: What name of the experimental arm or arms in the clinical trial?. If reported, provide the value; otherwise use 'Not reported'.\n  A: value=\"Darolutamide + ADT + Docetaxel\" | page=1 | modality=text | reasoning=\"Patients were randomly assigned to receive darolutamide... in combination with androgen-deprivation therapy and docetaxel (page 1, abstract).\"\n  B: value=\"Darolutamide + androgen-deprivation therapy + docetaxel\" | page=1 | modality=text | reasoning=\"From Page 1, METHODS section: 'darolutamide ... in combination with androgen-deprivation therapy and docetaxel.'\"\n\n\nSubmit verification for easy columns first. For disputed columns, use get_page then submit."
+    },
+    {
+      "turn": 2,
+      "role": "tool",
+      "name": "submit_verification",
+      "args": {
+        "results_keys": [
+          "Treatment Arm(s)",
+          "Primary Endpoint(s)",
+          "Median Follow-Up Duration (mo)",
+          "COE_RCT_IND_OVERALL_RJ",
+          "Total Participants - N",
+          "Class of Agent in Treatment Arm 1",
+          "Control Arm - N",
+          "Number of Arms Included",
+          "Quality of Life Scale",
+          "Treatment Arm 1 Regimen",
+          "Secondary Endpoint(s)",
+          "Treatment Arm - N",
+          "Control Arm",
+          "Quality of Life reported"
+        ]
+      },
+      "response": {
+        "submitted": [
+          "Treatment Arm(s)",
+          "Primary Endpoint(s)",
+          "Median Follow-Up Duration (mo)",
+          "COE_RCT_IND_OVERALL_RJ",
+          "Total Participants - N",
+          "Class of Agent in Treatment Arm 1",
+          "Control Arm - N",
+          "Number of Arms Included",
+          "Quality of Life Scale",
+          "Treatment Arm 1 Regimen",
+          "Secondary Endpoint(s)",
+          "Treatment Arm - N",
+          "Control Arm",
+          "Quality of Life reported"
+        ]
+      }
+    },
+    {
+      "turn": 3,
+      "role": "tool",
+      "name": "get_page",
+      "args": {
+        "page_numbers": [
+          1
+        ]
+      },
+      "response": {
+        "formatted_chunks": "[Page 1]\n## Page 1\n\n*The* NEW ENGLAND JOURNAL *of* MEDICINE\n\n\n\nORIGINAL ARTICLE\n\n\n\nDarolutamide and Survival in Metastatic,\nHormone-Sensitive Prostate Cancer\n\nMatthew R. Smith, M.D., Ph.D., Maha Hussain, M.D., Fred Saad, M.D.,\nKarim Fizazi, M.D., Ph.D., Cora N. Sternberg, M.D., E. David Crawford, M.D.,\nEvgeny Kopyltsov, M.D., Chandler H. Park, M.D., Boris Alekseev, M.D.,\n\u00c1lvaro Montesa-Pino, M.D., Dingwei Ye, M.D., Francis Parnis, M.B., B.S.,\nFelipe Cruz, M.D., Teuvo L.J. Tammela, M.D., Ph.D., Hiroyoshi Suzuki, M.D., Ph.D.,\nTapio Utriainen, M.D., Cheng Fu, M.D., Motohide Uemura, M.D., Ph.D.,\nMar\u00eda J. M\u00e9ndez-Vidal, M.D., Benjamin L. Maughan, M.D., Pharm.D.,\nHeikki Joensuu, M.D., Silke Thiele, M.D., Rui Li, M.S., Iris Kuss, M.D.,\nand Bertrand Tombal, M.D., Ph.D., for the ARASENS Trial Investigators*\n\n\n\nABSTRACT\n\n\n\n## BACKGROUND\nDarolutamide is a potent androgen-receptor inhibitor that has been associated with increased overall survival among patients with nonmetastatic, castration-resistant prostate cancer. Whether a combination of darolutamide, androgen-deprivation therapy, and docetaxel would increase survival among patients with metastatic, hormone-sensitive prostate cancer is unknown.\n\n\n\nMETHODS\nIn this international, phase 3 trial, we randomly assigned patients with metastatic,\nhormone-sensitive prostate cancer in a 1:1 ratio to receive darolutamide (at a dose\nof 600 mg [two 300-mg tablets] twice daily) or matching placebo, both in combi-\nnation with androgen-deprivation therapy and docetaxel. The primary end point\nwas overall survival.\n\n\n\n## RESULTS\nThe primary analysis involved 1306 patients (651 in the darolutamide group and 655 in the placebo group); 86.1% of the patients had disease that was metastatic at the time of the initial diagnosis. At the data cutoff date for the primary analysis (October 25, 2021), the risk of death was significantly lower, by 32.5%, in the darolutamide group than in the placebo group (hazard ratio 0.68; 95% confidence interval, 0.57 to 0.80; P<0.001). Darolutamide was also associated with consistent benefits with respect to the secondary end points and prespecified subgroups. Adverse events were similar in the two groups, and the incidences of the most common adverse events (occurring in \u226510% of the patients) were highest during the overlapping docetaxel treatment period in both groups. The frequency of grade 3 or 4 adverse events was 66.1% in the darolutamide group and 63.5% in the placebo group; neutropenia was the most common grade 3 or 4 adverse event (in 33.7% and 34.2%, respectively).\n\n\n\nCONCLUSIONS\nIn this trial involving patients with metastatic, hormone-sensitive prostate cancer, overall survival was significantly longer with the combination of darolutamide, androgen-deprivation therapy, and docetaxel than with placebo plus androgen-deprivation therapy and docetaxel, and the addition of darolutamide led to improvement in key secondary end points. The frequency of adverse events was similar in the two groups. (Funded by Bayer and Orion Pharma; ARASENS ClinicalTrials.gov number, NCT02799602.)\n\n\n\nThe authors' affiliations are listed in the\nAppendix. Dr. Smith can be contacted at\nmrsmith@mgh.harvard.edu or at the\nGenitourinary Malignancies Program,\nMassachusetts General Hospital Cancer\nCenter and Harvard Medical School,\nYawkey 7030, 55 Fruit St., Boston, MA\n02114.\n\n\n\n*A full list of investigators in the ARASENS trial is provided in the Supplementary Appendix, available at NEJM.org.\n\n\n\nThis article was published on February\n17, 2022, at NEJM.org.\n\n\n\nDOI: 10.1056/NEJMoa2119115\nCopyright \u00a9 2022 Massachusetts Medical Society.\n\n\n\nN ENGL J MED NEJM.ORG\n\n\n\n1\n\n\n\nThe New England Journal of Medicine\nDownloaded from nejm.org by Syed Arsalan Ahmed NAQVI on February 17, 2022. For personal use only. No other uses without permission.\nCopyright \u00a9 2022 Massachusetts Medical Society. All rights reserved.",
+        "pages_returned": [
+          1
+        ]
+      }
+    },
+    {
+      "turn": 4,
+      "role": "tool",
+      "name": "submit_verification",
+      "args": {
+        "results_keys": [
+          "Add-on Treatment"
+        ]
+      },
+      "response": {
+        "submitted": [
+          "Add-on Treatment"
+        ]
+      }
+    }
+  ],
+  "results": {
+    "Treatment Arm(s)": {
+      "value": "Darolutamide + ADT + Docetaxel",
+      "reasoning": "Both sources provide essentially the same value, with A being slightly more concise by using the ADT abbreviation. Both refer to the same page and modality.",
+      "verification": "both_correct",
+      "source": {
+        "page": 1,
+        "modality": "text"
+      },
+      "attribution": [
+        {
+          "page": 1,
+          "modality": "text"
+        }
+      ]
+    },
+    "Primary Endpoint(s)": {
+      "value": "Overall survival",
+      "reasoning": "Both sources agree on the value, page, and modality.",
+      "verification": "both_correct",
+      "source": {
+        "page": 1,
+        "modality": "text"
+      },
+      "attribution": [
+        {
+          "page": 1,
+          "modality": "text"
+        }
+      ]
+    },
+    "Median Follow-Up Duration (mo)": {
+      "value": "43.7 months (darolutamide group) and 42.4 months (placebo group)",
+      "reasoning": "Both sources provide the same information, with A presenting it in a slightly more natural language format. Both refer to the same page and modality.",
+      "verification": "both_correct",
+      "source": {
+        "page": 4,
+        "modality": "text"
+      },
+      "attribution": [
+        {
+          "page": 4,
+          "modality": "text"
+        }
+      ]
+    },
+    "COE_RCT_IND_OVERALL_RJ": {
+      "value": "Not reported",
+      "reasoning": "Both sources reported \"Not reported\".",
+      "verification": "both_correct",
+      "source": {
+        "page": null,
+        "modality": "text"
+      },
+      "attribution": []
+    },
+    "Total Participants - N": {
+      "value": "1306",
+      "reasoning": "Both sources agree on the value, page, and modality.",
+      "verification": "both_correct",
+      "source": {
+        "page": 1,
+        "modality": "text"
+      },
+      "attribution": [
+        {
+          "page": 1,
+          "modality": "text"
+        }
+      ]
+    },
+    "Class of Agent in Treatment Arm 1": {
+      "value": "Androgen-receptor inhibitor, hormonal therapy, chemotherapy",
+      "reasoning": "Source A provides a more complete list of agent classes, which includes the class from Source B, and both refer to the same page and modality.",
+      "verification": "both_correct",
+      "source": {
+        "page": 1,
+        "modality": "text"
+      },
+      "attribution": [
+        {
+          "page": 1,
+          "modality": "text"
+        }
+      ]
+    },
+    "Control Arm - N": {
+      "value": "655",
+      "reasoning": "Both sources agree on the value, page, and modality.",
+      "verification": "both_correct",
+      "source": {
+        "page": 1,
+        "modality": "text"
+      },
+      "attribution": [
+        {
+          "page": 1,
+          "modality": "text"
+        }
+      ]
+    },
+    "Number of Arms Included": {
+      "value": "2",
+      "reasoning": "Both sources agree on the value, page, and modality.",
+      "verification": "both_correct",
+      "source": {
+        "page": 1,
+        "modality": "text"
+      },
+      "attribution": [
+        {
+          "page": 1,
+          "modality": "text"
+        }
+      ]
+    },
+    "Quality of Life Scale": {
+      "value": "Brief Pain Inventory Short-Form questionnaire, Functional Assessment of Cancer Therapy-Prostate (National Comprehensive Cancer Network) symptom index 17-item questionnaire",
+      "reasoning": "Both sources provide the same information, with only a minor difference in separator (comma vs semicolon). A's formatting is chosen. Both refer to the same page and modality.",
+      "verification": "both_correct",
+      "source": {
+        "page": 3,
+        "modality": "text"
+      },
+      "attribution": [
+        {
+          "page": 3,
+          "modality": "text"
+        }
+      ]
+    },
+    "Treatment Arm 1 Regimen": {
+      "value": "Darolutamide (600 mg twice daily) + Androgen-deprivation therapy (ADT) + Docetaxel (six cycles of 75 mg per square meter)",
+      "reasoning": "Source A provides a more complete regimen description, including docetaxel dosage, which encompasses the information from Source B. Both refer to the same page and modality.",
+      "verification": "both_correct",
+      "source": {
+        "page": 1,
+        "modality": "text"
+      },
+      "attribution": [
+        {
+          "page": 1,
+          "modality": "text"
+        }
+      ]
+    },
+    "Secondary Endpoint(s)": {
+      "value": "Time to castration-resistant prostate cancer, time to pain progression, symptomatic skeletal event-free survival, time to a first symptomatic skeletal event, time to initiation of subsequent systemic ",
+      "reasoning": "Both sources agree on the value, page, and modality.",
+      "verification": "both_correct",
+      "source": {
+        "page": 3,
+        "modality": "text"
+      },
+      "attribution": [
+        {
+          "page": 3,
+          "modality": "text"
+        }
+      ]
+    },
+    "Treatment Arm - N": {
+      "value": "651",
+      "reasoning": "Both sources agree on the value, page, and modality.",
+      "verification": "both_correct",
+      "source": {
+        "page": 1,
+        "modality": "text"
+      },
+      "attribution": [
+        {
+          "page": 1,
+          "modality": "text"
+        }
+      ]
+    },
+    "Control Arm": {
+      "value": "Placebo + Androgen-deprivation therapy (ADT) + Docetaxel",
+      "reasoning": "Both sources provide essentially the same value, with A being slightly more complete by including the ADT abbreviation. Both refer to the same page and modality.",
+      "verification": "both_correct",
+      "source": {
+        "page": 1,
+        "modality": "text"
+      },
+      "attribution": [
+        {
+          "page": 1,
+          "modality": "text"
+        }
+      ]
+    },
+    "Quality of Life reported": {
+      "value": "Yes",
+      "reasoning": "Both sources agree on the value, page, and modality.",
+      "verification": "both_correct",
+      "source": {
+        "page": 3,
+        "modality": "text"
+      },
+      "attribution": [
+        {
+          "page": 3,
+          "modality": "text"
+        }
+      ]
+    },
+    "Add-on Treatment": {
+      "value": "Darolutamide",
+      "reasoning": "Page 1, under 'METHODS', states: '...to receive darolutamide... or matching placebo, both in combination with androgen-deprivation therapy and docetaxel.' This indicates that androgen-deprivation therapy and docetaxel are part of the standard treatment for both arms, and darolutamide is the additional agent being studied. Therefore, Source A is correct.",
+      "verification": "A_correct_B_wrong",
+      "source": {
+        "page": 1,
+        "modality": "text",
+        "verbatim_quote": "to receive darolutamide (at a dose of 600 mg [two 300-mg tablets] twice daily) or matching placebo, both in combination with androgen-deprivation therapy and docetaxel."
+      },
+      "attribution": [
+        {
+          "page": 1,
+          "modality": "text",
+          "verbatim_quote": "to receive darolutamide (at a dose of 600 mg [two 300-mg tablets] twice daily) or matching placebo, both in combination with androgen-deprivation therapy and docetaxel."
+        }
+      ]
+    }
+  }
+}

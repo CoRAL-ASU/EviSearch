@@ -1,0 +1,45 @@
+{
+  "TRIAL CHARACTERISTICS": {
+    "_error": "400 INVALID_ARGUMENT. {'error': {'code': 400, 'message': 'The specified schema produces a constraint that has too many states for serving. Typical causes of this error are schemas with lots of text (for example, very long property or enum names), schemas with long array length limits (especially when nested), or schemas using complex value matchers (for example, integers or numbers with minimum/maximum bounds or strings with complex formats like date-time)', 'status': 'INVALID_ARGUMENT'}}"
+  },
+  "OUTCOMES": {
+    "_error": "400 INVALID_ARGUMENT. {'error': {'code': 400, 'message': 'The specified schema produces a constraint that has too many states for serving. Typical causes of this error are schemas with lots of text (for example, very long property or enum names), schemas with long array length limits (especially when nested), or schemas using complex value matchers (for example, integers or numbers with minimum/maximum bounds or strings with complex formats like date-time)', 'status': 'INVALID_ARGUMENT'}}"
+  },
+  "_SYS": {
+    "Treatment Arm": {
+      "value": "Rucaparib (600 mg twice daily) and Physician's Choice Control (Docetaxel or a second-generation ARPI [abiraterone acetate or enzalutamide])",
+      "reasoning": "Found in the 'METHODS' section on page 1: 'We randomly assigned the patients in a 2:1 ratio to receive oral rucaparib (600 mg twice daily) or a physician's choice control (docetaxel or a second-generation ARPI [abiraterone acetate or enzalutamide]).' Also confirmed by Table 1 on page 4."
+    },
+    "Type of Therapy": {
+      "value": "PARP inhibitor (Rucaparib) and Chemotherapy (Docetaxel) or Hormonal Therapy (second-generation ARPIs: abiraterone acetate or enzalutamide)",
+      "reasoning": "Found in the 'BACKGROUND' section on page 1, stating 'rucaparib, an inhibitor of poly(ADP-ribose) polymerase (PARP)'. The 'METHODS' section on page 1 and 2 describes the control arm as 'physician's choice control (docetaxel or a second-generation ARPI [abiraterone acetate or enzalutamide])'. Docetaxel is chemotherapy, and ARPIs are hormonal therapy."
+    },
+    "Type of Combination Therapy": {
+      "value": "not found",
+      "reasoning": "The document describes single-agent rucaparib or single-agent docetaxel/ARPI in the treatment arms. No combination therapy within the assigned treatment arms was reported."
+    },
+    "Type of Agents": {
+      "value": "Rucaparib (PARP inhibitor), Docetaxel (chemotherapy), Abiraterone acetate (second-generation ARPI), Enzalutamide (second-generation ARPI)",
+      "reasoning": "Found in the 'METHODS' section on page 1: 'oral rucaparib (600 mg twice daily) or a physician's choice control (docetaxel or a second-generation ARPI [abiraterone acetate or enzalutamide])'. Also, Table 1 on page 5 lists 'Docetaxel', 'Abiraterone acetate', and 'Enzalutamide' as assigned control medications."
+    },
+    "Prior Therapy in Any Setting": {
+      "value": "Yes, including second-generation ARPIs (Abiraterone acetate, Apalutamide, Enzalutamide) and Docetaxel for hormone-sensitive prostate cancer.",
+      "reasoning": "The 'PATIENTS' section on page 2 states: 'All the patients had a history of disease progression after treatment with one previous second-generation ARPI (abiraterone acetate, enzalutamide, apalutamide, or an investigational agent)'. Table 1 on page 4, under 'Previous therapies', lists percentages of patients who received 'Second-generation ARPI' (Abiraterone acetate, Apalutamide, Enzalutamide) and 'Docetaxel for hormone-sensitive prostate cancer'."
+    },
+    "Prior Therapy in M0CRPC Setting": {
+      "value": "not found",
+      "reasoning": "The document specifies the study population as metastatic, castration-resistant prostate cancer (mCRPC). While it mentions prior therapies for castration-resistant disease and hormone-sensitive disease, it does not explicitly detail prior therapy specifically in a non-metastatic castration-resistant prostate cancer (M0CRPC) setting."
+    },
+    "Prior Therapy in mCSPC Setting": {
+      "value": "Yes, Docetaxel for hormone-sensitive prostate cancer (23% in Rucaparib arm, 21% in Control arm)",
+      "reasoning": "The 'PATIENTS' section on page 2 states: 'Previous taxane-based chemotherapy for castration-sensitive disease was permitted.' Table 1 on page 4, under 'Previous therapies', lists 'Docetaxel for hormone-sensitive prostate cancer' with 63 (23%) patients in the Rucaparib arm and 28 (21%) in the Control arm."
+    },
+    "Prior Therapy in mCRPC Setting": {
+      "value": "Yes, second-generation ARPIs (Abiraterone acetate, Enzalutamide, Apalutamide) but no chemotherapy for castration-resistant disease. 82% of Rucaparib arm and 81% of Control arm had >=1 prior therapy for castration-resistant prostate cancer.",
+      "reasoning": "The 'PATIENTS' section on page 2 states: 'All the patients had a history of disease progression after treatment with one previous second-generation ARPI (abiraterone acetate, enzalutamide, apalutamide, or an investigational agent) but no chemotherapy for castration-resistant disease.' Table 1 on page 5, under 'Therapy for castration-resistant prostate cancer', shows that 222 (82%) patients in the Rucaparib arm and 109 (81%) in the Control arm had '>=1' prior therapy for castration-resistant prostate cancer."
+    }
+  },
+  "POPULATION CHARACTERISTICS": {
+    "_error": "504 DEADLINE_EXCEEDED. {'error': {'code': 504, 'message': 'The request timed out. Please try again.', 'status': 'DEADLINE_EXCEEDED'}}"
+  }
+}

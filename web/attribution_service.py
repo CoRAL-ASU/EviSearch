@@ -10,7 +10,13 @@ from __future__ import annotations
 import re
 from typing import Any, Dict, List, Optional
 
-from web.highlight_service import _chunk_text, _landing_type_to_pipeline, load_landing_ai_parse
+from web.highlight_service import (
+    _chunk_text,
+    _landing_type_to_pipeline,
+    get_chunks_by_page_and_verbatim,
+    get_chunks_by_page_type,
+    load_landing_ai_parse,
+)
 from web.attribution_matcher import (
     extract_numeric_parts_from_values,
     extract_column_tokens,
@@ -24,6 +30,56 @@ from web.attribution_matcher import (
 def _chunk_text_clean(chunk: Dict) -> str:
     text = _chunk_text(chunk)
     return re.sub(r"<::[^>]*::>", "", text).strip()[:4000]
+
+
+def resolve_chunks_from_reconciled_source(
+    doc_id: str,
+    page: int,
+    modality: str,
+    verbatim_quote: Optional[str] = None,
+) -> List[Dict[str, Any]]:
+    """
+    Resolve Landing AI chunks from reconciled source (page, modality, verbatim_quote).
+    - table/figure: all chunks of that type on the page
+    - text: if verbatim_quote present, relaxed match; else returns []
+    Returns list of {chunk_id, page, source_type, snippet, score}.
+    """
+    if not page or page < 1:
+        return []
+    mod = str(modality or "text").lower()
+    if mod not in ("text", "table", "figure"):
+        mod = "text"
+
+    if mod in ("table", "figure"):
+        raw = get_chunks_by_page_type(doc_id, page, mod)
+        return [
+            {
+                "chunk_id": c["chunk_id"],
+                "page": c["page"],
+                "source_type": c["source_type"],
+                "snippet": (c.get("text") or "")[:300],
+                "score": 1.0,
+            }
+            for c in raw
+        ]
+
+    if mod == "text":
+        verbatim = (verbatim_quote or "").strip()
+        if not verbatim or len(verbatim) < 5:
+            return []
+        raw = get_chunks_by_page_and_verbatim(doc_id, page, verbatim)
+        return [
+            {
+                "chunk_id": c["chunk_id"],
+                "page": c["page"],
+                "source_type": c["source_type"],
+                "snippet": (c.get("text") or "")[:300],
+                "score": 1.0,
+            }
+            for c in raw
+        ]
+
+    return []
 
 
 def _parse_pages_from_evidence(evidence: str) -> List[int]:
@@ -198,7 +254,7 @@ def enrich_reconciled_with_attribution(
             pipeline_page = None
         evidence_combined = " ".join(evidences) if evidences else ""
 
-        # Collect method values and attribution (e.g. from agent)
+        # Collect method values and attribution: first from contributing_methods, then fallback to agent/search
         method_values = []
         col_attribution = None
         col_attribution_snippet = None
@@ -216,6 +272,45 @@ def enrich_reconciled_with_attribution(
                     snip = (meth.get("attribution_snippet") or "").strip()
                     if snip and len(snip) >= 10:
                         col_attribution_snippet = snip
+            if col_attribution is None:
+                for fallback_m in ("agent", "search_agent"):
+                    meth = row["methods"].get(fallback_m)
+                    if meth:
+                        val = meth.get("value") or meth.get("primary_value", "")
+                        if val and str(val).strip():
+                            method_values.append(str(val).strip())
+                        attr = meth.get("attribution")
+                        if attr and isinstance(attr, list) and len(attr) > 0:
+                            col_attribution = [
+                                {"page": x.get("page"), "source_type": x.get("modality") or x.get("source_type") or "text"}
+                                for x in attr if x.get("page")
+                            ]
+                            if col_attribution and (pipeline_page is None or pipeline_source_type is None):
+                                pipeline_page = pipeline_page or (col_attribution[0].get("page") if col_attribution else None)
+                                pipeline_source_type = pipeline_source_type or (col_attribution[0].get("source_type") or "text") if col_attribution else pipeline_source_type
+                            if col_attribution:
+                                break
+
+        # Try reconciled-source-based resolution first (when page + modality/verbatim present)
+        verbatim = (col.get("verbatim_quote") or "").strip()
+        if pipeline_page and pipeline_page >= 1 and pipeline_source_type:
+            st = str(pipeline_source_type).lower()
+            if st in ("table", "figure"):
+                chunks_out = resolve_chunks_from_reconciled_source(
+                    doc_id, pipeline_page, st, verbatim_quote=None
+                )
+            elif st == "text" and verbatim and len(verbatim) >= 5:
+                chunks_out = resolve_chunks_from_reconciled_source(
+                    doc_id, pipeline_page, "text", verbatim_quote=verbatim
+                )
+            else:
+                chunks_out = []
+            if chunks_out:
+                out = dict(col)
+                out["attributed_chunks"] = chunks_out
+                out["chunk_ids"] = [c["chunk_id"] for c in chunks_out]
+                enriched.append(out)
+                continue
 
         chunks_out = retrieve_chunks_for_evidence(
             doc_id,

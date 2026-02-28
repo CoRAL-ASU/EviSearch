@@ -1,0 +1,350 @@
+{
+  "doc_id": "NCT01809691_Aggarwal_SWOG1216_JCO'22",
+  "tool_calls_sequence": [
+    {
+      "name": "submit_verification",
+      "args": {
+        "results_keys": [
+          "Mode of metastases - N (%) | Synchronous | Control",
+          "Mode of metastases - N (%) | Metachronous | Control",
+          "Mode of metastases - N (%) | Metachronous | Treatment",
+          "Mode of metastases - N (%) | Synchronous | Treatment"
+        ]
+      }
+    },
+    {
+      "name": "get_page",
+      "args": {
+        "page_numbers": [
+          5
+        ]
+      }
+    },
+    {
+      "name": "submit_verification",
+      "args": {
+        "results_keys": [
+          "PS - N (%) | 1-2 | Treatment",
+          "Gleason score - N (%) | \u2264 7 | Control",
+          "Gleason score - N (%) | \u2265 8 | Treatment",
+          "PS - N (%) | 0 | Treatment",
+          "Volume of disease - N (%) | High | Control",
+          "Volume of disease - N (%) | Low | Control",
+          "Gleason score - N (%) | \u2265 8 | Control",
+          "Volume of disease - N (%) | High | Treatment",
+          "PS - N (%) | 1-2 | Control",
+          "PS - N (%) | 0 | Control",
+          "Gleason score - N (%) | \u2264 7 | Treatment"
+        ]
+      }
+    }
+  ],
+  "conversation": [
+    {
+      "turn": 0,
+      "role": "user",
+      "content": "Reconcile the following columns. Document has 14 pages. Sources are anonymous (A and B).\n\nCOLUMNS:\n\n---\nColumn 1: Volume of disease - N (%) | High | Treatment\nDefinition: What the number and percentage of participants in the treatment arm of the clinical trial with a high volume or burden of metastatic disease? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.\n  A: value=\"310 (49)\" | page=5 | modality=table | reasoning=\"Extracted from Table 1, 'Disease severity, No. (%)' row 'Extensive' for 'Orteronel (n = 638)' arm.\"\n  B: value=\"Not reported\" | page=None | modality=text | reasoning=\"Agent did not submit\"\n\n---\nColumn 2: Volume of disease - N (%) | High | Control\nDefinition: What the number and percentage of participants in the control arm of the clinical trial with high volume/burden metastasis? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.\n  A: value=\"313 (49)\" | page=5 | modality=table | reasoning=\"Extracted from Table 1, 'Disease severity, No. (%)' row 'Extensive' for 'Bicalutamide (n = 641)' arm.\"\n  B: value=\"Not reported\" | page=None | modality=text | reasoning=\"Agent did not submit\"\n\n---\nColumn 3: Volume of disease - N (%) | Low | Control\nDefinition: What the number and percentage of participants in the control arm of the trial with low volume/burden metastases? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.\n  A: value=\"328 (51)\" | page=5 | modality=table | reasoning=\"Extracted from Table 1, 'Disease severity, No. (%)' row 'Minimal' for 'Bicalutamide (n = 641)' arm.\"\n  B: value=\"Not reported\" | page=None | modality=text | reasoning=\"Agent did not submit\"\n\n---\nColumn 4: Gleason score - N (%) | \u2264 7 | Treatment\nDefinition: What number and percentage of participants included in the treatment arm of the clinical trial with a Gleason score of 7 or less? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.\n  A: value=\"211 (33%)\" | page=5 | modality=table | reasoning=\"Calculated by summing values from Table 1, 'Gleason score at initial diagnosis, No. (%)' rows '< 7' (46 (7)) and '7' (165 (26)) for 'Orteronel (n = 638)' arm.\"\n  B: value=\"Not reported\" | page=None | modality=text | reasoning=\"Agent did not submit\"\n\n---\nColumn 5: Gleason score - N (%) | \u2264 7 | Control\nDefinition: What number and percentage of patients with a Gleason score of 7 or less in the control arm of the trial? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.\n  A: value=\"207 (32%)\" | page=5 | modality=table | reasoning=\"Calculated by summing values from Table 1, 'Gleason score at initial diagnosis, No. (%)' rows '< 7' (39 (6)) and '7' (168 (26)) for 'Bicalutamide (n = 641)' arm.\"\n  B: value=\"Not reported\" | page=None | modality=text | reasoning=\"Agent did not submit\"\n\n---\nColumn 6: Gleason score - N (%) | \u2265 8 | Treatment\nDefinition: What number and percentage of participants in the treatment arm of the clinical trial with a Gleason score of 8 or higher? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.\n  A: value=\"372 (58%)\" | page=5 | modality=table | reasoning=\"Calculated by summing values from Table 1, 'Gleason score at initial diagnosis, No. (%)' rows '8' (123 (19)) and '9-10' (249 (39)) for 'Orteronel (n = 638)' arm.\"\n  B: value=\"Not reported\" | page=None | modality=text | reasoning=\"Agent did not submit\"\n\n---\nColumn 7: Gleason score - N (%) | \u2265 8 | Control\nDefinition: What number and percentage of patients in the control arm of the clinical trial with a Gleason score of 8 or higher? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.\n  A: value=\"382 (60%)\" | page=5 | modality=table | reasoning=\"Calculated by summing values from Table 1, 'Gleason score at initial diagnosis, No. (%)' rows '8' (118 (19)) and '9-10' (264 (41)) for 'Bicalutamide (n = 641)' arm.\"\n  B: value=\"Not reported\" | page=None | modality=text | reasoning=\"Agent did not submit\"\n\n---\nColumn 8: Mode of metastases - N (%) | Synchronous | Treatment\nDefinition: What the number and percentage of participants with synchronous metastases (metastases at the time of diagnosis of prostate cancer) in the treatment arm of the clinical trial? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.\n  A: value=\"Not reported\" | page=None | modality=text | reasoning=\"The study is for 'newly diagnosed metastatic hormone-sensitive prostate cancer', implying synchronous metastases, but specific N (%) for synchronous vs metachronous is not explicitly reported in the tables or text.\"\n  B: value=\"Not reported\" | page=None | modality=text | reasoning=\"Agent did not submit\"\n\n---\nColumn 9: Mode of metastases - N (%) | Synchronous | Control\nDefinition: What the number and percentage of participants with synchronous metastases (metastases at the time of diagnosis of prostate cancer) in the control arm of the clinical trial? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.\n  A: value=\"Not reported\" | page=None | modality=text | reasoning=\"The study is for 'newly diagnosed metastatic hormone-sensitive prostate cancer', implying synchronous metastases, but specific N (%) for synchronous vs metachronous is not explicitly reported in the tables or text.\"\n  B: value=\"Not reported\" | page=None | modality=text | reasoning=\"Agent did not submit\"\n\n---\nColumn 10: Mode of metastases - N (%) | Metachronous | Treatment\nDefinition: What number and percentage of participants with metachronous metastases (metastases that occur after the diagnosis of prostate cancer) in the treatment arm of the clinical trial? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.\n  A: value=\"Not reported\" | page=None | modality=text | reasoning=\"Specific N (%) for metachronous metastases is not explicitly reported in the tables or text.\"\n  B: value=\"Not reported\" | page=None | modality=text | reasoning=\"Agent did not submit\"\n\n---\nColumn 11: Mode of metastases - N (%) | Metachronous | Control\nDefinition: What the number and percentage of patients with metachronous metastases (metastases that occur after the diagnosis of prostate cancer) in the control arm of the clinical trial? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.\n  A: value=\"Not reported\" | page=None | modality=text | reasoning=\"Specific N (%) for metachronous metastases is not explicitly reported in the tables or text.\"\n  B: value=\"Not reported\" | page=None | modality=text | reasoning=\"Agent did not submit\"\n\n---\nColumn 12: PS - N (%) | 0 | Treatment\nDefinition: What number and percentage of participants included in the treatment arm with a Performance Status (PS) score of 0? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.\n  A: value=\"416 (65)\" | page=5 | modality=table | reasoning=\"Extracted from Table 1, 'Zubrod PS,\u00aa No. (%)' row '0' for 'Orteronel (n = 638)' arm.\"\n  B: value=\"Not reported\" | page=None | modality=text | reasoning=\"Agent did not submit\"\n\n---\nColumn 13: PS - N (%) | 0 | Control\nDefinition: What the number and percentage of patients with a Performance Status (PS) score of 0 in the control arm of the trial? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.\n  A: value=\"442 (69)\" | page=5 | modality=table | reasoning=\"Extracted from Table 1, 'Zubrod PS,\u00aa No. (%)' row '0' for 'Bicalutamide (n = 641)' arm.\"\n  B: value=\"Not reported\" | page=None | modality=text | reasoning=\"Agent did not submit\"\n\n---\nColumn 14: PS - N (%) | 1-2 | Treatment\nDefinition: What number and percentage of participants with a Performance Status (PS) score of 1-2 in the treatment arm of the clinical trial? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.\n  A: value=\"218 (34%)\" | page=5 | modality=table | reasoning=\"Calculated by summing values from Table 1, 'Zubrod PS,\u00aa No. (%)' rows '1' (197 (31)) and '2' (21 (3)) for 'Orteronel (n = 638)' arm.\"\n  B: value=\"Not reported\" | page=None | modality=text | reasoning=\"Agent did not submit\"\n\n---\nColumn 15: PS - N (%) | 1-2 | Control\nDefinition: What number and percentage of patients with performance status (PS) score of 1-2 in the control arm of the clinical trial? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.\n  A: value=\"196 (30%)\" | page=5 | modality=table | reasoning=\"Calculated by summing values from Table 1, 'Zubrod PS,\u00aa No. (%)' rows '1' (175 (27)) and '2' (21 (3)) for 'Bicalutamide (n = 641)' arm.\"\n  B: value=\"Not reported\" | page=None | modality=text | reasoning=\"Agent did not submit\"\n\n\nSubmit verification for easy columns first. For disputed columns, use get_page then submit."
+    },
+    {
+      "turn": 2,
+      "role": "tool",
+      "name": "submit_verification",
+      "args": {
+        "results_keys": [
+          "Mode of metastases - N (%) | Synchronous | Control",
+          "Mode of metastases - N (%) | Metachronous | Control",
+          "Mode of metastases - N (%) | Metachronous | Treatment",
+          "Mode of metastases - N (%) | Synchronous | Treatment"
+        ]
+      },
+      "response": {
+        "submitted": [
+          "Mode of metastases - N (%) | Synchronous | Control",
+          "Mode of metastases - N (%) | Metachronous | Control",
+          "Mode of metastases - N (%) | Metachronous | Treatment",
+          "Mode of metastases - N (%) | Synchronous | Treatment"
+        ]
+      }
+    },
+    {
+      "turn": 3,
+      "role": "tool",
+      "name": "get_page",
+      "args": {
+        "page_numbers": [
+          5
+        ]
+      },
+      "response": {
+        "formatted_chunks": "[Page 5]\n## Page 5\n\nOrteronel for Metastatic Hormone-Sensitive Prostate Cancer\n\n\n\nTABLE 1. Baseline Characteristics of Patients Included in the Primary Intention-To-Treat Analysis (N = 1,279)\n|  |  |  |\n| --- | --- | --- |\n| Characteristic | Orteronel (n = 638) | Bicalutamide (n = 641) |\n| Median age, years (range) | 67.6 (46.1-90.0) | 68.1 (19.4-92.3) |\n| Race, No. (%) | Race, No. (%) | Race, No. (%) |\n| White | 539 (84) | 538 (84) |\n| Black | 64 (10) | 71 (11) |\n| Others | 35 (6) | 32 (5) |\n| Zubrod PS, No. (%) | Zubrod PS, No. (%) | Zubrod PS, No. (%) |\n| 0 | 416 (65) | 442 (69) |\n| 1 | 197 (31) | 175 (27) |\n| 2 | 21 (3) | 21 (3) |\n| 3 | 3(<1) | 2(<1) |\n| Missing | 1(<1) | 1(<1) |\n| Gleason score at initial diagnosis, No. (%) | Gleason score at initial diagnosis, No. (%) | Gleason score at initial diagnosis, No. (%) |\n| <7 | 46 (7) | 39 (6) |\n| 7 | 165 (26) | 168 (26) |\n| 8 | 123 (19) | 118 (19) |\n| 9-10 | 249 (39) | 264 (41) |\n| Missing | 55 (9) | 52 (8) |\n| Median PSA level, ng/mL (range) | 27.2 (2.0-6,710.0) | 31.8 (2.0-6,651.2) |\n| Bone pain, No. (%) | Bone pain, No. (%) | Bone pain, No. (%) |\n| Yes | 158 (25) | 143 (22) |\n| No | 480 (75) | 498 (78) |\n| Bone metastases, No. (%) | Bone metastases, No. (%) | Bone metastases, No. (%) |\n| Yes | 470 (74) | 482 (75) |\n| No | 168 (26) | 159 (25) |\n| Liver metastases, No. (%) | Liver metastases, No. (%) | Liver metastases, No. (%) |\n| Yes | 16 (3) | 14 (2) |\n| No | 622 (97) | 627 (98) |\n| Other visceral metastases, No. (%) | Other visceral metastases, No. (%) | Other visceral metastases, No. (%) |\n| Yes | 82 (13) | 72 (11) |\n| No | 556 (87) | 569 (89) |\n| Disease severity, No. (%) | Disease severity, No. (%) | Disease severity, No. (%) |\n| Minimal | 328 (51) | 328 (51) |\n| Extensive | 310 (49) | 313 (49) |\n| Preregistration LHRH suppression, No. (%) | Preregistration LHRH suppression, No. (%) | Preregistration LHRH suppression, No. (%) |\n| Yes | 330 (52) | 331 (52) |\n| No | 308 (48) | 310 (48) |\n| Bisphosphonate use at study entry, No. (%) | Bisphosphonate use at study entry, No. (%) | Bisphosphonate use at study entry, No. (%) |\n| Yes | 39 (6) | 35 (5) |\n| No | 599 (94) | 606 (95) |\n| Prior radical prostatectomy, No. (%) | Prior radical prostatectomy, No. (%) | Prior radical prostatectomy, No. (%) |\n| Yes | 167 (26) | 148 (23) |\n| No | 471 (74) | 493 (77) |\n| Prior bilateral orchiectomy, No. (%) | Prior bilateral orchiectomy, No. (%) | Prior bilateral orchiectomy, No. (%) |\n| Yes | 4 (1) | 3 (1) |\n| No | 634 (99) | 638 (99) |\n\n\n\nAbbreviations: LHRH, luteinizing hormone-releasing hormone; PS, performance score; PSA, prostate-specific antigen.\n\u00aaZubrod performance status scores range from 0 to 3, with higher scores reflecting greater disability.\n\n\n\nJournal of Clinical Oncology\n\n\n\n5\n\n\n\nDownloaded from ascopubs.org by Mayo Foundation--Rochester on April 26, 2022 from 129.176.151.025\nCopyright \u00a9 2022 American Society of Clinical Oncology. All rights reserved.",
+        "pages_returned": [
+          5
+        ]
+      }
+    },
+    {
+      "turn": 4,
+      "role": "tool",
+      "name": "submit_verification",
+      "args": {
+        "results_keys": [
+          "PS - N (%) | 1-2 | Treatment",
+          "Gleason score - N (%) | \u2264 7 | Control",
+          "Gleason score - N (%) | \u2265 8 | Treatment",
+          "PS - N (%) | 0 | Treatment",
+          "Volume of disease - N (%) | High | Control",
+          "Volume of disease - N (%) | Low | Control",
+          "Gleason score - N (%) | \u2265 8 | Control",
+          "Volume of disease - N (%) | High | Treatment",
+          "PS - N (%) | 1-2 | Control",
+          "PS - N (%) | 0 | Control",
+          "Gleason score - N (%) | \u2264 7 | Treatment"
+        ]
+      },
+      "response": {
+        "submitted": [
+          "PS - N (%) | 1-2 | Treatment",
+          "Gleason score - N (%) | \u2264 7 | Control",
+          "Gleason score - N (%) | \u2265 8 | Treatment",
+          "PS - N (%) | 0 | Treatment",
+          "Volume of disease - N (%) | High | Control",
+          "Volume of disease - N (%) | Low | Control",
+          "Gleason score - N (%) | \u2265 8 | Control",
+          "Volume of disease - N (%) | High | Treatment",
+          "PS - N (%) | 1-2 | Control",
+          "PS - N (%) | 0 | Control",
+          "Gleason score - N (%) | \u2264 7 | Treatment"
+        ]
+      }
+    }
+  ],
+  "results": {
+    "Mode of metastases - N (%) | Synchronous | Control": {
+      "value": "Not reported",
+      "reasoning": "Both sources reported \"Not reported\".",
+      "verification": "both_correct",
+      "source": {
+        "page": null,
+        "modality": "text"
+      },
+      "attribution": []
+    },
+    "Mode of metastases - N (%) | Metachronous | Control": {
+      "value": "Not reported",
+      "reasoning": "Both sources reported \"Not reported\".",
+      "verification": "both_correct",
+      "source": {
+        "page": null,
+        "modality": "text"
+      },
+      "attribution": []
+    },
+    "Mode of metastases - N (%) | Metachronous | Treatment": {
+      "value": "Not reported",
+      "reasoning": "Both sources reported \"Not reported\".",
+      "verification": "both_correct",
+      "source": {
+        "page": null,
+        "modality": "text"
+      },
+      "attribution": []
+    },
+    "Mode of metastases - N (%) | Synchronous | Treatment": {
+      "value": "Not reported",
+      "reasoning": "Both sources reported \"Not reported\".",
+      "verification": "both_correct",
+      "source": {
+        "page": null,
+        "modality": "text"
+      },
+      "attribution": []
+    },
+    "PS - N (%) | 1-2 | Treatment": {
+      "value": "218 (34%)",
+      "reasoning": "Source A's value '218 (34%)' is confirmed by summing values from Table 1, 'Zubrod PS,\u00aa No. (%)' rows '1' (197 (31)) and '2' (21 (3)) for 'Orteronel (n = 638)' arm on page 5. Source B reported 'Not reported'.",
+      "verification": "A_correct_B_wrong",
+      "source": {
+        "page": 5,
+        "modality": "table",
+        "verbatim_quote": "197 (31)\n21 (3)"
+      },
+      "attribution": [
+        {
+          "page": 5,
+          "modality": "table",
+          "verbatim_quote": "197 (31)\n21 (3)"
+        }
+      ]
+    },
+    "Gleason score - N (%) | \u2264 7 | Control": {
+      "value": "207 (32%)",
+      "reasoning": "Source A's value '207 (32%)' is confirmed by summing values from Table 1, 'Gleason score at initial diagnosis, No. (%)' rows '< 7' (39 (6)) and '7' (168 (26)) for 'Bicalutamide (n = 641)' arm on page 5. Source B reported 'Not reported'.",
+      "verification": "A_correct_B_wrong",
+      "source": {
+        "page": 5,
+        "modality": "table",
+        "verbatim_quote": "39 (6)\n168 (26)"
+      },
+      "attribution": [
+        {
+          "page": 5,
+          "modality": "table",
+          "verbatim_quote": "39 (6)\n168 (26)"
+        }
+      ]
+    },
+    "Gleason score - N (%) | \u2265 8 | Treatment": {
+      "value": "372 (58%)",
+      "reasoning": "Source A's value '372 (58%)' is confirmed by summing values from Table 1, 'Gleason score at initial diagnosis, No. (%)' rows '8' (123 (19)) and '9-10' (249 (39)) for 'Orteronel (n = 638)' arm on page 5. Source B reported 'Not reported'.",
+      "verification": "A_correct_B_wrong",
+      "source": {
+        "page": 5,
+        "modality": "table",
+        "verbatim_quote": "123 (19)\n249 (39)"
+      },
+      "attribution": [
+        {
+          "page": 5,
+          "modality": "table",
+          "verbatim_quote": "123 (19)\n249 (39)"
+        }
+      ]
+    },
+    "PS - N (%) | 0 | Treatment": {
+      "value": "416 (65)",
+      "reasoning": "Source A's value '416 (65)' is confirmed by Table 1, 'Zubrod PS,\u00aa No. (%)' row '0' for 'Orteronel (n = 638)' arm on page 5. Source B reported 'Not reported'.",
+      "verification": "A_correct_B_wrong",
+      "source": {
+        "page": 5,
+        "modality": "table",
+        "verbatim_quote": "416 (65)"
+      },
+      "attribution": [
+        {
+          "page": 5,
+          "modality": "table",
+          "verbatim_quote": "416 (65)"
+        }
+      ]
+    },
+    "Volume of disease - N (%) | High | Control": {
+      "value": "313 (49)",
+      "reasoning": "Source A's value '313 (49)' is confirmed by Table 1, 'Disease severity, No. (%)' row 'Extensive' for 'Bicalutamide (n = 641)' arm on page 5. Source B reported 'Not reported'.",
+      "verification": "A_correct_B_wrong",
+      "source": {
+        "page": 5,
+        "modality": "table",
+        "verbatim_quote": "313 (49)"
+      },
+      "attribution": [
+        {
+          "page": 5,
+          "modality": "table",
+          "verbatim_quote": "313 (49)"
+        }
+      ]
+    },
+    "Volume of disease - N (%) | Low | Control": {
+      "value": "328 (51)",
+      "reasoning": "Source A's value '328 (51)' is confirmed by Table 1, 'Disease severity, No. (%)' row 'Minimal' for 'Bicalutamide (n = 641)' arm on page 5. Source B reported 'Not reported'.",
+      "verification": "A_correct_B_wrong",
+      "source": {
+        "page": 5,
+        "modality": "table",
+        "verbatim_quote": "328 (51)"
+      },
+      "attribution": [
+        {
+          "page": 5,
+          "modality": "table",
+          "verbatim_quote": "328 (51)"
+        }
+      ]
+    },
+    "Gleason score - N (%) | \u2265 8 | Control": {
+      "value": "382 (60%)",
+      "reasoning": "Source A's value '382 (60%)' is confirmed by summing values from Table 1, 'Gleason score at initial diagnosis, No. (%)' rows '8' (118 (19)) and '9-10' (264 (41)) for 'Bicalutamide (n = 641)' arm on page 5. Source B reported 'Not reported'.",
+      "verification": "A_correct_B_wrong",
+      "source": {
+        "page": 5,
+        "modality": "table",
+        "verbatim_quote": "118 (19)\n264 (41)"
+      },
+      "attribution": [
+        {
+          "page": 5,
+          "modality": "table",
+          "verbatim_quote": "118 (19)\n264 (41)"
+        }
+      ]
+    },
+    "Volume of disease - N (%) | High | Treatment": {
+      "value": "310 (49)",
+      "reasoning": "Source A's value '310 (49)' is confirmed by Table 1, 'Disease severity, No. (%)' row 'Extensive' for 'Orteronel (n = 638)' arm on page 5. Source B reported 'Not reported'.",
+      "verification": "A_correct_B_wrong",
+      "source": {
+        "page": 5,
+        "modality": "table",
+        "verbatim_quote": "310 (49)"
+      },
+      "attribution": [
+        {
+          "page": 5,
+          "modality": "table",
+          "verbatim_quote": "310 (49)"
+        }
+      ]
+    },
+    "PS - N (%) | 1-2 | Control": {
+      "value": "196 (30%)",
+      "reasoning": "Source A's value '196 (30%)' is confirmed by summing values from Table 1, 'Zubrod PS,\u00aa No. (%)' rows '1' (175 (27)) and '2' (21 (3)) for 'Bicalutamide (n = 641)' arm on page 5. Source B reported 'Not reported'.",
+      "verification": "A_correct_B_wrong",
+      "source": {
+        "page": 5,
+        "modality": "table",
+        "verbatim_quote": "175 (27)\n21 (3)"
+      },
+      "attribution": [
+        {
+          "page": 5,
+          "modality": "table",
+          "verbatim_quote": "175 (27)\n21 (3)"
+        }
+      ]
+    },
+    "PS - N (%) | 0 | Control": {
+      "value": "442 (69)",
+      "reasoning": "Source A's value '442 (69)' is confirmed by Table 1, 'Zubrod PS,\u00aa No. (%)' row '0' for 'Bicalutamide (n = 641)' arm on page 5. Source B reported 'Not reported'.",
+      "verification": "A_correct_B_wrong",
+      "source": {
+        "page": 5,
+        "modality": "table",
+        "verbatim_quote": "442 (69)"
+      },
+      "attribution": [
+        {
+          "page": 5,
+          "modality": "table",
+          "verbatim_quote": "442 (69)"
+        }
+      ]
+    },
+    "Gleason score - N (%) | \u2264 7 | Treatment": {
+      "value": "211 (33%)",
+      "reasoning": "Source A's value '211 (33%)' is confirmed by summing values from Table 1, 'Gleason score at initial diagnosis, No. (%)' rows '< 7' (46 (7)) and '7' (165 (26)) for 'Orteronel (n = 638)' arm on page 5. Source B reported 'Not reported'.",
+      "verification": "A_correct_B_wrong",
+      "source": {
+        "page": 5,
+        "modality": "table",
+        "verbatim_quote": "46 (7)\n165 (26)"
+      },
+      "attribution": [
+        {
+          "page": 5,
+          "modality": "table",
+          "verbatim_quote": "46 (7)\n165 (26)"
+        }
+      ]
+    }
+  }
+}

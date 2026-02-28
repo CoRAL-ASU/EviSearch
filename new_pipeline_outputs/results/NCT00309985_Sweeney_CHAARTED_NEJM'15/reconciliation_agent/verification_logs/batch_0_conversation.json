@@ -1,0 +1,370 @@
+{
+  "doc_id": "NCT00309985_Sweeney_CHAARTED_NEJM'15",
+  "tool_calls_sequence": [
+    {
+      "name": "submit_verification",
+      "args": {
+        "results_keys": [
+          "Number of Arms Included",
+          "Control Arm",
+          "Median Follow-Up Duration (mo)",
+          "Add-on Treatment",
+          "Total Participants - N",
+          "Treatment Arm - N",
+          "COE_RCT_IND_OVERALL_RJ",
+          "Quality of Life reported",
+          "Treatment Arm 1 Regimen",
+          "Control Arm - N",
+          "Class of Agent in Treatment Arm 1",
+          "Quality of Life Scale",
+          "Primary Endpoint(s)",
+          "Treatment Arm(s)"
+        ]
+      }
+    },
+    {
+      "name": "get_page",
+      "args": {
+        "page_numbers": [
+          1,
+          8
+        ]
+      }
+    },
+    {
+      "name": "submit_verification",
+      "args": {
+        "results_keys": [
+          "Secondary Endpoint(s)"
+        ]
+      }
+    }
+  ],
+  "conversation": [
+    {
+      "turn": 0,
+      "role": "user",
+      "content": "Reconcile the following columns. Document has 10 pages. Sources are anonymous (A and B).\n\nCOLUMNS:\n\n---\nColumn 1: Add-on Treatment\nDefinition: What is the name of additional therapy or intervention given in combination with the primary treatment in the clinical trial?. If reported, provide the value; otherwise use 'Not reported'.\n  A: value=\"docetaxel\" | page=1 | modality=text | reasoning=\"The abstract states: 'We assessed whether concomitant treatment with ADT plus docetaxel would result in longer overall survival than that with ADT alone.'\"\n  B: value=\"Docetaxel\" | page=1 | modality=text | reasoning=\"The study compared ADT alone with ADT plus docetaxel. Docetaxel is the additional therapy.\"\n\n---\nColumn 2: COE_RCT_IND_OVERALL_RJ\nDefinition: What is the overall risk judgment of individual criteria of evidence (COE) in randomized controlled trials (RCT)?.\n  A: value=\"Not reported\" | page=None | modality=text | reasoning=\"The document is a primary clinical trial report and does not contain an overall risk judgment of individual criteria of evidence in randomized controlled trials (COE_RCT_IND_OVERALL_RJ).\"\n  B: value=\"Not reported\" | page=None | modality=text | reasoning=\"No information found regarding 'COE_RCT_IND_OVERALL_RJ' in the provided pages or through semantic search.\"\n\n---\nColumn 3: Class of Agent in Treatment Arm 1\nDefinition: What the type or category of therapeutic agent used in the first experimental arm of the clinical trial?. If reported, provide the value; otherwise use 'Not reported'.\n  A: value=\"Chemotherapy\" | page=1 | modality=text | reasoning=\"Docetaxel is a chemotherapy agent. The abstract mentions 'Chemohormonal Therapy'.\"\n  B: value=\"Chemotherapy (Taxane)\" | page=1 | modality=text | reasoning=\"Docetaxel is a chemotherapy agent, specifically a taxane.\"\n\n---\nColumn 4: Control Arm\nDefinition: What the name of the arm in the clinical trial that does not receive the experimental treatment, serving as a comparison group?. If reported, provide the value; otherwise use 'Not reported'.\n  A: value=\"ADT alone\" | page=1 | modality=text | reasoning=\"The abstract states: 'We assigned men with metastatic, hormone-sensitive prostate cancer to receive either ADT plus docetaxel... or ADT alone.'\"\n  B: value=\"ADT alone\" | page=1 | modality=text | reasoning=\"The methods section states patients were assigned to 'ADT plus docetaxel ... or ADT alone.'\"\n\n---\nColumn 5: Control Arm - N\nDefinition: What the total number of participants included in the control arm of the clinical trial?. If reported, provide the value; otherwise use 'Not reported'. If the trial contains multiple control arms, report for all separately\n  A: value=\"393\" | page=5 | modality=table | reasoning=\"Table 1 shows 'ADT Alone (N=393)'.\"\n  B: value=\"393\" | page=8 | modality=table | reasoning=\"Table 2 on page 8 explicitly states the number of participants in the ADT Alone (Control) arm.\"\n\n---\nColumn 6: Median Follow-Up Duration (mo)\nDefinition: What the median length of time, measured in months, that participants in the clinical trial were followed up or monitored after the start of the trial? If reported, include the value; use 'Not reported' if missing.\n  A: value=\"28.9\" | page=1 | modality=text | reasoning=\"The abstract states: 'After a median follow-up of 28.9 months...'. Figure 1 caption also states: 'The median duration of follow-up was 28.9 months among all patients (Panel A)'.\"\n  B: value=\"28.9\" | page=1 | modality=text | reasoning=\"The results section on page 1 explicitly states the median follow-up duration.\"\n\n---\nColumn 7: Number of Arms Included\nDefinition: What is the total count of experimental treatment arms and control arms included in the clinical trial?. If reported, provide the value; otherwise use 'Not reported'.\n  A: value=\"2\" | page=2 | modality=text | reasoning=\"The study assigned patients to 'ADT plus docetaxel' or 'ADT alone', indicating two arms.\"\n  B: value=\"2\" | page=1 | modality=text | reasoning=\"The study design clearly describes two treatment arms: ADT plus docetaxel and ADT alone.\"\n\n---\nColumn 8: Primary Endpoint(s)\nDefinition: What the main outcome(s) or objective(s) that the clinical trial is designed to measure or achieve?. If reported, provide the value; otherwise use 'Not reported'.\n  A: value=\"Overall survival\" | page=1 | modality=text | reasoning=\"The abstract states: 'The primary objective was to test the hypothesis that the median overall survival would be 33.3% longer...' and 'Overall survival was defined as the time until death from any cause.'\"\n  B: value=\"Overall survival\" | page=1 | modality=text | reasoning=\"The primary objective is explicitly stated as testing the hypothesis related to overall survival on page 1.\"\n\n---\nColumn 9: Quality of Life Scale\nDefinition: What a measure of the participants' overall well-being and satisfaction with their health status, as assessed through a standardized questionnaire or survey, reflecting their perceived quality of life during the clinical trial?.\n  A: value=\"Not reported\" | page=None | modality=text | reasoning=\"No specific quality of life scale is mentioned in the document.\"\n  B: value=\"Not reported\" | page=None | modality=text | reasoning=\"No mention of a specific Quality of Life Scale in the provided pages or through semantic search.\"\n\n---\nColumn 10: Quality of Life reported\nDefinition: Does the clinical trial report results on the quality of life of participants? Answer Yes or No\n  A: value=\"No\" | page=None | modality=text | reasoning=\"The document reports adverse events and clinical outcomes but does not include any reported results or discussion on the quality of life of participants.\"\n  B: value=\"No\" | page=1 | modality=text | reasoning=\"No mention of quality of life results or assessment on the provided pages or through semantic search.\"\n\n---\nColumn 11: Secondary Endpoint(s)\nDefinition: What the secondary outcome(s) or objective(s) of the clinical trial, in addition to the primary endpoint, that are being measured or evaluated?. If reported, provide the value; otherwise use 'Not reported'.\n  A: value=\"Time to biochemical, symptomatic, or radiographic progression; rate of prostate-specific antigen (PSA) level of less than 0.2 ng per milliliter at 12 months; time to castration-resistant prostate canc\" | page=1 | modality=text | reasoning=\"The abstract mentions: 'The median time to biochemical, symptomatic, or radiographic progression was 20.2 months... The rate of a prostate-specific antigen level of less than 0.2 ng per milliliter at 12 months was 27.7%...'. Table 2 lists 'PSA level <0.2 ng/ml at 6 mo', 'PSA level <0.2 ng/ml at 12 m\"\n  B: value=\"Time to biochemical, symptomatic, or radiographic progression; Prostate-specific antigen level of less than 0.2 ng per milliliter at 12 months; Time to clinical progression\" | page=1 | modality=text | reasoning=\"These outcomes are reported in the results section and Table 2 on page 1 and 8, after the primary endpoint, indicating they are secondary endpoints.\"\n\n---\nColumn 12: Total Participants - N\nDefinition: What are the total number of participants included in the clinical trial? These include only participants who were inlcuded in either the treatment or control arm of the clinical trial. If reported, provide the value; otherwise use 'Not reported'.If multiple comparative trials are mentioned, report for all separately\n  A: value=\"790\" | page=1 | modality=text | reasoning=\"The abstract states: 'A total of 790 patients (median age, 63 years) underwent randomization.'\"\n  B: value=\"790\" | page=1 | modality=text | reasoning=\"The abstract on page 1 explicitly states the total number of patients randomized.\"\n\n---\nColumn 13: Treatment Arm - N\nDefinition: What are the total number of participants included in the experimental arm of the clinical trial?. If reported, provide the value; otherwise use 'Not reported'. If the trial contains multiple treatment arms, report for all separately\n  A: value=\"397\" | page=5 | modality=table | reasoning=\"Table 1 shows 'ADT plus Docetaxel (N=397)'.\"\n  B: value=\"397\" | page=8 | modality=table | reasoning=\"Table 2 on page 8 explicitly states the number of participants in the ADT plus Docetaxel (Treatment) arm.\"\n\n---\nColumn 14: Treatment Arm 1 Regimen\nDefinition: What the specific treatment protocol or regimen used in the experimental arms of the clinical trial?. If reported, provide the treament regimen used ; otherwise use 'Not reported'.\n  A: value=\"ADT plus docetaxel (at a dose of 75 mg per square meter of body-surface area every 3 weeks for six cycles)\" | page=1 | modality=text | reasoning=\"The abstract states: 'We assigned men with metastatic, hormone-sensitive prostate cancer to receive either ADT plus docetaxel (at a dose of 75 mg per square meter of body-surface area every 3 weeks for six cycles) or ADT alone.'\"\n  B: value=\"ADT plus docetaxel (75 mg per square meter of body-surface area every 3 weeks for six cycles)\" | page=1 | modality=text | reasoning=\"The methods section on page 1 describes the specific regimen for the combination therapy arm.\"\n\n---\nColumn 15: Treatment Arm(s)\nDefinition: What name of the experimental arm or arms in the clinical trial?. If reported, provide the value; otherwise use 'Not reported'.\n  A: value=\"ADT plus docetaxel (combination therapy)\" | page=1 | modality=text | reasoning=\"The abstract refers to the experimental arm as 'ADT plus docetaxel (combination therapy)'.\"\n  B: value=\"ADT plus docetaxel\" | page=1 | modality=text | reasoning=\"The abstract and methods section clearly identify this as the experimental arm on page 1.\"\n\n\nSubmit verification for easy columns first. For disputed columns, use get_page then submit."
+    },
+    {
+      "turn": 2,
+      "role": "tool",
+      "name": "submit_verification",
+      "args": {
+        "results_keys": [
+          "Number of Arms Included",
+          "Control Arm",
+          "Median Follow-Up Duration (mo)",
+          "Add-on Treatment",
+          "Total Participants - N",
+          "Treatment Arm - N",
+          "COE_RCT_IND_OVERALL_RJ",
+          "Quality of Life reported",
+          "Treatment Arm 1 Regimen",
+          "Control Arm - N",
+          "Class of Agent in Treatment Arm 1",
+          "Quality of Life Scale",
+          "Primary Endpoint(s)",
+          "Treatment Arm(s)"
+        ]
+      },
+      "response": {
+        "submitted": [
+          "Number of Arms Included",
+          "Control Arm",
+          "Median Follow-Up Duration (mo)",
+          "Add-on Treatment",
+          "Total Participants - N",
+          "Treatment Arm - N",
+          "COE_RCT_IND_OVERALL_RJ",
+          "Quality of Life reported",
+          "Treatment Arm 1 Regimen",
+          "Control Arm - N",
+          "Class of Agent in Treatment Arm 1",
+          "Quality of Life Scale",
+          "Primary Endpoint(s)",
+          "Treatment Arm(s)"
+        ]
+      }
+    },
+    {
+      "turn": 3,
+      "role": "model",
+      "content": "COLUMNS:\n\n---\nColumn 11: Secondary Endpoint(s)\nDefinition: What the secondary outcome(s) or objective(s) of the clinical trial, in addition to the primary endpoint, that are being measured or evaluated?. If reported, provide the value; otherwise use 'Not reported'.\n  A: value=\"Time to biochemical, symptomatic, or radiographic progression; rate of prostate-specific antigen (PSA) level of less than 0.2 ng per milliliter at 12 months; time to castration-resistant prostate canc\" | page=1 | modality=text | reasoning=\"The abstract mentions: 'The median time to biochemical, symptomatic, or radiographic progression was 20.2 months... The rate of a prostate-specific antigen level of less than 0.2 ng per milliliter at 12 months was 27.7%...'. Table 2 lists 'PSA level <0.2 ng/ml at 6 mo', 'PSA level <0.2 ng/ml at 12 m\"\n  B: value=\"Time to biochemical, symptomatic, or radiographic progression; Prostate-specific antigen level of less than 0.2 ng per milliliter at 12 months; Time to clinical progression\" | page=1 | modality=text | reasoning=\"These outcomes are reported in the results section and Table 2 on page 1 and 8, after the primary endpoint, indicating they are secondary endpoints.\""
+    },
+    {
+      "turn": 4,
+      "role": "tool",
+      "name": "get_page",
+      "args": {
+        "page_numbers": [
+          1,
+          8
+        ]
+      },
+      "response": {
+        "formatted_chunks": "[Page 1]\n## Page 1\n\nThe NEW ENGLAND JOURNAL of MEDICINE\n\n\n\nORIGINAL ARTICLE\n\n\n\nChemohormonal Therapy in Metastatic\nHormone-Sensitive Prostate Cancer\nChristopher J. Sweeney, M.B., B.S., Yu-Hui Chen, M.S., M.P.H.,\nMichael Carducci, M.D., Glenn Liu, M.D., David F. Jarrard, M.D.,\nMario Eisenberger, M.D., Yu-Ning Wong, M.D., M.S.C.E., Noah Hahn, M.D.,\nManish Kohli, M.D., Matthew M. Cooney, M.D., Robert Dreicer, M.D.,\nNicholas J. Vogelzang, M.D., Joel Picus, M.D., Daniel Shevrin, M.D.,\nMaha Hussain, M.B., Ch.B., Jorge A. Garcia, M.D., and Robert S. DiPaola, M.D.\n\n\n\nABSTRACT\n\n\n\nBACKGROUND\nAndrogen-deprivation therapy (ADT) has been the backbone of treatment for metastatic prostate cancer since the 1940s. We assessed whether concomitant treatment with ADT plus docetaxel would result in longer overall survival than that with ADT alone.\n\n\n\nMETHODS\nWe assigned men with metastatic, hormone-sensitive prostate cancer to receive either ADT plus docetaxel (at a dose of 75 mg per square meter of body-surface area every 3 weeks for six cycles) or ADT alone. The primary objective was to test the hypothesis that the median overall survival would be 33.3% longer among patients receiving docetaxel added to ADT early during therapy than among patients receiving ADT alone.\n\n\n\nRESULTS\nA total of 790 patients (median age, 63 years) underwent randomization. After a\nmedian follow-up of 28.9 months, the median overall survival was 13.6 months\nlonger with ADT plus docetaxel (combination therapy) than with ADT alone (57.6\nmonths vs. 44.0 months; hazard ratio for death in the combination group, 0.61;\n95% confidence interval [CI], 0.47 to 0.80; P<0.001). The median time to bio-\nchemical, symptomatic, or radiographic progression was 20.2 months in the com-\nbination group, as compared with 11.7 months in the ADT-alone group (hazard\nratio, 0.61; 95% CI, 0.51 to 0.72; P<0.001). The rate of a prostate-specific antigen\nlevel of less than 0.2 ng per milliliter at 12 months was 27.7% in the combination\ngroup versus 16.8% in the ADT-alone group (P<0.001). In the combination group,\nthe rate of grade 3 or 4 febrile neutropenia was 6.2%, the rate of grade 3 or 4\ninfection with neutropenia was 2.3%, and the rate of grade 3 sensory neuropathy\nand of grade 3 motor neuropathy was 0.5%.\n\n\n\nCONCLUSIONS\nSix cycles of docetaxel at the beginning of ADT for metastatic prostate cancer resulted in significantly longer overall survival than that with ADT alone. (Funded by the National Cancer Institute and others; ClinicalTrials.gov number, NCT00309985.)\n\n\n\nFrom the Department of Medicine (C.J.S.)\nand the Department of Biostatistics and\nComputational Biology (Y.-H.C.), Dana-\nFarber Cancer Institute, Boston; Harvard\nMedical School, Boston (C.J.S.); Johns\nHopkins University, Baltimore (M.C., M.E.);\nUniversity of Wisconsin Carbone Cancer\nCenter (G.L., D.F.J.) and School of Medi-\ncine and Public Health (D.F.J.), Madison;\nFox Chase Cancer Center, Temple Univer-\nsity Health System, Philadelphia (Y.-N.W.);\nIndiana University Melvin and Bren Simon\nCancer Center, Indianapolis (N.H.); Mayo\nClinic, Rochester, MN (M.K.); University\nHospitals Case Medical Center, Seidman\nCancer Center (M.M.C.), and Cleveland\nClinic Taussig Cancer Institute (J.A.G.)\n\u2014 both in Cleveland; University of Virginia\nCancer Center, Charlottesville (R.D.); Com-\nprehensive Cancer Centers of Nevada, Las\nVegas (N.J.V.); Siteman Cancer Center,\nWashington University School of Medi-\ncine, St. Louis (J.P.); NorthShore University\nHealthSystem, Evanston, IL (D.S.); Univer-\nsity of Michigan Comprehensive Cancer\nCenter, Ann Arbor (M.H.); and Rutgers\nCancer Institute of New Jersey, New Bruns-\nwick (R.S.D.). Address reprint requests to\nDr. Sweeney at christopher_sweeney@dfci\n.harvard.edu.\n\n\n\nThis article was published on August 5,\n2015, at NEJM.org.\n\n\n\nN Engl J Med 2015;373:737-46.\nDOI: 10.1056/NEJMoa1503747\nCopyright \u00a9 2015 Massachusetts Medical Society.\n\n\n\nN ENGL J MED 373;8 NEJM.ORG AUGUST 20, 2015\n\n\n\n737\n\n\n\nThe New England Journal of Medicine\nDownloaded from nejm.org on October 9, 2021. For personal use only. No other uses without permission.\nCopyright \u00a9 2015 Massachusetts Medical Society. All rights reserved.\n\n---\n\n[Page 8]\n## Page 8\n\nThe NEW ENGLAND JOURNAL of MEDICINE\n\n\n\n|  |  |  |  |  |\n| --- | --- | --- | --- | --- |\n| Table 2. Secondary End Points. | Table 2. Secondary End Points. | Table 2. Secondary End Points. | Table 2. Secondary End Points. | Table 2. Secondary End Points. |\n| End Point | ADT plus Docetaxel (N=397) | ADT Alone (N=393) | P Value | Hazard Ratio (95% CI) |\n| PSA level <0.2 ng/ml at 6 mo\u2014 no. (%) | 127 (32.0) | 77 (19.6) | <0.001 |  |\n| PSA level <0.2 ng/ml at 12 mo\u2014 no. (%) | 110 (27.7) | 66 (16.8) | <0.001 |  |\n| Time to castration-resistant prostate cancer \u2014 mo\\* | Time to castration-resistant prostate cancer \u2014 mo\\* | Time to castration-resistant prostate cancer \u2014 mo\\* | Time to castration-resistant prostate cancer \u2014 mo\\* | Time to castration-resistant prostate cancer \u2014 mo\\* |\n| Median | 20.2 | 11.7 | <0.001 | 0.61 (0.51-0.72) |\n| 95% CI | 17.2-23.6 | 10.8-14.7 |  |  |\n| Time to clinical progression -- mo | Time to clinical progression -- mo | Time to clinical progression -- mo | Time to clinical progression -- mo | Time to clinical progression -- mo |\n| Median | 33.0 | 19.8 | <0.001 | 0.61 (0.50-0.75) |\n| 95% CI | 27.3-41.2 | 17.9-22.8 |  |  |\n\n\n\n* The time to castration-resistant prostate cancer was the time until documented clinical or serologic progression with a testosterone level of less than 50 ng per deciliter (or source documentation of medical castration or surgical castration).\n\n\u2020 Clinical progression was defined by increasing symptoms of bone metastases; progression according to the Response Evaluation Criteria in Solid Tumors, version 1.0; or clinical deterioration due to cancer according to the investigator's opinion.\n\n\n\n|  |  |  |  |\n| --- | --- | --- | --- |\n| Table 3. Adverse Events of Grade 3 or Higher among the 390 Patients Who Received the Docetaxel-Containing Regimen and Had Follow-up Data Available.\\* | Table 3. Adverse Events of Grade 3 or Higher among the 390 Patients Who Received the Docetaxel-Containing Regimen and Had Follow-up Data Available.\\* | Table 3. Adverse Events of Grade 3 or Higher among the 390 Patients Who Received the Docetaxel-Containing Regimen and Had Follow-up Data Available.\\* | Table 3. Adverse Events of Grade 3 or Higher among the 390 Patients Who Received the Docetaxel-Containing Regimen and Had Follow-up Data Available.\\* |\n| Event | Grade 3 | Grade 4 | Grade 5 |\n| no. of patients (%) | no. of patients (%) | no. of patients (%) | no. of patients (%) |\n| Allergic reaction | 7 (1.8) | 1 (0.3) | 0 |\n| Fatigue | 16 (4.1) | 0 | 0 |\n| Diarrhea | 4 (1.0) | 0 | 0 |\n| Stomatitis | 2 (0.5) | 0 | 0 |\n| Neuropathy, motor | 2 (0.5) | 0 | 0 |\n| Neuropathy, sensory | 2 (0.5) | 0 | 0 |\n| Thromboembolism | 1 (0.3) | 2 (0.5) | 0 |\n| Sudden death | 0 | 0 | 1 (0.3) |\n| Anemia | 4 (1.0) | 1 (0.3) | 0 |\n| Thrombocytopenia | 0 | 1 (0.3) | 0 |\n| Neutropenia | 12 (3.1) | 35 (9.0) | 0 |\n| Febrile neutropenia | 15 (3.8) | 9 (2.3) | 0 |\n| Infection with neutropenia | 5 (1.3) | 4 (1.0) | 0 |\n| Any event | 65 (16.7) | 49 (12.6) | 1 (0.3) |\n\n\n\n* Patients were classified according to the worst grade reported across all body systems. Patients assigned to ADT plus docetaxel were monitored every 3 weeks during the time docetaxel was administered and then every 3 months, whereas patients assigned to the ADT-alone group were seen every 3 months after randomization. Toxic effects in the group that received ADT plus docetaxel were captured at this frequency to ascertain the adverse-event profile of chemotherapy. The adverse-event profile of ADT was assumed to be common to the two groups. The potential risk of ascertainment bias for adverse events and early progression in the ADT-plus-docetaxel group was recognized, but such bias, if it existed, would have favored the ADT-alone group.\n\n\n\nASSIGNED THERAPY ADMINISTERED\nAND SUBSEQUENT THERAPY\nApproximately 86% of the 390 patients in the\ncombination group who started the assigned\ntherapy completed six cycles of docetaxel therapy\n(Table S2 in the Supplementary Appendix), and\napproximately 74% of all the treated patients\nreceived all planned cycles without dose modifi-\ncations. At the time of this analysis, castration-\nresistant prostate cancer with at least biochemi-\ncal progression had developed in 287 patients\nassigned to ADT alone; 137 patients of these\npatients had received docetaxel for castration-\nresistant prostate cancer, and another 10 patients\nhad received docetaxel before castration resis-\ntance was confirmed. In addition, 104 patients\nhad received abiraterone or enzalutamide after\nconfirmed castration resistance (9 of these pa-\ntients may have received placebo as part of a\ntrial). Table S3 in the Supplementary Appendix\ndocuments the use of other therapies that have\nbeen shown to prolong overall survival in patients\nwith castration-resistant prostate cancer.\n\n\n\nDISCUSSION\nImprovements in outcomes in men with meta-\nstatic castration-resistant prostate cancer have\nbeen achieved with the use of cytotoxic chemo-\ntherapy, next-generation hormonal therapies,\nimmunotherapy, and therapy with radiopharma-\nceutical agents. 19-25 This study showed that\n\n\n\n744\n\n\n\nN ENGL J MED 373;8 NEJM.ORG AUGUST 20, 2015\n\n\n\nThe New England Journal of Medicine Downloaded from nejm.org on October 9, 2021. For personal use only. No other uses without permission. Copyright \u0016 2015 Massachusetts Medical Society. All rights reserved.",
+        "pages_returned": [
+          1,
+          8
+        ]
+      }
+    },
+    {
+      "turn": 5,
+      "role": "model",
+      "content": "COLUMNS:\n\n---\nColumn 11: Secondary Endpoint(s)\nDefinition: What the secondary outcome(s) or objective(s) of the clinical trial, in addition to the primary endpoint, that are being measured or evaluated?. If reported, provide the value; otherwise use 'Not reported'.\n  A: value=\"Time to biochemical, symptomatic, or radiographic progression; rate of prostate-specific antigen (PSA) level of less than 0.2 ng per milliliter at 12 months; time to castration-resistant prostate canc\" | page=1 | modality=text | reasoning=\"The abstract mentions: 'The median time to biochemical, symptomatic, or radiographic progression was 20.2 months... The rate of a prostate-specific antigen level of less than 0.2 ng per milliliter at 12 months was 27.7%...'. Table 2 lists 'PSA level <0.2 ng/ml at 6 mo', 'PSA level <0.2 ng/ml at 12 m\"\n  B: value=\"Time to biochemical, symptomatic, or radiographic progression; Prostate-specific antigen level of less than 0.2 ng per milliliter at 12 months; Time to clinical progression\" | page=1 | modality=text | reasoning=\"These outcomes are reported in the results section and Table 2 on page 1 and 8, after the primary endpoint, indicating they are secondary endpoints.\""
+    },
+    {
+      "turn": 6,
+      "role": "tool",
+      "name": "submit_verification",
+      "args": {
+        "results_keys": [
+          "Secondary Endpoint(s)"
+        ]
+      },
+      "response": {
+        "submitted": [
+          "Secondary Endpoint(s)"
+        ]
+      }
+    }
+  ],
+  "results": {
+    "Number of Arms Included": {
+      "value": "2",
+      "reasoning": "Both sources provide the same value, even if from different pages.",
+      "verification": "both_correct",
+      "source": {
+        "page": 2,
+        "modality": "text",
+        "verbatim_quote": "The study assigned patients to 'ADT plus docetaxel' or 'ADT alone', indicating two arms."
+      },
+      "attribution": [
+        {
+          "page": 2,
+          "modality": "text",
+          "verbatim_quote": "The study assigned patients to 'ADT plus docetaxel' or 'ADT alone', indicating two arms."
+        }
+      ]
+    },
+    "Control Arm": {
+      "value": "ADT alone",
+      "reasoning": "Both sources provide the same value.",
+      "verification": "both_correct",
+      "source": {
+        "page": 1,
+        "modality": "text",
+        "verbatim_quote": "We assigned men with metastatic, hormone-sensitive prostate cancer to receive either ADT plus docetaxel... or ADT alone."
+      },
+      "attribution": [
+        {
+          "page": 1,
+          "modality": "text",
+          "verbatim_quote": "We assigned men with metastatic, hormone-sensitive prostate cancer to receive either ADT plus docetaxel... or ADT alone."
+        }
+      ]
+    },
+    "Median Follow-Up Duration (mo)": {
+      "value": "28.9",
+      "reasoning": "Both sources provide the same value from the same page.",
+      "verification": "both_correct",
+      "source": {
+        "page": 1,
+        "modality": "text",
+        "verbatim_quote": "After a median follow-up of 28.9 months..."
+      },
+      "attribution": [
+        {
+          "page": 1,
+          "modality": "text",
+          "verbatim_quote": "After a median follow-up of 28.9 months..."
+        }
+      ]
+    },
+    "Add-on Treatment": {
+      "value": "docetaxel",
+      "reasoning": "Both sources provide the same value, differing only in capitalization.",
+      "verification": "both_correct",
+      "source": {
+        "page": 1,
+        "modality": "text",
+        "verbatim_quote": "We assessed whether concomitant treatment with ADT plus docetaxel would result in longer overall survival than that with ADT alone."
+      },
+      "attribution": [
+        {
+          "page": 1,
+          "modality": "text",
+          "verbatim_quote": "We assessed whether concomitant treatment with ADT plus docetaxel would result in longer overall survival than that with ADT alone."
+        }
+      ]
+    },
+    "Total Participants - N": {
+      "value": "790",
+      "reasoning": "Both sources provide the same value from the same page.",
+      "verification": "both_correct",
+      "source": {
+        "page": 1,
+        "modality": "text",
+        "verbatim_quote": "A total of 790 patients (median age, 63 years) underwent randomization."
+      },
+      "attribution": [
+        {
+          "page": 1,
+          "modality": "text",
+          "verbatim_quote": "A total of 790 patients (median age, 63 years) underwent randomization."
+        }
+      ]
+    },
+    "Treatment Arm - N": {
+      "value": "397",
+      "reasoning": "Both sources provide the same value, even if from different pages/tables.",
+      "verification": "both_correct",
+      "source": {
+        "page": 5,
+        "modality": "table",
+        "verbatim_quote": "Table 1 shows 'ADT plus Docetaxel (N=397)'."
+      },
+      "attribution": [
+        {
+          "page": 5,
+          "modality": "table",
+          "verbatim_quote": "Table 1 shows 'ADT plus Docetaxel (N=397)'."
+        }
+      ]
+    },
+    "COE_RCT_IND_OVERALL_RJ": {
+      "value": "Not reported",
+      "reasoning": "Both sources indicate the information is not reported.",
+      "verification": "both_correct",
+      "source": {
+        "page": null,
+        "modality": "text"
+      },
+      "attribution": []
+    },
+    "Quality of Life reported": {
+      "value": "No",
+      "reasoning": "Both sources provide the same value.",
+      "verification": "both_correct",
+      "source": {
+        "page": null,
+        "modality": "text"
+      },
+      "attribution": []
+    },
+    "Treatment Arm 1 Regimen": {
+      "value": "ADT plus docetaxel (at a dose of 75 mg per square meter of body-surface area every 3 weeks for six cycles)",
+      "reasoning": "Source A provides a more complete description of the regimen.",
+      "verification": "both_correct",
+      "source": {
+        "page": 1,
+        "modality": "text",
+        "verbatim_quote": "We assigned men with metastatic, hormone-sensitive prostate cancer to receive either ADT plus docetaxel (at a dose of 75 mg per square meter of body-surface area every 3 weeks for six cycles) or ADT alone."
+      },
+      "attribution": [
+        {
+          "page": 1,
+          "modality": "text",
+          "verbatim_quote": "We assigned men with metastatic, hormone-sensitive prostate cancer to receive either ADT plus docetaxel (at a dose of 75 mg per square meter of body-surface area every 3 weeks for six cycles) or ADT alone."
+        }
+      ]
+    },
+    "Control Arm - N": {
+      "value": "393",
+      "reasoning": "Both sources provide the same value, even if from different pages/tables.",
+      "verification": "both_correct",
+      "source": {
+        "page": 5,
+        "modality": "table",
+        "verbatim_quote": "Table 1 shows 'ADT Alone (N=393)'."
+      },
+      "attribution": [
+        {
+          "page": 5,
+          "modality": "table",
+          "verbatim_quote": "Table 1 shows 'ADT Alone (N=393)'."
+        }
+      ]
+    },
+    "Class of Agent in Treatment Arm 1": {
+      "value": "Chemotherapy (Taxane)",
+      "reasoning": "Source B provides a more specific classification which is a superset of Source A's value.",
+      "verification": "both_correct",
+      "source": {
+        "page": 1,
+        "modality": "text",
+        "verbatim_quote": "Docetaxel is a chemotherapy agent, specifically a taxane."
+      },
+      "attribution": [
+        {
+          "page": 1,
+          "modality": "text",
+          "verbatim_quote": "Docetaxel is a chemotherapy agent, specifically a taxane."
+        }
+      ]
+    },
+    "Quality of Life Scale": {
+      "value": "Not reported",
+      "reasoning": "Both sources indicate the information is not reported.",
+      "verification": "both_correct",
+      "source": {
+        "page": null,
+        "modality": "text"
+      },
+      "attribution": []
+    },
+    "Primary Endpoint(s)": {
+      "value": "Overall survival",
+      "reasoning": "Both sources provide the same value from the same page.",
+      "verification": "both_correct",
+      "source": {
+        "page": 1,
+        "modality": "text",
+        "verbatim_quote": "The primary objective was to test the hypothesis that the median overall survival would be 33.3% longer..."
+      },
+      "attribution": [
+        {
+          "page": 1,
+          "modality": "text",
+          "verbatim_quote": "The primary objective was to test the hypothesis that the median overall survival would be 33.3% longer..."
+        }
+      ]
+    },
+    "Treatment Arm(s)": {
+      "value": "ADT plus docetaxel (combination therapy)",
+      "reasoning": "Source A provides a more complete name for the treatment arm.",
+      "verification": "both_correct",
+      "source": {
+        "page": 1,
+        "modality": "text",
+        "verbatim_quote": "The abstract refers to the experimental arm as 'ADT plus docetaxel (combination therapy)'."
+      },
+      "attribution": [
+        {
+          "page": 1,
+          "modality": "text",
+          "verbatim_quote": "The abstract refers to the experimental arm as 'ADT plus docetaxel (combination therapy)'."
+        }
+      ]
+    },
+    "Secondary Endpoint(s)": {
+      "value": "Time to biochemical, symptomatic, or radiographic progression; Prostate-specific antigen level of less than 0.2 ng per milliliter at 6 months; Prostate-specific antigen level of less than 0.2 ng per milliliter at 12 months; Time to castration-resistant prostate cancer; Time to clinical progression",
+      "reasoning": "Both sources provided incomplete lists of secondary endpoints. The complete list includes 'Time to biochemical, symptomatic, or radiographic progression' from the abstract on page 1, and the remaining endpoints ('PSA level <0.2 ng/ml at 6 mo', 'PSA level <0.2 ng/ml at 12 mo', 'Time to castration-resistant prostate cancer', and 'Time to clinical progression') from Table 2 on page 8, which is explicitly titled 'Secondary End Points'.",
+      "verification": "both_wrong",
+      "source": {
+        "page": 8,
+        "modality": "table",
+        "verbatim_quote": "Table 2. Secondary End Points. End Point: PSA level <0.2 ng/ml at 6 mo; PSA level <0.2 ng/ml at 12 mo; Time to castration-resistant prostate cancer; Time to clinical progression."
+      },
+      "attribution": [
+        {
+          "page": 8,
+          "modality": "table",
+          "verbatim_quote": "Table 2. Secondary End Points. End Point: PSA level <0.2 ng/ml at 6 mo; PSA level <0.2 ng/ml at 12 mo; Time to castration-resistant prostate cancer; Time to clinical progression."
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,45 @@
+{
+  "OUTCOMES": {
+    "_error": "400 INVALID_ARGUMENT. {'error': {'code': 400, 'message': 'The specified schema produces a constraint that has too many states for serving. Typical causes of this error are schemas with lots of text (for example, very long property or enum names), schemas with long array length limits (especially when nested), or schemas using complex value matchers (for example, integers or numbers with minimum/maximum bounds or strings with complex formats like date-time)', 'status': 'INVALID_ARGUMENT'}}"
+  },
+  "TRIAL CHARACTERISTICS": {
+    "_error": "400 INVALID_ARGUMENT. {'error': {'code': 400, 'message': 'The specified schema produces a constraint that has too many states for serving. Typical causes of this error are schemas with lots of text (for example, very long property or enum names), schemas with long array length limits (especially when nested), or schemas using complex value matchers (for example, integers or numbers with minimum/maximum bounds or strings with complex formats like date-time)', 'status': 'INVALID_ARGUMENT'}}"
+  },
+  "_SYS": {
+    "Treatment Arm": {
+      "value": "Rucaparib 600 mg twice daily",
+      "reasoning": "The abstract on page 1 states: \"patients with mCRPC associated with a BRCA alteration treated with rucaparib 600 mg twice daily in the phase II TRITON2 study.\" The Methods section on page 2 also states: \"Patients received a starting dose of 600 mg oral rucaparib twice daily.\""
+    },
+    "Type of Therapy": {
+      "value": "PARP inhibitor",
+      "reasoning": "The Introduction on page 1 states: \"The phase II TRITON2 study is evaluating the PARP inhibitor rucaparib...\" The Discussion on page 5 also mentions: \"Data from TRITON2 illustrate the importance of genomic screening to identify men who may benefit from treatment with a PARP inhibitor.\""
+    },
+    "Type of Combination Therapy": {
+      "value": "not found",
+      "reasoning": "The document describes rucaparib as a monotherapy. There is no mention of it being used in combination with other systemic therapies in the study arm. Patients were required to receive concomitant gonadotropin-releasing hormone analog or to have had prior bilateral orchiectomy, but this is not a combination therapy in the context of the study drug."
+    },
+    "Type of Agents": {
+      "value": "Rucaparib",
+      "reasoning": "The study title is \"Rucaparib in Men With Metastatic Castration-Resistant Prostate Cancer...\" and the abstract on page 1 states that patients were \"treated with rucaparib 600 mg twice daily\"."
+    },
+    "Prior Therapy in Any Setting": {
+      "value": "Next-generation AR-directed therapy and taxane-based chemotherapy",
+      "reasoning": "The Introduction on page 1 states that patients \"have progressed after next-generation AR-directed therapy and a taxane-based chemotherapy.\" The Key Objective on page 2 also mentions patients \"who had received prior taxane and androgen receptor-directed therapy.\" Table 1 on page 4 lists specific prior therapies."
+    },
+    "Prior Therapy in M0CRPC Setting": {
+      "value": "not found",
+      "reasoning": "The study focuses on mCRPC (metastatic castration-resistant prostate cancer). While prior therapies are mentioned, they are not specifically categorized for an M0CRPC setting. The eligibility criteria on page 2 mention \"disease progression after one to two lines of next-generation AR-directed therapy for prostate cancer and one prior taxane-based chemotherapy for castration-resistant disease,\" which implies prior therapy in a metastatic setting (mCRPC)."
+    },
+    "Prior Therapy in mCSPC Setting": {
+      "value": "Docetaxel (castration sensitive)",
+      "reasoning": "Table 1 on page 4 lists \"Docetaxel (castration sensitive)\" as a prior therapy for 108 (93.9%) patients. Footnote 'a' for Table 1 clarifies that \"docetaxel administered for castration-sensitive disease (per protocol, docetaxel in this setting was not counted toward the number of prior metastatic CRPC therapies for study eligibility),\" indicating this was prior therapy in the mCSPC setting."
+    },
+    "Prior Therapy in mCRPC Setting": {
+      "value": "Next-generation AR-directed therapy (Abiraterone acetate, Enzalutamide, Darolutamide), Docetaxel (castration resistant), Cabazitaxel, Sipuleucel-T, Radium-223",
+      "reasoning": "The Methods section on page 2 states that eligible patients had \"disease progression after one to two lines of next-generation AR-directed therapy for prostate cancer and one prior taxane-based chemotherapy for castration-resistant disease.\" Table 1 on page 4 under \"Prior therapies, No. (%)\" lists \"Next-generation AR-directed therapy\" (74 patients, including Abiraterone acetate, Enzalutamide, Darolutamide), \"Docetaxel (castration resistant)\" (8 patients), \"Cabazitaxel\" (12 patients), \"Sipuleucel-T\" (14 patients), and \"Radium-223\" (14 patients). Footnote 'a' for Table 1 clarifies that docetaxel for castration-sensitive disease was *not* counted towards prior mCRPC therapies, implying the other listed therapies *were* for mCRPC."
+    }
+  },
+  "POPULATION CHARACTERISTICS": {
+    "_error": "504 DEADLINE_EXCEEDED. {'error': {'code': 504, 'message': 'The request timed out. Please try again.', 'status': 'DEADLINE_EXCEEDED'}}"
+  }
+}

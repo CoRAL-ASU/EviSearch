@@ -16,6 +16,7 @@ PROJECT_ROOT = Path(__file__).resolve().parents[1]
 RESULTS_PATHS = {
     "gemini_native": PROJECT_ROOT / "experiment-scripts" / "baselines_file_search_results" / "gemini_native",
     "landing_ai_baseline": PROJECT_ROOT / "experiment-scripts" / "baseline_landing_ai_w_gemini" / "results",
+    "landing_ai_baseline_gpt4": PROJECT_ROOT / "experiment-scripts" / "baseline_landing_ai_w_gpt4" / "results",
     "pipeline": PROJECT_ROOT / "new_pipeline_outputs" / "results",
 }
 
@@ -165,7 +166,7 @@ def _expand_attribution_map(attribution_list: list, column_names: set) -> Dict[s
 
 
 def _load_agent(pdf_stem: str) -> Optional[Dict[str, Dict[str, Any]]]:
-    """Load agent extractor results. Expects {columns, attribution} format (modality->columns map)."""
+    """Load agent extractor results. Supports per-column attribution or legacy inverted map."""
     path = RESULTS_PATHS["pipeline"] / pdf_stem / "agent_extractor" / "extraction_results.json"
     if not path.exists():
         return None
@@ -181,12 +182,60 @@ def _load_agent(pdf_stem: str) -> Optional[Dict[str, Dict[str, Any]]]:
             if isinstance(col_data, dict):
                 v = col_data.get("value", "")
                 evidence = (col_data.get("reasoning") or "").strip()
-                attribution = col_to_attr.get(col_name, [])
+                attribution = col_data.get("attribution") if col_data.get("attribution") is not None else col_to_attr.get(col_name, [])
+                # Normalize {page, modality} to include source_type for consumers
+                attribution = [
+                    {**item, "source_type": item.get("source_type") or item.get("modality", "text")}
+                    for item in (attribution or []) if isinstance(item, dict)
+                ]
                 v = str(v) if v is not None else ""
             else:
                 v = str(col_data) if col_data else ""
                 evidence = ""
                 attribution = col_to_attr.get(col_name, [])
+            out[col_name] = {
+                "column_name": col_name,
+                "group_name": "",
+                "value": v,
+                "primary_value": v,
+                "found": bool(v and v not in ("Not reported", "not found", "Not applicable", "")),
+                "page": None,
+                "source_type": "text",
+                "evidence": evidence,
+                "attribution_snippet": "",
+                "attribution": attribution,
+                "candidates": [{"value": v, "evidence": evidence, "assumptions": None, "confidence": "medium"}],
+            }
+        return out
+    except Exception:
+        return None
+
+
+def _load_search_agent(pdf_stem: str) -> Optional[Dict[str, Dict[str, Any]]]:
+    """Load search agent results. Same format as agent for attribution fallback."""
+    path = RESULTS_PATHS["pipeline"] / pdf_stem / "search_agent" / "extraction_results.json"
+    if not path.exists():
+        return None
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+        columns = data.get("columns", {})
+        if not isinstance(columns, dict):
+            return None
+        out = {}
+        for col_name, col_data in columns.items():
+            if isinstance(col_data, dict):
+                v = col_data.get("value", "")
+                evidence = (col_data.get("reasoning") or "").strip()
+                attribution = col_data.get("attribution") or []
+                attribution = [
+                    {**item, "source_type": item.get("source_type") or item.get("modality", "text")}
+                    for item in attribution if isinstance(item, dict)
+                ]
+                v = str(v) if v is not None else ""
+            else:
+                v = str(col_data) if col_data else ""
+                evidence = ""
+                attribution = []
             out[col_name] = {
                 "column_name": col_name,
                 "group_name": "",
@@ -223,10 +272,19 @@ def _load_plan_extract(pdf_stem: str, with_keywords: bool) -> Optional[Dict[str,
 
 def _load_landing_ai_baseline(pdf_stem: str) -> Optional[Dict[str, Dict[str, Any]]]:
     """Load baseline_landing_ai_w_gemini results."""
-    base = RESULTS_PATHS["landing_ai_baseline"]
+    return _load_landing_ai_style_baseline(RESULTS_PATHS["landing_ai_baseline"], pdf_stem)
+
+
+def _load_landing_ai_baseline_gpt4(pdf_stem: str) -> Optional[Dict[str, Dict[str, Any]]]:
+    """Load baseline_landing_ai_w_gpt4 results."""
+    return _load_landing_ai_style_baseline(RESULTS_PATHS["landing_ai_baseline_gpt4"], pdf_stem)
+
+
+def _load_landing_ai_style_baseline(base: Path, pdf_stem: str) -> Optional[Dict[str, Dict[str, Any]]]:
+    """Load extraction_metadata.json from a baseline (structure: base/model/pdf_stem/)."""
     if not base.exists():
         return None
-    # Structure: results/gemini-2.5-flash/pdf_stem/extraction_metadata.json
+    # Structure: results/gemini-2.5-flash/pdf_stem/extraction_metadata.json or results/gpt-4.1/pdf_stem/
     for model_dir in base.iterdir():
         if model_dir.is_dir():
             path = model_dir / pdf_stem / "extraction_metadata.json"
@@ -244,6 +302,7 @@ def get_document_status(pdf_stem: str) -> Dict[str, bool]:
     return {
         "gemini_native": _load_gemini_native(pdf_stem) is not None,
         "landing_ai_baseline": _load_landing_ai_baseline(pdf_stem) is not None,
+        "landing_ai_baseline_gpt4": _load_landing_ai_baseline_gpt4(pdf_stem) is not None,
         "pipeline": _load_pipeline_extract_landing_ai(pdf_stem) is not None,
         "pipeline_plan_extract": _load_plan_extract(pdf_stem, with_keywords=False) is not None,
         "pipeline_keywords": _load_plan_extract(pdf_stem, with_keywords=True) is not None,
@@ -265,11 +324,17 @@ def load_comparison_data(pdf_stem: str) -> Dict[str, Any]:
         methods["gemini_native"] = gemini
         all_columns.update(gemini.keys())
 
-    # Landing AI baseline
+    # Landing AI baseline (Gemini)
     la_baseline = _load_landing_ai_baseline(pdf_stem)
     if la_baseline:
         methods["landing_ai_baseline"] = la_baseline
         all_columns.update(la_baseline.keys())
+
+    # Landing AI baseline (GPT-4)
+    la_baseline_gpt4 = _load_landing_ai_baseline_gpt4(pdf_stem)
+    if la_baseline_gpt4:
+        methods["landing_ai_baseline_gpt4"] = la_baseline_gpt4
+        all_columns.update(la_baseline_gpt4.keys())
 
     # Pipeline (extract_landing_ai)
     pipeline = _load_pipeline_extract_landing_ai(pdf_stem)
@@ -294,6 +359,12 @@ def load_comparison_data(pdf_stem: str) -> Dict[str, Any]:
     if agent:
         methods["agent"] = agent
         all_columns.update(agent.keys())
+
+    # Search agent
+    search_agent = _load_search_agent(pdf_stem)
+    if search_agent:
+        methods["search_agent"] = search_agent
+        all_columns.update(search_agent.keys())
 
     # Build comparison rows: one per column, with values per method
     columns_sorted = sorted(all_columns)

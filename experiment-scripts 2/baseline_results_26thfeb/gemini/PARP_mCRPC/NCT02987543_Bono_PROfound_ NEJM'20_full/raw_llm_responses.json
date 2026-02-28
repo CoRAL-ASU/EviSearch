@@ -1,0 +1,45 @@
+{
+  "TRIAL CHARACTERISTICS": {
+    "_error": "400 INVALID_ARGUMENT. {'error': {'code': 400, 'message': 'The specified schema produces a constraint that has too many states for serving. Typical causes of this error are schemas with lots of text (for example, very long property or enum names), schemas with long array length limits (especially when nested), or schemas using complex value matchers (for example, integers or numbers with minimum/maximum bounds or strings with complex formats like date-time)', 'status': 'INVALID_ARGUMENT'}}"
+  },
+  "OUTCOMES": {
+    "_error": "400 INVALID_ARGUMENT. {'error': {'code': 400, 'message': 'The specified schema produces a constraint that has too many states for serving. Typical causes of this error are schemas with lots of text (for example, very long property or enum names), schemas with long array length limits (especially when nested), or schemas using complex value matchers (for example, integers or numbers with minimum/maximum bounds or strings with complex formats like date-time)', 'status': 'INVALID_ARGUMENT'}}"
+  },
+  "_SYS": {
+    "Treatment Arm": {
+      "value": "Olaparib; Control (physician's choice of enzalutamide or abiraterone)",
+      "reasoning": "Page 1, METHODS section states: 'Patients were randomly assigned (in a 2:1 ratio) to receive olaparib or the physician's choice of enzalutamide or abiraterone (control).'"
+    },
+    "Type of Therapy": {
+      "value": "PARP inhibitor (Olaparib); New Hormonal Agent (Enzalutamide or Abiraterone)",
+      "reasoning": "Page 1, METHODS section describes 'PARP inhibitor olaparib' and 'new hormonal agent (e.g., enzalutamide or abiraterone)' for the control arm."
+    },
+    "Type of Combination Therapy": {
+      "value": "Monotherapy",
+      "reasoning": "The study compares olaparib to physician's choice of enzalutamide or abiraterone, implying single-agent use in each arm. Page 10, DISCUSSION, states 'The physician's choice of either enzalutamide or abiraterone was selected as the comparator because switching between these agents does occur in practice, despite the lack of randomized', which suggests they are not used in combination with each other in the control arm."
+    },
+    "Type of Agents": {
+      "value": "Olaparib; Enzalutamide or Abiraterone",
+      "reasoning": "Page 1, METHODS section explicitly names 'olaparib' and 'enzalutamide or abiraterone' as the agents used in the respective arms."
+    },
+    "Prior Therapy in Any Setting": {
+      "value": "New hormonal agents (enzalutamide or abiraterone); Taxane chemotherapy",
+      "reasoning": "Page 1, METHODS, states patients 'had disease progression while receiving a new hormonal agent (e.g., enzalutamide or abiraterone)'. Page 5, Table 1, 'Previous new hormonal agent' and 'Previous taxane use' sections list specific agents and percentages. Page 11, DISCUSSION, states 'Our trial included both patients who had not previously received chemotherapy and those who had, with nearly two thirds having previously received taxane therapy.'"
+    },
+    "Prior Therapy in M0CRPC Setting": {
+      "value": "not found",
+      "reasoning": "The document specifies the study population as metastatic castration-resistant prostate cancer (mCRPC) and mentions prior therapy in that setting. While footnote A on page 5 mentions some patients received NHA before mCRPC diagnosis, it does not explicitly state this was in the M0CRPC setting."
+    },
+    "Prior Therapy in mCSPC Setting": {
+      "value": "not found",
+      "reasoning": "The document specifies the study population as metastatic castration-resistant prostate cancer (mCRPC) and does not mention prior therapy specifically in the mCSPC setting."
+    },
+    "Prior Therapy in mCRPC Setting": {
+      "value": "New hormonal agents (enzalutamide or abiraterone); Taxane chemotherapy",
+      "reasoning": "Page 1, METHODS, states patients 'had disease progression while receiving a new hormonal agent (e.g., enzalutamide or abiraterone)' in the context of metastatic castration-resistant prostate cancer. Page 5, Table 1, 'Previous new hormonal agent' and 'Previous taxane use' sections provide details on prior NHA and taxane use, which are relevant to the mCRPC setting for this patient population."
+    }
+  },
+  "POPULATION CHARACTERISTICS": {
+    "_error": "504 DEADLINE_EXCEEDED. {'error': {'code': 504, 'message': 'The request timed out. Please try again.', 'status': 'DEADLINE_EXCEEDED'}}"
+  }
+}

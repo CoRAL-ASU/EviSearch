@@ -18,7 +18,7 @@ import re
 import sys
 import time
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Callable, Dict, List, Optional
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 log = logging.getLogger(__name__)
@@ -106,6 +106,25 @@ def _build_inverted_attribution(db: Dict[str, Any]) -> List[Dict[str, Any]]:
     return out
 
 
+def _attribution_to_page_modality(attr: List[Any]) -> List[Dict[str, Any]]:
+    """Convert attribution to [{page, modality}] format. modality = source_type."""
+    out = []
+    for item in (attr or []):
+        if not isinstance(item, dict):
+            continue
+        st = str(item.get("source_type") or item.get("modality") or "text").lower()
+        if st not in ("text", "table", "figure"):
+            st = "text"
+        page = item.get("page")
+        try:
+            page = int(page) if page is not None else None
+        except (TypeError, ValueError):
+            page = None
+        if page is not None and page >= 1:
+            out.append({"page": page, "modality": st})
+    return out
+
+
 def _normalize_attribution(raw: List[Any], found: bool) -> List[Dict[str, Any]]:
     """Validate and normalize attribution array. When found=false, return []."""
     if not found:
@@ -146,7 +165,7 @@ def _normalize_attribution(raw: List[Any], found: bool) -> List[Dict[str, Any]]:
 
 
 def load_previous_extraction(doc_id: str) -> Optional[Dict[str, Any]]:
-    """Load extraction_results.json. Expects {columns, attribution} format. Expands attribution map to per-column."""
+    """Load extraction_results.json. Supports per-column attribution or legacy inverted map."""
     path = RESULTS_ROOT / doc_id / "agent_extractor" / "extraction_results.json"
     if not path.exists():
         return None
@@ -157,6 +176,7 @@ def load_previous_extraction(doc_id: str) -> Optional[Dict[str, Any]]:
             return None
         attribution_map = data.get("attribution")
         if isinstance(attribution_map, list):
+            # Legacy: expand inverted map to per-column
             col_names = set(cols)
             col_to_attr = _expand_attribution_map_to_per_column(attribution_map, col_names)
             for col_name, col_data in cols.items():
@@ -167,6 +187,12 @@ def load_previous_extraction(doc_id: str) -> Optional[Dict[str, Any]]:
                         **col_data,
                         "attribution": _normalize_attribution(raw_attr, found),
                     }
+        else:
+            # New format: columns already have attribution; ensure {page, modality}
+            for col_name, col_data in cols.items():
+                if isinstance(col_data, dict) and "attribution" in col_data:
+                    attr = col_data.get("attribution", [])
+                    cols[col_name] = {**col_data, "attribution": _attribution_to_page_modality(attr)}
         return cols
     except Exception as e:
         log.warning("Could not load previous extraction from %s: %s", path, e)
@@ -286,7 +312,7 @@ Column {i}: {name}
 
     if not col_specs:
         log.warning("extract_and_write: no valid groups in %s", group_names)
-        return {"extracted": {}, "written": [], "errors": ["No valid groups"]}
+        return {"extracted": {}, "written": [], "errors": ["No valid groups"], "usage": {"input_tokens": 0, "output_tokens": 0, "api_calls": 0}}
 
     log.debug("Extracting %d columns from groups %s", len(col_specs), group_names)
     prompt = f"""You are extracting clinical trial data from this research paper PDF.
@@ -339,7 +365,7 @@ Output ONLY valid JSON. No markdown, no explanation."""
                     time.sleep(wait)
                 else:
                     log.warning("extract_and_write 504 after %d attempts, skipping batch: %s", max_retries + 1, e)
-                    return {"extracted": {}, "written": [], "errors": [f"504 DEADLINE_EXCEEDED - skipped (try again with --resume)"]}
+                    return {"extracted": {}, "written": [], "errors": [f"504 DEADLINE_EXCEEDED - skipped (try again with --resume)"], "usage": {"input_tokens": 0, "output_tokens": 0, "api_calls": 0}}
             else:
                 raise
 
@@ -347,7 +373,7 @@ Output ONLY valid JSON. No markdown, no explanation."""
     errors = []
     if not response.success:
         log.error("extract_and_write LLM failed: %s", response.error)
-        return {"extracted": {}, "written": [], "errors": [response.error or "LLM failed"]}
+        return {"extracted": {}, "written": [], "errors": [response.error or "LLM failed"], "usage": {"input_tokens": 0, "output_tokens": 0, "api_calls": 0}}
 
     raw = (response.text or "").strip()
     if "```" in raw:
@@ -360,7 +386,8 @@ Output ONLY valid JSON. No markdown, no explanation."""
         parsed = json.loads(raw)
     except json.JSONDecodeError as e:
         log.warning("extract_and_write JSON parse error: %s", e)
-        return {"extracted": {}, "written": [], "errors": [f"JSON parse: {e}"]}
+        u = {"input_tokens": getattr(response, "input_tokens", 0) or 0, "output_tokens": getattr(response, "output_tokens", 0) or 0, "api_calls": 1}
+        return {"extracted": {}, "written": [], "errors": [f"JSON parse: {e}"], "usage": u}
 
     # Required format: {columns: {...}, attribution: [...]} — modality->columns map
     columns_data = parsed.get("columns") if isinstance(parsed.get("columns"), dict) else None
@@ -368,7 +395,8 @@ Output ONLY valid JSON. No markdown, no explanation."""
 
     if not columns_data:
         log.warning("extract_and_write: missing 'columns' in response, expected {columns, attribution} format")
-        return {"extracted": {}, "written": [], "errors": ["Invalid format: missing 'columns'"]}
+        u = {"input_tokens": getattr(response, "input_tokens", 0) or 0, "output_tokens": getattr(response, "output_tokens", 0) or 0, "api_calls": 1}
+        return {"extracted": {}, "written": [], "errors": ["Invalid format: missing 'columns'"], "usage": u}
 
     col_names = {c for c in columns_data if c in db}
     col_to_attr = _expand_attribution_map_to_per_column(attribution_map or [], col_names)
@@ -394,10 +422,16 @@ Output ONLY valid JSON. No markdown, no explanation."""
                 db[col_name] = {"value": data, "reasoning": "", "found": True, "attribution": [], "tried": True}
             written.append(col_name)
 
+    usage = {
+        "input_tokens": getattr(response, "input_tokens", 0) or 0,
+        "output_tokens": getattr(response, "output_tokens", 0) or 0,
+        "api_calls": 1,
+    }
     return {
         "extracted": {g: len([c for c in groups.get(g, []) if c["Column Name"] in written]) for g in group_names},
         "written": written,
         "errors": errors,
+        "usage": usage,
     }
 
 
@@ -440,20 +474,199 @@ def parse_tool_call(text: str) -> Optional[Dict]:
 
 
 def _save_partial_extraction(doc_id: str, db: Dict[str, Any], messages: List[dict], turns: int) -> None:
-    """Save partial extraction_results.json (inverted attribution format)."""
+    """Save partial extraction_results.json (columns with per-column attribution)."""
     out_dir = RESULTS_ROOT / doc_id / "agent_extractor"
     out_dir.mkdir(parents=True, exist_ok=True)
     db_out = {}
     for k, v in (db or {}).items():
         if isinstance(v, dict):
-            db_out[k] = {"value": v.get("value"), "reasoning": v.get("reasoning", ""), "found": v.get("found", True), "tried": v.get("tried", True)}
+            db_out[k] = {
+                "value": v.get("value"),
+                "reasoning": v.get("reasoning", ""),
+                "found": v.get("found", True),
+                "tried": v.get("tried", True),
+                "attribution": _attribution_to_page_modality(v.get("attribution", [])),
+            }
         else:
-            db_out[k] = {"value": v, "reasoning": "", "found": v is not None, "tried": False}
-    attribution_inverted = _build_inverted_attribution(db)
-    extraction_data = {"doc_id": doc_id, "columns": db_out, "attribution": attribution_inverted, "turns": turns}
+            db_out[k] = {"value": v, "reasoning": "", "found": v is not None, "tried": False, "attribution": []}
+    extraction_data = {"doc_id": doc_id, "columns": db_out, "turns": turns}
     extraction_path = out_dir / "extraction_results.json"
     extraction_path.write_text(json.dumps(extraction_data, indent=2), encoding="utf-8")
     log.debug("Saved partial: %d columns, %s", sum(1 for v in db.values() if v is not None), extraction_path)
+
+
+def _col_to_group(col_name: str, groups: Dict[str, List[Dict]]) -> str:
+    """Return group name for a column, or empty string."""
+    for gname, cols in groups.items():
+        col_names = [c.get("Column Name") for c in cols if c.get("Column Name")]
+        if col_name in col_names:
+            return gname
+    return ""
+
+
+def extract_batch(
+    doc_id: str,
+    batch_columns: List[Dict[str, Any]],
+    pdf_handle: Any,
+    provider: LLMProvider,
+) -> Dict[str, Dict[str, Any]]:
+    """
+    Extract a single batch of columns. batch_columns: [{column_name, definition}].
+    Returns {column_name: {value, reasoning, found, attribution, tried}} for each column.
+    """
+    if not batch_columns:
+        return {}
+    groups = {
+        "_batch": [
+            {"Column Name": c.get("column_name", ""), "Definition": c.get("definition", "")}
+            for c in batch_columns
+            if c.get("column_name")
+        ]
+    }
+    if not groups["_batch"]:
+        return {}
+    db = init_database(groups, previous=None)
+    result = extract_and_write(db, groups, ["_batch"], pdf_handle, provider)
+    out = {}
+    for col_name in result.get("written", []):
+        val = db.get(col_name)
+        if isinstance(val, dict):
+            out[col_name] = {
+                "value": val.get("value", "Not reported"),
+                "reasoning": val.get("reasoning", ""),
+                "found": val.get("found", True),
+                "attribution": val.get("attribution", []),
+                "tried": True,
+            }
+        else:
+            v = str(val) if val is not None else "Not reported"
+            out[col_name] = {"value": v, "reasoning": "", "found": bool(v and v.lower() not in ("not reported", "")), "attribution": [], "tried": True}
+    return out
+
+
+def run_extraction_loop_deterministic(
+    doc_id: str,
+    max_turns: int = 50,
+    groups_filter: Optional[List[str]] = None,
+    resume: bool = True,
+    skip_if_done: bool = False,
+    on_event: Optional[Callable[[Dict[str, Any]], None]] = None,
+) -> Dict[str, Any]:
+    """
+    Deterministic orchestrator: get_status → extract_and_write → repeat.
+    No LLM for orchestration; LLM only used inside extract_and_write for value extraction.
+    If on_event is provided, call it with event dicts: turn_start, columns_written, done, error.
+    """
+    def emit(ev: Dict[str, Any]) -> None:
+        if on_event:
+            try:
+                on_event(ev)
+            except Exception as e:
+                log.warning("on_event callback failed: %s", e)
+
+    log.info("Starting deterministic extraction for doc_id=%s max_turns=%d resume=%s", doc_id, max_turns, resume)
+    pdf_path = resolve_pdf_path(doc_id)
+    if not pdf_path or not pdf_path.exists():
+        log.error("PDF not found: %s", doc_id)
+        emit({"type": "error", "error": f"PDF not found for {doc_id}"})
+        return {"error": f"PDF not found for {doc_id}", "database": {}, "turns": 0, "messages": [], "usage": {"input_tokens": 0, "output_tokens": 0, "api_calls": 0, "total_tokens": 0}}
+
+    log.info("PDF resolved: %s", pdf_path)
+    groups = load_definitions()
+    if groups_filter:
+        groups = {k: v for k, v in groups.items() if k in groups_filter}
+        log.info("Filtered to groups: %s", groups_filter)
+
+    previous = load_previous_extraction(doc_id) if resume else None
+    if previous:
+        log.info("Loaded previous extraction: %d columns with values", sum(1 for v in previous.values() if v is not None and (not isinstance(v, str) or v.strip())))
+
+    db = init_database(groups, previous=previous)
+    filled_init = sum(1 for v in db.values() if v is not None)
+    log.info("DB initialized: %d columns (%d already filled)", len(db), filled_init)
+
+    if skip_if_done and filled_init == len(db):
+        log.info("All columns already filled (skip-if-done), exiting")
+        columns_data = []
+        for col_name, val in db.items():
+            if isinstance(val, dict):
+                v = val.get("value")
+            else:
+                v = val
+            columns_data.append({
+                "column": col_name,
+                "value": str(v) if v is not None else "",
+                "group": _col_to_group(col_name, groups),
+            })
+        emit({"type": "done", "turns": 0, "filled": filled_init, "total": len(db), "skipped": True, "columns": columns_data})
+        return {"database": db, "turns": 0, "messages": [], "skipped": True, "usage": {"input_tokens": 0, "output_tokens": 0, "api_calls": 0, "total_tokens": 0}}
+
+    provider = LLMProvider(provider="gemini", model="gemini-2.5-flash")
+    pdf_handle = provider.upload_pdf(pdf_path)
+    log.info("PDF uploaded to provider")
+
+    total_usage = {"input_tokens": 0, "output_tokens": 0, "api_calls": 0}
+    messages: List[Dict[str, Any]] = []
+    turn = 0
+    for turn in range(max_turns):
+        status = get_status(db, groups)
+        remaining = status.get("remaining_count", 0)
+        suggested = status.get("suggested_groups", [])
+        filled = status.get("filled_count", 0)
+        total = status.get("total_count", len(db))
+
+        log.debug("Turn %d: get_status filled=%d/%d suggested_groups=%s", turn + 1, filled, total, [g["name"] for g in suggested])
+
+        if remaining == 0:
+            log.info("All columns filled (remaining_count=0), stopping")
+            _save_partial_extraction(doc_id, db, messages, turn + 1)
+            emit({"type": "done", "turns": turn + 1, "filled": filled, "total": total})
+            break
+
+        if not suggested:
+            log.warning("No suggested groups but remaining=%d; stopping", remaining)
+            _save_partial_extraction(doc_id, db, messages, turn + 1)
+            emit({"type": "done", "turns": turn + 1, "filled": filled, "total": total})
+            break
+
+        group_names = [g["name"] for g in suggested]
+        emit({"type": "turn_start", "turn": turn + 1, "groups": group_names, "filled": filled, "total": total})
+
+        log.info("Turn %d: extract_and_write groups: %s", turn + 1, group_names)
+        result = extract_and_write(db, groups, group_names, pdf_handle, provider)
+        u = result.get("usage") or {}
+        total_usage["input_tokens"] += u.get("input_tokens", 0)
+        total_usage["output_tokens"] += u.get("output_tokens", 0)
+        total_usage["api_calls"] += u.get("api_calls", 0)
+        written = result.get("written", [])
+        n_written = len(written)
+        print(f"  → Written: {n_written} columns (total filled: {sum(1 for v in db.values() if v is not None)}/{len(db)})", file=sys.stderr)
+        log.info("extract_and_write wrote %d columns: %s", n_written, written[:10] if len(written) > 10 else written)
+        if result.get("errors"):
+            log.warning("extract_and_write errors: %s", result["errors"])
+
+        columns_data = []
+        for col_name in written:
+            val = db.get(col_name)
+            if isinstance(val, dict):
+                v = val.get("value")
+            else:
+                v = val
+            columns_data.append({
+                "column": col_name,
+                "value": str(v) if v is not None else "",
+                "group": _col_to_group(col_name, groups),
+            })
+        emit({"type": "columns_written", "columns": columns_data})
+
+        messages.append({"role": "assistant", "content": json.dumps({"action": "extract_and_write", "group_names": group_names})})
+        messages.append({"role": "user", "content": f"Tool result: {json.dumps(result)}"})
+        _save_partial_extraction(doc_id, db, messages, turn + 1)
+
+    filled = sum(1 for v in db.values() if v is not None)
+    total_usage["total_tokens"] = total_usage["input_tokens"] + total_usage["output_tokens"]
+    log.info("Finished: %d turns, %d/%d columns filled", turn + 1, filled, len(db))
+    return {"database": db, "turns": turn + 1, "messages": messages, "usage": total_usage}
 
 
 def run_agent(
@@ -462,9 +675,29 @@ def run_agent(
     groups_filter: Optional[List[str]] = None,
     resume: bool = True,
     skip_if_done: bool = False,
+    deterministic: bool = True,
 ) -> Dict[str, Any]:
-    """Run agent loop: init DB (optionally from previous run), loop until done or max_turns."""
-    log.info("Starting agent for doc_id=%s max_turns=%d resume=%s", doc_id, max_turns, resume)
+    """Run agent loop. By default uses deterministic orchestrator (no LLM for get_status loop)."""
+    if deterministic:
+        return run_extraction_loop_deterministic(
+            doc_id=doc_id,
+            max_turns=max_turns,
+            groups_filter=groups_filter,
+            resume=resume,
+            skip_if_done=skip_if_done,
+        )
+    return _run_agent_llm_orchestrator(doc_id, max_turns, groups_filter, resume, skip_if_done)
+
+
+def _run_agent_llm_orchestrator(
+    doc_id: str,
+    max_turns: int = 50,
+    groups_filter: Optional[List[str]] = None,
+    resume: bool = True,
+    skip_if_done: bool = False,
+) -> Dict[str, Any]:
+    """Legacy: LLM-based orchestration (get_status vs extract_and_write decided by model)."""
+    log.info("Starting agent (LLM orchestrator) for doc_id=%s max_turns=%d resume=%s", doc_id, max_turns, resume)
     pdf_path = resolve_pdf_path(doc_id)
     if not pdf_path or not pdf_path.exists():
         log.error("PDF not found: %s", doc_id)
@@ -510,8 +743,6 @@ STRATEGY: Call get_status first. Then extract_and_write for ALL suggested_groups
         )
         prompt = f"{system}\n\n{conv_text}\n\nassistant: Output ONLY a JSON object with action and (if extract_and_write) group_names. No other text."
 
-        # Agent LLM: Use JSON mode + 4096 tokens. Truncation happened when model
-        # hallucinated 80+ group names → output exceeded max_tokens → JSON cut mid-stream → parse fail.
         response = provider.generate(
             prompt=prompt,
             temperature=0.0,
@@ -657,6 +888,7 @@ def main():
     parser.add_argument("--groups-only", nargs="+", help="Limit to these groups")
     parser.add_argument("--no-resume", action="store_true", help="Start fresh, ignore previous extraction_results.json")
     parser.add_argument("--skip-if-done", action="store_true", help="Exit immediately if all columns already filled")
+    parser.add_argument("--llm-orchestrator", action="store_true", help="Use LLM to decide get_status vs extract_and_write (legacy); default is deterministic loop")
     parser.add_argument("-v", "--verbose", action="store_true", help="DEBUG logging")
     args = parser.parse_args()
 
@@ -670,6 +902,7 @@ def main():
         groups_filter=args.groups_only,
         resume=not args.no_resume,
         skip_if_done=args.skip_if_done,
+        deterministic=not args.llm_orchestrator,
     )
 
     if "error" in result and "database" not in result:
@@ -684,9 +917,15 @@ def main():
     db_out = {}
     for k, v in db_raw.items():
         if isinstance(v, dict):
-            db_out[k] = {"value": v.get("value"), "reasoning": v.get("reasoning", ""), "found": v.get("found", True), "tried": v.get("tried", True)}
+            db_out[k] = {
+                "value": v.get("value"),
+                "reasoning": v.get("reasoning", ""),
+                "found": v.get("found", True),
+                "tried": v.get("tried", True),
+                "attribution": _attribution_to_page_modality(v.get("attribution", [])),
+            }
         else:
-            db_out[k] = {"value": v, "reasoning": "", "found": v is not None, "tried": False}
+            db_out[k] = {"value": v, "reasoning": "", "found": v is not None, "tried": False, "attribution": []}
 
     output = {
         "doc_id": doc_id,
@@ -700,14 +939,24 @@ def main():
     json_path = out_dir / "conversation.json"
     json_path.write_text(pretty, encoding="utf-8")
 
-    # Save extracted data: inverted attribution format (columns + attribution map)
+    # Save extracted data: columns with per-column attribution [{page, modality}]
     extraction_path = out_dir / "extraction_results.json"
     extraction_data = {
         "doc_id": doc_id,
         "columns": db_out,
-        "attribution": _build_inverted_attribution(db_raw),
     }
     extraction_path.write_text(json.dumps(extraction_data, indent=2), encoding="utf-8")
+
+    # Save usage metadata (tokens, API calls)
+    usage = result.get("usage") or {"input_tokens": 0, "output_tokens": 0, "api_calls": 0, "total_tokens": 0}
+    extraction_metadata = {
+        "doc_id": doc_id,
+        "turns": result.get("turns", 0),
+        "usage": usage,
+    }
+    metadata_path = out_dir / "extraction_metadata.json"
+    metadata_path.write_text(json.dumps(extraction_metadata, indent=2), encoding="utf-8")
+    log.info("Wrote %s (usage: %d input + %d output tokens, %d api calls)", metadata_path, usage.get("input_tokens", 0), usage.get("output_tokens", 0), usage.get("api_calls", 0))
 
     print(pretty)
     log.info("Wrote %s", json_path)

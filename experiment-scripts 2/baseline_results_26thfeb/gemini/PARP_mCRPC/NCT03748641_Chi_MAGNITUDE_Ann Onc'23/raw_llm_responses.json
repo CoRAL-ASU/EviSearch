@@ -1,0 +1,45 @@
+{
+  "TRIAL CHARACTERISTICS": {
+    "_error": "400 INVALID_ARGUMENT. {'error': {'code': 400, 'message': 'The specified schema produces a constraint that has too many states for serving. Typical causes of this error are schemas with lots of text (for example, very long property or enum names), schemas with long array length limits (especially when nested), or schemas using complex value matchers (for example, integers or numbers with minimum/maximum bounds or strings with complex formats like date-time)', 'status': 'INVALID_ARGUMENT'}}"
+  },
+  "OUTCOMES": {
+    "_error": "400 INVALID_ARGUMENT. {'error': {'code': 400, 'message': 'The specified schema produces a constraint that has too many states for serving. Typical causes of this error are schemas with lots of text (for example, very long property or enum names), schemas with long array length limits (especially when nested), or schemas using complex value matchers (for example, integers or numbers with minimum/maximum bounds or strings with complex formats like date-time)', 'status': 'INVALID_ARGUMENT'}}"
+  },
+  "_SYS": {
+    "Treatment Arm": {
+      "value": "Niraparib plus Abiraterone Acetate and Prednisone (AAP)",
+      "reasoning": "The treatment arm is explicitly stated in the title and throughout the document, for example, in the 'Background' section on page 1: 'niraparib plus abiraterone acetate and prednisone (AAP)'."
+    },
+    "Type of Therapy": {
+      "value": "PARP inhibitor and Androgen Receptor-Targeted Therapy",
+      "reasoning": "Niraparib is identified as a 'highly selective PARP-1 and PARP-2 inhibitor' on page 2. Abiraterone acetate with prednisone (AAP) is an androgen receptor-targeted therapy, as indicated on page 2: 'Patients could have had systemic therapies for mCSPC or nonmetastatic CRPC, including androgen receptor-targeted therapy (e.g. apalutamide, darolutamide, or enzalutamide).'. Abiraterone acetate is a CYP17 inhibitor, a type of AR-targeted therapy."
+    },
+    "Type of Combination Therapy": {
+      "value": "PARP inhibitor + Androgen Receptor-Targeted Therapy",
+      "reasoning": "Niraparib is a PARP inhibitor and Abiraterone Acetate (AAP) is an androgen receptor-targeted therapy, as derived from the 'Type of Therapy' reasoning."
+    },
+    "Type of Agents": {
+      "value": "Niraparib, Abiraterone Acetate, Prednisone",
+      "reasoning": "The agents are explicitly mentioned in the 'Study treatments' section on page 2: 'Patients were randomized 1: 1 to receive either niraparib (200 mg) plus abiraterone acetate (1000 mg) and prednisone (10 mg) or placebo plus AAP, all administered daily.'"
+    },
+    "Prior Therapy in Any Setting": {
+      "value": "Yes",
+      "reasoning": "The 'Patients' section on page 2 states: 'Eligible patients... had not received prior therapy for mCRPC except up to 4 months of prior AAP and ongoing androgen deprivation therapy. Patients could have had systemic therapies for mCSPC or nonmetastatic CRPC, including androgen receptor-targeted therapy (e.g. apalutamide, darolutamide, or enzalutamide).' Table 1 also lists 'Prior taxane-based chemotherapy for nmCRPC/mCSPC' and 'Prior AR-targeted therapy for nmCRPC/mCSPC', indicating prior therapy in other settings was allowed."
+    },
+    "Prior Therapy in M0CRPC Setting": {
+      "value": "Yes",
+      "reasoning": "The 'Patients' section on page 2 states: 'Patients could have had systemic therapies for mCSPC or nonmetastatic CRPC, including androgen receptor-targeted therapy (e.g. apalutamide, darolutamide, or enzalutamide).' Nonmetastatic CRPC (nmCRPC) is equivalent to M0CRPC. Table 1 also lists 'Prior taxane-based chemotherapy for nmCRPC/mCSPC' and 'Prior AR-targeted therapy for nmCRPC/mCSPC'."
+    },
+    "Prior Therapy in mCSPC Setting": {
+      "value": "Yes",
+      "reasoning": "The 'Patients' section on page 2 states: 'Patients could have had systemic therapies for mCSPC or nonmetastatic CRPC, including androgen receptor-targeted therapy (e.g. apalutamide, darolutamide, or enzalutamide).' Table 1 also lists 'Prior taxane-based chemotherapy for nmCRPC/mCSPC' and 'Prior AR-targeted therapy for nmCRPC/mCSPC', which includes mCSPC."
+    },
+    "Prior Therapy in mCRPC Setting": {
+      "value": "Yes, up to 4 months of prior AAP",
+      "reasoning": "The 'Patients' section on page 2 states: 'had not received prior therapy for mCRPC except up to 4 months of prior AAP and ongoing androgen deprivation therapy.' Table 1 also includes 'Prior AAP therapy for L1 mCRPC'."
+    }
+  },
+  "POPULATION CHARACTERISTICS": {
+    "_error": "504 DEADLINE_EXCEEDED. {'error': {'code': 504, 'message': 'The request timed out. Please try again.', 'status': 'DEADLINE_EXCEEDED'}}"
+  }
+}

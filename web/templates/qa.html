@@ -1,0 +1,1007 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Evidence-based PDF Q&A — Ask a question</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.14/dist/full.min.css" rel="stylesheet" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <style>
+        .answer-box { max-height: 200px; overflow-y: auto; }
+        .highlight-box { transition: opacity 0.2s, border-width 0.2s; }
+    </style>
+</head>
+<body class="min-h-screen bg-base-200">
+    <div class="navbar bg-base-300 shadow-lg">
+        <div class="flex-1">
+            <a href="/" class="btn btn-ghost font-semibold">Home</a>
+            <a href="/qa" class="btn btn-ghost font-semibold">Ask a question</a>
+            <a href="/extract" class="btn btn-ghost">Extract full table</a>
+            <a href="/attribution" class="btn btn-ghost">Attribution</a>
+            <a href="/comparison-report" class="btn btn-ghost" target="_blank">Report</a>
+        </div>
+        <div class="flex-none">
+            <h1 class="text-xl font-bold text-primary px-4">Evidence-based PDF Q&A</h1>
+        </div>
+    </div>
+
+    <main class="flex flex-col lg:flex-row gap-6 p-6 max-w-7xl mx-auto min-h-0">
+        <!-- Left: Document + Chat -->
+        <div class="flex-1 min-w-0 flex flex-col gap-6">
+            <div class="card bg-base-100 shadow-xl">
+                <div class="card-body">
+                    <h2 class="card-title">Document</h2>
+                    <p class="text-base-content/70 text-sm">Select or upload a PDF, then prepare it for questions.</p>
+                    <div class="flex flex-wrap gap-4">
+                        <div class="form-control flex-1 min-w-[200px]">
+                            <label class="label"><span class="label-text">Upload PDF</span></label>
+                            <input type="file" id="pdf-upload" accept=".pdf" class="file-input file-input-bordered file-input-primary w-full max-w-xs" />
+                            <p id="upload-status" class="text-sm text-base-content/60 mt-1"></p>
+                        </div>
+                        <div class="divider divider-horizontal">OR</div>
+                        <div class="form-control flex-1 min-w-[200px]">
+                            <label class="label"><span class="label-text">Select document</span></label>
+                            <select id="doc-select" class="select select-bordered w-full">
+                                <option value="">Loading…</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div id="prepare-row" class="flex items-center gap-3 mt-2">
+                        <button id="prepare-btn" class="btn btn-primary" disabled>
+                            <span class="loading loading-spinner loading-sm" id="prepare-spinner" style="display: none;"></span>
+                            Prepare document
+                        </button>
+                        <span id="prepare-status" class="text-sm text-base-content/60"></span>
+                    </div>
+                    <div class="form-control mt-3">
+                        <label class="label py-1"><span class="label-text font-medium">Mode</span></label>
+                        <div class="flex gap-4">
+                            <label class="label cursor-pointer gap-2">
+                                <input type="radio" name="qa-mode" value="quick" class="radio radio-primary" checked />
+                                <span class="label-text">Quick — Direct PDF chat (faster, no attribution)</span>
+                            </label>
+                            <label class="label cursor-pointer gap-2">
+                                <input type="radio" name="qa-mode" value="attributed" class="radio radio-primary" />
+                                <span class="label-text">Attributed — Direct PDF + Search + Reconcile</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card bg-base-100 shadow-xl flex-1 min-h-0 flex flex-col">
+                <div class="card-body flex-1 min-h-0 flex flex-col">
+                    <h2 class="card-title">Ask a question</h2>
+                    <div id="chat-messages" class="space-y-4 flex-1 overflow-y-auto mb-4 min-h-[120px]">
+                        <p id="chat-empty" class="text-base-content/50 text-sm">Select a document and click Prepare. When ready, type your question below.</p>
+                    </div>
+                    <div class="form-control shrink-0">
+                        <div class="join w-full">
+                            <input type="text" id="question-input" class="input input-bordered join-item flex-1" placeholder="e.g. What was the treatment arm?"
+                                disabled />
+                            <button id="ask-btn" class="btn btn-primary join-item" disabled>
+                                <span class="loading loading-spinner loading-sm" id="ask-spinner" style="display: none;"></span>
+                                Ask
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right: PDF viewer with attribution (side-by-side on desktop, below on mobile) -->
+        <div class="lg:w-[420px] xl:w-[480px] 2xl:w-[540px] shrink-0">
+            <div class="card bg-base-100 shadow-xl lg:sticky lg:top-4">
+                <div class="card-body">
+                    <h2 class="card-title text-lg">Attribution — source in PDF</h2>
+                    <p class="text-base-content/70 text-sm" id="attribution-hint"></p>
+                    <div id="pdf-wrapper" class="overflow-x-auto overflow-y-auto rounded-lg bg-base-200 max-h-[70vh] min-h-[280px]" style="display: none;">
+                        <div id="pdf-pages" class="inline-block min-w-max"></div>
+                    </div>
+                    <div id="pdf-empty" class="flex items-center justify-center rounded-lg border-2 border-dashed border-base-300 text-base-content/60 min-h-[200px]">
+                        Select a document and click Prepare to view the PDF
+                    </div>
+                    <div id="chunk-nav" class="flex items-center gap-2 mt-3 flex-wrap" style="display: none;">
+                        <button type="button" id="chunk-first" class="btn btn-sm btn-outline" title="Scroll to first chunk">⏮ First</button>
+                        <button type="button" id="chunk-prev" class="btn btn-sm btn-outline" title="Previous chunk">← Prev</button>
+                        <span id="chunk-counter" class="text-sm text-base-content/70 min-w-[5rem] text-center">1 / 1</span>
+                        <button type="button" id="chunk-next" class="btn btn-sm btn-outline" title="Next chunk">Next →</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Feedback modal -->
+        <dialog id="feedback-modal" class="modal">
+            <div class="modal-box">
+                <h3 class="font-bold text-lg" id="feedback-modal-title">Feedback</h3>
+                <p class="py-2 text-sm text-base-content/70" id="feedback-modal-prompt"></p>
+                <div id="feedback-modal-checkboxes" class="flex flex-col gap-2 py-2"></div>
+                <div class="form-control mt-3">
+                    <label class="label py-1"><span class="label-text">Optional comment</span></label>
+                    <textarea id="feedback-modal-comment" class="textarea textarea-bordered w-full" rows="2" maxlength="500" placeholder="Any additional feedback…"></textarea>
+                </div>
+                <div class="modal-action">
+                    <button type="button" id="feedback-modal-submit" class="btn btn-primary">Submit</button>
+                    <form method="dialog"><button class="btn">Cancel</button></form>
+                </div>
+            </div>
+            <form method="dialog" class="modal-backdrop"><button>close</button></form>
+        </dialog>
+    </main>
+
+    <script>
+        const API = {
+            sessionInfo: () => fetch('/api/qa/session-info').then(r => r.json()),
+            selectable: () => fetch('/api/documents/selectable').then(r => r.json()),
+            uploadExtract: (fd) => fetch('/api/upload/extract', { method: 'POST', body: fd }).then(r => r.json()),
+            prepareDocument: (docId) => {
+                return fetch('/api/qa/prepare-document', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ doc_id: docId }),
+                });
+            },
+            ask: (docId, question, history, mode) => {
+                return fetch('/api/qa/ask', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ doc_id: docId, question, history, mode }),
+                });
+            },
+            highlights: (docId, chunkIds) => {
+                const q = chunkIds.join(',');
+                return fetch(`/api/documents/${encodeURIComponent(docId)}/highlights?chunk_ids=${encodeURIComponent(q)}`).then(r => r.json());
+            },
+            pdf: (docId) => `/api/documents/${encodeURIComponent(docId)}/pdf`,
+            feedback: (payload) => fetch('/api/feedback', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload),
+            }).then(r => r.json()),
+        };
+
+        function escapeHtml(s) {
+            if (!s) return '';
+            const d = document.createElement('div');
+            d.textContent = s;
+            return d.innerHTML;
+        }
+
+        const SESSION_KEY = 'qa_session';
+        let docId = null;
+        let isReady = false;
+        let isPrepared = false;
+        let conversation = [];  // { question, mode, answer?, candidate_a?, candidate_b?, reconciled?, chunk_ids? }
+        let serverBootId = '';
+
+        function saveSession() {
+            try {
+                sessionStorage.setItem(SESSION_KEY, JSON.stringify({
+                    docId, isPrepared, conversation, boot_id: serverBootId,
+                }));
+            } catch (_) {}
+        }
+
+        function restoreSession() {
+            try {
+                const raw = sessionStorage.getItem(SESSION_KEY);
+                if (!raw) return;
+                const data = JSON.parse(raw);
+                if (data.boot_id && data.boot_id !== serverBootId) return;
+                if (!data) return;
+
+                docId = data.docId || null;
+                isPrepared = !!data.isPrepared;
+                conversation = Array.isArray(data.conversation) ? data.conversation : [];
+
+                const sel = document.getElementById('doc-select');
+                if (docId && sel) {
+                    if (!sel.querySelector(`option[value="${docId}"]`)) {
+                        const opt = document.createElement('option');
+                        opt.value = docId;
+                        opt.textContent = docId + ' (from session)';
+                        sel.appendChild(opt);
+                    }
+                    sel.value = docId;
+                }
+
+                const statusEl = document.getElementById('prepare-status');
+                if (statusEl && isPrepared) statusEl.textContent = 'Ready';
+
+                if (docId && isPrepared) {
+                    loadPdfOnly(docId);
+                }
+
+                const messagesEl = document.getElementById('chat-messages');
+                const emptyEl = document.getElementById('chat-empty');
+                if (messagesEl) {
+                    messagesEl.innerHTML = '';
+                    conversation.forEach((c) => {
+                        const userWrap = document.createElement('div');
+                        userWrap.className = 'chat chat-end';
+                        const userBubble = document.createElement('div');
+                        userBubble.className = 'chat-bubble chat-bubble-primary';
+                        userBubble.textContent = c.question;
+                        userWrap.appendChild(userBubble);
+                        messagesEl.appendChild(userWrap);
+
+                        const wrap = document.createElement('div');
+                        wrap.className = 'chat chat-start w-full';
+                        if (c.mode === 'quick') {
+                            const bubble = document.createElement('div');
+                            bubble.className = 'chat-bubble chat-bubble-secondary max-w-2xl';
+                            bubble.textContent = c.answer || '';
+                            wrap.appendChild(bubble);
+                            const fbRow = document.createElement('div');
+                            fbRow.className = 'mt-2';
+                            const fbBtn = document.createElement('button');
+                            fbBtn.type = 'button';
+                            fbBtn.className = 'btn btn-sm btn-ghost feedback-btn';
+                            fbBtn.textContent = 'Feedback';
+                            fbBtn.addEventListener('click', () => openFeedbackModal({ mode: 'quick', question: c.question, answer: c.answer }, fbBtn));
+                            fbRow.appendChild(fbBtn);
+                            wrap.appendChild(fbRow);
+                        } else {
+                            const extra = addAnswerCard({
+                                question: c.question,
+                                candidate_a: c.candidate_a,
+                                candidate_b: c.candidate_b,
+                                reconciled: c.reconciled,
+                                reconciliation_reasoning: c.reconciliation_reasoning,
+                                chunk_ids: c.chunk_ids || [],
+                            });
+                            wrap.appendChild(extra);
+                        }
+                        messagesEl.appendChild(wrap);
+                    });
+                }
+                if (emptyEl) emptyEl.style.display = conversation.length ? 'none' : '';
+
+                updateState();
+            } catch (_) {}
+        }
+
+        async function loadDocs() {
+            const res = await API.selectable();
+            const docs = res.documents || [];
+            const sel = document.getElementById('doc-select');
+            sel.innerHTML = '<option value="">Select document…</option>' + docs.map(d => {
+                const id = d.id || d.name;
+                return `<option value="${escapeHtml(id)}">${escapeHtml(d.name)}</option>`;
+            }).join('');
+        }
+
+        function getMode() {
+            const m = document.querySelector('input[name="qa-mode"]:checked');
+            return (m?.value || 'quick') === 'quick' ? 'quick' : 'full';
+        }
+
+        function updateState() {
+            const hasDoc = !!docId;
+            const mode = getMode();
+            const prepareRow = document.getElementById('prepare-row');
+            const prepareBtn = document.getElementById('prepare-btn');
+
+            prepareRow.style.display = 'flex';
+            prepareBtn.disabled = !hasDoc;
+
+            if (mode === 'quick') {
+                isReady = hasDoc;
+            } else {
+                isReady = hasDoc && isPrepared;
+            }
+
+            document.getElementById('ask-btn').disabled = !hasDoc || !isReady;
+            document.getElementById('question-input').disabled = !isReady;
+        }
+
+        function clearChatAndAttribution() {
+            conversation = [];
+            const messagesEl = document.getElementById('chat-messages');
+            if (messagesEl) {
+                messagesEl.innerHTML = '';
+                const p = document.createElement('p');
+                p.id = 'chat-empty';
+                p.className = 'text-base-content/50 text-sm';
+                p.textContent = 'Select a document and click Prepare. When ready, type your question below.';
+                messagesEl.appendChild(p);
+            }
+
+            // Reset attribution panel
+            const pdfEmpty = document.getElementById('pdf-empty');
+            const pdfWrapper = document.getElementById('pdf-wrapper');
+            const chunkNav = document.getElementById('chunk-nav');
+            const hint = document.getElementById('attribution-hint');
+            if (pdfEmpty) {
+                pdfEmpty.textContent = 'Select a document and click Prepare to view the PDF';
+                pdfEmpty.style.display = 'flex';
+            }
+            if (pdfWrapper) pdfWrapper.style.display = 'none';
+            if (chunkNav) chunkNav.style.display = 'none';
+            if (hint) hint.textContent = '';
+            pdfDoc = null;
+            currentHighlights = [];
+        }
+
+        document.getElementById('doc-select').addEventListener('change', (e) => {
+            docId = e.target.value || null;
+            isPrepared = false;
+            document.getElementById('prepare-status').textContent = '';
+            document.getElementById('prepare-status').className = '';
+            clearChatAndAttribution();
+            updateState();
+            saveSession();
+        });
+
+        document.querySelectorAll('input[name="qa-mode"]').forEach((r) => {
+            r.addEventListener('change', updateState);
+        });
+
+        document.getElementById('pdf-upload').addEventListener('change', async (e) => {
+            const file = e.target.files?.[0];
+            if (!file) return;
+            const status = document.getElementById('upload-status');
+            status.textContent = 'Uploading…';
+            try {
+                const fd = new FormData();
+                fd.append('file', file);
+                const res = await API.uploadExtract(fd);
+                if (res.success) {
+                    docId = res.doc_id;
+                    const sel = document.getElementById('doc-select');
+                    sel.value = '';
+                    if (!sel.querySelector(`option[value="${docId}"]`)) {
+                        const opt = document.createElement('option');
+                        opt.value = docId;
+                        opt.textContent = docId + ' (uploaded)';
+                        sel.appendChild(opt);
+                    }
+                    sel.value = docId;
+                    status.textContent = 'Uploaded: ' + file.name;
+                    isPrepared = false;
+                    document.getElementById('prepare-status').textContent = '';
+                    clearChatAndAttribution();
+                    updateState();
+                    saveSession();
+                } else {
+                    status.textContent = 'Upload failed: ' + (res.error || '');
+                }
+            } catch (err) {
+                status.textContent = 'Upload failed: ' + err.message;
+            }
+        });
+
+        document.getElementById('prepare-btn').addEventListener('click', async () => {
+            if (!docId) return;
+            const spinner = document.getElementById('prepare-spinner');
+            const status = document.getElementById('prepare-status');
+            const btn = document.getElementById('prepare-btn');
+            btn.disabled = true;
+            spinner.style.display = 'inline-block';
+            status.textContent = 'Parsing…';
+
+            try {
+                const resp = await API.prepareDocument(docId);
+                const reader = resp.body.getReader();
+                const dec = new TextDecoder();
+                let buf = '';
+
+                while (true) {
+                    const { done, value } = await reader.read();
+                    if (done) break;
+                    buf += dec.decode(value, { stream: true });
+                    const lines = buf.split('\n');
+                    buf = lines.pop() || '';
+
+                    for (const line of lines) {
+                        if (line.startsWith('data: ')) {
+                            try {
+                                const obj = JSON.parse(line.slice(6));
+                                if (obj.type === 'stage') {
+                                    status.textContent = obj.message || obj.stage || '';
+                                } else if (obj.type === 'ready') {
+                                    isPrepared = true;
+                                    status.textContent = 'Ready. You can ask questions.';
+                                    status.className = 'text-sm text-success font-medium';
+                                    if (docId) loadPdfOnly(docId);
+                                } else if (obj.type === 'error') {
+                                    status.textContent = 'Error: ' + (obj.error || '');
+                                    status.className = 'text-sm text-error';
+                                    isPrepared = false;
+                                }
+                            } catch (_) {}
+                        }
+                    }
+                }
+                if (buf.startsWith('data: ')) {
+                    try {
+                        const obj = JSON.parse(buf.slice(6));
+                        if (obj.type === 'ready') { isPrepared = true; saveSession(); if (docId) loadPdfOnly(docId); }
+                        if (obj.type === 'error') { isPrepared = false; saveSession(); }
+                    } catch (_) {}
+                }
+            } catch (err) {
+                status.textContent = 'Error: ' + err.message;
+                status.className = 'text-sm text-error';
+            } finally {
+                spinner.style.display = 'none';
+                updateState();
+            }
+        });
+
+        function addMessage(role, content, extra = null) {
+            const empty = document.getElementById('chat-empty');
+            if (empty) empty.style.display = 'none';
+
+            const wrap = document.createElement('div');
+            wrap.className = role === 'user' ? 'chat chat-end' : 'chat chat-start';
+            const bubble = document.createElement('div');
+            bubble.className = role === 'user' ? 'chat-bubble chat-bubble-primary' : 'chat-bubble chat-bubble-secondary';
+            bubble.textContent = content;
+            wrap.appendChild(bubble);
+            if (extra) wrap.appendChild(extra);
+            document.getElementById('chat-messages').appendChild(wrap);
+            wrap.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function addAnswerCard(data) {
+            const card = document.createElement('div');
+            card.className = 'card bg-base-200 shadow-md w-full';
+
+            const trunc = (v) => {
+                const s = String(v || '').trim();
+                return s.length > 300 ? s.slice(0, 300) + '…' : s;
+            };
+
+            const chunkIds = data.chunk_ids || [];
+            const hasHighlights = chunkIds.length > 0;
+
+            card.innerHTML = `
+                <div class="card-body p-4">
+                    <div class="flex flex-col gap-4">
+                        <div class="p-3 rounded-lg bg-base-100">
+                            <div class="text-xs font-medium text-base-content/50 uppercase mb-1">Direct PDF</div>
+                            <div class="answer-box text-sm">${escapeHtml(trunc(data.candidate_a))}</div>
+                        </div>
+                        <div class="p-3 rounded-lg bg-base-100">
+                            <div class="text-xs font-medium text-base-content/50 uppercase mb-1">Search-Based</div>
+                            <div class="answer-box text-sm">${escapeHtml(trunc(data.candidate_b))}</div>
+                        </div>
+                        <div class="p-3 rounded-lg bg-primary/20 border-2 border-primary">
+                            <div class="text-xs font-medium text-primary uppercase mb-1">Reconciled</div>
+                            <div class="answer-box text-sm font-medium">${escapeHtml(trunc(data.reconciled))}</div>
+                        </div>
+                    </div>
+                    ${data.reconciliation_reasoning ? `
+                    <div class="mt-2 p-2 rounded bg-base-100 text-sm text-base-content/80">
+                        <span class="font-medium">Reasoning:</span> ${escapeHtml(String(data.reconciliation_reasoning).slice(0, 500))}
+                        ${String(data.reconciliation_reasoning).length > 500 ? '…' : ''}
+                    </div>
+                    ` : ''}
+                    <div class="mt-2 flex flex-wrap gap-2 items-center">
+                        <button type="button" class="btn btn-sm btn-outline btn-primary view-attribution-btn" ${!hasHighlights ? 'disabled title="No highlights (need landing_ai_parse_output.json)"' : ''}>
+                            View attribution
+                        </button>
+                        <button type="button" class="btn btn-sm btn-ghost feedback-btn">Feedback</button>
+                    </div>
+                </div>
+            `;
+            const btn = card.querySelector('.view-attribution-btn');
+            if (btn && hasHighlights) {
+                btn.addEventListener('click', () => showAttribution(chunkIds));
+            }
+            const feedbackBtn = card.querySelector('.feedback-btn');
+            if (feedbackBtn) {
+                feedbackBtn.addEventListener('click', () => openFeedbackModal({
+                    mode: 'full',
+                    question: data.question,
+                    candidate_a: data.candidate_a,
+                    candidate_b: data.candidate_b,
+                    reconciled: data.reconciled,
+                }, feedbackBtn));
+            }
+            return card;
+        }
+
+        let feedbackModalData = null;
+        let feedbackModalButton = null;
+
+        function openFeedbackModal(data, buttonEl) {
+            if (!docId) return;
+            feedbackModalData = data;
+            feedbackModalButton = buttonEl;
+            const modal = document.getElementById('feedback-modal');
+            const title = document.getElementById('feedback-modal-title');
+            const prompt = document.getElementById('feedback-modal-prompt');
+            const checkboxes = document.getElementById('feedback-modal-checkboxes');
+            const comment = document.getElementById('feedback-modal-comment');
+            comment.value = '';
+
+            if (data.mode === 'quick') {
+                title.textContent = 'Feedback';
+                prompt.textContent = 'Was the answer correct?';
+                checkboxes.innerHTML = `
+                    <label class="label cursor-pointer justify-start gap-2">
+                        <input type="checkbox" class="checkbox checkbox-sm" id="fb-answer" />
+                        <span class="label-text">Answer was correct</span>
+                    </label>
+                `;
+            } else {
+                title.textContent = 'Which answers were correct?';
+                prompt.textContent = 'Select all that applied.';
+                checkboxes.innerHTML = `
+                    <label class="label cursor-pointer justify-start gap-2">
+                        <input type="checkbox" class="checkbox checkbox-sm fb-source" value="direct_pdf" />
+                        <span class="label-text">Direct PDF</span>
+                    </label>
+                    <label class="label cursor-pointer justify-start gap-2">
+                        <input type="checkbox" class="checkbox checkbox-sm fb-source" value="search_based" />
+                        <span class="label-text">Search-Based</span>
+                    </label>
+                    <label class="label cursor-pointer justify-start gap-2">
+                        <input type="checkbox" class="checkbox checkbox-sm fb-source" value="reconciled" />
+                        <span class="label-text">Reconciled</span>
+                    </label>
+                `;
+            }
+            modal.showModal();
+        }
+
+        async function submitFeedback() {
+            if (!feedbackModalData || !docId) return;
+            const modal = document.getElementById('feedback-modal');
+            const commentEl = document.getElementById('feedback-modal-comment');
+            let correctSources = [];
+
+            if (feedbackModalData.mode === 'quick') {
+                const cb = document.getElementById('fb-answer');
+                if (cb && cb.checked) correctSources = ['answer'];
+            } else {
+                document.querySelectorAll('.fb-source:checked').forEach(cb => correctSources.push(cb.value));
+            }
+
+            const payload = {
+                source: 'chat',
+                doc_id: docId,
+                comment: (commentEl?.value || '').trim().slice(0, 500),
+                chat: {
+                    question: feedbackModalData.question || '',
+                    mode: feedbackModalData.mode || 'quick',
+                    correct_sources: correctSources,
+                    answer: feedbackModalData.answer,
+                    candidate_a: feedbackModalData.candidate_a,
+                    candidate_b: feedbackModalData.candidate_b,
+                    reconciled: feedbackModalData.reconciled,
+                },
+            };
+
+            try {
+                const res = await API.feedback(payload);
+                if (res.success) {
+                    modal.close();
+                    if (feedbackModalButton) {
+                        feedbackModalButton.textContent = 'Thanks!';
+                        feedbackModalButton.disabled = true;
+                    }
+                }
+            } catch (_) {}
+            feedbackModalData = null;
+            feedbackModalButton = null;
+        }
+
+        document.getElementById('feedback-modal-submit').addEventListener('click', submitFeedback);
+
+        let pdfDoc = null;
+        let currentHighlights = [];
+        let currentChunkIndex = 0;
+
+        function goToChunk(idx) {
+            const n = currentHighlights.length;
+            if (n === 0) return;
+            currentChunkIndex = Math.max(0, Math.min(idx, n - 1));
+            updateChunkUI();
+            scrollToCurrentChunk();
+        }
+
+        function updateChunkUI() {
+            const n = currentHighlights.length;
+            const counter = document.getElementById('chunk-counter');
+            const firstBtn = document.getElementById('chunk-first');
+            const prevBtn = document.getElementById('chunk-prev');
+            const nextBtn = document.getElementById('chunk-next');
+            if (counter) counter.textContent = `${currentChunkIndex + 1} / ${n}`;
+            if (firstBtn) firstBtn.disabled = n <= 1 || currentChunkIndex <= 0;
+            if (prevBtn) prevBtn.disabled = currentChunkIndex <= 0;
+            if (nextBtn) nextBtn.disabled = currentChunkIndex >= n - 1;
+            document.querySelectorAll('.highlight-box').forEach((el) => {
+                const isActive = currentHighlights[currentChunkIndex] && el.dataset.chunkIndex === String(currentChunkIndex);
+                el.style.opacity = isActive ? '1' : '0.25';
+                el.style.borderWidth = isActive ? '2px' : '1px';
+            });
+        }
+
+        function scrollToCurrentChunk() {
+            const hl = currentHighlights[currentChunkIndex];
+            if (!hl || !hl.pageEl) return;
+            hl.pageEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+
+        async function showAttribution(chunkIds) {
+            if (!docId || !chunkIds.length) return;
+            await loadPdfAndHighlights(docId, chunkIds);
+        }
+
+        async function loadPdfOnly(docId) {
+            const wrapper = document.getElementById('pdf-wrapper');
+            const pagesEl = document.getElementById('pdf-pages');
+            const empty = document.getElementById('pdf-empty');
+            const nav = document.getElementById('chunk-nav');
+            const hint = document.getElementById('attribution-hint');
+
+            if (!pdfDoc || pdfDoc._docId !== docId) {
+                pdfDoc = null;
+                const pdfjs = window['pdfjs-dist/build/pdf'];
+                if (pdfjs?.GlobalWorkerOptions) pdfjs.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+                try {
+                    pdfDoc = await pdfjs.getDocument(API.pdf(docId)).promise;
+                    pdfDoc._docId = docId;
+                } catch (err) {
+                    if (empty) { empty.textContent = 'Could not load PDF'; empty.style.display = 'flex'; }
+                    if (wrapper) wrapper.style.display = 'none';
+                    if (nav) nav.style.display = 'none';
+                    if (hint) hint.textContent = '';
+                    return;
+                }
+            }
+
+            currentHighlights = [];
+            if (nav) nav.style.display = 'none';
+            if (empty) empty.style.display = 'none';
+            if (wrapper) wrapper.style.display = 'block';
+            if (hint) hint.textContent = "Click \"View attribution\" on an answer to see highlighted source.";
+            if (pagesEl) pagesEl.innerHTML = '';
+
+            const scale = 1.2;
+            const numPages = pdfDoc.numPages;
+            for (let p = 1; p <= numPages; p++) {
+                const page = await pdfDoc.getPage(p);
+                const viewport = page.getViewport({ scale });
+                const pageBlock = document.createElement('div');
+                pageBlock.className = 'flex flex-col items-center py-4 border-b border-base-300 last:border-0 pdf-page-block';
+                pageBlock.dataset.page = p;
+                const pageLabel = document.createElement('div');
+                pageLabel.className = 'text-xs text-base-content/60 mb-2';
+                pageLabel.textContent = `Page ${p}`;
+                const inner = document.createElement('div');
+                inner.className = 'relative';
+                const canvas = document.createElement('canvas');
+                canvas.height = viewport.height;
+                canvas.width = viewport.width;
+                inner.appendChild(canvas);
+                pageBlock.appendChild(pageLabel);
+                pageBlock.appendChild(inner);
+                pagesEl.appendChild(pageBlock);
+                const ctx = canvas.getContext('2d');
+                await page.render({ canvasContext: ctx, viewport }).promise;
+            }
+        }
+
+        async function loadPdfAndHighlights(docId, chunkIds) {
+            const wrapper = document.getElementById('pdf-wrapper');
+            const pagesEl = document.getElementById('pdf-pages');
+            const empty = document.getElementById('pdf-empty');
+            const nav = document.getElementById('chunk-nav');
+
+            if (!pdfDoc || pdfDoc._docId !== docId) {
+                pdfDoc = null;
+                const pdfjs = window['pdfjs-dist/build/pdf'];
+                if (pdfjs?.GlobalWorkerOptions) pdfjs.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+                try {
+                    pdfDoc = await pdfjs.getDocument(API.pdf(docId)).promise;
+                    pdfDoc._docId = docId;
+                } catch (err) {
+                    if (empty) { empty.textContent = 'Could not load PDF'; empty.style.display = 'flex'; }
+                    if (wrapper) wrapper.style.display = 'none';
+                    if (nav) nav.style.display = 'none';
+                    return;
+                }
+            }
+
+            const res = await API.highlights(docId, chunkIds);
+            const success = res?.success && res?.highlights?.length > 0;
+            if (!success) {
+                await loadPdfOnly(docId);
+                const hint = document.getElementById('attribution-hint');
+                if (hint) hint.textContent = 'No highlight positions (need landing_ai_parse_output.json)';
+                return;
+            }
+
+            currentHighlights = chunkIds.map((cid, i) => {
+                const h = res.highlights.find(x => x.chunk_id === cid);
+                return h ? { chunk_id: cid, page: h.page, box: h.box, index: i } : null;
+            }).filter(Boolean);
+
+            const hint = document.getElementById('attribution-hint');
+            if (hint) hint.textContent = '';
+            if (empty) empty.style.display = 'none';
+            if (wrapper) wrapper.style.display = 'block';
+            if (pagesEl) pagesEl.innerHTML = '';
+            if (nav) nav.style.display = 'flex';
+
+            const scale = 1.2;
+            const numPages = pdfDoc.numPages;
+            const highlightsByPage = {};
+            res.highlights.forEach((hl) => {
+                const chunkIdx = chunkIds.indexOf(hl.chunk_id);
+                const p = hl.page;
+                if (!highlightsByPage[p]) highlightsByPage[p] = [];
+                highlightsByPage[p].push({ ...hl, chunkIndex: chunkIdx });
+            });
+
+            const pageBlocks = {};
+
+            for (let p = 1; p <= numPages; p++) {
+                const page = await pdfDoc.getPage(p);
+                const viewport = page.getViewport({ scale });
+                const pageWidth = page.getViewport({ scale: 1 }).width;
+                const pageHeight = page.getViewport({ scale: 1 }).height;
+
+                const pageBlock = document.createElement('div');
+                pageBlock.className = 'flex flex-col items-center py-4 border-b border-base-300 last:border-0 pdf-page-block';
+                pageBlock.dataset.page = p;
+                pageBlocks[p] = pageBlock;
+
+                const pageLabel = document.createElement('div');
+                pageLabel.className = 'text-xs text-base-content/60 mb-2';
+                pageLabel.textContent = `Page ${p}${(highlightsByPage[p] || []).length ? ' • ' + highlightsByPage[p].length + ' highlight(s)' : ''}`;
+                const inner = document.createElement('div');
+                inner.className = 'relative';
+                const canvas = document.createElement('canvas');
+                canvas.height = viewport.height;
+                canvas.width = viewport.width;
+                const overlay = document.createElement('div');
+                overlay.className = 'absolute left-0 top-0 pointer-events-none';
+                overlay.style.width = viewport.width + 'px';
+                overlay.style.height = viewport.height + 'px';
+
+                inner.appendChild(canvas);
+                inner.appendChild(overlay);
+                pageBlock.appendChild(pageLabel);
+                pageBlock.appendChild(inner);
+                pagesEl.appendChild(pageBlock);
+
+                const ctx = canvas.getContext('2d');
+                await page.render({ canvasContext: ctx, viewport }).promise;
+
+                (highlightsByPage[p] || []).forEach((hl) => {
+                    const box = hl.box || {};
+                    const l = box.left || 0, t = box.top || 0, r = box.right || 1, b = box.bottom || 1;
+                    const xMin = l * pageWidth, xMax = r * pageWidth;
+                    const yMin = (1 - b) * pageHeight, yMax = (1 - t) * pageHeight;
+                    const rect = viewport.convertToViewportRectangle([xMin, yMin, xMax, yMax]);
+                    const x = Math.min(rect[0], rect[2]), y = Math.min(rect[1], rect[3]);
+                    const w = Math.abs(rect[2] - rect[0]), boxH = Math.abs(rect[3] - rect[1]);
+                    const div = document.createElement('div');
+                    div.className = 'absolute bg-primary/30 border-2 border-primary/60 rounded highlight-box transition';
+                    div.dataset.chunkIndex = String(hl.chunkIndex);
+                    div.style.left = x + 'px';
+                    div.style.top = y + 'px';
+                    div.style.width = w + 'px';
+                    div.style.height = boxH + 'px';
+                    overlay.appendChild(div);
+                });
+            }
+
+            currentHighlights.forEach(h => { h.pageEl = pageBlocks[h.page]; });
+            currentChunkIndex = 0;
+            updateChunkUI();
+            requestAnimationFrame(() => { requestAnimationFrame(() => scrollToCurrentChunk()); });
+        }
+
+        document.getElementById('chunk-first').addEventListener('click', () => goToChunk(0));
+        document.getElementById('chunk-prev').addEventListener('click', () => goToChunk(currentChunkIndex - 1));
+        document.getElementById('chunk-next').addEventListener('click', () => goToChunk(currentChunkIndex + 1));
+        document.addEventListener('keydown', (e) => {
+            if (currentHighlights.length === 0) return;
+            if (e.key === 'Home') { e.preventDefault(); goToChunk(0); }
+            if (e.key === 'End') { e.preventDefault(); goToChunk(currentHighlights.length - 1); }
+            if (currentHighlights.length <= 1) return;
+            if (e.key === 'ArrowLeft') { e.preventDefault(); goToChunk(currentChunkIndex - 1); }
+            if (e.key === 'ArrowRight') { e.preventDefault(); goToChunk(currentChunkIndex + 1); }
+        });
+
+        document.getElementById('ask-btn').addEventListener('click', askQuestion);
+        document.getElementById('question-input').addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                askQuestion();
+            }
+        });
+
+        async function askQuestion() {
+            const input = document.getElementById('question-input');
+            const question = (input.value || '').trim();
+            if (!question || !docId || !isReady) return;
+
+            input.value = '';
+            const spinner = document.getElementById('ask-spinner');
+            const btn = document.getElementById('ask-btn');
+            btn.disabled = true;
+            spinner.style.display = 'inline-block';
+
+            addMessage('user', question);
+
+            const mode = getMode();
+            const history = conversation.slice(-5).map(c => ({
+                question: c.question,
+                answer: c.mode === 'quick' ? (c.answer || '') : (c.reconciled || ''),
+            }));
+
+            const apiMode = mode === 'quick' ? 'quick' : 'full';
+
+            const placeholder = document.createElement('div');
+            placeholder.className = 'chat chat-start';
+            placeholder.innerHTML = `
+                <div class="chat-bubble chat-bubble-secondary">
+                    <span class="loading loading-dots loading-sm"></span> ${apiMode === 'quick' ? 'Generating…' : 'Direct PDF… then Search… then Reconciling…'}
+                </div>
+            `;
+            document.getElementById('chat-messages').appendChild(placeholder);
+            placeholder.scrollIntoView({ behavior: 'smooth' });
+
+            try {
+                const resp = await API.ask(docId, question, history, apiMode);
+                const reader = resp.body.getReader();
+                const dec = new TextDecoder();
+                let buf = '';
+                let lastStage = '';
+
+                while (true) {
+                    const { done, value } = await reader.read();
+                    if (done) break;
+                    buf += dec.decode(value, { stream: true });
+                    const lines = buf.split('\n');
+                    buf = lines.pop() || '';
+
+                    for (const line of lines) {
+                        if (!line.startsWith('data: ')) continue;
+                        try {
+                            const obj = JSON.parse(line.slice(6));
+                            if (obj.type === 'stage') {
+                                lastStage = obj.stage || obj.message || '';
+                                if (obj.stage === 'direct_pdf_done') {
+                                    placeholder.querySelector('.chat-bubble').innerHTML = '<span class="loading loading-dots loading-sm"></span> Search-Based…';
+                                } else if (obj.stage === 'search_done') {
+                                    placeholder.querySelector('.chat-bubble').innerHTML = '<span class="loading loading-dots loading-sm"></span> Reconciling…';
+                                }
+                            } else if (obj.type === 'done') {
+                                placeholder.remove();
+                                if (obj.mode === 'quick') {
+                                    const wrap = document.createElement('div');
+                                    wrap.className = 'chat chat-start w-full';
+                                    const bubble = document.createElement('div');
+                                    bubble.className = 'chat-bubble chat-bubble-secondary max-w-2xl';
+                                    bubble.textContent = obj.answer || '';
+                                    wrap.appendChild(bubble);
+                                    const fbRow = document.createElement('div');
+                                    fbRow.className = 'mt-2';
+                                    const fbBtn = document.createElement('button');
+                                    fbBtn.type = 'button';
+                                    fbBtn.className = 'btn btn-sm btn-ghost feedback-btn';
+                                    fbBtn.textContent = 'Feedback';
+                                    fbBtn.addEventListener('click', () => openFeedbackModal({ mode: 'quick', question, answer: obj.answer }, fbBtn));
+                                    fbRow.appendChild(fbBtn);
+                                    wrap.appendChild(fbRow);
+                                    document.getElementById('chat-messages').appendChild(wrap);
+                                    wrap.scrollIntoView({ behavior: 'smooth' });
+                                    conversation.push({ question, mode: 'quick', answer: obj.answer });
+                                    saveSession();
+                                } else {
+                                    const extra = addAnswerCard({ ...obj, question });
+                                    const wrap = document.createElement('div');
+                                    wrap.className = 'chat chat-start w-full';
+                                    wrap.appendChild(extra);
+                                    document.getElementById('chat-messages').appendChild(wrap);
+                                    wrap.scrollIntoView({ behavior: 'smooth' });
+                                    conversation.push({
+                                        question,
+                                        mode: 'full',
+                                        candidate_a: obj.candidate_a,
+                                        candidate_b: obj.candidate_b,
+                                        reconciled: obj.reconciled,
+                                        reconciliation_reasoning: obj.reconciliation_reasoning,
+                                        chunk_ids: obj.chunk_ids || [],
+                                    });
+                                    saveSession();
+                                }
+                            } else if (obj.type === 'error') {
+                                placeholder.remove();
+                                addMessage('assistant', 'Error: ' + (obj.error || 'Unknown'));
+                            }
+                        } catch (_) {}
+                    }
+                }
+                if (buf.startsWith('data: ')) {
+                    try {
+                        const obj = JSON.parse(buf.slice(6));
+                        if (obj.type === 'done') {
+                            placeholder.remove();
+                            if (obj.mode === 'quick') {
+                                const wrap = document.createElement('div');
+                                wrap.className = 'chat chat-start w-full';
+                                const bubble = document.createElement('div');
+                                bubble.className = 'chat-bubble chat-bubble-secondary max-w-2xl';
+                                bubble.textContent = obj.answer || '';
+                                wrap.appendChild(bubble);
+                                const fbRow = document.createElement('div');
+                                fbRow.className = 'mt-2';
+                                const fbBtn = document.createElement('button');
+                                fbBtn.type = 'button';
+                                fbBtn.className = 'btn btn-sm btn-ghost feedback-btn';
+                                fbBtn.textContent = 'Feedback';
+                                fbBtn.addEventListener('click', () => openFeedbackModal({ mode: 'quick', question, answer: obj.answer }, fbBtn));
+                                fbRow.appendChild(fbBtn);
+                                wrap.appendChild(fbRow);
+                                document.getElementById('chat-messages').appendChild(wrap);
+                                wrap.scrollIntoView({ behavior: 'smooth' });
+                                conversation.push({ question, mode: 'quick', answer: obj.answer });
+                                saveSession();
+                            } else {
+                                const extra = addAnswerCard({ ...obj, question });
+                                    const wrap = document.createElement('div');
+                                    wrap.className = 'chat chat-start w-full';
+                                    wrap.appendChild(extra);
+                                    document.getElementById('chat-messages').appendChild(wrap);
+                                    wrap.scrollIntoView({ behavior: 'smooth' });
+                                    conversation.push({
+                                        question,
+                                        mode: 'full',
+                                        candidate_a: obj.candidate_a,
+                                        candidate_b: obj.candidate_b,
+                                        reconciled: obj.reconciled,
+                                        reconciliation_reasoning: obj.reconciliation_reasoning,
+                                        chunk_ids: obj.chunk_ids || [],
+                                    });
+                                    saveSession();
+                                }
+                        } else if (obj.type === 'error') {
+                            placeholder.remove();
+                            addMessage('assistant', 'Error: ' + (obj.error || ''));
+                        }
+                    } catch (_) {}
+                }
+            } catch (err) {
+                if (placeholder.parentNode) placeholder.remove();
+                addMessage('assistant', 'Error: ' + err.message);
+            } finally {
+                spinner.style.display = 'none';
+                updateState();
+            }
+        }
+
+        Promise.all([
+            loadDocs(),
+            API.sessionInfo().then(d => { serverBootId = d.boot_id || ''; }),
+        ]).then(() => {
+            const raw = sessionStorage.getItem(SESSION_KEY);
+            if (raw) {
+                try {
+                    const data = JSON.parse(raw);
+                    if (data.boot_id && data.boot_id !== serverBootId) {
+                        sessionStorage.removeItem(SESSION_KEY);
+                    } else {
+                        restoreSession();
+                    }
+                } catch (_) {
+                    restoreSession();
+                }
+            } else {
+                restoreSession();
+            }
+            updateState();
+        });
+    </script>
+</body>
+</html>

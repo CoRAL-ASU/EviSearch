@@ -119,6 +119,7 @@ def build_prompt(label: str, items: List[Dict[str, str]]) -> str:
         )
     lines.append("\n" + "=" * 60)
     lines.append(
+        "Pay special attention to table and figure captions to check if the results are reported for the whole population or sub-group wise. If values are reported for sub-groups in differnet tables, and query asks for the whole population, combine values from logical subgroups that make up the whole population"
         "Output a single JSON object. For each column provide "
         "'value' (the extracted value or 'not found') and "
         "'reasoning' (where you found it and how you derived it, or 'not found')."

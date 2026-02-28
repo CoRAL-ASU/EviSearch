@@ -1,0 +1,385 @@
+{
+  "doc_id": "NCT00268476_James_STAMPEDE_IJC'22",
+  "tool_calls_sequence": [
+    {
+      "name": "get_chunks_by_page",
+      "args": {
+        "page_numbers": [
+          1,
+          2
+        ]
+      }
+    },
+    {
+      "name": "search_chunks",
+      "args": {
+        "query": "Median overall survival overall high volume low volume treatment control"
+      }
+    },
+    {
+      "name": "search_chunks",
+      "args": {
+        "query": "Median progression free survival overall high volume low volume treatment control"
+      }
+    },
+    {
+      "name": "search_chunks",
+      "args": {
+        "query": "median progression free survival"
+      }
+    },
+    {
+      "name": "search_chunks",
+      "args": {
+        "query": "median overall survival high volume"
+      }
+    },
+    {
+      "name": "search_chunks",
+      "args": {
+        "query": "median overall survival low volume"
+      }
+    },
+    {
+      "name": "submit_extraction",
+      "args": {
+        "results_keys": [
+          "Median PFS (mo) | Overall | Treatment",
+          "Median PFS (mo) | High volume | Control",
+          "Median PFS (mo) | Overall | Control",
+          "Median OS (mo) | Overall | Treatment",
+          "Median OS (mo) | Low volume | Control",
+          "Median PFS (mo) | High volume | Treatment",
+          "Median OS (mo) | Overall | Control",
+          "Median PFS (mo) | Low volume | Control",
+          "Median PFS (mo) | Low volume | Treatment",
+          "Median OS (mo) | High volume | Control",
+          "Median OS (mo) | Low volume | Treatment",
+          "Median OS (mo) | High volume | Treatment"
+        ]
+      }
+    }
+  ],
+  "conversation": [
+    {
+      "turn": 0,
+      "role": "user",
+      "content": "Extract values for these columns. Document has 13 pages.\n\nCOLUMNS:\n\n---\nColumn 1: Median OS (mo) | Overall | Treatment\nDefinition: What is the median overall survival (in months) for all patients in the experimental arm? If reported, include the value; use 'Not reported' if missing.\n---\nColumn 2: Median OS (mo) | Overall | Control\nDefinition: What is the median overall survival (in months) for all patients in the control arm? If reported, include the value; use 'Not reported' if missing.\n---\nColumn 3: Median OS (mo) | High volume | Treatment\nDefinition: What is the median overall survival (in months) for patients with high volume metastasis (by CHAARTED criteria) in the experimental arm? If reported, include the value; use 'Not reported' if missing.\n---\nColumn 4: Median OS (mo) | High volume | Control\nDefinition: What is the median overall survival (in months) for patients with high volume metastasis (by CHAARTED criteria) in the control arm? If reported, include the value; use 'Not reported' if missing.\n---\nColumn 5: Median OS (mo) | Low volume | Treatment\nDefinition: What is the median overall survival (in months) for patients with low volume metastasis (by CHAARTED criteria) in the experimental arm? If reported, include the value; use 'Not reported' if missing.\n---\nColumn 6: Median OS (mo) | Low volume | Control\nDefinition: What is the median overall survival (in months) for patients with low volume metastasis (by CHAARTED criteria) in the control arm? If reported, include the value; use 'Not reported' if missing.\n---\nColumn 7: Median PFS (mo) | Overall | Treatment\nDefinition: What is the median progression free survival (in months) for all patients in the experimental arm? If reported, include the value; use 'Not reported' if missing.\n---\nColumn 8: Median PFS (mo) | Overall | Control\nDefinition: What is the median progression free survival (in months) for all patients in the control arm? If reported, include the value; use 'Not reported' if missing.\n---\nColumn 9: Median PFS (mo) | High volume | Treatment\nDefinition: What is the median progression free survival (in months) for patients with high volume metastasis (by CHAARTED criteria) in the experimental arm? If reported, include the value; use 'Not reported' if missing.\n---\nColumn 10: Median PFS (mo) | High volume | Control\nDefinition: What is the median progression free survival (in months) for patients with high volume metastasis (by CHAARTED criteria) in the control arm? If reported, include the value; use 'Not reported' if missing.\n---\nColumn 11: Median PFS (mo) | Low volume | Treatment\nDefinition: What is the median progression free survival (in months) for patients with low volume metastasis (by CHAARTED criteria) in the experimental arm? If reported, include the value; use 'Not reported' if missing.\n---\nColumn 12: Median PFS (mo) | Low volume | Control\nDefinition: What is the median progression free survival (in months) for patients with low volume metastasis (by CHAARTED criteria) in the control arm? If reported, include the value; use 'Not reported' if missing.\n\nFor informational columns (trial name, arms, etc.), use get_chunks_by_page([1, 2]) first. For specific columns, use search_chunks. Submit when you have enough information."
+    },
+    {
+      "turn": 2,
+      "role": "tool",
+      "name": "get_chunks_by_page",
+      "args": {
+        "page_numbers": [
+          1,
+          2
+        ]
+      },
+      "response": {
+        "formatted_chunks": "[Page 1]\n## Page 1\n\nCheck for updates\n\n\n\nReceived: 10 December 2021 Revised: 15 February 2022 Accepted: 22 February 2022\n\n\n\nDOI: 10.1002/ijc.34018\n\n\n\n<::IJC INTERNATIONAL JOURNAL of CANCER\nUICC\nglobal cancer control\n: figure::>\n\n\n\nCANCER THERAPY AND PREVENTION\n\n\n\nAbiraterone acetate plus prednisolone for metastatic patients\nstarting hormone therapy: 5-year follow-up results from the\nSTAMPEDE randomised trial (NCT00268476)\n\n\n\nNicholas D. James\u00b9 ID | Noel W. Clarke\u00b2 ID | Adrian Cook\u00b3 ID | Adnan Ali\u2074 ID |\nAlex P. Hoyle\u2075 ID | Gerhardt Attard\u2076 ID | Christopher D. Brawley\u00b3 ID |\nSimon Chowdhury\u2077 ID | William R. Cross\u2078 ID | David P. Dearnaley\u2079 ID |\nJohann S. de Bono\u00b9 ID | Carlos Diaz-Montana\u00b3 ID | Duncan Gilbert\u00b3 ID |\nSilke Gillessen\u00b9\u2070 ID | Clare Gilson\u00b3,\u00b9\u00b9 ID | Rob J. Jones\u00b9\u00b2 ID | Ruth E. Langley\u00b3 ID |\nZafar I. Malik\u00b9\u00b3 ID | David J. Matheson\u00b9\u2074 ID | Robin Millman\u00b9\u2075 ID | Chris C. Parker\u00b9\u2076 ID |\nCheryl Pugh\u00b3 ID | Hannah Rush\u00b3,\u00b9\u2077 ID | J. Martin Russell\u00b9\u2078,\u00b9\u2079 |\nDominik R. Berthold\u00b2\u2070 ID | Michelle L. Buckner\u00b3 ID | Malcolm D. Mason\u00b2\u00b9 ID |\nAlastair W. S. Ritchie\u00b2\u00b2 ID | Alison J. Birtle\u00b2\u00b3 ID | Susannah J. Brock\u00b2\u2074 ID |\nPrantik Das\u00b2\u2075 ID | Dan Ford\u00b2\u2076 ID | Joanna Gale\u00b2\u2077 ID | Warren Grant\u00b2\u2078 ID |\nEmma K. Gray\u00b2\u2079 ID | Peter Hoskin\u00b3\u2070 ID | Mohammad M. Khan\u00b3\u00b9,\u00b3\u00b2 ID |\nCaroline Manetta\u00b3\u00b3 ID | Neil J. McPhail\u00b3\u2074 ID | Joe M. O'Sullivan\u00b3\u2075 ID |\nOmi Parikh\u00b3\u2076 ID | Carla Perna\u00b3\u2077 ID | Carmel J. Pezaro\u00b3\u2078 ID |\nAndrew S. Protheroe\u00b3\u2079 ID | Angus J. Robinson\u2074\u2070 ID | Sarah M. Rudman\u00b9\u2077 ID |\nDenise J. Sheehan\u2074\u00b9 ID | Narayanan N. Srihari\u2074\u00b2 ID | Isabel Syndikus\u00b9\u00b3 ID |\nJacob S. Tanguay\u2074\u00b3 ID | Carys W. Thomas\u2074\u2074 ID | Salil Vengalil\u2074\u2075 ID | John Wagstaff\u2074\u2076 ID |\nJames P. Wylie\u2074 ID | Mahesh K. B. Parmar\u00b3 ID | Matthew R. Sydes\u00b3 ID | for the\nSTAMPEDE Trials Collaborative Group\n\n\n\n\u00b9Institute of Cancer Research, London, UK\n\u00b2The Departments of Surgery & Urology, The Christie & Salford Royal Hospitals, Manchester, UK\n\u00b3MRC Clinical Trials Unit at UCL, Institute of Clinical Trials & Methodology, UCL, London, UK\n\u2074The Christie NHS Foundation Trust, Manchester, UK\n\u2075Salford Royal HS Foundation Trust, Manchester, UK\n\n\n\nAbbreviations: AA, abiraterone acetate; AAP, abiraterone acetate + prednisone/prednisolone; ADT, androgen deprivation therapy; BP, blood pressure; CI, confidence interval; CRUK, Cancer Research UK; CT, computerised tomography (as in CT scan); CTCAE, Common Terminology Criteria for Adverse Events; CTU, clinical trials unit; FFS, failure-free survival; GnRH, gonadotrophin-releasing hormone; HR, hazard ratio; IQR, interquartile range; mg, milligrams; MRC, Medical Research Council; MRI, magnetic resonance imaging; NHS, National Health Service; NIHR, National Institute of Health Research; NSAID, nonsteroidal antiinflammatory drug; PSA, prostate-specific antigen; QOL, quality of life; SAKK, Swiss Group for Clinical Cancer Research; SOC, standard-of-care; SOC + AAP, standard-of-care plus abiraterone acetate + prednisone/prednisolone; UCL, University College London; UK, United Kingdom; WHO, World Health Organisation.\n\nMahesh K. B. Parmar and Matthew R. Sydes contributed equally to our study.\n\nConference presentation: Preliminary data underpinning this article were presented at the European Society of Medical Oncology 2020: https://doi.org/10.1016/j.annonc.2020.08.871.\n\n[Correction added on 6 June 2022, after first online publication - text for subgroup did not match table: Figure 2 and Figure 3 captions have been amended to better clarify the content; \"for the STAMPEDE Trials Collaborative Group\" has been added at the end of the author group.]\n\n\n\n---\nThis is an open access article under the terms of the Creative Commons Attribution License, which permits use, distribution and reproduction in any medium, provided the original work is properly cited.\n\n\u00a9 2022 The Authors. *International Journal of Cancer* published by John Wiley & Sons Ltd on behalf of UICC.\n\n\n\n422\n\n\n\nwileyonlinelibrary.com/journal/ijc\n\n\n\nInt. J. Cancer. 2022;151:422-434.\n\n---\n\n[Page 2]\n## Page 2\n\nJAMES ET AL.\n\n\n\n<::IJC International Journal of Cancer and UICC global cancer control logos::>\n\n\n\n423\n\n\n\n1. UCL Cancer Institute, University College London, London, UK\n2. Guy's, King's, & St. Thomas' Hospitals, and Sarah Cannon Research Institute, London, UK\n3. St James University Hospital, Leeds, UK\n4. The Institute of Cancer Research and Royal Marsden NHS Foundation Trust, London, UK\n5. Istituto Oncologico della Svizzera Italiana, Bellinzona, Switzerland\n6. Royal Marsden Hospital, London, UK\n7. Beatson West of Scotland Cancer Centre, University of Glasgow, Glasgow, UK\n8. Radiotherapy Unit, The Clatterbridge Cancer Centre NHS Foundation Trust, Liverpool, Liverpool, L7 8YA, UK\n9. School of Allied Health and Midwifery, Faculty of Education, Health and Wellbeing, University of Wolverhampton, Wolverhampton, WS1 3BD, UK\n10. (PPI) c/o MRC CTU at UCL, London, UK\n11. Uro-Oncology Unit, Royal Marsden Hospital and Institute of Cancer Research, Sutton, UK\n12. Guys and St Thomas' NHS Foundation Trust, London, UK\n13. Institute of Cancer Sciences, University of Glasgow, Glasgow, UK\n14. Beatson West of Scotland Cancer Centre, Glasgow, UK\n15. Centre Hospitalier Universitaire Vaudois (CHUV), Lausanne, Switzerland\n16. Cardiff University, School of Medicine, Cardiff, UK\n17. Gloucestershire Hospitals NHS Foundation Trust, Gloucester, UK\n18. Rosemere Cancer Centre, Lancashire Teaching Hospitals & University of Manchester, University of Central Lancashire, Lancashire, UK\n19. University Hospital Dorset, Bournemouth, UK\n20. Department of Oncology, University Hospitals of Derby and Burton NHS Foundation Trust, Derby, UK\n21. City Hospital, Cancer Centre at Queen Elizabeth Hospital, Birmingham, UK\n22. Portsmouth Hospitals University Trust, Portsmouth, UK\n23. Gloucestershire Oncology Centre, Cheltenham General Hospital, Cheltenham, UK\n24. Musgrove Park Hospital, Taunton, UK\n25. Mount Vernon Cancer Centre, Northwood, UK\n26. Department of Oncology Castle Hill Hospital, Hull, UK\n27. Scarborough General Hospital, Scarborough, UK\n28. Brighton and Sussex University Hospitals NHS Trust, Brighton, UK\n29. Department of Clinical Oncology, Raigmore Hospital, Inverness, UK\n30. Patrick G Johnston Centre for Cancer Research, Queen's University Belfast, Belfast, UK\n31. Rosemere Cancer Centre, Lancashire Teaching Hospitals NHS Trust, Preston, UK\n32. Royal Surrey NHS Foundation Trust, Guildford, UK\n33. Sheffield Teaching Hospitals NHS Foundation Trust, Sheffield, UK\n34. Oxford University Hospitals NHS Foundation Trust, Oxfordshire, UK\n35. Sussex Cancer Centre, Brighton, UK\n36. Royal Devon & Exeter NHS Foundation Trust, Exeter, UK\n37. Shrewsbury & Telford Hospitals NHS Trust, Shrewsbury, UK\n38. Velindre Cancer Centre, Cardiff, UK\n39. Kent Oncology Centre, Maidstone, Kent, UK\n40. University Hospital North Midlands NHS Trust, Staffordshire, UK\n41. Swansea University and the South West UK Cancer Centre, Swansea, UK\n\n\n\nCorrespondence\nMatthew R. Sydes, MRC Clinical Trials Unit at\nUCL, Institute of Clinical Trials &\nMethodology, UCL, London, UK.\nEmail: m.sydes@ucl.ac.ukand mrcctu.\nstampede@ucl.ac.uk\n\n\n\n### Abstract\nAbiraterone acetate plus prednisolone (AAP) previously demonstrated improved survival in STAMPEDE, a multiarm, multistage platform trial in men starting long-term hormone therapy for prostate cancer. This long-term analysis in metastatic patients was planned for 3 years after the first results. Standard-of-care (SOC) was androgen deprivation therapy.",
+        "pages_returned": [
+          1,
+          2
+        ]
+      }
+    },
+    {
+      "turn": 3,
+      "role": "tool",
+      "name": "search_chunks",
+      "args": {
+        "query": "Median overall survival overall high volume low volume treatment control"
+      },
+      "response": {
+        "matches": [
+          {
+            "page": 9,
+            "score": 0.5115681886672974
+          },
+          {
+            "page": 6,
+            "score": 0.5107645988464355
+          },
+          {
+            "page": 7,
+            "score": 0.49805355072021484
+          },
+          {
+            "page": 8,
+            "score": 0.4764695465564728
+          },
+          {
+            "page": 3,
+            "score": 0.47341853380203247
+          }
+        ],
+        "formatted_chunks": "[Page 9, score=0.51]\n## Page 9\n\n430\n\n\n\n<::IJC INTERNATIONAL JOURNAL OF CANCER UICC global cancer control : figure::>\n\n\n\nJAMES ET AL.\n\n\n\n(A)\n<::chart: Kaplan-Meier survival curve showing proportion surviving over time. The y-axis is labeled \"Proportion surviving\" with ticks at 0.00, 0.25, 0.50, 0.75, and 1.00. The x-axis represents time with labels 0, 1, 2, 3, 4, 5, 6, 7, and 8. Two survival curves are plotted with shaded confidence intervals: one for SOC+AAP (maroon line) and one for SOC (teal line).\n\nBelow the chart, a table provides the number of patients at risk, censored, and died for each group at different time points (0-8):\n\n| | 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 |\n|---|---|---|---|---|---|---|---|---|---|\n| **SOC** | | | | | | | | | |\n| At-risk | 232 | 206 | 152 | 106 | 73 | 56 | 28 | 6 | 0 |\n| Censored | 0 | 2 | 5 | 5 | 6 | 13 | 33 | 51 | 54 |\n| Died | 0 | 24 | 75 | 121 | 153 | 163 | 171 | 175 | 178 |\n| **SOC+AAP** | | | | | | | | | |\n| At-risk | 241 | 221 | 191 | 154 | 124 | 111 | 66 | 19 | 1 |\n| Censored | 0 | 2 | 2 | 3 | 5 | 9 | 39 | 79 | 95 |\n| Died | 0 | 18 | 48 | 84 | 112 | 121 | 136 | 143 | 145 |::>\n(B)\n<::chart: Kaplan-Meier survival curve showing proportion surviving over time. The y-axis is labeled \"Proportion surviving\" with ticks at 0.00, 0.25, 0.50, 0.75, and 1.00. The x-axis represents time with labels 0, 1, 2, 3, 4, 5, 6, 7, and 8. Two survival curves are plotted with shaded confidence intervals: one for SOC+AAP (maroon line) and one for SOC (teal line).\n\nBelow the chart, a table provides the number of patients at risk, censored, and died for each group at different time points (0-8):\n\n| | 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 |\n|---|---|---|---|---|---|---|---|---|---|\n| **SOC** | | | | | | | | | |\n| At-risk | 220 | 212 | 190 | 165 | 146 | 109 | 62 | 29 | 1 |\n| Censored | 0 | 2 | 3 | 4 | 5 | 14 | 50 | 77 | 101 |\n| Died | 0 | 6 | 27 | 51 | 69 | 97 | 108 | 114 | 118 |\n| **SOC+AAP** | | | | | | | | | |\n| At-risk | 208 | 206 | 187 | 167 | 156 | 144 | 92 | 30 | 5 |\n| Censored | 0 | 0 | 2 | 5 | 5 | 6 | 43 | 103 | 128 |\n| Died | 0 | 2 | 19 | 36 | 47 | 58 | 73 | 75 | 75 |::>\n\n\n\nFIGURE 3 Overall survival by\nallocated treatment and metastatic\ndisease risk group: 3A - high-risk\nmetastatic disease risk group; 3B -\nlow-risk metastatic disease risk\ngroup [Color figure can be viewed at\nwileyonlinelibrary.com]\n\n\n\nsystems for defining metastatic disease risk group largely coincided\nbut that 18% (164/901) of patients were low-risk on one system and\nhigh-risk on the other (or vice versa). There was no evidence that the\nclassifier used affected the overall conclusion with respect to the\nimpact of disease burden on treatment effects. The classification was\ndone with scans taken before randomisation but collected afterwards.\nThe minority of patients for whom suitable imaging was unavailable\nare presented separately. This group will have had either missing\nscans or been staged using techniques such as PSMA-PET or whole-\n\n\n\nbody MRI and thus are not directly classifiable using the separate sys-\ntems for LATITUDE and CHAARTED. Our results strongly support the\noption for use of abiraterone for all patients starting long-term hor-\nmone therapy for metastatic prostate cancer, irrespective of meta-\nstatic disease risk group.\n\n\n\nTable 4 shows the findings of STAMPEDE alongside the results\nfrom LATITUDE. Combining the aggregate results using standard\nmeta-analysis methods further clarifies the survival advantage for\nSOC + AAP over SOC; this extended to the wider population of\n\n---\n\n[Page 6, score=0.51]\n## Page 6\n\nJAMES ET AL.\n\n\n\nIJC\nINTERNATIONAL\nJOURNAL of CANCER\n\n\n\n<::logo: UICC\nUicc\nglobal cancer control\nOrange speech bubble with a globe icon and blue text::>\n\n\n\n427\n\n\n\nThe database was locked for this analysis on 3 April 2020. Median\nfollow-up was 73 months (6.1 years). Median time on abiraterone in the\nSOC + AAP group was 29 months (IQR 12-71) and 126 (25%) partici-\npants were still on their trial supplies of abiraterone at the data freeze.\n\n\n\nDeaths were reported in 573/1003 (57%) participants including\n329 (66%) in the SOC-alone group and 244 (49%) in the SOC + AAP\ngroup: HR = 0.60 for SOC + AAP (95% CI: 0.50-0.71, P < .0001)\n(Table 2, Figure 2A). There was no evidence of nonproportional haz-\nards in the treatment effect (P = .78). Median survival was 46 months\n(IQR 25, 92) in the SOC-alone group and 79 months (IQR 33, not\nreached) in the SOC + AAP group; 5-year survival was 41% (95% CI:\n37%-45%) for SOC-alone and 60% (95% CI: 50%-71%) for SOC +\nAAP. The sensitivity analyses excluding 157 patients (16%) did not\nchange the primary outcome measure results HR = 0.62 (95% CI:\n0.52-0.75; P = 0.14 \u00d7 10-6).\n\n\n\nFailure-free survival (FFS) events were reported for 437 (87%) in the SOC-alone group and 282 (56%) in the SOC + AAP group, HR = 0.34 for SOC + AAP (95% CI: 0.29-0.40, P < .0001) (Table 2, Figure 2B). A statistically significant benefit of treatment with SOC + AAP, compared to SOC-alone, was observed in all other secondary outcomes (Table 2, Figures S1 and S2): progression-free survival (HR = 0.58, 95% CI: 0.49-0.69, P < .0001), metastatic progression-free survival (HR = 0.60, 95% CI: 0.50-0.71, P < .0001), skeletal-related events (HR = 0.56, 95% CI: 0.41-0.76, P = .0008) and disease-specific survival (HR = 0.49, 95% CI: 0.39-0.60, P < .0001).\n\n\n\nFocusing on the 91% (909/1003) of patients for whom meta-static disease risk group could be calculated, the relative effect of SOC + AAP on overall survival was similar in both low-risk and high-risk metastatic disease risk groups (low-risk HR = 0.54, 95% CI: 0.40-0.74; high-risk HR = 0.54, 95% CI: 0.43-0.69, respectively)\n\n\n\nTABLE 2 Primary and secondary\noutcome measure\n\n\n\n|  |  |  |  |\n| --- | --- | --- | --- |\n|  | SOC-alone | SOC \u00b1 AAP |  |\n|  | n = 502 | n = 501 |  |\n| Overall survival | Overall survival | Overall survival | Overall survival |\n| Events | 329 | 244 |  |\n| % alive at 5 years (95% CI) | 41% (37-45) | 60% (55-64) |  |\n| HR = vs SOC-alone (95% CI), P | (Reference) | 0.60 (0.50-0.71) | <.0001 |\n| RMST (months), P (proportional hazards) | 54 (51-57) | 66 (63-69) | .78 |\n| Failure-free survival | Failure-free survival | Failure-free survival | Failure-free survival |\n| Events | 437 | 282 |  |\n| % event-free at 5 years (95% CI) | 13% (11-17) | 45% (41-50) |  |\n| HR = vs SOC-alone (95% CI), P | (Reference) | 0.34 (0.29-0.40) | <.0001 |\n| RMST (months), P (proportional hazards) | 24 (21-27) | 55 (51-59) | .0001 |\n| Progression-free survival | Progression-free survival | Progression-free survival | Progression-free survival |\n| Events | 323 | 241 |  |\n| % event-free at 5 years (95% CI) | 37% (33-42) | 54% (50-59) |  |\n| HR = vs SOC-alone (95% CI), P | (Reference) | 0.58 | <.0001 |\n| RMST (months), P (proportional hazards) | 47 (43-51) | 62 (59-66) | .038 |\n| Metastatic PFS | Metastatic PFS | Metastatic PFS | Metastatic PFS |\n| Events | 309 | 230 |  |\n| % event-free at 5 years (95% CI) | 40% (36-45) | 56% (52-61) |  |\n| HR = vs SOC-alone (95% CI), P | (Reference) | 0.60 (0.50-0.71) | <.0001 |\n| RMST (months), P (proportional hazards) | 50 (46-53) | 64 (60-67) | .13 |\n| Skeletal-related events | Skeletal-related events | Skeletal-related events | Skeletal-related events |\n| Events | 100 | 76 |  |\n| % event-free at 5 years (95% CI) | 76% (71-80) | 82% (78-86) |  |\n| HR = vs SOC-alone (95% CI), P | (Reference) | 0.56 (0.41-0.76) | .0008 |\n| RMST (months), P (proportional hazards) | 78 (74-81) | 84 (82-87) | .33 |\n| Disease-specific survival | Disease-specific survival | Disease-specific survival | Disease-specific survival |\n| Events | 255 | 156 |  |\n| % event-free at 5 years (95% CI) | 50% (45-55) | 72% (67-76) |  |\n| HR = vs SOC-alone (95% CI), P | (Reference) | 0.49 (0.39-0.60) | <.0001 |\n| RMST (months), P (proportional hazards) | 60 (57-64) | 75 (72-78) | .97 |\nAbbreviations: 95% CI, 95% confidence interval; AAP, abiraterone acetate + prednisolone/prednisone;\n_P_, _P_-value; Reference, reference arm; RMST, restricted mean survival time; SOC, standard-of-care.\n\n---\n\n[Page 7, score=0.50]\n## Page 7\n\n428\n\n\n\n<::IJC INTERNATIONAL JOURNAL OF CANCER\n: figure::>\n\n\n\n<::Logo: UICC global cancer control::>\n\n\n\nJAMES ET AL.\n\n\n\n(Table 3, Figure 3) [Correction added on 6 June 2022, after first online publication: The HR and the 95% CI values have been changed from 0.55 to 0.54 and 0.41-0.76 to 0.40-0.74, respectively.]. The effect of SOC + AAP was also observed to be similar in both low-risk and high-risk metastatic disease risk groups for the secondary outcomes of failure-free survival, progression-free survival, metastatic progression-free survival, skeletal-related events and disease-specific survival.\n\n\n\nFurther treatment was reported for most patients within 1 year of first disease progression (Table S1, Figure S3). Patients allocated to the SOC-alone group were more likely to receive abiraterone or enzalutamide within 1 year (abiraterone, 19% vs 2%, Chi-square P < .0001; enzalutamide, 16% vs 8%, Chi-square P = .002). Reported use of docetaxel within 1 year after first progression was higher among patients allocated to SOC + AAP (32% SOC-alone and 40% SOC + AAP, Chi-square P = .048).\n\n\n\n(A)\n<::Kaplan-Meier survival curve plot. The y-axis is \"Proportion surviving\" ranging from 0.00 to 1.00. The x-axis is \"Years from randomisation\" ranging from 0 to 8. Two lines are plotted: a red line representing SOC+AAP and a blue line representing SOC. Shaded areas around the lines indicate confidence intervals. Below the plot, a table provides data:\nYears from randomisation\n0 1 2 3 4 5 6 7 8\nSOC\nAt-risk 502 464 380 297 241 182 100 39 2\nCensored 0 4 8 9 11 30 91 141 171\nDied 0 34 114 196 250 290 311 322 329\nSOC+AAP\nAt-risk 501 474 421 357 314 284 176 56 6\nCensored 0 4 6 10 12 19 95 204 251\nDied 0 23 74 134 175 198 230 241 244\n: chart::>\n\n(B)\n<::Kaplan-Meier event-free curve plot. The y-axis is \"Proportion event-free\" ranging from 0.00 to 1.00. The x-axis is \"Years from randomisation\" ranging from 0 to 8. Two lines are plotted: a red line representing SOC+AAP and a blue line representing SOC. Shaded areas around the lines indicate confidence intervals. Below the plot, a table provides data:\nYears from randomisation\n0 1 2 3 4 5 6 7 8\nSOC\nAt-risk 502 242 136 96 72 57 39 10 0\nCensored 0 6 9 13 14 20 31 55 65\nFailure 0 254 357 393 416 425 432 437 437\nSOC+AAP\nAt-risk 501 403 331 273 236 200 128 43 4\nCensored 0 6 13 23 28 37 95 178 215\nFailure 0 92 157 205 237 264 278 280 282\n: chart::>\n\n\n\nFIGURE 2 Overall survival by\nallocated treatment: 2A - Overall\nsurvival by allocated treatment; 2B -\nFailure-free survival by allocated\ntreatment [Color figure can be viewed\nat wileyonlinelibrary.com]\n\n---\n\n[Page 8, score=0.48]\n## Page 8\n\nJAMES ET AL.\n\n\n\nIJC INTERNATIONAL JOURNAL of CANCER Uicc global cancer control\n\n\n\n429\n\n\n\nTABLE 3 Primary and Secondary outcomes, by metastatic disease risk group using LATITUDE criteria\n|  |  |  |  |  |  |  |\n| --- | --- | --- | --- | --- | --- | --- |\n| Metastatic disease risk group | Metastatic disease risk group | Metastatic disease risk group | Metastatic disease risk group | Metastatic disease risk group | Metastatic disease risk group | Metastatic disease risk group |\n|  | Low-risk | Low-risk | High-risk | High-risk | Unclassified\u00aa |  |\n|  | SOC-alone | SOC \u00b1 AAP | SOC-alone | SOC \u00b1 AAP | SOC-alone | SOC \u00b1 AAP |\n|  | n = 220 | n = 208 | n = 232 | n = 241 | n = 45 | n = 43 |\n| Overall survival | Overall survival | Overall survival | Overall survival | Overall survival | Overall survival | Overall survival |\n| Events | 118 | 75 | 178 | 145 | 29 | 22 |\n| % alive at 5 years, (95% CI) | 55% (48-61) | 72% (65-77) | 28% (22-34) | 49% (43-55) | 40% (26-54) | 59% (42-72) |\n| HR = vs SOC-alone (95% CI), P | 0.54 (0.40-0.74) | <.0001 | 0.54 (0.43-0.69) | <.0001 | 0.63 (0.33-1.23) | .180 |\n| Failure-free survival | Failure-free survival | Failure-free survival | Failure-free survival | Failure-free survival | Failure-free survival | Failure-free survival |\n| Events | 178 | 92 | 215 | 165 | 40 | 22 |\n| % event-free at 5 years, (95% CI) | 21% (16-26) | 61% (54-67) | 6% (3-9) | 31% (25-37) | 18% (8-30) | 44% (29-59) |\n| HR = vs SOC-alone (95% CI), P | 0.32 (0.25-0.42) | <.0001 | 0.28 (0.22-0.36) | <.0001 | 0.33 (0.17-0.64) | 0002 |\n| Progression-free survival | Progression-free survival | Progression-free survival | Progression-free survival | Progression-free survival | Progression-free survival | Progression-free survival |\n| Events | 118 | 73 | 169 | 146 | 32 | 19 |\n| % event-free at 5 years, (95% CI) | 50% (43-57) | 70% (63-76) | 25% (19-31) | 39% (33-46) | 36% (22-49) | 59% (42-73) |\n| HR = vs SOC-alone (95% CI), P | 0.55 (0.40-0.75) | <.0001 | 0.56 (0.46-0.72) | <.0001 | 0.38 (0.19-0.75) | .007 |\n| Metastatic PFS | Metastatic PFS | Metastatic PFS | Metastatic PFS | Metastatic PFS | Metastatic PFS | Metastatic PFS |\n| Events | 113 | 66 | 164 | 142 | 30 | 19 |\n| % event-free at 5 years, (95% CI) | 52% (45-59) | 73% (66-79) | 28% (22-34) | 41% (34-47) | 39% (25-53) | 59% (42-73) |\n| HR = vs SOC-alone (95% CI), P | 0.52 (0.37-0.72) | <.0001 | 0.59 (0.47-0.75) | <.0001 | 0.44 (0.22-0.88) | .009 |\n| Skeletal-related events | Skeletal-related events | Skeletal-related events | Skeletal-related events | Skeletal-related events | Skeletal-related events | Skeletal-related events |\n| Events | 35 | 24 | 55 | 44 | 9 | 8 |\n| % event-free at 5 years, (95% CI) | 84% (78-89) | 88% (82-92) | 65% (56-73) | 78% (71-83) | 77% (57-88) | 75% (56-87) |\n| HR = vs SOC-alone (95% CI), P | 0.47 (0.27-0.83) | .010 | 0.51 (0.33-0.79) | .008 | 0.83 (0.29-2.39) | .82 |\n| Disease-specific survival | Disease-specific survival | Disease-specific survival | Disease-specific survival | Disease-specific survival | Disease-specific survival | Disease-specific survival |\n| Events | 90 | 39 | 138 | 100 | 25 | 15 |\n| % event-free at 5 years, (95% CI) | 64% (57-70) | 86% (80-90) | 37% (30-44) | 60% (53-66) | 46% (31-60) | 72% (54-84) |\n| HR = vs SOC-alone (95% CI), P | 0.36 (0.24-0.54) | <.0001 | 0.49 (0.37-0.65) | <.0001 | 0.48 (0.22-1.04) | .050 |\naScans were unavailable for patients at sites in Switzerland, 14 further patients therefore do not appear in this table.\nAbbreviations: 95% CI, 95% confidence interval; AAP, abiraterone acetate + prednisolone/prednisone; P, P-value; Ref, reference arm; RMST, restricted\nmean survival time; SOC, standard-of-care.\n\n\n\nAdverse event data was reported at 2 years after randomisation for 136 patients in the SOC-alone group whose disease had not already progressed and 291 patients in the SOC + AAP group who were still on treatment. Of these, data was received from 133 (98%) SOC-alone and 286 (98%) SOC + AAP patients, respectively. The worst reported grade of toxicity was similar between randomised groups (_P_ = .29, Table S2) with grade 3 toxicity for 12 (9%) in the SOC-alone group patients and 20 (7%) in the SOC + AAP group, and no grade 4 or 5 toxicity. Four years after randomisation, the worst grade of toxicity reported was again similar between randomised groups (_P_ = .56).\n\n\n\n## 4 | DISCUSSION\n\nThis updated follow-up of the STAMPEDE 'abiraterone comparison' demonstrated that the effects reported previously\u2076 were robust. With 57% participants now deceased and a median follow-up of more than\n\n\n\n6 years, this represented a considerable increase in information over\nthe previous report (Table S3): these results are unlikely to change\nmeaningfully with any further follow-up.\n\n\n\nThere was no evidence of difference in effect size when the patients were separated by metastatic disease risk group using the system defined by researchers for the LATITUDE trial. 4,5 This is important as, in many regions, both the licenced indication and reimbursement for the drug are restricted to the high-risk group defined by the eligibility criteria for the LATITUDE trial. We have shown previously that the 'low-risk' metastatic disease risk group constitutes >40% of patients presenting with metastatic prostate cancer. 6,10\nThe overall effect of abiraterone may be underestimated as the effect size was larger in both the low-risk and high-risk groups, indicating potential confounding effect of risk on the association between treatment and survival. We also carried out additional analyses using the definition of metastatic disease risk group employed in the CHAARTED trial. 11 Our previous analysis showed that the two\n\n---\n\n[Page 3, score=0.47]\n## Page 3\n\n424\n\n\n\n<::IJC INTERNATIONAL JOURNAL OF CANCER: logo::>\n\n\n\n<::logo: UICC\nUICC\nglobal cancer control\nAn orange speech bubble icon with a globe symbol next to the text \"UICC\".::>\n\n\n\nJAMES ET AL.\n\n\n\nFunding information\nThe sponsor was University College London,\ntransferred during the comparison from the\nUK Medical Research Council (MRC). The trial\nwas conducted by the MRC Clinical Trials Unit\nat UCL.\nIn the United Kingdom, it was funded by\nCancer Research UK (CRUK_A12459) and the\nMedical Research Council\n(MRC_MC_UU_12023/25,\nMC_UU_00004/01), and supported by the UK\nClinical Research Network. In Switzerland, it\nwas funded by the Swiss Group for Cancer\nClinical Research (SAKK). Industry\ncollaboration and support for this comparison\nhas been provided to the STAMPEDE protocol\nby Janssen. Further support to STAMPEDE\nhas been provided by Astellas, Clovis\nOncology, Janssen, Novartis, Pfizer and\nSanofi-Genzyme. MRC employees were\ncentral to the conduct of the trial and the\ndevelopment of this article.\nThe funding bodies had no role in determining\nthis publication.\nNDJ, CCP and DPD were supported by the\nNational Institute for Health Research (NIHR)\nBiomedical Research Centre at The Royal\nMarsden NHS Foundation Trust and the\nInstitute of Cancer Research, London. The\nviews expressed are those of the authors and\nnot necessarily those of the NIHR or the\nDepartment of Health and Social Care.\n\n\n\nThe comparison randomised patients 1:1 to SOC-alone with or without daily abiraterone acetate 1000 mg + prednisolone 5 mg (SOC + AAP), continued until disease progression. The primary outcome measure was overall survival. Metastatic disease risk group was clas- sified retrospectively using baseline CT and bone scans by central radiological review and pathology reports. Analyses used Cox proportional hazards and flexible parametric models, accounting for baseline stratification factors. One thousand and three patients were con- temporaneously randomised (November 2011 to January 2014): median age 67 years; 94% newly-diagnosed; metastatic disease risk group: 48% high, 44% low, 8% unassessable; median PSA 97 ng/mL. At 6.1 years median follow-up, 329 SOC-alone deaths (118 low-risk, 178 high-risk) and 244 SOC + AAP deaths (75 low-risk, 145 high- risk) were reported. Adjusted HR = 0.60 (95% CI: 0.50-0.71; P = 0.31 \u00d7 10-9) favoured SOC + AAP, with 5-years survival improved from 41% SOC-alone to 60% SOC + AAP. This was similar in low-risk (HR = 0.55; 95% CI: 0.41-0.76) and high-risk (HR = 0.54; 95% CI: 0.43-0.69) patients. Median and current maximum time on SOC + AAP was 2.4 and 8.1 years. Toxicity at 4 years postrandomisation was similar, with 16% patients in each group reporting grade 3 or higher toxicity. A sustained and substantial improvement in overall survival of all metastatic prostate cancer patients was achieved with SOC + abiraterone acetate + prednisolone, irrespective of metastatic disease risk group.\n\n\n\nKEYWORDS\nabiraterone, clinical trial, hormone therapy, phase III, prostate cancer, randomised controlled\ntrial, survival\n\n\n\nWhat's new?\nInitial results from the STAMPEDE trial for advanced prostate cancer showed that adding abiraterone acetate and prednisone (AAP) to androgen deprivation therapy improved progression-free survival. Here, the authors present long-term results of metastatic patients in the STAMPEDE trial. Median follow-up increased from 52 to 73 months. They found that AAP improved overall survival of all metastatic prostate cancer patients, whether their disease was high-risk or low-risk.\n\n\n\n1 | INTRODUCTION\n\nIntensifying Androgen Deprivation Therapy (ADT) with abiraterone,\nenzalutamide or apalutamide is effective for metastatic prostate can-\ncer. 1-7 The LATITUDE trial defined metastatic disease risk groups and\nrecruited only patients from a predefined 'high-risk' group. That trial has\nreported a sustained improvement in survival after a median of\n52 months. The primary analysis of the STAMPEDE 'abiraterone com-\nparison' was presented in 2017 and reported clinically meaningful and\nstatistically significant improvements in overall and progression-free sur-\nvival for adding abiraterone acetate with prednisolone to life-long ADT\ncompared to life-long ADT alone. 6 A long-term analysis was planned for\n3 years after the primary analysis. In 2019, the STAMPEDE Trial\nSteering Committee, which includes members independent of the Trial\nManagement Group, agreed that future analyses should present results\nseparately for metastatic (M1) and nonmetastatic (M0) patients.\n\n\n\nWe present here the long-term results of metastatic patients in\nthe STAMPEDE 'abiraterone comparison' with an increase in median\n\n\n\nfollow-up to 73 months and an increase >50% in the number of deaths. This analysis also incorporates the separation of cases by met-astatic disease risk group, classified retrospectively, using the system adopted in the LATITUDE trial.<sup>4,5</sup> The extended follow-up from our previous article<sup>8</sup> with additional events is of particular importance in clarifying treatment effects for patients with low-risk disease since they were excluded from the LATITUDE trial.<sup>4,5</sup>\n\n\n\n2 | METHODS\n\nThe patients, design, treatment and analytic approach have been\ndescribed in detail previously\u2076 and are summarised here.\n\n\n\n## 2.1 | Study participants\n\nFor this comparison in STAMPEDE, eligible patients had metastatic prostate cancer that was newly-diagnosed or relapsing after previous",
+        "pages_returned": [
+          9,
+          6,
+          7,
+          8,
+          3
+        ]
+      }
+    },
+    {
+      "turn": 4,
+      "role": "tool",
+      "name": "search_chunks",
+      "args": {
+        "query": "Median progression free survival overall high volume low volume treatment control"
+      },
+      "response": {
+        "matches": [
+          {
+            "page": 6,
+            "score": 0.49960678815841675
+          },
+          {
+            "page": 7,
+            "score": 0.49881359934806824
+          },
+          {
+            "page": 9,
+            "score": 0.4921502470970154
+          },
+          {
+            "page": 3,
+            "score": 0.47638848423957825
+          },
+          {
+            "page": 8,
+            "score": 0.46561795473098755
+          }
+        ],
+        "formatted_chunks": "All retrieved pages have already been provided. Try a different query or submit with what you have.",
+        "pages_returned": []
+      }
+    },
+    {
+      "turn": 5,
+      "role": "tool",
+      "name": "search_chunks",
+      "args": {
+        "query": "median progression free survival"
+      },
+      "response": {
+        "matches": [
+          {
+            "page": 6,
+            "score": 0.478816419839859
+          },
+          {
+            "page": 7,
+            "score": 0.4500409960746765
+          },
+          {
+            "page": 2,
+            "score": 0.444993257522583
+          },
+          {
+            "page": 3,
+            "score": 0.4268531799316406
+          },
+          {
+            "page": 9,
+            "score": 0.4222051501274109
+          }
+        ],
+        "formatted_chunks": "All retrieved pages have already been provided. Try a different query or submit with what you have.",
+        "pages_returned": []
+      }
+    },
+    {
+      "turn": 6,
+      "role": "tool",
+      "name": "search_chunks",
+      "args": {
+        "query": "median overall survival high volume"
+      },
+      "response": {
+        "matches": [
+          {
+            "page": 6,
+            "score": 0.47734272480010986
+          },
+          {
+            "page": 9,
+            "score": 0.47605156898498535
+          },
+          {
+            "page": 7,
+            "score": 0.461027592420578
+          },
+          {
+            "page": 3,
+            "score": 0.43766695261001587
+          },
+          {
+            "page": 8,
+            "score": 0.4335067868232727
+          }
+        ],
+        "formatted_chunks": "All retrieved pages have already been provided. Try a different query or submit with what you have.",
+        "pages_returned": []
+      }
+    },
+    {
+      "turn": 7,
+      "role": "tool",
+      "name": "search_chunks",
+      "args": {
+        "query": "median overall survival low volume"
+      },
+      "response": {
+        "matches": [
+          {
+            "page": 6,
+            "score": 0.458048015832901
+          },
+          {
+            "page": 9,
+            "score": 0.4512234926223755
+          },
+          {
+            "page": 7,
+            "score": 0.4418345093727112
+          },
+          {
+            "page": 8,
+            "score": 0.42831069231033325
+          },
+          {
+            "page": 3,
+            "score": 0.4188286066055298
+          }
+        ],
+        "formatted_chunks": "All retrieved pages have already been provided. Try a different query or submit with what you have.",
+        "pages_returned": []
+      }
+    },
+    {
+      "turn": 8,
+      "role": "tool",
+      "name": "submit_extraction",
+      "args": {
+        "results_keys": [
+          "Median PFS (mo) | Overall | Treatment",
+          "Median PFS (mo) | High volume | Control",
+          "Median PFS (mo) | Overall | Control",
+          "Median OS (mo) | Overall | Treatment",
+          "Median OS (mo) | Low volume | Control",
+          "Median PFS (mo) | High volume | Treatment",
+          "Median OS (mo) | Overall | Control",
+          "Median PFS (mo) | Low volume | Control",
+          "Median PFS (mo) | Low volume | Treatment",
+          "Median OS (mo) | High volume | Control",
+          "Median OS (mo) | Low volume | Treatment",
+          "Median OS (mo) | High volume | Treatment"
+        ]
+      },
+      "response": {
+        "submitted": [
+          "Median PFS (mo) | Overall | Treatment",
+          "Median PFS (mo) | High volume | Control",
+          "Median PFS (mo) | Overall | Control",
+          "Median OS (mo) | Overall | Treatment",
+          "Median OS (mo) | Low volume | Control",
+          "Median PFS (mo) | High volume | Treatment",
+          "Median OS (mo) | Overall | Control",
+          "Median PFS (mo) | Low volume | Control",
+          "Median PFS (mo) | Low volume | Treatment",
+          "Median OS (mo) | High volume | Control",
+          "Median OS (mo) | Low volume | Treatment",
+          "Median OS (mo) | High volume | Treatment"
+        ]
+      }
+    }
+  ],
+  "results": {
+    "Median PFS (mo) | Overall | Treatment": {
+      "value": "Not reported",
+      "reasoning": "Median progression-free survival for all patients in the treatment arm is not explicitly reported in the document.",
+      "found": false,
+      "attribution": []
+    },
+    "Median PFS (mo) | High volume | Control": {
+      "value": "Not reported",
+      "reasoning": "Median progression-free survival for high volume patients in the control arm is not explicitly reported in the document.",
+      "found": false,
+      "attribution": []
+    },
+    "Median PFS (mo) | Overall | Control": {
+      "value": "Not reported",
+      "reasoning": "Median progression-free survival for all patients in the control arm is not explicitly reported in the document.",
+      "found": false,
+      "attribution": []
+    },
+    "Median OS (mo) | Overall | Treatment": {
+      "value": "79",
+      "reasoning": "Median survival for SOC + AAP group (treatment arm) is reported as 79 months.",
+      "found": true,
+      "attribution": [
+        {
+          "page": 6,
+          "modality": "text"
+        }
+      ]
+    },
+    "Median OS (mo) | Low volume | Control": {
+      "value": "Not reported",
+      "reasoning": "Median overall survival for low volume patients in the control arm is not explicitly reported in the document.",
+      "found": false,
+      "attribution": []
+    },
+    "Median PFS (mo) | High volume | Treatment": {
+      "value": "Not reported",
+      "reasoning": "Median progression-free survival for high volume patients in the treatment arm is not explicitly reported in the document.",
+      "found": false,
+      "attribution": []
+    },
+    "Median OS (mo) | Overall | Control": {
+      "value": "46",
+      "reasoning": "Median survival for SOC-alone group (control arm) is reported as 46 months.",
+      "found": true,
+      "attribution": [
+        {
+          "page": 6,
+          "modality": "text"
+        }
+      ]
+    },
+    "Median PFS (mo) | Low volume | Control": {
+      "value": "Not reported",
+      "reasoning": "Median progression-free survival for low volume patients in the control arm is not explicitly reported in the document.",
+      "found": false,
+      "attribution": []
+    },
+    "Median PFS (mo) | Low volume | Treatment": {
+      "value": "Not reported",
+      "reasoning": "Median progression-free survival for low volume patients in the treatment arm is not explicitly reported in the document.",
+      "found": false,
+      "attribution": []
+    },
+    "Median OS (mo) | High volume | Control": {
+      "value": "Not reported",
+      "reasoning": "Median overall survival for high volume patients in the control arm is not explicitly reported in the document.",
+      "found": false,
+      "attribution": []
+    },
+    "Median OS (mo) | Low volume | Treatment": {
+      "value": "Not reported",
+      "reasoning": "Median overall survival for low volume patients in the treatment arm is not explicitly reported in the document.",
+      "found": false,
+      "attribution": []
+    },
+    "Median OS (mo) | High volume | Treatment": {
+      "value": "Not reported",
+      "reasoning": "Median overall survival for high volume patients in the treatment arm is not explicitly reported in the document.",
+      "found": false,
+      "attribution": []
+    }
+  }
+}

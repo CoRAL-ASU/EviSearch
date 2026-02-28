@@ -40,7 +40,7 @@ def main():
         found = []
         for d in recondir.iterdir():
             if d.is_dir():
-                f = d / "reconciliation" / "reconciled_results.json"
+                f = d / "reconciliation_agent" / "reconciled_results.json"
                 if f.exists():
                     found.append(d.name)
         for x in sorted(found):
@@ -54,21 +54,22 @@ def main():
         recondir = RESULTS_ROOT
         candidates = []
         for d in recondir.iterdir() if recondir.exists() else []:
-            if d.is_dir() and (d / "reconciliation" / "reconciled_results.json").exists():
+            if d.is_dir() and (d / "reconciliation_agent" / "reconciled_results.json").exists():
                 candidates.append(d.name)
         doc_id = candidates[0] if candidates else (docs[0]["doc_id"] if docs else "")
     if not doc_id:
         print("No document. Use --list or provide doc_id.", file=sys.stderr)
         sys.exit(1)
 
-    in_path = RESULTS_ROOT / doc_id / "reconciliation" / "reconciled_results.json"
+    in_path = RESULTS_ROOT / doc_id / "reconciliation_agent" / "reconciled_results.json"
     if not in_path.exists():
         print(f"No reconciled results at {in_path}", file=sys.stderr)
         sys.exit(1)
 
     print(f"Loading {in_path}…", file=sys.stderr)
     data = json.loads(in_path.read_text(encoding="utf-8"))
-    columns = data.get("columns") or []
+    from web.main_app import _reconciliation_agent_to_columns
+    columns = _reconciliation_agent_to_columns(data.get("columns") or {})
 
     comparison = load_comparison_data(doc_id)
     rows = comparison.get("comparison") or []
@@ -82,7 +83,7 @@ def main():
     )
 
     result = {"doc_id": doc_id, "columns": enriched}
-    out_path = Path(args.output) if args.output else in_path
+    out_path = Path(args.output) if args.output else (RESULTS_ROOT / doc_id / "reconciliation_agent" / "attribution_results.json")
     out_path.write_text(json.dumps(result, indent=2), encoding="utf-8")
     print(f"Wrote {out_path}", file=sys.stderr)
 

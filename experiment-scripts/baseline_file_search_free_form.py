@@ -77,6 +77,23 @@ parser.add_argument("--reliability-runs", type=int, default=1,
 
 args = parser.parse_args()
 
+# Resolve PDF path relative to repo root (so dataset/... works from any cwd)
+_pdf_path = Path(args.pdf)
+if not _pdf_path.is_absolute() and not _pdf_path.exists():
+    _resolved = repo_root / args.pdf
+    if _resolved.exists():
+        args.pdf = str(_resolved)
+_pdf_path = Path(args.pdf)
+if not _pdf_path.exists():
+    raise FileNotFoundError(
+        f"PDF not found: {args.pdf}\n"
+        f"Resolved path: {_pdf_path.resolve()}\n"
+        f"Run from repo root or use absolute path."
+    )
+if _pdf_path.stat().st_size == 0:
+    raise ValueError(f"PDF is empty: {args.pdf}")
+print(f"📄 PDF: {_pdf_path.resolve()} ({_pdf_path.stat().st_size:,} bytes)")
+
 # Set default model based on provider
 if args.model is None:
     args.model = "gpt-4.1" if args.provider == "openai" else "gemini-2.0-flash-001"
@@ -148,15 +165,34 @@ class PDFQueryProvider:
                 self.client = genai.GenerativeModel(model)
     
     def upload_pdf(self, pdf_path: str):
-        """Upload PDF and return handle."""
-        print(f"📤 Uploading PDF to {self.provider}...", end=" ")
+        """Upload PDF and return handle. Uses Vector Store for reliable file_search access."""
+        pdf_path = str(Path(pdf_path).resolve())
+        if not Path(pdf_path).exists():
+            raise FileNotFoundError(f"PDF not found: {pdf_path}")
+        print(f"📤 Uploading PDF to {self.provider}...", end=" ", flush=True)
         
         if self.provider == "openai":
-            with open(pdf_path, "rb") as f:
-                pdf_file = self.client.files.create(file=f, purpose="assistants")
-            self.pdf_handle = {"file_id": pdf_file.id}
+            # Create vector store and upload PDF (required for file_search to work correctly)
+            vector_store = self.client.beta.vector_stores.create(name="PDF Extractor")
+            try:
+                with open(pdf_path, "rb") as f:
+                    file_batch = self.client.beta.vector_stores.file_batches.upload_and_poll(
+                        vector_store_id=vector_store.id,
+                        files=[f],
+                    )
+            except Exception as e:
+                raise RuntimeError(f"Vector store upload failed: {e}") from e
+            if file_batch.status != "completed":
+                raise RuntimeError(
+                    f"Vector store upload failed: batch status={file_batch.status}, "
+                    f"file_counts={getattr(file_batch, 'file_counts', 'unknown')}"
+                )
+            # file_search can return empty results for 5+ seconds after "completed"
+            # https://community.openai.com/t/bug-vector-store-status-completed-does-not-guarantee-searchability
+            print("waiting for index...", end=" ", flush=True)
+            time.sleep(12)
             
-            # Create assistant with file_search
+            # Create assistant with file_search, attaching the vector store
             self.assistant = self.client.beta.assistants.create(
                 name="PDF Extractor (file_search)",
                 instructions=(
@@ -169,8 +205,10 @@ class PDFQueryProvider:
                 ),
                 model=self.model,
                 tools=[{"type": "file_search"}],
+                tool_resources={"file_search": {"vector_store_ids": [vector_store.id]}},
             )
-            print(f"✅ File ID: {pdf_file.id}, Assistant ID: {self.assistant.id}")
+            self.pdf_handle = {"vector_store_id": vector_store.id}
+            print(f"✅ Vector store: {vector_store.id}, Assistant ID: {self.assistant.id}")
         
         elif self.provider == "gemini":
             if GENAI_NEW:
@@ -195,16 +233,9 @@ class PDFQueryProvider:
         Returns: (response_text, input_tokens, output_tokens)
         """
         if self.provider == "openai":
-            # Create thread with file_search
+            # Create thread with prompt only — PDF is in assistant's vector store
             thread = self.client.beta.threads.create(
-                messages=[{
-                    "role": "user",
-                    "content": prompt,
-                    "attachments": [{
-                        "file_id": self.pdf_handle["file_id"],
-                        "tools": [{"type": "file_search"}]
-                    }]
-                }]
+                messages=[{"role": "user", "content": prompt}]
             )
             
             # Run assistant
@@ -261,12 +292,14 @@ class PDFQueryProvider:
                 return response.text.strip(), in_tok, out_tok
     
     def cleanup_pdf(self):
-        """Clean up uploaded PDF if needed."""
+        """Clean up uploaded resources if needed."""
         if self.provider == "openai" and self.pdf_handle:
             try:
-                self.client.files.delete(self.pdf_handle["file_id"])
-                print("🗑️  Cleaned up OpenAI file")
-            except:
+                vs_id = self.pdf_handle.get("vector_store_id")
+                if vs_id:
+                    self.client.beta.vector_stores.delete(vs_id)
+                    print("🗑️  Cleaned up OpenAI vector store")
+            except Exception:
                 pass
             
 

@@ -1,0 +1,490 @@
+{
+  "doc_id": "NCT01809691_Aggarwal_SWOG1216_JCO'22",
+  "tool_calls_sequence": [
+    {
+      "name": "get_chunks_by_page",
+      "args": {
+        "page_numbers": [
+          1,
+          2
+        ]
+      }
+    },
+    {
+      "name": "search_chunks",
+      "args": {
+        "query": "Docetaxel administration N (%) treatment arm control arm"
+      }
+    },
+    {
+      "name": "search_chunks",
+      "args": {
+        "query": "Median Age (years) treatment arm control arm"
+      }
+    },
+    {
+      "name": "search_chunks",
+      "args": {
+        "query": "Median On-Treatment Duration (mo) treatment arm control arm"
+      }
+    },
+    {
+      "name": "search_chunks",
+      "args": {
+        "query": "Number of Deaths treatment arm control arm"
+      }
+    },
+    {
+      "name": "search_chunks",
+      "args": {
+        "query": "PFS Rate (%) treatment arm control arm"
+      }
+    },
+    {
+      "name": "search_chunks",
+      "args": {
+        "query": "TTPSA (mo) treatment arm control arm"
+      }
+    },
+    {
+      "name": "submit_extraction",
+      "args": {
+        "results_keys": [
+          "Median Age (years) | Control",
+          "Docetaxel administration - N (%) | Control",
+          "Docetaxel administration - N (%) | Treatment",
+          "PFS Rate (%) | Overall | Treatment",
+          "TTPSA (mo) | Treatment",
+          "Treatment Class",
+          "No. of Deaths - N | Control",
+          "TTPSA (mo) | Control",
+          "No. of Deaths - N | Treatment",
+          "PFS Rate (%) | Overall | Control",
+          "Median On-Treatment Duration (mo) | Treatment",
+          "Median On-Treatment Duration (mo) | Control",
+          "Median Age (years) | Treatment",
+          "Type of Therapy",
+          "Trial"
+        ]
+      }
+    }
+  ],
+  "conversation": [
+    {
+      "turn": 0,
+      "role": "user",
+      "content": "Extract values for these columns. Document has 14 pages.\n\nCOLUMNS:\n\n---\nColumn 1: Treatment Class\nDefinition: What is the categorization or classification of the treatment or therapy received by participants in the clinical trial?. If reported, provide the value; otherwise use 'Not reported'.\n---\nColumn 2: Trial\nDefinition: What name of the clinical study or experiment being referenced?. If reported, provide the value; otherwise use 'Not reported'.\n---\nColumn 3: Type of Therapy\nDefinition: What is the description of the type of treatment or intervention provided to participants in the clinical trial?. If reported, provide the value; otherwise use 'Not reported'.\n---\nColumn 4: Docetaxel administration - N (%) | Treatment\nDefinition: What percentage of participants in the treatment arm of the clinical trial who received docetaxel before or during the trial? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.\n---\nColumn 5: Docetaxel administration - N (%) | Control\nDefinition: What number and percentage of participants who received docetaxel before or during the trial in the control arm of the clinical trial? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.\n---\nColumn 6: Median Age (years) | Treatment\nDefinition: What median age in years of participants included in the treatment arm of the clinical trial? If reported, include the value; use 'Not reported' if missing.\n---\nColumn 7: Median Age (years) | Control\nDefinition: What the median age of participants included in the control arm of the clinical trial? If reported, include the value; use 'Not reported' if missing.\n---\nColumn 8: Median On-Treatment Duration (mo) | Treatment\nDefinition: What is the median duration in months that participants in the treatment arm of the trial received on-treatment therapy? If reported, include the value; use 'Not reported' if missing.\n---\nColumn 9: Median On-Treatment Duration (mo) | Control\nDefinition: What is the median duration in months of participants receiving treatment in the control arm of the clinical trial? If reported, include the value; use 'Not reported' if missing.\n---\nColumn 10: No. of Deaths - N | Treatment\nDefinition: What the number of participants who died in the treatment arm of the clinical trial?.\n---\nColumn 11: No. of Deaths - N | Control\nDefinition: What number of deaths that occurred in the control arm of the clinical trial?.\n---\nColumn 12: PFS Rate (%) | Overall | Treatment\nDefinition: What the hazard ratio with confidence intervals of progression-free survival (PFS) of all comparisons in all participants, regardless of metastasis type or volume, in the treatment arm of the trial? If reported, include the rate (percentage) and any accompanying details. If multiple arms are reported, list each arm separately. Use 'Not reported' if missing.\n---\nColumn 13: PFS Rate (%) | Overall | Control\nDefinition: What hazard ratio with confidence intervals of Progression-Free Survival (PFS) of all comparisons in all participants in the control arm of the trial? If reported, include the rate (percentage) and any accompanying details. If multiple arms are reported, list each arm separately. Use 'Not reported' if missing.\n---\nColumn 14: TTPSA (mo) | Treatment\nDefinition: What time To Progression of Serum Androgen (in months) in the treatment arm of the clinical trial? If reported, include the value; use 'Not reported' if missing.\n---\nColumn 15: TTPSA (mo) | Control\nDefinition: What time to Progressive Serum Androgen (TTPSA) in months for participants in the control arm of the clinical trial? If reported, include the value; use 'Not reported' if missing.\n\nFor informational columns (trial name, arms, etc.), use get_chunks_by_page([1, 2]) first. For specific columns, use search_chunks. Submit when you have enough information."
+    },
+    {
+      "turn": 2,
+      "role": "tool",
+      "name": "get_chunks_by_page",
+      "args": {
+        "page_numbers": [
+          1,
+          2
+        ]
+      },
+      "response": {
+        "formatted_chunks": "[Page 1]\n## Page 1\n\n<::logo: Check for updates\nA circular icon with a red bookmark on a yellow and blue background::>\n\n\n\noriginal report\nOrteronel for Metastatic\nHormone-Sensitive Prostate Cancer: A\nMulticenter, Randomized, Open-Label Phase III\nTrial (SWOG-1216)\n\n\n\nNeeraj Agarwal, MD\u00b9; Catherine M. Tangen, DrPH\u00b2; Maha H.A. Hussain, MD\u00b3; Shilpa Gupta, MD\u2074; Melissa Plets, MS\u00b2; Primo N. Lara, MD\u2075;\nAndrea L. Harzstark, MD\u2076; Przemyslaw W. Twardowski, MD\u2077; Channing J. Paller, MD\u2078; Dylan Zylla, MD\u2079; Matthew R. Zibelman, MD\u00b9\u2070;\nEllis Levine, MD\u00b9\u00b9; Bruce J. Roth, MD\u00b9\u00b2; Amir Goldkorn, MD\u00b9\u00b3; Daniel A. Vaena, MD\u00b9\u2074,\u00b9\u2075; Manish Kohli, MD\u00b9,\u00b9\u2076; Tony Crispino\u00b9\u2077;\nNicholas J. Vogelzang, MD\u00b9\u2078; Ian M. Thompson Jr, MD\u00b9\u2079; and David I. Quinn, MD\u00b9\u00b3\n\n\n\nabstr\nPURPOSE Orteronel (TAK-700) is a nonsteroidal 17,20-lyase inhibitor suppressing androgen synthesis. We evaluated the clinical benefit of orteronel when added to androgen deprivation therapy (ADT) in patients with newly diagnosed metastatic hormone-sensitive prostate cancer.\n\n\n\nact\nMETHODS In this open-label randomized phase III study, patients with metastatic hormone-sensitive prostate cancer were randomly assigned 1:1 to ADT with orteronel (300 mg oral twice daily; experimental arm) or ADT with bicalutamide (50 mg oral once daily; control arm). The primary objective was the comparison of overall survival (OS), targeting a 33% improvement in median survival. A stratified log-rank test with a one-sided P \\u2264 .022 would indicate statistical significance. Secondary end points were progression-free survival (PFS), prostate-specific antigen (PSA) level at 7 months (\\u2264 0.2 v 0.2 to \\u2264 4 v > 4 ng/mL), and adverse event profile.\n\n\n\n**RESULTS** Among 1,279 patients included in the analysis, 638 were randomly assigned to the ADT plus orteronel arm and 641 to the control arm. The median age was 68 years; 49% had extensive disease. After a median follow-up of 4.9 years, there was a significant improvement in PFS (median 47.6 v 23.0 months, hazard ratio 0.58; 95% CI, 0.51 to 0.67; P < .0001) and PSA response at 7 months (P < .0001), but not in OS (median 81.1 v 70.2 months, hazard ratio 0.86; 95% CI, 0.72 to 1.02; P = .040, one-sided). More grade 3/4 adverse events occurred in the experimental versus the control arms (43% v 14%). Postprotocol life-prolonging therapy was received by 77.4% of patients in the control arm and 61.3% of patients in the orteronel arm.\n\n\n\n**CONCLUSION** The study did not meet the primary end point of improved OS with orteronel. The lack of correlation of PFS and PSA response with OS raises concerns over assumption of their consistent surrogacy for OS in the context of extensive postprotocol therapy in this setting.\n\n\n\nJ Clin Oncol 00. \u00a9 2022 by American Society of Clinical Oncology\n\n\n\n## INTRODUCTION\nThe cornerstone of treatment for metastatic hormone-sensitive prostate cancer (mHSPC) is androgen deprivation therapy (ADT) with medical or surgical castration.\u00b9 However, disease progression universally occurs on ADT, mediated by extragonadal production of androgens or androgen-independent activation of androgen receptor.\u00b9 The treatment paradigm of mHSPC has evolved over the past decade with multiple trials showing improved survival by intensification of ADT with either docetaxel chemotherapy or abiraterone, which inhibits a pivotal enzyme in intra- and extragonadal androgen synthesis (ie, CYP17 [CYP17 hydroxylase, CYP17, 20 lyase]) located in the testes and adrenal glands. \u00b9\u207b\u2075 More recently, two direct, potent, and specific inhibitors of the androgen receptor, apalutamide and\n\n\n\nenzalutamide, were approved on the basis of improved survival in phase III trials. 1,6,7 Currently, the most common sequencing of these agents in the treatment of metastatic prostate cancer is abiraterone acetate followed by enzalutamide or docetaxel. 8 One challenge with abiraterone acetate is the requirement for coadministration of corticosteroids because of inhibition of CYP17 hydroxylase.1 This results in diminished cortisol production and leads to secondary mineralocorticoid excess, with symptoms such as electrolyte abnormalities, hypertension, and edema.1\n\n\n\nOrteronel (TAK-700) is a novel CYP17 inhibitor. In\ncomparison with abiraterone acetate, orteronel inhibits\nCYP17, 20 lyase with greater specificity compared with\nCYP17 hydroxylase and does not generally lead to the\nsyndrome of secondary mineralocorticoid excess.9,10\n\n\n\nASCO\u00ae\n\n\n\nJournal of Clinical Oncology\u00ae\n\n\n\n1\n\n\n\nDownloaded from ascopubs.org by Mayo Foundation--Rochester on April 26, 2022 from 129.176.151.025 Copyright \u00a9 2022 American Society of Clinical Oncology. All rights reserved.\n\n\n\nS\n\n\n\nASSOCIATED\nCONTENT\nAppendix\n**Data Sharing**\n**Statement**\n**Protocol**\nAuthor affiliations\nand support\ninformation (if\napplicable) appear\nat the end of this\narticle.\nAccepted on March\n18, 2022 and\npublished at\nascopubs.org/journal/\njco on April 21, 2022:\nDOI https://doi.org/10.\n1200/JC0.21.02517\n\n---\n\n[Page 2]\n## Page 2\n\nAgarwal et al\n\n\n\nCONTEXT\n\n**Key Objective**\nWe examined if adding orteronel, a novel androgen axis inhibitor, to androgen deprivation therapy (ADT) would improve outcomes compared with ADT plus bicalutamide in men with metastatic hormone-sensitive prostate cancer in a phase III trial.\n\n**Knowledge Generated**\nAddition of orteronel to ADT resulted in a significant improvement in progression-free survival and prostate-specific antigen response but not in overall survival (OS), the primary end point. Interestingly, the median OS of patients in the control arm of SWOG-1216 was 24 months higher than that in patients with metastatic hormone-sensitive prostate cancer on the SWOG-9346 trial (reported in 2013) who had similar disease severity and also received ADT plus bicalutamide (70.2 v46 months).\n\n\n\n## Relevance\nThese results indicate that orteronel is likely not an effective androgen axis inhibitor compared with recently approved agents in this setting. Higher than anticipated OS of patients in the control arm is reflective of therapeutic advancements made over the past decade in men with metastatic prostate cancer.\n\n\n\nWe hypothesized that the addition of orteronel to ADT would improve overall survival (OS), progression-free survival (PFS), and prostate-specific antigen (PSA) response relative to bicalutamide with ADT among men with mHSPC.\n\n\n\n## METHODS\n\n### Trial Design and Conduct\n\nThe S1216 trial was a phase III, randomized, open-label, multicenter trial involving patients with mHSPC. The trial was designed by the SWOG study team and was approved by the National Cancer Institute (NCI). Patients were enrolled from 248 academic and community centers throughout the United States, incorporating three other NCI-funded cooperative groups (ECOG-ACRIN, ALLIANCE, and NRG). The NCI Central Institutional Review Board approved the initial version of the Protocol (online only) and all subsequent amendments. The study was conducted in accordance with the International Conference on Harmonization of Good Clinical Practice guidelines and the principles of the Declaration of Helsinki. Signed written consent was obtained from all patients. First and last authors (N.A. and D.I.Q.) and the statisticians (C.M.T. and M.P.) among the authors assume responsibility for the completeness and accuracy of the data and analyses and for the fidelity of the trial to the Protocol.\n\n\n\n## Patients and Interventions\nEligible patients were required to have histologically con-\nfirmed adenocarcinoma of the prostate and metastatic\ndisease as evidenced by soft tissue and/or bony metasta-\nses. Enrolled patients had a Zubrod performance status of\n0-2; a Zubrod performance status of 3 was allowed if from\nbone pain only and a PSA \u2265 2.0 ng/mL. No other prior\nsystemic therapy for metastatic prostate cancer was\nallowed (with the exception of up to 30 days of ADT for\n\n\n\nmetastatic disease before registration), and at least 6 months\nmust have elapsed since completion of prior neoadjuvant\nand/or adjuvant ADT. Concomitant radiotherapy was allowed\nonly for baseline symptoms per investigator's clinical judg-\nment during the first 4 months of protocol treatment. Patients\nwho had not started any therapy with luteinizing hormone-\nreleasing hormone (LHRH) agonist, antagonist, or orchi-\nectomy (early induction group) and patients who had already\nstarted therapy with LHRH agonist, antagonist, or orchi-\nectomy within 30 days before registration (late induction\ngroup) were eligible. Patients who were deemed to have\nextensive mHSPC were eligible for enrollment if, on the basis\nof the judgment of the treating physician, they were un-\nsuitable candidates for docetaxel or if they declined doce-\ntaxel therapy. 11\n\n\n\nExclusion criteria included brain metastases; prior therapy with ketoconazole, abiraterone acetate, or enzalutamide; New York Heart Association class III or IV heart failure at screening or thromboembolic event; unstable angina pectoris; myocardial infarction; or serious uncontrolled cardiac arrhythmia \u2264 6 months before registration.\n\n\n\nPatients were randomly assigned in a 1:1 ratio to receive\norteronel (300 mg) orally twice daily or bicalutamide (50\nmg) administered orally once daily, in addition to contin-\nuous ADT. Patient assignment was dynamically balanced\non three stratification factors: severity of disease (minimal v\nextensive), Zubrod performance status (0-1 v 2-3), and\npreregistration treatment status (early v late induction).\nSeverity (or risk) of disease criteria in this study was orig-\ninally reported in 1989, and since then, it has been used in\nall SWOG trials in the mHSPC setting to date. 11-13 Minimal\ndisease was defined as involvement of vertebrae and/or\npelvic bones and/or lymph nodes, and extensive disease\nwas defined as that with greater than minimal involvement.\nDynamic balancing is a general procedure for treatment\n\n\n\n2 \u00a9 2022 by American Society of Clinical Oncology\n\n\n\nDownloaded from ascopubs.org by Mayo Foundation--Rochester on April 26, 2022 from 129.176.151.025 Copyright \u00a9 2022 American Society of Clinical Oncology. All rights reserved.",
+        "pages_returned": [
+          1,
+          2
+        ]
+      }
+    },
+    {
+      "turn": 3,
+      "role": "tool",
+      "name": "search_chunks",
+      "args": {
+        "query": "Docetaxel administration N (%) treatment arm control arm"
+      },
+      "response": {
+        "matches": [
+          {
+            "page": 4,
+            "score": 0.48062586784362793
+          },
+          {
+            "page": 6,
+            "score": 0.4686111509799957
+          },
+          {
+            "page": 3,
+            "score": 0.46514973044395447
+          },
+          {
+            "page": 13,
+            "score": 0.459409236907959
+          },
+          {
+            "page": 2,
+            "score": 0.45528897643089294
+          }
+        ],
+        "formatted_chunks": "[Page 4, score=0.48]\n## Page 4\n\nAgarwal et al\n\n\n\n<::chart\n: Kaplan-Meier curve showing progression-free survival by arm.\nY-axis: Percent (0 to 100)\nX-axis: Time Since Random Assignment (months) (0 to 96)\n\nCurves:\n- LHRH agonist plus orteronel (red line): median 47.6 months\n- LHRH agonist plus bicalutamide (blue line): median 23.0 months\n\nStatistical data:\nHR 0.58, 95% CI 0.51 to 0.67; P = .0001\n\nTable within graph:\n| Arm | At Risk | Event | 4-Year Estimate |\n| :--- | :--- | :--- | :--- |\n| LHRHa plus bicalutamide | 641 | 444 | 34% |\n| LHRHa plus orteronel | 638 | 343 | 50% |\n\nNo. at risk table:\n| Arm | 0 | 24 | 48 | 72 |\n| :--- | :--- | :--- | :--- | :--- |\n| LHRHa plus bicalutamide | 641 | 295 | 164 | 42 |\n| LHRHa plus orteronel | 638 | 401 | 244 | 84 |\n\nFIG 2. Intention-to-treat comparison of progression-free survival by arm. HR, hazard ratio; LHRH, luteinizing hormone-releasing hormone.\n::>\n\n\n\ninteraction of the stratification factor with treatment,\nevaluating heterogeneity between levels of a factor, was\ntested using a residual chi-square from the Cox model. A\ntwo-sided Cochrane-Mantel-Haenszel test was used to\ncompare three-category PSA response rates between the\ntwo treatment arms.\n\n\n\n## RESULTS\n\n### Patients\n\nBetween March 1, 2013, and July 15, 2017, 1,313 patients were randomly assigned and 1,279 were included in the intention-to-treat analysis (32 patients were ineligible, and two patients withdrew all consent before starting treatment\u2014see Appendix Fig A1, online only for details). Six hundred thirty-eight patients were randomly assigned to the orteronel arm, and 641 were randomly assigned to the control arm. At the cutoff date (February 5, 2021) for the final analysis after 525 deaths (and 787 PFS events), the median follow-up time was 4.9 years. Demographic and clinical characteristics at baseline were well balanced (Table 1). The median age of the patients for the orteronel and control arms was 67.6 and 68.1 years, respectively. Across both groups, approximately 10% of the patients were African American, 49% had extensive disease, and 96% had a Zubrod performance status of 0 or 1.\n\n\n\nPrimary End Point\nAnalysis for OS occurred after the prespecified 525 deaths\nwere observed (251 in the orteronel group and 274 in the\n\n\n\ncontrol group). The median OS in the orteronel group was\n81.1 months as compared with 70.2 months in the control\ngroup. The OS rate at 5 years was 59.7% in the orteronel\ngroup and 57.9% in the control group (HR for death 0.86;\n95% CI, 0.72 to 1.02; P = .040, one-sided). No statistically\nsignificant improvement in OS was observed with orteronel\ncompared with control (Fig 1). This lack of treatment effect\non OS seemed consistent across stratification factors, in-\ncluding disease severity, and by race (Fig 3 and Appendix\nTable A3, online only).\n\n\n\nSecondary End Points\nAnalysis of PFS occurred after 787 events were observed\n(343 in the orteronel group and 444 in the control group).\nThe median PFS in the orteronel group was 47.6 months\ncompared with 23.0 months in the control group (Fig 2).\nThe PFS at 4 years was 50.2% in the orteronel group and\n33.9% in the control group (HR, 0.58; 95% CI, 0.51 to\n0.67; P < .001).\n\n\n\nThe PSA response rates at month 7 were significantly im-\nproved with orteronel (CR 58%; PR: 22%, NR: 19%) versus\nbicalutamide (CR: 44%; PR: 31%; NR: 25%; P < .0001).\n\n\n\nSafety\nMore grade 3 and 4 AEs occurred in the orteronel group\nversus the control group (43% v 13%). Notable differences\nincluded the frequency of hypertension (20% with orteronel\nv 5% with control) and fatigue (5% in orteronel v 2% in the\ncontrol group). Five patients in the experimental arm and\n\n\n\n4 \u00a9 2022 by American Society of Clinical Oncology\n\n\n\nDownloaded from ascopubs.org by Mayo Foundation--Rochester on April 26, 2022 from 129.176.151.025\nCopyright \u00a9 2022 American Society of Clinical Oncology. All rights reserved.\n\n---\n\n[Page 6, score=0.47]\n## Page 6\n\nAgarwal et al\n\n\n\n<::chart: forest plot::>\nFIG 3. Estimated treatment HRs for overall survival by subgroup (survival forest plot for S1216). ADT, androgen deprivation therapy; HR, hazard ratio; PS, performance score.\n\n**Subgroup**\n\n*   Overall (N = 1,279): HR 0.85 (95% CI 0.75-0.96)\n*   Other Race (n = 1,144): HR 0.85 (95% CI 0.75-0.96)\n*   African American (n = 135): HR 0.60 (95% CI 0.35-1.05)\n    *   P_interaction = .88 (for race subgroups)\n*   ADT Before Registration (n = 661): HR 0.95 (95% CI 0.80-1.10)\n*   No ADT Before Registration (n = 618): HR 0.70 (95% CI 0.55-0.85)\n    *   P_interaction = .05 (for ADT subgroups)\n*   PS 2-3 (n = 49): HR 0.55 (95% CI 0.25-1.00)\n*   PS 0-1 (n = 1,230): HR 0.85 (95% CI 0.75-0.95)\n    *   P_interaction = .21 (for PS subgroups)\n*   Minimal Disease (n = 623): HR 0.80 (95% CI 0.65-0.95)\n*   Extensive Disease (n = 656): HR 0.95 (95% CI 0.80-1.10)\n    *   P_interaction = .74 (for disease extent subgroups)\n\n**X-axis: HR and 95% CI**\n\n*   Scale: 0.00, 0.25, 0.50, 0.75, 1.00, 1.25, 1.50\n*   Interpretation: Favors Orteronel <--- | ---> Favors Control\n<::>\n\n\n\none patient in the control arm had grade 5 AEs, including\ntwo patients experiencing myocardial infarction and one\nexperiencing a stroke in the orteronel arm (Table 2).\n\n\n\n**Subsequent Life-Prolonging Anticancer Therapy**\nTreatment after discontinuation of protocol therapy was\ninitiated per patient's choice and as per local standard of\ncare. At the time of this report, receipt of at least one ap-\nproved life-prolonging therapy after discontinuation of pro-\ntocol therapy was evaluable in 331 patients in the orteronel\narm and 402 patients in the control arm. A higher proportion\nof patients in the control arm received postprotocol therapy,\nwhich was consistent with a higher incidence of disease\nprogression in the control arm. Of these, 203 (61.3%) pa-\ntients in the orteronel arm and 311 (77.4%) patients in the\ncontrol arm received one or more life-prolonging anticancer\ntherapies (Appendix Table A1, online only).\n\n\n\n## DISCUSSION\n\nIn this study, addition of orteronel to ADT compared with bicalutamide led to a statistically significant improvement in PFS and PSA response. Although the approximately 11-month improvement in median OS with orteronel appears clinically meaningful, it did not reach the prespecified requirement for statistical significance. The assumption of 54-month OS for the control arm was a substantial underestimate, exceeded by 16 months in the actual results, challenging the probability of a statistically significant result.\n\n\n\nThe discrepancy between improvement in PFS but not in\nOS might have occurred because of receipt of subsequent\nlife-prolonging therapy in a large proportion of patients in\nthe control arm. The primary end point of OS evaluated not\nonly the benefit of early addition of orteronel but also the\n\n\n\nimpact of subsequent life-prolonging therapies including abiraterone acetate, enzalutamide, docetaxel, cabazitaxel, sipuleucel-T, and radium-223.16-23 In this study, 77.4% of the patients who progressed in the control arm received subsequent life-prolonging therapies compared with 21%- 64% of patients in phase III studies in this setting reported since 2013 where the control arm comprised ADT only without recently approved novel agents (nonintensified ADT; Appendix Table A2, online only). The receipt of subsequent life-prolonging therapies by the majority of patients on the control arm might have also resulted in an absolute median OS of 70 months, the highest ever reported for patients on a nonintensified ADT control arm of con- temporary trials in mHSPC. It is also possible that the results from the CHAARTED trial, which reported approximately 1 year after activation of SWOG-1216 and showed signifi- cant improvement in OS with docetaxel in patients with high-volume disease, prompted a preferential recruitment of patients with low-volume disease on the SWOG-1216 trial, leading to an unexpected improvement in the OS in both arms, especially in the control arm. For example, the median OS in patients with low-volume mHSPC in the CHAARTED trial had not been reached after a median follow-up of 53.7 months and was 83.4 months in the GETUG AFU-15 trial.24,25 Nonetheless, when compared with the median OS of men on the SWOG-9346 trial in the mHSPC setting (reported in 2013), where all patients re- ceived ADT plus bicalutamide and which had almost an identical proportion of men with extensive disease by SWOG criteria of disease severity (48% v 49%), the median OS in the control arm of SWOG-1216 was 24 months higher (46 v 70.2 months) (Appendix Figure A2).11\n\n\n\n6 \u00a9 2022 by American Society of Clinical Oncology\n\n\n\nDownloaded from ascopubs.org by Mayo Foundation--Rochester on April 26, 2022 from 129.176.151.025 Copyright \u00a9 2022 American Society of Clinical Oncology. All rights reserved.\n\n---\n\n[Page 3, score=0.47]\n## Page 3\n\nOrteronel for Metastatic Hormone-Sensitive Prostate Cancer\n\n\n\nassignment, which concentrates on minimizing imbalance\nin the distribution of treatment assignment within the levels\nof each individual prognostic factor. 14\n\n\n\n## End Points\nThe primary end point was OS, which was defined as the time from random assignment to the date of death from any cause. Secondary end points were PFS, PSA response rates, and adverse events (AEs) rate. PFS was defined as the time from random assignment to first documentation of PSA progression (\u2265 25% increase and an absolute increase of at least 2 ng/mL from the nadir PSA), radiologic progression (two or more new lesions on radionuclide bone scans, per Prostate Cancer Working Group 2 [PCWG2] criteria, and/or soft tissue progression per RECIST version 1.1), clinical progression (symptomatic deterioration) or death, whichever occurred first. PSA response rates were divided into complete response (CR; PSA < 0.2 ng/mL), partial response (PR; PSA between 0.2 and 4.0 ng/mL), and no response (NR; PSA > 4.0 ng/mL) at a 7-month landmark after random assignment.\n\n\n\nAssessments\nPatients were assessed for efficacy according to the\nmodified RECIST version 1.1 with the use of computed\ntomography or magnetic resonance imaging of the chest,\nabdomen, and pelvis during screening (\u2264 6 weeks be-\nfore random assignment) and according to PCWG2\ncriteria with the use of bone scanning. ^15 Progression\nevents were assessed by the treating investigator.\n\n\n\n# Statistical Analysis\nThe median survival of patients randomly assigned to ADT plus bicalutamide was assumed to be 54 months on the basis of revised estimates from previous SWOG studies (48 months on the basis of the median from SWOG-S9346, the intermittent v continuous ADT phase III trial, and an additional 6 months from the newer drug approvals in the castrate-resistant setting, which may extend survival). 11\nWith 2.75 years to accrue 1,186 eligible patients and an additional follow-up of 3 years, we had a 90% power to determine a 33% improvement in median OS from 54 to 72 months (one-sided \u03b1 = .025). A final analysis was prespecified after 523 deaths in the combined arms using a one-sided \u03b1 = .022 to account for interim analyses.\n\n\n\nDemographic and clinical characteristics at baseline were\nsummarized with the use of descriptive statistics. The\nprimary statistical method comparing time-to-event end\npoints was a stratified log-rank test, with stratification\naccording to prespecified factors. The Kaplan-Meier\nproduct-limit method was used to generate the survival\nand PFS curves in Figures 1, 2, Appendix Figure A2\n(online only), and the Cox proportional hazards model\nwith covariate adjustment for stratification factors was\nused to estimate treatment hazard ratios (HRs) and as-\nsociated Cls for survival and PFS. Homogeneity of treat-\nment effect was descriptively evaluated with a forest plot\nshowing the survival HR and 95% CI for each subgroup\ndefined by the stratification factors and race using a Cox\nregression model with no covariate adjustment. The\n\n\n\n<::Kaplan-Meier curve showing overall survival by arm\n: chart::>\n<::chart\nPercent\nLHRH agonist plus orteronel: median 81.1 months\nHR 0.86, 95% CI 0.72 to 1.02;\nP = .040, one-sided\nMedian follow-up: 4.9 years\nLHRH agonist plus bicalutamide: median 70.2 months\nTime Since Random Assignment (months)\n\nAt Risk | Deaths | 5-Year Estimate\n--- | --- | ---\nLHRHa plus bicalutamide 641 | 274 | 58%\nLHRHa plus orteronel 638 | 251 | 59%\n\nNo. at risk:\nLHRHa plus bicalutamide 641 509 321 92\nLHRHa plus orteronel 638 524 323 115\n::>\nFIG 1. Intention-to-treat comparison of overall survival by arm. HR, hazard ratio; LHRH, luteinizing hormone-releasing hormone.\n\n\n\nJournal of Clinical Oncology\n\n\n\n3\n\n\n\nDownloaded from ascopubs.org by Mayo Foundation--Rochester on April 26, 2022 from 129.176.151.025\nCopyright \u00a9 2022 American Society of Clinical Oncology. All rights reserved.\n\n---\n\n[Page 13, score=0.46]\n## Page 13\n\nOrteronel for Metastatic Hormone-Sensitive Prostate Cancer\n\n\n\nTABLE A3. Treatment Outcomes by Disease Severity\n|  |  |  |  |  |  |  |  |  |\n| --- | --- | --- | --- | --- | --- | --- | --- | --- |\n| Disease Group | Control Arm | Orteronel Arm | PFS Control Median/5 Year | PFS Orteronel Median/5 Year | HR (95% CI) | OS Control Median/5 Year | OS Orteronel Median/5 Year | HR (95% CI) |\n| Extensive | 313 | 310 | 1.1 years/20% | 2.2 years/29% | 0.66 (0.55 to 0.79) | 4.1 years/44% | 4.8 years/47% | 0.88 (0.71 to 1.10) |\n| Minimal | 328 | 328 | 3.6 years/38% | NR/58% | 0.53 (0.42 to 0.66) | NR/71% | NR/71% | 0.89 (0.67 to 1.18) |\nAbbreviations: HR, hazard ratio; NR, not reached; OS, overall survival; PFS, progression-free survival.\n\n\n\n<::flowchart\n: Total randomly assigned\n(N = 1,313)\n\nLHRHa plus bicalutamide\n(n = 660)\n\nIneligible\n(n = 17)\nBaseline out of range (n = 3)\nQTc out of range (n = 1)\nExtent of disease (n = 2)\nPrior ADT outside protocol limits (n = 11)\n\nWithdrew all consent\n(n = 2)\n\nITT analysis population\n\nTreatment status (n = 641)\nCurrently on treatment (n = 100)\nNo protocol treatment (n = 11)\nDiscontinued treatment (n = 530)\nAdverse events (n = 21)\nDisease progression (n = 372)\nDeath (n = 13)\nPatient refusal (n = 72)\nOther (n = 52)\n\nWithdrew consent\n(n = 37)\n\nDocumented lost to follow-up\n(n = 3)\n\nLast contact > 18 months ago\n(n = 13)\n\nLHRHa plus orteronel\n(n = 653)\n\nIneligible\n(n = 15)\nBaseline out of range (n = 6)\nQTc out of range (n = 1)\nExtent of disease (n = 1)\nPrior ADT outside protocol limits (n = 5)\nProhibited concomitant therapy (n = 1)\nProhibited heart condition (n = 1)\n\nWithdrew all consent\n(n = 0)\n\nTreatment status (n = 638)\nCurrently on treatment (n = 192)\nNo protocol treatment (n = 10)\nDiscontinued treatment (n = 436)\nAdverse events (n = 80)\nDisease progression (n = 226)\nDeath (n = 26)\nPatient refusal (n = 70)\nOther (n = 34)\n\nWithdrew consent\n(n = 43)\n\nDocumented lost to follow-up\n(n = 4)\n\nLast contact > 18 months ago\n(n = 12)\n\nFIG A1. CONSORT diagram for the S1216 trial. ADT, androgen deprivation therapy; ITT, intention-to-treat; LHRHa, luteinizing hormone-releasing hormone agonist; QTc, corrected QT interval.\n::>\n\n\n\nJournal of Clinical Oncology\n\n\n\nDownloaded from ascopubs.org by Mayo Foundation--Rochester on April 26, 2022 from 129.176.151.025 Copyright \u0016 2022 American Society of Clinical Oncology. All rights reserved.\n\n---\n\n[Page 2, score=0.46] already provided\u2014check your context.",
+        "pages_returned": [
+          4,
+          6,
+          3,
+          13
+        ]
+      }
+    },
+    {
+      "turn": 4,
+      "role": "tool",
+      "name": "search_chunks",
+      "args": {
+        "query": "Median Age (years) treatment arm control arm"
+      },
+      "response": {
+        "matches": [
+          {
+            "page": 4,
+            "score": 0.48178350925445557
+          },
+          {
+            "page": 3,
+            "score": 0.4641110301017761
+          },
+          {
+            "page": 6,
+            "score": 0.4631798565387726
+          },
+          {
+            "page": 14,
+            "score": 0.4593571126461029
+          },
+          {
+            "page": 13,
+            "score": 0.4535951316356659
+          }
+        ],
+        "formatted_chunks": "[Page 4, score=0.48] already provided\u2014check your context.\n\n---\n\n[Page 3, score=0.46] already provided\u2014check your context.\n\n---\n\n[Page 6, score=0.46] already provided\u2014check your context.\n\n---\n\n[Page 14, score=0.46]\n## Page 14\n\nAgarwal et al\n\n\n\n<::chart: Overall survival curves of different SWOG trials::>\n\n**Overall Survival Curves of Different SWOG Trials**\n\n**Y-axis:** Percent\n**X-axis:** Time Since Random Assignment (months)\n\n**Legend and Summary Data**\n| Trial/Arm                | At Risk | Deaths | Median in Months |\n| :----------------------- | :------ | :----- | :--------------- |\n| S1216 LHRHa plus Bical   | 641     | 265    | 70               |\n| S9346 all induction Pats | 2,942   | 1,920  | 45               |\n| S8494 pooled arms        | 603     | 489    | 31               |\n| S8894 pooled arms        | 1,384   | 1,082  | 31               |\n\n**No. at risk:**\n| Trial/Arm                | 0 months | 24 months | 48 months | 72 months |\n| :----------------------- | :------- | :-------- | :-------- | :-------- |\n| S1216 LHRHa plus Bical   | 641      | 509       | 321       | 92        |\n| S9346 all induction Pats | 2,938    | 2,071     | 1,333     | 872       |\n| S8494 pooled arms        | 603      | 381       | 192       | 98        |\n| S8894 pooled arms        | 1,383    | 842       | 487       | 299       |\n\nFIG A2. Overall survival curves of different SWOG trials (stratified by trial, follow-up truncated at 6 years). Bical, bicalutamide; LHRHa, luteinizing hormone-releasing hormone agonist; Pats, patients.\n\n\n\n\n\u00a9 2022 by American Society of Clinical Oncology\n\n\n\nDownloaded from ascopubs.org by Mayo Foundation--Rochester on April 26, 2022 from 129.176.151.025\nCopyright \u00a9 2022 American Society of Clinical Oncology. All rights reserved.\n\n---\n\n[Page 13, score=0.45] already provided\u2014check your context.",
+        "pages_returned": [
+          14
+        ]
+      }
+    },
+    {
+      "turn": 5,
+      "role": "tool",
+      "name": "search_chunks",
+      "args": {
+        "query": "Median On-Treatment Duration (mo) treatment arm control arm"
+      },
+      "response": {
+        "matches": [
+          {
+            "page": 6,
+            "score": 0.5001076459884644
+          },
+          {
+            "page": 3,
+            "score": 0.49653148651123047
+          },
+          {
+            "page": 4,
+            "score": 0.49528753757476807
+          },
+          {
+            "page": 13,
+            "score": 0.47690054774284363
+          },
+          {
+            "page": 12,
+            "score": 0.45613670349121094
+          }
+        ],
+        "formatted_chunks": "[Page 6, score=0.50] already provided\u2014check your context.\n\n---\n\n[Page 3, score=0.50] already provided\u2014check your context.\n\n---\n\n[Page 4, score=0.50] already provided\u2014check your context.\n\n---\n\n[Page 13, score=0.48] already provided\u2014check your context.\n\n---\n\n[Page 12, score=0.46]\n## Page 12\n\nAgarwal et al\n\n\n\nAPPENDIX\n\n\n\nTABLE A1. Post Hoc Analysis of Subsequent Life-Prolonging Therapy\n|  |  |  |\n| --- | --- | --- |\n| Protocol/Postprotocol Treatment Status | LHRH Agonist Plus Orteronel (n = 638) | LHRH Agonist Plus Bicalutamide (n = 641) |\n| Patients still on protocol treatment | 192 | 100 |\n| Patients off protocol treatment | 446 | 541 |\n| Data unavailable | 115 | 139 |\n| Postprotocol treatment or death, No. (%) | 331 (100) | 402 (100) |\n| Died on treatment or within 1 month of going off treatment | 33 (10) | 19 (4.7) |\n| Receiving non-life-prolonging treatment only | 95 (28.7) | 72 (17.9) |\n| Receiving life-prolonging treatment | 203 (61.3) | 311 (77.4) |\n| Receiving subsequent androgen axis inhibitor therapy | 138 (68) | 237 (76.2) |\nAbbreviation: LHRH, luteinizing hormone-releasing hormone.\n\u00aaReceipt of approved systemic therapy known to improve survival outcomes in metastatic prostate cancer, as reported by treating investigators.\n\n\n\nTABLE A2. Comparison of Contemporary Phase III Trials\n|  |  |  |  |  |  |  |  |\n| --- | --- | --- | --- | --- | --- | --- | --- |\n|  | Experimental Arm | Control Arm With Nonintensified ADT | HR | HR | Treatment Arm | Control Arm |  |\n| Trial\u00aa | Subsequent Therapy, % | Subsequent Therapy, % | PFS | OS | High Volume/ Risk, % | High Volume/ Risk, % | Median Follow-Up (months) |\n| ARCHES\u00b2\u2078 | 8 | 23.10 | 0.39 (0.30-0.50) (rPFS) | 0.81 (0.53-1.25) | 61.7 | 64.8 | 14.4 |\n| CHAARTED\u00b2\u2074 | 37.8 | 47.60 | 0.61 (0.51-0.72) | 0.72 (0.59-0.89) | 66.2 | 63.6 | 28.9 |\n| LATITUDE\u2074 | 30 | 57 | 0.47 (0.39-0.55) (rPFS) | 0.62 (0.51-0.76) | 81.6 | 77.7 | 30.4 |\n| STAMPEDE abiraterone5 | 53 | 58 | 0.31 (0.25-0.39) | 0.61 (0.49-0.79) | 48.7 | 51.3 | 40 |\n| STAMPEDE docetaxel29 | 21 | 21 | 0.69 (0.59-0.81) | 0.81 (0.69-0.95) | 41 | 44 | 78.2 |\n| TITAN7 | 48.6 | 64.1 | 0.48 (0.39-0.60) (rPFS) | 0.67 (0.51-0.89) | 61.9 | 63.6 | 22.7 |\n| SWOG S1216 | 61.3 | 77.4 | 0.58 (0.51-0.67) | 0.86 (0.72-1.02) | 49 | 49 | 58.8 |\n\n\n\nAbbreviations: ADT, androgen deprivation therapy; HR, hazard ratio; OS, overall survival; PFS, progression-free survival; rPFS, radiographic progression-free survival.\n\n\n\n\u00aaThe ENZAMET trial was not included as 44% of patients on the control arm received early docetaxel therapy.\n\u1d47In S1216, extensive (high) risk was defined as metastatic disease beyond axial skeleton and/or lymph nodes; in LATITUDE, high-risk disease was defined as having any two of the following: three or more bone metastases on bone scan, Gleason sum \u2265 8, and any visceral metastases; in the other trials, high-volume disease was defined as having four or more bone metastases on bone scan, including one or more outside the vertebral bodies or pelvis and/or visceral metastases.\n\n\n\n\u00a9 2022 by American Society of Clinical Oncology\n\n\n\nDownloaded from ascopubs.org by Mayo Foundation--Rochester on April 26, 2022 from 129.176.151.025\nCopyright \u00a9 2022 American Society of Clinical Oncology. All rights reserved.",
+        "pages_returned": [
+          12
+        ]
+      }
+    },
+    {
+      "turn": 6,
+      "role": "tool",
+      "name": "search_chunks",
+      "args": {
+        "query": "Number of Deaths treatment arm control arm"
+      },
+      "response": {
+        "matches": [
+          {
+            "page": 4,
+            "score": 0.4934089183807373
+          },
+          {
+            "page": 3,
+            "score": 0.4686950743198395
+          },
+          {
+            "page": 6,
+            "score": 0.464385062456131
+          },
+          {
+            "page": 13,
+            "score": 0.45139431953430176
+          },
+          {
+            "page": 14,
+            "score": 0.4465002715587616
+          }
+        ],
+        "formatted_chunks": "All retrieved pages have already been provided. Try a different query or submit with what you have.",
+        "pages_returned": []
+      }
+    },
+    {
+      "turn": 7,
+      "role": "tool",
+      "name": "search_chunks",
+      "args": {
+        "query": "PFS Rate (%) treatment arm control arm"
+      },
+      "response": {
+        "matches": [
+          {
+            "page": 4,
+            "score": 0.4949139654636383
+          },
+          {
+            "page": 6,
+            "score": 0.45669248700141907
+          },
+          {
+            "page": 13,
+            "score": 0.44817227125167847
+          },
+          {
+            "page": 3,
+            "score": 0.44734132289886475
+          },
+          {
+            "page": 14,
+            "score": 0.43337517976760864
+          }
+        ],
+        "formatted_chunks": "All retrieved pages have already been provided. Try a different query or submit with what you have.",
+        "pages_returned": []
+      }
+    },
+    {
+      "turn": 8,
+      "role": "tool",
+      "name": "search_chunks",
+      "args": {
+        "query": "TTPSA (mo) treatment arm control arm"
+      },
+      "response": {
+        "matches": [
+          {
+            "page": 2,
+            "score": 0.4424613416194916
+          },
+          {
+            "page": 6,
+            "score": 0.4407086968421936
+          },
+          {
+            "page": 4,
+            "score": 0.4403409957885742
+          },
+          {
+            "page": 12,
+            "score": 0.4269520044326782
+          },
+          {
+            "page": 13,
+            "score": 0.4156789481639862
+          }
+        ],
+        "formatted_chunks": "All retrieved pages have already been provided. Try a different query or submit with what you have.",
+        "pages_returned": []
+      }
+    },
+    {
+      "turn": 9,
+      "role": "tool",
+      "name": "submit_extraction",
+      "args": {
+        "results_keys": [
+          "Median Age (years) | Control",
+          "Docetaxel administration - N (%) | Control",
+          "Docetaxel administration - N (%) | Treatment",
+          "PFS Rate (%) | Overall | Treatment",
+          "TTPSA (mo) | Treatment",
+          "Treatment Class",
+          "No. of Deaths - N | Control",
+          "TTPSA (mo) | Control",
+          "No. of Deaths - N | Treatment",
+          "PFS Rate (%) | Overall | Control",
+          "Median On-Treatment Duration (mo) | Treatment",
+          "Median On-Treatment Duration (mo) | Control",
+          "Median Age (years) | Treatment",
+          "Type of Therapy",
+          "Trial"
+        ]
+      },
+      "response": {
+        "submitted": [
+          "Median Age (years) | Control",
+          "Docetaxel administration - N (%) | Control",
+          "Docetaxel administration - N (%) | Treatment",
+          "PFS Rate (%) | Overall | Treatment",
+          "TTPSA (mo) | Treatment",
+          "Treatment Class",
+          "No. of Deaths - N | Control",
+          "TTPSA (mo) | Control",
+          "No. of Deaths - N | Treatment",
+          "PFS Rate (%) | Overall | Control",
+          "Median On-Treatment Duration (mo) | Treatment",
+          "Median On-Treatment Duration (mo) | Control",
+          "Median Age (years) | Treatment",
+          "Type of Therapy",
+          "Trial"
+        ]
+      }
+    }
+  ],
+  "results": {
+    "Median Age (years) | Control": {
+      "value": "68.1 years",
+      "reasoning": "Page 4 states: \"The median age of the patients for the orteronel and control arms was 67.6 and 68.1 years, respectively.\" Control arm is the bicalutamide arm.",
+      "found": true,
+      "attribution": [
+        {
+          "page": 4,
+          "modality": "text"
+        }
+      ]
+    },
+    "Docetaxel administration - N (%) | Control": {
+      "value": "Not reported",
+      "reasoning": "Docetaxel is mentioned as a subsequent therapy, not part of the protocol treatment for the control arm. Page 2 mentions patients being unsuitable for or declining docetaxel, and page 6 mentions it as a subsequent life-prolonging therapy. Table A2 on page 12 also lists \"STAMPEDE docetaxel\" as a separate trial, not part of SWOG S1216's protocol treatment.",
+      "found": false,
+      "attribution": []
+    },
+    "Docetaxel administration - N (%) | Treatment": {
+      "value": "Not reported",
+      "reasoning": "Docetaxel is mentioned as a subsequent therapy, not part of the protocol treatment for the treatment arm. Page 2 mentions patients being unsuitable for or declining docetaxel, and page 6 mentions it as a subsequent life-prolonging therapy. Table A2 on page 12 also lists \"STAMPEDE docetaxel\" as a separate trial, not part of SWOG S1216's protocol treatment.",
+      "found": false,
+      "attribution": []
+    },
+    "PFS Rate (%) | Overall | Treatment": {
+      "value": "50.2% at 4 years",
+      "reasoning": "Page 4 states: \"The PFS at 4 years was 50.2% in the orteronel group and 33.9% in the control group (HR, 0.58; 95% CI, 0.51 to 0.67; P < .001).\" Orteronel group is the treatment arm.",
+      "found": true,
+      "attribution": [
+        {
+          "page": 4,
+          "modality": "text"
+        }
+      ]
+    },
+    "TTPSA (mo) | Treatment": {
+      "value": "Not reported",
+      "reasoning": "This specific metric was not found in the provided pages. Page 3 defines \"PSA response rates\" but not \"Time To Progression of Serum Androgen (TTPSA)\".",
+      "found": false,
+      "attribution": []
+    },
+    "Treatment Class": {
+      "value": "CYP17 inhibitor",
+      "reasoning": "Page 1 states \"Orteronel (TAK-700) is a nonsteroidal 17,20-lyase inhibitor suppressing androgen synthesis.\" and \"Orteronel (TAK-700) is a novel CYP17 inhibitor.\"",
+      "found": true,
+      "attribution": [
+        {
+          "page": 1,
+          "modality": "text"
+        }
+      ]
+    },
+    "No. of Deaths - N | Control": {
+      "value": "274",
+      "reasoning": "Page 4 states: \"Analysis for OS occurred after the prespecified 525 deaths were observed (251 in the orteronel group and 274 in the control group).\" Control group is the bicalutamide arm.",
+      "found": true,
+      "attribution": [
+        {
+          "page": 4,
+          "modality": "text"
+        }
+      ]
+    },
+    "TTPSA (mo) | Control": {
+      "value": "Not reported",
+      "reasoning": "This specific metric was not found in the provided pages. Page 3 defines \"PSA response rates\" but not \"Time To Progression of Serum Androgen (TTPSA)\".",
+      "found": false,
+      "attribution": []
+    },
+    "No. of Deaths - N | Treatment": {
+      "value": "251",
+      "reasoning": "Page 4 states: \"Analysis for OS occurred after the prespecified 525 deaths were observed (251 in the orteronel group and 274 in the control group).\" Orteronel group is the treatment arm.",
+      "found": true,
+      "attribution": [
+        {
+          "page": 4,
+          "modality": "text"
+        }
+      ]
+    },
+    "PFS Rate (%) | Overall | Control": {
+      "value": "33.9% at 4 years",
+      "reasoning": "Page 4 states: \"The PFS at 4 years was 50.2% in the orteronel group and 33.9% in the control group (HR, 0.58; 95% CI, 0.51 to 0.67; P < .001).\" Control group is the bicalutamide arm.",
+      "found": true,
+      "attribution": [
+        {
+          "page": 4,
+          "modality": "text"
+        }
+      ]
+    },
+    "Median On-Treatment Duration (mo) | Treatment": {
+      "value": "Not reported",
+      "reasoning": "This specific metric was not found in the provided pages. While page 13, Figure A1, shows patient status (on/off treatment), it does not provide the median duration.",
+      "found": false,
+      "attribution": []
+    },
+    "Median On-Treatment Duration (mo) | Control": {
+      "value": "Not reported",
+      "reasoning": "This specific metric was not found in the provided pages. While page 13, Figure A1, shows patient status (on/off treatment), it does not provide the median duration.",
+      "found": false,
+      "attribution": []
+    },
+    "Median Age (years) | Treatment": {
+      "value": "67.6 years",
+      "reasoning": "Page 4 states: \"The median age of the patients for the orteronel and control arms was 67.6 and 68.1 years, respectively.\" Orteronel arm is the treatment arm.",
+      "found": true,
+      "attribution": [
+        {
+          "page": 4,
+          "modality": "text"
+        }
+      ]
+    },
+    "Type of Therapy": {
+      "value": "Androgen Deprivation Therapy (ADT) with Orteronel or Bicalutamide",
+      "reasoning": "Page 1 describes the experimental arm as \"ADT with orteronel\" and the control arm as \"ADT with bicalutamide\".",
+      "found": true,
+      "attribution": [
+        {
+          "page": 1,
+          "modality": "text"
+        }
+      ]
+    },
+    "Trial": {
+      "value": "SWOG-1216",
+      "reasoning": "Page 1 clearly states the trial name in the title.",
+      "found": true,
+      "attribution": [
+        {
+          "page": 1,
+          "modality": "text"
+        }
+      ]
+    }
+  }
+}

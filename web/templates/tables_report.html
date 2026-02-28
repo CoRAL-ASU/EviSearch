@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Evidence-based PDF Q&A — Tables Report</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.14/dist/full.min.css" rel="stylesheet" />
+</head>
+<body class="min-h-screen bg-base-200">
+    <div class="navbar bg-base-300 shadow-lg">
+        <div class="flex-1">
+            <a href="/" class="btn btn-ghost">Home</a>
+            <a href="/qa" class="btn btn-ghost">Ask a question</a>
+            <a href="/extract" class="btn btn-ghost">Extract full table</a>
+            <a href="/attribution" class="btn btn-ghost">Attribution</a>
+            <a href="/comparison-report" class="btn btn-ghost font-semibold">Report</a>
+        </div>
+        <div class="flex-none">
+            <h1 class="text-xl font-bold text-primary px-4">Evidence-based PDF Q&A</h1>
+        </div>
+    </div>
+
+    <main class="max-w-[98vw] mx-auto p-6 space-y-4">
+        <h2 class="text-2xl font-bold">Reconciled Tables</h2>
+
+        <!-- Stats -->
+        <div class="flex flex-wrap gap-6">
+            <div class="stat bg-base-100 rounded-lg shadow-md px-6 py-4">
+                <div class="stat-title">Documents</div>
+                <div class="stat-value text-primary" id="stat-docs">0</div>
+            </div>
+            <div class="stat bg-base-100 rounded-lg shadow-md px-6 py-4">
+                <div class="stat-title">Total filled values</div>
+                <div class="stat-value text-secondary" id="stat-filled">0</div>
+            </div>
+        </div>
+
+        <!-- Filters -->
+        <div class="card bg-base-100 shadow-xl">
+            <div class="card-body">
+                <h3 class="card-title text-lg">Filters</h3>
+                <div class="flex flex-wrap gap-4">
+                    <div class="form-control flex-1 min-w-[200px]">
+                        <label class="label"><span class="label-text">Group</span></label>
+                        <select id="filter-group" class="select select-bordered w-full">
+                            <option value="">All groups</option>
+                        </select>
+                    </div>
+                    <div class="form-control flex-1 min-w-[200px]">
+                        <label class="label"><span class="label-text">Columns</span></label>
+                        <input type="text" id="filter-columns" class="input input-bordered w-full" placeholder="Filter column names…" />
+                    </div>
+                    <div class="form-control flex-shrink-0 self-end">
+                        <button type="button" id="btn-apply-filters" class="btn btn-primary">Apply</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Export -->
+        <div class="flex gap-2">
+            <button type="button" id="btn-export-csv" class="btn btn-outline btn-sm" disabled>Export CSV</button>
+            <button type="button" id="btn-export-excel" class="btn btn-outline btn-sm" disabled>Export Excel</button>
+        </div>
+
+        <!-- Table -->
+        <div class="card bg-base-100 shadow-xl overflow-hidden">
+            <div class="card-body p-0">
+                <div class="overflow-x-auto overflow-y-auto max-h-[60vh]">
+                    <table class="table table-pin-rows table-zebra" id="report-table">
+                        <thead>
+                            <tr class="bg-base-200 sticky top-0 z-10" id="table-head-row">
+                                <th class="sticky left-0 bg-base-200 z-20 min-w-[180px]">Document</th>
+                            </tr>
+                        </thead>
+                        <tbody id="table-body">
+                            <tr><td colspan="100" class="text-center py-8 text-base-content/60">Loading…</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
+    <script>
+        let rawData = null;
+        let filteredColumns = [];
+        let filteredRows = [];
+
+        function escapeHtml(s) {
+            if (s == null) return '';
+            const d = document.createElement('div');
+            d.textContent = String(s);
+            return d.innerHTML;
+        }
+
+        function isEmptyVal(v) {
+            const s = String(v || '').trim().toLowerCase();
+            return !s || ['not reported', 'not found', 'n/a', 'not applicable', '—', '-'].includes(s);
+        }
+
+        async function loadData() {
+            try {
+                const res = await fetch('/api/report/tables').then(r => r.json());
+                if (!res.success) throw new Error(res.error || 'Failed to load');
+                rawData = res;
+                applyFilters();
+            } catch (e) {
+                document.getElementById('table-body').innerHTML = '<tr><td colspan="100" class="text-center py-8 text-error">' + escapeHtml('Error: ' + e.message) + '</td></tr>';
+            }
+        }
+
+        function applyFilters() {
+            if (!rawData) return;
+            const groupVal = document.getElementById('filter-group').value;
+            const colQuery = (document.getElementById('filter-columns').value || '').toLowerCase().trim();
+            const colGroups = rawData.column_groups || {};
+            const allCols = rawData.columns || [];
+
+            filteredColumns = allCols.filter(cn => {
+                const grp = colGroups[cn] || 'Other';
+                if (groupVal && grp !== groupVal) return false;
+                if (colQuery && !cn.toLowerCase().includes(colQuery)) return false;
+                return true;
+            });
+
+            filteredRows = (rawData.rows || []).map(r => ({ ...r }));
+
+            document.getElementById('stat-docs').textContent = rawData.document_count || 0;
+            document.getElementById('stat-filled').textContent = rawData.total_filled_values ?? 0;
+
+            populateGroupFilter();
+            renderTable();
+            document.getElementById('btn-export-csv').disabled = !rawData.rows?.length;
+            document.getElementById('btn-export-excel').disabled = !rawData.rows?.length;
+        }
+
+        function populateGroupFilter() {
+            const sel = document.getElementById('filter-group');
+            const colGroups = rawData?.column_groups || {};
+            const groups = [...new Set(['Other', ...Object.values(colGroups).filter(Boolean)])].sort((a, b) => {
+                if (a === 'Other') return 1;
+                if (b === 'Other') return -1;
+                return a.localeCompare(b);
+            });
+            const current = sel.value;
+            sel.innerHTML = '<option value="">All groups</option>' + groups.map(g =>
+                `<option value="${escapeHtml(g)}">${escapeHtml(g)}</option>`
+            ).join('');
+            if (groups.includes(current)) sel.value = current;
+        }
+
+        function renderTable() {
+            const thead = document.getElementById('table-head-row');
+            const tbody = document.getElementById('table-body');
+            thead.innerHTML = '<th class="sticky left-0 bg-base-200 z-20 min-w-[180px]">Document</th>' +
+                filteredColumns.map(cn => `<th class="min-w-[120px] max-w-[280px]">${escapeHtml(cn)}</th>`).join('');
+
+            if (filteredRows.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="' + (filteredColumns.length + 1) + '" class="text-center py-8 text-base-content/60">No data</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = filteredRows.map(row => {
+                const cells = [
+                    '<td class="font-medium sticky left-0 bg-base-100 z-10">' + escapeHtml(row.doc_id || '') + '</td>'
+                ];
+                filteredColumns.forEach(cn => {
+                    const v = row[cn];
+                    const empty = isEmptyVal(v);
+                    cells.push('<td class="' + (empty ? 'text-base-content/50' : '') + '">' + escapeHtml(v != null ? String(v) : '') + '</td>');
+                });
+                return '<tr>' + cells.join('') + '</tr>';
+            }).join('');
+        }
+
+        function exportCSV() {
+            if (!rawData || !filteredRows.length) return;
+            const cols = ['doc_id', ...filteredColumns];
+            const header = cols.join(',');
+            const escapeCsv = s => '"' + String(s).replace(/"/g, '""') + '"';
+            const lines = [header, ...filteredRows.map(r => cols.map(c => escapeCsv(r[c] ?? '')).join(','))];
+            const blob = new Blob([lines.join('\n')], { type: 'text/csv;charset=utf-8;' });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = 'reconciled_tables.csv';
+            a.click();
+            URL.revokeObjectURL(a.href);
+        }
+
+        function exportExcel() {
+            if (!rawData || !filteredRows.length || typeof XLSX === 'undefined') return;
+            const cols = ['doc_id', ...filteredColumns];
+            const rows = filteredRows.map(r => cols.map(c => r[c] ?? ''));
+            const wb = XLSX.utils.book_new();
+            const ws = XLSX.utils.aoa_to_sheet([cols, ...rows]);
+            XLSX.utils.book_append_sheet(wb, ws, 'Reconciled');
+            XLSX.writeFile(wb, 'reconciled_tables.xlsx');
+        }
+
+        document.getElementById('btn-apply-filters').addEventListener('click', applyFilters);
+        document.getElementById('filter-columns').addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') applyFilters();
+        });
+        document.getElementById('filter-group').addEventListener('change', applyFilters);
+        document.getElementById('btn-export-csv').addEventListener('click', exportCSV);
+        document.getElementById('btn-export-excel').addEventListener('click', exportExcel);
+
+        loadData();
+    </script>
+</body>
+</html>

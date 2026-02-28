@@ -1,0 +1,109 @@
+## Page 3
+
+Darolutamide, ADT, and Docetaxel in mHSPC Volume/Risk Subgroups
+
+
+
+respective high-volume and high-risk criteria. High-volume/
+high-risk groups further included patients with diffusely in-
+creased skeletal metastases with superscan. 17
+
+
+
+## Study Assessments
+OS was the primary end point. Secondary efficacy end points included time to castration-resistant prostate cancer, time to pain progression on the basis of the Brief Pain Inventory Short-Form questionnaire, symptomatic skeletal event-free survival, time to first symptomatic-skeletal event, time to initiation of subsequent systemic antineoplastic therapy, time to worsening of disease-related physical symptoms as measured by the Functional Assessment of Cancer Therapy–Prostate (National Comprehensive Cancer Network) symptom index 17-item questionnaire, and time to initiation of opioid use for 7 or more days. Safety was assessed by AEs, which were graded using the National Cancer
+
+
+
+Institute Common Terminology Criteria for Adverse Events,
+version 4.03.
+
+
+
+## Statistical Analysis
+This subgroup analysis used Kaplan-Meier estimates to determine medians and 95% CIs. Treatment groups were compared by HRs and associated 95% CIs on the basis of an unstratified Cox regression model. The Cox models used HR estimation on the basis of fitting separate models for each volume/risk subgroup (four models overall). AEs were summarized by treatment group for the subgroups of patients by disease volume and disease risk.
+
+
+
+## RESULTS
+
+### Patient Characteristics
+
+As previously reported, a total of 1,306 patients were randomly assigned, and 1,305 patients were included in
+
+
+
+<::Patients screened (N = 1,686)
+
+Not eligible (n = 380)
+Screen failureᵃ (n = 309)
+Withdrawal by patient (n = 43)
+AE (n = 4)
+Physician's decision (n = 2)
+Other (n = 22)
+
+Patients randomly assigned (N = 1,306)
+
+Darolutamide + docetaxel + ADT (n = 651)
+Received allocated treatment (n = 651)
+Did not receive allocated treatment (n = 0)
+
+Placebo + docetaxel + ADT (n = 655)
+Excluded for GCP violation (n = 1)
+Received allocated treatment (n = 651)
+Did not receive allocated treatment
+Withdrawal by patient (n = 2)
+Physician's decision (n = 1)
+
+Discontinued (n = 352)
+Primary reason for discontinuation
+Disease progression, clinical (n = 127)
+Disease progression, radiological (n = 84)
+AE (n = 72)
+Death (n = 8)
+Withdrawal by patient (n = 25)
+Physician's decision (n = 3)
+Otherᵇ (n = 33)
+
+Discontinued (n = 526)
+Primary reason for discontinuation
+Disease progression, clinical (n = 272)
+Disease progression, radiological (n = 132)
+AE (n = 53)
+Death (n = 5)
+Withdrawal by patient (n = 35)
+Physician's decision (n = 6)
+Otherᵇ (n = 23)
+
+Analyzed for primary end point (n = 651ᶜ)
+Analyzed for safety (n = 652ᵈ)
+
+Analyzed for primary end point (n = 654ᶜ)
+Analyzed for safety (n = 650ᵈ)
+: flowchart::>
+
+
+
+FIG 1. CONSORT flow diagram. ªPatient had signed informed consent but did not meet inclusion/exclusion criteria.
+bOther includes noncompliance, additional primary malignancy, lost to follow-up, protocol violation, and other. cThe
+primary end point (OS) was assessed after 533 patients had died (229 in the darolutamide group and 304 in the placebo
+group). Most deaths were related to disease progression (415 of 533 [77.9%] in the overall population, 172 of 229
+[75.1%] in the darolutamide group, and 243 of 304 [79.9%] in the placebo group). dOne patient was randomly assigned
+in the placebo arm but received darolutamide. The patient was included in the darolutamide arm for the safety analysis
+and the placebo arm for the full analysis set. AE, adverse event; ADT, androgen-deprivation therapy; GCP, good clinical
+practice; HR, hazard ratio; OS, overall survival. From N Engl J Med, Smith MR, Hussain M, Saad F, et al, Darolutamide
+and Survival in Metastatic, Hormone-Sensitive Prostate Cancer, 386(12), 1132-1142,9 Copyright © 2022, Massa-
+chusetts Medical Society. Reprinted with permission from Massachusetts Medical Society.
+
+
+
+Journal of Clinical Oncology
+
+
+
+3
+
+
+
+Downloaded from ascopubs.org by Mayo Foundation--Rochester on June 12, 2023 from 129.176.151.029
+Copyright © 2023 American Society of Clinical Oncology. All rights reserved.

@@ -1,0 +1,36 @@
+## Page 9
+
+Articles
+
+
+
+Abiraterone trial\n<::chart: Kaplan-Meier curve A: Prostate cancer-specific survival (%).\nLegend: Standard of care (red line), Standard of care plus abiraterone (blue line).\nHR 0.56 (95% CI 0.47-0.67); p<0.0001.\nX-axis: Time since randomisation (months), from 0 to 108, with major ticks at 0, 12, 24, 36, 48, 60, 72, 84, 96, 108.\nY-axis: Prostate cancer-specific survival (%), from 0 to 100, with major ticks at 0, 20, 40, 60, 80, 100.\n\nTable for chart A: Number at risk (number censored); events.\n| Time (months) | 0 | 12 | 24 | 36 | 48 | 60 | 72 | 84 | 96 | 108 |\n|---|---|---|---|---|---|---|---|---|---|---|\n| Standard of care | 502 | 463 | 380 | 297 | 241 | 199 | 167 | 125 | 53 | 14 |\n| (number censored) | (0) | (12) | (19) | (27) | (34) | (40) | (47) | (70) | (129) | (163) |\n| events | 0 | 27 | 103 | 178 | 227 | 263 | 288 | 307 | 320 | 325 |\n| Standard of care plus abiraterone | 501 | 474 | 421 | 357 | 314 | 290 | 250 | 199 | 96 | 23 |\n| (number censored) | (0) | (4) | (13) | (30) | (38) | (46) | (61) | (96) | (183) | (249) |\n| events | 0 | 23 | 67 | 114 | 149 | 165 | 190 | 206 | 222 | 229 ::>\nAbiraterone and enzalutamide trial\n<::chart: Kaplan-Meier curve B: Prostate cancer-specific survival (%).\nLegend: Standard of care (red line), Standard of care plus abiraterone plus enzalutamide (blue line).\nHR 0.61 (95% CI 0.50-0.74); p<0.0001.\nX-axis: Time since randomisation (months), from 0 to 108, with major ticks at 0, 12, 24, 36, 48, 60, 72, 84, 96, 108.\nY-axis: Prostate cancer-specific survival (%), from 0 to 100, with major ticks at 0, 20, 40, 60, 80, 100.\n\nTable for chart B: Number at risk (number censored); events.\n| Time (months) | 0 | 12 | 24 | 36 | 48 | 60 | 72 | 84 | 96 | 108 |\n|---|---|---|---|---|---|---|---|---|---|---|\n| Standard of care | 454 | 416 | 347 | 282 | 228 | 163 | 65 | 4 | .. | .. |\n| (number censored) | (0) | (10) | (18) | (25) | (35) | (73) | (147) | (195) | .. | .. |\n| events | 0 | 28 | 89 | 147 | 191 | 218 | 242 | 255 | .. | .. |\n| Standard of care plus abiraterone plus enzalutamide | 462 | 428 | 376 | 330 | 282 | 217 | 108 | 19 | .. | .. |\n| (number censored) | (0) | (14) | (19) | (26) | (35) | (80) | (176) | (261) | .. | .. |\n| events | 0 | 20 | 67 | 106 | 145 | 165 | 178 | 182 | .. | .. ::>\n<::chart: Kaplan-Meier curve C: Failure-free survival (%).\nLegend: Standard of care (red line), Standard of care plus abiraterone (blue line).\nHR 0.34 (95% CI 0.29-0.39); p<0.0001.\nX-axis: Time since randomisation (months), from 0 to 108, with major ticks at 0, 12, 24, 36, 48, 60, 72, 84, 96, 108.\nY-axis: Failure-free survival (%), from 0 to 100, with major ticks at 0, 20, 40, 60, 80, 100.\n\nTable for chart C: Number at risk (number censored); events.\n| Time (months) | 0 | 12 | 24 | 36 | 48 | 60 | 72 | 84 | 96 | 108 |\n|---|---|---|---|---|---|---|---|---|---|---|\n| Standard of care | 502 | 239 | 136 | 93 | 70 | 57 | 48 | 38 | 18 | 7 |\n| (number censored) | (0) | (7) | (9) | (13) | (13) | (15) | (15) | (19) | (31) | (41) |\n| events | 0 | 256 | 357 | 396 | 419 | 430 | 439 | 445 | 453 | 454 |\n| Standard of care plus abiraterone | 501 | 402 | 330 | 272 | 235 | 202 | 179 | 149 | 69 | 15 |\n| (number censored) | (0) | (9) | (11) | (20) | (25) | (30) | (36) | (63) | (135) | (186) |\n| events | 0 | 5 | 160 | 209 | 241 | 269 | 286 | 289 | 297 | 300 ::>\n<::chart: Kaplan-Meier curve D: Failure-free survival (%).\nLegend: Standard of care (red line), Standard of care plus abiraterone plus enzalutamide (blue line).\nHR 0.36 (95% CI 0.31-0.43); p<0.0001.\nX-axis: Time since randomisation (months), from 0 to 108, with major ticks at 0, 12, 24, 36, 48, 60, 72, 84, 96, 108.\nY-axis: Failure-free survival (%), from 0 to 100, with major ticks at 0, 20, 40, 60, 80, 100.\n\nTable for chart D: Number at risk (number censored); events.\n| Time (months) | 0 | 12 | 24 | 36 | 48 | 60 | 72 | 84 | 96 | 108 |\n|---|---|---|---|---|---|---|---|---|---|---|\n| Standard of care | 454 | 229 | 137 | 100 | 76 | 47 | 21 | 1 | .. | .. |\n| (number censored) | (0) | (7) | (11) | (13) | (15) | (32) | (57) | (76) | .. | .. |\n| events | 0 | 218 | 306 | 341 | 363 | 375 | 376 | 377 | .. | .. |\n| Standard of care plus abiraterone plus enzalutamide | 462 | 364 | 298 | 254 | 228 | 166 | 84 | 16 | .. | .. |\n| (number censored) | (0) | (12) | (17) | (22) | (28) | (66) | (142) | (209) | .. | .. |\n| events | 0 | 86 | 147 | 186 | 206 | 230 | 236 | 237 | .. | .. ::>\n<::chart: Kaplan-Meier curve E: Metastatic progression-free survival (%).\nLegend: Standard of care (red line), Standard of care plus abiraterone (blue line).\nHR 0.50 (95% CI 0.43-0.58); p<0.0001.\nX-axis: Time since randomisation (months), from 0 to 108, with major ticks at 0, 12, 24, 36, 48, 60, 72, 84, 96, 108.\nY-axis: Metastatic progression-free survival (%), from 0 to 100, with major ticks at 0, 20, 40, 60, 80, 100.\n\nTable for chart E: Number at risk (number censored); events.\n| Time (months) | 0 | 12 | 24 | 36 | 48 | 60 | 72 | 84 | 96 | 108 |\n|---|---|---|---|---|---|---|---|---|---|---|\n| Standard of care | 502 | 364 | 257 | 195 | 158 | 133 | 112 | 86 | 44 | 12 |\n| (number censored) | (0) | (8) | (13) | (18) | (21) | (25) | (30) | (46) | (81) | (110) |\n| events | 0 | 130 | 232 | 289 | 323 | 344 | 360 | 370 | 377 | 380 |\n| Standard of care plus abiraterone | 501 | 436 | 371 | 309 | 268 | 235 | 207 | 164 | 79 | 20 |\n| (number censored) | (0) | (4) | (11) | (22) | (27) | (33) | (43) | (74) | (154) | (213) |\n| events | 0 | 61 | 119 | 170 | 206 | 233 | 251 | 263 | 268 | 268 ::>\n<::chart: Kaplan-Meier curve F: Metastatic progression-free survival (%).\nLegend: Standard of care (red line), Standard of care plus abiraterone plus enzalutamide (blue line).\nHR 0.52 (95% CI 0.44-0.62); p<0.0001.\nX-axis: Time since randomisation (months), from 0 to 108, with major ticks at 0, 12, 24, 36, 48, 60, 72, 84, 96, 108.\nY-axis: Metastatic progression-free survival (%), from 0 to 100, with major ticks at 0, 20, 40, 60, 80, 100.\n\nTable for chart F: Number at risk (number censored); events.\n| Time (months) | 0 | 12 | 24 | 36 | 48 | 60 | 72 | 84 | 96 | 108 |\n|---|---|---|---|---|---|---|---|---|---|---|\n| Standard of care | 454 | 337 | 240 | 196
+
+
+
+Figure 4: Secondary efficacy endpoint analysis
+Shaded regions represent 95% Cls. Survival curves for the abiraterone and enzalutamide trial are capped at 84 months due to shorter follow-up than in the abiraterone trial. Abiraterone refers to abiraterone acetate and prednisolone. Prostate cancer-specific survival (A, B), failure free survival (C, D) and metastatic progression free survival (E, F) in the abiraterone and abiraterone and enzalutamide trials.
+
+
+
+(difference 10.2 months [6.8-13.5]; p<0.0001) and
+51.3 months (48.8-53.8) with standard of care versus
+58.6 months (56.0-61.1) with addition of abiraterone
+and enzalutamide (difference 7.3 months [3.7-10.9];
+p<0.0001). At 84 months in the abiraterone trial,
+
+
+
+overall survival was 30% (95% CI 26–34) with standard
+of care versus 48% (43–52) with standard of care
+plus abiraterone.
+In prespecified subgroup analyses by stratification
+factors, there was an interaction with NSAID or aspirin
+
+
+
+www.thelancet.com/oncology Vol 24 May 2023
+
+
+
+451

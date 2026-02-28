@@ -1,0 +1,97 @@
+## Page 11
+
+Articles
+
+
+
+enzalutamide trials in terms of failure-free survival
+(HR 0.34 [0.29–0.39]; p<0.0001 vs HR 0.36
+[0.31–0.43]; p<0.0001; figure 4C, D; appendix pp 5, 18),
+progression-free survival (HR 0.47 [0.40–0.55];
+p<0.0001 vs HR 0.50 [0.42–0.59]; p<0.0001; appendix
+p 19), metastatic progression-free survival (HR 0.50
+[0.43–0.58]; p<0.0001 vs HR 0.52 [0.44–0.62];
+p<0.0001; figure 4E, F), and symptomatic skeletal-
+related events (HR 0.76 [0.57–0.99]; p=0.045 vs
+HR 0.61 [0.47–0.79]; p=0.00020; appendix p 20).
+
+
+
+Of patients who reported progression before trial
+closure, 322 (71%) of 455 and 266 (71%) of 377 in the
+control groups of the abiraterone or abiraterone and
+enzalutamide trials, respectively, started a life prolonging
+treatment. Whereas 175 (58%) of 301 who received
+standard of care with abiraterone and 115 (49%) of 237
+who received standard of care with abiraterone and
+enzalutamide started a life-prolonging treatment after
+progression. Of these patients, the proportion of those
+who received abiraterone or enzalutamide or docetaxel
+first at progression in the abiraterone trial was 82 (25%),
+85 (26%), and 147 (46%), respectively, after standard of
+care compared with six (3%), 22 (13%), and 126 (72%) after
+standard of care and abiraterone (appendix p 21). In the
+abiraterone and enzalutamide trial, the proportion of
+patients who received abiraterone or enzalutamide or
+docetaxel first was 60 (23%), 117 (44%), and 81 (30%),
+respectively, after standard of care compared with
+six (3%), seven (3%), and 88 (77%) after standard of care
+plus abiraterone and enzalutamide.
+
+
+
+Disease progression was the most common reason reported for permanently stopping treatment (202 [41%] of 498 in the abiraterone trial vs 151 [34%] of 445 stopping either treatment in the abiraterone and enzalutamide trial; appendix pp 6, 22). In the abiraterone and enzalutamide trial, 66 (15%) patients reported stopping both treatments because of adverse effects. 54 (12%) patients reported adverse effects as the reason for stopping abiraterone and 14 (3%) as the reason for stopping enzalutamide. Whereas 65 (13%) patients in the abiraterone trial reported stopping abiraterone due to toxic effects. In the first 5 years, grade 3–5 toxic effects were higher when abiraterone was added to standard of care (271 [54%] of 498 vs 192 [38%] of 502 with standard of care) and higher toxic effects were seen when abiraterone and enzalutamide were added to standard of care (302 [68%] of 445 vs 204 [45%] of 454 with standard of care; table 2; appendix pp 7–13).
+
+
+
+In a post-hoc analysis, the higher rates of grade 3–5
+adverse events with study treatment than with standard
+of care were observed from the start of treatment
+(appendix p 23). Grade 1–4 adverse events of interest that
+occurred most frequently were fatigue (342 [69%] of
+498 with standard of care plus abiraterone vs 272 [54%] of
+502 with standard of care in the abiraterone trial and
+382 [86%] of 445 with standard of care plus abiraterone
+and enzalutamide vs 309 [68%] of 454 with standard
+of care in the abiraterone and enzalutamide trial),
+
+
+
+hypertension (187 [37%] vs 64 [13%] and 256 [58%] vs
+72 [15%]), and alanine aminotransferase or aspartate
+aminotransferase increase (or both; 136 [27%] vs 72 [14%]
+and 166 [37%] vs 83 [18%]; table 2; appendix pp 7–13, 23).
+Cardiac causes were the most common cause of death
+due to adverse events (five [1%] with standard of care
+plus abiraterone and enzalutamide [two attributed to
+treatment] and one (<1%) with standard of care in the
+abiraterone trial; appendix pp 14, 24).
+
+
+
+## Discussion
+Combining abiraterone and enzalutamide with androgen deprivation therapy is more effective than androgen deprivation therapy alone, but from an indirect comparison we showed no improvement over abiraterone and androgen deprivation therapy. We have not formally compared the abiraterone and enzalutamide trial with trials testing enzalutamide. But, given the similar efficacy reported when combining enzalutamide with androgen deprivation therapy,¹² we also conclude that combining abiraterone with enzalutamide would not be more effective. Overall, increased toxicity with the combination of abiraterone and enzalutamide does not justify further exploration in unselected patients.
+
+
+
+Combining apalutamide or enzalutamide with abiraterone for patients with metastatic castration-resistant prostate cancer might improve progression-free survival but consistent with our findings, these trials showed no improvement in overall survival. 18-20 Similarly, there was no improvement in overall survival of patients with high-risk localised prostate cancer when abiraterone was indirectly compared with abiraterone and enzalutamide (administered as adjuvant therapy for 2 years). 14 Therefore, treatment efficacy with abiraterone is unlikely to be reduced by an increase in androgens or reactivation of ligand-binding domain-dependent reactivation of androgen receptor signalling (given that combining abiraterone with an effective androgen receptor antagonist, enzalutamide, has no discernible long-term benefit). This finding is consistent with the low response rate observed from sequential use of either treatment. 21
+
+
+
+The periods of accrual to both trials overlapped with another separate trial that randomly assigned patients with metastatic cancer to radiotherapy to the primary tumour and reported improved overall survival for those with low-volume metastatic disease.22 Although abiraterone-containing trials shared patients who received standard of care (control) with the radiotherapy trial, none were randomly assigned to the study drug groups so we are unable to comment on the interaction between radiotherapy and hormone intensification.
+
+
+
+By leveraging resources across several trials, our
+follow-up of patients allocated to abiraterone was longer
+than feasible in other trials, which allowed us to make
+additional observations. Notably, the survival benefit of
+starting abiraterone with androgen deprivation therapy
+
+
+
+www.thelancet.com/oncology Vol 24 May 2023
+
+
+
+453

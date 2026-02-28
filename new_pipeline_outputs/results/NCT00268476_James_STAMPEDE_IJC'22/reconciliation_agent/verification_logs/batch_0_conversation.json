@@ -1,0 +1,226 @@
+{
+  "doc_id": "NCT00268476_James_STAMPEDE_IJC'22",
+  "tool_calls_sequence": [
+    {
+      "name": "submit_verification",
+      "args": {
+        "results_keys": [
+          "Quality of Life Scale",
+          "COE_RCT_IND_OVERALL_RJ"
+        ]
+      }
+    },
+    {
+      "name": "get_page",
+      "args": {
+        "page_numbers": [
+          1,
+          10,
+          3,
+          5,
+          4
+        ]
+      }
+    }
+  ],
+  "conversation": [
+    {
+      "turn": 0,
+      "role": "user",
+      "content": "Reconcile the following columns. Document has 13 pages. Sources are anonymous (A and B).\n\nCOLUMNS:\n\n---\nColumn 1: Add-on Treatment\nDefinition: What is the name of additional therapy or intervention given in combination with the primary treatment in the clinical trial?. If reported, provide the value; otherwise use 'Not reported'.\n  A: value=\"abiraterone acetate plus prednisolone\" | page=1 | modality=text | reasoning=\"The abstract and methods sections consistently refer to 'abiraterone acetate plus prednisolone' or 'AAP' as the additional therapy.\"\n  B: value=\"Not reported\" | page=None | modality=text | reasoning=\"Agent did not submit\"\n\n---\nColumn 2: COE_RCT_IND_OVERALL_RJ\nDefinition: What is the overall risk judgment of individual criteria of evidence (COE) in randomized controlled trials (RCT)?.\n  A: value=\"Not reported\" | page=None | modality=text | reasoning=\"This information is not typically reported within a clinical trial paper itself, as it is a qualitative assessment made by a reviewer.\"\n  B: value=\"Not reported\" | page=None | modality=text | reasoning=\"Agent did not submit\"\n\n---\nColumn 3: Class of Agent in Treatment Arm 1\nDefinition: What the type or category of therapeutic agent used in the first experimental arm of the clinical trial?. If reported, provide the value; otherwise use 'Not reported'.\n  A: value=\"androgen receptor axis inhibitor\" | page=10 | modality=text | reasoning=\"The discussion section states: 'While those agents are androgen receptor antagonists, all three drugs work by targeting the androgen receptor axis.' referring to abiraterone, enzalutamide, and apalutamide.\"\n  B: value=\"Not reported\" | page=None | modality=text | reasoning=\"Agent did not submit\"\n\n---\nColumn 4: Control Arm\nDefinition: What the name of the arm in the clinical trial that does not receive the experimental treatment, serving as a comparison group?. If reported, provide the value; otherwise use 'Not reported'.\n  A: value=\"Standard-of-care (SOC)\" | page=3 | modality=text | reasoning=\"The abstract and methods sections refer to the control arm as 'Standard-of-care (SOC)' or 'SOC-alone'.\"\n  B: value=\"Not reported\" | page=None | modality=text | reasoning=\"Agent did not submit\"\n\n---\nColumn 5: Control Arm - N\nDefinition: What the total number of participants included in the control arm of the clinical trial?. If reported, provide the value; otherwise use 'Not reported'. If the trial contains multiple control arms, report for all separately\n  A: value=\"502\" | page=5 | modality=figure | reasoning=\"Figure 1 and Table 1 both show 'N = 502' for the SOC-alone group.\"\n  B: value=\"Not reported\" | page=None | modality=text | reasoning=\"Agent did not submit\"\n\n---\nColumn 6: Median Follow-Up Duration (mo)\nDefinition: What the median length of time, measured in months, that participants in the clinical trial were followed up or monitored after the start of the trial? If reported, include the value; use 'Not reported' if missing.\n  A: value=\"73\" | page=3 | modality=text | reasoning=\"The 'What's new?' section and the 'Results' section state 'Median follow-up increased from 52 to 73 months.' and 'Median follow-up was 73 months (6.1 years).', respectively.\"\n  B: value=\"Not reported\" | page=None | modality=text | reasoning=\"Agent did not submit\"\n\n---\nColumn 7: Number of Arms Included\nDefinition: What is the total count of experimental treatment arms and control arms included in the clinical trial?. If reported, provide the value; otherwise use 'Not reported'.\n  A: value=\"2\" | page=3 | modality=text | reasoning=\"The abstract states: 'The comparison randomised patients 1:1 to SOC-alone with or without daily abiraterone acetate 1000 mg + prednisolone 5 mg (SOC + AAP)', indicating two arms.\"\n  B: value=\"Not reported\" | page=None | modality=text | reasoning=\"Agent did not submit\"\n\n---\nColumn 8: Primary Endpoint(s)\nDefinition: What the main outcome(s) or objective(s) that the clinical trial is designed to measure or achieve?. If reported, provide the value; otherwise use 'Not reported'.\n  A: value=\"overall survival\" | page=3 | modality=text | reasoning=\"The abstract and methods section 2.4 both state: 'The primary outcome measure was overall survival.'\"\n  B: value=\"Not reported\" | page=None | modality=text | reasoning=\"Agent did not submit\"\n\n---\nColumn 9: Quality of Life Scale\nDefinition: What a measure of the participants' overall well-being and satisfaction with their health status, as assessed through a standardized questionnaire or survey, reflecting their perceived quality of life during the clinical trial?.\n  A: value=\"Not reported\" | page=None | modality=text | reasoning=\"While 'QOL' is listed in the abbreviations, no specific quality of life scale used in this study is mentioned or reported in the text or tables.\"\n  B: value=\"Not reported\" | page=None | modality=text | reasoning=\"Agent did not submit\"\n\n---\nColumn 10: Quality of Life reported\nDefinition: Does the clinical trial report results on the quality of life of participants? Answer Yes or No\n  A: value=\"No\" | page=10 | modality=text | reasoning=\"The discussion section states: 'No additional toxicity data has been collected since the primary report in 2017, so we have not updated those aspects here.' This implies that QoL results, often linked to toxicity, are not reported in this long-term analysis.\"\n  B: value=\"Not reported\" | page=None | modality=text | reasoning=\"Agent did not submit\"\n\n---\nColumn 11: Secondary Endpoint(s)\nDefinition: What the secondary outcome(s) or objective(s) of the clinical trial, in addition to the primary endpoint, that are being measured or evaluated?. If reported, provide the value; otherwise use 'Not reported'.\n  A: value=\"failure-free survival, progression-free survival, metastatic progression-free survival, skeletal-related events, disease-specific survival, toxicity and therapy for progression\" | page=4 | modality=text | reasoning=\"Section 2.4 'Outcome measures and statistical analysis' lists: 'secondary outcomes of failure-free survival, progression-free survival, metastatic progression-free survival, skeletal-related events, disease-specific survival, toxicity and therapy for progression.'\"\n  B: value=\"Not reported\" | page=None | modality=text | reasoning=\"Agent did not submit\"\n\n---\nColumn 12: Total Participants - N\nDefinition: What are the total number of participants included in the clinical trial? These include only participants who were inlcuded in either the treatment or control arm of the clinical trial. If reported, provide the value; otherwise use 'Not reported'.If multiple comparative trials are mentioned, report for all separately\n  A: value=\"1003\" | page=3 | modality=text | reasoning=\"The abstract states: 'One thousand and three patients were contemporaneously randomised' and Figure 1 shows 'Metastatic disease at randomisation N = 1003'.\"\n  B: value=\"Not reported\" | page=None | modality=text | reasoning=\"Agent did not submit\"\n\n---\nColumn 13: Treatment Arm - N\nDefinition: What are the total number of participants included in the experimental arm of the clinical trial?. If reported, provide the value; otherwise use 'Not reported'. If the trial contains multiple treatment arms, report for all separately\n  A: value=\"501\" | page=5 | modality=figure | reasoning=\"Figure 1 and Table 1 both show 'N = 501' for the SOC + AAP group.\"\n  B: value=\"Not reported\" | page=None | modality=text | reasoning=\"Agent did not submit\"\n\n---\nColumn 14: Treatment Arm 1 Regimen\nDefinition: What the specific treatment protocol or regimen used in the experimental arms of the clinical trial?. If reported, provide the treament regimen used ; otherwise use 'Not reported'.\n  A: value=\"abiraterone acetate 1000 mg daily with prednisolone 5 mg daily\" | page=3 | modality=text | reasoning=\"The abstract and section 2.3 'Procedures' specify: 'daily abiraterone acetate 1000 mg + prednisolone 5 mg' and 'abiraterone (1000 mg daily) with prednisolone (5 mg daily)'.\"\n  B: value=\"Not reported\" | page=None | modality=text | reasoning=\"Agent did not submit\"\n\n---\nColumn 15: Treatment Arm(s)\nDefinition: What name of the experimental arm or arms in the clinical trial?. If reported, provide the value; otherwise use 'Not reported'.\n  A: value=\"SOC + AAP\" | page=1 | modality=text | reasoning=\"The abstract and methods sections refer to the experimental arm as 'SOC + AAP' (Standard-of-care plus abiraterone acetate + prednisolone/prednisone).\"\n  B: value=\"Not reported\" | page=None | modality=text | reasoning=\"Agent did not submit\"\n\n\nSubmit verification for easy columns first. For disputed columns, use get_page then submit."
+    },
+    {
+      "turn": 2,
+      "role": "tool",
+      "name": "submit_verification",
+      "args": {
+        "results_keys": [
+          "Quality of Life Scale",
+          "COE_RCT_IND_OVERALL_RJ"
+        ]
+      },
+      "response": {
+        "submitted": [
+          "Quality of Life Scale",
+          "COE_RCT_IND_OVERALL_RJ"
+        ]
+      }
+    },
+    {
+      "turn": 3,
+      "role": "tool",
+      "name": "get_page",
+      "args": {
+        "page_numbers": [
+          1,
+          10,
+          3,
+          5,
+          4
+        ]
+      },
+      "response": {
+        "formatted_chunks": "[Page 1]\n## Page 1\n\nCheck for updates\n\n\n\nReceived: 10 December 2021 Revised: 15 February 2022 Accepted: 22 February 2022\n\n\n\nDOI: 10.1002/ijc.34018\n\n\n\n<::IJC INTERNATIONAL JOURNAL of CANCER\nUICC\nglobal cancer control\n: figure::>\n\n\n\nCANCER THERAPY AND PREVENTION\n\n\n\nAbiraterone acetate plus prednisolone for metastatic patients\nstarting hormone therapy: 5-year follow-up results from the\nSTAMPEDE randomised trial (NCT00268476)\n\n\n\nNicholas D. James\u00b9 ID | Noel W. Clarke\u00b2 ID | Adrian Cook\u00b3 ID | Adnan Ali\u2074 ID |\nAlex P. Hoyle\u2075 ID | Gerhardt Attard\u2076 ID | Christopher D. Brawley\u00b3 ID |\nSimon Chowdhury\u2077 ID | William R. Cross\u2078 ID | David P. Dearnaley\u2079 ID |\nJohann S. de Bono\u00b9 ID | Carlos Diaz-Montana\u00b3 ID | Duncan Gilbert\u00b3 ID |\nSilke Gillessen\u00b9\u2070 ID | Clare Gilson\u00b3,\u00b9\u00b9 ID | Rob J. Jones\u00b9\u00b2 ID | Ruth E. Langley\u00b3 ID |\nZafar I. Malik\u00b9\u00b3 ID | David J. Matheson\u00b9\u2074 ID | Robin Millman\u00b9\u2075 ID | Chris C. Parker\u00b9\u2076 ID |\nCheryl Pugh\u00b3 ID | Hannah Rush\u00b3,\u00b9\u2077 ID | J. Martin Russell\u00b9\u2078,\u00b9\u2079 |\nDominik R. Berthold\u00b2\u2070 ID | Michelle L. Buckner\u00b3 ID | Malcolm D. Mason\u00b2\u00b9 ID |\nAlastair W. S. Ritchie\u00b2\u00b2 ID | Alison J. Birtle\u00b2\u00b3 ID | Susannah J. Brock\u00b2\u2074 ID |\nPrantik Das\u00b2\u2075 ID | Dan Ford\u00b2\u2076 ID | Joanna Gale\u00b2\u2077 ID | Warren Grant\u00b2\u2078 ID |\nEmma K. Gray\u00b2\u2079 ID | Peter Hoskin\u00b3\u2070 ID | Mohammad M. Khan\u00b3\u00b9,\u00b3\u00b2 ID |\nCaroline Manetta\u00b3\u00b3 ID | Neil J. McPhail\u00b3\u2074 ID | Joe M. O'Sullivan\u00b3\u2075 ID |\nOmi Parikh\u00b3\u2076 ID | Carla Perna\u00b3\u2077 ID | Carmel J. Pezaro\u00b3\u2078 ID |\nAndrew S. Protheroe\u00b3\u2079 ID | Angus J. Robinson\u2074\u2070 ID | Sarah M. Rudman\u00b9\u2077 ID |\nDenise J. Sheehan\u2074\u00b9 ID | Narayanan N. Srihari\u2074\u00b2 ID | Isabel Syndikus\u00b9\u00b3 ID |\nJacob S. Tanguay\u2074\u00b3 ID | Carys W. Thomas\u2074\u2074 ID | Salil Vengalil\u2074\u2075 ID | John Wagstaff\u2074\u2076 ID |\nJames P. Wylie\u2074 ID | Mahesh K. B. Parmar\u00b3 ID | Matthew R. Sydes\u00b3 ID | for the\nSTAMPEDE Trials Collaborative Group\n\n\n\n\u00b9Institute of Cancer Research, London, UK\n\u00b2The Departments of Surgery & Urology, The Christie & Salford Royal Hospitals, Manchester, UK\n\u00b3MRC Clinical Trials Unit at UCL, Institute of Clinical Trials & Methodology, UCL, London, UK\n\u2074The Christie NHS Foundation Trust, Manchester, UK\n\u2075Salford Royal HS Foundation Trust, Manchester, UK\n\n\n\nAbbreviations: AA, abiraterone acetate; AAP, abiraterone acetate + prednisone/prednisolone; ADT, androgen deprivation therapy; BP, blood pressure; CI, confidence interval; CRUK, Cancer Research UK; CT, computerised tomography (as in CT scan); CTCAE, Common Terminology Criteria for Adverse Events; CTU, clinical trials unit; FFS, failure-free survival; GnRH, gonadotrophin-releasing hormone; HR, hazard ratio; IQR, interquartile range; mg, milligrams; MRC, Medical Research Council; MRI, magnetic resonance imaging; NHS, National Health Service; NIHR, National Institute of Health Research; NSAID, nonsteroidal antiinflammatory drug; PSA, prostate-specific antigen; QOL, quality of life; SAKK, Swiss Group for Clinical Cancer Research; SOC, standard-of-care; SOC + AAP, standard-of-care plus abiraterone acetate + prednisone/prednisolone; UCL, University College London; UK, United Kingdom; WHO, World Health Organisation.\n\nMahesh K. B. Parmar and Matthew R. Sydes contributed equally to our study.\n\nConference presentation: Preliminary data underpinning this article were presented at the European Society of Medical Oncology 2020: https://doi.org/10.1016/j.annonc.2020.08.871.\n\n[Correction added on 6 June 2022, after first online publication - text for subgroup did not match table: Figure 2 and Figure 3 captions have been amended to better clarify the content; \"for the STAMPEDE Trials Collaborative Group\" has been added at the end of the author group.]\n\n\n\n---\nThis is an open access article under the terms of the Creative Commons Attribution License, which permits use, distribution and reproduction in any medium, provided the original work is properly cited.\n\n\u00a9 2022 The Authors. *International Journal of Cancer* published by John Wiley & Sons Ltd on behalf of UICC.\n\n\n\n422\n\n\n\nwileyonlinelibrary.com/journal/ijc\n\n\n\nInt. J. Cancer. 2022;151:422-434.\n\n---\n\n[Page 3]\n## Page 3\n\n424\n\n\n\n<::IJC INTERNATIONAL JOURNAL OF CANCER: logo::>\n\n\n\n<::logo: UICC\nUICC\nglobal cancer control\nAn orange speech bubble icon with a globe symbol next to the text \"UICC\".::>\n\n\n\nJAMES ET AL.\n\n\n\nFunding information\nThe sponsor was University College London,\ntransferred during the comparison from the\nUK Medical Research Council (MRC). The trial\nwas conducted by the MRC Clinical Trials Unit\nat UCL.\nIn the United Kingdom, it was funded by\nCancer Research UK (CRUK_A12459) and the\nMedical Research Council\n(MRC_MC_UU_12023/25,\nMC_UU_00004/01), and supported by the UK\nClinical Research Network. In Switzerland, it\nwas funded by the Swiss Group for Cancer\nClinical Research (SAKK). Industry\ncollaboration and support for this comparison\nhas been provided to the STAMPEDE protocol\nby Janssen. Further support to STAMPEDE\nhas been provided by Astellas, Clovis\nOncology, Janssen, Novartis, Pfizer and\nSanofi-Genzyme. MRC employees were\ncentral to the conduct of the trial and the\ndevelopment of this article.\nThe funding bodies had no role in determining\nthis publication.\nNDJ, CCP and DPD were supported by the\nNational Institute for Health Research (NIHR)\nBiomedical Research Centre at The Royal\nMarsden NHS Foundation Trust and the\nInstitute of Cancer Research, London. The\nviews expressed are those of the authors and\nnot necessarily those of the NIHR or the\nDepartment of Health and Social Care.\n\n\n\nThe comparison randomised patients 1:1 to SOC-alone with or without daily abiraterone acetate 1000 mg + prednisolone 5 mg (SOC + AAP), continued until disease progression. The primary outcome measure was overall survival. Metastatic disease risk group was clas- sified retrospectively using baseline CT and bone scans by central radiological review and pathology reports. Analyses used Cox proportional hazards and flexible parametric models, accounting for baseline stratification factors. One thousand and three patients were con- temporaneously randomised (November 2011 to January 2014): median age 67 years; 94% newly-diagnosed; metastatic disease risk group: 48% high, 44% low, 8% unassessable; median PSA 97 ng/mL. At 6.1 years median follow-up, 329 SOC-alone deaths (118 low-risk, 178 high-risk) and 244 SOC + AAP deaths (75 low-risk, 145 high- risk) were reported. Adjusted HR = 0.60 (95% CI: 0.50-0.71; P = 0.31 \u00d7 10-9) favoured SOC + AAP, with 5-years survival improved from 41% SOC-alone to 60% SOC + AAP. This was similar in low-risk (HR = 0.55; 95% CI: 0.41-0.76) and high-risk (HR = 0.54; 95% CI: 0.43-0.69) patients. Median and current maximum time on SOC + AAP was 2.4 and 8.1 years. Toxicity at 4 years postrandomisation was similar, with 16% patients in each group reporting grade 3 or higher toxicity. A sustained and substantial improvement in overall survival of all metastatic prostate cancer patients was achieved with SOC + abiraterone acetate + prednisolone, irrespective of metastatic disease risk group.\n\n\n\nKEYWORDS\nabiraterone, clinical trial, hormone therapy, phase III, prostate cancer, randomised controlled\ntrial, survival\n\n\n\nWhat's new?\nInitial results from the STAMPEDE trial for advanced prostate cancer showed that adding abiraterone acetate and prednisone (AAP) to androgen deprivation therapy improved progression-free survival. Here, the authors present long-term results of metastatic patients in the STAMPEDE trial. Median follow-up increased from 52 to 73 months. They found that AAP improved overall survival of all metastatic prostate cancer patients, whether their disease was high-risk or low-risk.\n\n\n\n1 | INTRODUCTION\n\nIntensifying Androgen Deprivation Therapy (ADT) with abiraterone,\nenzalutamide or apalutamide is effective for metastatic prostate can-\ncer. 1-7 The LATITUDE trial defined metastatic disease risk groups and\nrecruited only patients from a predefined 'high-risk' group. That trial has\nreported a sustained improvement in survival after a median of\n52 months. The primary analysis of the STAMPEDE 'abiraterone com-\nparison' was presented in 2017 and reported clinically meaningful and\nstatistically significant improvements in overall and progression-free sur-\nvival for adding abiraterone acetate with prednisolone to life-long ADT\ncompared to life-long ADT alone. 6 A long-term analysis was planned for\n3 years after the primary analysis. In 2019, the STAMPEDE Trial\nSteering Committee, which includes members independent of the Trial\nManagement Group, agreed that future analyses should present results\nseparately for metastatic (M1) and nonmetastatic (M0) patients.\n\n\n\nWe present here the long-term results of metastatic patients in\nthe STAMPEDE 'abiraterone comparison' with an increase in median\n\n\n\nfollow-up to 73 months and an increase >50% in the number of deaths. This analysis also incorporates the separation of cases by met-astatic disease risk group, classified retrospectively, using the system adopted in the LATITUDE trial.<sup>4,5</sup> The extended follow-up from our previous article<sup>8</sup> with additional events is of particular importance in clarifying treatment effects for patients with low-risk disease since they were excluded from the LATITUDE trial.<sup>4,5</sup>\n\n\n\n2 | METHODS\n\nThe patients, design, treatment and analytic approach have been\ndescribed in detail previously\u2076 and are summarised here.\n\n\n\n## 2.1 | Study participants\n\nFor this comparison in STAMPEDE, eligible patients had metastatic prostate cancer that was newly-diagnosed or relapsing after previous\n\n---\n\n[Page 4]\n## Page 4\n\nJAMES ET AL.\n\n\n\n<::transcription of the content\n: INTERNATIONAL JOURNAL of CANCER\nUICC\nglobal cancer control\n::>\n\n\n\n425\n\n\n\nlocal therapy and were initiating long-term androgen deprivation ther-\napy (ADT) which had started no longer than 12 weeks prior to ran-\ndomisation. There were no age restrictions, but patients were\nrequired to have no clinically significant cardiovascular history. For\nthis analysis, patients had metastatic disease confirmed by scinti-\ngraphic bone scan and cross-sectional soft tissue imaging performed\nwithin 12 weeks of starting ADT.\n\n\n\n## 2.2 | Randomisation and masking\n\nPatients were randomised centrally using a computerised algorithm, developed and maintained by the MRC Clinical Trials Unit at UCL. Minimisation with a random element of 20% was used, stratifying for hospital, age at randomisation (<70 vs \u226570 years), nodal involvement (negative vs positive vs indeterminate), WHO performance status (0 vs 1 or 2), planned SOC therapy, and regular aspirin or NSAID use (yes or no). Allocation was 1:1 to standard-of-care (SOC-alone) only group or SOC-alone with abiraterone acetate and prednisolone/prednisone group (SOC + AAP). There was no blinding to treatment allocation for practical reasons and the key efficacy outcome measures were objective.\n\n\n\n## 2.3 | Procedures\n\nAll patients received lifelong ADT using gonadotrophin-releasing hormone (GnRH) agonists, antagonists, or orchidectomy. Patients allocated to the SOC + AAP group were also planned to receive abiraterone (1000 mg daily) with prednisolone (5 mg daily). Treatment continued until progression that usually included PSA but also required radiologic or clinical progression, or initiation of second-line therapy. Dose modifications were described in the protocol.\n\n\n\nPatients were followed-up 6-weekly until 6 months after ran-domisation, 12-weekly to 2 years, 6-monthly to 5 years and then annually. PSA was measured at every follow-up visit; further tests were at the clinician's discretion. Nadir PSA was the lowest PSA reported within 24 weeks after randomisation. Regular safety moni-toring was required as per the abiraterone product characteristics recommendations. Toxicities and symptoms were reported at regu-lar follow-up visits, if associated with a change in treatment or when an adverse event was categorised as 'serious'. These were graded with Common Terminology Criteria (CTCAE) v3.0 until Feb-2015, v4.0 subsequently. Limited data were collected on long-term toxicity.\n\n\n\nMetastatic disease risk group at randomisation was evaluated\nthrough whole body scintigraphy and CT or MRI staging scans. Bone\nscans were centralised and reviewed by two co-authors (AH and AA)\nwith 10% independent review by a consultant uro-radiologist. Visceral\nmetastases and Gleason score were recorded prior to randomisation.\nGleason score was reported locally by a clinically qualified pathologist.\nThe metastatic disease risk group was classified according to the\n\n\n\ndefinition used in the LATITUDE trial,<sup>1,2</sup> with high-risk disease defined as\nat least two of: \u22653 bone metastases; visceral metastases; Gleason\nscore \u22658.\n\n\n\n2.4 | Outcome measures and statistical analysis\n\nThe primary outcome for this comparison was overall survival, with secondary outcomes of failure-free survival, progression-free survival, metastatic progression-free survival, skeletal-related events, disease-specific survival, toxicity and therapy for progression.\n\n\n\nAll analyses were by intention-to-treat. For time-to-event out- comes, the stratified log-rank test was used to test for differences between groups. Estimates of effect were obtained from stratified Cox regression models, with Kaplan-Meier plots presented in KMunicate format. The Grambsch-Therneau test was used to check the proportional hazards assumption, with restricted mean survival times from a flexible parametric model taking precedence in the presence of nonproportional hazards (shown where needed). Statis- tical significance was two-sided, taken as a P-value of .05, with no formal adjustment for interim analyses since this was preconsidered in the design. Differences in categorical variables were analysed using the x2 test. The prevalence of adverse effects at 2 and 4 years after randomisation are presented for the solicited categories. Fur- ther drug treatment at any time after primary treatment failure is also presented.\n\n\n\nA sensitivity analysis was undertaken to exclude patients who did\nnot meet the strictest interpretation of all the protocol eligibility\ncriteria, which primarily related to baseline blood pressure. The eligi-\nbility criteria excluded patients with uncontrolled hypertension.\nPatients reported as being fit for the trial, with no signs of uncon-\ntrolled hypertension or other severe cardiovascular history, but whose\nsingle baseline blood pressure (BP) reading was out-of-range were\nconservatively excluded in sensitivity analysis.\n\n\n\n3 | RESULTS\n\nBetween 15 November 2011 and 17 January 2014, 1917 patients were randomised to the arms of STAMPEDE constituting the 'abiraterone comparison'. Of these, all 1003 patients with metastatic disease were analysed here: 502 (50%) allocated to standard treatment (SOC-alone group) and 501 (50%) to standard treatment plus abiraterone and prednisolone (SOC + AAP group) (Figure 1). Median age at randomisation was 67 years (IQR 62-71), 941 (94%) had newly diagnosed disease (Table 1). Metastatic disease risk group was retrospectively classified as low-risk in 436 (43%) patients, high in 473 (47%) and was unclassified in a further 94 (9%). Bone metastases were detected in 882 (88%) patients and distant lymph node metastases in 293 (29%). All baseline disease characteristics were balanced between randomised groups.\n\n---\n\n[Page 5]\n## Page 5\n\n426\n\n\n\n<::transcription of the content\n: IJC\nINTERNATIONAL JOURNAL of CANCER\nuicc\nglobal cancer control\n::>\n\n\n\nJAMES ET AL.\n\n\n\n<::Joined STAMPEDE while 'Abiraterone comparison' was open to recruitment N = 2752\n  -> Allocated to SOC-only group or SOC+AAP group N = 1917\n  -> Allocated to other treatment groups N = 835\n\nAllocated to SOC-only group or SOC+AAP group N = 1917\n  -> Metastatic disease at randomisation N = 1003\n  -> Non-metastatic disease at randomisation N = 914\n\nMetastatic disease at randomisation N = 1003\n  -> Allocated to SOC N = 502\n  -> Allocated to SOC+AAP N = 501\n\nAllocated to SOC N = 502\n  -> At datalock:\n     In follow-up, N = 165\n     Died, N = 329\n     Previously stopped participation,* n = 8\n\nAllocated to SOC+AAP N = 501\n  -> At datalock:\n     In follow-up, N = 246\n     Died, N = 244\n     Previously stopped participation,* n = 11\n: flowchart::>\n\n\n\n* Withdrew and refused permission for future health data to be collected\nAAP, abiraterone acetate + prednisolone/prednisone; SOC, standard-of-care\n\n\n\nFIGURE 1 CONSORT diagram\n|  |  |  |  |\n| --- | --- | --- | --- |\n|  | SOC-alone | SOC + AAP | All |\n|  | n = 502 | n = 501 | n = 1003 |\n| Age (years) | Age (years) | Age (years) | Age (years) |\n| Median (IQR) | 67 (62-72) | 67 (62-71) | 67 (62-71) |\n| Range | 39-84 | 42-85 | 39-85 |\n| Eligibility category | Eligibility category | Eligibility category | Eligibility category |\n| Newly diagnosed | 475 (95%) | 466 (93%) | 941 (94%) |\n| Relapsing | 27 (5%) | 35 (7%) | 62 (6%) |\n| PSA (ng/mL) | PSA (ng/mL) | PSA (ng/mL) | PSA (ng/mL) |\n| Median (IQR) | 97.2 (26.0-358) | 96.3 (29-371) | 96.9 (27.3-363) |\n| Range | 0.6-10 530 | 0.1-21 460 | 0.1-21 460 |\n| Metastatic disease risk group | Metastatic disease risk group | Metastatic disease risk group | Metastatic disease risk group |\n| Low-risk | 220 (44%) | 208 (42%) | 428 (43%) |\n| High-risk | 232 (46%) | 241 (48%) | 473 (47%) |\n| Unclassified | 50 (10%) | 52 (10%) | 102\u00aa (10%) |\n| Site of metastases | Site of metastases | Site of metastases | Site of metastases |\n| Bone | 448 (89%) | 434 (87%) | 882 (88%) |\n| Liver | 8 (2%) | 7 (1%) | 15 (2%) |\n| Lung | 21 (4%) | 21 (4%) | 42 (4%) |\n| Distant lymph nodes | 150 (30%) | 143 (29%) | 293 (29%) |\n| Other | 26 (5%) | 23 (5%) | 49 (5%) |\nTABLE 1 Baseline characteristics\n\n\n\nAbbreviations: AAP, abiraterone acetate + prednisolone/prednisone; IQR, interquartile range; SOC, standard-of-care.\naIncludes 14 patients at Swiss sites for whom imaging could not be obtained.\nbPatients can be in multiple categories.\n\n---\n\n[Page 10]\n## Page 10\n\nJAMES ET AL.\n\n\n\nIJC\nINTERNATIONAL\nJOURNAL of CANCER\nUICC\nglobal cancer control\n\n\n\n431\n\n\n\nTABLE 4 Combined analyses from STAMPEDE and LATITUDE\n|  |  |  |  |  |  |\n| --- | --- | --- | --- | --- | --- |\n| Trial & population | Published | Pts | Control | Research | Hazard ratio (95% CI) |\n| LATITUDE | LATITUDE | LATITUDE | LATITUDE | LATITUDE | LATITUDE |\n| M1, High-risk | First results: 20174 | 1199 | 232/602 | 169/597 | 0.62 (0.51-0.76) |\n|  | Updated results: 20195 | 1199 | 305/602 | 230/597 | 0.66 (0.56-0.78) |\n| STAMPEDE 'abiraterone comparison' | STAMPEDE 'abiraterone comparison' | STAMPEDE 'abiraterone comparison' | STAMPEDE 'abiraterone comparison' | STAMPEDE 'abiraterone comparison' | STAMPEDE 'abiraterone comparison' |\n| All: M0 and M1, any risk | First results: 20176 | 1917 | 262/957 | 184/960 | 0.63 (0.52-0.76) |\n| Subset: M1, any risk | First results: 20176 | 1002 | 218/502 | 150/501 | 0.61 (0.49-0.75) |\n|  | Updated results (here) | 1002 | 329/502 | 244/501 | 0.60 (0.50-0.71) |\n| Subset: M1, high-risk | First results: 20198a | 473 | 136/232 | 94/241 | 0.54 (0.41-0.70) |\n|  | Updated results (here) | 473 | 178/232 | 145/241 | 0.54 (0.43-0.69) |\n| Combined | Combined | Combined | Combined | Combined | Combined |\n| Metastatic, any risk |  |  | 634/1104 | 182/1097 | 0.63 (0.50-0.71) |\n| Metastatic, high-risk |  |  | 483/843 | 182/829 | 0.62 (0.54-0.71) |\nNote: Risks defined using the metastatic disease risk group system used for LATITUDE.\n\u00aaSame data freeze as 2017 paper.\n\n\n\npatients with metastatic prostate cancer, not just those in the high-\nrisk metastatic disease risk group defined for LATITUDE. Our long-\nterm results are strikingly similar to those observed with both\napalutamide \u00b9,\u00b2 and enzalutamide\u00b3 in trials with similar eligibility\ncriteria to the metastatic population into STAMPEDE. While those\nagents are androgen receptor antagonists, all three drugs work by\ntargeting the androgen receptor axis. This suggests that a choice of\nany of these agents may be clinically reasonable and should be driven\nby secondary considerations such as side-effect profiles or cost rather\nthan by primary efficacy or disease risk/metastatic burden. No addi-\ntional toxicity data has been collected since the primary report in\n2017, so we have not updated those aspects here. No further treat-\nment for relapse had been reported for 29 of the 329 patients on the\ncontrol arm who had died. Planned future access to national\nhealthcare system data may facilitate reporting of additional long-term\nadverse events, such as late effects on cardiovascular effects, skeletal\nevents and the need for additional systemic therapies.\n\n\n\nMost patients in STAMPEDE had de novo metastatic disease, a\nhigher proportion than most other trials in this setting and few\npatients had visceral metastatic disease at entry. Therefore, these trial\ndata could not be used to explore whether there is a differential treat-\nment effect by these characteristics.\n\n\n\nThe widely-accessible, alternative standard-of-care for men with hormone-sensitive metastatic prostate cancer is docetaxel. 11,12 Controversy exists as to whether metastatic disease risk group predicts the effectiveness of the agent. Previous data from STAMPEDE supports the use of docetaxel as an alternative to androgen receptor targeting in all newly-diagnosed groups irrespective of metastatic disease risk group. 10,13 Direct comparison of patient-related QoL outcomes previously supported the use of abiraterone over docetaxel, 14 however, costs of abiraterone are currently higher than docetaxel and hence reimbursement varies in different countries. As the abiraterone patent will be expired in most territories in the coming years, these costs can be expected to fall.\n\n\n\nWe have previously reported the effects of prostate radiother-\napy for hormone-sensitive metastatic prostate cancer from another\ncomparison in STAMPEDE.<sup>15</sup> Patients in that comparison did not\nreceive upfront abiraterone hence we do not currently know the\neffect of the interaction between these two possible upfront thera-\npies. The forthcoming data from the PEACE-1 trial, recently pres-\nented at ESMO, reports a failure free and overall survival advantage\nfrom the triplet compared to the ADT-abiraterone doublet. Further\ndata are awaited from the ENZAMET and ARASENS trials on the\nsame question. No trial has addressed the reverse question (should\ndocetaxel be added to abiraterone). There will be quality of life plus\nrelative fitness for docetaxel vs abiraterone issues that will likely limit\nuptake of the triplet therapy. Long-term follow-up of the comple-\nmentary cohort of nonmetastatic patients from this 'abiraterone\ncomparison' in STAMPEDE were analysed alongside first results from\nthe trial 'enzalutamide + abiraterone comparison' and show compel-\nling evidence of improved metastases-free survival and overall sur-\nvival with abiraterone-based therapy. Those nonmetastatic patients\ndid receive radiotherapy in the majority of cases, unless there was a\nclinical contraindication.<sup>16</sup>\n\n\n\nIn conclusion, this extended analysis further reinforces the body\nof data on the substantial benefits of upfront targeting of the andro-\ngen receptor pathway using abiraterone acetate in all men with\nhormone-sensitive metastatic prostate cancer, irrespective of meta-\nstatic disease risk group.\n\n\n\n## AUTHOR CONTRIBUTION\nNicholas D James was the Chief Investigator. MP developed the MAMS concept. Nicholas D James was the Comparison Chief Investigator. Mahesh KB Parmar, Nicholas D James, Matthew R Sydes, Ruth E Langley, Noel W Clarke, Malcolm D Mason and David P Dearnaley designed the trial. David P Dearnaley, Nicholas D James, Malcolm D Mason, Mahesh KB Parmar, Matthew R Sydes and Noel W Clarke were Grant holders (UK). Nicholas D James, Noel W Clarke, Adrian",
+        "pages_returned": [
+          1,
+          3,
+          4,
+          5,
+          10
+        ]
+      }
+    }
+  ],
+  "results": {
+    "Quality of Life Scale": {
+      "value": "Not reported",
+      "reasoning": "Both sources reported \"Not reported\".",
+      "verification": "both_correct",
+      "source": {
+        "page": null,
+        "modality": "text"
+      },
+      "attribution": []
+    },
+    "COE_RCT_IND_OVERALL_RJ": {
+      "value": "Not reported",
+      "reasoning": "Both sources reported \"Not reported\".",
+      "verification": "both_correct",
+      "source": {
+        "page": null,
+        "modality": "text"
+      },
+      "attribution": []
+    },
+    "Add-on Treatment": {
+      "value": "Not reported",
+      "reasoning": "Agent did not resolve before limits",
+      "verification": "both_wrong",
+      "source": {
+        "page": null,
+        "modality": "text"
+      },
+      "attribution": []
+    },
+    "Class of Agent in Treatment Arm 1": {
+      "value": "Not reported",
+      "reasoning": "Agent did not resolve before limits",
+      "verification": "both_wrong",
+      "source": {
+        "page": null,
+        "modality": "text"
+      },
+      "attribution": []
+    },
+    "Control Arm": {
+      "value": "Not reported",
+      "reasoning": "Agent did not resolve before limits",
+      "verification": "both_wrong",
+      "source": {
+        "page": null,
+        "modality": "text"
+      },
+      "attribution": []
+    },
+    "Control Arm - N": {
+      "value": "Not reported",
+      "reasoning": "Agent did not resolve before limits",
+      "verification": "both_wrong",
+      "source": {
+        "page": null,
+        "modality": "text"
+      },
+      "attribution": []
+    },
+    "Median Follow-Up Duration (mo)": {
+      "value": "Not reported",
+      "reasoning": "Agent did not resolve before limits",
+      "verification": "both_wrong",
+      "source": {
+        "page": null,
+        "modality": "text"
+      },
+      "attribution": []
+    },
+    "Number of Arms Included": {
+      "value": "Not reported",
+      "reasoning": "Agent did not resolve before limits",
+      "verification": "both_wrong",
+      "source": {
+        "page": null,
+        "modality": "text"
+      },
+      "attribution": []
+    },
+    "Primary Endpoint(s)": {
+      "value": "Not reported",
+      "reasoning": "Agent did not resolve before limits",
+      "verification": "both_wrong",
+      "source": {
+        "page": null,
+        "modality": "text"
+      },
+      "attribution": []
+    },
+    "Quality of Life reported": {
+      "value": "Not reported",
+      "reasoning": "Agent did not resolve before limits",
+      "verification": "both_wrong",
+      "source": {
+        "page": null,
+        "modality": "text"
+      },
+      "attribution": []
+    },
+    "Secondary Endpoint(s)": {
+      "value": "Not reported",
+      "reasoning": "Agent did not resolve before limits",
+      "verification": "both_wrong",
+      "source": {
+        "page": null,
+        "modality": "text"
+      },
+      "attribution": []
+    },
+    "Total Participants - N": {
+      "value": "Not reported",
+      "reasoning": "Agent did not resolve before limits",
+      "verification": "both_wrong",
+      "source": {
+        "page": null,
+        "modality": "text"
+      },
+      "attribution": []
+    },
+    "Treatment Arm - N": {
+      "value": "Not reported",
+      "reasoning": "Agent did not resolve before limits",
+      "verification": "both_wrong",
+      "source": {
+        "page": null,
+        "modality": "text"
+      },
+      "attribution": []
+    },
+    "Treatment Arm 1 Regimen": {
+      "value": "Not reported",
+      "reasoning": "Agent did not resolve before limits",
+      "verification": "both_wrong",
+      "source": {
+        "page": null,
+        "modality": "text"
+      },
+      "attribution": []
+    },
+    "Treatment Arm(s)": {
+      "value": "Not reported",
+      "reasoning": "Agent did not resolve before limits",
+      "verification": "both_wrong",
+      "source": {
+        "page": null,
+        "modality": "text"
+      },
+      "attribution": []
+    }
+  }
+}

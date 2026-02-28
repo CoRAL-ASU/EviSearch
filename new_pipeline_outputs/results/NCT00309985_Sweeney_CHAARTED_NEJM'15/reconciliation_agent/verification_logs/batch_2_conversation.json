@@ -1,0 +1,284 @@
+{
+  "doc_id": "NCT00309985_Sweeney_CHAARTED_NEJM'15",
+  "tool_calls_sequence": [
+    {
+      "name": "submit_verification",
+      "args": {
+        "results_keys": [
+          "PS - N (%) | 0 | Control",
+          "Gleason score - N (%) | \u2264 7 | Control",
+          "Volume of disease - N (%) | Low | Control",
+          "Mode of metastases - N (%) | Metachronous | Treatment",
+          "Gleason score - N (%) | \u2265 8 | Treatment",
+          "PS - N (%) | 1-2 | Control",
+          "PS - N (%) | 1-2 | Treatment",
+          "Mode of metastases - N (%) | Synchronous | Treatment",
+          "Volume of disease - N (%) | High | Treatment",
+          "Gleason score - N (%) | \u2264 7 | Treatment",
+          "Mode of metastases - N (%) | Synchronous | Control",
+          "Gleason score - N (%) | \u2265 8 | Control",
+          "Mode of metastases - N (%) | Metachronous | Control",
+          "PS - N (%) | 0 | Treatment",
+          "Volume of disease - N (%) | High | Control"
+        ]
+      }
+    }
+  ],
+  "conversation": [
+    {
+      "turn": 0,
+      "role": "user",
+      "content": "Reconcile the following columns. Document has 10 pages. Sources are anonymous (A and B).\n\nCOLUMNS:\n\n---\nColumn 1: Volume of disease - N (%) | High | Treatment\nDefinition: What the number and percentage of participants in the treatment arm of the clinical trial with a high volume or burden of metastatic disease? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.\n  A: value=\"263 (66.2%)\" | page=5 | modality=table | reasoning=\"Extracted from Table 1, 'Volume of metastases - no. (%)' row 'High' for 'ADT plus Docetaxel (N=397)' column.\"\n  B: value=\"263 (66.2)\" | page=5 | modality=table | reasoning=\"Value extracted from Table 1, Baseline Characteristics of the Patients, for the ADT plus Docetaxel arm.\"\n\n---\nColumn 2: Volume of disease - N (%) | High | Control\nDefinition: What the number and percentage of participants in the control arm of the clinical trial with high volume/burden metastasis? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.\n  A: value=\"250 (63.6%)\" | page=5 | modality=table | reasoning=\"Extracted from Table 1, 'Volume of metastases - no. (%)' row 'High' for 'ADT Alone (N=393)' column.\"\n  B: value=\"250 (63.6)\" | page=5 | modality=table | reasoning=\"Value extracted from Table 1, Baseline Characteristics of the Patients, for the ADT Alone arm.\"\n\n---\nColumn 3: Volume of disease - N (%) | Low | Control\nDefinition: What the number and percentage of participants in the control arm of the trial with low volume/burden metastases? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.\n  A: value=\"143 (36.4%)\" | page=5 | modality=table | reasoning=\"Extracted from Table 1, 'Volume of metastases - no. (%)' row 'Low' for 'ADT Alone (N=393)' column.\"\n  B: value=\"143 (36.4)\" | page=5 | modality=table | reasoning=\"Value extracted from Table 1, Baseline Characteristics of the Patients, for the ADT Alone arm.\"\n\n---\nColumn 4: Gleason score - N (%) | \u2264 7 | Treatment\nDefinition: What number and percentage of participants included in the treatment arm of the clinical trial with a Gleason score of 7 or less? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.\n  A: value=\"117 (29.5%)\" | page=5 | modality=table | reasoning=\"Calculated by summing '4-6' (21 [5.3%]) and '7' (96 [24.2%]) from Table 1, 'Gleason score - no. (%)' for 'ADT plus Docetaxel (N=397)' column.\"\n  B: value=\"117 (29.5)\" | page=5 | modality=table | reasoning=\"Sum of '4-6' (21, 5.3%) and '7' (96, 24.2%) Gleason scores from Table 1, Baseline Characteristics of the Patients, for the ADT plus Docetaxel arm.\"\n\n---\nColumn 5: Gleason score - N (%) | \u2264 7 | Control\nDefinition: What number and percentage of patients with a Gleason score of 7 or less in the control arm of the trial? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.\n  A: value=\"104 (26.4%)\" | page=5 | modality=table | reasoning=\"Calculated by summing '4-6' (21 [5.3%]) and '7' (83 [21.1%]) from Table 1, 'Gleason score - no. (%)' for 'ADT Alone (N=393)' column.\"\n  B: value=\"104 (26.4)\" | page=5 | modality=table | reasoning=\"Sum of '4-6' (21, 5.3%) and '7' (83, 21.1%) Gleason scores from Table 1, Baseline Characteristics of the Patients, for the ADT Alone arm.\"\n\n---\nColumn 6: Gleason score - N (%) | \u2265 8 | Treatment\nDefinition: What number and percentage of participants in the treatment arm of the clinical trial with a Gleason score of 8 or higher? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.\n  A: value=\"241 (60.7%)\" | page=5 | modality=table | reasoning=\"Extracted from Table 1, 'Gleason score - no. (%)' row '8-10' for 'ADT plus Docetaxel (N=397)' column.\"\n  B: value=\"241 (60.7)\" | page=5 | modality=table | reasoning=\"Value extracted from Table 1, Baseline Characteristics of the Patients, for the ADT plus Docetaxel arm.\"\n\n---\nColumn 7: Gleason score - N (%) | \u2265 8 | Control\nDefinition: What number and percentage of patients in the control arm of the clinical trial with a Gleason score of 8 or higher? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.\n  A: value=\"243 (61.8%)\" | page=5 | modality=table | reasoning=\"Extracted from Table 1, 'Gleason score - no. (%)' row '8-10' for 'ADT Alone (N=393)' column.\"\n  B: value=\"243 (61.8)\" | page=5 | modality=table | reasoning=\"Value extracted from Table 1, Baseline Characteristics of the Patients, for the ADT Alone arm.\"\n\n---\nColumn 8: Mode of metastases - N (%) | Synchronous | Treatment\nDefinition: What the number and percentage of participants with synchronous metastases (metastases at the time of diagnosis of prostate cancer) in the treatment arm of the clinical trial? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.\n  A: value=\"Not reported\" | page=None | modality=text | reasoning=\"The document describes patients with 'metastatic, hormone-sensitive prostate cancer' and mentions eligibility criteria for prior ADT, implying a mix of synchronous and metachronous cases, but does not provide a breakdown by N (%) for synchronous vs. metachronous metastases in the treatment arm.\"\n  B: value=\"Not reported\" | page=None | modality=text | reasoning=\"Information on synchronous metastases for the treatment arm was not found in the provided document.\"\n\n---\nColumn 9: Mode of metastases - N (%) | Synchronous | Control\nDefinition: What the number and percentage of participants with synchronous metastases (metastases at the time of diagnosis of prostate cancer) in the control arm of the clinical trial? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.\n  A: value=\"Not reported\" | page=None | modality=text | reasoning=\"The document describes patients with 'metastatic, hormone-sensitive prostate cancer' and mentions eligibility criteria for prior ADT, implying a mix of synchronous and metachronous cases, but does not provide a breakdown by N (%) for synchronous vs. metachronous metastases in the control arm.\"\n  B: value=\"Not reported\" | page=None | modality=text | reasoning=\"Information on synchronous metastases for the control arm was not found in the provided document.\"\n\n---\nColumn 10: Mode of metastases - N (%) | Metachronous | Treatment\nDefinition: What number and percentage of participants with metachronous metastases (metastases that occur after the diagnosis of prostate cancer) in the treatment arm of the clinical trial? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.\n  A: value=\"Not reported\" | page=None | modality=text | reasoning=\"The document describes patients with 'metastatic, hormone-sensitive prostate cancer' and mentions eligibility criteria for prior ADT, implying a mix of synchronous and metachronous cases, but does not provide a breakdown by N (%) for synchronous vs. metachronous metastases in the treatment arm.\"\n  B: value=\"Not reported\" | page=None | modality=text | reasoning=\"Information on metachronous metastases for the treatment arm was not found in the provided document.\"\n\n---\nColumn 11: Mode of metastases - N (%) | Metachronous | Control\nDefinition: What the number and percentage of patients with metachronous metastases (metastases that occur after the diagnosis of prostate cancer) in the control arm of the clinical trial? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.\n  A: value=\"Not reported\" | page=None | modality=text | reasoning=\"The document describes patients with 'metastatic, hormone-sensitive prostate cancer' and mentions eligibility criteria for prior ADT, implying a mix of synchronous and metachronous cases, but does not provide a breakdown by N (%) for synchronous vs. metachronous metastases in the control arm.\"\n  B: value=\"Not reported\" | page=None | modality=text | reasoning=\"Information on metachronous metastases for the control arm was not found in the provided document.\"\n\n---\nColumn 12: PS - N (%) | 0 | Treatment\nDefinition: What number and percentage of participants included in the treatment arm with a Performance Status (PS) score of 0? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.\n  A: value=\"277 (69.8%)\" | page=5 | modality=table | reasoning=\"Extracted from Table 1, 'ECOG performance status - no. (%)' row '0' for 'ADT plus Docetaxel (N=397)' column.\"\n  B: value=\"277 (69.8)\" | page=5 | modality=table | reasoning=\"Value extracted from Table 1, Baseline Characteristics of the Patients, for the ADT plus Docetaxel arm.\"\n\n---\nColumn 13: PS - N (%) | 0 | Control\nDefinition: What the number and percentage of patients with a Performance Status (PS) score of 0 in the control arm of the trial? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.\n  A: value=\"272 (69.2%)\" | page=5 | modality=table | reasoning=\"Extracted from Table 1, 'ECOG performance status - no. (%)' row '0' for 'ADT Alone (N=393)' column.\"\n  B: value=\"272 (69.2)\" | page=5 | modality=table | reasoning=\"Value extracted from Table 1, Baseline Characteristics of the Patients, for the ADT Alone arm.\"\n\n---\nColumn 14: PS - N (%) | 1-2 | Treatment\nDefinition: What number and percentage of participants with a Performance Status (PS) score of 1-2 in the treatment arm of the clinical trial? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.\n  A: value=\"120 (30.2%)\" | page=5 | modality=table | reasoning=\"Calculated by summing '1' (114 [28.7%]) and '2' (6 [1.5%]) from Table 1, 'ECOG performance status - no. (%)' for 'ADT plus Docetaxel (N=397)' column.\"\n  B: value=\"120 (30.2)\" | page=5 | modality=table | reasoning=\"Sum of '1' (114, 28.7%) and '2' (6, 1.5%) ECOG performance status scores from Table 1, Baseline Characteristics of the Patients, for the ADT plus Docetaxel arm.\"\n\n---\nColumn 15: PS - N (%) | 1-2 | Control\nDefinition: What number and percentage of patients with performance status (PS) score of 1-2 in the control arm of the clinical trial? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.\n  A: value=\"121 (30.8%)\" | page=5 | modality=table | reasoning=\"Calculated by summing '1' (115 [29.3%]) and '2' (6 [1.5%]) from Table 1, 'ECOG performance status - no. (%)' for 'ADT Alone (N=393)' column.\"\n  B: value=\"121 (30.8)\" | page=5 | modality=table | reasoning=\"Sum of '1' (115, 29.3%) and '2' (6, 1.5%) ECOG performance status scores from Table 1, Baseline Characteristics of the Patients, for the ADT Alone arm.\"\n\n\nSubmit verification for easy columns first. For disputed columns, use get_page then submit."
+    },
+    {
+      "turn": 2,
+      "role": "tool",
+      "name": "submit_verification",
+      "args": {
+        "results_keys": [
+          "PS - N (%) | 0 | Control",
+          "Gleason score - N (%) | \u2264 7 | Control",
+          "Volume of disease - N (%) | Low | Control",
+          "Mode of metastases - N (%) | Metachronous | Treatment",
+          "Gleason score - N (%) | \u2265 8 | Treatment",
+          "PS - N (%) | 1-2 | Control",
+          "PS - N (%) | 1-2 | Treatment",
+          "Mode of metastases - N (%) | Synchronous | Treatment",
+          "Volume of disease - N (%) | High | Treatment",
+          "Gleason score - N (%) | \u2264 7 | Treatment",
+          "Mode of metastases - N (%) | Synchronous | Control",
+          "Gleason score - N (%) | \u2265 8 | Control",
+          "Mode of metastases - N (%) | Metachronous | Control",
+          "PS - N (%) | 0 | Treatment",
+          "Volume of disease - N (%) | High | Control"
+        ]
+      },
+      "response": {
+        "submitted": [
+          "PS - N (%) | 0 | Control",
+          "Gleason score - N (%) | \u2264 7 | Control",
+          "Volume of disease - N (%) | Low | Control",
+          "Mode of metastases - N (%) | Metachronous | Treatment",
+          "Gleason score - N (%) | \u2265 8 | Treatment",
+          "PS - N (%) | 1-2 | Control",
+          "PS - N (%) | 1-2 | Treatment",
+          "Mode of metastases - N (%) | Synchronous | Treatment",
+          "Volume of disease - N (%) | High | Treatment",
+          "Gleason score - N (%) | \u2264 7 | Treatment",
+          "Mode of metastases - N (%) | Synchronous | Control",
+          "Gleason score - N (%) | \u2265 8 | Control",
+          "Mode of metastases - N (%) | Metachronous | Control",
+          "PS - N (%) | 0 | Treatment",
+          "Volume of disease - N (%) | High | Control"
+        ]
+      }
+    }
+  ],
+  "results": {
+    "PS - N (%) | 0 | Control": {
+      "value": "272 (69.2%)",
+      "reasoning": "Both sources agree on the value, and A's value is more complete by including the percentage sign. Both extracted from Table 1 on page 5.",
+      "verification": "both_correct",
+      "source": {
+        "page": 5,
+        "modality": "table"
+      },
+      "attribution": [
+        {
+          "page": 5,
+          "modality": "table"
+        }
+      ]
+    },
+    "Gleason score - N (%) | \u2264 7 | Control": {
+      "value": "104 (26.4%)",
+      "reasoning": "Both sources agree on the value, and A's value is more complete by including the percentage sign. Both extracted from Table 1 on page 5.",
+      "verification": "both_correct",
+      "source": {
+        "page": 5,
+        "modality": "table"
+      },
+      "attribution": [
+        {
+          "page": 5,
+          "modality": "table"
+        }
+      ]
+    },
+    "Volume of disease - N (%) | Low | Control": {
+      "value": "143 (36.4%)",
+      "reasoning": "Both sources agree on the value, and A's value is more complete by including the percentage sign. Both extracted from Table 1 on page 5.",
+      "verification": "both_correct",
+      "source": {
+        "page": 5,
+        "modality": "table"
+      },
+      "attribution": [
+        {
+          "page": 5,
+          "modality": "table"
+        }
+      ]
+    },
+    "Mode of metastases - N (%) | Metachronous | Treatment": {
+      "value": "Not reported",
+      "reasoning": "Both sources reported \"Not reported\".",
+      "verification": "both_correct",
+      "source": {
+        "page": null,
+        "modality": "text"
+      },
+      "attribution": []
+    },
+    "Gleason score - N (%) | \u2265 8 | Treatment": {
+      "value": "241 (60.7%)",
+      "reasoning": "Both sources agree on the value, and A's value is more complete by including the percentage sign. Both extracted from Table 1 on page 5.",
+      "verification": "both_correct",
+      "source": {
+        "page": 5,
+        "modality": "table"
+      },
+      "attribution": [
+        {
+          "page": 5,
+          "modality": "table"
+        }
+      ]
+    },
+    "PS - N (%) | 1-2 | Control": {
+      "value": "121 (30.8%)",
+      "reasoning": "Both sources agree on the value, and A's value is more complete by including the percentage sign. Both extracted from Table 1 on page 5.",
+      "verification": "both_correct",
+      "source": {
+        "page": 5,
+        "modality": "table"
+      },
+      "attribution": [
+        {
+          "page": 5,
+          "modality": "table"
+        }
+      ]
+    },
+    "PS - N (%) | 1-2 | Treatment": {
+      "value": "120 (30.2%)",
+      "reasoning": "Both sources agree on the value, and A's value is more complete by including the percentage sign. Both extracted from Table 1 on page 5.",
+      "verification": "both_correct",
+      "source": {
+        "page": 5,
+        "modality": "table"
+      },
+      "attribution": [
+        {
+          "page": 5,
+          "modality": "table"
+        }
+      ]
+    },
+    "Mode of metastases - N (%) | Synchronous | Treatment": {
+      "value": "Not reported",
+      "reasoning": "Both sources reported \"Not reported\".",
+      "verification": "both_correct",
+      "source": {
+        "page": null,
+        "modality": "text"
+      },
+      "attribution": []
+    },
+    "Volume of disease - N (%) | High | Treatment": {
+      "value": "263 (66.2%)",
+      "reasoning": "Both sources agree on the value, and A's value is more complete by including the percentage sign. Both extracted from Table 1 on page 5.",
+      "verification": "both_correct",
+      "source": {
+        "page": 5,
+        "modality": "table"
+      },
+      "attribution": [
+        {
+          "page": 5,
+          "modality": "table"
+        }
+      ]
+    },
+    "Gleason score - N (%) | \u2264 7 | Treatment": {
+      "value": "117 (29.5%)",
+      "reasoning": "Both sources agree on the value, and A's value is more complete by including the percentage sign. Both extracted from Table 1 on page 5.",
+      "verification": "both_correct",
+      "source": {
+        "page": 5,
+        "modality": "table"
+      },
+      "attribution": [
+        {
+          "page": 5,
+          "modality": "table"
+        }
+      ]
+    },
+    "Mode of metastases - N (%) | Synchronous | Control": {
+      "value": "Not reported",
+      "reasoning": "Both sources reported \"Not reported\".",
+      "verification": "both_correct",
+      "source": {
+        "page": null,
+        "modality": "text"
+      },
+      "attribution": []
+    },
+    "Gleason score - N (%) | \u2265 8 | Control": {
+      "value": "243 (61.8%)",
+      "reasoning": "Both sources agree on the value, and A's value is more complete by including the percentage sign. Both extracted from Table 1 on page 5.",
+      "verification": "both_correct",
+      "source": {
+        "page": 5,
+        "modality": "table"
+      },
+      "attribution": [
+        {
+          "page": 5,
+          "modality": "table"
+        }
+      ]
+    },
+    "Mode of metastases - N (%) | Metachronous | Control": {
+      "value": "Not reported",
+      "reasoning": "Both sources reported \"Not reported\".",
+      "verification": "both_correct",
+      "source": {
+        "page": null,
+        "modality": "text"
+      },
+      "attribution": []
+    },
+    "PS - N (%) | 0 | Treatment": {
+      "value": "277 (69.8%)",
+      "reasoning": "Both sources agree on the value, and A's value is more complete by including the percentage sign. Both extracted from Table 1 on page 5.",
+      "verification": "both_correct",
+      "source": {
+        "page": 5,
+        "modality": "table"
+      },
+      "attribution": [
+        {
+          "page": 5,
+          "modality": "table"
+        }
+      ]
+    },
+    "Volume of disease - N (%) | High | Control": {
+      "value": "250 (63.6%)",
+      "reasoning": "Both sources agree on the value, and A's value is more complete by including the percentage sign. Both extracted from Table 1 on page 5.",
+      "verification": "both_correct",
+      "source": {
+        "page": 5,
+        "modality": "table"
+      },
+      "attribution": [
+        {
+          "page": 5,
+          "modality": "table"
+        }
+      ]
+    }
+  }
+}

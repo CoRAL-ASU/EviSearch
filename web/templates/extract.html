@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Evidence-based PDF Q&A — Extract full table</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.14/dist/full.min.css" rel="stylesheet" />
+</head>
+<body class="min-h-screen bg-base-200">
+    <div class="navbar bg-base-300 shadow-lg">
+        <div class="flex-1">
+            <a href="/" class="btn btn-ghost font-semibold">Home</a>
+            <a href="/qa" class="btn btn-ghost">Ask a question</a>
+            <a href="/extract" class="btn btn-ghost font-semibold">Extract full table</a>
+            <a href="/attribution" class="btn btn-ghost">Attribution</a>
+            <a href="/comparison-report" class="btn btn-ghost" target="_blank">Report</a>
+        </div>
+        <div class="flex-none">
+            <h1 class="text-xl font-bold text-primary px-4">Evidence-based PDF Q&A</h1>
+        </div>
+    </div>
+
+    <main class="max-w-6xl mx-auto p-6 space-y-6">
+        <!-- Step 1: Document -->
+        <div class="card bg-base-100 shadow-xl">
+            <div class="card-body">
+                <h2 class="card-title">1. Document</h2>
+                <p class="text-base-content/70 text-sm">Select from dataset / extracted docs, or upload a new PDF</p>
+                <div class="flex flex-wrap gap-4">
+                    <div class="form-control flex-1 min-w-[200px]">
+                        <label class="label">
+                            <span class="label-text">Upload PDF</span>
+                        </label>
+                        <input type="file" id="pdf-upload" accept=".pdf" class="file-input file-input-bordered file-input-primary w-full max-w-xs" />
+                        <p id="upload-status" class="text-sm text-base-content/60 mt-1"></p>
+                    </div>
+                    <div class="divider divider-horizontal">OR</div>
+                    <div class="form-control flex-1 min-w-[200px]">
+                        <label class="label">
+                            <span class="label-text">Select document</span>
+                        </label>
+                        <select id="doc-select" class="select select-bordered w-full">
+                            <option value="">Loading…</option>
+                        </select>
+                        <p class="text-xs text-base-content/50 mt-1">Dataset PDFs + extracted results + uploads</p>
+                    </div>
+                </div>
+                <p id="doc-info" class="text-sm text-base-content/60 mt-2"></p>
+            </div>
+        </div>
+
+        <!-- Step 2: Column groups -->
+        <div class="card bg-base-100 shadow-xl">
+            <div class="card-body">
+                <h2 class="card-title">2. Column groups</h2>
+                <p class="text-base-content/70 text-sm">Use all columns or select specific groups</p>
+                <div class="form-control">
+                    <label class="label cursor-pointer justify-start gap-2">
+                        <input type="checkbox" id="use-all-groups" class="checkbox checkbox-primary" checked />
+                        <span class="label-text">Use all column groups</span>
+                    </label>
+                </div>
+                <div id="group-checkboxes" class="flex flex-wrap gap-2 mt-2" style="display: none;"></div>
+            </div>
+        </div>
+
+        <!-- Step 3: Run / Load -->
+        <div class="card bg-base-100 shadow-xl">
+            <div class="card-body">
+                <h2 class="card-title">3. Extract</h2>
+                <div class="flex gap-2">
+                    <button id="run-btn" class="btn btn-primary" disabled>
+                        <span class="loading loading-spinner loading-sm" id="run-spinner" style="display: none;"></span>
+                        <span id="run-text">Run Agentic Extractor</span>
+                    </button>
+                    <button id="load-btn" class="btn btn-outline" disabled>
+                        Load existing
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Live extraction (visible when running or has results) -->
+        <div id="live-card" class="card bg-base-100 shadow-xl" style="display: none;">
+            <div class="card-body">
+                <h2 class="card-title">Extraction results</h2>
+                <div id="stream-message" class="font-mono text-sm text-primary min-h-[1.5em] mb-2" style="caret-color: currentColor;"></div>
+                <div id="stats-row" class="stats stats-vertical lg:stats-horizontal shadow bg-base-200 my-2">
+                    <div class="stat">
+                        <div class="stat-title">Direct PDF</div>
+                        <div class="stat-desc"><span id="stat-a-filled" class="text-success font-semibold">0</span> populated · <span id="stat-a-notreported" class="text-warning">0</span> not reported</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-title">Search-Based</div>
+                        <div class="stat-desc"><span id="stat-b-filled" class="text-success font-semibold">0</span> populated · <span id="stat-b-notreported" class="text-warning">0</span> not reported</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-title">Total</div>
+                        <div class="stat-value text-primary"><span id="stat-total">0</span></div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-title">Status</div>
+                        <div class="stat-desc"><span id="stat-status" class="badge badge-info">—</span></div>
+                    </div>
+                </div>
+                <progress id="progress-bar" class="progress progress-primary w-full" value="0" max="100"></progress>
+                <div id="action-buttons" class="flex gap-2 mt-3 mb-2" style="display: none;">
+                    <a id="view-attribution-btn" href="/attribution" class="btn btn-primary">View Attribution →</a>
+                </div>
+                <div class="overflow-x-auto mt-2">
+                    <table class="table table-zebra">
+                        <thead>
+                            <tr><th>Column</th><th>Direct PDF</th><th>Search-Based</th></tr>
+                        </thead>
+                        <tbody id="streaming-rows"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const API = {
+            documents: () => fetch('/api/documents/reconciled').then(r => r.json()),
+            selectable: () => fetch('/api/documents/selectable').then(r => r.json()),
+            columnGroups: () => fetch('/api/column-groups').then(r => r.json()),
+            agentExtraction: (docId) => fetch(`/api/documents/${encodeURIComponent(docId)}/agent_extraction`).then(r => r.json()),
+            uploadExtract: (formData) => fetch('/api/upload/extract', { method: 'POST', body: formData }).then(r => r.json()),
+        };
+
+        let docId = null;
+        let allColumns = [];
+        let selectedGroups = null;
+
+        async function loadDocs() {
+            const res = await API.selectable();
+            const docs = res.documents || [];
+            const sel = document.getElementById('doc-select');
+            sel.innerHTML = '<option value="">Select document…</option>' + docs.map(d => {
+                const id = d.id || d.name;
+                const label = d.has_extraction ? `${escapeHtml(d.name)} ✓` : escapeHtml(d.name);
+                return `<option value="${escapeHtml(id)}">${label}</option>`;
+            }).join('');
+        }
+
+        async function loadGroups() {
+            const res = await API.columnGroups();
+            if (!res.success) return;
+            const groups = res.groups || [];
+            allColumns = groups;
+            const container = document.getElementById('group-checkboxes');
+            container.innerHTML = groups.map(g =>
+                `<label class="label cursor-pointer gap-2 border rounded-lg px-3 py-1">
+                    <input type="checkbox" class="checkbox checkbox-sm" data-group="${escapeHtml(g.name)}" />
+                    <span class="label-text">${escapeHtml(g.name)}</span>
+                </label>`
+            ).join('');
+        }
+
+        function escapeHtml(s) {
+            if (!s) return '';
+            const d = document.createElement('div');
+            d.textContent = s;
+            return d.innerHTML;
+        }
+
+        function typeStreamMessage(el, text, charDelay = 35, onComplete, append = false) {
+            if (!el || !text) { if (onComplete) onComplete(); return; }
+            const prefix = append ? (el.textContent || '') + '\n' : '';
+            let i = 0;
+            el.classList.add('inline');
+            const span = document.createElement('span');
+            span.textContent = prefix;
+            const cursor = document.createElement('span');
+            cursor.className = 'animate-pulse';
+            cursor.textContent = '▌';
+            cursor.style.marginLeft = '1px';
+            function tick() {
+                if (i < text.length) {
+                    span.textContent += text[i];
+                    i++;
+                    el.innerHTML = '';
+                    el.appendChild(span);
+                    el.appendChild(cursor);
+                    setTimeout(tick, charDelay);
+                } else {
+                    el.textContent = prefix + text;
+                    if (onComplete) onComplete();
+                }
+            }
+            if (!append) el.innerHTML = '';
+            tick();
+        }
+
+        let extractionBatches = null;
+
+        function initEmptyTable(total, columnNames = []) {
+            const tbody = document.getElementById('streaming-rows');
+            tbody.innerHTML = '';
+            for (let i = 0; i < total; i++) {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `<td class="text-base-content/50">—</td><td></td><td></td>`;
+                tr.dataset.idx = String(i);
+                if (columnNames[i]) tr.dataset.column = columnNames[i];
+                tbody.appendChild(tr);
+            }
+        }
+
+        function setColumnNames(batchIndex) {
+            if (!extractionBatches || batchIndex >= extractionBatches.length) return;
+            const names = extractionBatches[batchIndex];
+            const tbody = document.getElementById('streaming-rows');
+            let rowIdx = 0;
+            for (let b = 0; b < batchIndex; b++) rowIdx += (extractionBatches[b] || []).length;
+            for (let j = 0; j < names.length; j++) {
+                const tr = tbody.querySelector(`tr[data-idx="${rowIdx + j}"]`);
+                if (tr) {
+                    tr.cells[0].textContent = names[j];
+                    tr.dataset.column = names[j];
+                }
+            }
+        }
+
+        function isNotReported(val) {
+            if (!val) return true;
+            const s = String(val).trim().toLowerCase();
+            return s === '' || s === 'not reported' || s === 'not found';
+        }
+
+        function updateCandidateStats() {
+            const tbody = document.getElementById('streaming-rows');
+            const rows = tbody.querySelectorAll('tr');
+            let aFilled = 0, aNotReported = 0, bFilled = 0, bNotReported = 0;
+            for (const tr of rows) {
+                const va = (tr.cells[1]?.textContent || '').trim();
+                const vb = (tr.cells[2]?.textContent || '').trim();
+                if (isNotReported(va)) aNotReported++; else aFilled++;
+                if (isNotReported(vb)) bNotReported++; else bFilled++;
+            }
+            document.getElementById('stat-a-filled').textContent = aFilled;
+            document.getElementById('stat-a-notreported').textContent = aNotReported;
+            document.getElementById('stat-b-filled').textContent = bFilled;
+            document.getElementById('stat-b-notreported').textContent = bNotReported;
+        }
+
+        function updateRowForColumn(colName, value1, value2, source) {
+            const tbody = document.getElementById('streaming-rows');
+            const rows = tbody.querySelectorAll('tr');
+            const trunc = (v) => String(v || '').slice(0, 200) + (String(v || '').length > 200 ? '…' : '');
+            const match = (tr) => tr.dataset.column === colName || tr.cells[0]?.textContent?.trim() === colName;
+            for (const tr of rows) {
+                if (match(tr)) {
+                    if (source === 'search') {
+                        tr.cells[2].textContent = trunc(value2);
+                    } else if (source === 'batch') {
+                        tr.cells[1].textContent = trunc(value1);
+                        tr.cells[2].textContent = trunc(value2);
+                    } else {
+                        tr.cells[1].textContent = trunc(value1);
+                    }
+                    return;
+                }
+            }
+        }
+
+        function updateDocState() {
+            const hasDoc = !!docId;
+            document.getElementById('run-btn').disabled = !hasDoc;
+            document.getElementById('load-btn').disabled = !hasDoc;
+            if (docId) {
+                document.getElementById('doc-info').textContent = `Selected: ${docId}`;
+            } else {
+                document.getElementById('doc-info').textContent = '';
+            }
+        }
+
+        document.getElementById('doc-select').addEventListener('change', (e) => {
+            docId = e.target.value || null;
+            updateDocState();
+        });
+
+        document.getElementById('pdf-upload').addEventListener('change', async (e) => {
+            const file = e.target.files?.[0];
+            if (!file) return;
+            const status = document.getElementById('upload-status');
+            status.textContent = 'Uploading…';
+            try {
+                const formData = new FormData();
+                formData.append('file', file);
+                const res = await API.uploadExtract(formData);
+                if (res.success) {
+                    docId = res.doc_id;
+                    const sel = document.getElementById('doc-select');
+                    sel.value = '';
+                    if (!sel.querySelector(`option[value="${docId}"]`)) {
+                        const opt = document.createElement('option');
+                        opt.value = docId;
+                        opt.textContent = `${docId} (uploaded)`;
+                        sel.appendChild(opt);
+                    }
+                    sel.value = docId;
+                    status.textContent = `Uploaded: ${file.name}`;
+                    updateDocState();
+                } else {
+                    status.textContent = 'Upload failed: ' + (res.error || 'Unknown');
+                }
+            } catch (err) {
+                status.textContent = 'Upload failed: ' + err.message;
+            }
+        });
+
+        document.getElementById('use-all-groups').addEventListener('change', (e) => {
+            document.getElementById('group-checkboxes').style.display = e.target.checked ? 'none' : 'flex';
+            selectedGroups = e.target.checked ? null : getSelectedGroups();
+        });
+
+        function getSelectedGroups() {
+            const checkboxes = document.querySelectorAll('#group-checkboxes input:checked');
+            return Array.from(checkboxes).map(cb => cb.dataset.group);
+        }
+
+        document.getElementById('group-checkboxes').addEventListener('change', () => {
+            selectedGroups = document.getElementById('use-all-groups').checked ? null : getSelectedGroups();
+        });
+
+        document.getElementById('load-btn').addEventListener('click', async () => {
+            if (!docId) return;
+            const card = document.getElementById('live-card');
+            const tbody = document.getElementById('streaming-rows');
+            const runBtn = document.getElementById('run-btn');
+            runBtn.disabled = true;
+            try {
+                const res = await API.agentExtraction(docId);
+                if (!res.success) {
+                    alert(res.error || 'Failed to load');
+                    return;
+                }
+                card.style.display = 'block';
+                document.getElementById('stat-total').textContent = res.total || 0;
+                document.getElementById('stat-status').textContent = 'Loaded';
+                document.getElementById('stat-status').className = 'badge badge-success';
+                document.getElementById('progress-bar').value = 100;
+                document.getElementById('progress-bar').max = 100;
+                const trunc = v => String(v || '').slice(0, 200) + (String(v || '').length > 200 ? '…' : '');
+                tbody.innerHTML = (res.columns || []).map(r =>
+                    `<tr data-column="${escapeHtml(r.column)}"><td>${escapeHtml(r.column)}</td><td>${escapeHtml(trunc(r.value))}</td><td>${escapeHtml(trunc(r.candidate_b))}</td></tr>`
+                ).join('');
+                updateCandidateStats();
+                document.getElementById('action-buttons').style.display = 'flex';
+                document.getElementById('view-attribution-btn').href = `/attribution?doc=${encodeURIComponent(docId)}`;
+            } finally {
+                runBtn.disabled = false;
+            }
+        });
+
+        document.getElementById('run-btn').addEventListener('click', async () => {
+            if (!docId) return;
+
+            let forceRerun = false;
+            try {
+                const res = await API.agentExtraction(docId);
+                if (res.success && (res.columns?.length > 0 || res.total > 0)) {
+                    const ok = confirm('Extraction data already exists for this document. Run again? This will overwrite existing data and may incur LLM costs.');
+                    if (!ok) return;
+                    forceRerun = true;
+                }
+            } catch (_) {
+                // No existing extraction (404) or network error — proceed with run
+            }
+
+            const card = document.getElementById('live-card');
+            const tbody = document.getElementById('streaming-rows');
+            const runBtn = document.getElementById('run-btn');
+            const runText = document.getElementById('run-text');
+            const runSpinner = document.getElementById('run-spinner');
+            runBtn.disabled = true;
+            runText.textContent = 'Running…';
+            runSpinner.style.display = 'inline-block';
+            card.style.display = 'block';
+            tbody.innerHTML = '';
+            extractionBatches = null;
+            document.getElementById('stream-message').textContent = '';
+            let streamMessageQueue = [];
+            let isTypingStream = false;
+
+            function processNextStreamMessage() {
+                if (isTypingStream || streamMessageQueue.length === 0) return;
+                const { text, showBatch } = streamMessageQueue.shift();
+                isTypingStream = true;
+                typeStreamMessage(streamEl, text, 35, () => {
+                    if (showBatch !== undefined && extractionBatches) setColumnNames(showBatch);
+                    isTypingStream = false;
+                    processNextStreamMessage();
+                }, streamEl.textContent.length > 0);
+            }
+
+            document.getElementById('stat-status').textContent = 'Running';
+            document.getElementById('stat-status').className = 'badge badge-info';
+            document.getElementById('action-buttons').style.display = 'none';
+
+            const streamEl = document.getElementById('stream-message');
+
+            const payload = { doc_id: docId, resume: !forceRerun, skip_if_done: !forceRerun };
+            if (selectedGroups && selectedGroups.length > 0) {
+                payload.column_groups = selectedGroups;
+            }
+
+            try {
+                const res = await fetch('/api/extract/unified/stream', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload),
+                });
+                if (!res.ok) {
+                    const err = await res.json().catch(() => ({}));
+                    throw new Error(err.error || res.statusText);
+                }
+                const reader = res.body.getReader();
+                const decoder = new TextDecoder();
+                let buf = '';
+                while (true) {
+                    const { done, value } = await reader.read();
+                    if (done) break;
+                    buf += decoder.decode(value, { stream: true });
+                    const lines = buf.split('\n');
+                    buf = lines.pop() || '';
+                    for (const line of lines) {
+                        if (line.startsWith('data: ')) {
+                            try {
+                                const ev = JSON.parse(line.slice(6));
+                                if (ev.type === 'extraction_start') {
+                                    const total = ev.total || 0;
+                                    extractionBatches = ev.batches || [];
+                                    const allNames = ev.column_names || [];
+                                    document.getElementById('stat-total').textContent = total;
+                                    initEmptyTable(total, allNames);
+                                    updateCandidateStats();
+                                } else if (ev.type === 'stream_message') {
+                                    streamMessageQueue.push({ text: ev.text || '', showBatch: ev.show_columns });
+                                    processNextStreamMessage();
+                                } else if (ev.type === 'turn_start') {
+                                    document.getElementById('stat-turn').textContent = ev.turn || 0;
+                                    document.getElementById('stat-filled').textContent = ev.filled || 0;
+                                    document.getElementById('stat-total').textContent = ev.total || 0;
+                                    document.getElementById('progress-bar').value = ev.total ? Math.round((ev.filled / ev.total) * 100) : 0;
+                                } else if (ev.type === 'batch_complete') {
+                                    for (const c of (ev.columns || [])) {
+                                        updateRowForColumn(c.column, c.candidate_a, c.candidate_b, 'batch');
+                                    }
+                                    updateCandidateStats();
+                                    const batchNum = ev.batch || 0;
+                                    const totalBatches = ev.total_batches || 1;
+                                    document.getElementById('progress-bar').value = totalBatches ? Math.round((batchNum / totalBatches) * 100) : 0;
+                                } else if (ev.type === 'columns_written') {
+                                    for (const c of (ev.columns || [])) {
+                                        updateRowForColumn(c.column, c.value, null, 'agent');
+                                    }
+                                    updateCandidateStats();
+                                } else if (ev.type === 'search_columns_written') {
+                                    for (const c of (ev.columns || [])) {
+                                        updateRowForColumn(c.column, null, c.value, 'search');
+                                    }
+                                    updateCandidateStats();
+                                } else if (ev.type === 'done') {
+                                    document.getElementById('stat-total').textContent = ev.total || 0;
+                                    updateCandidateStats();
+                                    document.getElementById('stat-status').textContent = ev.skipped ? 'Loaded (already done)' : 'Done';
+                                    document.getElementById('stat-status').className = 'badge badge-success';
+                                    document.getElementById('progress-bar').value = 100;
+                                    document.getElementById('action-buttons').style.display = 'flex';
+                                    document.getElementById('view-attribution-btn').href = `/attribution?doc=${encodeURIComponent(docId)}`;
+                                    if (ev.skipped && ev.columns && ev.columns.length > 0) {
+                                        for (const c of ev.columns) {
+                                            updateRowForColumn(c.column, c.value, null, 'agent');
+                                        }
+                                        document.querySelectorAll('#streaming-rows tr').forEach(tr => {
+                                            if (tr.dataset.column && tr.cells[0].textContent === '—') {
+                                                tr.cells[0].textContent = tr.dataset.column;
+                                            }
+                                        });
+                                    }
+                                } else if (ev.type === 'error') {
+                                    document.getElementById('stat-status').textContent = 'Error';
+                                    document.getElementById('stat-status').className = 'badge badge-error';
+                                    alert(ev.error || 'Extraction failed');
+                                }
+                            } catch (_) {}
+                        }
+                    }
+                }
+            } catch (err) {
+                document.getElementById('stat-status').textContent = 'Error';
+                document.getElementById('stat-status').className = 'badge badge-error';
+                alert(err.message || 'Extraction failed');
+            } finally {
+                runBtn.disabled = false;
+                runText.textContent = 'Run Agentic Extractor';
+                runSpinner.style.display = 'none';
+            }
+        });
+
+        loadDocs();
+        loadGroups();
+    </script>
+</body>
+</html>

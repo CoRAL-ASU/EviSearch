@@ -1,0 +1,72 @@
+## Page 3
+
+Articles
+
+
+
+hospitals. Here, we report long-term outcomes of patients
+in the abiraterone trial and primary results from the
+abiraterone and enzalutamide trial.
+
+
+
+## Methods
+### Study design and participants
+We analysed two open-label, randomised, controlled, phase 3 trials of the STAMPEDE platform protocol,4,5 conducted at 117 sites in the UK and Switzerland. The protocol recruited patients with advanced prostate cancer starting androgen deprivation therapy stratified by the presence or absence of distant metastases on conventional imaging (whole body bone scintigraphy or equivalent; CT or MRI of the pelvis, abdomen, and chest; and a chest x-ray if the chest was omitted) within 8 weeks of random assignment. Following a prespecified plan approved by the trial steering committee (independent from the trial management group) on Dec 2, 2019, patients with non-metastatic and metastatic disease were separated for the reporting of long-term outcomes.13 Outcomes for patients with metastatic disease in the abiraterone trial after 5 years of follow-up (data extraction on April 3, 2020)6 and for those with non-metastatic disease (combined with non-metastatic disease in the abiraterone and enzalutamide trial; data extraction on Aug 3, 2021) have been published." Trial data for patients with metastatic disease in the abiraterone and enzalutamide trial have not been reported previously. All patients classified as metastatic based on updated information at final database locking are included here.
+
+
+
+Eligible patients had metastatic histologically-confirmed prostate adenocarcinoma; a WHO performance status of 0–2; and adequate haematological, renal, and liver function on laboratory tests. There were no age restrictions. Patients who relapsed after primary treatment were eligible when previous androgen deprivation therapy exposure lasted 12 months or less and was completed 12 months or more before random assignment. Patients with confirmed clinically significant cardiovascular disease (eg, severe angina, myocardial infarction, or a history of cardiac failure within 6 months of random assignment) were excluded. Full details of the patient population are provided in the protocol (appendix). All patients provided written informed consent. This trial was done in accordance with Good Clinical Practice guidelines and the Declaration of Helsinki, with relevant regulatory and ethical approvals.
+
+
+
+Randomisation and masking
+Patients were randomly assigned (1:1) to either standard of care (control group) or standard of care plus abiraterone (in the abiraterone trial) or plus abiraterone and enzalutamide (in the abiraterone and enzalutamide trial). Each trial randomly assigned patients to its own control group; there were no overlapping controls. Randomisation was performed centrally by telephone using a computerised algorithm. The Medical Research Council Clinical Trials Unit at University College
+
+
+
+London (London, UK) developed and maintained the algorithm and three unmasked statisticians (LM, AC, and CB) in the same unit analysed the data. Minimisation with a random element of 80% was used with stratification according to randomisation centre, age (<70 vs ≥70 years), WHO performance status (0 vs 1 or 2), type of androgen deprivation therapy, regular long-term use of aspirin or non-steroidal anti-inflammatory drugs (NSAIDs; yes vs no), pelvic nodal status (positive vs negative), planned radiotherapy as standard of care (intention or administered; yes vs no), and planned docetaxel use before abiraterone and enzalutamide (yes vs no). Both trials were open-label because masking of the treatment assignment was deemed impracticable. Eligible patients could be allocated to any of the trials that were contemporaneously recruiting patients in the STAMPEDE platform protocol (appendix p 15).
+
+
+
+## Procedures
+The study protocol required patients to start life-long androgen deprivation therapy no longer than 12 weeks before random assignment. The standard of care was androgen deprivation therapy with luteinising hormone-releasing hormone agonists or antagonists or bilateral orchiectomy; after implementation of a protocol amendment (version 13; Dec 17, 2015), docetaxel (75 mg/m²) intravenously for six cycles with prednisolone (10 mg) orally once per day were permitted after starting androgen deprivation therapy but before starting study treatment. Radiotherapy was allowed for symptom palliation.
+
+
+
+Study treatment was administered until radiographical progression or any reason that required discontinuation. Abiraterone acetate (1000 mg) and prednisolone (5 mg; prednisone at Swiss sites) were given orally once a day in the abiraterone trial and together with enzalutamide (160 mg) orally once a day in the abiraterone and enzalutamide trial. Dose modifications are described in the protocol (appendix).
+
+
+
+Patients were assessed every 6 weeks during the first
+6 months, once every 12 weeks until year 2, once every
+6 months until year 5, and then once per year. Assessments
+included prostate-specific antigen (PSA) testing, safety
+laboratory tests, and ascertainment of adverse events;
+further tests were conducted at the discretion of the
+treating physician. The nadir PSA concentration was
+the lowest PSA concentration within 24 weeks after
+randomisation and was used to calculate PSA progression
+(biochemical failure) as defined in the protocol (appendix).
+After randomisation, imaging frequency occurred as per
+local guidelines. Investigator determined radiographical
+or local progression was reported in line with guidelines.
+Reporting of skeletal-related events was updated following
+a protocol amendment to distinguish whether this
+constituted progression (STAMPEDE protocol version 12;
+July 29, 2014). Adverse events were assessed by the
+National Cancer Institute Common Terminology Criteria
+
+
+
+www.thelancet.com/oncology Vol 24 May 2023
+
+
+
+445
+
+
+
+For the STAMPEDE platform
+protocol see http://www.
+stampdetrial.org
