@@ -12,9 +12,7 @@ import os
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Set
 
-PROJECT_ROOT = Path(__file__).resolve().parents[1]
-RESULTS_ROOT = PROJECT_ROOT / "new_pipeline_outputs" / "results"
-DATASET_DIR = PROJECT_ROOT / "dataset"
+from src.config.runtime_paths import DATASET_DIR, RESULTS_ROOT
 
 MAX_TOOL_CALLS = 15
 MAX_TURNS = 25

@@ -56,11 +56,18 @@ from web.highlight_service import (
     resolve_pdf_path,
 )
 from web.feedback_service import record_feedback
+from src.config.runtime_paths import (
+    DATASET_DIR,
+    RESULTS_ROOT,
+    UPLOADS_DIR,
+    ensure_runtime_dirs,
+)
 
 app = Flask(__name__)
 app.config['MAX_CONTENT_LENGTH'] = 50 * 1024 * 1024  # 50MB max file size
-app.config['UPLOAD_FOLDER'] = PROJECT_ROOT / 'web' / 'uploads'
-app.config['UPLOAD_FOLDER'].mkdir(exist_ok=True)
+ensure_runtime_dirs()
+app.config['UPLOAD_FOLDER'] = UPLOADS_DIR
+app.config['UPLOAD_FOLDER'].mkdir(parents=True, exist_ok=True)
 app.config['BOOT_ID'] = str(uuid.uuid4())  # Changes on each app restart; used to invalidate browser session
 
 # Global extraction service instance
@@ -203,10 +210,6 @@ def api_report_tables():
         "column_groups": col_to_group,
         "rows": rows,
     }), 200
-
-
-RESULTS_ROOT = PROJECT_ROOT / "new_pipeline_outputs" / "results"
-DATASET_DIR = PROJECT_ROOT / "dataset"
 
 
 def _ensure_pdf_for_extraction(doc_id: str) -> str | None:
@@ -1748,7 +1751,8 @@ if __name__ == "__main__":
     print("=" * 60)
     print("Clinical Trial Data Extraction - Web Interface")
     print("=" * 60)
-    print("\nServer starting at: http://127.0.0.1:8007")
+    port = int(os.getenv("PORT", "8007"))
+    print(f"\nServer starting at: http://127.0.0.1:{port}")
     print("\nFeatures:")
     print("  • Upload PDF files for extraction")
     print("  • Extract single column or all 133 columns")
@@ -1757,4 +1761,4 @@ if __name__ == "__main__":
     print("\nPress Ctrl+C to stop the server")
     print("=" * 60 + "\n")
     
-    app.run(host="0.0.0.0", port=8007, debug=True)
+    app.run(host="0.0.0.0", port=port, debug=False)

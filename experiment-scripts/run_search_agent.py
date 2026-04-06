@@ -25,7 +25,8 @@ from typing import Any, Callable, Dict, List, Optional
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(PROJECT_ROOT))
 
-RESULTS_ROOT = PROJECT_ROOT / "new_pipeline_outputs" / "results"
+from src.config.runtime_paths import RESULTS_ROOT
+
 MAX_COLUMNS_BATCH = 15
 
 

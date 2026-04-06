@@ -26,9 +26,7 @@ sys.path.insert(0, str(PROJECT_ROOT))
 
 from src.table_definitions.definitions import load_definitions
 from src.LLMProvider.provider import LLMProvider
-
-RESULTS_ROOT = PROJECT_ROOT / "new_pipeline_outputs" / "results"
-DATASET_DIR = PROJECT_ROOT / "dataset"
+from src.config.runtime_paths import DATASET_DIR, RESULTS_ROOT
 
 
 def resolve_pdf_path(doc_id: str) -> Optional[Path]:

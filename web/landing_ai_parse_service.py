@@ -11,8 +11,7 @@ import os
 from pathlib import Path
 from typing import Any, Callable, Dict, Optional
 
-PROJECT_ROOT = Path(__file__).resolve().parents[1]
-RESULTS_ROOT = PROJECT_ROOT / "new_pipeline_outputs" / "results"
+from src.config.runtime_paths import RESULTS_ROOT, ensure_runtime_dirs
 
 
 def _ensure_api_key() -> None:
@@ -71,6 +70,7 @@ def parse_pdf_for_qa(
     if not pdf_path.exists():
         return {"success": False, "error": f"PDF not found: {pdf_path}"}
 
+    ensure_runtime_dirs()
     chunk_dir = RESULTS_ROOT / doc_id / "chunking"
     chunk_dir.mkdir(parents=True, exist_ok=True)
     md_path = chunk_dir / "parsed_markdown.md"

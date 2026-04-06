@@ -11,13 +11,14 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
+from src.config.runtime_paths import RESULTS_ROOT
 
 # Paths to scan for extraction results
 RESULTS_PATHS = {
     "gemini_native": PROJECT_ROOT / "experiment-scripts" / "baselines_file_search_results" / "gemini_native",
     "landing_ai_baseline": PROJECT_ROOT / "experiment-scripts" / "baseline_landing_ai_w_gemini" / "results",
     "landing_ai_baseline_gpt4": PROJECT_ROOT / "experiment-scripts" / "baseline_landing_ai_w_gpt4" / "results",
-    "pipeline": PROJECT_ROOT / "new_pipeline_outputs" / "results",
+    "pipeline": RESULTS_ROOT,
 }
 
 

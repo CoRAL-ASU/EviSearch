@@ -15,9 +15,10 @@ from pathlib import Path
 from typing import Any, Callable, Dict, List, Optional
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
-RESULTS_ROOT = PROJECT_ROOT / "new_pipeline_outputs" / "results"
 sys.path.insert(0, str(PROJECT_ROOT))
 sys.path.insert(0, str(PROJECT_ROOT / "experiment-scripts"))
+
+from src.config.runtime_paths import RESULTS_ROOT
 
 
 def load_definitions() -> Dict[str, List[Dict]]:

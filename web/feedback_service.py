@@ -8,11 +8,10 @@ from __future__ import annotations
 
 import json
 from datetime import datetime
-from pathlib import Path
 from typing import Any, Dict, List
 
-PROJECT_ROOT = Path(__file__).resolve().parents[1]
-FEEDBACK_DIR = PROJECT_ROOT / "new_pipeline_outputs" / "feedback"
+from src.config.runtime_paths import FEEDBACK_DIR
+
 FEEDBACK_FILE = FEEDBACK_DIR / "feedback.jsonl"
 
 

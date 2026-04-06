@@ -12,9 +12,10 @@ from typing import Any, Dict, List, Optional
 import numpy as np
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
-RESULTS_ROOT = PROJECT_ROOT / "new_pipeline_outputs" / "results"
+from src.config.runtime_paths import CHUNK_EMBEDDINGS_DIR, RESULTS_ROOT
+
 PARSED_MARKDOWN_BASELINES = PROJECT_ROOT / "experiment-scripts" / "baselines_landing_ai_new_results"
-EMBEDDINGS_CACHE = PROJECT_ROOT / "new_pipeline_outputs" / "chunk_embeddings"
+EMBEDDINGS_CACHE = CHUNK_EMBEDDINGS_DIR
 OPENAI_EMBEDDING_MODEL = "text-embedding-3-large"
 BATCH_SIZE = 100
 MAX_CHARS_PER_EMBED = 30000

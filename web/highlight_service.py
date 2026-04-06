@@ -12,10 +12,10 @@ import unicodedata
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
-PROJECT_ROOT = Path(__file__).resolve().parents[1]
-PIPELINE_RESULTS = PROJECT_ROOT / "new_pipeline_outputs" / "results"
-DATASET_DIR = PROJECT_ROOT / "dataset"
-UPLOAD_DIR = PROJECT_ROOT / "web" / "uploads"
+from src.config.runtime_paths import DATASET_DIR, RESULTS_ROOT, UPLOADS_DIR
+
+PIPELINE_RESULTS = RESULTS_ROOT
+UPLOAD_DIR = UPLOADS_DIR
 
 
 def _chunk_text(chunk: Dict[str, Any]) -> str:

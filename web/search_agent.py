@@ -9,11 +9,9 @@ from __future__ import annotations
 
 import json
 import os
-from pathlib import Path
 from typing import Any, Dict, List, Optional, Set
 
-PROJECT_ROOT = Path(__file__).resolve().parents[1]
-RESULTS_ROOT = PROJECT_ROOT / "new_pipeline_outputs" / "results"
+from src.config.runtime_paths import RESULTS_ROOT
 
 MAX_TOOL_CALLS = 15
 MAX_TURNS = 25
