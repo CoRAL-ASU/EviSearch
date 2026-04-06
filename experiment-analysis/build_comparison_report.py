@@ -202,6 +202,17 @@ def list_reconciliation_agent_logs(pdf_id: str) -> list[str]:
     return sorted(p.relative_to(REPO_ROOT).as_posix() for p in logs_dir.glob("*_conversation.json"))
 
 
+def load_reconciliation_eval(pdf_id: str) -> dict | None:
+    """Load reconciliation evaluation from reconciliation_agent/evaluation/evaluation_results.json."""
+    path = RESULTS_ROOT / pdf_id / "reconciliation_agent" / "evaluation" / "evaluation_results.json"
+    if not path.exists():
+        return None
+    try:
+        return json.loads(path.read_text(encoding="utf-8"))
+    except Exception:
+        return None
+
+
 def main() -> None:
     definitions = load_definitions()
     col_to_label = {d["column"]: d["label"] for d in definitions}
@@ -246,8 +257,18 @@ def main() -> None:
                 for col_name, col_data in search_agent_cols.items():
                     data[pdf_id]["models"][mid][col_name] = col_data
             elif path_or_key == "reconciliation_agent" and rec_cols:
+                rec_eval = load_reconciliation_eval(pdf_id)
                 for col_name, col_data in rec_cols.items():
-                    data[pdf_id]["models"][mid][col_name] = col_data
+                    cell = dict(col_data)
+                    if rec_eval:
+                        eval_cols = rec_eval.get("columns", {})
+                        if col_name in eval_cols:
+                            ec = eval_cols[col_name]
+                            cell["correctness"] = float(ec.get("correctness", 0))
+                            cell["completeness"] = float(ec.get("completeness", 0))
+                            if ec.get("reason"):
+                                cell["reason"] = ec.get("reason", "")
+                    data[pdf_id]["models"][mid][col_name] = cell
 
     # Unique labels for filter dropdown (preserve order)
     labels_seen = []
@@ -255,8 +276,8 @@ def main() -> None:
         if d["label"] not in labels_seen:
             labels_seen.append(d["label"])
 
-    # Per-PDF, per-model: average correctness/completeness for eval models (landing_ai_new, gemini_native)
-    eval_model_ids = ("landing_ai_new", "gemini_native")
+    # Per-PDF, per-model: average correctness/completeness for eval models (landing_ai_new, gemini_native, reconciliation_agent)
+    eval_model_ids = ("landing_ai_new", "gemini_native", "reconciliation_agent")
     for pdf_id in PDF_LIST:
         data[pdf_id]["summary"] = {}
         for m in models_out:
@@ -382,9 +403,19 @@ def build_html(payload: dict) -> str:
                 div.className = 'model-summary';
                 let html = '<h3>' + escapeHtml(m.name) + '</h3>';
                 const sum = pdfData.summary && pdfData.summary[m.id];
-                if (m.id === 'landing_ai_new' || m.id === 'gemini_native') {{
-                    if (!sum) {{ div.classList.add('na'); html += '<div>N/A</div>'; }}
-                    else {{
+                if (m.id === 'landing_ai_new' || m.id === 'gemini_native' || m.id === 'reconciliation_agent') {{
+                    if (!sum) {{
+                        const stats = m.id === 'reconciliation_agent' ? pdfData.reconciliation_agent_stats : null;
+                        if (m.id === 'reconciliation_agent' && stats) {{
+                            html += '<div class="overall">Columns filled: ' + stats.columns_filled + '</div>';
+                            if ((pdfData.reconciliation_logs || []).length > 0) {{
+                                html += '<div class="by-cat"><a href="../' + pdfData.reconciliation_logs[0] + '" target="_blank" style="color:#4ecca3;">View logs</a></div>';
+                            }}
+                        }} else {{
+                            div.classList.add('na');
+                            html += '<div>N/A</div>';
+                        }}
+                    }} else {{
                         const o = sum.overall;
                         html += '<div class="overall">Overall: C ' + (o.correctness * 100).toFixed(1) + '%, K ' + (o.completeness * 100).toFixed(1) + '%</div>';
                         html += '<div class="by-cat">';
@@ -393,6 +424,9 @@ def build_html(payload: dict) -> str:
                             if (c) html += '<span>' + cat + ': C ' + (c.correctness * 100).toFixed(1) + '%, K ' + (c.completeness * 100).toFixed(1) + '%</span>';
                         }});
                         html += '</div>';
+                        if (m.id === 'reconciliation_agent' && (pdfData.reconciliation_logs || []).length > 0) {{
+                            html += '<div class="by-cat"><a href="../' + pdfData.reconciliation_logs[0] + '" target="_blank" style="color:#4ecca3;">View logs</a></div>';
+                        }}
                     }}
                 }} else {{
                     const stats = m.id === 'agent_extractor' ? pdfData.agent_stats

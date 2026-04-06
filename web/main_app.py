@@ -18,6 +18,27 @@ from pathlib import Path
 from typing import Dict, Any
 from urllib.parse import unquote
 
+# Load .env from project root — must happen before any other imports that read env vars
+_env_path = Path(__file__).resolve().parents[1] / ".env"
+if _env_path.exists():
+    try:
+        from dotenv import load_dotenv as _load_dotenv
+        _load_dotenv(dotenv_path=str(_env_path), override=False)
+    except ImportError:
+        import re as _re
+        with open(_env_path) as _f:
+            for _line in _f:
+                _line = _line.strip()
+                if not _line or _line.startswith("#") or "=" not in _line:
+                    continue
+                _k, _, _rest = _line.partition("=")
+                _k = _k.strip()
+                _rest = _rest.strip()
+                _m = _re.match(r'^(["\'])(.*?)\1', _rest)
+                _v = _m.group(2) if _m else _re.sub(r'\s+#.*$', '', _rest).strip()
+                if _k:
+                    os.environ.setdefault(_k, _v)
+
 from flask import Flask, request, jsonify, redirect, render_template, Response, send_from_directory, stream_with_context
 from werkzeug.utils import secure_filename
 
@@ -298,6 +319,21 @@ def api_run_reconciliation(doc_id):
     no_resume = body.get("no_resume", False)
     group_names = body.get("group_names")
 
+    # If no explicit groups given, infer from what was actually extracted —
+    # only reconcile groups that have at least one column in extraction_results.json.
+    if not group_names:
+        try:
+            agent_data = json.loads(agent_path.read_text(encoding="utf-8"))
+            extracted_cols = set(agent_data.get("columns", {}).keys())
+            from src.table_definitions.definitions import load_definitions as _ld
+            _groups_raw = _ld()
+            group_names = [
+                g for g, cols in _groups_raw.items()
+                if any(c.get("Column Name") in extracted_cols for c in cols)
+            ] or None
+        except Exception:
+            group_names = None
+
     try:
         sys.path.insert(0, str(PROJECT_ROOT / "experiment-scripts"))
         from run_reconciliation_agent import run_reconciliation_pipeline
@@ -320,7 +356,7 @@ def api_column_groups():
     try:
         from src.table_definitions.definitions import load_definitions
         groups = load_definitions()
-        out = [{"name": g, "columns": [c.get("Column Name", "") for c in cols]} for g, cols in groups.items()]
+        out = [{"name": g, "columns": [{"name": c.get("Column Name", ""), "definition": c.get("Definition", "")} for c in cols]} for g, cols in groups.items()]
         return jsonify({"success": True, "groups": out}), 200
     except Exception as e:
         return jsonify({"success": False, "error": str(e)}), 500
@@ -457,9 +493,43 @@ def api_extract_agentic_stream():
     resume = data.get("resume", True)
     skip_if_done = data.get("skip_if_done", True)
 
+    # Capture paths needed inside generate() (closures are fine here)
+    _chunk_dir = RESULTS_ROOT / doc_id / "chunking"
+    _md_path = _chunk_dir / "parsed_markdown.md"
+    _pdf_path_for_prepare = resolve_pdf_path(doc_id)
+
     def generate():
         import queue
         import threading
+
+        # For freshly uploaded PDFs, run Landing AI parse + embedding before extraction.
+        # Without this, search_agent and reconciliation_agent see "Document has 0 pages."
+        if doc_id.startswith("upload_") and not _md_path.exists():
+            try:
+                from web.landing_ai_parse_service import parse_pdf_for_qa
+                from src.retrieval.openai_embedding_retriever import embed_chunks
+
+                if not _pdf_path_for_prepare or not _pdf_path_for_prepare.exists():
+                    raise FileNotFoundError(f"PDF not found for {doc_id}: {_pdf_path_for_prepare}")
+
+                yield f"data: {json.dumps({'type': 'prepare_status', 'text': 'Parsing PDF with Landing AI… (this may take 30–60 s)'})}\n\n"
+                parse_result = parse_pdf_for_qa(doc_id, _pdf_path_for_prepare, on_event=lambda e: None)
+                if not parse_result.get("success"):
+                    raise RuntimeError(parse_result.get("error", "PDF parse failed"))
+
+                yield f"data: {json.dumps({'type': 'prepare_status', 'text': 'Parse complete. Building embeddings…'})}\n\n"
+                embed_result = embed_chunks(doc_id, force=True)
+                if not embed_result:
+                    raise RuntimeError("embed_chunks returned None — no parsed content found")
+
+                n_chunks = len(embed_result[0]) if embed_result and embed_result[0] else 0
+                yield f"data: {json.dumps({'type': 'prepare_status', 'text': f'Ready: {n_chunks} page chunks indexed. Starting extraction…'})}\n\n"
+
+            except Exception as _prep_ex:
+                _err = f"[PREPARE FAILED] {_prep_ex}"
+                yield f"data: {json.dumps({'type': 'prepare_error', 'text': _err})}\n\n"
+                # Do not run agents — search agent will see 0 pages without embeddings
+                return
 
         sys.path.insert(0, str(PROJECT_ROOT / "experiment-scripts"))
         from agent_extractor import run_extraction_loop_deterministic
@@ -518,6 +588,11 @@ def api_extract_agentic_stream():
                 q.put({"type": "error", "error": str(e)})
             finally:
                 q.put({"type": "thread_done", "thread": "search"})
+
+        # Verify embedding cache exists before firing the search agent (warn loudly if missing)
+        _md_check = RESULTS_ROOT / doc_id / "chunking" / "parsed_markdown.md"
+        if not _md_check.exists():
+            yield f"data: {json.dumps({'type': 'prepare_warning', 'text': f'WARNING: No parsed_markdown.md for {doc_id}. Search-Agent will see 0 pages and return Not Reported for everything. Restart server and re-upload the PDF to trigger Landing AI parsing.'})}\n\n"
 
         threading.Thread(target=run_agent).start()
         threading.Thread(target=run_search).start()
@@ -704,7 +779,12 @@ def api_document_reconciled(doc_id):
     agent_attr_path = RESULTS_ROOT / doc_id / "agent_extractor" / "attribution_results.json"
 
     try:
-        if recon_attr_path.exists():
+        # Serve cached attribution only if reconciled_results hasn't been updated since
+        recon_attr_fresh = (
+            recon_attr_path.exists()
+            and not (rec_path.exists() and rec_path.stat().st_mtime > recon_attr_path.stat().st_mtime)
+        )
+        if recon_attr_fresh:
             data = json.loads(recon_attr_path.read_text(encoding="utf-8"))
         elif rec_path.exists():
             data = json.loads(rec_path.read_text(encoding="utf-8"))
@@ -727,12 +807,17 @@ def api_document_reconciled(doc_id):
         col_to_row = {r.get("column_name"): r for r in (comparison.get("comparison") or [])}
 
         agent_cols = {}
+        agent_chunk_ids: Dict[str, list] = {}
         search_cols = {}
+        search_chunk_ids: Dict[str, list] = {}
         if agent_path.exists():
             try:
                 ad = json.loads(agent_path.read_text(encoding="utf-8"))
                 for k, v in (ad.get("columns") or {}).items():
                     agent_cols[k] = str(v.get("value", "")) if isinstance(v, dict) else str(v or "")
+                    if isinstance(v, dict):
+                        pages = [a["page"] for a in (v.get("attribution") or []) if isinstance(a, dict) and a.get("page")]
+                        agent_chunk_ids[k] = [f"page_{p}" for p in pages]
             except Exception:
                 pass
         search_path = RESULTS_ROOT / doc_id / "search_agent" / "extraction_results.json"
@@ -741,6 +826,9 @@ def api_document_reconciled(doc_id):
                 sd = json.loads(search_path.read_text(encoding="utf-8"))
                 for k, v in (sd.get("columns") or {}).items():
                     search_cols[k] = str(v.get("value", "")) if isinstance(v, dict) else str(v or "")
+                    if isinstance(v, dict):
+                        pages = [a["page"] for a in (v.get("attribution") or []) if isinstance(a, dict) and a.get("page")]
+                        search_chunk_ids[k] = [f"page_{p}" for p in pages]
             except Exception:
                 pass
 
@@ -763,6 +851,8 @@ def api_document_reconciled(doc_id):
             cn = col.get("column_name", "")
             col["candidate_a"] = agent_cols.get(cn, "")
             col["candidate_b"] = search_cols.get(cn, "")
+            col["chunk_ids_a"] = agent_chunk_ids.get(cn, [])
+            col["chunk_ids_b"] = search_chunk_ids.get(cn, [])
             col["reconciliation_reasoning"] = col.get("agent_reasoning") or ""
             row = col_to_row.get(cn)
             if row and row.get("methods"):
@@ -831,6 +921,7 @@ def _reconciliation_agent_to_columns(cols_dict: Dict[str, Any]) -> list:
             "source_type": src.get("modality", "text") if isinstance(src, dict) else "text",
             "verbatim_quote": src.get("verbatim_quote", "") if isinstance(src, dict) else "",
             "agent_reasoning": str(r.get("reasoning", "") or "").strip() or None,
+            "verification_label": str(r.get("verification", "") or "").strip() or None,
         })
     return out
 
@@ -838,22 +929,59 @@ def _reconciliation_agent_to_columns(cols_dict: Dict[str, Any]) -> list:
 def _build_agent_attribution(doc_id: str) -> Dict[str, Any] | None:
     """Build attribution columns from agent extraction, run enrich, return."""
     from web.attribution_service import enrich_reconciled_with_attribution
+
+    # Load raw extraction_results.json directly so we can pass attribution hints
+    # (page + modality) into enrich_reconciled_with_attribution.
+    agent_raw: Dict[str, Any] = {}
+    agent_path = RESULTS_ROOT / doc_id / "agent_extractor" / "extraction_results.json"
+    if agent_path.exists():
+        try:
+            agent_raw = json.loads(agent_path.read_text(encoding="utf-8")).get("columns", {})
+        except Exception:
+            pass
+
     comparison = load_comparison_data(doc_id)
     rows = comparison.get("comparison") or []
-    agent_cols = [r for r in rows if (r.get("methods") or {}).get("agent")]
-    if not agent_cols:
-        return None
+
+    # Build column list from raw extraction (covers uploaded docs with no comparison rows)
     columns = []
-    for r in agent_cols:
-        agent_data = (r.get("methods") or {}).get("agent") or {}
-        val = agent_data.get("value") or agent_data.get("primary_value", "")
-        reasoning = (agent_data.get("evidence") or agent_data.get("reasoning", "") or "").strip()
-        columns.append({
-            "column_name": r["column_name"],
-            "final_value": str(val) if val else "",
-            "contributing_methods": ["agent"],
-            "agent_reasoning": reasoning if reasoning else None,
-        })
+    if agent_raw:
+        for col_name, v in agent_raw.items():
+            if not isinstance(v, dict):
+                continue
+            val = v.get("value", "")
+            reasoning = (v.get("reasoning") or "").strip()
+            # Pull first attribution entry for page + source_type hints
+            attr_list = v.get("attribution") or []
+            first_attr = attr_list[0] if attr_list else {}
+            col = {
+                "column_name": col_name,
+                "final_value": str(val) if val else "",
+                "contributing_methods": ["agent"],
+                "agent_reasoning": reasoning if reasoning else None,
+                "page": first_attr.get("page"),
+                "source_type": first_attr.get("modality"),
+            }
+            columns.append(col)
+    else:
+        # Fallback: build from comparison rows (pre-existing benchmark docs)
+        agent_cols = [r for r in rows if (r.get("methods") or {}).get("agent")]
+        if not agent_cols:
+            return None
+        for r in agent_cols:
+            agent_data = (r.get("methods") or {}).get("agent") or {}
+            val = agent_data.get("value") or agent_data.get("primary_value", "")
+            reasoning = (agent_data.get("evidence") or agent_data.get("reasoning", "") or "").strip()
+            columns.append({
+                "column_name": r["column_name"],
+                "final_value": str(val) if val else "",
+                "contributing_methods": ["agent"],
+                "agent_reasoning": reasoning if reasoning else None,
+            })
+
+    if not columns:
+        return None
+
     enriched = enrich_reconciled_with_attribution(doc_id, columns, comparison_rows=rows, top_k=3)
     return {"doc_id": doc_id, "columns": enriched}
 

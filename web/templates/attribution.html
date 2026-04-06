@@ -32,29 +32,57 @@
         <div class="drawer-content flex flex-col min-h-[calc(100vh-4rem)]">
             <!-- Main: Report-style layout -->
             <main class="flex-1 p-4 lg:p-6 flex flex-col min-w-0 overflow-y-auto">
+                <!-- Export toolbar -->
+                <div class="flex items-center justify-end mb-3">
+                    <button id="export-csv-btn" type="button" class="btn btn-sm btn-outline gap-2" disabled title="Export reconciled values to CSV">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5 5 5-5M12 15V3"/>
+                        </svg>
+                        Export CSV
+                    </button>
+                </div>
+
                 <!-- Report header: column name + Direct PDF/Search-Based/Reconciliation cards (shown when column selected) -->
                 <div id="report-header" class="mb-4 space-y-4" style="display: none;">
-                    <h2 class="card-title text-lg text-primary" id="sel-column-name"></h2>
+                    <div class="flex items-center gap-3 flex-wrap">
+                        <h2 class="card-title text-lg text-primary" id="sel-column-name"></h2>
+                        <span id="verdict-badge" class="hidden"></span>
+                    </div>
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <div class="card bg-base-100 shadow-md">
+                        <div id="source-card-a" class="card bg-base-100 shadow-md cursor-pointer transition-all ring-2 ring-transparent hover:ring-primary/40" title="Click to highlight Agent A's source in PDF">
                             <div class="card-body p-4">
-                                <div class="text-xs font-medium text-base-content/50 uppercase tracking-wider">Direct PDF output</div>
+                                <div class="flex items-center justify-between mb-1">
+                                    <div class="text-xs font-medium text-base-content/50 uppercase tracking-wider flex items-center gap-1">
+                                        <span id="source-a-dot" class="inline-block w-2 h-2 rounded-full bg-base-content/20"></span>
+                                        Agent A — Direct PDF
+                                    </div>
+                                    <button id="accept-a-btn" type="button" class="btn btn-xs btn-outline btn-primary" title="Use Agent A's value">Use A</button>
+                                </div>
                                 <div id="candidate-a-value" class="text-sm text-base-content break-words whitespace-pre-wrap"></div>
                             </div>
                         </div>
-                        <div class="card bg-base-100 shadow-md">
+                        <div id="source-card-b" class="card bg-base-100 shadow-md cursor-pointer transition-all ring-2 ring-transparent hover:ring-secondary/40" title="Click to highlight Agent B's source in PDF">
                             <div class="card-body p-4">
-                                <div class="text-xs font-medium text-base-content/50 uppercase tracking-wider">Search-Based output</div>
+                                <div class="flex items-center justify-between mb-1">
+                                    <div class="text-xs font-medium text-base-content/50 uppercase tracking-wider flex items-center gap-1">
+                                        <span id="source-b-dot" class="inline-block w-2 h-2 rounded-full bg-base-content/20"></span>
+                                        Agent B — Search-Based
+                                    </div>
+                                    <button id="accept-b-btn" type="button" class="btn btn-xs btn-outline btn-secondary" title="Use Agent B's value">Use B</button>
+                                </div>
                                 <div id="candidate-b-value" class="text-sm text-base-content break-words whitespace-pre-wrap"></div>
                             </div>
                         </div>
-                        <div class="card bg-base-100 shadow-md border-2 border-primary">
+                        <div id="source-card-recon" class="card bg-base-100 shadow-md border-2 border-primary cursor-pointer transition-all ring-2 ring-transparent hover:ring-primary/40" title="Click to highlight Reconciliation source in PDF">
                             <div class="card-body p-4">
-                                <div class="text-xs font-medium text-primary uppercase tracking-wider">Reconciliation output</div>
+                                <div class="text-xs font-medium text-primary uppercase tracking-wider mb-1 flex items-center gap-1">
+                                    <span id="source-recon-dot" class="inline-block w-2 h-2 rounded-full bg-primary/40"></span>
+                                    Reconciliation output
+                                </div>
                                 <textarea id="reconciliation-value" class="textarea textarea-bordered text-sm w-full min-h-[4rem] font-medium" placeholder="Type your own value for verification…" rows="3"></textarea>
                                 <div class="flex gap-2 mt-2">
-                                    <button id="save-human-edit-btn" type="button" class="btn btn-sm btn-primary" disabled>Save my edit</button>
-                                    <span id="save-edit-status" class="text-xs text-base-content/60"></span>
+                                    <button id="save-human-edit-btn" type="button" class="btn btn-sm btn-primary" disabled>Save</button>
+                                    <span id="save-edit-status" class="text-xs text-base-content/60 self-center"></span>
                                 </div>
                             </div>
                         </div>
@@ -152,6 +180,17 @@
                         </div>
                     </div>
 
+                    <!-- Group filter (collapsible) -->
+                    <div class="collapse collapse-arrow bg-base-200 rounded-lg">
+                        <input type="checkbox" />
+                        <div class="collapse-title font-medium text-sm py-2 min-h-0">
+                            Filter by group <span id="group-filter-badge" class="badge badge-primary badge-xs" style="display:none;">filtered</span>
+                        </div>
+                        <div class="collapse-content p-1 max-h-48 overflow-y-auto">
+                            <div id="group-filter-checkboxes" class="space-y-0"></div>
+                        </div>
+                    </div>
+
                     <!-- Column search -->
                     <div class="form-control">
                         <label class="label py-1">
@@ -179,7 +218,7 @@
             reconciled: (docId) => fetch(`/api/documents/${encodeURIComponent(docId)}/reconciled`).then(r => r.json()),
             columnGroups: () => fetch('/api/column-groups').then(r => r.json()),
             refreshAttribution: (docId) => fetch(`/api/documents/${encodeURIComponent(docId)}/attribution/refresh`, { method: 'POST' }).then(r => r.json()),
-            runReconciliation: (docId) => fetch(`/api/documents/${encodeURIComponent(docId)}/run-reconciliation`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({}) }).then(r => r.json()),
+            runReconciliation: (docId, groupNames) => fetch(`/api/documents/${encodeURIComponent(docId)}/run-reconciliation`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(groupNames ? { group_names: groupNames } : {}) }).then(r => r.json()),
             saveHumanEdited: (docId, columns) => fetch(`/api/documents/${encodeURIComponent(docId)}/human-edited`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ columns }) }).then(r => r.json()),
             highlights: (docId, chunkIds) => {
                 const q = chunkIds.join(',');
@@ -201,12 +240,22 @@
         let currentHighlights = [];
         let columnSearchQuery = '';
         let selectedColumn = null;
+        let selectedGroups = null; // null = show all
 
         function colToGroup(colName) {
             for (const g of columnGroups) {
-                if ((g.columns || []).includes(colName)) return g.name || '';
+                const cols = g.columns || [];
+                // columns may be strings or {name, definition} objects
+                const names = cols.map(c => typeof c === 'string' ? c : c.name);
+                if (names.includes(colName)) return g.name || '';
             }
             return 'Other';
+        }
+
+        function getGroupColumnNames(groupName) {
+            const g = columnGroups.find(g => g.name === groupName);
+            if (!g) return [];
+            return (g.columns || []).map(c => typeof c === 'string' ? c : c.name);
         }
 
         async function loadColumnGroups() {
@@ -214,8 +263,28 @@
                 const res = await API.columnGroups();
                 if (res.success && res.groups) {
                     columnGroups = res.groups;
+                    renderGroupSelector();
                 }
             } catch (_) {}
+        }
+
+        function renderGroupSelector() {
+            const container = document.getElementById('group-filter-checkboxes');
+            if (!container) return;
+            container.innerHTML = columnGroups.map(g => {
+                const colCount = (g.columns || []).length;
+                return `<label class="label cursor-pointer justify-start gap-2 py-1">
+                    <input type="checkbox" class="checkbox checkbox-xs checkbox-primary group-filter-cb" data-group="${escapeHtml(g.name)}" />
+                    <span class="label-text text-xs">${escapeHtml(g.name)} <span class="text-base-content/40">(${colCount})</span></span>
+                </label>`;
+            }).join('');
+            container.querySelectorAll('.group-filter-cb').forEach(cb => {
+                cb.addEventListener('change', () => {
+                    const checked = Array.from(container.querySelectorAll('.group-filter-cb:checked')).map(c => c.dataset.group);
+                    selectedGroups = checked.length > 0 ? checked : null;
+                    if (reconciledData) renderColumnList(reconciledData);
+                });
+            });
         }
 
         async function loadDocsWithReconciliation() {
@@ -263,8 +332,23 @@
 
         function renderColumnList(res) {
             reconciledData = res;
-            const cols = res.columns || [];
+            document.getElementById('export-csv-btn').disabled = false;
+            let cols = res.columns || [];
+
+            // Only show columns that were actually extracted (have candidate_a or candidate_b set)
+            cols = cols.filter(c => (c.candidate_a && c.candidate_a !== '') || (c.candidate_b && c.candidate_b !== '') || c.human_edited);
+
+            // Filter by selected groups if set
+            if (selectedGroups && selectedGroups.length > 0) {
+                const allowedCols = new Set(selectedGroups.flatMap(g => getGroupColumnNames(g)));
+                cols = cols.filter(c => allowedCols.has(c.column_name));
+            }
+
             reconciledData.filteredColumns = cols;
+
+            // Update filter badge
+            const badge = document.getElementById('group-filter-badge');
+            if (badge) badge.style.display = selectedGroups ? 'inline-flex' : 'none';
 
             const q = columnSearchQuery.toLowerCase().trim();
             const filtered = q ? cols.filter(c => c.column_name.toLowerCase().includes(q)) : cols;
@@ -298,8 +382,17 @@
                                 const idx = allCols.indexOf(c);
                                 const v = c.verification || {};
                                 const llm = v.llm || {};
+                                const vLabel = c.verification_label || '';
                                 let vBadge = '';
-                                if (llm.verdict) {
+                                if (vLabel === 'both_wrong') {
+                                    vBadge = ' <span class="badge badge-warning badge-xs" title="Both agents wrong — needs review">⚠ Review</span>';
+                                } else if (vLabel === 'both_correct') {
+                                    vBadge = ' <span class="badge badge-success badge-xs" title="Both agents correct">✓ Agreed</span>';
+                                } else if (vLabel === 'A_correct_B_wrong') {
+                                    vBadge = ' <span class="badge badge-info badge-xs" title="Direct PDF correct">A wins</span>';
+                                } else if (vLabel === 'B_correct_A_wrong') {
+                                    vBadge = ' <span class="badge badge-info badge-xs" title="Search agent correct">B wins</span>';
+                                } else if (llm.verdict) {
                                     vBadge = llm.verdict === 'correct' ? ' <span class="badge badge-success badge-xs" title="LLM verified">✓ LLM</span>' : ' <span class="badge badge-error badge-xs" title="LLM wrong">✗ LLM</span>';
                                 } else if (v.applicable) {
                                     vBadge = v.verified ? ' <span class="badge badge-success badge-xs">✓</span>' : ' <span class="badge badge-error badge-xs">✗</span>';
@@ -334,6 +427,7 @@
                 pdfDoc = null;
                 selectedColumn = null;
                 reconciledData = null;
+                document.getElementById('export-csv-btn').disabled = true;
                 return;
             }
             const res = await API.reconciled(docId);
@@ -393,7 +487,7 @@
             btn.disabled = true;
             btn.innerHTML = '<span class="loading loading-spinner loading-sm"></span>';
             try {
-                const res = await API.runReconciliation(docId);
+                const res = await API.runReconciliation(docId, selectedGroups);
                 if (res.success) {
                     const r2 = await API.reconciled(docId);
                     if (r2.success) renderColumnList(r2);
@@ -482,22 +576,99 @@
             document.getElementById('reconciliation-reasoning').textContent = col.reconciliation_reasoning || '';
             document.getElementById('save-human-edit-btn').disabled = false;
             document.getElementById('save-edit-status').textContent = col.human_edited ? '(saved)' : '';
-            document.getElementById('report-header').style.display = 'block';
 
-            const nav = document.getElementById('chunk-nav');
-
-            if (!chunkIds.length) {
-                document.getElementById('pdf-hint').textContent = 'No highlight available for this column';
-                nav.style.display = 'none';
-                currentHighlights = [];
-                return;
+            // Verdict badge
+            const verdictBadge = document.getElementById('verdict-badge');
+            const vLabel = col.verification_label || '';
+            const VERDICT_STYLES = {
+                'both_correct':    ['badge badge-success', '✓ Both correct'],
+                'both_wrong':      ['badge badge-warning', '⚠ Both wrong — needs review'],
+                'A_correct_B_wrong': ['badge badge-info', 'A wins (Direct PDF)'],
+                'B_correct_A_wrong': ['badge badge-info', 'B wins (Search Agent)'],
+            };
+            if (vLabel && VERDICT_STYLES[vLabel]) {
+                const [cls, label] = VERDICT_STYLES[vLabel];
+                verdictBadge.className = cls;
+                verdictBadge.textContent = label;
+                verdictBadge.classList.remove('hidden');
+            } else {
+                verdictBadge.className = 'hidden';
+                verdictBadge.textContent = '';
             }
 
-            currentChunkIndex = 0;
-            nav.style.display = 'flex';
-            document.getElementById('chunk-counter').textContent = `1 / ${chunkIds.length}`;
+            // Accept A / Accept B buttons
+            document.getElementById('accept-a-btn').onclick = () => {
+                recValEl.value = String(col.candidate_a || '');
+                recValEl.dispatchEvent(new Event('input'));
+                document.getElementById('save-human-edit-btn').disabled = false;
+            };
+            document.getElementById('accept-b-btn').onclick = () => {
+                recValEl.value = String(col.candidate_b || '');
+                recValEl.dispatchEvent(new Event('input'));
+                document.getElementById('save-human-edit-btn').disabled = false;
+            };
 
-            await loadPdfAndHighlights(reconciledData.doc_id, chunkIds, col.attributed_chunks || []);
+            document.getElementById('report-header').style.display = 'block';
+
+            // Wire card click handlers for A / B / Reconciliation source toggling
+            const cardA     = document.getElementById('source-card-a');
+            const cardB     = document.getElementById('source-card-b');
+            const cardRecon = document.getElementById('source-card-recon');
+
+            function setActiveSourceCard(active) {
+                const cards = { a: cardA, b: cardB, recon: cardRecon };
+                const rings = { a: 'ring-primary', b: 'ring-secondary', recon: 'ring-primary' };
+                const dots  = {
+                    a: document.getElementById('source-a-dot'),
+                    b: document.getElementById('source-b-dot'),
+                    recon: document.getElementById('source-recon-dot'),
+                };
+                for (const [key, card] of Object.entries(cards)) {
+                    const isActive = key === active;
+                    card.classList.toggle(rings[key], isActive);
+                    card.classList.toggle('ring-transparent', !isActive);
+                    if (dots[key]) {
+                        dots[key].className = isActive
+                            ? `inline-block w-2 h-2 rounded-full ${key === 'b' ? 'bg-secondary' : 'bg-primary'}`
+                            : 'inline-block w-2 h-2 rounded-full bg-base-content/20';
+                    }
+                }
+            }
+
+            async function highlightSource(source) {
+                setActiveSourceCard(source);
+                const docId = reconciledData.doc_id;
+                const ids = source === 'a' ? (col.chunk_ids_a || [])
+                          : source === 'b' ? (col.chunk_ids_b || [])
+                          : chunkIds;
+                const nav = document.getElementById('chunk-nav');
+                if (!ids.length) {
+                    document.getElementById('pdf-hint').textContent = `No highlight available for source ${source.toUpperCase()}`;
+                    nav.style.display = 'none';
+                    currentHighlights = [];
+                    await loadPdfOnly(docId);
+                    return;
+                }
+                currentChunkIndex = 0;
+                nav.style.display = 'flex';
+                document.getElementById('chunk-counter').textContent = `1 / ${ids.length}`;
+                await loadPdfAndHighlights(docId, ids, []);
+            }
+
+            // Stop click from firing when user clicks textarea or buttons inside the card
+            function cardClickHandler(source) {
+                return (e) => {
+                    if (e.target.tagName === 'BUTTON' || e.target.tagName === 'TEXTAREA') return;
+                    highlightSource(source);
+                };
+            }
+            cardA.onclick     = cardClickHandler('a');
+            cardB.onclick     = cardClickHandler('b');
+            cardRecon.onclick = cardClickHandler('recon');
+
+            // Default: show reconciliation highlight if available, else Agent A
+            const defaultSource = chunkIds.length ? 'recon' : (col.chunk_ids_a?.length ? 'a' : 'b');
+            await highlightSource(defaultSource);
         }
 
         function goToChunk(idx) {
@@ -704,6 +875,50 @@
             if (e.key === 'ArrowLeft') { e.preventDefault(); goToChunk(currentChunkIndex - 1); }
             if (e.key === 'ArrowRight') { e.preventDefault(); goToChunk(currentChunkIndex + 1); }
         });
+
+        function getColDefinition(colName) {
+            for (const g of columnGroups) {
+                for (const c of (g.columns || [])) {
+                    const name = typeof c === 'string' ? c : c.name;
+                    if (name === colName) return typeof c === 'string' ? '' : (c.definition || '');
+                }
+            }
+            return '';
+        }
+
+        function csvEscape(val) {
+            const s = String(val == null ? '' : val);
+            // Wrap in quotes if it contains comma, newline, or double-quote
+            if (s.includes('"') || s.includes(',') || s.includes('\n') || s.includes('\r')) {
+                return '"' + s.replace(/"/g, '""') + '"';
+            }
+            return s;
+        }
+
+        function exportCsv() {
+            if (!reconciledData) return;
+            const cols = reconciledData.filteredColumns || reconciledData.columns || [];
+            const rows = [['column', 'definition', 'value']];
+            for (const c of cols) {
+                rows.push([
+                    c.column_name || '',
+                    getColDefinition(c.column_name),
+                    c.final_value || '',
+                ]);
+            }
+            const csv = rows.map(r => r.map(csvEscape).join(',')).join('\r\n');
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${(reconciledData.doc_id || 'export').replace(/[^a-z0-9_\-]/gi, '_')}.csv`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        document.getElementById('export-csv-btn').addEventListener('click', exportCsv);
 
         (async () => {
             await loadColumnGroups();

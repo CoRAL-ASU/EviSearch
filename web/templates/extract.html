@@ -54,21 +54,56 @@
         <div class="card bg-base-100 shadow-xl">
             <div class="card-body">
                 <h2 class="card-title">2. Column groups</h2>
-                <p class="text-base-content/70 text-sm">Use all columns or select specific groups</p>
-                <div class="form-control">
+                <p class="text-base-content/70 text-sm">Use all column groups or pick specific ones. Hover a badge to see its columns.</p>
+                <div class="form-control mb-3">
                     <label class="label cursor-pointer justify-start gap-2">
                         <input type="checkbox" id="use-all-groups" class="checkbox checkbox-primary" checked />
-                        <span class="label-text">Use all column groups</span>
+                        <span class="label-text font-medium">Use all column groups</span>
                     </label>
                 </div>
-                <div id="group-checkboxes" class="flex flex-wrap gap-2 mt-2" style="display: none;"></div>
+
+                <!-- Dropdown + badge multi-select (hidden when "use all" is checked) -->
+                <div id="group-selector" class="space-y-3" style="display: none;">
+                    <div class="flex items-center gap-2">
+                        <select id="group-dropdown" class="select select-bordered flex-1 max-w-sm">
+                            <option value="">Add a column group…</option>
+                        </select>
+                        <span class="text-sm text-base-content/50" id="group-count-label"></span>
+                    </div>
+                    <!-- Selected group badges -->
+                    <div id="selected-badges" class="flex flex-wrap gap-2 min-h-[2rem]">
+                        <span id="no-groups-hint" class="text-sm text-base-content/40 italic">No groups selected — pick one from the dropdown above.</span>
+                    </div>
+                </div>
             </div>
         </div>
 
-        <!-- Step 3: Run / Load -->
+        <!-- Tooltip popup for group column definitions (shared, positioned by JS) -->
+        <div id="group-tooltip" class="fixed z-50 hidden bg-base-300 border border-base-content/20 rounded-xl shadow-2xl p-4 max-w-sm w-72 pointer-events-none">
+            <p id="group-tooltip-title" class="font-semibold text-sm mb-2 text-primary"></p>
+            <ul id="group-tooltip-list" class="space-y-1 max-h-52 overflow-y-auto"></ul>
+        </div>
+
+        <!-- Step 3: Prepare (uploaded docs) -->
+        <div id="prepare-card" class="card bg-base-100 shadow-xl" style="display: none;">
+            <div class="card-body">
+                <h2 class="card-title">3. Prepare Document</h2>
+                <p class="text-base-content/60 text-sm">Run Landing AI parsing and build semantic embeddings so the Search Agent can retrieve evidence. Required for uploaded PDFs before extraction.</p>
+                <div class="flex items-center gap-3 mt-2">
+                    <button id="prepare-btn" class="btn btn-secondary">
+                        <span class="loading loading-spinner loading-sm" id="prepare-spinner" style="display: none;"></span>
+                        <span id="prepare-text">Prepare Document</span>
+                    </button>
+                    <span id="prepare-status-badge" class="badge" style="display: none;"></span>
+                </div>
+                <div id="prepare-message" class="font-mono text-sm mt-2 min-h-[1.2em]"></div>
+            </div>
+        </div>
+
+        <!-- Step 4: Run / Load -->
         <div class="card bg-base-100 shadow-xl">
             <div class="card-body">
-                <h2 class="card-title">3. Extract</h2>
+                <h2 id="extract-step-title" class="card-title">3. Extract</h2>
                 <div class="flex gap-2">
                     <button id="run-btn" class="btn btn-primary" disabled>
                         <span class="loading loading-spinner loading-sm" id="run-spinner" style="display: none;"></span>
@@ -144,19 +179,149 @@
             }).join('');
         }
 
+        // Map of group name -> column list (for tooltip)
+        const groupColumnMap = {};
+        // Map of column name -> definition text
+        const colDefMap = {};
+
         async function loadGroups() {
             const res = await API.columnGroups();
             if (!res.success) return;
             const groups = res.groups || [];
             allColumns = groups;
-            const container = document.getElementById('group-checkboxes');
-            container.innerHTML = groups.map(g =>
-                `<label class="label cursor-pointer gap-2 border rounded-lg px-3 py-1">
-                    <input type="checkbox" class="checkbox checkbox-sm" data-group="${escapeHtml(g.name)}" />
-                    <span class="label-text">${escapeHtml(g.name)}</span>
-                </label>`
-            ).join('');
+
+            // Build lookup maps
+            for (const g of groups) {
+                groupColumnMap[g.name] = g.columns || [];
+                for (const c of (g.columns || [])) {
+                    const name = typeof c === 'string' ? c : c.name;
+                    const def  = typeof c === 'string' ? '' : (c.definition || '');
+                    if (name) colDefMap[name] = def;
+                }
+            }
+
+            // Populate dropdown with all groups
+            const dropdown = document.getElementById('group-dropdown');
+            dropdown.innerHTML = '<option value="">Add a column group…</option>' +
+                groups.map(g => `<option value="${escapeHtml(g.name)}">${escapeHtml(g.name)} (${(g.columns||[]).length} cols)</option>`).join('');
         }
+
+        function refreshGroupCountLabel() {
+            const count = selectedGroups ? selectedGroups.length : 0;
+            const label = document.getElementById('group-count-label');
+            label.textContent = count > 0 ? `${count} group${count !== 1 ? 's' : ''} selected` : '';
+        }
+
+        function addGroupBadge(groupName) {
+            const hint = document.getElementById('no-groups-hint');
+            if (hint) hint.style.display = 'none';
+
+            const badge = document.createElement('div');
+            badge.className = 'badge badge-primary gap-1 py-3 px-3 text-sm cursor-default relative group-badge';
+            badge.dataset.group = groupName;
+            badge.innerHTML = `
+                <span class="font-medium">${escapeHtml(groupName)}</span>
+                <button type="button" class="btn btn-ghost btn-xs p-0 h-auto min-h-0 ml-1 opacity-70 hover:opacity-100 remove-badge-btn" aria-label="Remove">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button>`;
+
+            // Tooltip on hover
+            badge.addEventListener('mouseenter', (e) => showGroupTooltip(groupName, e.currentTarget));
+            badge.addEventListener('mouseleave', hideGroupTooltip);
+
+            // Remove badge on X click
+            badge.querySelector('.remove-badge-btn').addEventListener('click', () => {
+                removeGroupBadge(groupName);
+            });
+
+            document.getElementById('selected-badges').appendChild(badge);
+        }
+
+        function removeGroupBadge(groupName) {
+            const badge = document.querySelector(`#selected-badges [data-group="${CSS.escape(groupName)}"]`);
+            if (badge) badge.remove();
+
+            // Add back to dropdown
+            const dropdown = document.getElementById('group-dropdown');
+            if (!dropdown.querySelector(`option[value="${escapeHtml(groupName)}"]`)) {
+                const cols = groupColumnMap[groupName] || [];
+                const opt = document.createElement('option');
+                opt.value = groupName;
+                opt.textContent = `${groupName} (${cols.length} cols)`;
+                // Insert in original order
+                const allGroupNames = allColumns.map(g => g.name);
+                const insertIdx = allGroupNames.indexOf(groupName);
+                const options = Array.from(dropdown.options).slice(1); // skip placeholder
+                let inserted = false;
+                for (const existing of options) {
+                    const existingIdx = allGroupNames.indexOf(existing.value);
+                    if (existingIdx > insertIdx) {
+                        dropdown.insertBefore(opt, existing);
+                        inserted = true;
+                        break;
+                    }
+                }
+                if (!inserted) dropdown.appendChild(opt);
+            }
+
+            // Update selectedGroups
+            selectedGroups = selectedGroups ? selectedGroups.filter(g => g !== groupName) : null;
+            if (selectedGroups && selectedGroups.length === 0) {
+                document.getElementById('no-groups-hint').style.display = '';
+            }
+            refreshGroupCountLabel();
+        }
+
+        function showGroupTooltip(groupName, anchorEl) {
+            const tooltip = document.getElementById('group-tooltip');
+            const cols = groupColumnMap[groupName] || [];
+            document.getElementById('group-tooltip-title').textContent = groupName;
+            const list = document.getElementById('group-tooltip-list');
+            list.innerHTML = cols.map(c => {
+                const name = typeof c === 'string' ? c : c.name;
+                const def  = typeof c === 'string' ? '' : (c.definition || '');
+                return `<li class="text-xs"><span class="font-semibold text-base-content/90">${escapeHtml(name)}</span>${def ? `<span class="text-base-content/50"> — ${escapeHtml(def)}</span>` : ''}</li>`;
+            }).join('');
+            tooltip.classList.remove('hidden');
+            // Position after paint so offsetHeight is accurate
+            requestAnimationFrame(() => {
+                const rect = anchorEl.getBoundingClientRect();
+                const tw = tooltip.offsetWidth || 288;
+                const th = tooltip.offsetHeight || 120;
+                let left = rect.left + window.scrollX;
+                if (left + tw > window.innerWidth - 12) left = window.innerWidth - tw - 12;
+                if (left < 8) left = 8;
+                // Prefer above, fallback below if not enough space
+                const topAbove = rect.top + window.scrollY - th - 8;
+                const topBelow = rect.bottom + window.scrollY + 8;
+                tooltip.style.left = `${left}px`;
+                tooltip.style.top = `${topAbove > 0 ? topAbove : topBelow}px`;
+            });
+        }
+
+        function hideGroupTooltip() {
+            document.getElementById('group-tooltip').classList.add('hidden');
+        }
+
+        document.getElementById('group-dropdown').addEventListener('change', (e) => {
+            const val = e.target.value;
+            if (!val) return;
+
+            // Add to selectedGroups
+            if (!selectedGroups) selectedGroups = [];
+            if (!selectedGroups.includes(val)) {
+                selectedGroups.push(val);
+                addGroupBadge(val);
+            }
+            refreshGroupCountLabel();
+
+            // Remove from dropdown options
+            const opt = e.target.querySelector(`option[value="${CSS.escape(val)}"]`);
+            if (opt) opt.remove();
+            e.target.value = ''; // reset placeholder
+        });
 
         function escapeHtml(s) {
             if (!s) return '';
@@ -195,14 +360,24 @@
 
         let extractionBatches = null;
 
+        function colNameCellHtml(name) {
+            const def = colDefMap[name] || '';
+            const escaped = escapeHtml(name);
+            if (!def) return `<td>${escaped}</td>`;
+            return `<td><div class="font-medium leading-snug">${escaped}</div><div class="text-xs text-base-content/40 mt-0.5 leading-snug">${escapeHtml(def)}</div></td>`;
+        }
+
         function initEmptyTable(total, columnNames = []) {
             const tbody = document.getElementById('streaming-rows');
             tbody.innerHTML = '';
             for (let i = 0; i < total; i++) {
                 const tr = document.createElement('tr');
-                tr.innerHTML = `<td class="text-base-content/50">—</td><td></td><td></td>`;
+                const name = columnNames[i] || '';
+                tr.innerHTML = name
+                    ? `${colNameCellHtml(name)}<td></td><td></td>`
+                    : `<td class="text-base-content/50">—</td><td></td><td></td>`;
                 tr.dataset.idx = String(i);
-                if (columnNames[i]) tr.dataset.column = columnNames[i];
+                if (name) tr.dataset.column = name;
                 tbody.appendChild(tr);
             }
         }
@@ -216,7 +391,7 @@
             for (let j = 0; j < names.length; j++) {
                 const tr = tbody.querySelector(`tr[data-idx="${rowIdx + j}"]`);
                 if (tr) {
-                    tr.cells[0].textContent = names[j];
+                    tr.cells[0].outerHTML = colNameCellHtml(names[j]);
                     tr.dataset.column = names[j];
                 }
             }
@@ -248,7 +423,8 @@
             const tbody = document.getElementById('streaming-rows');
             const rows = tbody.querySelectorAll('tr');
             const trunc = (v) => String(v || '').slice(0, 200) + (String(v || '').length > 200 ? '…' : '');
-            const match = (tr) => tr.dataset.column === colName || tr.cells[0]?.textContent?.trim() === colName;
+            const match = (tr) => tr.dataset.column === colName
+                || (tr.cells[0]?.querySelector('.font-medium')?.textContent?.trim() || tr.cells[0]?.textContent?.trim()) === colName;
             for (const tr of rows) {
                 if (match(tr)) {
                     if (source === 'search') {
@@ -273,7 +449,88 @@
             } else {
                 document.getElementById('doc-info').textContent = '';
             }
+            // Show Prepare card and re-number step only for uploaded docs
+            const isUpload = hasDoc && docId.startsWith('upload_');
+            document.getElementById('prepare-card').style.display = isUpload ? '' : 'none';
+            document.getElementById('extract-step-title').textContent = isUpload ? '4. Extract' : '3. Extract';
+            if (!isUpload) {
+                // Reset prepare state when switching to a non-upload doc
+                document.getElementById('prepare-status-badge').style.display = 'none';
+                document.getElementById('prepare-message').textContent = '';
+            }
         }
+
+        async function runPrepare() {
+            if (!docId) return;
+            const btn = document.getElementById('prepare-btn');
+            const spinner = document.getElementById('prepare-spinner');
+            const text = document.getElementById('prepare-text');
+            const badge = document.getElementById('prepare-status-badge');
+            const msgEl = document.getElementById('prepare-message');
+
+            btn.disabled = true;
+            spinner.style.display = '';
+            text.textContent = 'Preparing…';
+            badge.style.display = 'none';
+            msgEl.style.color = '';
+            msgEl.textContent = 'Connecting…';
+
+            try {
+                const res = await fetch('/api/qa/prepare-document', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ doc_id: docId }),
+                });
+                if (!res.ok) {
+                    const err = await res.json().catch(() => ({}));
+                    throw new Error(err.error || res.statusText);
+                }
+                const reader = res.body.getReader();
+                const decoder = new TextDecoder();
+                let buf = '';
+                while (true) {
+                    const { done, value } = await reader.read();
+                    if (done) break;
+                    buf += decoder.decode(value, { stream: true });
+                    const lines = buf.split('\n');
+                    buf = lines.pop() || '';
+                    for (const line of lines) {
+                        if (!line.startsWith('data: ')) continue;
+                        try {
+                            const ev = JSON.parse(line.slice(6));
+                            if (ev.type === 'stage') {
+                                msgEl.textContent = ev.message || '';
+                                msgEl.style.color = '';
+                            } else if (ev.type === 'ready') {
+                                msgEl.textContent = '✓ Document prepared — embeddings ready.';
+                                msgEl.style.color = 'oklch(var(--su))';
+                                badge.textContent = '✓ Ready';
+                                badge.className = 'badge badge-success';
+                                badge.style.display = '';
+                            } else if (ev.type === 'error') {
+                                msgEl.textContent = '⚠ ' + (ev.error || 'Prepare failed');
+                                msgEl.style.color = 'oklch(var(--er))';
+                                badge.textContent = '✗ Failed';
+                                badge.className = 'badge badge-error';
+                                badge.style.display = '';
+                            }
+                        } catch (_) {}
+                    }
+                }
+            } catch (err) {
+                msgEl.textContent = '⚠ ' + err.message;
+                msgEl.style.color = 'oklch(var(--er))';
+                badge.textContent = '✗ Failed';
+                badge.className = 'badge badge-error';
+                badge.style.display = '';
+            } finally {
+                btn.disabled = false;
+                spinner.style.display = 'none';
+                text.textContent = 'Prepare Document';
+            }
+        }
+
+        document.getElementById('prepare-btn').addEventListener('click', runPrepare);
 
         document.getElementById('doc-select').addEventListener('change', (e) => {
             docId = e.target.value || null;
@@ -311,17 +568,16 @@
         });
 
         document.getElementById('use-all-groups').addEventListener('change', (e) => {
-            document.getElementById('group-checkboxes').style.display = e.target.checked ? 'none' : 'flex';
-            selectedGroups = e.target.checked ? null : getSelectedGroups();
-        });
-
-        function getSelectedGroups() {
-            const checkboxes = document.querySelectorAll('#group-checkboxes input:checked');
-            return Array.from(checkboxes).map(cb => cb.dataset.group);
-        }
-
-        document.getElementById('group-checkboxes').addEventListener('change', () => {
-            selectedGroups = document.getElementById('use-all-groups').checked ? null : getSelectedGroups();
+            const selector = document.getElementById('group-selector');
+            selector.style.display = e.target.checked ? 'none' : 'block';
+            if (e.target.checked) {
+                selectedGroups = null;
+            } else {
+                // Restore from current badges
+                const badges = document.querySelectorAll('#selected-badges [data-group]');
+                selectedGroups = Array.from(badges).map(b => b.dataset.group);
+                if (selectedGroups.length === 0) selectedGroups = null;
+            }
         });
 
         document.getElementById('load-btn').addEventListener('click', async () => {
@@ -344,7 +600,7 @@
                 document.getElementById('progress-bar').max = 100;
                 const trunc = v => String(v || '').slice(0, 200) + (String(v || '').length > 200 ? '…' : '');
                 tbody.innerHTML = (res.columns || []).map(r =>
-                    `<tr data-column="${escapeHtml(r.column)}"><td>${escapeHtml(r.column)}</td><td>${escapeHtml(trunc(r.value))}</td><td>${escapeHtml(trunc(r.candidate_b))}</td></tr>`
+                    `<tr data-column="${escapeHtml(r.column)}">${colNameCellHtml(r.column)}<td>${escapeHtml(trunc(r.value))}</td><td>${escapeHtml(trunc(r.candidate_b))}</td></tr>`
                 ).join('');
                 updateCandidateStats();
                 document.getElementById('action-buttons').style.display = 'flex';
@@ -480,10 +736,22 @@
                                             }
                                         });
                                     }
+                                } else if (ev.type === 'prepare_status') {
+                                    streamEl.textContent = ev.text || '';
+                                    streamEl.style.color = '';
+                                } else if (ev.type === 'prepare_warning') {
+                                    streamEl.textContent = '⚠ ' + (ev.text || '');
+                                    streamEl.style.color = 'oklch(var(--wa))';
+                                } else if (ev.type === 'prepare_error') {
+                                    streamEl.textContent = '⚠ ' + (ev.text || 'Prepare step failed');
+                                    streamEl.style.color = 'oklch(var(--er))';
+                                    document.getElementById('stat-status').textContent = 'Prepare Failed';
+                                    document.getElementById('stat-status').className = 'badge badge-error';
                                 } else if (ev.type === 'error') {
                                     document.getElementById('stat-status').textContent = 'Error';
                                     document.getElementById('stat-status').className = 'badge badge-error';
-                                    alert(ev.error || 'Extraction failed');
+                                    streamEl.textContent = '⚠ ' + (ev.error || 'Extraction failed');
+                                    streamEl.style.color = 'oklch(var(--er))';
                                 }
                             } catch (_) {}
                         }
