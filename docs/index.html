@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>EviSearch</title>
+  <meta
+    name="description"
+    content="EviSearch is a clinical evidence extraction system for research PDFs."
+  >
+  <style>
+    :root {
+      --bg: #0b1020;
+      --bg2: #151c33;
+      --panel: rgba(255, 255, 255, 0.08);
+      --panel-border: rgba(255, 255, 255, 0.14);
+      --text: #f5f7fb;
+      --muted: #b8c2d8;
+      --accent: #6ee7c8;
+      --accent-2: #8ec5ff;
+      --shadow: rgba(0, 0, 0, 0.28);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(142, 197, 255, 0.18), transparent 34%),
+        radial-gradient(circle at bottom right, rgba(110, 231, 200, 0.16), transparent 28%),
+        linear-gradient(160deg, var(--bg) 0%, var(--bg2) 100%);
+      display: grid;
+      place-items: center;
+      padding: 32px 20px;
+    }
+
+    .shell {
+      width: min(960px, 100%);
+      background: var(--panel);
+      border: 1px solid var(--panel-border);
+      border-radius: 28px;
+      box-shadow: 0 28px 70px var(--shadow);
+      backdrop-filter: blur(14px);
+      overflow: hidden;
+    }
+
+    .hero {
+      padding: 56px 28px 36px;
+    }
+
+    .eyebrow {
+      margin: 0 0 12px;
+      font-size: 13px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--accent);
+      font-weight: 700;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(42px, 8vw, 76px);
+      line-height: 0.96;
+      letter-spacing: -0.04em;
+    }
+
+    .subtitle {
+      margin: 18px 0 0;
+      max-width: 680px;
+      font-size: clamp(18px, 2.4vw, 24px);
+      line-height: 1.45;
+      color: var(--muted);
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 14px;
+      padding: 0 28px 28px;
+    }
+
+    .card {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 20px;
+      padding: 18px;
+    }
+
+    .card h2 {
+      margin: 0 0 8px;
+      font-size: 16px;
+    }
+
+    .card p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.5;
+      font-size: 14px;
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      padding: 0 28px 32px;
+    }
+
+    .button {
+      appearance: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 180px;
+      padding: 14px 18px;
+      border-radius: 999px;
+      text-decoration: none;
+      font-weight: 700;
+      transition: transform 120ms ease, opacity 120ms ease;
+    }
+
+    .button:hover {
+      transform: translateY(-1px);
+      opacity: 0.96;
+    }
+
+    .button-primary {
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      color: #07111b;
+    }
+
+    .button-secondary {
+      color: var(--text);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      background: rgba(255, 255, 255, 0.04);
+    }
+
+    .footer {
+      padding: 18px 28px 28px;
+      color: var(--muted);
+      font-size: 13px;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+    }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <section class="hero">
+      <p class="eyebrow">Clinical Evidence Extraction</p>
+      <h1>EviSearch</h1>
+      <p class="subtitle">
+        A research system for extracting structured evidence from clinical trial PDFs into
+        an ontology-aligned table of trial design, outcomes, and attribution.
+      </p>
+    </section>
+
+    <section class="grid">
+      <article class="card">
+        <h2>Paper Link</h2>
+        <p>
+          This page is the public entry point referenced from the paper and project materials.
+        </p>
+      </article>
+      <article class="card">
+        <h2>Interactive App</h2>
+        <p>
+          The full application is deployed separately from GitHub Pages because it requires
+          a server runtime.
+        </p>
+      </article>
+      <article class="card">
+        <h2>Repository</h2>
+        <p>
+          Source, deployment configuration, and the public landing page are maintained in the
+          EviSearch repository.
+        </p>
+      </article>
+    </section>
+
+    <section class="actions">
+      <a class="button button-primary" href="https://github.com/CoRAL-ASU/EviSearch">
+        View Repository
+      </a>
+      <a class="button button-secondary" href="mailto:coral.lab.asu@gmail.com">
+        Contact The Team
+      </a>
+    </section>
+
+    <footer class="footer">
+      GitHub Pages serves this static landing page. The production application will be linked
+      here once the Cloud Run deployment is live.
+    </footer>
+  </main>
+</body>
+</html>
