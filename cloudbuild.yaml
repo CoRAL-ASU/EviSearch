@@ -1,0 +1,49 @@
+substitutions:
+  _REGION: us-central1
+  _SERVICE_NAME: evisearch-web
+  _AR_REPO: evisearch
+  _IMAGE_NAME: evisearch-web
+  _RUNTIME_SERVICE_ACCOUNT: cloud-run-runtime@mayo-evisearch.iam.gserviceaccount.com
+  _GOOGLE_CLOUD_PROJECT: mayo-evisearch
+  _GOOGLE_CLOUD_LOCATION: us-central1
+
+steps:
+  - name: gcr.io/cloud-builders/docker
+    args:
+      - build
+      - -f
+      - Dockerfile
+      - -t
+      - ${_REGION}-docker.pkg.dev/$PROJECT_ID/${_AR_REPO}/${_IMAGE_NAME}:$COMMIT_SHA
+      - -t
+      - ${_REGION}-docker.pkg.dev/$PROJECT_ID/${_AR_REPO}/${_IMAGE_NAME}:latest
+      - .
+
+  - name: gcr.io/cloud-builders/docker
+    args:
+      - push
+      - ${_REGION}-docker.pkg.dev/$PROJECT_ID/${_AR_REPO}/${_IMAGE_NAME}:$COMMIT_SHA
+
+  - name: gcr.io/cloud-builders/docker
+    args:
+      - push
+      - ${_REGION}-docker.pkg.dev/$PROJECT_ID/${_AR_REPO}/${_IMAGE_NAME}:latest
+
+  - name: gcr.io/google.com/cloudsdktool/cloud-sdk
+    entrypoint: gcloud
+    args:
+      - run
+      - deploy
+      - ${_SERVICE_NAME}
+      - --image
+      - ${_REGION}-docker.pkg.dev/$PROJECT_ID/${_AR_REPO}/${_IMAGE_NAME}:$COMMIT_SHA
+      - --region
+      - ${_REGION}
+      - --service-account
+      - ${_RUNTIME_SERVICE_ACCOUNT}
+      - --update-env-vars
+      - GOOGLE_CLOUD_PROJECT=${_GOOGLE_CLOUD_PROJECT},GOOGLE_CLOUD_LOCATION=${_GOOGLE_CLOUD_LOCATION}
+
+images:
+  - ${_REGION}-docker.pkg.dev/$PROJECT_ID/${_AR_REPO}/${_IMAGE_NAME}:$COMMIT_SHA
+  - ${_REGION}-docker.pkg.dev/$PROJECT_ID/${_AR_REPO}/${_IMAGE_NAME}:latest
