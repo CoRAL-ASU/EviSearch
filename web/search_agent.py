@@ -8,10 +8,15 @@ Tools: search_chunks (semantic search), get_chunks_by_page, submit_extraction.
 from __future__ import annotations
 
 import json
-import os
 from typing import Any, Dict, List, Optional, Set
 
 from src.config.runtime_paths import RESULTS_ROOT
+from src.LLMProvider.google_genai_client import (
+    create_vertex_genai_client,
+    ensure_genai_modules,
+    has_vertex_auth,
+    vertex_auth_error_message,
+)
 
 MAX_TOOL_CALLS = 15
 MAX_TURNS = 25
@@ -42,9 +47,7 @@ def _normalize_attribution(attr: List[Any], found: bool) -> List[Dict[str, Any]]
 
 
 def _ensure_genai():
-    from google import genai
-    from google.genai import types
-    return genai, types
+    return ensure_genai_modules()
 
 
 def _run_search_chunks(
@@ -186,12 +189,12 @@ def run_search_agent(
     and usage is {input_tokens, output_tokens, api_calls, total_tokens}.
     """
     genai, types = _ensure_genai()
-    api_key = os.getenv("GEMINI_API_KEY")
-    if not api_key:
+    if not has_vertex_auth():
         empty_usage = {"input_tokens": 0, "output_tokens": 0, "api_calls": 0, "total_tokens": 0}
-        return ({c.get("column_name", ""): {"value": "Not reported", "reasoning": "No API key", "found": False, "attribution": []} for c in batch_columns}, empty_usage)
+        reason = vertex_auth_error_message()
+        return ({c.get("column_name", ""): {"value": "Not reported", "reasoning": reason, "found": False, "attribution": []} for c in batch_columns}, empty_usage)
 
-    client = genai.Client(api_key=api_key)
+    client = create_vertex_genai_client()
     tools = types.Tool(function_declarations=_build_tool_declarations())
 
     col_blocks = []

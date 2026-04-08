@@ -11,46 +11,27 @@ from PIL import Image
 from io import BytesIO
 from pathlib import Path
 
-# from vertexai import init as vertex_init
-# from vertexai.generative_models import GenerativeModel, Part
 from openai import OpenAI
 from groq import Groq
 from dotenv import load_dotenv
 
-# Gemini API import (lazy so openai/vllm-only runs don't require google-genai)
+from .google_genai_client import (
+    create_vertex_genai_client,
+    ensure_genai_modules,
+)
+
+# Google Gen AI import (lazy so openai/vllm-only runs don't require google-genai)
 genai = None
 types = None
 
 def _ensure_genai():
     global genai, types
-    if genai is None:
-        from google import genai as _genai
-        from google.genai import types as _types
-        genai = _genai
-        types = _types
+    if genai is None or types is None:
+        genai, types = ensure_genai_modules()
 
 from .models import get_model_pricing
 
 load_dotenv()
-
-# Vertex AI initialization flag
-# _VERTEX_INITIALIZED = False
-
-# def _ensure_vertex_init():
-#     """Initialize Vertex AI once (lazy initialization)."""
-#     global _VERTEX_INITIALIZED
-#     if not _VERTEX_INITIALIZED:
-#         project_id = os.getenv("GCP_PROJECT_ID", "")
-#         location = os.getenv("GCP_LOCATION", "")
-#         
-#         # Set credentials path if config.json exists
-#         config_json_path = Path(__file__).parent / "config.json"
-#         if config_json_path.exists():
-#             os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = str(config_json_path)
-#         
-#         vertex_init(project=project_id, location=location)
-#         _VERTEX_INITIALIZED = True
-
 
 @dataclass
 class LLMResponse:
@@ -120,15 +101,9 @@ class LLMProvider:
         """Initialize the appropriate client based on provider."""
         if self.provider == "gemini":
             _ensure_genai()
-            api_key = os.getenv("GEMINI_API_KEY")
-            if not api_key:
-                raise ValueError("GEMINI_API_KEY environment variable not set")
             # 120s timeout for PDF-heavy extraction (504 DEADLINE_EXCEEDED on large prompts)
             timeout_ms = int(os.getenv("GEMINI_TIMEOUT_MS", "36000"))
-            self._client = genai.Client(
-                api_key=api_key,
-                http_options=types.HttpOptions(timeout=timeout_ms),
-            )
+            self._client = create_vertex_genai_client(timeout_ms=timeout_ms)
         
         elif self.provider == "openai":
             api_key = os.getenv("OPENAI_API_KEY")
@@ -575,4 +550,3 @@ class LLMProvider:
 
     def __repr__(self) -> str:
         return f"LLMProvider(provider='{self.provider}', model='{self.model}')"
-

@@ -62,6 +62,7 @@ from src.config.runtime_paths import (
     UPLOADS_DIR,
     ensure_runtime_dirs,
 )
+from src.LLMProvider.google_genai_client import vertex_auth_error_message
 
 app = Flask(__name__)
 app.config['MAX_CONTENT_LENGTH'] = 50 * 1024 * 1024  # 50MB max file size
@@ -1332,7 +1333,7 @@ def upload_pdf():
         if service is None:
             return jsonify({
                 "success": False, 
-                "error": "Extraction service not available. Please ensure GEMINI_API_KEY is set in your environment."
+                "error": f"Extraction service not available. {vertex_auth_error_message()}"
             }), 500
         
         result = service.upload_pdf(str(filepath))
@@ -1385,7 +1386,7 @@ def extract_single():
         if service is None:
             return jsonify({
                 "success": False, 
-                "error": "Extraction service not available. Please ensure GEMINI_API_KEY is set in your environment."
+                "error": f"Extraction service not available. {vertex_auth_error_message()}"
             }), 500
         
         result = service.extract_single_column(column_name, definition)
@@ -1662,7 +1663,7 @@ def extract_from_csv():
         if service is None:
             return jsonify({
                 "success": False, 
-                "error": "Extraction service not available. Please ensure GEMINI_API_KEY is set in your environment."
+                "error": f"Extraction service not available. {vertex_auth_error_message()}"
             }), 500
         
         result = service.extract_from_csv(csv_data)

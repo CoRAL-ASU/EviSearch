@@ -23,22 +23,23 @@ if [[ -z "${VIRTUAL_ENV}" ]]; then
     fi
 fi
 
-# Check if GEMINI_API_KEY is set
-if [[ -z "${GEMINI_API_KEY}" ]]; then
-    echo "⚠️  GEMINI_API_KEY not set in environment"
-    
-    # Try to load from .env file
-    if [ -f ".env" ]; then
-        echo "Loading from .env file..."
-        export $(cat .env | grep -v '^#' | xargs)
-    fi
-    
-    if [[ -z "${GEMINI_API_KEY}" ]]; then
-        echo "❌ GEMINI_API_KEY is required. Please set it:"
-        echo "   export GEMINI_API_KEY='your_api_key_here'"
-        echo "   Or add it to .env file"
-        exit 1
-    fi
+# Try to load local env for Vertex config
+if [ -f ".env" ]; then
+    echo "Loading configuration from .env file..."
+    export $(cat .env | grep -v '^#' | xargs)
+fi
+
+# Check Vertex AI auth setup
+if [[ -n "${VERTEX_API_KEY}" ]]; then
+    echo "Using local Vertex API key auth"
+elif [[ -n "${GOOGLE_CLOUD_PROJECT}" ]]; then
+    echo "Using Vertex ADC/service-account auth"
+else
+    echo "❌ Vertex AI is not configured. Set one of:"
+    echo "   export VERTEX_API_KEY='your_vertex_api_key_here'   # local development"
+    echo "   export GOOGLE_CLOUD_PROJECT='your-project-id'      # ADC / deployed auth"
+    echo "   export GOOGLE_CLOUD_LOCATION='us-central1'"
+    exit 1
 fi
 
 # Check if required dependencies are installed

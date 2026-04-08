@@ -27,13 +27,13 @@ from typing import Dict, List, Tuple, Any
 from pathlib import Path
 from openai import OpenAI
 try:
-    from google import genai
-    from google.genai import types as genai_types
-    GENAI_NEW = True
+    from src.LLMProvider.google_genai_client import (
+        create_vertex_genai_client,
+        get_genai_types,
+    )
+    GENAI_AVAILABLE = True
 except ImportError:
-    import google.generativeai as genai
-    genai_types = None
-    GENAI_NEW = False
+    GENAI_AVAILABLE = False
 from dotenv import load_dotenv
 
 # Add repo root to path for imports
@@ -149,20 +149,10 @@ class PDFQueryProvider:
             self.client = OpenAI(api_key=api_key)
             self.assistant = None
         elif provider == "gemini":
-            api_key = os.getenv("GEMINI_API_KEY")
-            if not api_key:
-                raise EnvironmentError("GEMINI_API_KEY not set")
-            
-            if GENAI_NEW:
-                # Using new google.genai package (30s timeout per call)
-                self.client = genai.Client(
-                    api_key=api_key,
-                    http_options=genai_types.HttpOptions(timeout=30_000),
-                )
-            else:
-                # Using deprecated google.generativeai
-                genai.configure(api_key=api_key)
-                self.client = genai.GenerativeModel(model)
+            if not GENAI_AVAILABLE:
+                raise RuntimeError("google.genai is required. Install with: pip install google-genai")
+            self.types = get_genai_types()
+            self.client = create_vertex_genai_client(timeout_ms=30_000)
     
     def upload_pdf(self, pdf_path: str):
         """Upload PDF and return handle. Uses Vector Store for reliable file_search access."""
@@ -211,21 +201,13 @@ class PDFQueryProvider:
             print(f"✅ Vector store: {vector_store.id}, Assistant ID: {self.assistant.id}")
         
         elif self.provider == "gemini":
-            if GENAI_NEW:
-                # New API: Create PDF Part from bytes (no file upload needed)
-                from google.genai import types as genai_types
-                pdf_bytes = Path(pdf_path).read_bytes()
-                pdf_part = genai_types.Part.from_bytes(
-                    data=pdf_bytes,
-                    mime_type="application/pdf"
-                )
-                self.pdf_handle = {"file_part": pdf_part}
-                print(f"✅ PDF loaded as Part ({len(pdf_bytes)} bytes)")
-            else:
-                # Deprecated API
-                uploaded_file = genai.upload_file(pdf_path)
-                self.pdf_handle = {"file_part": uploaded_file}
-                print(f"✅ File uploaded: {uploaded_file.name}")
+            pdf_bytes = Path(pdf_path).read_bytes()
+            pdf_part = self.types.Part.from_bytes(
+                data=pdf_bytes,
+                mime_type="application/pdf"
+            )
+            self.pdf_handle = {"file_part": pdf_part}
+            print(f"✅ PDF loaded as Part ({len(pdf_bytes)} bytes)")
     
     def query_pdf(self, prompt: str) -> Tuple[str, int, int]:
         """
@@ -272,24 +254,15 @@ class PDFQueryProvider:
         
         elif self.provider == "gemini":
             file_part = self.pdf_handle["file_part"]
-            
-            if GENAI_NEW:
-                # New API
-                response = self.client.models.generate_content(
-                    model=self.model,
-                    contents=[prompt, file_part]
-                )
-                usage = getattr(response, 'usage_metadata', None)
-                in_tok = getattr(usage, 'prompt_token_count', 0) if usage else 0
-                out_tok = getattr(usage, 'candidates_token_count', 0) if usage else 0
-                return response.text.strip(), in_tok, out_tok
-            else:
-                # Deprecated API
-                model = genai.GenerativeModel(self.model)
-                response = model.generate_content([prompt, file_part])
-                in_tok = response.usage_metadata.prompt_token_count
-                out_tok = response.usage_metadata.candidates_token_count
-                return response.text.strip(), in_tok, out_tok
+
+            response = self.client.models.generate_content(
+                model=self.model,
+                contents=[prompt, file_part]
+            )
+            usage = getattr(response, 'usage_metadata', None)
+            in_tok = getattr(usage, 'prompt_token_count', 0) if usage else 0
+            out_tok = getattr(usage, 'candidates_token_count', 0) if usage else 0
+            return response.text.strip(), in_tok, out_tok
     
     def cleanup_pdf(self):
         """Clean up uploaded resources if needed."""

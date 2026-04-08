@@ -283,9 +283,9 @@ def process_pdf(pdf_path, output_path="pdf_chunks.json", use_llm_classification=
         tuple: (chunks list, usage_dict for costing)
         usage_dict has keys: input_tokens, output_tokens, cost_usd, provider, model, breakdown (list of per-sub-call usage)
     """
-    import os
     from ..config.config import CHUNKING_PROVIDER, CHUNKING_MODEL
     from ..utils.costing import usage_to_cost_dict
+    from ..LLMProvider.google_genai_client import vertex_auth_error_message
 
     output_dir = Path(output_path).parent
     page_metadata = None
@@ -302,16 +302,10 @@ def process_pdf(pdf_path, output_path="pdf_chunks.json", use_llm_classification=
                 STRUCTURER_MODEL, 
                 STRUCTURER_BASE_URL
             )
-            
-            api_key = os.getenv("GEMINI_API_KEY")
-            if not api_key:
-                logger.error("❌ GEMINI_API_KEY not set, cannot use LLM classification")
-                raise ValueError("GEMINI_API_KEY environment variable not set")
-            
+
             classifier = PageClassifier(
                 pdf_path=pdf_path,
                 output_dir=output_dir,
-                gemini_api_key=api_key,
                 structurer_model=STRUCTURER_MODEL,
                 structurer_base_url=STRUCTURER_BASE_URL
             )
@@ -327,6 +321,7 @@ def process_pdf(pdf_path, output_path="pdf_chunks.json", use_llm_classification=
         
         except Exception as e:
             logger.error(f"\n❌ Page classification failed: {e}")
+            logger.error(f"   Vertex AI setup hint: {vertex_auth_error_message()}")
             logger.error("   Please check logs and retry manually\n")
             raise  # Fail fast
     

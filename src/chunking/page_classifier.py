@@ -4,13 +4,11 @@ Page classifier for identifying table and figure pages in PDFs using LLM.
 Uses Gemini for initial classification and local LLM for structuring.
 """
 import json
-import os
 from pathlib import Path
 from pydantic import BaseModel, Field
 from typing import List
 
-from google import genai
-from google.genai import types
+from ..LLMProvider.google_genai_client import create_vertex_genai_client, get_genai_types
 from ..LLMProvider.structurer import OutputStructurer
 from ..utils.logging_utils import setup_logger
 
@@ -48,7 +46,7 @@ class PageClassifier:
     Uses Gemini for classification and local LLM for response structuring.
     """
     
-    def __init__(self, pdf_path: str, output_dir: str, gemini_api_key: str, 
+    def __init__(self, pdf_path: str, output_dir: str,
                  structurer_model: str = "Qwen/Qwen3-8B",
                  structurer_base_url: str = "http://localhost:8001/v1"):
         """
@@ -57,7 +55,7 @@ class PageClassifier:
         Args:
             pdf_path: Path to PDF file
             output_dir: Directory to save metadata artifacts
-            gemini_api_key: API key for Gemini
+            Uses Vertex AI Gemini auth from environment
             structurer_model: Local model for structuring responses
             structurer_base_url: Base URL for local LLM API
         """
@@ -66,7 +64,8 @@ class PageClassifier:
         self.metadata_dir = self.output_dir / "chunking_metadata"
         self.metadata_dir.mkdir(parents=True, exist_ok=True)
         
-        self.client = genai.Client(api_key=gemini_api_key)
+        self.client = create_vertex_genai_client()
+        self.types = get_genai_types()
         self.structurer = OutputStructurer(
             base_url=structurer_base_url,
             model=structurer_model,
@@ -91,7 +90,7 @@ class PageClassifier:
             
             # Upload PDF to Gemini
             pdf_bytes = Path(self.pdf_path).read_bytes()
-            pdf_part = types.Part.from_bytes(data=pdf_bytes, mime_type="application/pdf")
+            pdf_part = self.types.Part.from_bytes(data=pdf_bytes, mime_type="application/pdf")
             logger.info(f"   Size: {len(pdf_bytes) / 1024 / 1024:.2f} MB")
             
             # Classify tables
@@ -146,7 +145,7 @@ If no tables are found, respond with "No tables found".
 
 Be thorough - check all pages."""
         
-        config = types.GenerateContentConfig(
+        config = self.types.GenerateContentConfig(
             temperature=0.0,
             max_output_tokens=2000
         )
@@ -197,7 +196,7 @@ If no figures are found, respond with "No figures found".
 
 Be thorough - check all pages."""
         
-        config = types.GenerateContentConfig(
+        config = self.types.GenerateContentConfig(
             temperature=0.0,
             max_output_tokens=2000
         )

@@ -18,8 +18,10 @@ sys.path.insert(0, str(repo_root / "experiment-scripts"))
 from dotenv import load_dotenv
 
 try:
-    from google import genai
-    from google.genai import types as genai_types
+    from src.LLMProvider.google_genai_client import (
+        create_vertex_genai_client,
+        get_genai_types,
+    )
     GENAI_AVAILABLE = True
 except ImportError:
     GENAI_AVAILABLE = False
@@ -35,6 +37,7 @@ class ExtractionService:
             raise RuntimeError("google.genai is required. Install with: pip install google-genai")
         
         self.model = model
+        self.genai_types = get_genai_types()
         self.client = None  # Lazy initialization
         self._pdf_part = None
         self.current_pdf_path = None
@@ -43,12 +46,9 @@ class ExtractionService:
         self.definitions = self._load_definitions()
     
     def _ensure_client(self):
-        """Ensure Gemini client is initialized (lazy initialization)."""
+        """Ensure Vertex AI Gemini client is initialized (lazy initialization)."""
         if self.client is None:
-            api_key = os.getenv("GEMINI_API_KEY")
-            if not api_key:
-                raise EnvironmentError("GEMINI_API_KEY not set in environment")
-            self.client = genai.Client(api_key=api_key)
+            self.client = create_vertex_genai_client()
         
     def _load_definitions(self) -> Dict[str, Dict[str, str]]:
         """Load column definitions from CSV using the definitions.py approach."""
@@ -97,9 +97,8 @@ class ExtractionService:
         try:
             # Ensure client is initialized before using it
             self._ensure_client()
-            
             pdf_bytes = pdf_path_obj.read_bytes()
-            self._pdf_part = genai_types.Part.from_bytes(
+            self._pdf_part = self.genai_types.Part.from_bytes(
                 data=pdf_bytes,
                 mime_type="application/pdf",
             )
@@ -176,8 +175,7 @@ class ExtractionService:
         
         # Ensure client is initialized
         self._ensure_client()
-        
-        config = genai_types.GenerateContentConfig(
+        config = self.genai_types.GenerateContentConfig(
             temperature=0.0,
             response_mime_type="application/json",
             response_schema=json_schema,

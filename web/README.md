@@ -50,7 +50,9 @@ A modern, interactive web interface for extracting clinical trial data from PDF 
 
 ### Prerequisites
 - Python 3.8+
-- GEMINI_API_KEY environment variable set
+- Vertex AI configured via one of:
+- `VERTEX_API_KEY` for local development
+- `GOOGLE_CLOUD_PROJECT` + `GOOGLE_CLOUD_LOCATION` with ADC / service-account auth
 
 ### Installation
 
@@ -63,7 +65,9 @@ pip install -r requirements.txt
 2. Set up environment variables:
 ```bash
 # Add to .env file in project root
-GEMINI_API_KEY=your_gemini_api_key_here
+VERTEX_API_KEY=your_vertex_api_key_here
+GOOGLE_CLOUD_PROJECT=mayo-evisearch
+GOOGLE_CLOUD_LOCATION=us-central1
 ```
 
 ### Running the Application
@@ -175,10 +179,10 @@ Each extraction returns:
 - All columns extraction can take 5-10 minutes
 - Check API rate limits and credits
 
-### API Key Issues
-- Verify GEMINI_API_KEY is set in environment
-- Check API key has sufficient credits
-- Ensure API key has required permissions
+### Vertex Auth Issues
+- Verify `VERTEX_API_KEY` is set for local development, or ADC is configured for your Google identity
+- Verify `GOOGLE_CLOUD_PROJECT` and `GOOGLE_CLOUD_LOCATION` are set
+- For Cloud Run, ensure the runtime service account has `roles/aiplatform.user`
 
 ## Future Enhancements
 

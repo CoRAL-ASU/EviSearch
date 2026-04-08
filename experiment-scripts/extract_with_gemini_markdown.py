@@ -30,8 +30,8 @@ sys.path.insert(0, str(script_dir))
 from dotenv import load_dotenv
 
 try:
-    from google import genai
-    from google.genai import types as genai_types
+    from src.LLMProvider.google_genai_client import ensure_genai_modules
+    ensure_genai_modules()
     GENAI_AVAILABLE = True
 except ImportError:
     GENAI_AVAILABLE = False

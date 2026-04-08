@@ -28,9 +28,10 @@ from typing import Any, Dict, List, Tuple
 from dotenv import load_dotenv
 
 try:
-    from google import genai
-    from google.genai import types as genai_types
-
+    from src.LLMProvider.google_genai_client import (
+        create_vertex_genai_client,
+        get_genai_types,
+    )
     GENAI_AVAILABLE = True
 except ImportError:
     GENAI_AVAILABLE = False
@@ -131,19 +132,14 @@ def build_prompt(label: str, items: List[Dict[str, str]]) -> str:
 class GeminiMarkdownProvider:
     def __init__(self, model: str):
         self.model = model
-        api_key = os.getenv("GEMINI_API_KEY")
-        if not api_key:
-            raise EnvironmentError("GEMINI_API_KEY not set")
+        self.types = get_genai_types()
         # 30s timeout per API call to avoid hanging
-        self.client = genai.Client(
-            api_key=api_key,
-            http_options=genai_types.HttpOptions(timeout=30_000),
-        )
+        self.client = create_vertex_genai_client(timeout_ms=30_000)
 
     def query_markdown_with_schema(
         self, prompt: str, markdown_text: str, json_schema: Dict[str, Any]
     ) -> Tuple[str, int, int]:
-        config = genai_types.GenerateContentConfig(
+        config = self.types.GenerateContentConfig(
             temperature=0.0,
             response_mime_type="application/json",
             response_schema=json_schema,

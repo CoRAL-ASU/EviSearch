@@ -24,8 +24,11 @@ from typing import Any, Dict, List, Tuple
 from dotenv import load_dotenv
 
 try:
-    from google import genai
-    from google.genai import types as genai_types
+    from src.LLMProvider.google_genai_client import (
+        create_vertex_genai_client,
+        get_genai_types,
+        vertex_auth_error_message,
+    )
     GENAI_AVAILABLE = True
 except ImportError:
     GENAI_AVAILABLE = False
@@ -173,19 +176,14 @@ def build_prompt(label: str, items: List[Dict[str, str]]) -> str:
 class GeminiPDFProvider:
     def __init__(self, model: str):
         self.model = model
-        api_key = os.getenv("GEMINI_API_KEY")
-        if not api_key:
-            raise EnvironmentError("GEMINI_API_KEY not set")
+        self.types = get_genai_types()
         # 30s timeout per API call to avoid hanging
-        self.client = genai.Client(
-            api_key=api_key,
-            http_options=genai_types.HttpOptions(timeout=30_000),
-        )
+        self.client = create_vertex_genai_client(timeout_ms=30_000)
         self._pdf_part = None
 
     def upload_pdf(self, pdf_path: str) -> None:
         pdf_bytes = Path(pdf_path).read_bytes()
-        self._pdf_part = genai_types.Part.from_bytes(
+        self._pdf_part = self.types.Part.from_bytes(
             data=pdf_bytes,
             mime_type="application/pdf",
         )
@@ -195,7 +193,7 @@ class GeminiPDFProvider:
         self, prompt: str, json_schema: Dict[str, Any]
     ) -> Tuple[str, int, int]:
         """Call Gemini with native JSON schema. Returns (response_text, input_tokens, output_tokens)."""
-        config = genai_types.GenerateContentConfig(
+        config = self.types.GenerateContentConfig(
             temperature=0.0,
             response_mime_type="application/json",
             response_schema=json_schema,

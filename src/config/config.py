@@ -6,13 +6,17 @@ from dotenv import load_dotenv
 # Load environment variables from .env file
 load_dotenv()
 
-# ============== API KEYS ==============
-# These are loaded from .env file
-# For Gemini, we use Vertex AI with service account (config.json in LLMProvider/)
+# ============== API KEYS / CLOUD CONFIG ==============
+# These are loaded from .env file.
+# Gemini runs on Vertex AI, using either:
+# - VERTEX_API_KEY for local development
+# - ADC / attached service account for deployed environments
 GROQ_API_KEY = os.getenv("LLAMA_KEY", "")
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "")
 NOVITA_API_KEY = os.getenv("NOVITA_API_KEY", "")
-GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")  # <-- Add this if not present
+VERTEX_API_KEY = os.getenv("VERTEX_API_KEY", "")
+GOOGLE_CLOUD_PROJECT = os.getenv("GOOGLE_CLOUD_PROJECT", os.getenv("GCP_PROJECT_ID", ""))
+GOOGLE_CLOUD_LOCATION = os.getenv("GOOGLE_CLOUD_LOCATION", os.getenv("GCP_LOCATION", "us-central1"))
 DEEPINFRA_API_KEY = os.getenv("DEEPINFRA_API_KEY", "")
 
 
@@ -114,5 +118,4 @@ SKIP_STAGE_IF_EXISTS = False
 # Ground truth for V2 evaluation
 GOLD_TABLE_JSON_PATH = PROJECT_ROOT / "dataset" / "Manual_Benchmark_GoldTable_cleaned.json"
 DEFINITIONS_EVAL_CATEGORY_PATH = PROJECT_ROOT / "src" / "table_definitions" / "Definitions_with_eval_category.csv"
-
 
