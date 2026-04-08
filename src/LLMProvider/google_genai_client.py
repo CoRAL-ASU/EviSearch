@@ -89,6 +89,7 @@ def create_vertex_genai_client(timeout_ms: int | None = None) -> Any:
     http_options = get_vertex_http_options(timeout_ms)
     api_key = get_vertex_api_key()
     if api_key:
+        # Local development path: use the explicit Vertex API key when present.
         return genai.Client(vertexai=True, api_key=api_key, http_options=http_options)
 
     project = get_vertex_project()
