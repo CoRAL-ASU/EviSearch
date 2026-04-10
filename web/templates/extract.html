@@ -167,15 +167,29 @@
         let docId = null;
         let allColumns = [];
         let selectedGroups = null;
+        let docMetaById = {};
+
+        function formatDocLabel(doc) {
+            const parts = [];
+            if (doc.has_extraction) parts.push('extracted');
+            if (doc.has_cached_embeddings) parts.push('embeddings ready');
+            if (doc.source === 'dataset') parts.push('dataset');
+            if (doc.source === 'upload') parts.push('upload');
+            return parts.length ? `${doc.name} (${parts.join(' · ')})` : doc.name;
+        }
+
+        function getCurrentDocMeta() {
+            return docId ? (docMetaById[docId] || null) : null;
+        }
 
         async function loadDocs() {
             const res = await API.selectable();
             const docs = res.documents || [];
+            docMetaById = Object.fromEntries(docs.map(d => [d.id || d.name, d]));
             const sel = document.getElementById('doc-select');
             sel.innerHTML = '<option value="">Select document…</option>' + docs.map(d => {
                 const id = d.id || d.name;
-                const label = d.has_extraction ? `${escapeHtml(d.name)} ✓` : escapeHtml(d.name);
-                return `<option value="${escapeHtml(id)}">${label}</option>`;
+                return `<option value="${escapeHtml(id)}">${escapeHtml(formatDocLabel(d))}</option>`;
             }).join('');
         }
 
@@ -442,21 +456,24 @@
 
         function updateDocState() {
             const hasDoc = !!docId;
+            const meta = getCurrentDocMeta();
             document.getElementById('run-btn').disabled = !hasDoc;
             document.getElementById('load-btn').disabled = !hasDoc;
             if (docId) {
-                document.getElementById('doc-info').textContent = `Selected: ${docId}`;
+                const extras = [];
+                if (meta?.has_cached_embeddings) extras.push('embeddings ready');
+                if (meta?.has_extraction) extras.push('existing extraction');
+                document.getElementById('doc-info').textContent = `Selected: ${docId}${extras.length ? ' · ' + extras.join(' · ') : ''}`;
             } else {
                 document.getElementById('doc-info').textContent = '';
             }
-            // Show Prepare card and re-number step only for uploaded docs
-            const isUpload = hasDoc && docId.startsWith('upload_');
-            document.getElementById('prepare-card').style.display = isUpload ? '' : 'none';
-            document.getElementById('extract-step-title').textContent = isUpload ? '4. Extract' : '3. Extract';
-            if (!isUpload) {
+            const needsPrepare = hasDoc && !(meta?.has_cached_parse && meta?.has_cached_embeddings);
+            document.getElementById('prepare-card').style.display = needsPrepare ? '' : 'none';
+            document.getElementById('extract-step-title').textContent = needsPrepare ? '4. Extract' : '3. Extract';
+            if (!needsPrepare) {
                 // Reset prepare state when switching to a non-upload doc
                 document.getElementById('prepare-status-badge').style.display = 'none';
-                document.getElementById('prepare-message').textContent = '';
+                document.getElementById('prepare-message').textContent = meta?.has_cached_embeddings ? 'Embeddings already exist for this document.' : '';
             }
         }
 
@@ -502,11 +519,18 @@
                                 msgEl.textContent = ev.message || '';
                                 msgEl.style.color = '';
                             } else if (ev.type === 'ready') {
+                                docId = ev.canonical_doc_id || ev.doc_id || docId;
+                                if (docMetaById[docId]) {
+                                    docMetaById[docId].has_cached_parse = !!ev.has_cached_parse;
+                                    docMetaById[docId].has_cached_embeddings = !!ev.has_cached_embeddings;
+                                    docMetaById[docId].is_prepared = true;
+                                }
                                 msgEl.textContent = '✓ Document prepared — embeddings ready.';
                                 msgEl.style.color = 'oklch(var(--su))';
                                 badge.textContent = '✓ Ready';
                                 badge.className = 'badge badge-success';
                                 badge.style.display = '';
+                                updateDocState();
                             } else if (ev.type === 'error') {
                                 msgEl.textContent = '⚠ ' + (ev.error || 'Prepare failed');
                                 msgEl.style.color = 'oklch(var(--er))';
@@ -548,16 +572,28 @@
                 const res = await API.uploadExtract(formData);
                 if (res.success) {
                     docId = res.doc_id;
+                    docMetaById[docId] = {
+                        id: res.doc_id,
+                        canonical_id: res.canonical_doc_id || res.doc_id,
+                        name: res.display_name || res.doc_id,
+                        source: res.source || 'upload',
+                        has_extraction: false,
+                        has_cached_parse: !!res.has_cached_parse,
+                        has_cached_embeddings: !!res.has_cached_embeddings,
+                        is_prepared: !!res.is_prepared,
+                    };
                     const sel = document.getElementById('doc-select');
                     sel.value = '';
                     if (!sel.querySelector(`option[value="${docId}"]`)) {
                         const opt = document.createElement('option');
                         opt.value = docId;
-                        opt.textContent = `${docId} (uploaded)`;
+                        opt.textContent = formatDocLabel(docMetaById[docId]);
                         sel.appendChild(opt);
                     }
                     sel.value = docId;
-                    status.textContent = `Uploaded: ${file.name}`;
+                    const reusedText = res.reused_existing_doc ? `Matched existing document ${docId}.` : `Created document ${docId}.`;
+                    const cacheText = res.has_cached_embeddings ? ' Embeddings already exist.' : ' Prepare before extraction.';
+                    status.textContent = `Uploaded: ${file.name}. ${reusedText}${cacheText}`;
                     updateDocState();
                 } else {
                     status.textContent = 'Upload failed: ' + (res.error || 'Unknown');

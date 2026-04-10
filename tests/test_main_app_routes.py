@@ -29,6 +29,8 @@ def test_api_documents_selectable_lists_dataset_results_and_uploads(isolated_app
     assert docs["extracted_doc"]["source"] == "extracted"
     assert docs["extracted_doc"]["has_extraction"] is True
     assert docs["upload_abc123"]["source"] == "upload"
+    assert docs["dataset_doc"]["has_cached_embeddings"] is False
+    assert docs["extracted_doc"]["has_cached_parse"] is False
 
 
 def test_api_report_tables_applies_human_edits_and_column_groups(
@@ -81,9 +83,30 @@ def test_upload_extract_saves_uploaded_pdf(client, isolated_app):
 
     assert response.status_code == 200
     assert payload["success"] is True
-    assert payload["doc_id"].startswith("upload_")
-    saved_path = isolated_app.app.config["UPLOAD_FOLDER"] / f"{payload['doc_id']}.pdf"
-    assert saved_path.exists()
+    assert payload["doc_id"].startswith("pdf_")
+    assert payload["upload_doc_id"].startswith("upload_")
+    raw_upload = isolated_app.app.config["UPLOAD_FOLDER"] / f"{payload['upload_doc_id']}.pdf"
+    canonical_pdf = isolated_app.RESULTS_ROOT / payload["doc_id"] / f"{payload['doc_id']}.pdf"
+    assert raw_upload.exists()
+    assert canonical_pdf.exists()
+    assert payload["reused_existing_doc"] is False
+
+
+def test_upload_extract_reuses_canonical_doc_for_duplicate_pdf(client, isolated_app):
+    payloads = []
+    for filename in ("trial-a.pdf", "trial-b.pdf"):
+        response = client.post(
+            "/api/upload/extract",
+            data={"file": (io.BytesIO(b"%PDF-1.4 fake pdf"), filename)},
+            content_type="multipart/form-data",
+        )
+        assert response.status_code == 200
+        payloads.append(response.get_json())
+
+    first, second = payloads
+    assert first["doc_id"] == second["doc_id"]
+    assert first["upload_doc_id"] != second["upload_doc_id"]
+    assert second["reused_existing_doc"] is True
 
 
 def test_api_document_pdf_serves_resolved_pdf(client, isolated_app, monkeypatch, tmp_path):

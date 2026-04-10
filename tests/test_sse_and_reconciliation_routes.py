@@ -49,6 +49,7 @@ def test_api_qa_prepare_document_stream_reports_success(client, isolated_app, mo
     monkeypatch.setitem(sys.modules, "web.landing_ai_parse_service", fake_parse)
 
     fake_retriever = types.ModuleType("src.retrieval.openai_embedding_retriever")
+    fake_retriever.has_embedding_cache = lambda doc_id: False
     fake_retriever.embed_chunks = lambda doc_id, force=False: (["page_1"], [[1.0, 0.0]])
     monkeypatch.setitem(sys.modules, "src.retrieval.openai_embedding_retriever", fake_retriever)
 

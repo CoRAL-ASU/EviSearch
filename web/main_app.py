@@ -62,6 +62,11 @@ from src.config.runtime_paths import (
     UPLOADS_DIR,
     ensure_runtime_dirs,
 )
+from src.documents.pdf_registry import (
+    get_registered_document,
+    register_uploaded_pdf,
+    resolve_canonical_doc_id,
+)
 from src.LLMProvider.google_genai_client import vertex_auth_error_message
 
 app = Flask(__name__)
@@ -74,6 +79,60 @@ app.config['BOOT_ID'] = str(uuid.uuid4())  # Changes on each app restart; used t
 # Global extraction service instance
 extraction_service = None
 current_pdf_info = {}
+
+
+def _canonical_doc_id(doc_id: str) -> str:
+    return resolve_canonical_doc_id(
+        doc_id,
+        uploads_dir=app.config["UPLOAD_FOLDER"],
+        results_root=RESULTS_ROOT,
+        dataset_dir=DATASET_DIR,
+    )
+
+
+def _document_runtime_state(doc_id: str) -> Dict[str, Any]:
+    from src.retrieval.openai_embedding_retriever import has_embedding_cache
+
+    canonical_doc_id = _canonical_doc_id(doc_id)
+    pdf_path = resolve_pdf_path(canonical_doc_id)
+    chunk_dir = RESULTS_ROOT / canonical_doc_id / "chunking"
+    md_path = chunk_dir / "parsed_markdown.md"
+    json_path = chunk_dir / "landing_ai_parse_output.json"
+
+    has_cached_parse = False
+    if json_path.exists():
+        if pdf_path and pdf_path.exists():
+            has_cached_parse = json_path.stat().st_mtime >= pdf_path.stat().st_mtime
+        else:
+            has_cached_parse = True
+
+    has_cached_embeddings = has_embedding_cache(canonical_doc_id)
+    return {
+        "canonical_doc_id": canonical_doc_id,
+        "pdf_exists": bool(pdf_path and pdf_path.exists()),
+        "has_parsed_markdown": md_path.exists(),
+        "has_parse_json": json_path.exists(),
+        "has_cached_parse": has_cached_parse,
+        "has_cached_embeddings": has_cached_embeddings,
+        "is_prepared": has_cached_parse and has_cached_embeddings,
+    }
+
+
+def _document_option_payload(doc_id: str, name: str, source: str, has_extraction: bool) -> Dict[str, Any]:
+    state = _document_runtime_state(doc_id)
+    registered = get_registered_document(state["canonical_doc_id"], results_root=RESULTS_ROOT) or {}
+    upload_aliases = registered.get("upload_aliases") or []
+    return {
+        "id": state["canonical_doc_id"],
+        "canonical_id": state["canonical_doc_id"],
+        "name": str(registered.get("display_name") or name),
+        "source": str(registered.get("source") or source),
+        "has_extraction": has_extraction,
+        "has_cached_parse": state["has_cached_parse"],
+        "has_cached_embeddings": state["has_cached_embeddings"],
+        "is_prepared": state["is_prepared"],
+        "upload_count": len(upload_aliases),
+    }
 
 
 def get_extraction_service() -> ExtractionService:
@@ -215,6 +274,11 @@ def api_report_tables():
 
 def _ensure_pdf_for_extraction(doc_id: str) -> str | None:
     """Ensure PDF exists for agent extraction. For upload_* doc_ids, copy from uploads to results. Returns error string or None."""
+    canonical_doc_id = _canonical_doc_id(doc_id)
+    if canonical_doc_id != doc_id:
+        pdf_path = resolve_pdf_path(canonical_doc_id)
+        if pdf_path and pdf_path.exists():
+            return None
     if doc_id.startswith("upload_"):
         upload_path = app.config["UPLOAD_FOLDER"] / f"{doc_id}.pdf"
         if not upload_path.exists():
@@ -484,11 +548,12 @@ def api_extract_unified_stream():
 def api_extract_agentic_stream():
     """Run agent_extractor and search_agent in parallel, stream SSE events."""
     data = request.get_json() or {}
-    doc_id = (data.get("doc_id") or "").strip()
+    requested_doc_id = (data.get("doc_id") or "").strip()
+    doc_id = _canonical_doc_id(requested_doc_id)
     if not doc_id:
         return jsonify({"success": False, "error": "doc_id required"}), 400
 
-    err = _ensure_pdf_for_extraction(doc_id)
+    err = _ensure_pdf_for_extraction(requested_doc_id)
     if err:
         return jsonify({"success": False, "error": err}), 400
 
@@ -498,17 +563,16 @@ def api_extract_agentic_stream():
     skip_if_done = data.get("skip_if_done", True)
 
     # Capture paths needed inside generate() (closures are fine here)
-    _chunk_dir = RESULTS_ROOT / doc_id / "chunking"
-    _md_path = _chunk_dir / "parsed_markdown.md"
     _pdf_path_for_prepare = resolve_pdf_path(doc_id)
+    _prepare_state = _document_runtime_state(doc_id)
 
     def generate():
         import queue
         import threading
 
-        # For freshly uploaded PDFs, run Landing AI parse + embedding before extraction.
-        # Without this, search_agent and reconciliation_agent see "Document has 0 pages."
-        if doc_id.startswith("upload_") and not _md_path.exists():
+        # Prepare any document missing a fresh parse or embeddings.
+        # This keeps duplicate uploads on the canonical cache path instead of rebuilding per upload alias.
+        if not _prepare_state["is_prepared"]:
             try:
                 from web.landing_ai_parse_service import parse_pdf_for_qa
                 from src.retrieval.openai_embedding_retriever import embed_chunks
@@ -516,13 +580,16 @@ def api_extract_agentic_stream():
                 if not _pdf_path_for_prepare or not _pdf_path_for_prepare.exists():
                     raise FileNotFoundError(f"PDF not found for {doc_id}: {_pdf_path_for_prepare}")
 
-                yield f"data: {json.dumps({'type': 'prepare_status', 'text': 'Parsing PDF with Landing AI… (this may take 30–60 s)'})}\n\n"
-                parse_result = parse_pdf_for_qa(doc_id, _pdf_path_for_prepare, on_event=lambda e: None)
-                if not parse_result.get("success"):
-                    raise RuntimeError(parse_result.get("error", "PDF parse failed"))
+                if not _prepare_state["has_cached_parse"]:
+                    yield f"data: {json.dumps({'type': 'prepare_status', 'text': 'Parsing PDF with Landing AI… (this may take 30–60 s)'})}\n\n"
+                    parse_result = parse_pdf_for_qa(doc_id, _pdf_path_for_prepare, on_event=lambda e: None)
+                    if not parse_result.get("success"):
+                        raise RuntimeError(parse_result.get("error", "PDF parse failed"))
+                    yield f"data: {json.dumps({'type': 'prepare_status', 'text': 'Parse complete. Building embeddings…'})}\n\n"
+                else:
+                    yield f"data: {json.dumps({'type': 'prepare_status', 'text': 'Using cached Landing AI parse. Checking embeddings…'})}\n\n"
 
-                yield f"data: {json.dumps({'type': 'prepare_status', 'text': 'Parse complete. Building embeddings…'})}\n\n"
-                embed_result = embed_chunks(doc_id, force=True)
+                embed_result = embed_chunks(doc_id, force=False)
                 if not embed_result:
                     raise RuntimeError("embed_chunks returned None — no parsed content found")
 
@@ -677,12 +744,12 @@ def api_list_selectable_documents():
     if DATASET_DIR.exists():
         for p in DATASET_DIR.glob("*.pdf"):
             doc_id = p.stem
-            docs[doc_id] = {
-                "id": doc_id,
-                "name": doc_id,
-                "source": "dataset",
-                "has_extraction": _has_extraction(doc_id),
-            }
+            docs[doc_id] = _document_option_payload(
+                doc_id=doc_id,
+                name=doc_id,
+                source="dataset",
+                has_extraction=_has_extraction(doc_id),
+            )
         for p in DATASET_DIR.glob("**/*.pdf"):
             if p.parent == DATASET_DIR:
                 continue  # already covered by *.pdf
@@ -690,40 +757,47 @@ def api_list_selectable_documents():
             rel = p.relative_to(DATASET_DIR)
             doc_id = str(rel.with_suffix("")).replace("/", "_")
             if doc_id not in docs:
-                docs[doc_id] = {
-                    "id": doc_id,
-                    "name": p.stem,
-                    "source": "dataset",
-                    "has_extraction": _has_extraction(doc_id),
-                }
+                docs[doc_id] = _document_option_payload(
+                    doc_id=doc_id,
+                    name=p.stem,
+                    source="dataset",
+                    has_extraction=_has_extraction(doc_id),
+                )
 
-    # 2. Extracted docs from results (agent_extractor or reconciled)
+    # 2. Extracted docs and canonical uploaded docs from results.
     if RESULTS_ROOT.exists():
         for d in RESULTS_ROOT.iterdir():
-            if d.is_dir() and d.name not in docs:
-                has_ext = (
-                    (d / "reconciliation_agent" / "reconciled_results.json").exists()
-                    or (d / "agent_extractor" / "extraction_results.json").exists()
-                )
-                if has_ext:
-                    docs[d.name] = {
-                        "id": d.name,
-                        "name": d.name,
-                        "source": "extracted",
-                        "has_extraction": True,
-                    }
+            if not d.is_dir() or d.name.startswith("_"):
+                continue
+            has_ext = (
+                (d / "reconciliation_agent" / "reconciled_results.json").exists()
+                or (d / "agent_extractor" / "extraction_results.json").exists()
+            )
+            has_pdf = (d / f"{d.name}.pdf").exists() or any(d.glob("*.pdf"))
+            if not has_ext and not has_pdf:
+                continue
+            payload = _document_option_payload(
+                doc_id=d.name,
+                name=d.name,
+                source="extracted" if has_ext else "upload",
+                has_extraction=has_ext,
+            )
+            docs[payload["id"]] = payload
 
-    # 3. Uploads (web/uploads/upload_*.pdf)
+    # 3. Legacy uploads (web/uploads/upload_*.pdf) that do not yet resolve to a canonical doc.
     upload_folder = app.config["UPLOAD_FOLDER"]
     if upload_folder.exists():
         for p in upload_folder.glob("upload_*.pdf"):
             doc_id = p.stem
-            docs[doc_id] = {
-                "id": doc_id,
-                "name": f"{doc_id} (uploaded)",
-                "source": "upload",
-                "has_extraction": _has_extraction(doc_id),
-            }
+            canonical_doc_id = _canonical_doc_id(doc_id)
+            if canonical_doc_id != doc_id:
+                continue
+            docs[doc_id] = _document_option_payload(
+                doc_id=doc_id,
+                name=f"{doc_id} (uploaded)",
+                source="upload",
+                has_extraction=_has_extraction(doc_id),
+            )
 
     out = sorted(docs.values(), key=lambda x: (x["name"].lower(), x["id"]))
     return jsonify({"success": True, "documents": out}), 200
@@ -1001,12 +1075,29 @@ def upload_pdf_for_extract():
     if not file.filename.lower().endswith('.pdf'):
         return jsonify({"success": False, "error": "Only PDF files allowed"}), 400
     try:
-        import uuid
-        doc_id = "upload_" + uuid.uuid4().hex[:12]
-        filename = f"{doc_id}.pdf"
-        filepath = app.config['UPLOAD_FOLDER'] / filename
-        file.save(str(filepath))
-        return jsonify({"success": True, "doc_id": doc_id, "filename": file.filename}), 200
+        pdf_bytes = file.read()
+        upload_info = register_uploaded_pdf(
+            pdf_bytes,
+            original_filename=file.filename,
+            uploads_dir=app.config["UPLOAD_FOLDER"],
+            results_root=RESULTS_ROOT,
+            dataset_dir=DATASET_DIR,
+        )
+        state = _document_runtime_state(upload_info["canonical_doc_id"])
+        return jsonify({
+            "success": True,
+            "doc_id": upload_info["canonical_doc_id"],
+            "canonical_doc_id": upload_info["canonical_doc_id"],
+            "upload_doc_id": upload_info["upload_doc_id"],
+            "filename": file.filename,
+            "display_name": upload_info["display_name"],
+            "source": upload_info["source"],
+            "sha256": upload_info["sha256"],
+            "reused_existing_doc": upload_info["reused_existing_doc"],
+            "has_cached_parse": state["has_cached_parse"],
+            "has_cached_embeddings": state["has_cached_embeddings"],
+            "is_prepared": state["is_prepared"],
+        }), 200
     except Exception as e:
         return jsonify({"success": False, "error": str(e)}), 500
 
@@ -1025,11 +1116,12 @@ def api_qa_session_info():
 def api_qa_prepare_document():
     """Parse PDF + build embeddings for QA. Streams SSE events: parsing → embedding → ready."""
     data = request.get_json() or {}
-    doc_id = (data.get("doc_id") or "").strip()
+    requested_doc_id = (data.get("doc_id") or "").strip()
+    doc_id = _canonical_doc_id(requested_doc_id)
     if not doc_id:
         return jsonify({"success": False, "error": "doc_id required"}), 400
 
-    err = _ensure_pdf_for_extraction(doc_id)
+    err = _ensure_pdf_for_extraction(requested_doc_id)
     if err:
         return jsonify({"success": False, "error": err}), 400
 
@@ -1043,7 +1135,7 @@ def api_qa_prepare_document():
 
     def generate():
         from web.landing_ai_parse_service import parse_pdf_for_qa
-        from src.retrieval.openai_embedding_retriever import embed_chunks
+        from src.retrieval.openai_embedding_retriever import embed_chunks, has_embedding_cache
 
         # Require landing_ai_parse_output.json for attribution. Skip parse only if it exists and is fresh.
         # No baseline fallback: baseline markdown lacks chunk ids/grounding needed for attribution.
@@ -1061,24 +1153,28 @@ def api_qa_prepare_document():
                 return
             yield f"data: {json.dumps({'type': 'stage', 'stage': 'parsing_done', 'message': 'Parse complete'})}\n\n"
         else:
-            yield f"data: {json.dumps({'type': 'stage', 'stage': 'parsing_done', 'message': 'Using cached parse'})}\n\n"
+            yield f"data: {json.dumps({'type': 'stage', 'stage': 'parsing_done', 'message': 'Using cached parse', 'cached': True})}\n\n"
 
-        yield f"data: {json.dumps({'type': 'stage', 'stage': 'embedding', 'message': 'Building embeddings…'})}\n\n"
-        try:
-            embed_result = embed_chunks(doc_id, force=False)
-            if not embed_result:
-                yield f"data: {json.dumps({'type': 'error', 'error': 'No parsed content; embedding failed'})}\n\n"
+        if has_embedding_cache(doc_id):
+            yield f"data: {json.dumps({'type': 'stage', 'stage': 'embedding_done', 'message': 'Using cached embeddings', 'cached': True})}\n\n"
+        else:
+            yield f"data: {json.dumps({'type': 'stage', 'stage': 'embedding', 'message': 'Building embeddings…'})}\n\n"
+            try:
+                embed_result = embed_chunks(doc_id, force=False)
+                if not embed_result:
+                    yield f"data: {json.dumps({'type': 'error', 'error': 'No parsed content; embedding failed'})}\n\n"
+                    return
+            except Exception as ex:
+                yield f"data: {json.dumps({'type': 'error', 'error': str(ex)})}\n\n"
                 return
-        except Exception as ex:
-            yield f"data: {json.dumps({'type': 'error', 'error': str(ex)})}\n\n"
-            return
-        yield f"data: {json.dumps({'type': 'stage', 'stage': 'embedding_done', 'message': 'Embeddings ready'})}\n\n"
+            yield f"data: {json.dumps({'type': 'stage', 'stage': 'embedding_done', 'message': 'Embeddings ready'})}\n\n"
 
         # Ensure landing_ai_parse_output.json exists (required for attribution)
         if not json_path.exists():
             yield f"data: {json.dumps({'type': 'error', 'error': 'landing_ai_parse_output.json missing; attribution will not work. Re-run Prepare.'})}\n\n"
             return
-        yield f"data: {json.dumps({'type': 'ready', 'doc_id': doc_id})}\n\n"
+        state = _document_runtime_state(doc_id)
+        yield f"data: {json.dumps({'type': 'ready', 'doc_id': doc_id, 'canonical_doc_id': doc_id, 'has_cached_parse': state['has_cached_parse'], 'has_cached_embeddings': state['has_cached_embeddings']})}\n\n"
 
     return Response(
         stream_with_context(generate()),
@@ -1091,7 +1187,8 @@ def api_qa_prepare_document():
 def api_qa_ask():
     """QA: Quick mode (Gemini chat) or Full mode (Agent + Search + Reconcile)."""
     data = request.get_json() or {}
-    doc_id = (data.get("doc_id") or "").strip()
+    requested_doc_id = (data.get("doc_id") or "").strip()
+    doc_id = _canonical_doc_id(requested_doc_id)
     question = (data.get("question") or "").strip()
     history = data.get("history") or []
     mode = (data.get("mode") or "full").strip().lower()
@@ -1103,7 +1200,7 @@ def api_qa_ask():
     if not question:
         return jsonify({"success": False, "error": "question required"}), 400
 
-    err = _ensure_pdf_for_extraction(doc_id)
+    err = _ensure_pdf_for_extraction(requested_doc_id)
     if err:
         return jsonify({"success": False, "error": err}), 400
 
@@ -1425,7 +1522,7 @@ def api_document_report(doc_id):
 @app.route('/api/documents/<path:doc_id>/highlights', methods=['GET'])
 def api_document_highlights(doc_id):
     """Get highlight boxes for PDF overlay. Query params: chunk_ids (comma-separated)."""
-    doc_id = unquote(doc_id)
+    doc_id = _canonical_doc_id(unquote(doc_id))
     chunk_ids_str = request.args.get("chunk_ids")
 
     try:
@@ -1493,7 +1590,7 @@ def api_feedback():
 @app.route('/api/documents/<path:doc_id>/pdf', methods=['GET'])
 def api_document_pdf(doc_id):
     """Serve the PDF file for a document (for viewer)."""
-    doc_id = unquote(doc_id)
+    doc_id = _canonical_doc_id(unquote(doc_id))
     pdf_path = resolve_pdf_path(doc_id)
     if not pdf_path or not pdf_path.exists():
         return jsonify({"success": False, "error": "PDF not found"}), 404

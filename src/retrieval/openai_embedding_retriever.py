@@ -71,6 +71,20 @@ def _parse_mtime(doc_id: str) -> float:
     return path.stat().st_mtime if path.exists() else 0.0
 
 
+def has_embedding_cache(doc_id: str) -> bool:
+    """True when a fresh embeddings cache exists for the current parsed markdown."""
+    cache_path = _get_cache_path(doc_id)
+    parse_mtime = _parse_mtime(doc_id)
+    if parse_mtime <= 0 or not cache_path.exists():
+        return False
+    try:
+        data = np.load(cache_path, allow_pickle=True)
+        cached_mtime = float(data.get("parse_mtime", 0))
+        return cached_mtime >= parse_mtime
+    except Exception:
+        return False
+
+
 def embed_chunks(doc_id: str, force: bool = False) -> Optional[tuple]:
     """
     Embed page chunks from parsed_markdown for doc_id. Caches to disk.

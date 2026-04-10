@@ -175,6 +175,36 @@
         let isPrepared = false;
         let conversation = [];  // { question, mode, answer?, candidate_a?, candidate_b?, reconciled?, chunk_ids? }
         let serverBootId = '';
+        let docMetaById = {};
+
+        function formatDocLabel(doc) {
+            const parts = [];
+            if (doc.source === 'dataset') parts.push('dataset');
+            if (doc.source === 'upload') parts.push('upload');
+            if (doc.has_extraction) parts.push('extracted');
+            if (doc.has_cached_embeddings) parts.push('embeddings ready');
+            return parts.length ? `${doc.name} (${parts.join(' · ')})` : doc.name;
+        }
+
+        function getCurrentDocMeta() {
+            return docId ? (docMetaById[docId] || null) : null;
+        }
+
+        function syncPreparedStateFromMeta({ loadPdf = false } = {}) {
+            const meta = getCurrentDocMeta();
+            const statusEl = document.getElementById('prepare-status');
+            if (!statusEl) return;
+            if (meta?.has_cached_embeddings && meta?.has_cached_parse) {
+                isPrepared = true;
+                statusEl.textContent = 'Embeddings already exist. Ready.';
+                statusEl.className = 'text-sm text-success font-medium';
+                if (loadPdf && docId) loadPdfOnly(docId);
+                return;
+            }
+            isPrepared = false;
+            statusEl.textContent = '';
+            statusEl.className = 'text-sm text-base-content/60';
+        }
 
         function saveSession() {
             try {
@@ -207,8 +237,7 @@
                     sel.value = docId;
                 }
 
-                const statusEl = document.getElementById('prepare-status');
-                if (statusEl && isPrepared) statusEl.textContent = 'Ready';
+                syncPreparedStateFromMeta({ loadPdf: false });
 
                 if (docId && isPrepared) {
                     loadPdfOnly(docId);
@@ -266,10 +295,11 @@
         async function loadDocs() {
             const res = await API.selectable();
             const docs = res.documents || [];
+            docMetaById = Object.fromEntries(docs.map(d => [d.id || d.name, d]));
             const sel = document.getElementById('doc-select');
             sel.innerHTML = '<option value="">Select document…</option>' + docs.map(d => {
                 const id = d.id || d.name;
-                return `<option value="${escapeHtml(id)}">${escapeHtml(d.name)}</option>`;
+                return `<option value="${escapeHtml(id)}">${escapeHtml(formatDocLabel(d))}</option>`;
             }).join('');
         }
 
@@ -327,10 +357,11 @@
 
         document.getElementById('doc-select').addEventListener('change', (e) => {
             docId = e.target.value || null;
-            isPrepared = false;
-            document.getElementById('prepare-status').textContent = '';
-            document.getElementById('prepare-status').className = '';
+            syncPreparedStateFromMeta({ loadPdf: !!docId && isPrepared });
             clearChatAndAttribution();
+            if (docId && getCurrentDocMeta()?.is_prepared) {
+                loadPdfOnly(docId);
+            }
             updateState();
             saveSession();
         });
@@ -350,19 +381,30 @@
                 const res = await API.uploadExtract(fd);
                 if (res.success) {
                     docId = res.doc_id;
+                    docMetaById[docId] = {
+                        id: res.doc_id,
+                        canonical_id: res.canonical_doc_id || res.doc_id,
+                        name: res.display_name || res.doc_id,
+                        source: res.source || 'upload',
+                        has_extraction: false,
+                        has_cached_parse: !!res.has_cached_parse,
+                        has_cached_embeddings: !!res.has_cached_embeddings,
+                        is_prepared: !!res.is_prepared,
+                    };
                     const sel = document.getElementById('doc-select');
                     sel.value = '';
                     if (!sel.querySelector(`option[value="${docId}"]`)) {
                         const opt = document.createElement('option');
                         opt.value = docId;
-                        opt.textContent = docId + ' (uploaded)';
+                        opt.textContent = formatDocLabel(docMetaById[docId]);
                         sel.appendChild(opt);
                     }
                     sel.value = docId;
-                    status.textContent = 'Uploaded: ' + file.name;
-                    isPrepared = false;
-                    document.getElementById('prepare-status').textContent = '';
+                    const reusedText = res.reused_existing_doc ? `Matched existing document ${docId}. ` : `Created document ${docId}. `;
+                    const cacheText = res.has_cached_embeddings ? 'Embeddings already exist.' : 'Prepare to build embeddings.';
+                    status.textContent = `Uploaded: ${file.name}. ${reusedText}${cacheText}`;
                     clearChatAndAttribution();
+                    syncPreparedStateFromMeta({ loadPdf: !!res.is_prepared });
                     updateState();
                     saveSession();
                 } else {
@@ -401,9 +443,18 @@
                                 const obj = JSON.parse(line.slice(6));
                                 if (obj.type === 'stage') {
                                     status.textContent = obj.message || obj.stage || '';
+                                    if (obj.cached) {
+                                        status.className = 'text-sm text-success font-medium';
+                                    }
                                 } else if (obj.type === 'ready') {
+                                    docId = obj.canonical_doc_id || obj.doc_id || docId;
+                                    if (docMetaById[docId]) {
+                                        docMetaById[docId].has_cached_parse = !!obj.has_cached_parse;
+                                        docMetaById[docId].has_cached_embeddings = !!obj.has_cached_embeddings;
+                                        docMetaById[docId].is_prepared = true;
+                                    }
                                     isPrepared = true;
-                                    status.textContent = 'Ready. You can ask questions.';
+                                    status.textContent = obj.has_cached_embeddings ? 'Embeddings ready. You can ask questions.' : 'Ready. You can ask questions.';
                                     status.className = 'text-sm text-success font-medium';
                                     if (docId) loadPdfOnly(docId);
                                 } else if (obj.type === 'error') {
@@ -418,7 +469,17 @@
                 if (buf.startsWith('data: ')) {
                     try {
                         const obj = JSON.parse(buf.slice(6));
-                        if (obj.type === 'ready') { isPrepared = true; saveSession(); if (docId) loadPdfOnly(docId); }
+                        if (obj.type === 'ready') {
+                            docId = obj.canonical_doc_id || obj.doc_id || docId;
+                            if (docMetaById[docId]) {
+                                docMetaById[docId].has_cached_parse = !!obj.has_cached_parse;
+                                docMetaById[docId].has_cached_embeddings = !!obj.has_cached_embeddings;
+                                docMetaById[docId].is_prepared = true;
+                            }
+                            isPrepared = true;
+                            saveSession();
+                            if (docId) loadPdfOnly(docId);
+                        }
                         if (obj.type === 'error') { isPrepared = false; saveSession(); }
                     } catch (_) {}
                 }

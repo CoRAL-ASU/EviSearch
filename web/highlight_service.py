@@ -13,6 +13,7 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
 from src.config.runtime_paths import DATASET_DIR, RESULTS_ROOT, UPLOADS_DIR
+from src.documents.pdf_registry import resolve_canonical_doc_id
 
 PIPELINE_RESULTS = RESULTS_ROOT
 UPLOAD_DIR = UPLOADS_DIR
@@ -45,6 +46,12 @@ def load_landing_ai_parse(doc_id: str) -> Optional[Dict[str, Any]]:
     Load landing_ai_parse_output.json for a document.
     Returns raw parse data or None if not found.
     """
+    doc_id = resolve_canonical_doc_id(
+        doc_id,
+        uploads_dir=UPLOAD_DIR,
+        results_root=PIPELINE_RESULTS,
+        dataset_dir=DATASET_DIR,
+    )
     path = PIPELINE_RESULTS / doc_id / "chunking" / "landing_ai_parse_output.json"
     if not path.exists():
         return None
@@ -335,6 +342,12 @@ def get_chunks_by_page(
 
 def resolve_pdf_path(doc_id: str) -> Optional[Path]:
     """Resolve PDF file path for a document. Returns Path or None."""
+    doc_id = resolve_canonical_doc_id(
+        doc_id,
+        uploads_dir=UPLOAD_DIR,
+        results_root=PIPELINE_RESULTS,
+        dataset_dir=DATASET_DIR,
+    )
     # 1. Uploads (upload_* before extraction copies to results)
     if doc_id.startswith("upload_") and UPLOAD_DIR.exists():
         p = UPLOAD_DIR / f"{doc_id}.pdf"

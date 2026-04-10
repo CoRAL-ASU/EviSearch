@@ -6,6 +6,94 @@
     <title>Evidence-based PDF Q&A — Tables Report</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.14/dist/full.min.css" rel="stylesheet" />
+    <style>
+        #report-grid {
+            height: 68vh;
+            width: 100%;
+            min-height: 34rem;
+        }
+
+        .report-grid-shell {
+            padding: 0.75rem;
+        }
+
+        .ag-theme-report .ag-root-wrapper {
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 1rem;
+            overflow: hidden;
+            background: #1f252f;
+        }
+
+        .ag-theme-report .ag-header {
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .ag-theme-report .ag-header-cell,
+        .ag-theme-report .ag-header-group-cell {
+            font-size: 0.78rem;
+            line-height: 1.2;
+            white-space: normal;
+        }
+
+        .ag-theme-report .ag-header-cell-label,
+        .ag-theme-report .ag-header-group-cell-label {
+            white-space: normal;
+            overflow-wrap: anywhere;
+            word-break: break-word;
+        }
+
+        .ag-theme-report .ag-cell {
+            line-height: 1.3;
+            padding-top: 0.3rem;
+            padding-bottom: 0.3rem;
+            display: flex;
+            align-items: flex-start;
+        }
+
+        .ag-theme-report .ag-row {
+            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+        }
+
+        .ag-theme-report .ag-pinned-left-cols-container .ag-cell {
+            font-weight: 600;
+        }
+
+        .report-doc-cell {
+            white-space: normal;
+            overflow-wrap: anywhere;
+            word-break: break-word;
+            width: 100%;
+        }
+
+        .report-value-link {
+            display: block;
+            width: 100%;
+            padding: 0.3rem 0.45rem;
+            border-radius: 0.75rem;
+            transition: background-color 0.15s ease, border-color 0.15s ease;
+            border: 1px solid transparent;
+            white-space: normal;
+            overflow-wrap: anywhere;
+            word-break: break-word;
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .report-value-link:hover {
+            background: rgba(99, 102, 241, 0.12);
+            border-color: rgba(99, 102, 241, 0.35);
+        }
+
+        .report-value-empty {
+            display: block;
+            width: 100%;
+            padding: 0.3rem 0.45rem;
+            color: rgba(255, 255, 255, 0.48);
+            white-space: normal;
+            overflow-wrap: anywhere;
+            word-break: break-word;
+        }
+    </style>
 </head>
 <body class="min-h-screen bg-base-200">
     <div class="navbar bg-base-300 shadow-lg">
@@ -24,7 +112,6 @@
     <main class="max-w-[98vw] mx-auto p-6 space-y-4">
         <h2 class="text-2xl font-bold">Reconciled Tables</h2>
 
-        <!-- Stats -->
         <div class="flex flex-wrap gap-6">
             <div class="stat bg-base-100 rounded-lg shadow-md px-6 py-4">
                 <div class="stat-title">Documents</div>
@@ -36,7 +123,6 @@
             </div>
         </div>
 
-        <!-- Filters -->
         <div class="card bg-base-100 shadow-xl">
             <div class="card-body">
                 <h3 class="card-title text-lg">Filters</h3>
@@ -58,36 +144,49 @@
             </div>
         </div>
 
-        <!-- Export -->
         <div class="flex gap-2">
             <button type="button" id="btn-export-csv" class="btn btn-outline btn-sm" disabled>Export CSV</button>
             <button type="button" id="btn-export-excel" class="btn btn-outline btn-sm" disabled>Export Excel</button>
         </div>
 
-        <!-- Table -->
+        <p class="text-sm text-base-content/60">
+            Click a populated cell to open its document and column in the Attribution view.
+        </p>
+
         <div class="card bg-base-100 shadow-xl overflow-hidden">
-            <div class="card-body p-0">
-                <div class="overflow-x-auto overflow-y-auto max-h-[60vh]">
-                    <table class="table table-pin-rows table-zebra" id="report-table">
-                        <thead>
-                            <tr class="bg-base-200 sticky top-0 z-10" id="table-head-row">
-                                <th class="sticky left-0 bg-base-200 z-20 min-w-[180px]">Document</th>
-                            </tr>
-                        </thead>
-                        <tbody id="table-body">
-                            <tr><td colspan="100" class="text-center py-8 text-base-content/60">Loading…</td></tr>
-                        </tbody>
-                    </table>
-                </div>
+            <div class="report-grid-shell">
+                <div id="report-grid" class="ag-theme-quartz-dark ag-theme-report"></div>
             </div>
         </div>
     </main>
 
+    <script src="https://cdn.jsdelivr.net/npm/ag-grid-community/dist/ag-grid-community.min.js"></script>
     <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
     <script>
         let rawData = null;
         let filteredColumns = [];
         let filteredRows = [];
+        let gridApi = null;
+
+        const reportTheme = window.agGrid?.themeQuartz?.withParams
+            ? window.agGrid.themeQuartz.withParams({
+                backgroundColor: '#1f252f',
+                foregroundColor: '#d7dce5',
+                headerBackgroundColor: '#262d38',
+                headerTextColor: '#d7dce5',
+                oddRowBackgroundColor: '#202733',
+                rowBorder: { color: 'rgba(255, 255, 255, 0.05)' },
+                headerColumnBorder: { color: 'rgba(255, 255, 255, 0.08)' },
+                columnBorder: { color: 'rgba(255, 255, 255, 0.05)' },
+                wrapperBorder: false,
+                borderColor: 'rgba(255, 255, 255, 0.08)',
+                spacing: 6,
+                rowHeight: 40,
+                headerHeight: 46,
+                headerGroupHeight: 40,
+                fontSize: 13,
+            })
+            : undefined;
 
         function escapeHtml(s) {
             if (s == null) return '';
@@ -96,9 +195,153 @@
             return d.innerHTML;
         }
 
+        function attributionUrl(docId, columnName) {
+            return `/attribution?doc=${encodeURIComponent(docId)}&column=${encodeURIComponent(columnName)}`;
+        }
+
         function isEmptyVal(v) {
             const s = String(v || '').trim().toLowerCase();
             return !s || ['not reported', 'not found', 'n/a', 'not applicable', '—', '-'].includes(s);
+        }
+
+        function splitColumnParts(columnName) {
+            const parts = String(columnName || '')
+                .split(' | ')
+                .map(part => part.trim())
+                .filter(Boolean);
+            return parts.length ? parts : [String(columnName || '')];
+        }
+
+        function ensureChildGroup(children, headerName) {
+            let existing = children.find(child => child.headerName === headerName && Array.isArray(child.children));
+            if (!existing) {
+                existing = {
+                    headerName,
+                    marryChildren: true,
+                    openByDefault: true,
+                    children: [],
+                };
+                children.push(existing);
+            }
+            return existing;
+        }
+
+        function buildLeafColumnDef(columnName) {
+            const parts = splitColumnParts(columnName);
+            return {
+                headerName: parts[parts.length - 1],
+                colId: columnName,
+                minWidth: 170,
+                width: 190,
+                maxWidth: 260,
+                sortable: false,
+                resizable: true,
+                wrapHeaderText: true,
+                autoHeaderHeight: true,
+                autoHeight: true,
+                cellRenderer: (params) => {
+                    const value = params.value == null ? '' : String(params.value);
+                    if (isEmptyVal(value)) {
+                        return `<span class="report-value-empty" title="${escapeHtml(value)}">${escapeHtml(value)}</span>`;
+                    }
+                    const href = attributionUrl(params.data?.doc_id || '', columnName);
+                    return `<a class="report-value-link" href="${href}" target="_blank" rel="noopener noreferrer" title="View attribution for ${escapeHtml(value)}">${escapeHtml(value)}</a>`;
+                },
+                valueGetter: (params) => params.data?.[columnName] ?? '',
+            };
+        }
+
+        function buildGroupedColumnDefs(columns) {
+            const root = [];
+
+            columns.forEach((columnName) => {
+                const parts = splitColumnParts(columnName);
+                if (parts.length === 1) {
+                    root.push(buildLeafColumnDef(columnName));
+                    return;
+                }
+
+                let target = root;
+                parts.slice(0, -1).forEach((part) => {
+                    target = ensureChildGroup(target, part).children;
+                });
+                target.push(buildLeafColumnDef(columnName));
+            });
+
+            return root;
+        }
+
+        function buildColumnDefs() {
+            return [
+                {
+                    headerName: 'Document',
+                    colId: 'doc_id',
+                    pinned: 'left',
+                    lockPinned: true,
+                    suppressMovable: true,
+                    minWidth: 180,
+                    width: 220,
+                    maxWidth: 260,
+                    autoHeight: true,
+                    wrapHeaderText: true,
+                    autoHeaderHeight: true,
+                    cellClass: 'report-doc-cell',
+                    valueGetter: (params) => params.data?.doc_id || '',
+                },
+                ...buildGroupedColumnDefs(filteredColumns),
+            ];
+        }
+
+        function createGrid() {
+            const gridEl = document.getElementById('report-grid');
+            gridApi = agGrid.createGrid(gridEl, {
+                theme: reportTheme,
+                rowData: [],
+                columnDefs: buildColumnDefs(),
+                defaultColDef: {
+                    sortable: false,
+                    filter: false,
+                    resizable: true,
+                    suppressMenu: true,
+                    wrapHeaderText: true,
+                    autoHeaderHeight: true,
+                    cellStyle: {
+                        display: 'flex',
+                        alignItems: 'flex-start',
+                        paddingLeft: '2px',
+                        paddingRight: '2px',
+                    },
+                },
+                suppressCellFocus: false,
+                suppressDragLeaveHidesColumns: true,
+                animateRows: false,
+                domLayout: 'normal',
+                rowHeight: 40,
+                headerHeight: 46,
+                groupHeaderHeight: 40,
+                tooltipShowDelay: 0,
+                ensureDomOrder: true,
+                onGridReady: () => {
+                    syncGridData();
+                },
+            });
+        }
+
+        function syncGridData() {
+            if (!gridApi) return;
+            gridApi.setGridOption('columnDefs', buildColumnDefs());
+            gridApi.setGridOption('rowData', filteredRows);
+            sizeGridColumns();
+        }
+
+        function sizeGridColumns() {
+            if (!gridApi) return;
+            try {
+                gridApi.sizeColumnsToFit({
+                    defaultMinWidth: 150,
+                    columnLimits: [{ key: 'doc_id', minWidth: 180, maxWidth: 260 }],
+                });
+            } catch (_) {}
         }
 
         async function loadData() {
@@ -108,8 +351,24 @@
                 rawData = res;
                 applyFilters();
             } catch (e) {
-                document.getElementById('table-body').innerHTML = '<tr><td colspan="100" class="text-center py-8 text-error">' + escapeHtml('Error: ' + e.message) + '</td></tr>';
+                document.getElementById('report-grid').innerHTML =
+                    `<div class="p-8 text-error">${escapeHtml('Error: ' + e.message)}</div>`;
             }
+        }
+
+        function populateGroupFilter() {
+            const sel = document.getElementById('filter-group');
+            const colGroups = rawData?.column_groups || {};
+            const groups = [...new Set(['Other', ...Object.values(colGroups).filter(Boolean)])].sort((a, b) => {
+                if (a === 'Other') return 1;
+                if (b === 'Other') return -1;
+                return a.localeCompare(b);
+            });
+            const current = sel.value;
+            sel.innerHTML = '<option value="">All groups</option>' + groups.map(g =>
+                `<option value="${escapeHtml(g)}">${escapeHtml(g)}</option>`
+            ).join('');
+            if (groups.includes(current)) sel.value = current;
         }
 
         function applyFilters() {
@@ -130,54 +389,23 @@
 
             document.getElementById('stat-docs').textContent = rawData.document_count || 0;
             document.getElementById('stat-filled').textContent = rawData.total_filled_values ?? 0;
+            document.getElementById('btn-export-csv').disabled = !filteredRows.length;
+            document.getElementById('btn-export-excel').disabled = !filteredRows.length;
 
             populateGroupFilter();
-            renderTable();
-            document.getElementById('btn-export-csv').disabled = !rawData.rows?.length;
-            document.getElementById('btn-export-excel').disabled = !rawData.rows?.length;
-        }
-
-        function populateGroupFilter() {
-            const sel = document.getElementById('filter-group');
-            const colGroups = rawData?.column_groups || {};
-            const groups = [...new Set(['Other', ...Object.values(colGroups).filter(Boolean)])].sort((a, b) => {
-                if (a === 'Other') return 1;
-                if (b === 'Other') return -1;
-                return a.localeCompare(b);
-            });
-            const current = sel.value;
-            sel.innerHTML = '<option value="">All groups</option>' + groups.map(g =>
-                `<option value="${escapeHtml(g)}">${escapeHtml(g)}</option>`
-            ).join('');
-            if (groups.includes(current)) sel.value = current;
-        }
-
-        function renderTable() {
-            const thead = document.getElementById('table-head-row');
-            const tbody = document.getElementById('table-body');
-            thead.innerHTML = '<th class="sticky left-0 bg-base-200 z-20 min-w-[180px]">Document</th>' +
-                filteredColumns.map(cn => `<th class="min-w-[120px] max-w-[280px]">${escapeHtml(cn)}</th>`).join('');
-
-            if (filteredRows.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="' + (filteredColumns.length + 1) + '" class="text-center py-8 text-base-content/60">No data</td></tr>';
-                return;
-            }
-
-            tbody.innerHTML = filteredRows.map(row => {
-                const cells = [
-                    '<td class="font-medium sticky left-0 bg-base-100 z-10">' + escapeHtml(row.doc_id || '') + '</td>'
-                ];
-                filteredColumns.forEach(cn => {
-                    const v = row[cn];
-                    const empty = isEmptyVal(v);
-                    cells.push('<td class="' + (empty ? 'text-base-content/50' : '') + '">' + escapeHtml(v != null ? String(v) : '') + '</td>');
-                });
-                return '<tr>' + cells.join('') + '</tr>';
-            }).join('');
+            syncGridData();
         }
 
         function exportCSV() {
-            if (!rawData || !filteredRows.length) return;
+            if (!filteredRows.length) return;
+            if (gridApi?.exportDataAsCsv) {
+                gridApi.exportDataAsCsv({
+                    fileName: 'reconciled_tables.csv',
+                    columnKeys: ['doc_id', ...filteredColumns],
+                });
+                return;
+            }
+
             const cols = ['doc_id', ...filteredColumns];
             const header = cols.join(',');
             const escapeCsv = s => '"' + String(s).replace(/"/g, '""') + '"';
@@ -191,7 +419,7 @@
         }
 
         function exportExcel() {
-            if (!rawData || !filteredRows.length || typeof XLSX === 'undefined') return;
+            if (!filteredRows.length || typeof XLSX === 'undefined') return;
             const cols = ['doc_id', ...filteredColumns];
             const rows = filteredRows.map(r => cols.map(c => r[c] ?? ''));
             const wb = XLSX.utils.book_new();
@@ -207,7 +435,9 @@
         document.getElementById('filter-group').addEventListener('change', applyFilters);
         document.getElementById('btn-export-csv').addEventListener('click', exportCSV);
         document.getElementById('btn-export-excel').addEventListener('click', exportExcel);
+        window.addEventListener('resize', () => sizeGridColumns());
 
+        createGrid();
         loadData();
     </script>
 </body>
