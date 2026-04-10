@@ -3,8 +3,7 @@ FROM python:3.11-slim
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     PIP_NO_CACHE_DIR=1 \
-    PORT=8080 \
-    EVISEARCH_RUNTIME_ROOT=/mnt/data
+    PORT=8080
 
 WORKDIR /app
 
@@ -20,11 +19,9 @@ COPY src ./src
 COPY web ./web
 COPY experiment-scripts ./experiment-scripts
 COPY dataset ./dataset
-COPY new_pipeline_outputs/results /mnt/data/results
-COPY new_pipeline_outputs/chunk_embeddings /mnt/data/chunk_embeddings
-COPY new_pipeline_outputs/feedback /mnt/data/feedback
+COPY new_pipeline_outputs ./new_pipeline_outputs
 
-RUN mkdir -p /mnt/data/uploads
+RUN mkdir -p /app/web/uploads
 
 EXPOSE 8080
 
