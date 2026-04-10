@@ -241,6 +241,7 @@
         let columnSearchQuery = '';
         let selectedColumn = null;
         let selectedGroups = null; // null = show all
+        let pendingColumnFromUrl = null;
 
         function colToGroup(colName) {
             for (const g of columnGroups) {
@@ -299,10 +300,10 @@
                 const params = new URLSearchParams(window.location.search);
                 const docParam = params.get('doc');
                 const colParam = params.get('column');
+                pendingColumnFromUrl = colParam || null;
                 if (docParam && docIds.includes(docParam)) {
                     sel.value = docParam;
                     sel.dispatchEvent(new Event('change'));
-                    if (colParam) setTimeout(() => selectColumnByName(colParam), 300);
                 }
             } catch (err) {
                 console.error('[Attribution] loadDocs failed:', err);
@@ -327,7 +328,20 @@
         function selectColumnByName(name) {
             const cols = reconciledData?.filteredColumns || [];
             const idx = cols.findIndex(c => c.column_name === name);
-            if (idx >= 0) selectColumn(idx);
+            if (idx >= 0) {
+                pendingColumnFromUrl = null;
+                selectColumn(idx);
+                return true;
+            }
+            return false;
+        }
+
+        function hasDisplayableColumnData(col) {
+            const hasCandidateA = col?.candidate_a != null && String(col.candidate_a).trim() !== '';
+            const hasCandidateB = col?.candidate_b != null && String(col.candidate_b).trim() !== '';
+            const hasFinalValue = col?.final_value != null && String(col.final_value).trim() !== '';
+            const hasChunks = (col?.attributed_chunks?.length || 0) > 0 || (col?.chunk_ids?.length || 0) > 0;
+            return hasCandidateA || hasCandidateB || hasFinalValue || hasChunks || !!col?.human_edited;
         }
 
         function renderColumnList(res) {
@@ -335,8 +349,8 @@
             document.getElementById('export-csv-btn').disabled = false;
             let cols = res.columns || [];
 
-            // Only show columns that were actually extracted (have candidate_a or candidate_b set)
-            cols = cols.filter(c => (c.candidate_a && c.candidate_a !== '') || (c.candidate_b && c.candidate_b !== '') || c.human_edited);
+            // Keep columns visible when they have any meaningful display data.
+            cols = cols.filter(hasDisplayableColumnData);
 
             // Filter by selected groups if set
             if (selectedGroups && selectedGroups.length > 0) {
@@ -409,6 +423,10 @@
             list.querySelectorAll('.column-btn').forEach(btn => {
                 btn.addEventListener('click', () => selectColumn(parseInt(btn.dataset.index)));
             });
+
+            if (pendingColumnFromUrl) {
+                selectColumnByName(pendingColumnFromUrl);
+            }
         }
 
         document.getElementById('doc-select').addEventListener('change', async (e) => {

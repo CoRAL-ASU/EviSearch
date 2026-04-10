@@ -20,8 +20,11 @@ COPY src ./src
 COPY web ./web
 COPY experiment-scripts ./experiment-scripts
 COPY dataset ./dataset
+COPY new_pipeline_outputs/results /mnt/data/results
+COPY new_pipeline_outputs/chunk_embeddings /mnt/data/chunk_embeddings
+COPY new_pipeline_outputs/feedback /mnt/data/feedback
 
-RUN mkdir -p /mnt/data/uploads /mnt/data/results /mnt/data/chunk_embeddings /mnt/data/feedback
+RUN mkdir -p /mnt/data/uploads
 
 EXPOSE 8080
 

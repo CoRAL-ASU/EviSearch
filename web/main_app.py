@@ -842,7 +842,9 @@ def api_refresh_attribution(doc_id):
 
         enriched = enrich_reconciled_with_attribution(doc_id, columns, comparison_rows=rows, top_k=3)
         out_path.write_text(json.dumps({"doc_id": doc_id, "columns": enriched}, indent=2), encoding="utf-8")
-        return jsonify({"success": True, "doc_id": doc_id, "columns": enriched, "verification_stats": {}}), 200
+        # Reuse the reconciled payload builder so refresh returns the same
+        # frontend contract as the initial page load.
+        return api_document_reconciled(doc_id)
     except Exception as e:
         return jsonify({"success": False, "error": str(e)}), 500
 

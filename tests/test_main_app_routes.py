@@ -119,3 +119,67 @@ def test_api_document_pdf_serves_resolved_pdf(client, isolated_app, monkeypatch,
     assert response.status_code == 200
     assert response.mimetype == "application/pdf"
     assert response.data.startswith(b"%PDF-1.4")
+
+
+def test_api_refresh_attribution_returns_reconciled_page_shape(client, isolated_app):
+    doc_dir = isolated_app.RESULTS_ROOT / "doc-1"
+    recon_dir = doc_dir / "reconciliation_agent"
+    agent_dir = doc_dir / "agent_extractor"
+    search_dir = doc_dir / "search_agent"
+    recon_dir.mkdir(parents=True)
+    agent_dir.mkdir(parents=True)
+    search_dir.mkdir(parents=True)
+
+    (recon_dir / "reconciled_results.json").write_text(
+        json.dumps(
+            {
+                "columns": {
+                    "Overall Survival": {
+                        "value": "12.1",
+                        "reasoning": "Reconciled answer",
+                        "source": {"page": 5, "modality": "text"},
+                    }
+                }
+            }
+        ),
+        encoding="utf-8",
+    )
+    (agent_dir / "extraction_results.json").write_text(
+        json.dumps(
+            {
+                "columns": {
+                    "Overall Survival": {
+                        "value": "12.1",
+                        "reasoning": "Agent answer",
+                        "attribution": [{"page": 5, "modality": "text"}],
+                    }
+                }
+            }
+        ),
+        encoding="utf-8",
+    )
+    (search_dir / "extraction_results.json").write_text(
+        json.dumps(
+            {
+                "columns": {
+                    "Overall Survival": {
+                        "value": "12.1",
+                        "reasoning": "Search answer",
+                        "attribution": [{"page": 5, "modality": "text"}],
+                    }
+                }
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    response = client.post("/api/documents/doc-1/attribution/refresh")
+    payload = response.get_json()
+
+    assert response.status_code == 200
+    assert payload["success"] is True
+    assert payload["doc_id"] == "doc-1"
+    assert len(payload["columns"]) == 1
+    assert payload["columns"][0]["column_name"] == "Overall Survival"
+    assert payload["columns"][0]["candidate_a"] == "12.1"
+    assert payload["columns"][0]["candidate_b"] == "12.1"
