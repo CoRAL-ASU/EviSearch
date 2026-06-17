@@ -20,8 +20,8 @@ PROJECT_ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(PROJECT_ROOT))
 RESULTS_ROOT = PROJECT_ROOT / "new_pipeline_outputs" / "results"
 
-from web.comparison_service import load_comparison_data, list_documents
-from web.attribution_service import enrich_reconciled_with_attribution
+from src.evisearch.services.reports import load_comparison_data, list_documents
+from src.evisearch.services.attribution import enrich_reconciled_with_attribution
 
 
 def main():
@@ -68,8 +68,8 @@ def main():
 
     print(f"Loading {in_path}…", file=sys.stderr)
     data = json.loads(in_path.read_text(encoding="utf-8"))
-    from web.main_app import _reconciliation_agent_to_columns
-    columns = _reconciliation_agent_to_columns(data.get("columns") or {})
+    from src.evisearch.services.result_transform import reconciliation_agent_to_columns
+    columns = reconciliation_agent_to_columns(data.get("columns") or {})
 
     comparison = load_comparison_data(doc_id)
     rows = comparison.get("comparison") or []

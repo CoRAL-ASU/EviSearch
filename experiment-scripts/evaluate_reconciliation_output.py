@@ -22,7 +22,7 @@ from pathlib import Path
 repo_root = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(repo_root))
 
-from baseline_utils import load_definitions_with_metadata, run_evaluation
+from src.evisearch.services.markdown_baseline import load_definitions_with_metadata, run_evaluation
 
 DEFINITIONS_PATH = "src/table_definitions/Definitions_with_eval_category.csv"
 GROUND_TRUTH_FILE = "dataset/Manual_Benchmark_GoldTable_cleaned.json"

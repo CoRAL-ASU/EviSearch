@@ -1,11 +1,6 @@
 # src/LLMProvider/__init__.py
-"""
-Unified LLM Provider module.
-Supports: Gemini (Vertex AI), OpenAI, Novita, Groq, DeepInfra
-Includes OutputStructurer for converting free-form text to structured JSON.
-"""
+"""Unified LLM Provider module with lazy optional-provider imports."""
 
-from .provider import LLMProvider, LLMResponse, PDFHandle
 from .models import SUPPORTED_MODELS, get_model_pricing
 from .structurer import OutputStructurer, StructurerResponse
 
@@ -19,3 +14,15 @@ __all__ = [
     "StructurerResponse",
 ]
 
+
+def __getattr__(name: str):
+    if name in {"LLMProvider", "LLMResponse", "PDFHandle"}:
+        from .provider import LLMProvider, LLMResponse, PDFHandle
+
+        values = {
+            "LLMProvider": LLMProvider,
+            "LLMResponse": LLMResponse,
+            "PDFHandle": PDFHandle,
+        }
+        return values[name]
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")

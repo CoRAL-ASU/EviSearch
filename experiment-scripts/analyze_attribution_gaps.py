@@ -18,8 +18,8 @@ RESULTS_ROOT = PROJECT_ROOT / "new_pipeline_outputs" / "results"
 def main():
     doc_id = sys.argv[1] if len(sys.argv) > 1 else "NCT00309985_Kriayako_CHAARTED_JCO'18"
 
-    from web.comparison_service import load_comparison_data
-    from web.attribution_service import enrich_reconciled_with_attribution
+    from src.evisearch.services.reports import load_comparison_data
+    from src.evisearch.services.attribution import enrich_reconciled_with_attribution
 
     # Build agent attribution (same as _build_agent_attribution in main_app)
     comparison = load_comparison_data(doc_id)

@@ -1,0 +1,811 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Evidence-based PDF Q&A — Extract full table</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.14/dist/full.min.css" rel="stylesheet" />
+</head>
+<body class="min-h-screen bg-base-200">
+    <div class="navbar bg-base-300 shadow-lg">
+        <div class="flex-1">
+            <a href="/" class="btn btn-ghost font-semibold">Home</a>
+            <a href="/qa" class="btn btn-ghost">Ask a question</a>
+            <a href="/extract" class="btn btn-ghost font-semibold">Extract full table</a>
+            <a href="/attribution" class="btn btn-ghost">Attribution</a>
+            <a href="/comparison-report" class="btn btn-ghost" target="_blank">Report</a>
+        </div>
+        <div class="flex-none">
+            <h1 class="text-xl font-bold text-primary px-4">Evidence-based PDF Q&A</h1>
+        </div>
+    </div>
+
+    <main class="max-w-6xl mx-auto p-6 space-y-6">
+        <!-- Step 1: Document -->
+        <div class="card bg-base-100 shadow-xl">
+            <div class="card-body">
+                <h2 class="card-title">1. Document</h2>
+                <p class="text-base-content/70 text-sm">Select from dataset / extracted docs, or upload a new PDF</p>
+                <div class="flex flex-wrap gap-4">
+                    <div class="form-control flex-1 min-w-[200px]">
+                        <label class="label">
+                            <span class="label-text">Upload PDF</span>
+                        </label>
+                        <input type="file" id="pdf-upload" accept=".pdf" class="file-input file-input-bordered file-input-primary w-full max-w-xs" />
+                        <p id="upload-status" class="text-sm text-base-content/60 mt-1"></p>
+                    </div>
+                    <div class="divider divider-horizontal">OR</div>
+                    <div class="form-control flex-1 min-w-[200px]">
+                        <label class="label">
+                            <span class="label-text">Select document</span>
+                        </label>
+                        <select id="doc-select" class="select select-bordered w-full">
+                            <option value="">Loading…</option>
+                        </select>
+                        <p class="text-xs text-base-content/50 mt-1">Dataset PDFs + extracted results + uploads</p>
+                    </div>
+                </div>
+                <p id="doc-info" class="text-sm text-base-content/60 mt-2"></p>
+            </div>
+        </div>
+
+        <!-- Step 2: Column groups -->
+        <div class="card bg-base-100 shadow-xl">
+            <div class="card-body">
+                <h2 class="card-title">2. Column groups</h2>
+                <p class="text-base-content/70 text-sm">Use all column groups or pick specific ones. Hover a badge to see its columns.</p>
+                <div class="form-control mb-3">
+                    <label class="label cursor-pointer justify-start gap-2">
+                        <input type="checkbox" id="use-all-groups" class="checkbox checkbox-primary" checked />
+                        <span class="label-text font-medium">Use all column groups</span>
+                    </label>
+                </div>
+
+                <!-- Dropdown + badge multi-select (hidden when "use all" is checked) -->
+                <div id="group-selector" class="space-y-3" style="display: none;">
+                    <div class="flex items-center gap-2">
+                        <select id="group-dropdown" class="select select-bordered flex-1 max-w-sm">
+                            <option value="">Add a column group…</option>
+                        </select>
+                        <span class="text-sm text-base-content/50" id="group-count-label"></span>
+                    </div>
+                    <!-- Selected group badges -->
+                    <div id="selected-badges" class="flex flex-wrap gap-2 min-h-[2rem]">
+                        <span id="no-groups-hint" class="text-sm text-base-content/40 italic">No groups selected — pick one from the dropdown above.</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tooltip popup for group column definitions (shared, positioned by JS) -->
+        <div id="group-tooltip" class="fixed z-50 hidden bg-base-300 border border-base-content/20 rounded-xl shadow-2xl p-4 max-w-sm w-72 pointer-events-none">
+            <p id="group-tooltip-title" class="font-semibold text-sm mb-2 text-primary"></p>
+            <ul id="group-tooltip-list" class="space-y-1 max-h-52 overflow-y-auto"></ul>
+        </div>
+
+        <!-- Step 3: Prepare (uploaded docs) -->
+        <div id="prepare-card" class="card bg-base-100 shadow-xl" style="display: none;">
+            <div class="card-body">
+                <h2 class="card-title">3. Prepare Document</h2>
+                <p class="text-base-content/60 text-sm">Run Landing AI parsing and build semantic embeddings so the Search Agent can retrieve evidence. Required for uploaded PDFs before extraction.</p>
+                <div class="flex items-center gap-3 mt-2">
+                    <button id="prepare-btn" class="btn btn-secondary">
+                        <span class="loading loading-spinner loading-sm" id="prepare-spinner" style="display: none;"></span>
+                        <span id="prepare-text">Prepare Document</span>
+                    </button>
+                    <span id="prepare-status-badge" class="badge" style="display: none;"></span>
+                </div>
+                <div id="prepare-message" class="font-mono text-sm mt-2 min-h-[1.2em]"></div>
+            </div>
+        </div>
+
+        <!-- Step 4: Run / Load -->
+        <div class="card bg-base-100 shadow-xl">
+            <div class="card-body">
+                <h2 id="extract-step-title" class="card-title">3. Extract</h2>
+                <div class="flex gap-2">
+                    <button id="run-btn" class="btn btn-primary" disabled>
+                        <span class="loading loading-spinner loading-sm" id="run-spinner" style="display: none;"></span>
+                        <span id="run-text">Run Agentic Extractor</span>
+                    </button>
+                    <button id="load-btn" class="btn btn-outline" disabled>
+                        Load existing
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Live extraction (visible when running or has results) -->
+        <div id="live-card" class="card bg-base-100 shadow-xl" style="display: none;">
+            <div class="card-body">
+                <h2 class="card-title">Extraction results</h2>
+                <div id="stream-message" class="font-mono text-sm text-primary min-h-[1.5em] mb-2" style="caret-color: currentColor;"></div>
+                <div id="stats-row" class="stats stats-vertical lg:stats-horizontal shadow bg-base-200 my-2">
+                    <div class="stat">
+                        <div class="stat-title">Direct PDF</div>
+                        <div class="stat-desc"><span id="stat-a-filled" class="text-success font-semibold">0</span> populated · <span id="stat-a-notreported" class="text-warning">0</span> not reported</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-title">Search-Based</div>
+                        <div class="stat-desc"><span id="stat-b-filled" class="text-success font-semibold">0</span> populated · <span id="stat-b-notreported" class="text-warning">0</span> not reported</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-title">Total</div>
+                        <div class="stat-value text-primary"><span id="stat-total">0</span></div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-title">Status</div>
+                        <div class="stat-desc"><span id="stat-status" class="badge badge-info">—</span></div>
+                    </div>
+                </div>
+                <progress id="progress-bar" class="progress progress-primary w-full" value="0" max="100"></progress>
+                <div id="action-buttons" class="flex gap-2 mt-3 mb-2" style="display: none;">
+                    <a id="view-attribution-btn" href="/attribution" class="btn btn-primary">View Attribution →</a>
+                </div>
+                <div class="overflow-x-auto mt-2">
+                    <table class="table table-zebra">
+                        <thead>
+                            <tr><th>Column</th><th>Direct PDF</th><th>Search-Based</th></tr>
+                        </thead>
+                        <tbody id="streaming-rows"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const API = {
+            documents: () => fetch('/api/documents/reconciled').then(r => r.json()),
+            selectable: () => fetch('/api/documents/selectable').then(r => r.json()),
+            columnGroups: () => fetch('/api/column-groups').then(r => r.json()),
+            agentExtraction: (docId) => fetch(`/api/documents/${encodeURIComponent(docId)}/agent_extraction`).then(r => r.json()),
+            uploadExtract: (formData) => fetch('/api/upload/extract', { method: 'POST', body: formData }).then(r => r.json()),
+        };
+
+        let docId = null;
+        let allColumns = [];
+        let selectedGroups = null;
+        let docMetaById = {};
+
+        function formatDocLabel(doc) {
+            const parts = [];
+            if (doc.has_extraction) parts.push('extracted');
+            if (doc.has_cached_embeddings) parts.push('embeddings ready');
+            if (doc.source === 'dataset') parts.push('dataset');
+            if (doc.source === 'upload') parts.push('upload');
+            return parts.length ? `${doc.name} (${parts.join(' · ')})` : doc.name;
+        }
+
+        function getCurrentDocMeta() {
+            return docId ? (docMetaById[docId] || null) : null;
+        }
+
+        async function loadDocs() {
+            const res = await API.selectable();
+            const docs = res.documents || [];
+            docMetaById = Object.fromEntries(docs.map(d => [d.id || d.name, d]));
+            const sel = document.getElementById('doc-select');
+            sel.innerHTML = '<option value="">Select document…</option>' + docs.map(d => {
+                const id = d.id || d.name;
+                return `<option value="${escapeHtml(id)}">${escapeHtml(formatDocLabel(d))}</option>`;
+            }).join('');
+        }
+
+        // Map of group name -> column list (for tooltip)
+        const groupColumnMap = {};
+        // Map of column name -> definition text
+        const colDefMap = {};
+
+        async function loadGroups() {
+            const res = await API.columnGroups();
+            if (!res.success) return;
+            const groups = res.groups || [];
+            allColumns = groups;
+
+            // Build lookup maps
+            for (const g of groups) {
+                groupColumnMap[g.name] = g.columns || [];
+                for (const c of (g.columns || [])) {
+                    const name = typeof c === 'string' ? c : c.name;
+                    const def  = typeof c === 'string' ? '' : (c.definition || '');
+                    if (name) colDefMap[name] = def;
+                }
+            }
+
+            // Populate dropdown with all groups
+            const dropdown = document.getElementById('group-dropdown');
+            dropdown.innerHTML = '<option value="">Add a column group…</option>' +
+                groups.map(g => `<option value="${escapeHtml(g.name)}">${escapeHtml(g.name)} (${(g.columns||[]).length} cols)</option>`).join('');
+        }
+
+        function refreshGroupCountLabel() {
+            const count = selectedGroups ? selectedGroups.length : 0;
+            const label = document.getElementById('group-count-label');
+            label.textContent = count > 0 ? `${count} group${count !== 1 ? 's' : ''} selected` : '';
+        }
+
+        function addGroupBadge(groupName) {
+            const hint = document.getElementById('no-groups-hint');
+            if (hint) hint.style.display = 'none';
+
+            const badge = document.createElement('div');
+            badge.className = 'badge badge-primary gap-1 py-3 px-3 text-sm cursor-default relative group-badge';
+            badge.dataset.group = groupName;
+            badge.innerHTML = `
+                <span class="font-medium">${escapeHtml(groupName)}</span>
+                <button type="button" class="btn btn-ghost btn-xs p-0 h-auto min-h-0 ml-1 opacity-70 hover:opacity-100 remove-badge-btn" aria-label="Remove">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button>`;
+
+            // Tooltip on hover
+            badge.addEventListener('mouseenter', (e) => showGroupTooltip(groupName, e.currentTarget));
+            badge.addEventListener('mouseleave', hideGroupTooltip);
+
+            // Remove badge on X click
+            badge.querySelector('.remove-badge-btn').addEventListener('click', () => {
+                removeGroupBadge(groupName);
+            });
+
+            document.getElementById('selected-badges').appendChild(badge);
+        }
+
+        function removeGroupBadge(groupName) {
+            const badge = document.querySelector(`#selected-badges [data-group="${CSS.escape(groupName)}"]`);
+            if (badge) badge.remove();
+
+            // Add back to dropdown
+            const dropdown = document.getElementById('group-dropdown');
+            if (!dropdown.querySelector(`option[value="${escapeHtml(groupName)}"]`)) {
+                const cols = groupColumnMap[groupName] || [];
+                const opt = document.createElement('option');
+                opt.value = groupName;
+                opt.textContent = `${groupName} (${cols.length} cols)`;
+                // Insert in original order
+                const allGroupNames = allColumns.map(g => g.name);
+                const insertIdx = allGroupNames.indexOf(groupName);
+                const options = Array.from(dropdown.options).slice(1); // skip placeholder
+                let inserted = false;
+                for (const existing of options) {
+                    const existingIdx = allGroupNames.indexOf(existing.value);
+                    if (existingIdx > insertIdx) {
+                        dropdown.insertBefore(opt, existing);
+                        inserted = true;
+                        break;
+                    }
+                }
+                if (!inserted) dropdown.appendChild(opt);
+            }
+
+            // Update selectedGroups
+            selectedGroups = selectedGroups ? selectedGroups.filter(g => g !== groupName) : null;
+            if (selectedGroups && selectedGroups.length === 0) {
+                document.getElementById('no-groups-hint').style.display = '';
+            }
+            refreshGroupCountLabel();
+        }
+
+        function showGroupTooltip(groupName, anchorEl) {
+            const tooltip = document.getElementById('group-tooltip');
+            const cols = groupColumnMap[groupName] || [];
+            document.getElementById('group-tooltip-title').textContent = groupName;
+            const list = document.getElementById('group-tooltip-list');
+            list.innerHTML = cols.map(c => {
+                const name = typeof c === 'string' ? c : c.name;
+                const def  = typeof c === 'string' ? '' : (c.definition || '');
+                return `<li class="text-xs"><span class="font-semibold text-base-content/90">${escapeHtml(name)}</span>${def ? `<span class="text-base-content/50"> — ${escapeHtml(def)}</span>` : ''}</li>`;
+            }).join('');
+            tooltip.classList.remove('hidden');
+            // Position after paint so offsetHeight is accurate
+            requestAnimationFrame(() => {
+                const rect = anchorEl.getBoundingClientRect();
+                const tw = tooltip.offsetWidth || 288;
+                const th = tooltip.offsetHeight || 120;
+                let left = rect.left + window.scrollX;
+                if (left + tw > window.innerWidth - 12) left = window.innerWidth - tw - 12;
+                if (left < 8) left = 8;
+                // Prefer above, fallback below if not enough space
+                const topAbove = rect.top + window.scrollY - th - 8;
+                const topBelow = rect.bottom + window.scrollY + 8;
+                tooltip.style.left = `${left}px`;
+                tooltip.style.top = `${topAbove > 0 ? topAbove : topBelow}px`;
+            });
+        }
+
+        function hideGroupTooltip() {
+            document.getElementById('group-tooltip').classList.add('hidden');
+        }
+
+        document.getElementById('group-dropdown').addEventListener('change', (e) => {
+            const val = e.target.value;
+            if (!val) return;
+
+            // Add to selectedGroups
+            if (!selectedGroups) selectedGroups = [];
+            if (!selectedGroups.includes(val)) {
+                selectedGroups.push(val);
+                addGroupBadge(val);
+            }
+            refreshGroupCountLabel();
+
+            // Remove from dropdown options
+            const opt = e.target.querySelector(`option[value="${CSS.escape(val)}"]`);
+            if (opt) opt.remove();
+            e.target.value = ''; // reset placeholder
+        });
+
+        function escapeHtml(s) {
+            if (!s) return '';
+            const d = document.createElement('div');
+            d.textContent = s;
+            return d.innerHTML;
+        }
+
+        function typeStreamMessage(el, text, charDelay = 35, onComplete, append = false) {
+            if (!el || !text) { if (onComplete) onComplete(); return; }
+            const prefix = append ? (el.textContent || '') + '\n' : '';
+            let i = 0;
+            el.classList.add('inline');
+            const span = document.createElement('span');
+            span.textContent = prefix;
+            const cursor = document.createElement('span');
+            cursor.className = 'animate-pulse';
+            cursor.textContent = '▌';
+            cursor.style.marginLeft = '1px';
+            function tick() {
+                if (i < text.length) {
+                    span.textContent += text[i];
+                    i++;
+                    el.innerHTML = '';
+                    el.appendChild(span);
+                    el.appendChild(cursor);
+                    setTimeout(tick, charDelay);
+                } else {
+                    el.textContent = prefix + text;
+                    if (onComplete) onComplete();
+                }
+            }
+            if (!append) el.innerHTML = '';
+            tick();
+        }
+
+        let extractionBatches = null;
+
+        function colNameCellHtml(name) {
+            const def = colDefMap[name] || '';
+            const escaped = escapeHtml(name);
+            if (!def) return `<td>${escaped}</td>`;
+            return `<td><div class="font-medium leading-snug">${escaped}</div><div class="text-xs text-base-content/40 mt-0.5 leading-snug">${escapeHtml(def)}</div></td>`;
+        }
+
+        function initEmptyTable(total, columnNames = []) {
+            const tbody = document.getElementById('streaming-rows');
+            tbody.innerHTML = '';
+            for (let i = 0; i < total; i++) {
+                const tr = document.createElement('tr');
+                const name = columnNames[i] || '';
+                tr.innerHTML = name
+                    ? `${colNameCellHtml(name)}<td></td><td></td>`
+                    : `<td class="text-base-content/50">—</td><td></td><td></td>`;
+                tr.dataset.idx = String(i);
+                if (name) tr.dataset.column = name;
+                tbody.appendChild(tr);
+            }
+        }
+
+        function setColumnNames(batchIndex) {
+            if (!extractionBatches || batchIndex >= extractionBatches.length) return;
+            const names = extractionBatches[batchIndex];
+            const tbody = document.getElementById('streaming-rows');
+            let rowIdx = 0;
+            for (let b = 0; b < batchIndex; b++) rowIdx += (extractionBatches[b] || []).length;
+            for (let j = 0; j < names.length; j++) {
+                const tr = tbody.querySelector(`tr[data-idx="${rowIdx + j}"]`);
+                if (tr) {
+                    tr.cells[0].outerHTML = colNameCellHtml(names[j]);
+                    tr.dataset.column = names[j];
+                }
+            }
+        }
+
+        function isNotReported(val) {
+            if (!val) return true;
+            const s = String(val).trim().toLowerCase();
+            return s === '' || s === 'not reported' || s === 'not found';
+        }
+
+        function updateCandidateStats() {
+            const tbody = document.getElementById('streaming-rows');
+            const rows = tbody.querySelectorAll('tr');
+            let aFilled = 0, aNotReported = 0, bFilled = 0, bNotReported = 0;
+            for (const tr of rows) {
+                const va = (tr.cells[1]?.textContent || '').trim();
+                const vb = (tr.cells[2]?.textContent || '').trim();
+                if (isNotReported(va)) aNotReported++; else aFilled++;
+                if (isNotReported(vb)) bNotReported++; else bFilled++;
+            }
+            document.getElementById('stat-a-filled').textContent = aFilled;
+            document.getElementById('stat-a-notreported').textContent = aNotReported;
+            document.getElementById('stat-b-filled').textContent = bFilled;
+            document.getElementById('stat-b-notreported').textContent = bNotReported;
+        }
+
+        function updateRowForColumn(colName, value1, value2, source) {
+            const tbody = document.getElementById('streaming-rows');
+            const rows = tbody.querySelectorAll('tr');
+            const trunc = (v) => String(v || '').slice(0, 200) + (String(v || '').length > 200 ? '…' : '');
+            const match = (tr) => tr.dataset.column === colName
+                || (tr.cells[0]?.querySelector('.font-medium')?.textContent?.trim() || tr.cells[0]?.textContent?.trim()) === colName;
+            for (const tr of rows) {
+                if (match(tr)) {
+                    if (source === 'search') {
+                        tr.cells[2].textContent = trunc(value2);
+                    } else if (source === 'batch') {
+                        tr.cells[1].textContent = trunc(value1);
+                        tr.cells[2].textContent = trunc(value2);
+                    } else {
+                        tr.cells[1].textContent = trunc(value1);
+                    }
+                    return;
+                }
+            }
+        }
+
+        function updateDocState() {
+            const hasDoc = !!docId;
+            const meta = getCurrentDocMeta();
+            document.getElementById('run-btn').disabled = !hasDoc;
+            document.getElementById('load-btn').disabled = !hasDoc;
+            if (docId) {
+                const extras = [];
+                if (meta?.has_cached_embeddings) extras.push('embeddings ready');
+                if (meta?.has_extraction) extras.push('existing extraction');
+                document.getElementById('doc-info').textContent = `Selected: ${docId}${extras.length ? ' · ' + extras.join(' · ') : ''}`;
+            } else {
+                document.getElementById('doc-info').textContent = '';
+            }
+            const needsPrepare = hasDoc && !(meta?.has_cached_parse && meta?.has_cached_embeddings);
+            document.getElementById('prepare-card').style.display = needsPrepare ? '' : 'none';
+            document.getElementById('extract-step-title').textContent = needsPrepare ? '4. Extract' : '3. Extract';
+            if (!needsPrepare) {
+                // Reset prepare state when switching to a non-upload doc
+                document.getElementById('prepare-status-badge').style.display = 'none';
+                document.getElementById('prepare-message').textContent = meta?.has_cached_embeddings ? 'Embeddings already exist for this document.' : '';
+            }
+        }
+
+        async function runPrepare() {
+            if (!docId) return;
+            const btn = document.getElementById('prepare-btn');
+            const spinner = document.getElementById('prepare-spinner');
+            const text = document.getElementById('prepare-text');
+            const badge = document.getElementById('prepare-status-badge');
+            const msgEl = document.getElementById('prepare-message');
+
+            btn.disabled = true;
+            spinner.style.display = '';
+            text.textContent = 'Preparing…';
+            badge.style.display = 'none';
+            msgEl.style.color = '';
+            msgEl.textContent = 'Connecting…';
+
+            try {
+                const res = await fetch('/api/qa/prepare-document', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ doc_id: docId }),
+                });
+                if (!res.ok) {
+                    const err = await res.json().catch(() => ({}));
+                    throw new Error(err.error || res.statusText);
+                }
+                const reader = res.body.getReader();
+                const decoder = new TextDecoder();
+                let buf = '';
+                while (true) {
+                    const { done, value } = await reader.read();
+                    if (done) break;
+                    buf += decoder.decode(value, { stream: true });
+                    const lines = buf.split('\n');
+                    buf = lines.pop() || '';
+                    for (const line of lines) {
+                        if (!line.startsWith('data: ')) continue;
+                        try {
+                            const ev = JSON.parse(line.slice(6));
+                            if (ev.type === 'stage') {
+                                msgEl.textContent = ev.message || '';
+                                msgEl.style.color = '';
+                            } else if (ev.type === 'ready') {
+                                docId = ev.canonical_doc_id || ev.doc_id || docId;
+                                if (docMetaById[docId]) {
+                                    docMetaById[docId].has_cached_parse = !!ev.has_cached_parse;
+                                    docMetaById[docId].has_cached_embeddings = !!ev.has_cached_embeddings;
+                                    docMetaById[docId].is_prepared = true;
+                                }
+                                msgEl.textContent = '✓ Document prepared — embeddings ready.';
+                                msgEl.style.color = 'oklch(var(--su))';
+                                badge.textContent = '✓ Ready';
+                                badge.className = 'badge badge-success';
+                                badge.style.display = '';
+                                updateDocState();
+                            } else if (ev.type === 'error') {
+                                msgEl.textContent = '⚠ ' + (ev.error || 'Prepare failed');
+                                msgEl.style.color = 'oklch(var(--er))';
+                                badge.textContent = '✗ Failed';
+                                badge.className = 'badge badge-error';
+                                badge.style.display = '';
+                            }
+                        } catch (_) {}
+                    }
+                }
+            } catch (err) {
+                msgEl.textContent = '⚠ ' + err.message;
+                msgEl.style.color = 'oklch(var(--er))';
+                badge.textContent = '✗ Failed';
+                badge.className = 'badge badge-error';
+                badge.style.display = '';
+            } finally {
+                btn.disabled = false;
+                spinner.style.display = 'none';
+                text.textContent = 'Prepare Document';
+            }
+        }
+
+        document.getElementById('prepare-btn').addEventListener('click', runPrepare);
+
+        document.getElementById('doc-select').addEventListener('change', (e) => {
+            docId = e.target.value || null;
+            updateDocState();
+        });
+
+        document.getElementById('pdf-upload').addEventListener('change', async (e) => {
+            const file = e.target.files?.[0];
+            if (!file) return;
+            const status = document.getElementById('upload-status');
+            status.textContent = 'Uploading…';
+            try {
+                const formData = new FormData();
+                formData.append('file', file);
+                const res = await API.uploadExtract(formData);
+                if (res.success) {
+                    docId = res.doc_id;
+                    docMetaById[docId] = {
+                        id: res.doc_id,
+                        canonical_id: res.canonical_doc_id || res.doc_id,
+                        name: res.display_name || res.doc_id,
+                        source: res.source || 'upload',
+                        has_extraction: false,
+                        has_cached_parse: !!res.has_cached_parse,
+                        has_cached_embeddings: !!res.has_cached_embeddings,
+                        is_prepared: !!res.is_prepared,
+                    };
+                    const sel = document.getElementById('doc-select');
+                    sel.value = '';
+                    if (!sel.querySelector(`option[value="${docId}"]`)) {
+                        const opt = document.createElement('option');
+                        opt.value = docId;
+                        opt.textContent = formatDocLabel(docMetaById[docId]);
+                        sel.appendChild(opt);
+                    }
+                    sel.value = docId;
+                    const reusedText = res.reused_existing_doc ? `Matched existing document ${docId}.` : `Created document ${docId}.`;
+                    const cacheText = res.has_cached_embeddings ? ' Embeddings already exist.' : ' Prepare before extraction.';
+                    status.textContent = `Uploaded: ${file.name}. ${reusedText}${cacheText}`;
+                    updateDocState();
+                } else {
+                    status.textContent = 'Upload failed: ' + (res.error || 'Unknown');
+                }
+            } catch (err) {
+                status.textContent = 'Upload failed: ' + err.message;
+            }
+        });
+
+        document.getElementById('use-all-groups').addEventListener('change', (e) => {
+            const selector = document.getElementById('group-selector');
+            selector.style.display = e.target.checked ? 'none' : 'block';
+            if (e.target.checked) {
+                selectedGroups = null;
+            } else {
+                // Restore from current badges
+                const badges = document.querySelectorAll('#selected-badges [data-group]');
+                selectedGroups = Array.from(badges).map(b => b.dataset.group);
+                if (selectedGroups.length === 0) selectedGroups = null;
+            }
+        });
+
+        document.getElementById('load-btn').addEventListener('click', async () => {
+            if (!docId) return;
+            const card = document.getElementById('live-card');
+            const tbody = document.getElementById('streaming-rows');
+            const runBtn = document.getElementById('run-btn');
+            runBtn.disabled = true;
+            try {
+                const res = await API.agentExtraction(docId);
+                if (!res.success) {
+                    alert(res.error || 'Failed to load');
+                    return;
+                }
+                card.style.display = 'block';
+                document.getElementById('stat-total').textContent = res.total || 0;
+                document.getElementById('stat-status').textContent = 'Loaded';
+                document.getElementById('stat-status').className = 'badge badge-success';
+                document.getElementById('progress-bar').value = 100;
+                document.getElementById('progress-bar').max = 100;
+                const trunc = v => String(v || '').slice(0, 200) + (String(v || '').length > 200 ? '…' : '');
+                tbody.innerHTML = (res.columns || []).map(r =>
+                    `<tr data-column="${escapeHtml(r.column)}">${colNameCellHtml(r.column)}<td>${escapeHtml(trunc(r.value))}</td><td>${escapeHtml(trunc(r.candidate_b))}</td></tr>`
+                ).join('');
+                updateCandidateStats();
+                document.getElementById('action-buttons').style.display = 'flex';
+                document.getElementById('view-attribution-btn').href = `/attribution?doc=${encodeURIComponent(docId)}`;
+            } finally {
+                runBtn.disabled = false;
+            }
+        });
+
+        document.getElementById('run-btn').addEventListener('click', async () => {
+            if (!docId) return;
+
+            let forceRerun = false;
+            try {
+                const res = await API.agentExtraction(docId);
+                if (res.success && (res.columns?.length > 0 || res.total > 0)) {
+                    const ok = confirm('Extraction data already exists for this document. Run again? This will overwrite existing data and may incur LLM costs.');
+                    if (!ok) return;
+                    forceRerun = true;
+                }
+            } catch (_) {
+                // No existing extraction (404) or network error — proceed with run
+            }
+
+            const card = document.getElementById('live-card');
+            const tbody = document.getElementById('streaming-rows');
+            const runBtn = document.getElementById('run-btn');
+            const runText = document.getElementById('run-text');
+            const runSpinner = document.getElementById('run-spinner');
+            runBtn.disabled = true;
+            runText.textContent = 'Running…';
+            runSpinner.style.display = 'inline-block';
+            card.style.display = 'block';
+            tbody.innerHTML = '';
+            extractionBatches = null;
+            document.getElementById('stream-message').textContent = '';
+            let streamMessageQueue = [];
+            let isTypingStream = false;
+
+            function processNextStreamMessage() {
+                if (isTypingStream || streamMessageQueue.length === 0) return;
+                const { text, showBatch } = streamMessageQueue.shift();
+                isTypingStream = true;
+                typeStreamMessage(streamEl, text, 35, () => {
+                    if (showBatch !== undefined && extractionBatches) setColumnNames(showBatch);
+                    isTypingStream = false;
+                    processNextStreamMessage();
+                }, streamEl.textContent.length > 0);
+            }
+
+            document.getElementById('stat-status').textContent = 'Running';
+            document.getElementById('stat-status').className = 'badge badge-info';
+            document.getElementById('action-buttons').style.display = 'none';
+
+            const streamEl = document.getElementById('stream-message');
+
+            const payload = { doc_id: docId, resume: !forceRerun, skip_if_done: !forceRerun };
+            if (selectedGroups && selectedGroups.length > 0) {
+                payload.column_groups = selectedGroups;
+            }
+
+            try {
+                const res = await fetch('/api/extract/unified/stream', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload),
+                });
+                if (!res.ok) {
+                    const err = await res.json().catch(() => ({}));
+                    throw new Error(err.error || res.statusText);
+                }
+                const reader = res.body.getReader();
+                const decoder = new TextDecoder();
+                let buf = '';
+                while (true) {
+                    const { done, value } = await reader.read();
+                    if (done) break;
+                    buf += decoder.decode(value, { stream: true });
+                    const lines = buf.split('\n');
+                    buf = lines.pop() || '';
+                    for (const line of lines) {
+                        if (line.startsWith('data: ')) {
+                            try {
+                                const ev = JSON.parse(line.slice(6));
+                                if (ev.type === 'extraction_start') {
+                                    const total = ev.total || 0;
+                                    extractionBatches = ev.batches || [];
+                                    const allNames = ev.column_names || [];
+                                    document.getElementById('stat-total').textContent = total;
+                                    initEmptyTable(total, allNames);
+                                    updateCandidateStats();
+                                } else if (ev.type === 'stream_message') {
+                                    streamMessageQueue.push({ text: ev.text || '', showBatch: ev.show_columns });
+                                    processNextStreamMessage();
+                                } else if (ev.type === 'turn_start') {
+                                    document.getElementById('stat-turn').textContent = ev.turn || 0;
+                                    document.getElementById('stat-filled').textContent = ev.filled || 0;
+                                    document.getElementById('stat-total').textContent = ev.total || 0;
+                                    document.getElementById('progress-bar').value = ev.total ? Math.round((ev.filled / ev.total) * 100) : 0;
+                                } else if (ev.type === 'batch_complete') {
+                                    for (const c of (ev.columns || [])) {
+                                        updateRowForColumn(c.column, c.candidate_a, c.candidate_b, 'batch');
+                                    }
+                                    updateCandidateStats();
+                                    const batchNum = ev.batch || 0;
+                                    const totalBatches = ev.total_batches || 1;
+                                    document.getElementById('progress-bar').value = totalBatches ? Math.round((batchNum / totalBatches) * 100) : 0;
+                                } else if (ev.type === 'columns_written') {
+                                    for (const c of (ev.columns || [])) {
+                                        updateRowForColumn(c.column, c.value, null, 'agent');
+                                    }
+                                    updateCandidateStats();
+                                } else if (ev.type === 'search_columns_written') {
+                                    for (const c of (ev.columns || [])) {
+                                        updateRowForColumn(c.column, null, c.value, 'search');
+                                    }
+                                    updateCandidateStats();
+                                } else if (ev.type === 'done') {
+                                    document.getElementById('stat-total').textContent = ev.total || 0;
+                                    updateCandidateStats();
+                                    document.getElementById('stat-status').textContent = ev.skipped ? 'Loaded (already done)' : 'Done';
+                                    document.getElementById('stat-status').className = 'badge badge-success';
+                                    document.getElementById('progress-bar').value = 100;
+                                    document.getElementById('action-buttons').style.display = 'flex';
+                                    document.getElementById('view-attribution-btn').href = `/attribution?doc=${encodeURIComponent(docId)}`;
+                                    if (ev.skipped && ev.columns && ev.columns.length > 0) {
+                                        for (const c of ev.columns) {
+                                            updateRowForColumn(c.column, c.value, null, 'agent');
+                                        }
+                                        document.querySelectorAll('#streaming-rows tr').forEach(tr => {
+                                            if (tr.dataset.column && tr.cells[0].textContent === '—') {
+                                                tr.cells[0].textContent = tr.dataset.column;
+                                            }
+                                        });
+                                    }
+                                } else if (ev.type === 'prepare_status') {
+                                    streamEl.textContent = ev.text || '';
+                                    streamEl.style.color = '';
+                                } else if (ev.type === 'prepare_warning') {
+                                    streamEl.textContent = '⚠ ' + (ev.text || '');
+                                    streamEl.style.color = 'oklch(var(--wa))';
+                                } else if (ev.type === 'prepare_error') {
+                                    streamEl.textContent = '⚠ ' + (ev.text || 'Prepare step failed');
+                                    streamEl.style.color = 'oklch(var(--er))';
+                                    document.getElementById('stat-status').textContent = 'Prepare Failed';
+                                    document.getElementById('stat-status').className = 'badge badge-error';
+                                } else if (ev.type === 'error') {
+                                    document.getElementById('stat-status').textContent = 'Error';
+                                    document.getElementById('stat-status').className = 'badge badge-error';
+                                    streamEl.textContent = '⚠ ' + (ev.error || 'Extraction failed');
+                                    streamEl.style.color = 'oklch(var(--er))';
+                                }
+                            } catch (_) {}
+                        }
+                    }
+                }
+            } catch (err) {
+                document.getElementById('stat-status').textContent = 'Error';
+                document.getElementById('stat-status').className = 'badge badge-error';
+                alert(err.message || 'Extraction failed');
+            } finally {
+                runBtn.disabled = false;
+                runText.textContent = 'Run Agentic Extractor';
+                runSpinner.style.display = 'none';
+            }
+        });
+
+        loadDocs();
+        loadGroups();
+    </script>
+</body>
+</html>

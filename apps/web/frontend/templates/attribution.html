@@ -1,0 +1,947 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Evidence-based PDF Q&A — Attribution</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.14/dist/full.min.css" rel="stylesheet" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+</head>
+<body class="min-h-screen bg-base-200">
+    <!-- Navbar -->
+    <div class="navbar bg-base-300 shadow-lg">
+        <div class="flex-none lg:hidden">
+            <label for="drawer-toggle" class="btn btn-ghost btn-square" aria-label="Open sidebar">☰</label>
+        </div>
+        <div class="flex-1">
+            <a href="/" class="btn btn-ghost">Home</a>
+            <a href="/qa" class="btn btn-ghost">Ask a question</a>
+            <a href="/extract" class="btn btn-ghost">Extract full table</a>
+            <a href="/attribution" class="btn btn-ghost font-semibold">Attribution</a>
+            <a href="/comparison-report" class="btn btn-ghost" target="_blank">Report</a>
+        </div>
+        <div class="flex-none">
+            <h1 class="text-xl font-bold text-primary px-4">Evidence-based PDF Q&A</h1>
+        </div>
+    </div>
+
+    <!-- Drawer layout -->
+    <div class="drawer lg:drawer-open">
+        <input id="drawer-toggle" type="checkbox" class="drawer-toggle" />
+        <div class="drawer-content flex flex-col min-h-[calc(100vh-4rem)]">
+            <!-- Main: Report-style layout -->
+            <main class="flex-1 p-4 lg:p-6 flex flex-col min-w-0 overflow-y-auto">
+                <!-- Export toolbar -->
+                <div class="flex items-center justify-end mb-3">
+                    <button id="export-csv-btn" type="button" class="btn btn-sm btn-outline gap-2" disabled title="Export reconciled values to CSV">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5 5 5-5M12 15V3"/>
+                        </svg>
+                        Export CSV
+                    </button>
+                </div>
+
+                <!-- Report header: column name + Direct PDF/Search-Based/Reconciliation cards (shown when column selected) -->
+                <div id="report-header" class="mb-4 space-y-4" style="display: none;">
+                    <div class="flex items-center gap-3 flex-wrap">
+                        <h2 class="card-title text-lg text-primary" id="sel-column-name"></h2>
+                        <span id="verdict-badge" class="hidden"></span>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div id="source-card-a" class="card bg-base-100 shadow-md cursor-pointer transition-all ring-2 ring-transparent hover:ring-primary/40" title="Click to highlight Agent A's source in PDF">
+                            <div class="card-body p-4">
+                                <div class="flex items-center justify-between mb-1">
+                                    <div class="text-xs font-medium text-base-content/50 uppercase tracking-wider flex items-center gap-1">
+                                        <span id="source-a-dot" class="inline-block w-2 h-2 rounded-full bg-base-content/20"></span>
+                                        Agent A — Direct PDF
+                                    </div>
+                                    <button id="accept-a-btn" type="button" class="btn btn-xs btn-outline btn-primary" title="Use Agent A's value">Use A</button>
+                                </div>
+                                <div id="candidate-a-value" class="text-sm text-base-content break-words whitespace-pre-wrap"></div>
+                            </div>
+                        </div>
+                        <div id="source-card-b" class="card bg-base-100 shadow-md cursor-pointer transition-all ring-2 ring-transparent hover:ring-secondary/40" title="Click to highlight Agent B's source in PDF">
+                            <div class="card-body p-4">
+                                <div class="flex items-center justify-between mb-1">
+                                    <div class="text-xs font-medium text-base-content/50 uppercase tracking-wider flex items-center gap-1">
+                                        <span id="source-b-dot" class="inline-block w-2 h-2 rounded-full bg-base-content/20"></span>
+                                        Agent B — Search-Based
+                                    </div>
+                                    <button id="accept-b-btn" type="button" class="btn btn-xs btn-outline btn-secondary" title="Use Agent B's value">Use B</button>
+                                </div>
+                                <div id="candidate-b-value" class="text-sm text-base-content break-words whitespace-pre-wrap"></div>
+                            </div>
+                        </div>
+                        <div id="source-card-recon" class="card bg-base-100 shadow-md border-2 border-primary cursor-pointer transition-all ring-2 ring-transparent hover:ring-primary/40" title="Click to highlight Reconciliation source in PDF">
+                            <div class="card-body p-4">
+                                <div class="text-xs font-medium text-primary uppercase tracking-wider mb-1 flex items-center gap-1">
+                                    <span id="source-recon-dot" class="inline-block w-2 h-2 rounded-full bg-primary/40"></span>
+                                    Reconciliation output
+                                </div>
+                                <textarea id="reconciliation-value" class="textarea textarea-bordered text-sm w-full min-h-[4rem] font-medium" placeholder="Type your own value for verification…" rows="3"></textarea>
+                                <div class="flex gap-2 mt-2">
+                                    <button id="save-human-edit-btn" type="button" class="btn btn-sm btn-primary" disabled>Save</button>
+                                    <span id="save-edit-status" class="text-xs text-base-content/60 self-center"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card bg-base-100 shadow-md">
+                        <div class="card-body p-4">
+                            <div class="text-xs font-medium text-base-content/50 uppercase tracking-wider mb-2">Reconciliation reasoning</div>
+                            <div id="reconciliation-reasoning" class="text-sm text-base-content/90 whitespace-pre-wrap min-h-[3rem]"></div>
+                        </div>
+                    </div>
+                    <div class="flex gap-2 items-center">
+                        <button type="button" id="feedback-btn" class="btn btn-sm btn-ghost">Feedback</button>
+                    </div>
+                </div>
+
+                <!-- PDF viewer card (shorter) -->
+                <div class="card bg-base-100 shadow-xl shrink-0">
+                    <div class="card-body">
+                        <h2 class="card-title text-lg">PDF Viewer</h2>
+                        <p class="text-base-content/70 text-sm" id="pdf-hint"></p>
+                        <div id="pdf-wrapper" class="overflow-y-auto rounded-lg bg-base-200 max-h-[45vh] min-h-[200px]" style="display: none;">
+                            <div id="pdf-pages"></div>
+                        </div>
+                        <div id="pdf-empty" class="flex items-center justify-center rounded-lg border-2 border-dashed border-base-300 text-base-content/60 min-h-[200px]">
+                            Select a document to view the PDF
+                        </div>
+                        <!-- Chunk navigation -->
+                        <div id="chunk-nav" class="flex items-center gap-2 mt-3 flex-wrap" style="display: none;">
+                            <button type="button" id="chunk-first" class="btn btn-sm btn-outline" title="Scroll to first chunk">⏮ First</button>
+                            <button type="button" id="chunk-prev" class="btn btn-sm btn-outline" title="Previous chunk">← Prev</button>
+                            <span id="chunk-counter" class="text-sm text-base-content/70 min-w-[5rem] text-center">1 / 3</span>
+                            <button type="button" id="chunk-next" class="btn btn-sm btn-outline" title="Next chunk">Next →</button>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+
+        <!-- Feedback modal -->
+        <dialog id="feedback-modal" class="modal">
+            <div class="modal-box">
+                <h3 class="font-bold text-lg">Which values were correct?</h3>
+                <p class="py-2 text-sm text-base-content/70">Select all that applied for this column.</p>
+                <div id="feedback-modal-checkboxes" class="flex flex-col gap-2 py-2">
+                    <label class="label cursor-pointer justify-start gap-2">
+                        <input type="checkbox" class="checkbox checkbox-sm fb-source" value="direct_pdf" />
+                        <span class="label-text">Direct PDF</span>
+                    </label>
+                    <label class="label cursor-pointer justify-start gap-2">
+                        <input type="checkbox" class="checkbox checkbox-sm fb-source" value="search_based" />
+                        <span class="label-text">Search-Based</span>
+                    </label>
+                    <label class="label cursor-pointer justify-start gap-2">
+                        <input type="checkbox" class="checkbox checkbox-sm fb-source" value="reconciled" />
+                        <span class="label-text">Reconciled</span>
+                    </label>
+                </div>
+                <div class="form-control mt-3">
+                    <label class="label py-1"><span class="label-text">Optional comment</span></label>
+                    <textarea id="feedback-modal-comment" class="textarea textarea-bordered w-full" rows="2" maxlength="500" placeholder="Any additional feedback…"></textarea>
+                </div>
+                <div class="modal-action">
+                    <button type="button" id="feedback-modal-submit" class="btn btn-primary">Submit</button>
+                    <form method="dialog"><button class="btn">Cancel</button></form>
+                </div>
+            </div>
+            <form method="dialog" class="modal-backdrop"><button>close</button></form>
+        </dialog>
+
+        <!-- Sidebar drawer -->
+        <div class="drawer-side">
+            <label for="drawer-toggle" class="drawer-overlay" aria-label="close sidebar"></label>
+            <aside class="bg-base-300 w-80 min-h-full flex flex-col">
+                <div class="p-4 space-y-4">
+                    <div class="flex items-center justify-between">
+                        <h3 class="font-semibold text-lg">Documents & Columns</h3>
+                        <label for="drawer-toggle" class="btn btn-ghost btn-sm lg:hidden">✕</label>
+                    </div>
+
+                    <!-- Document selection -->
+                    <div class="form-control">
+                        <label class="label py-1">
+                            <span class="label-text font-medium">Document</span>
+                        </label>
+                        <div class="flex flex-wrap gap-2">
+                            <select id="doc-select" class="select select-bordered flex-1 min-w-0">
+                                <option value="">Loading…</option>
+                            </select>
+                            <button id="run-reconciliation-btn" type="button" disabled class="btn btn-secondary btn-sm shrink-0" title="Run reconciliation agent">
+                                Run reconciliation
+                            </button>
+                            <button id="refresh-attribution" type="button" disabled class="btn btn-primary btn-sm shrink-0" title="Re-run attribution">
+                                Refresh
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Group filter (collapsible) -->
+                    <div class="collapse collapse-arrow bg-base-200 rounded-lg">
+                        <input type="checkbox" />
+                        <div class="collapse-title font-medium text-sm py-2 min-h-0">
+                            Filter by group <span id="group-filter-badge" class="badge badge-primary badge-xs" style="display:none;">filtered</span>
+                        </div>
+                        <div class="collapse-content p-1 max-h-48 overflow-y-auto">
+                            <div id="group-filter-checkboxes" class="space-y-0"></div>
+                        </div>
+                    </div>
+
+                    <!-- Column search -->
+                    <div class="form-control">
+                        <label class="label py-1">
+                            <span class="label-text font-medium">Search columns</span>
+                        </label>
+                        <input type="text" id="column-search" placeholder="Filter columns…" class="input input-bordered input-sm" />
+                    </div>
+
+                    <!-- Column list (grouped) -->
+                    <div class="flex-1 min-h-0 overflow-y-auto">
+                        <label class="label py-1">
+                            <span class="label-text font-medium">Columns</span>
+                        </label>
+                        <div id="column-list" class="space-y-2">
+                            <p class="text-base-content/60 text-sm py-4">Select a document</p>
+                        </div>
+                    </div>
+                </div>
+            </aside>
+        </div>
+    </div>
+
+    <script>
+        const API = {
+            reconciled: (docId) => fetch(`/api/documents/${encodeURIComponent(docId)}/reconciled`).then(r => r.json()),
+            columnGroups: () => fetch('/api/column-groups').then(r => r.json()),
+            refreshAttribution: (docId) => fetch(`/api/documents/${encodeURIComponent(docId)}/attribution/refresh`, { method: 'POST' }).then(r => r.json()),
+            runReconciliation: (docId, groupNames) => fetch(`/api/documents/${encodeURIComponent(docId)}/run-reconciliation`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(groupNames ? { group_names: groupNames } : {}) }).then(r => r.json()),
+            saveHumanEdited: (docId, columns) => fetch(`/api/documents/${encodeURIComponent(docId)}/human-edited`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ columns }) }).then(r => r.json()),
+            highlights: (docId, chunkIds) => {
+                const q = chunkIds.join(',');
+                return fetch(`/api/documents/${encodeURIComponent(docId)}/highlights?chunk_ids=${encodeURIComponent(q)}`).then(r => r.json());
+            },
+            pdf: (docId) => `/api/documents/${encodeURIComponent(docId)}/pdf`,
+            feedback: (payload) => fetch('/api/feedback', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload),
+            }).then(r => r.json()),
+        };
+
+        let pdfDoc = null;
+        let reconciledData = null;
+        let columnGroups = [];
+        let docList = [];
+        let currentChunkIndex = 0;
+        let currentHighlights = [];
+        let columnSearchQuery = '';
+        let selectedColumn = null;
+        let selectedGroups = null; // null = show all
+        let pendingColumnFromUrl = null;
+
+        function colToGroup(colName) {
+            for (const g of columnGroups) {
+                const cols = g.columns || [];
+                // columns may be strings or {name, definition} objects
+                const names = cols.map(c => typeof c === 'string' ? c : c.name);
+                if (names.includes(colName)) return g.name || '';
+            }
+            return 'Other';
+        }
+
+        function getGroupColumnNames(groupName) {
+            const g = columnGroups.find(g => g.name === groupName);
+            if (!g) return [];
+            return (g.columns || []).map(c => typeof c === 'string' ? c : c.name);
+        }
+
+        async function loadColumnGroups() {
+            try {
+                const res = await API.columnGroups();
+                if (res.success && res.groups) {
+                    columnGroups = res.groups;
+                    renderGroupSelector();
+                }
+            } catch (_) {}
+        }
+
+        function renderGroupSelector() {
+            const container = document.getElementById('group-filter-checkboxes');
+            if (!container) return;
+            container.innerHTML = columnGroups.map(g => {
+                const colCount = (g.columns || []).length;
+                return `<label class="label cursor-pointer justify-start gap-2 py-1">
+                    <input type="checkbox" class="checkbox checkbox-xs checkbox-primary group-filter-cb" data-group="${escapeHtml(g.name)}" />
+                    <span class="label-text text-xs">${escapeHtml(g.name)} <span class="text-base-content/40">(${colCount})</span></span>
+                </label>`;
+            }).join('');
+            container.querySelectorAll('.group-filter-cb').forEach(cb => {
+                cb.addEventListener('change', () => {
+                    const checked = Array.from(container.querySelectorAll('.group-filter-cb:checked')).map(c => c.dataset.group);
+                    selectedGroups = checked.length > 0 ? checked : null;
+                    if (reconciledData) renderColumnList(reconciledData);
+                });
+            });
+        }
+
+        async function loadDocsWithReconciliation() {
+            try {
+                const res = await fetch('/api/documents/reconciled').then(r => r.json());
+                const docIds = res.documents || [];
+                docList = docIds;
+                const sel = document.getElementById('doc-select');
+                sel.innerHTML = '<option value="">Select document…</option>' + docIds.map(id =>
+                    `<option value="${escapeHtml(id)}">${escapeHtml(id)}</option>`
+                ).join('');
+                const params = new URLSearchParams(window.location.search);
+                const docParam = params.get('doc');
+                const colParam = params.get('column');
+                pendingColumnFromUrl = colParam || null;
+                if (docParam && docIds.includes(docParam)) {
+                    sel.value = docParam;
+                    sel.dispatchEvent(new Event('change'));
+                }
+            } catch (err) {
+                console.error('[Attribution] loadDocs failed:', err);
+                document.getElementById('doc-select').innerHTML = '<option value="">Failed to load</option>';
+            }
+        }
+
+        function escapeHtml(s) {
+            if (!s) return '';
+            const d = document.createElement('div');
+            d.textContent = s;
+            return d.innerHTML;
+        }
+
+        function updateUrl(docId, colName) {
+            const url = new URL(window.location);
+            if (docId) url.searchParams.set('doc', docId); else url.searchParams.delete('doc');
+            if (colName) url.searchParams.set('column', colName); else url.searchParams.delete('column');
+            window.history.replaceState({}, '', url);
+        }
+
+        function selectColumnByName(name) {
+            const cols = reconciledData?.filteredColumns || [];
+            const idx = cols.findIndex(c => c.column_name === name);
+            if (idx >= 0) {
+                pendingColumnFromUrl = null;
+                selectColumn(idx);
+                return true;
+            }
+            return false;
+        }
+
+        function hasDisplayableColumnData(col) {
+            const hasCandidateA = col?.candidate_a != null && String(col.candidate_a).trim() !== '';
+            const hasCandidateB = col?.candidate_b != null && String(col.candidate_b).trim() !== '';
+            const hasFinalValue = col?.final_value != null && String(col.final_value).trim() !== '';
+            const hasChunks = (col?.attributed_chunks?.length || 0) > 0 || (col?.chunk_ids?.length || 0) > 0;
+            return hasCandidateA || hasCandidateB || hasFinalValue || hasChunks || !!col?.human_edited;
+        }
+
+        function renderColumnList(res) {
+            reconciledData = res;
+            document.getElementById('export-csv-btn').disabled = false;
+            let cols = res.columns || [];
+
+            // Keep columns visible when they have any meaningful display data.
+            cols = cols.filter(hasDisplayableColumnData);
+
+            // Filter by selected groups if set
+            if (selectedGroups && selectedGroups.length > 0) {
+                const allowedCols = new Set(selectedGroups.flatMap(g => getGroupColumnNames(g)));
+                cols = cols.filter(c => allowedCols.has(c.column_name));
+            }
+
+            reconciledData.filteredColumns = cols;
+
+            // Update filter badge
+            const badge = document.getElementById('group-filter-badge');
+            if (badge) badge.style.display = selectedGroups ? 'inline-flex' : 'none';
+
+            const q = columnSearchQuery.toLowerCase().trim();
+            const filtered = q ? cols.filter(c => c.column_name.toLowerCase().includes(q)) : cols;
+
+            const byGroup = {};
+            filtered.forEach(c => {
+                const g = colToGroup(c.column_name) || 'Other';
+                if (!byGroup[g]) byGroup[g] = [];
+                byGroup[g].push(c);
+            });
+
+            const list = document.getElementById('column-list');
+            if (filtered.length === 0) {
+                list.innerHTML = q ? '<p class="text-base-content/60 text-sm py-4">No columns match search</p>' : '<p class="text-base-content/60 text-sm py-4">No columns</p>';
+                return;
+            }
+
+            let html = '';
+            const allCols = reconciledData.filteredColumns;
+            Object.entries(byGroup).sort((a, b) => a[0].localeCompare(b[0])).forEach(([groupName, groupCols]) => {
+                const count = groupCols.length;
+                html += `
+                <div class="collapse collapse-arrow bg-base-200 rounded-lg">
+                    <input type="checkbox" checked />
+                    <div class="collapse-title font-medium py-2 min-h-0">
+                        ${escapeHtml(groupName)} <span class="badge badge-ghost badge-sm">${count}</span>
+                    </div>
+                    <div class="collapse-content p-1">
+                        <div class="space-y-1">
+                            ${groupCols.map(c => {
+                                const idx = allCols.indexOf(c);
+                                const v = c.verification || {};
+                                const llm = v.llm || {};
+                                const vLabel = c.verification_label || '';
+                                let vBadge = '';
+                                if (vLabel === 'both_wrong') {
+                                    vBadge = ' <span class="badge badge-warning badge-xs" title="Both agents wrong — needs review">⚠ Review</span>';
+                                } else if (vLabel === 'both_correct') {
+                                    vBadge = ' <span class="badge badge-success badge-xs" title="Both agents correct">✓ Agreed</span>';
+                                } else if (vLabel === 'A_correct_B_wrong') {
+                                    vBadge = ' <span class="badge badge-info badge-xs" title="Direct PDF correct">A wins</span>';
+                                } else if (vLabel === 'B_correct_A_wrong') {
+                                    vBadge = ' <span class="badge badge-info badge-xs" title="Search agent correct">B wins</span>';
+                                } else if (llm.verdict) {
+                                    vBadge = llm.verdict === 'correct' ? ' <span class="badge badge-success badge-xs" title="LLM verified">✓ LLM</span>' : ' <span class="badge badge-error badge-xs" title="LLM wrong">✗ LLM</span>';
+                                } else if (v.applicable) {
+                                    vBadge = v.verified ? ' <span class="badge badge-success badge-xs">✓</span>' : ' <span class="badge badge-error badge-xs">✗</span>';
+                                }
+                                return `<button type="button" class="btn btn-ghost btn-sm justify-start w-full text-left column-btn" data-index="${idx}">
+                                    ${escapeHtml(c.column_name)}${vBadge}
+                                </button>`;
+                            }).join('')}
+                        </div>
+                    </div>
+                </div>`;
+            });
+            list.innerHTML = html;
+            list.querySelectorAll('.column-btn').forEach(btn => {
+                btn.addEventListener('click', () => selectColumn(parseInt(btn.dataset.index)));
+            });
+
+            if (pendingColumnFromUrl) {
+                selectColumnByName(pendingColumnFromUrl);
+            }
+        }
+
+        document.getElementById('doc-select').addEventListener('change', async (e) => {
+            const docId = e.target.value;
+            const list = document.getElementById('column-list');
+            document.getElementById('refresh-attribution').disabled = !docId;
+            document.getElementById('run-reconciliation-btn').disabled = !docId;
+            updateUrl(docId || null, null);
+            if (!docId) {
+                list.innerHTML = '<p class="text-base-content/60 text-sm py-4">Select a document</p>';
+                document.getElementById('pdf-empty').textContent = 'Select a document to view the PDF';
+                document.getElementById('pdf-empty').style.display = 'flex';
+                document.getElementById('pdf-wrapper').style.display = 'none';
+                document.getElementById('pdf-hint').textContent = '';
+                document.getElementById('chunk-nav').style.display = 'none';
+                pdfDoc = null;
+                selectedColumn = null;
+                reconciledData = null;
+                document.getElementById('export-csv-btn').disabled = true;
+                return;
+            }
+            const res = await API.reconciled(docId);
+            if (!res.success) {
+                list.innerHTML = '<p class="text-base-content/60 text-sm py-4">No reconciled results</p>';
+                return;
+            }
+            renderColumnList(res);
+            loadPdfOnly(docId);
+            document.getElementById('pdf-hint').textContent = 'Select a column to see attributed chunks highlighted';
+        });
+
+        document.getElementById('column-search').addEventListener('input', (e) => {
+            columnSearchQuery = e.target.value;
+            if (reconciledData) renderColumnList(reconciledData);
+        });
+
+        document.getElementById('feedback-btn').addEventListener('click', () => {
+            if (!selectedColumn || !reconciledData?.doc_id) return;
+            document.getElementById('feedback-modal-comment').value = '';
+            document.querySelectorAll('.fb-source').forEach(cb => { cb.checked = false; });
+            document.getElementById('feedback-modal').showModal();
+        });
+
+        document.getElementById('feedback-modal-submit').addEventListener('click', async () => {
+            if (!selectedColumn || !reconciledData?.doc_id) return;
+            const correctSources = [];
+            document.querySelectorAll('.fb-source:checked').forEach(cb => correctSources.push(cb.value));
+            const comment = (document.getElementById('feedback-modal-comment').value || '').trim().slice(0, 500);
+            const payload = {
+                source: 'attribution',
+                doc_id: reconciledData.doc_id,
+                comment,
+                table: {
+                    column_name: selectedColumn.column_name,
+                    correct_sources: correctSources,
+                    candidate_a: selectedColumn.candidate_a,
+                    candidate_b: selectedColumn.candidate_b,
+                    reconciled: selectedColumn.final_value,
+                    reasoning: selectedColumn.reconciliation_reasoning,
+                },
+            };
+            try {
+                const res = await API.feedback(payload);
+                if (res.success) {
+                    document.getElementById('feedback-modal').close();
+                    document.getElementById('feedback-btn').textContent = 'Thanks!';
+                    document.getElementById('feedback-btn').disabled = true;
+                }
+            } catch (_) {}
+        });
+
+        document.getElementById('run-reconciliation-btn').addEventListener('click', async () => {
+            const docId = document.getElementById('doc-select').value;
+            if (!docId) return;
+            const btn = document.getElementById('run-reconciliation-btn');
+            btn.disabled = true;
+            btn.innerHTML = '<span class="loading loading-spinner loading-sm"></span>';
+            try {
+                const res = await API.runReconciliation(docId, selectedGroups);
+                if (res.success) {
+                    const r2 = await API.reconciled(docId);
+                    if (r2.success) renderColumnList(r2);
+                } else {
+                    alert('Reconciliation failed: ' + (res.error || 'Unknown error'));
+                }
+            } catch (err) {
+                alert('Reconciliation failed: ' + err.message);
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = 'Run reconciliation';
+            }
+        });
+
+        document.getElementById('save-human-edit-btn').addEventListener('click', async () => {
+            if (!selectedColumn || !reconciledData?.doc_id) return;
+            const val = (document.getElementById('reconciliation-value').value || '').trim();
+            const btn = document.getElementById('save-human-edit-btn');
+            const status = document.getElementById('save-edit-status');
+            btn.disabled = true;
+            status.textContent = 'Saving…';
+            try {
+                const res = await API.saveHumanEdited(reconciledData.doc_id, {
+                    [selectedColumn.column_name]: { value: val },
+                });
+                if (res.success) {
+                    status.textContent = 'Saved';
+                    selectedColumn.final_value = val;
+                    selectedColumn.human_edited = true;
+                } else {
+                    status.textContent = 'Failed';
+                    btn.disabled = false;
+                }
+            } catch (err) {
+                status.textContent = 'Failed';
+                btn.disabled = false;
+            }
+        });
+
+        document.getElementById('refresh-attribution').addEventListener('click', async () => {
+            const docId = document.getElementById('doc-select').value;
+            if (!docId) return;
+            const btn = document.getElementById('refresh-attribution');
+            btn.disabled = true;
+            btn.innerHTML = '<span class="loading loading-spinner loading-sm"></span>';
+            try {
+                const res = await API.refreshAttribution(docId);
+                if (res.success) {
+                    renderColumnList(res);
+                    selectedColumn = null;
+                    document.getElementById('pdf-hint').textContent = 'Attribution refreshed. Select a column.';
+                    document.getElementById('pdf-wrapper').style.display = 'block';
+                    document.getElementById('pdf-empty').style.display = 'none';
+                    document.getElementById('chunk-nav').style.display = 'none';
+                    document.getElementById('report-header').style.display = 'none';
+                    loadPdfOnly(docId);
+                } else {
+                    alert('Refresh failed: ' + (res.error || 'Unknown error'));
+                }
+            } catch (err) {
+                alert('Refresh failed: ' + err.message);
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = 'Refresh';
+            }
+        });
+
+        async function selectColumn(idx) {
+            if (!reconciledData || !reconciledData.doc_id) return;
+            const col = (reconciledData.filteredColumns || reconciledData.columns || [])[idx];
+            if (!col) return;
+            selectedColumn = col;
+            const chunkIds = col.attributed_chunks?.map(c => c.chunk_id) || col.chunk_ids || [];
+
+            updateUrl(reconciledData.doc_id, col.column_name);
+
+            document.getElementById('feedback-btn').textContent = 'Feedback';
+            document.getElementById('feedback-btn').disabled = false;
+
+            document.getElementById('sel-column-name').textContent = col.column_name;
+            document.getElementById('candidate-a-value').textContent = col.candidate_a != null ? String(col.candidate_a) : '';
+            document.getElementById('candidate-b-value').textContent = col.candidate_b != null ? String(col.candidate_b) : '';
+            const recValEl = document.getElementById('reconciliation-value');
+            recValEl.value = col.final_value || '';
+            recValEl.placeholder = col.human_edited ? 'Human-edited value' : 'Type your own value for verification…';
+            document.getElementById('reconciliation-reasoning').textContent = col.reconciliation_reasoning || '';
+            document.getElementById('save-human-edit-btn').disabled = false;
+            document.getElementById('save-edit-status').textContent = col.human_edited ? '(saved)' : '';
+
+            // Verdict badge
+            const verdictBadge = document.getElementById('verdict-badge');
+            const vLabel = col.verification_label || '';
+            const VERDICT_STYLES = {
+                'both_correct':    ['badge badge-success', '✓ Both correct'],
+                'both_wrong':      ['badge badge-warning', '⚠ Both wrong — needs review'],
+                'A_correct_B_wrong': ['badge badge-info', 'A wins (Direct PDF)'],
+                'B_correct_A_wrong': ['badge badge-info', 'B wins (Search Agent)'],
+            };
+            if (vLabel && VERDICT_STYLES[vLabel]) {
+                const [cls, label] = VERDICT_STYLES[vLabel];
+                verdictBadge.className = cls;
+                verdictBadge.textContent = label;
+                verdictBadge.classList.remove('hidden');
+            } else {
+                verdictBadge.className = 'hidden';
+                verdictBadge.textContent = '';
+            }
+
+            // Accept A / Accept B buttons
+            document.getElementById('accept-a-btn').onclick = () => {
+                recValEl.value = String(col.candidate_a || '');
+                recValEl.dispatchEvent(new Event('input'));
+                document.getElementById('save-human-edit-btn').disabled = false;
+            };
+            document.getElementById('accept-b-btn').onclick = () => {
+                recValEl.value = String(col.candidate_b || '');
+                recValEl.dispatchEvent(new Event('input'));
+                document.getElementById('save-human-edit-btn').disabled = false;
+            };
+
+            document.getElementById('report-header').style.display = 'block';
+
+            // Wire card click handlers for A / B / Reconciliation source toggling
+            const cardA     = document.getElementById('source-card-a');
+            const cardB     = document.getElementById('source-card-b');
+            const cardRecon = document.getElementById('source-card-recon');
+
+            function setActiveSourceCard(active) {
+                const cards = { a: cardA, b: cardB, recon: cardRecon };
+                const rings = { a: 'ring-primary', b: 'ring-secondary', recon: 'ring-primary' };
+                const dots  = {
+                    a: document.getElementById('source-a-dot'),
+                    b: document.getElementById('source-b-dot'),
+                    recon: document.getElementById('source-recon-dot'),
+                };
+                for (const [key, card] of Object.entries(cards)) {
+                    const isActive = key === active;
+                    card.classList.toggle(rings[key], isActive);
+                    card.classList.toggle('ring-transparent', !isActive);
+                    if (dots[key]) {
+                        dots[key].className = isActive
+                            ? `inline-block w-2 h-2 rounded-full ${key === 'b' ? 'bg-secondary' : 'bg-primary'}`
+                            : 'inline-block w-2 h-2 rounded-full bg-base-content/20';
+                    }
+                }
+            }
+
+            async function highlightSource(source) {
+                setActiveSourceCard(source);
+                const docId = reconciledData.doc_id;
+                const ids = source === 'a' ? (col.chunk_ids_a || [])
+                          : source === 'b' ? (col.chunk_ids_b || [])
+                          : chunkIds;
+                const nav = document.getElementById('chunk-nav');
+                if (!ids.length) {
+                    document.getElementById('pdf-hint').textContent = `No highlight available for source ${source.toUpperCase()}`;
+                    nav.style.display = 'none';
+                    currentHighlights = [];
+                    await loadPdfOnly(docId);
+                    return;
+                }
+                currentChunkIndex = 0;
+                nav.style.display = 'flex';
+                document.getElementById('chunk-counter').textContent = `1 / ${ids.length}`;
+                await loadPdfAndHighlights(docId, ids, []);
+            }
+
+            // Stop click from firing when user clicks textarea or buttons inside the card
+            function cardClickHandler(source) {
+                return (e) => {
+                    if (e.target.tagName === 'BUTTON' || e.target.tagName === 'TEXTAREA') return;
+                    highlightSource(source);
+                };
+            }
+            cardA.onclick     = cardClickHandler('a');
+            cardB.onclick     = cardClickHandler('b');
+            cardRecon.onclick = cardClickHandler('recon');
+
+            // Default: show reconciliation highlight if available, else Agent A
+            const defaultSource = chunkIds.length ? 'recon' : (col.chunk_ids_a?.length ? 'a' : 'b');
+            await highlightSource(defaultSource);
+        }
+
+        function goToChunk(idx) {
+            const n = currentHighlights.length;
+            if (n === 0) return;
+            currentChunkIndex = Math.max(0, Math.min(idx, n - 1));
+            updateChunkUI();
+            scrollToCurrentChunk();
+        }
+
+        function updateChunkUI() {
+            const n = currentHighlights.length;
+            document.getElementById('chunk-counter').textContent = `${currentChunkIndex + 1} / ${n}`;
+            document.getElementById('chunk-first').disabled = n > 1 && currentChunkIndex <= 0;
+            document.getElementById('chunk-prev').disabled = currentChunkIndex <= 0;
+            document.getElementById('chunk-next').disabled = currentChunkIndex >= n - 1;
+            document.querySelectorAll('.highlight-box').forEach((el) => {
+                const isActive = currentHighlights[currentChunkIndex] && el.dataset.chunkIndex === String(currentChunkIndex);
+                el.style.opacity = isActive ? '1' : '0.25';
+                el.style.borderWidth = isActive ? '2px' : '1px';
+            });
+        }
+
+        function scrollToCurrentChunk() {
+            const hl = currentHighlights[currentChunkIndex];
+            if (!hl || !hl.pageEl) return;
+            hl.pageEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+
+        async function loadPdfOnly(docId) {
+            const wrapper = document.getElementById('pdf-wrapper');
+            const pagesEl = document.getElementById('pdf-pages');
+            const empty = document.getElementById('pdf-empty');
+            const nav = document.getElementById('chunk-nav');
+            const hint = document.getElementById('pdf-hint');
+
+            if (!pdfDoc || pdfDoc._docId !== docId) {
+                pdfDoc = null;
+                const pdfjs = window['pdfjs-dist/build/pdf'];
+                pdfjs.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+                try {
+                    pdfDoc = await pdfjs.getDocument(API.pdf(docId)).promise;
+                    pdfDoc._docId = docId;
+                } catch (err) {
+                    empty.textContent = 'Could not load PDF';
+                    empty.style.display = 'flex';
+                    wrapper.style.display = 'none';
+                    hint.textContent = '';
+                    return;
+                }
+            }
+
+            currentHighlights = [];
+            nav.style.display = 'none';
+            empty.style.display = 'none';
+            wrapper.style.display = 'block';
+            if (pagesEl) pagesEl.innerHTML = '';
+
+            const scale = 1.2;
+            const numPages = pdfDoc.numPages;
+            for (let p = 1; p <= numPages; p++) {
+                const page = await pdfDoc.getPage(p);
+                const viewport = page.getViewport({ scale });
+                const pageBlock = document.createElement('div');
+                pageBlock.className = 'flex flex-col items-center py-4 border-b border-base-300 last:border-0 pdf-page-block';
+                pageBlock.dataset.page = p;
+                const pageLabel = document.createElement('div');
+                pageLabel.className = 'text-xs text-base-content/60 mb-2';
+                pageLabel.textContent = `Page ${p}`;
+                const inner = document.createElement('div');
+                inner.className = 'relative';
+                const canvas = document.createElement('canvas');
+                canvas.height = viewport.height;
+                canvas.width = viewport.width;
+                inner.appendChild(canvas);
+                pageBlock.appendChild(pageLabel);
+                pageBlock.appendChild(inner);
+                pagesEl.appendChild(pageBlock);
+                const ctx = canvas.getContext('2d');
+                await page.render({ canvasContext: ctx, viewport }).promise;
+            }
+        }
+
+        async function loadPdfAndHighlights(docId, chunkIds, attributedChunks) {
+            const wrapper = document.getElementById('pdf-wrapper');
+            const pagesEl = document.getElementById('pdf-pages');
+            const empty = document.getElementById('pdf-empty');
+
+            if (!pdfDoc || pdfDoc._docId !== docId) {
+                pdfDoc = null;
+                const pdfjs = window['pdfjs-dist/build/pdf'];
+                pdfjs.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+                try {
+                    pdfDoc = await pdfjs.getDocument(API.pdf(docId)).promise;
+                    pdfDoc._docId = docId;
+                } catch (err) {
+                    empty.textContent = 'Could not load PDF';
+                    empty.style.display = 'flex';
+                    wrapper.style.display = 'none';
+                    return;
+                }
+            }
+
+            const res = await API.highlights(docId, chunkIds);
+            if (!res.success || !res.highlights?.length) {
+                await loadPdfOnly(docId);
+                document.getElementById('pdf-hint').textContent = 'No highlight positions for these chunks';
+                return;
+            }
+
+            currentHighlights = chunkIds.map((cid, i) => {
+                const h = res.highlights.find(x => x.chunk_id === cid);
+                return h ? { chunk_id: cid, page: h.page, box: h.box, index: i } : null;
+            }).filter(Boolean);
+
+            document.getElementById('pdf-hint').textContent = '';
+            empty.style.display = 'none';
+            wrapper.style.display = 'block';
+            pagesEl.innerHTML = '';
+
+            const scale = 1.2;
+            const numPages = pdfDoc.numPages;
+            const highlightsByPage = {};
+            res.highlights.forEach((hl) => {
+                const chunkIdx = chunkIds.indexOf(hl.chunk_id);
+                const p = hl.page;
+                if (!highlightsByPage[p]) highlightsByPage[p] = [];
+                highlightsByPage[p].push({ ...hl, chunkIndex: chunkIdx });
+            });
+
+            const pageBlocks = {};
+
+            for (let p = 1; p <= numPages; p++) {
+                const page = await pdfDoc.getPage(p);
+                const viewport = page.getViewport({ scale });
+                const pageWidth = page.getViewport({ scale: 1 }).width;
+                const pageHeight = page.getViewport({ scale: 1 }).height;
+
+                const pageBlock = document.createElement('div');
+                pageBlock.className = 'flex flex-col items-center py-4 border-b border-base-300 last:border-0 pdf-page-block';
+                pageBlock.dataset.page = p;
+                pageBlocks[p] = pageBlock;
+
+                const pageLabel = document.createElement('div');
+                pageLabel.className = 'text-xs text-base-content/60 mb-2';
+                pageLabel.textContent = `Page ${p}${(highlightsByPage[p] || []).length ? ' • ' + highlightsByPage[p].length + ' highlight(s)' : ''}`;
+                const inner = document.createElement('div');
+                inner.className = 'relative';
+                const canvas = document.createElement('canvas');
+                canvas.height = viewport.height;
+                canvas.width = viewport.width;
+                const overlay = document.createElement('div');
+                overlay.className = 'absolute left-0 top-0 pointer-events-none';
+                overlay.style.width = viewport.width + 'px';
+                overlay.style.height = viewport.height + 'px';
+
+                inner.appendChild(canvas);
+                inner.appendChild(overlay);
+                pageBlock.appendChild(pageLabel);
+                pageBlock.appendChild(inner);
+                pagesEl.appendChild(pageBlock);
+
+                const ctx = canvas.getContext('2d');
+                await page.render({ canvasContext: ctx, viewport }).promise;
+
+                (highlightsByPage[p] || []).forEach((hl) => {
+                    const box = hl.box || {};
+                    const l = box.left || 0, t = box.top || 0, r = box.right || 1, b = box.bottom || 1;
+                    const xMin = l * pageWidth, xMax = r * pageWidth;
+                    const yMin = (1 - b) * pageHeight, yMax = (1 - t) * pageHeight;
+                    const rect = viewport.convertToViewportRectangle([xMin, yMin, xMax, yMax]);
+                    const x = Math.min(rect[0], rect[2]), y = Math.min(rect[1], rect[3]);
+                    const w = Math.abs(rect[2] - rect[0]), boxH = Math.abs(rect[3] - rect[1]);
+                    const div = document.createElement('div');
+                    div.className = 'absolute bg-primary/30 border-2 border-primary/60 rounded highlight-box transition';
+                    div.dataset.chunkIndex = String(hl.chunkIndex);
+                    div.style.left = x + 'px';
+                    div.style.top = y + 'px';
+                    div.style.width = w + 'px';
+                    div.style.height = boxH + 'px';
+                    overlay.appendChild(div);
+                });
+            }
+
+            currentHighlights.forEach(h => {
+                h.pageEl = pageBlocks[h.page];
+            });
+
+            currentChunkIndex = 0;
+            updateChunkUI();
+            requestAnimationFrame(() => {
+                requestAnimationFrame(() => scrollToCurrentChunk());
+            });
+        }
+
+        document.getElementById('chunk-first').addEventListener('click', () => goToChunk(0));
+        document.getElementById('chunk-prev').addEventListener('click', () => goToChunk(currentChunkIndex - 1));
+        document.getElementById('chunk-next').addEventListener('click', () => goToChunk(currentChunkIndex + 1));
+        document.addEventListener('keydown', (e) => {
+            if (currentHighlights.length === 0) return;
+            if (e.key === 'Home') { e.preventDefault(); goToChunk(0); }
+            if (e.key === 'End') { e.preventDefault(); goToChunk(currentHighlights.length - 1); }
+            if (currentHighlights.length <= 1) return;
+            if (e.key === 'ArrowLeft') { e.preventDefault(); goToChunk(currentChunkIndex - 1); }
+            if (e.key === 'ArrowRight') { e.preventDefault(); goToChunk(currentChunkIndex + 1); }
+        });
+
+        function getColDefinition(colName) {
+            for (const g of columnGroups) {
+                for (const c of (g.columns || [])) {
+                    const name = typeof c === 'string' ? c : c.name;
+                    if (name === colName) return typeof c === 'string' ? '' : (c.definition || '');
+                }
+            }
+            return '';
+        }
+
+        function csvEscape(val) {
+            const s = String(val == null ? '' : val);
+            // Wrap in quotes if it contains comma, newline, or double-quote
+            if (s.includes('"') || s.includes(',') || s.includes('\n') || s.includes('\r')) {
+                return '"' + s.replace(/"/g, '""') + '"';
+            }
+            return s;
+        }
+
+        function exportCsv() {
+            if (!reconciledData) return;
+            const cols = reconciledData.filteredColumns || reconciledData.columns || [];
+            const rows = [['column', 'definition', 'value']];
+            for (const c of cols) {
+                rows.push([
+                    c.column_name || '',
+                    getColDefinition(c.column_name),
+                    c.final_value || '',
+                ]);
+            }
+            const csv = rows.map(r => r.map(csvEscape).join(',')).join('\r\n');
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${(reconciledData.doc_id || 'export').replace(/[^a-z0-9_\-]/gi, '_')}.csv`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        document.getElementById('export-csv-btn').addEventListener('click', exportCsv);
+
+        (async () => {
+            await loadColumnGroups();
+            await loadDocsWithReconciliation();
+        })();
+    </script>
+</body>
+</html>

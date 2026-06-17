@@ -9,9 +9,7 @@ from landingai_ade import LandingAIADE
 # Add repo root to path for imports
 repo_root = Path(__file__).parent.parent
 sys.path.insert(0, str(repo_root))
-sys.path.insert(0, str(Path(__file__).parent))  # Add experiment-scripts to path
-
-from baseline_utils import (  # noqa: E402
+from src.evisearch.services.markdown_baseline import (  # noqa: E402
     load_definitions_with_metadata,
     convert_to_extraction_metadata,
     run_evaluation,

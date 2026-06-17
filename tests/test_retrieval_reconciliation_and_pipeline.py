@@ -1,23 +1,13 @@
 from __future__ import annotations
 
-import importlib.util
 import sys
 import types
-from pathlib import Path
 
 import numpy as np
 
 import src.retrieval.openai_embedding_retriever as retriever
-import web.reconciliation_agent as reconciliation_agent
-
-
-def _load_run_search_agent_module():
-    module_path = Path(__file__).resolve().parents[1] / "experiment-scripts" / "run_search_agent.py"
-    spec = importlib.util.spec_from_file_location("test_run_search_agent_module", module_path)
-    module = importlib.util.module_from_spec(spec)
-    assert spec.loader is not None
-    spec.loader.exec_module(module)
-    return module
+import src.evisearch.services.reconciliation as reconciliation_agent
+import src.evisearch.pipelines.search_pipeline as search_pipeline
 
 
 def test_embed_chunks_uses_disk_cache(tmp_path, monkeypatch):
@@ -147,7 +137,7 @@ def test_reconciliation_run_get_page_returns_function_response_parts(monkeypatch
 
 
 def test_run_search_agent_pipeline_writes_outputs_and_emits_events(tmp_path, monkeypatch):
-    module = _load_run_search_agent_module()
+    module = search_pipeline
     monkeypatch.setattr(module, "RESULTS_ROOT", tmp_path / "results")
     monkeypatch.setattr(
         module,
@@ -160,7 +150,7 @@ def test_run_search_agent_pipeline_writes_outputs_and_emits_events(tmp_path, mon
         },
     )
 
-    fake_search_agent = types.ModuleType("web.search_agent")
+    fake_search_agent = types.ModuleType("src.evisearch.services.search")
     fake_search_agent.run_search_agent = lambda doc_id, batch, definitions_map, log_path=None: (
         {
             col["column_name"]: {
@@ -173,7 +163,7 @@ def test_run_search_agent_pipeline_writes_outputs_and_emits_events(tmp_path, mon
         },
         {"input_tokens": 5, "output_tokens": 2, "api_calls": 1},
     )
-    monkeypatch.setitem(sys.modules, "web.search_agent", fake_search_agent)
+    monkeypatch.setitem(sys.modules, "src.evisearch.services.search", fake_search_agent)
 
     events = []
     result = module.run_search_agent_pipeline("doc-1", on_event=events.append)

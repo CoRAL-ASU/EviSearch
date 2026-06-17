@@ -45,17 +45,18 @@ from werkzeug.utils import secure_filename
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(PROJECT_ROOT))
 
-from web.extraction_service import ExtractionService
-from web.comparison_service import (
+from src.evisearch.services.legacy_extraction import ExtractionService
+from src.evisearch.services.reports import (
     get_document_status,
     load_comparison_data,
     get_report,
 )
-from web.highlight_service import (
+from src.evisearch.services.highlight import (
     get_highlights_by_chunk_ids,
     resolve_pdf_path,
 )
-from web.feedback_service import record_feedback
+from src.evisearch.services.feedback import record_feedback
+from src.evisearch.services.result_transform import reconciliation_agent_to_columns
 from src.config.runtime_paths import (
     DATASET_DIR,
     RESULTS_ROOT,
@@ -69,7 +70,12 @@ from src.documents.pdf_registry import (
 )
 from src.LLMProvider.google_genai_client import vertex_auth_error_message
 
-app = Flask(__name__)
+FRONTEND_ROOT = PROJECT_ROOT / "apps" / "web" / "frontend"
+app = Flask(
+    __name__,
+    template_folder=str(FRONTEND_ROOT / "templates"),
+    static_folder=str(FRONTEND_ROOT / "static"),
+)
 app.config['MAX_CONTENT_LENGTH'] = 50 * 1024 * 1024  # 50MB max file size
 ensure_runtime_dirs()
 app.config['UPLOAD_FOLDER'] = UPLOADS_DIR
@@ -404,7 +410,7 @@ def api_run_reconciliation(doc_id):
 
     try:
         sys.path.insert(0, str(PROJECT_ROOT / "experiment-scripts"))
-        from run_reconciliation_agent import run_reconciliation_pipeline
+        from src.evisearch.pipelines.reconciliation_pipeline import run_reconciliation_pipeline
         result = run_reconciliation_pipeline(
             doc_id=doc_id,
             group_names=group_names,
@@ -511,7 +517,7 @@ def api_extract_unified_stream():
         import threading
 
         sys.path.insert(0, str(PROJECT_ROOT / "experiment-scripts"))
-        from unified_extraction import run_unified_extraction
+        from src.evisearch.pipelines.unified_extraction import run_unified_extraction
 
         q = queue.Queue()
 
@@ -574,7 +580,7 @@ def api_extract_agentic_stream():
         # This keeps duplicate uploads on the canonical cache path instead of rebuilding per upload alias.
         if not _prepare_state["is_prepared"]:
             try:
-                from web.landing_ai_parse_service import parse_pdf_for_qa
+                from src.evisearch.services.preparation import parse_pdf_for_qa
                 from src.retrieval.openai_embedding_retriever import embed_chunks
 
                 if not _pdf_path_for_prepare or not _pdf_path_for_prepare.exists():
@@ -603,8 +609,8 @@ def api_extract_agentic_stream():
                 return
 
         sys.path.insert(0, str(PROJECT_ROOT / "experiment-scripts"))
-        from agent_extractor import run_extraction_loop_deterministic
-        from run_search_agent import load_definitions, build_extraction_batches, run_search_agent_pipeline
+        from src.evisearch.services.agent_extraction import run_extraction_loop_deterministic
+        from src.evisearch.pipelines.search_pipeline import load_definitions, build_extraction_batches, run_search_agent_pipeline
 
         # Emit extraction_start with total and batches for empty table init
         groups = load_definitions()
@@ -810,14 +816,14 @@ def api_refresh_attribution(doc_id):
     rec_path = RESULTS_ROOT / doc_id / "reconciliation_agent" / "reconciled_results.json"
     agent_path = RESULTS_ROOT / doc_id / "agent_extractor" / "extraction_results.json"
     try:
-        from web.comparison_service import load_comparison_data
-        from web.attribution_service import enrich_reconciled_with_attribution
+        from src.evisearch.services.reports import load_comparison_data
+        from src.evisearch.services.attribution import enrich_reconciled_with_attribution
         comparison = load_comparison_data(doc_id)
         rows = comparison.get("comparison") or []
 
         if rec_path.exists():
             data = json.loads(rec_path.read_text(encoding="utf-8"))
-            columns = _reconciliation_agent_to_columns(data.get("columns") or {})
+            columns = reconciliation_agent_to_columns(data.get("columns") or {})
             out_path = rec_path.parent / "attribution_results.json"
             out_path.parent.mkdir(parents=True, exist_ok=True)
         elif agent_path.exists():
@@ -868,10 +874,10 @@ def api_document_reconciled(doc_id):
             data = json.loads(recon_attr_path.read_text(encoding="utf-8"))
         elif rec_path.exists():
             data = json.loads(rec_path.read_text(encoding="utf-8"))
-            columns = _reconciliation_agent_to_columns(data.get("columns") or {})
+            columns = reconciliation_agent_to_columns(data.get("columns") or {})
             comparison = load_comparison_data(doc_id)
             rows = comparison.get("comparison") or []
-            from web.attribution_service import enrich_reconciled_with_attribution
+            from src.evisearch.services.attribution import enrich_reconciled_with_attribution
             enriched = enrich_reconciled_with_attribution(doc_id, columns, comparison_rows=rows, top_k=3)
             data["columns"] = enriched
         elif agent_attr_path.exists():
@@ -986,7 +992,7 @@ def api_save_human_edited(doc_id):
 RECON_AGENT_DIR = "reconciliation_agent"
 
 
-def _reconciliation_agent_to_columns(cols_dict: Dict[str, Any]) -> list:
+def _deprecated_reconciliation_agent_to_columns(cols_dict: Dict[str, Any]) -> list:
     """Convert reconciliation_agent columns dict to list format for enrich_reconciled_with_attribution."""
     out = []
     for col_name, r in (cols_dict or {}).items():
@@ -1008,7 +1014,7 @@ def _reconciliation_agent_to_columns(cols_dict: Dict[str, Any]) -> list:
 
 def _build_agent_attribution(doc_id: str) -> Dict[str, Any] | None:
     """Build attribution columns from agent extraction, run enrich, return."""
-    from web.attribution_service import enrich_reconciled_with_attribution
+    from src.evisearch.services.attribution import enrich_reconciled_with_attribution
 
     # Load raw extraction_results.json directly so we can pass attribution hints
     # (page + modality) into enrich_reconciled_with_attribution.
@@ -1136,7 +1142,7 @@ def api_qa_prepare_document():
     json_path = chunk_dir / "landing_ai_parse_output.json"
 
     def generate():
-        from web.landing_ai_parse_service import parse_pdf_for_qa
+        from src.evisearch.services.preparation import parse_pdf_for_qa
         from src.retrieval.openai_embedding_retriever import embed_chunks, has_embedding_cache
 
         # Require landing_ai_parse_output.json for attribution. Skip parse only if it exists and is fresh.
@@ -1271,12 +1277,12 @@ def _api_qa_ask_full(doc_id: str, question: str, history: list):
     """Full mode: Agent + Search + Reconcile with attribution."""
     def generate():
         import threading
-        from web.qa_adapter import build_definition_with_context
+        from src.evisearch.services.qa import build_definition_with_context
 
         sys.path.insert(0, str(PROJECT_ROOT / "experiment-scripts"))
-        from agent_extractor import extract_batch
+        from src.evisearch.services.agent_extraction import extract_batch
         from src.LLMProvider.provider import LLMProvider
-        from web.search_agent import run_search_agent
+        from src.evisearch.services.search import run_search_agent
 
         col_name = "qa_query"
         definition = build_definition_with_context(question, history)
@@ -1324,7 +1330,7 @@ def _api_qa_ask_full(doc_id: str, question: str, history: list):
         yield f"data: {json.dumps({'type': 'stage', 'stage': 'search_done', 'value': s_val, 'reasoning': s_reason})}\n\n"
 
         yield f"data: {json.dumps({'type': 'stage', 'stage': 'reconciling', 'message': 'Reconciling…'})}\n\n"
-        from web.reconciliation_agent import run_reconciliation_agent
+        from src.evisearch.services.reconciliation import run_reconciliation_agent
 
         rec_result, _ = run_reconciliation_agent(
             doc_id=doc_id,
@@ -1344,7 +1350,7 @@ def _api_qa_ask_full(doc_id: str, question: str, history: list):
         yield f"data: {json.dumps({'type': 'stage', 'stage': 'reconciled', 'value': rec_val, 'reasoning': rec_reason})}\n\n"
 
         chunk_ids = []
-        from web.attribution_service import resolve_chunks_from_reconciled_source, retrieve_chunks_for_evidence
+        from src.evisearch.services.attribution import resolve_chunks_from_reconciled_source, retrieve_chunks_for_evidence
 
         if isinstance(rec_source, dict) and rec_source.get("page"):
             raw = resolve_chunks_from_reconciled_source(

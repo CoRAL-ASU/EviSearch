@@ -17,6 +17,7 @@ RUN python -m pip install --upgrade pip && \
 
 COPY src ./src
 COPY web ./web
+COPY apps ./apps
 COPY experiment-scripts ./experiment-scripts
 COPY dataset ./dataset
 COPY new_pipeline_outputs ./new_pipeline_outputs
@@ -25,4 +26,4 @@ RUN mkdir -p /app/web/uploads
 
 EXPOSE 8080
 
-CMD ["gunicorn", "--bind", "0.0.0.0:8080", "--workers", "1", "--threads", "8", "--timeout", "0", "web.main_app:app"]
+CMD ["gunicorn", "--bind", "0.0.0.0:8080", "--workers", "1", "--threads", "8", "--timeout", "0", "apps.web.backend.app:app"]

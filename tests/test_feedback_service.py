@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-import web.feedback_service as feedback_service
+import src.evisearch.services.feedback as feedback_service
 
 
 def test_record_and_load_feedback_round_trip(tmp_path, monkeypatch):

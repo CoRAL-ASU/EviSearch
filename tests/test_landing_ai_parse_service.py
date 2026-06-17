@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import json
 
-import web.landing_ai_parse_service as parse_service
+import src.evisearch.services.preparation as parse_service
 
 
 class _FakeParseResponse:

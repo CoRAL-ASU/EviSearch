@@ -8,7 +8,7 @@ import types
 def test_api_extract_unified_stream_emits_sse_events(client, isolated_app, monkeypatch):
     monkeypatch.setattr(isolated_app, "_ensure_pdf_for_extraction", lambda doc_id: None)
 
-    fake_unified = types.ModuleType("unified_extraction")
+    fake_unified = types.ModuleType("src.evisearch.pipelines.unified_extraction")
 
     def run_unified_extraction(doc_id, group_names=None, resume=True, no_resume=False, on_event=None):
         on_event({"type": "extraction_start", "total": 1, "column_names": ["Overall Survival"], "batches": [["Overall Survival"]]})
@@ -17,7 +17,7 @@ def test_api_extract_unified_stream_emits_sse_events(client, isolated_app, monke
         return {"agent": {}, "search": {}}
 
     fake_unified.run_unified_extraction = run_unified_extraction
-    monkeypatch.setitem(sys.modules, "unified_extraction", fake_unified)
+    monkeypatch.setitem(sys.modules, "src.evisearch.pipelines.unified_extraction", fake_unified)
 
     response = client.post("/api/extract/unified/stream", json={"doc_id": "doc-1"})
 
@@ -36,7 +36,7 @@ def test_api_qa_prepare_document_stream_reports_success(client, isolated_app, mo
     monkeypatch.setattr(isolated_app, "_ensure_pdf_for_extraction", lambda doc_id: None)
     monkeypatch.setattr(isolated_app, "resolve_pdf_path", lambda doc_id: pdf_path)
 
-    fake_parse = types.ModuleType("web.landing_ai_parse_service")
+    fake_parse = types.ModuleType("src.evisearch.services.preparation")
 
     def parse_pdf_for_qa(doc_id, pdf_path, on_event=None):
         chunk_dir = isolated_app.RESULTS_ROOT / doc_id / "chunking"
@@ -46,7 +46,7 @@ def test_api_qa_prepare_document_stream_reports_success(client, isolated_app, mo
         return {"success": True}
 
     fake_parse.parse_pdf_for_qa = parse_pdf_for_qa
-    monkeypatch.setitem(sys.modules, "web.landing_ai_parse_service", fake_parse)
+    monkeypatch.setitem(sys.modules, "src.evisearch.services.preparation", fake_parse)
 
     fake_retriever = types.ModuleType("src.retrieval.openai_embedding_retriever")
     fake_retriever.has_embedding_cache = lambda doc_id: False
@@ -78,11 +78,11 @@ def test_api_run_reconciliation_uses_reconciliation_pipeline(client, isolated_ap
         encoding="utf-8",
     )
 
-    fake_module = types.ModuleType("run_reconciliation_agent")
+    fake_module = types.ModuleType("src.evisearch.pipelines.reconciliation_pipeline")
     fake_module.run_reconciliation_pipeline = lambda doc_id, group_names=None, resume=True, no_resume=False: {
         "columns": {"Overall Survival": {"value": "12.1"}}
     }
-    monkeypatch.setitem(sys.modules, "run_reconciliation_agent", fake_module)
+    monkeypatch.setitem(sys.modules, "src.evisearch.pipelines.reconciliation_pipeline", fake_module)
 
     response = client.post(
         "/api/documents/doc-1/run-reconciliation",

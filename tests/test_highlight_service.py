@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import json
 
-import web.highlight_service as highlight_service
+import src.evisearch.services.highlight as highlight_service
 
 
 def test_get_highlights_by_chunk_ids_returns_boxes(tmp_path, monkeypatch):

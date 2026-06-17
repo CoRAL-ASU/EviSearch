@@ -16,8 +16,8 @@ from pathlib import Path
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(PROJECT_ROOT))
 
-from web.highlight_service import load_landing_ai_parse
-from web.comparison_service import load_comparison_data, list_documents
+from src.evisearch.services.highlight import load_landing_ai_parse
+from src.evisearch.services.reports import load_comparison_data, list_documents
 
 
 def parse_page_from_evidence(evidence: str) -> list[int]:

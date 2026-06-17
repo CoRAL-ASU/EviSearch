@@ -24,7 +24,7 @@ def _strip_anchor_tags(text: str) -> str:
 
 def _convert_html_tables_to_markdown(text: str) -> str:
     """Replace HTML <table>...</table> blocks with markdown equivalents."""
-    from web.table_utils import html_table_to_markdown
+    from src.evisearch.services.table_utils import html_table_to_markdown
 
     def _replace(match: re.Match) -> str:
         html = match.group(0)
