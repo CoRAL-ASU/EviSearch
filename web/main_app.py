@@ -124,6 +124,69 @@ def _document_runtime_state(doc_id: str) -> Dict[str, Any]:
     }
 
 
+def _normalize_source_attribution(raw_attribution: Any) -> list[Dict[str, Any]]:
+    """Normalize agent/search attribution to the resolver source shape."""
+    if not isinstance(raw_attribution, list):
+        return []
+
+    out: list[Dict[str, Any]] = []
+    for item in raw_attribution:
+        if not isinstance(item, dict):
+            continue
+        try:
+            page = int(item.get("page")) if item.get("page") is not None else None
+        except (TypeError, ValueError):
+            page = None
+        if page is None or page < 1:
+            continue
+
+        source_type = str(item.get("source_type") or item.get("modality") or "text").lower()
+        if source_type not in ("text", "table", "figure"):
+            source_type = "text"
+
+        normalized: Dict[str, Any] = {"page": page, "source_type": source_type}
+        snippet = item.get("snippet") or item.get("verbatim_quote")
+        if snippet:
+            normalized["snippet"] = str(snippet)
+        for key in ("table_number", "figure_number", "caption"):
+            if item.get(key):
+                normalized[key] = str(item[key])
+        out.append(normalized)
+    return out
+
+
+def _resolve_candidate_chunk_ids(doc_id: str, column_name: str, col_data: Any) -> list[str]:
+    """Resolve raw A/B source attribution to real LandingAI highlight chunk IDs."""
+    if not isinstance(col_data, dict):
+        return []
+
+    attribution = _normalize_source_attribution(col_data.get("attribution"))
+    if not attribution:
+        return []
+
+    first = attribution[0]
+    value = str(col_data.get("value") or col_data.get("primary_value") or "")
+    reasoning = str(col_data.get("reasoning") or "").strip()
+
+    try:
+        from src.evisearch.services.attribution import retrieve_chunks_for_evidence
+
+        chunks = retrieve_chunks_for_evidence(
+            doc_id=doc_id,
+            column_name=column_name,
+            final_value=value,
+            pipeline_page=first.get("page"),
+            pipeline_source_type=first.get("source_type"),
+            evidence_text=reasoning,
+            attribution=attribution,
+            top_k=3,
+        )
+    except Exception:
+        return []
+
+    return [c["chunk_id"] for c in chunks if isinstance(c, dict) and c.get("chunk_id")]
+
+
 def _document_option_payload(doc_id: str, name: str, source: str, has_extraction: bool) -> Dict[str, Any]:
     state = _document_runtime_state(doc_id)
     registered = get_registered_document(state["canonical_doc_id"], results_root=RESULTS_ROOT) or {}
@@ -213,7 +276,7 @@ def api_report_tables():
         }), 200
 
     all_columns: set[str] = set()
-    doc_cols: Dict[str, Dict[str, str]] = {}
+    doc_cols: Dict[str, Dict[str, Any]] = {}
 
     for doc_id in doc_ids:
         rec_path = RESULTS_ROOT / doc_id / RECON_AGENT_DIR / "reconciled_results.json"
@@ -234,7 +297,8 @@ def api_report_tables():
             except Exception:
                 pass
 
-        row: Dict[str, str] = {"doc_id": doc_id}
+        pdf_path = resolve_pdf_path(doc_id)
+        row: Dict[str, Any] = {"doc_id": doc_id, "pdf_exists": bool(pdf_path and pdf_path.exists())}
         for cn, v in cols.items():
             if not isinstance(v, dict):
                 continue
@@ -902,8 +966,7 @@ def api_document_reconciled(doc_id):
                 for k, v in (ad.get("columns") or {}).items():
                     agent_cols[k] = str(v.get("value", "")) if isinstance(v, dict) else str(v or "")
                     if isinstance(v, dict):
-                        pages = [a["page"] for a in (v.get("attribution") or []) if isinstance(a, dict) and a.get("page")]
-                        agent_chunk_ids[k] = [f"page_{p}" for p in pages]
+                        agent_chunk_ids[k] = _resolve_candidate_chunk_ids(doc_id, k, v)
             except Exception:
                 pass
         search_path = RESULTS_ROOT / doc_id / "search_agent" / "extraction_results.json"
@@ -913,8 +976,7 @@ def api_document_reconciled(doc_id):
                 for k, v in (sd.get("columns") or {}).items():
                     search_cols[k] = str(v.get("value", "")) if isinstance(v, dict) else str(v or "")
                     if isinstance(v, dict):
-                        pages = [a["page"] for a in (v.get("attribution") or []) if isinstance(a, dict) and a.get("page")]
-                        search_chunk_ids[k] = [f"page_{p}" for p in pages]
+                        search_chunk_ids[k] = _resolve_candidate_chunk_ids(doc_id, k, v)
             except Exception:
                 pass
 

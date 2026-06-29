@@ -70,7 +70,7 @@ def test_api_report_tables_applies_human_edits_and_column_groups(
     assert payload["document_count"] == 1
     assert payload["total_filled_values"] == 2
     assert payload["column_groups"]["Overall Survival"] == "Outcomes"
-    assert payload["rows"] == [{"doc_id": "doc-1", "Overall Survival": "13.0", "Treatment Arm": "ADT"}]
+    assert payload["rows"] == [{"doc_id": "doc-1", "pdf_exists": False, "Overall Survival": "13.0", "Treatment Arm": "ADT"}]
 
 
 def test_upload_extract_saves_uploaded_pdf(client, isolated_app):
@@ -183,3 +183,83 @@ def test_api_refresh_attribution_returns_reconciled_page_shape(client, isolated_
     assert payload["columns"][0]["column_name"] == "Overall Survival"
     assert payload["columns"][0]["candidate_a"] == "12.1"
     assert payload["columns"][0]["candidate_b"] == "12.1"
+
+
+def test_api_reconciled_resolves_agent_and_search_page_attribution_to_chunks(
+    client,
+    isolated_app,
+    monkeypatch,
+):
+    import src.evisearch.services.highlight as highlight_service
+
+    monkeypatch.setattr(highlight_service, "PIPELINE_RESULTS", isolated_app.RESULTS_ROOT)
+
+    doc_dir = isolated_app.RESULTS_ROOT / "doc-1"
+    recon_dir = doc_dir / "reconciliation_agent"
+    agent_dir = doc_dir / "agent_extractor"
+    search_dir = doc_dir / "search_agent"
+    chunk_dir = doc_dir / "chunking"
+    recon_dir.mkdir(parents=True)
+    agent_dir.mkdir(parents=True)
+    search_dir.mkdir(parents=True)
+    chunk_dir.mkdir(parents=True)
+
+    (chunk_dir / "landing_ai_parse_output.json").write_text(
+        json.dumps(
+            {
+                "chunks": [
+                    {
+                        "id": "table-chunk-1",
+                        "type": "table",
+                        "markdown": "Table 1. Baseline characteristics ADT Alone (N=393)",
+                        "grounding": {
+                            "page": 4,
+                            "box": {"left": 0.1, "top": 0.2, "right": 0.9, "bottom": 0.8},
+                        },
+                    }
+                ]
+            }
+        ),
+        encoding="utf-8",
+    )
+    (recon_dir / "reconciled_results.json").write_text(
+        json.dumps(
+            {
+                "columns": {
+                    "Control Arm - N": {
+                        "value": "393",
+                        "reasoning": "Reconciled answer",
+                        "source": {"page": 5, "modality": "table"},
+                    }
+                }
+            }
+        ),
+        encoding="utf-8",
+    )
+    for out_dir, reasoning in ((agent_dir, "Agent answer"), (search_dir, "Search answer")):
+        (out_dir / "extraction_results.json").write_text(
+            json.dumps(
+                {
+                    "columns": {
+                        "Control Arm - N": {
+                            "value": "393",
+                            "reasoning": reasoning,
+                            "attribution": [{"page": 5, "modality": "table"}],
+                        }
+                    }
+                }
+            ),
+            encoding="utf-8",
+        )
+
+    response = client.get("/api/documents/doc-1/reconciled")
+    payload = response.get_json()
+
+    assert response.status_code == 200
+    assert payload["success"] is True
+    column = payload["columns"][0]
+    assert column["chunk_ids_a"] == ["table-chunk-1"]
+    assert column["chunk_ids_b"] == ["table-chunk-1"]
+    assert column["chunk_ids"] == ["table-chunk-1"]
+    assert "page_5" not in column["chunk_ids_a"]
+    assert "page_5" not in column["chunk_ids_b"]
