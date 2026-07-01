@@ -71,6 +71,7 @@ class LLMProvider:
         - novita: Novita AI (OpenAI-compatible)
         - groq: Groq (fast inference)
         - deepinfra: DeepInfra (OpenAI-compatible, supports multimodal)
+        - local: Local OpenAI-compatible endpoint (for vLLM, llama.cpp server, etc.)
     """
     
     def __init__(self, provider: str = "openai", model: str = None):
@@ -78,7 +79,7 @@ class LLMProvider:
         Initialize LLM provider.
         
         Args:
-            provider: "openai", "novita", "groq", "deepinfra", "gemini"
+            provider: "openai", "novita", "groq", "deepinfra", "gemini", "local"
             model: Specific model name (uses default if not provided)
         """
         self.provider = provider.lower()
@@ -94,6 +95,7 @@ class LLMProvider:
             "novita": "meta-llama/llama-3.1-8b-instruct",
             "groq": "llama-3.1-70b-versatile",
             "deepinfra": "Qwen/Qwen2.5-VL-32B-Instruct",
+            "local": os.getenv("LOCAL_OPENAI_MODEL") or os.getenv("STRUCTURER_MODEL") or "Qwen/Qwen3-8B",
         }
         return defaults.get(self.provider, "gpt-4o")
     
@@ -134,9 +136,17 @@ class LLMProvider:
                 base_url="https://api.deepinfra.com/v1/openai",
                 api_key=api_key
             )
+
+        elif self.provider == "local":
+            base_url = os.getenv("LOCAL_OPENAI_BASE_URL") or os.getenv("STRUCTURER_BASE_URL") or "http://localhost:8000/v1"
+            api_key = os.getenv("LOCAL_OPENAI_API_KEY") or "dummy"
+            self._client = OpenAI(
+                base_url=base_url,
+                api_key=api_key
+            )
         
         else:
-            raise ValueError(f"Unsupported provider: {self.provider}. Supported: gemini, openai, novita, groq, deepinfra")
+            raise ValueError(f"Unsupported provider: {self.provider}. Supported: gemini, openai, novita, groq, deepinfra, local")
     
     def _calculate_cost(self, input_tokens: int, output_tokens: int) -> float:
         """Calculate cost based on token usage."""
@@ -172,7 +182,14 @@ class LLMProvider:
                     response_schema=response_schema,
                 )
             else:
-                return self._generate_openai_compatible(prompt, system_prompt, temperature, max_tokens)
+                return self._generate_openai_compatible(
+                    prompt,
+                    system_prompt,
+                    temperature,
+                    max_tokens,
+                    response_mime_type=response_mime_type,
+                    response_schema=response_schema,
+                )
         
         except Exception as e:
             return LLMResponse(
@@ -234,7 +251,9 @@ class LLMProvider:
         prompt: str, 
         system_prompt: str, 
         temperature: float, 
-        max_tokens: int
+        max_tokens: int,
+        response_mime_type: str = None,
+        response_schema: dict = None,
     ) -> LLMResponse:
         """Generate using OpenAI-compatible API (OpenAI, Novita, Groq)."""
         messages = []
@@ -242,12 +261,25 @@ class LLMProvider:
             messages.append({"role": "system", "content": system_prompt})
         messages.append({"role": "user", "content": prompt})
         
-        response = self._client.chat.completions.create(
+        kwargs = dict(
             model=self.model,
             messages=messages,
             temperature=temperature,
-            max_tokens=max_tokens
+            max_tokens=max_tokens,
         )
+        if response_schema:
+            kwargs["response_format"] = {
+                "type": "json_schema",
+                "json_schema": {
+                    "name": "structured_response",
+                    "schema": response_schema,
+                    "strict": True,
+                },
+            }
+        elif response_mime_type == "application/json":
+            kwargs["response_format"] = {"type": "json_object"}
+
+        response = self._client.chat.completions.create(**kwargs)
         
         usage = getattr(response, 'usage', None)
         input_tokens = getattr(usage, 'prompt_tokens', 0) if usage else 0

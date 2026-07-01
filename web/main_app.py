@@ -50,6 +50,7 @@ from src.evisearch.services.reports import (
     get_document_status,
     load_comparison_data,
     get_report,
+    list_documents,
 )
 from src.evisearch.services.highlight import (
     get_highlights_by_chunk_ids,
@@ -239,6 +240,97 @@ def comparison():
 def comparison_report():
     """Serve the tables report (reconciled data pivot view). Replaces old static comparison report."""
     return render_template('tables_report.html')
+
+
+@app.route('/method-comparison-report')
+def method_comparison_report():
+    """Serve method-level comparison across agent/search/reconciliation/baselines."""
+    return render_template('method_comparison_report.html')
+
+
+@app.route('/api/report/method-comparison', methods=['GET'])
+def api_method_comparison_report():
+    """Return row-per-document-column method comparison data."""
+    default_methods = [
+        "agent",
+        "search_agent",
+        "reconciliation_agent",
+        "gemini_native",
+        "landing_ai_baseline",
+        "landing_ai_baseline_gpt4",
+        "pipeline",
+        "pipeline_plan_extract",
+        "pipeline_keywords",
+    ]
+    method_labels = {
+        "agent": "Agent extractor",
+        "search_agent": "Search agent",
+        "reconciliation_agent": "Reconciliation",
+        "gemini_native": "Gemini file search",
+        "landing_ai_baseline": "LandingAI + Gemini",
+        "landing_ai_baseline_gpt4": "LandingAI + GPT-4",
+        "pipeline": "Pipeline extract",
+        "pipeline_plan_extract": "Plan extract",
+        "pipeline_keywords": "Plan extract + keywords",
+    }
+    requested = request.args.get("methods", "").strip()
+    methods = [m.strip() for m in requested.split(",") if m.strip()] if requested else default_methods
+    methods = [m for m in methods if m in default_methods]
+    if not methods:
+        methods = default_methods
+
+    doc_query = request.args.get("docs", "").strip()
+    if doc_query:
+        doc_ids = [unquote(d.strip()) for d in doc_query.split(",") if d.strip()]
+    else:
+        doc_ids = [d["doc_id"] for d in list_documents()]
+
+    rows = []
+    documents = []
+    columns_seen = set()
+    methods_available = set()
+    empty_values = {"", "not reported", "not found", "n/a", "not applicable", "-", "--"}
+
+    for doc_id in sorted(dict.fromkeys(doc_ids)):
+        comparison = load_comparison_data(doc_id)
+        available = [m for m in comparison.get("methods_available", []) if m in methods]
+        if not available:
+            continue
+        documents.append(doc_id)
+        methods_available.update(available)
+        for item in comparison.get("comparison", []):
+            item_methods = item.get("methods") or {}
+            if not any(m in item_methods for m in methods):
+                continue
+            row = {
+                "doc_id": doc_id,
+                "column_name": item.get("column_name", ""),
+                "group_name": item.get("group_name", "") or "Other",
+            }
+            for method in methods:
+                method_data = item_methods.get(method) or {}
+                value = method_data.get("value") if isinstance(method_data, dict) else ""
+                found = bool(method_data.get("found")) if isinstance(method_data, dict) else False
+                evidence = (method_data.get("evidence") or method_data.get("attribution_snippet") or "") if isinstance(method_data, dict) else ""
+                value_str = str(value) if value is not None else ""
+                row[method] = value_str
+                row[f"{method}__found"] = found and value_str.strip().lower() not in empty_values
+                row[f"{method}__evidence"] = str(evidence or "")
+            rows.append(row)
+            if row["column_name"]:
+                columns_seen.add(row["column_name"])
+
+    return jsonify({
+        "success": True,
+        "documents": documents,
+        "document_count": len(documents),
+        "methods": methods,
+        "methods_available": [m for m in methods if m in methods_available],
+        "method_labels": method_labels,
+        "columns": sorted(columns_seen),
+        "rows": rows,
+        "row_count": len(rows),
+    }), 200
 
 
 @app.route('/api/report/tables', methods=['GET'])

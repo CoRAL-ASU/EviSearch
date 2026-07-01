@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Evidence-based PDF Q&A - Method Comparison</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.14/dist/full.min.css" rel="stylesheet" />
+    <style>
+        #comparison-grid {
+            height: 70vh;
+            width: 100%;
+            min-height: 34rem;
+        }
+        .ag-theme-method .ag-root-wrapper {
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 0.75rem;
+            overflow: hidden;
+            background: #1f252f;
+        }
+        .ag-theme-method .ag-header {
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .ag-theme-method .ag-header-cell,
+        .ag-theme-method .ag-header-group-cell {
+            font-size: 0.78rem;
+            line-height: 1.2;
+            white-space: normal;
+        }
+        .ag-theme-method .ag-header-cell-label,
+        .ag-theme-method .ag-header-group-cell-label {
+            white-space: normal;
+            overflow-wrap: anywhere;
+            word-break: break-word;
+        }
+        .ag-theme-method .ag-cell {
+            line-height: 1.3;
+            padding-top: 0.3rem;
+            padding-bottom: 0.3rem;
+            display: flex;
+            align-items: flex-start;
+        }
+        .method-value {
+            display: block;
+            width: 100%;
+            min-height: 1.8rem;
+            padding: 0.25rem 0.35rem;
+            border-radius: 0.4rem;
+            color: inherit;
+            text-decoration: none;
+            white-space: normal;
+            overflow-wrap: anywhere;
+            word-break: break-word;
+        }
+        .method-value:hover {
+            background: rgba(99, 102, 241, 0.14);
+        }
+        .method-empty {
+            color: rgba(255, 255, 255, 0.42);
+        }
+        .method-found {
+            color: #dcfce7;
+        }
+    </style>
+</head>
+<body class="min-h-screen bg-base-200">
+    <div class="navbar bg-base-300 shadow-lg">
+        <div class="flex-1">
+            <a href="/" class="btn btn-ghost">Home</a>
+            <a href="/extract" class="btn btn-ghost">Extract full table</a>
+            <a href="/attribution" class="btn btn-ghost">Attribution</a>
+            <a href="/comparison-report" class="btn btn-ghost">Report</a>
+            <a href="/method-comparison-report" class="btn btn-ghost font-semibold">Method comparison</a>
+        </div>
+        <div class="flex-none">
+            <h1 class="text-xl font-bold text-primary px-4">Evidence-based PDF Q&A</h1>
+        </div>
+    </div>
+
+    <main class="max-w-[98vw] mx-auto p-6 space-y-4">
+        <div class="flex flex-wrap items-end justify-between gap-4">
+            <div>
+                <h2 class="text-2xl font-bold">Method Comparison</h2>
+                <p class="text-sm text-base-content/60">Compare agent extractor, search, reconciliation, and baseline outputs side by side.</p>
+            </div>
+            <div class="flex gap-2">
+                <button type="button" id="btn-refresh" class="btn btn-primary btn-sm">Refresh</button>
+                <button type="button" id="btn-export-csv" class="btn btn-outline btn-sm" disabled>Export CSV</button>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-3 bg-base-100 rounded-lg shadow-md p-4">
+            <label class="form-control">
+                <span class="label-text mb-1">Document</span>
+                <select id="filter-doc" class="select select-bordered select-sm">
+                    <option value="">All documents</option>
+                </select>
+            </label>
+            <label class="form-control">
+                <span class="label-text mb-1">Group</span>
+                <select id="filter-group" class="select select-bordered select-sm">
+                    <option value="">All groups</option>
+                </select>
+            </label>
+            <label class="form-control">
+                <span class="label-text mb-1">Column</span>
+                <input id="filter-column" class="input input-bordered input-sm" placeholder="Filter column names" />
+            </label>
+            <label class="form-control">
+                <span class="label-text mb-1">Methods</span>
+                <select id="filter-methods" class="select select-bordered select-sm">
+                    <option value="">All available</option>
+                </select>
+            </label>
+        </div>
+
+        <div class="stats stats-vertical md:stats-horizontal bg-base-100 shadow-md">
+            <div class="stat">
+                <div class="stat-title">Documents</div>
+                <div class="stat-value text-primary" id="stat-docs">0</div>
+            </div>
+            <div class="stat">
+                <div class="stat-title">Rows</div>
+                <div class="stat-value text-secondary" id="stat-rows">0</div>
+            </div>
+            <div class="stat">
+                <div class="stat-title">Methods</div>
+                <div class="stat-value text-accent" id="stat-methods">0</div>
+            </div>
+        </div>
+
+        <div class="bg-base-100 rounded-lg shadow-xl p-3">
+            <div id="comparison-grid" class="ag-theme-quartz-dark ag-theme-method"></div>
+        </div>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/ag-grid-community/dist/ag-grid-community.min.js"></script>
+    <script>
+        let rawData = null;
+        let gridApi = null;
+        let visibleMethods = [];
+
+        const emptyValues = new Set(['', 'not reported', 'not found', 'n/a', 'not applicable', '-', '--']);
+
+        const theme = window.agGrid?.themeQuartz?.withParams
+            ? window.agGrid.themeQuartz.withParams({
+                backgroundColor: '#1f252f',
+                foregroundColor: '#d7dce5',
+                headerBackgroundColor: '#262d38',
+                headerTextColor: '#d7dce5',
+                oddRowBackgroundColor: '#202733',
+                rowBorder: { color: 'rgba(255, 255, 255, 0.05)' },
+                headerColumnBorder: { color: 'rgba(255, 255, 255, 0.08)' },
+                columnBorder: { color: 'rgba(255, 255, 255, 0.05)' },
+                wrapperBorder: false,
+                borderColor: 'rgba(255, 255, 255, 0.08)',
+                spacing: 6,
+                rowHeight: 48,
+                headerHeight: 48,
+                fontSize: 13,
+            })
+            : undefined;
+
+        function escapeHtml(value) {
+            const div = document.createElement('div');
+            div.textContent = value == null ? '' : String(value);
+            return div.innerHTML;
+        }
+
+        function isEmptyValue(value) {
+            return emptyValues.has(String(value || '').trim().toLowerCase());
+        }
+
+        function attributionUrl(docId, columnName) {
+            return `/attribution?doc=${encodeURIComponent(docId)}&column=${encodeURIComponent(columnName)}`;
+        }
+
+        function methodCellRenderer(method) {
+            return (params) => {
+                const value = params.data?.[method] || '';
+                const found = !!params.data?.[`${method}__found`];
+                const evidence = params.data?.[`${method}__evidence`] || '';
+                const cls = found && !isEmptyValue(value) ? 'method-found' : 'method-empty';
+                const title = evidence || value;
+                if (isEmptyValue(value)) {
+                    return `<span class="method-value ${cls}" title="${escapeHtml(title)}">${escapeHtml(value || 'Not reported')}</span>`;
+                }
+                const href = attributionUrl(params.data.doc_id, params.data.column_name);
+                return `<a class="method-value ${cls}" href="${href}" target="_blank" rel="noopener noreferrer" title="${escapeHtml(title)}">${escapeHtml(value)}</a>`;
+            };
+        }
+
+        function buildColumnDefs() {
+            const labels = rawData?.method_labels || {};
+            return [
+                { field: 'doc_id', headerName: 'Document', pinned: 'left', minWidth: 220, width: 260, cellClass: 'font-semibold' },
+                { field: 'group_name', headerName: 'Group', minWidth: 140, width: 170 },
+                { field: 'column_name', headerName: 'Column', pinned: 'left', minWidth: 260, width: 340, cellClass: 'font-semibold' },
+                ...visibleMethods.map(method => ({
+                    field: method,
+                    headerName: labels[method] || method,
+                    minWidth: 220,
+                    width: 260,
+                    autoHeight: true,
+                    wrapText: true,
+                    cellRenderer: methodCellRenderer(method),
+                })),
+            ];
+        }
+
+        function populateFilters() {
+            const docSelect = document.getElementById('filter-doc');
+            const groupSelect = document.getElementById('filter-group');
+            const methodSelect = document.getElementById('filter-methods');
+            const docs = rawData?.documents || [];
+            const groups = [...new Set((rawData?.rows || []).map(r => r.group_name || 'Other'))].sort();
+            const methods = rawData?.methods_available || rawData?.methods || [];
+            const labels = rawData?.method_labels || {};
+
+            const selectedDoc = docSelect.value;
+            const selectedGroup = groupSelect.value;
+            const selectedMethod = methodSelect.value;
+
+            docSelect.innerHTML = '<option value="">All documents</option>' + docs.map(d =>
+                `<option value="${escapeHtml(d)}">${escapeHtml(d)}</option>`
+            ).join('');
+            groupSelect.innerHTML = '<option value="">All groups</option>' + groups.map(g =>
+                `<option value="${escapeHtml(g)}">${escapeHtml(g)}</option>`
+            ).join('');
+            methodSelect.innerHTML = '<option value="">All available</option>' + methods.map(m =>
+                `<option value="${escapeHtml(m)}">${escapeHtml(labels[m] || m)}</option>`
+            ).join('');
+
+            if (docs.includes(selectedDoc)) docSelect.value = selectedDoc;
+            if (groups.includes(selectedGroup)) groupSelect.value = selectedGroup;
+            if (methods.includes(selectedMethod)) methodSelect.value = selectedMethod;
+        }
+
+        function applyFilters() {
+            if (!rawData) return;
+            const doc = document.getElementById('filter-doc').value;
+            const group = document.getElementById('filter-group').value;
+            const columnQuery = (document.getElementById('filter-column').value || '').toLowerCase().trim();
+            const method = document.getElementById('filter-methods').value;
+
+            visibleMethods = method ? [method] : (rawData.methods_available || rawData.methods || []);
+            const rows = (rawData.rows || []).filter(row => {
+                if (doc && row.doc_id !== doc) return false;
+                if (group && row.group_name !== group) return false;
+                if (columnQuery && !String(row.column_name || '').toLowerCase().includes(columnQuery)) return false;
+                return visibleMethods.some(m => row[m] != null);
+            });
+
+            document.getElementById('stat-docs').textContent = new Set(rows.map(r => r.doc_id)).size;
+            document.getElementById('stat-rows').textContent = rows.length;
+            document.getElementById('stat-methods').textContent = visibleMethods.length;
+
+            if (gridApi) {
+                gridApi.setGridOption('columnDefs', buildColumnDefs());
+                gridApi.setGridOption('rowData', rows);
+                document.getElementById('btn-export-csv').disabled = rows.length === 0;
+            }
+        }
+
+        async function loadData() {
+            const res = await fetch('/api/report/method-comparison').then(r => r.json());
+            if (!res.success) throw new Error(res.error || 'Failed to load method comparison');
+            rawData = res;
+            visibleMethods = res.methods_available || res.methods || [];
+            populateFilters();
+            applyFilters();
+        }
+
+        function initGrid() {
+            gridApi = agGrid.createGrid(document.getElementById('comparison-grid'), {
+                theme,
+                rowData: [],
+                columnDefs: buildColumnDefs(),
+                defaultColDef: {
+                    sortable: true,
+                    filter: false,
+                    resizable: true,
+                    suppressMenu: true,
+                    wrapHeaderText: true,
+                    autoHeaderHeight: true,
+                },
+                rowHeight: 52,
+                animateRows: false,
+                suppressDragLeaveHidesColumns: true,
+            });
+        }
+
+        document.getElementById('filter-doc').addEventListener('change', applyFilters);
+        document.getElementById('filter-group').addEventListener('change', applyFilters);
+        document.getElementById('filter-column').addEventListener('input', applyFilters);
+        document.getElementById('filter-methods').addEventListener('change', applyFilters);
+        document.getElementById('btn-refresh').addEventListener('click', loadData);
+        document.getElementById('btn-export-csv').addEventListener('click', () => gridApi?.exportDataAsCsv({ fileName: 'method_comparison.csv' }));
+
+        initGrid();
+        loadData().catch(err => {
+            document.getElementById('comparison-grid').innerHTML = `<div class="p-6 text-error">${escapeHtml(err.message)}</div>`;
+        });
+    </script>
+</body>
+</html>

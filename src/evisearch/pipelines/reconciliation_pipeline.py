@@ -15,6 +15,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import sys
 from pathlib import Path
 from typing import Any, Dict, List, Optional
@@ -85,6 +86,9 @@ def run_reconciliation_pipeline(
     resume: bool = True,
     no_resume: bool = False,
     max_per_batch: int = 15,
+    provider_name: Optional[str] = None,
+    model: Optional[str] = None,
+    max_batches: Optional[int] = None,
 ) -> Dict[str, Any]:
     """
     Run full reconciliation pipeline. Returns {"columns": {...}, "error": str or None}.
@@ -120,6 +124,9 @@ def run_reconciliation_pipeline(
     batches = build_reconciliation_batches(
         groups, group_names=group_names, resume_from=resume_from, max_per_batch=max_per_batch
     )
+    if max_batches is not None:
+        batches = batches[: max(max_batches, 0)]
+
     if not batches:
         return {"columns": resume_from or {}, "error": None}
 
@@ -137,6 +144,8 @@ def run_reconciliation_pipeline(
             source_a_data=source_a,
             source_b_data=source_b,
             log_path=logs_dir / f"batch_{batch_idx}.txt",
+            provider_name=provider_name,
+            model=model,
         )
         total_usage["input_tokens"] += batch_usage.get("input_tokens", 0)
         total_usage["output_tokens"] += batch_usage.get("output_tokens", 0)
@@ -164,9 +173,17 @@ def main():
     parser.add_argument("--dry-run", action="store_true", help="Print batches, don't run")
     parser.add_argument("--no-resume", action="store_true", help="Start fresh, ignore previous results")
     parser.add_argument("--batch-size", type=int, default=15, help="Columns per batch (default: 15)")
+    parser.add_argument("--max-batches", type=int, default=None, help="Run only the first N batches for smoke testing")
+    parser.add_argument("--provider", default=os.getenv("RECONCILIATION_AGENT_PROVIDER") or "local")
+    parser.add_argument("--model", default=os.getenv("RECONCILIATION_AGENT_MODEL") or os.getenv("LOCAL_OPENAI_MODEL") or None)
+    parser.add_argument("--max-tokens", type=int, default=int(os.getenv("RECONCILIATION_AGENT_MAX_TOKENS", "4096") or "4096"))
     args = parser.parse_args()
 
     doc_id = args.doc_id
+    os.environ["RECONCILIATION_AGENT_PROVIDER"] = args.provider
+    os.environ["RECONCILIATION_AGENT_MAX_TOKENS"] = str(args.max_tokens)
+    if args.model:
+        os.environ["RECONCILIATION_AGENT_MODEL"] = args.model
     group_names = None
     if args.groups:
         group_names = [g.strip() for g in args.groups.split(",") if g.strip()]
@@ -207,7 +224,10 @@ def main():
     batches = build_reconciliation_batches(
         groups, group_names=group_names, resume_from=resume_from, max_per_batch=args.batch_size
     )
+    if args.max_batches is not None:
+        batches = batches[: max(args.max_batches, 0)]
     print(f"[run_reconciliation_agent] doc_id={doc_id} group_names={group_names}")
+    print(f"[run_reconciliation_agent] provider={args.provider} model={args.model or '(provider default)'} max_tokens={args.max_tokens}")
     print(f"[run_reconciliation_agent] {len(batches)} batch(es)")
 
     if args.dry_run:
@@ -235,6 +255,8 @@ def main():
             source_a_data=source_a,
             source_b_data=source_b,
             log_path=log_path,
+            provider_name=args.provider,
+            model=args.model,
         )
         total_usage["input_tokens"] += batch_usage.get("input_tokens", 0)
         total_usage["output_tokens"] += batch_usage.get("output_tokens", 0)

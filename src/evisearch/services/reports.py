@@ -255,6 +255,49 @@ def _load_search_agent(pdf_stem: str) -> Optional[Dict[str, Dict[str, Any]]]:
         return None
 
 
+
+def _load_reconciliation_agent(pdf_stem: str) -> Optional[Dict[str, Dict[str, Any]]]:
+    """Load reconciliation agent final results."""
+    path = RESULTS_PATHS["pipeline"] / pdf_stem / "reconciliation_agent" / "reconciled_results.json"
+    if not path.exists():
+        return None
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+        columns = data.get("columns", {})
+        if not isinstance(columns, dict):
+            return None
+        out = {}
+        for col_name, col_data in columns.items():
+            if isinstance(col_data, dict):
+                v = col_data.get("value", "")
+                evidence = (col_data.get("reasoning") or col_data.get("verification") or "").strip()
+                attribution = col_data.get("attribution") or []
+                attribution = [
+                    {**item, "source_type": item.get("source_type") or item.get("modality", "text")}
+                    for item in attribution if isinstance(item, dict)
+                ]
+                v = str(v) if v is not None else ""
+            else:
+                v = str(col_data) if col_data else ""
+                evidence = ""
+                attribution = []
+            out[col_name] = {
+                "column_name": col_name,
+                "group_name": "",
+                "value": v,
+                "primary_value": v,
+                "found": bool(v and v not in ("Not reported", "not found", "Not applicable", "")),
+                "page": None,
+                "source_type": "text",
+                "evidence": evidence,
+                "attribution_snippet": "",
+                "attribution": attribution,
+                "candidates": [{"value": v, "evidence": evidence, "assumptions": None, "confidence": "medium"}],
+            }
+        return out
+    except Exception:
+        return None
+
 def _load_plan_extract(pdf_stem: str, with_keywords: bool) -> Optional[Dict[str, Dict[str, Any]]]:
     """Load plan_extract_columns or plan_extract_columns_with_keywords results."""
     subdir = "plan_extract_columns_with_keywords" if with_keywords else "plan_extract_columns"
@@ -308,6 +351,8 @@ def get_document_status(pdf_stem: str) -> Dict[str, bool]:
         "pipeline_plan_extract": _load_plan_extract(pdf_stem, with_keywords=False) is not None,
         "pipeline_keywords": _load_plan_extract(pdf_stem, with_keywords=True) is not None,
         "agent": _load_agent(pdf_stem) is not None,
+        "search_agent": _load_search_agent(pdf_stem) is not None,
+        "reconciliation_agent": _load_reconciliation_agent(pdf_stem) is not None,
     }
 
 
@@ -366,6 +411,12 @@ def load_comparison_data(pdf_stem: str) -> Dict[str, Any]:
     if search_agent:
         methods["search_agent"] = search_agent
         all_columns.update(search_agent.keys())
+
+    # Reconciliation agent
+    reconciliation_agent = _load_reconciliation_agent(pdf_stem)
+    if reconciliation_agent:
+        methods["reconciliation_agent"] = reconciliation_agent
+        all_columns.update(reconciliation_agent.keys())
 
     # Build comparison rows: one per column, with values per method
     columns_sorted = sorted(all_columns)
@@ -426,14 +477,15 @@ def list_documents() -> List[Dict[str, Any]]:
                     if doc_dir.is_dir():
                         pdf_stems.add(doc_dir.name)
 
-    # From landing_ai_baseline
-    la_base = RESULTS_PATHS["landing_ai_baseline"]
-    if la_base.exists():
-        for model_dir in la_base.iterdir():
-            if model_dir.is_dir():
-                for doc_dir in model_dir.iterdir():
-                    if doc_dir.is_dir():
-                        pdf_stems.add(doc_dir.name)
+    # From LandingAI baselines
+    for baseline_key in ("landing_ai_baseline", "landing_ai_baseline_gpt4"):
+        baseline_base = RESULTS_PATHS[baseline_key]
+        if baseline_base.exists():
+            for model_dir in baseline_base.iterdir():
+                if model_dir.is_dir():
+                    for doc_dir in model_dir.iterdir():
+                        if doc_dir.is_dir():
+                            pdf_stems.add(doc_dir.name)
 
     documents = []
     for stem in sorted(pdf_stems):

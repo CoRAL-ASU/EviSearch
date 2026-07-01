@@ -9,6 +9,7 @@ Usage (from web):
 from __future__ import annotations
 
 import json
+import os
 import sys
 import threading
 from pathlib import Path
@@ -152,8 +153,13 @@ def run_unified_extraction(
     emit({"type": "stream_message", "text": f"Loaded {first_batch_size} queries — ", "show_columns": 0})
     emit({"type": "stream_message", "text": "Running 2 methods in parallel per batch."})
 
-    provider = LLMProvider(provider="gemini", model="gemini-2.5-flash")
-    pdf_handle = provider.upload_pdf(pdf_path)
+    pdf_query_method = os.getenv("PDF_QUERY_AGENT_METHOD", "native_pdf").strip().lower()
+    use_markdown_pdf_query = pdf_query_method in {"markdown_full_text", "markdown_local", "local_markdown"}
+    provider = None
+    pdf_handle = None
+    if not use_markdown_pdf_query:
+        provider = LLMProvider(provider="gemini", model="gemini-2.5-flash")
+        pdf_handle = provider.upload_pdf(pdf_path)
 
     agent_dir = RESULTS_ROOT / doc_id / "agent_extractor"
     search_dir = RESULTS_ROOT / doc_id / "search_agent"
@@ -174,7 +180,17 @@ def run_unified_extraction(
         def run_agent_batch():
             nonlocal agent_result
             try:
-                agent_result = extract_batch(doc_id, batch, pdf_handle, provider)
+                if use_markdown_pdf_query:
+                    from src.evisearch.services.markdown_pdf_query import run_markdown_pdf_query_agent
+
+                    agent_result, _ = run_markdown_pdf_query_agent(
+                        doc_id,
+                        batch,
+                        provider_name=os.getenv("PDF_QUERY_PROVIDER") or "local",
+                        model=os.getenv("PDF_QUERY_MODEL") or None,
+                    )
+                else:
+                    agent_result = extract_batch(doc_id, batch, pdf_handle, provider)
             except Exception as e:
                 agent_result = {c.get("column_name", ""): {"value": f"Error: {e}", "reasoning": "", "found": False, "attribution": [], "tried": True} for c in batch}
 
