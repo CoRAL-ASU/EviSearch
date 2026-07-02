@@ -18,6 +18,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import sys
 from pathlib import Path
 from typing import Any, Callable, Dict, List, Optional
@@ -94,6 +95,9 @@ def run_search_agent_pipeline(
     resume: bool = True,
     no_resume: bool = False,
     on_event: Optional[Callable[[Dict[str, Any]], None]] = None,
+    provider_name: Optional[str] = None,
+    model: Optional[str] = None,
+    max_batches: Optional[int] = None,
 ) -> Dict[str, Any]:
     """
     Run full search agent pipeline (all batches). Emits events via on_event for streaming.
@@ -123,6 +127,8 @@ def run_search_agent_pipeline(
             pass
 
     batches = build_extraction_batches(groups, group_names=group_names, resume_from=resume_from)
+    if max_batches is not None:
+        batches = batches[: max(max_batches, 0)]
     total_cols = sum(len(b) for b in batches)
     if total_cols == 0:
         if resume_from:
@@ -172,7 +178,7 @@ def run_search_agent_pipeline(
     for batch_idx, batch in enumerate(batches):
         log_path = logs_dir / f"batch_{batch_idx}.txt"
         from src.evisearch.services.search import run_search_agent
-        results, batch_usage = run_search_agent(doc_id, batch, definitions_map, log_path=log_path)
+        results, batch_usage = run_search_agent(doc_id, batch, definitions_map, log_path=log_path, provider_name=provider_name, model=model)
         total_usage["input_tokens"] += batch_usage.get("input_tokens", 0)
         total_usage["output_tokens"] += batch_usage.get("output_tokens", 0)
         total_usage["api_calls"] += batch_usage.get("api_calls", 0)
@@ -219,9 +225,17 @@ def main():
     )
     parser.add_argument("--dry-run", action="store_true", help="Print batches, don't run")
     parser.add_argument("--no-resume", action="store_true", help="Start fresh, ignore previous extraction")
+    parser.add_argument("--max-batches", type=int, default=None, help="Run only the first N batches for smoke testing")
+    parser.add_argument("--provider", default=os.getenv("SEARCH_AGENT_PROVIDER") or "local")
+    parser.add_argument("--model", default=os.getenv("SEARCH_AGENT_MODEL") or os.getenv("LOCAL_OPENAI_MODEL") or None)
+    parser.add_argument("--max-tokens", type=int, default=int(os.getenv("SEARCH_AGENT_MAX_TOKENS", "4096") or "4096"))
     args = parser.parse_args()
 
     doc_id = args.doc_id
+    os.environ["SEARCH_AGENT_PROVIDER"] = args.provider
+    os.environ["SEARCH_AGENT_MAX_TOKENS"] = str(args.max_tokens)
+    if args.model:
+        os.environ["SEARCH_AGENT_MODEL"] = args.model
     group_names = None
     if args.groups:
         group_names = [g.strip() for g in args.groups.split(",") if g.strip()]
@@ -245,7 +259,10 @@ def main():
             pass
 
     batches = build_extraction_batches(groups, group_names=group_names, resume_from=resume_from)
+    if args.max_batches is not None:
+        batches = batches[: max(args.max_batches, 0)]
     print(f"[run_search_agent] doc_id={doc_id} group_names={group_names}")
+    print(f"[run_search_agent] provider={args.provider} model={args.model or '(provider default)'} max_tokens={args.max_tokens}")
     print(f"[run_search_agent] {len(batches)} batch(es)")
 
     if args.dry_run:
@@ -296,7 +313,7 @@ def main():
         print(f"[run_search_agent] batch {batch_idx + 1}/{len(batches)}: {len(batch)} columns")
         log_path = logs_dir / f"batch_{batch_idx}.txt"
         from src.evisearch.services.search import run_search_agent
-        results, batch_usage = run_search_agent(doc_id, batch, definitions_map, log_path=log_path)
+        results, batch_usage = run_search_agent(doc_id, batch, definitions_map, log_path=log_path, provider_name=args.provider, model=args.model)
         total_usage["input_tokens"] += batch_usage.get("input_tokens", 0)
         total_usage["output_tokens"] += batch_usage.get("output_tokens", 0)
         total_usage["api_calls"] += batch_usage.get("api_calls", 0)

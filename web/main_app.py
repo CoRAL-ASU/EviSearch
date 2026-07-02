@@ -258,9 +258,6 @@ def api_method_comparison_report():
         "gemini_native",
         "landing_ai_baseline",
         "landing_ai_baseline_gpt4",
-        "pipeline",
-        "pipeline_plan_extract",
-        "pipeline_keywords",
     ]
     method_labels = {
         "agent": "Agent extractor",
@@ -269,9 +266,6 @@ def api_method_comparison_report():
         "gemini_native": "Gemini file search",
         "landing_ai_baseline": "LandingAI + Gemini",
         "landing_ai_baseline_gpt4": "LandingAI + GPT-4",
-        "pipeline": "Pipeline extract",
-        "pipeline_plan_extract": "Plan extract",
-        "pipeline_keywords": "Plan extract + keywords",
     }
     requested = request.args.get("methods", "").strip()
     methods = [m.strip() for m in requested.split(",") if m.strip()] if requested else default_methods

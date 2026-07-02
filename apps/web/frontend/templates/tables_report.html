@@ -65,6 +65,39 @@
             width: 100%;
         }
 
+        .report-doc-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            max-width: 100%;
+            padding: 0.3rem 0.45rem;
+            border-radius: 0.75rem;
+            color: #dbeafe;
+            text-decoration: none;
+            border: 1px solid rgba(96, 165, 250, 0.28);
+            background: rgba(37, 99, 235, 0.10);
+            transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+            white-space: normal;
+            overflow-wrap: anywhere;
+            word-break: break-word;
+        }
+
+        .report-doc-link:hover {
+            color: #ffffff;
+            background: rgba(37, 99, 235, 0.22);
+            border-color: rgba(147, 197, 253, 0.55);
+        }
+
+        .report-doc-missing {
+            display: block;
+            width: 100%;
+            padding: 0.3rem 0.45rem;
+            color: rgba(255, 255, 255, 0.48);
+            white-space: normal;
+            overflow-wrap: anywhere;
+            word-break: break-word;
+        }
+
         .report-value-link {
             display: block;
             width: 100%;
@@ -199,6 +232,16 @@
             return `/attribution?doc=${encodeURIComponent(docId)}&column=${encodeURIComponent(columnName)}`;
         }
 
+        function pdfUrl(docId) {
+            return `/api/documents/${encodeURIComponent(docId)}/pdf`;
+        }
+
+        function displayPdfName(docId) {
+            const value = String(docId || '').trim();
+            if (!value) return '';
+            return value.toLowerCase().endsWith('.pdf') ? value : `${value}.pdf`;
+        }
+
         function isEmptyVal(v) {
             const s = String(v || '').trim().toLowerCase();
             return !s || ['not reported', 'not found', 'n/a', 'not applicable', '—', '-'].includes(s);
@@ -287,6 +330,16 @@
                     autoHeaderHeight: true,
                     cellClass: 'report-doc-cell',
                     valueGetter: (params) => params.data?.doc_id || '',
+                    cellRenderer: (params) => {
+                        const docId = params.value == null ? '' : String(params.value);
+                        if (!docId) return '';
+                        const label = displayPdfName(docId);
+                        if (params.data?.pdf_exists === false) {
+                            return `<span class="report-doc-missing" title="PDF not found for ${escapeHtml(label)}">${escapeHtml(label)}</span>`;
+                        }
+                        const href = pdfUrl(docId);
+                        return `<a class="report-doc-link" href="${href}" target="_blank" rel="noopener noreferrer" title="Open full PDF: ${escapeHtml(label)}"><span aria-hidden="true">PDF</span><span>${escapeHtml(label)}</span></a>`;
+                    },
                 },
                 ...buildGroupedColumnDefs(filteredColumns),
             ];

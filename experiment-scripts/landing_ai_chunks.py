@@ -2,8 +2,7 @@
 Landing AI chunks module.
 
 Fetches document chunks from Landing AI ADE Parse API and converts them
-to the format expected by verify_plans_with_pdf.py (compatible with
-find_relevant_chunks_for_group, format_chunks, etc.).
+to the shared chunk format used by the legacy Landing AI extraction helpers.
 
 Usage:
     chunks = load_landing_ai_chunks(pdf_path, cache_dir=None)

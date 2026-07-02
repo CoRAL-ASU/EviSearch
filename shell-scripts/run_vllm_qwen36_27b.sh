@@ -16,12 +16,12 @@ PORT="${PORT:-8002}"
 MAX_MODEL_LEN="${MAX_MODEL_LEN:-65536}"
 GPU_MEMORY_UTIL="${GPU_MEMORY_UTIL:-0.92}"
 MAX_NUM_SEQS="${MAX_NUM_SEQS:-1}"
-TP_SIZE="${TP_SIZE:-2}"
+TP_SIZE="${TP_SIZE:-1}"
 DTYPE="${DTYPE:-bfloat16}"
 LIMIT_MM_PER_PROMPT="${LIMIT_MM_PER_PROMPT:-}"
 
 # Pick the GPU(s) to use unless the caller already set CUDA_VISIBLE_DEVICES.
-export CUDA_VISIBLE_DEVICES="${CUDA_VISIBLE_DEVICES:-2,3}"
+export CUDA_VISIBLE_DEVICES="${CUDA_VISIBLE_DEVICES:-0}"
 
 if [[ "${1:-}" == "--kill-port" ]]; then
   if command -v fuser &>/dev/null; then

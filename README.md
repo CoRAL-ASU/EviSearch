@@ -1,305 +1,377 @@
-# CoRal-Map-Make: Clinical Trial Data Extraction Pipeline
+# CoRal-Map-Make
 
-This repository contains a **plan-based extraction pipeline (V2)** for extracting structured data from clinical trial research papers (PDFs) using Large Language Models. The pipeline has four stages: **Chunking → Planning → Extraction → Evaluation**, with explicit extraction plans for interpretability and category-aware evaluation.
+Clinical-trial PDF extraction system with a shared runtime for:
 
----
+- document preparation with Landing AI parse + embedding cache
+- `agent_extractor` / PDF-query extraction
+- `search_agent` / retrieval-guided extraction
+- `reconciliation_agent` / A-vs-B resolution
+- attribution highlighting and method-comparison reporting
 
-## Table of Contents
+The current codebase is centered on `src/evisearch`. The older plan-generator / plan-executor stack has been removed.
 
-1. [Pipeline Overview](#pipeline-overview)
-2. [Architecture & Complete Flow](#architecture--complete-flow)
-3. [Module Reference (`src/`)](#module-reference-src)
-4. [Configuration](#configuration)
-5. [Output Structure](#output-structure)
-6. [Setup and Dependencies](#setup-and-dependencies)
-7. [Usage](#usage)
-8. [Preprocessing (used by Chunking)](#preprocessing-used-by-chunking)
-9. [Architecture Notes](#architecture-notes)
-
----
-
-## Pipeline Overview
-
-High-level flow:
+## Current architecture
 
 ```mermaid
-flowchart TD
-    A[PDF Input] --> B[Stage 1: Chunking]
-    B --> C[pdf_chunked.json]
-    C --> D[Stage 2: Planning]
-    D --> E[Extraction Plans]
-    E --> F[Stage 3: Extraction]
-    F --> G[extraction_metadata.json + CSV]
-    G --> H[Stage 4: Evaluation]
-    H --> I[evaluation_results.json + summary_metrics.json]
-    
-    style B fill:#e1f5ff
-    style D fill:#fff0e1
-    style F fill:#fff4e1
-    style H fill:#e8f5e9
+flowchart LR
+    A[PDF] --> B[Prepare Document]
+    B --> C[Landing AI parse]
+    C --> D[parsed_markdown.md]
+    C --> E[landing_ai_parse_output.json]
+    D --> F[agent_extractor]
+    E --> G[chunk embeddings]
+    G --> H[search_agent]
+    F --> I[reconciliation_agent]
+    H --> I
+    F --> J[method comparison + attribution]
+    H --> J
+    I --> J
 ```
 
-- **Stage 1 (Chunking):** PDF → text/table/figure chunks, with optional LLM-based page classification.
-- **Stage 2 (Planning):** For each column group, an LLM (with PDF + chunks) produces a free-form extraction plan; a local structurer turns it into JSON (where to look, page, source_type, confidence).
-- **Stage 3 (Extraction):** Plans are executed: for each group, the LLM extracts values from plan-relevant chunks; structurer produces structured extractions; results are merged into one row + metadata.
-- **Stage 4 (Evaluation):** Extracted row is compared to ground truth with category-aware scoring (exact_match, numeric_tolerance, structured_text); correctness/completeness per column and summary metrics.
+## Source of truth
 
----
+There is one active application layer:
 
-## Architecture & Complete Flow
+- `src/evisearch/services/`: business logic for preparation, extraction, search, reconciliation, attribution, reports
+- `src/evisearch/pipelines/`: orchestration and batching used by scripts and web
+- `web/main_app.py`: Flask app that calls the same `src/evisearch` modules
+- `experiment-scripts/`: thin CLIs and benchmark wrappers around the same services/pipelines
 
-### Data Flow
+That split matters:
 
-```
-PDF
-  │
-  ▼
-┌─────────────────────────────────────────────────────────────────┐
-│  STAGE 1: CHUNKING                                               │
-│  process_pdf() → optional PageClassifier → PDFChunker.chunk()    │
-│  Output: chunking/pdf_chunked.json                               │
-└─────────────────────────────────────────────────────────────────┘
-  │
-  ▼
-┌─────────────────────────────────────────────────────────────────┐
-│  STAGE 2: PLANNING                                               │
-│  PlanGenerator.generate_plans(pdf, chunks)                       │
-│  • LLM (e.g. Gemini) + PDF → free-form plan per group           │
-│  • OutputStructurer (local Qwen) → GroupExtractionPlanV2 JSON    │
-│  Output: planning/*_plan.json, plans_all_columns.json            │
-└─────────────────────────────────────────────────────────────────┘
-  │
-  ▼
-┌─────────────────────────────────────────────────────────────────┐
-│  STAGE 3: EXTRACTION                                             │
-│  PlanExecutor.execute_plans(pdf, chunks, plans)                 │
-│  • For each group: find_relevant_chunks(plan) → LLM + PDF       │
-│  • OutputStructurer → GroupExtractionV2 → merge                  │
-│  Output: extraction/extraction_metadata.json, extracted_table.csv│
-└─────────────────────────────────────────────────────────────────┘
-  │
-  ▼
-┌─────────────────────────────────────────────────────────────────┐
-│  STAGE 4: EVALUATION                                             │
-│  EvaluatorV2.run()                                               │
-│  • Load extraction + ground truth + definitions (with category) │
-│  • Batches by category → Gemini judge → structurer → scores      │
-│  Output: evaluation/evaluation_results.json, summary_metrics.json│
-└─────────────────────────────────────────────────────────────────┘
-```
+- `services` implement the actual behavior
+- `pipelines` coordinate multi-batch runs, resume logic, and per-agent output writing
+- scripts and web should stay thin and call into `src/evisearch`, not duplicate logic
 
-### Module Map
+## Repo map
 
-| Stage / Cross-cutting | Directory / File | Role |
-|------------------------|------------------|------|
-| Entry point | `src/main/main_v2.py` | CLI menu, runs 1–6 (chunk only, plan only, extract only, eval only, full pipeline, or plan→extract→eval from existing chunks). |
-| Config | `src/config/config.py` | Paths, API keys, per-stage providers/models, chunking/planning/extraction/eval workers, structurer URL. |
-| Chunking | `src/chunking/` | Page classification, PDF chunking (text, table, figure), preprocessing hooks. |
-| Planning | `src/planning/plan_generator.py` | PlanGenerator: LLM + PDF → plan text → structurer → `GroupExtractionPlanV2` per group. |
-| Extraction | `src/extraction/plan_executor.py` | PlanExecutor: load plans, find relevant chunks, LLM extract → structurer → `GroupExtractionV2`, merge and write CSV + metadata. |
-| LLM | `src/LLMProvider/provider.py` | LLMProvider: Gemini, OpenAI, Novita, Groq, DeepInfra; `generate()`, `generate_with_pdf()`, `upload_pdf`/`cleanup_pdf`. |
-| Structurer | `src/LLMProvider/structurer.py` | OutputStructurer: free-form text → JSON via local model (e.g. vLLM Qwen) with Pydantic schema. |
-| Table defs | `src/table_definitions/definitions.py` | `load_definitions()`: column groups from CSV (Label → list of Column Name + Definition). |
-| Evaluation | `src/evaluation/evaluator_v2.py` | EvaluatorV2: load data, group by eval category, batch, Gemini judge, structurer, aggregate and save. |
-| Preprocessing | `src/preprocessing/pdf_margin_preprocessing.py` | Header/footer detection and cleaning used during chunking. |
-| Utils | `src/utils/logging_utils.py` | `setup_logger()` for consistent logging. |
+### Core runtime
 
----
+- `src/evisearch/services/preparation.py`
+  - runs Landing AI parse
+  - writes `parsed_markdown.md` and `landing_ai_parse_output.json`
+- `src/evisearch/services/markdown_pdf_query.py`
+  - full-markdown PDF-query extractor
+  - keeps the same output contract as `agent_extractor`
+- `src/evisearch/services/search.py`
+  - retrieval-guided search agent
+  - uses semantic search over cached page/chunk embeddings
+- `src/evisearch/services/reconciliation.py`
+  - resolves disagreements between Agent A and Agent B
+- `src/evisearch/services/attribution.py`
+  - maps agent/source attribution back to Landing AI chunks
+- `src/evisearch/services/highlight.py`
+  - resolves highlight chunk IDs and PDF highlight spans for the UI
+- `src/evisearch/services/reports.py`
+  - loads outputs from agents and baselines for comparison/report pages
 
-## Module Reference (`src/`)
+### Orchestration
 
-### `src/main/main_v2.py`
+- `src/evisearch/pipelines/unified_extraction.py`
+  - shared batching logic
+  - parallel Agent A + Search Agent orchestration for the app
+- `src/evisearch/pipelines/search_pipeline.py`
+  - batch runner for `search_agent`
+- `src/evisearch/pipelines/reconciliation_pipeline.py`
+  - batch runner for `reconciliation_agent`
 
-- **Entry point:** `main()` (interactive PDF path + menu) or `run_pipeline_from_args(pdf_path, choice)` for programmatic/web use.
-- **Choices:** `1` Chunking only; `2` Planning only; `3` Extraction only; `4` Evaluation only; `5` Full pipeline; `6` Planning → Extraction → Evaluation (reuse existing chunks).
-- **Helpers:** `run_chunking()`, `run_planning()`, `run_extraction()`, `run_evaluation()`; `create_versioned_output_dir()` when `VERSION_OUTPUTS` is True; `_find_existing()` to resolve existing chunk/plan/extraction paths for skip-if-exists behavior.
-- **Output root:** `RESULTS_BASE_DIR / pdf_name` (optionally with versioned `run_YYYY-MM-DD_HH-MM-SS` and `latest` symlink).
+### Provider layer
 
-### `src/config/config.py`
+- `src/LLMProvider/provider.py`
+  - unified provider interface
+  - supports `gemini`, `openai`, `novita`, `groq`, `deepinfra`, `local`
+- `local` means OpenAI-compatible inference, typically a vLLM endpoint
 
-- **API keys / cloud config:** From `.env`: `VERTEX_API_KEY` (local Vertex testing), `GOOGLE_CLOUD_PROJECT`, `GOOGLE_CLOUD_LOCATION`, `OPENAI_API_KEY`, `NOVITA_API_KEY`, `LLAMA_KEY` (Groq), `DEEPINFRA_API_KEY`.
-- **Per-task LLM:** `CHUNKING_*`, `EXTRACTION_*`, `EVALUATION_*` (legacy); V2: `PLANNING_PROVIDER/MODEL`, `EXTRACTION_PROVIDER_V2/MODEL_V2`, `EVALUATION_PROVIDER_V2/MODEL_V2`; workers: `PLANNING_WORKERS`, `EXTRACTION_WORKERS`, `EVALUATION_WORKERS`.
-- **Structurer (local):** `STRUCTURER_BASE_URL` (e.g. `http://localhost:8001/v1`), `STRUCTURER_MODEL` (e.g. `Qwen/Qwen3-8B`).
-- **Chunking:** `TEXT_CHUNK_MIN_SIZE`, `CHUNKING_MODE`, `PIXMAP_RESOLUTION`, `USE_LLM_PAGE_CLASSIFICATION`, `PAGE_CLASSIFICATION_MODEL`.
-- **Paths:** `DEFINITIONS_CSV_PATH`, `DEFINITIONS_EVAL_CATEGORY_PATH`, `GOLD_TABLE_JSON_PATH`, `RESULTS_BASE_DIR`.
-- **Pipeline behavior:** `VERSION_OUTPUTS`, `SKIP_STAGE_IF_EXISTS`, `EXTRACTION_MODE` (e.g. `"plan"`).
+### Web app
 
-### `src/chunking/`
+- `web/main_app.py`
+  - active Flask entrypoint
+- `apps/web/frontend/`
+  - templates and static assets
+- `apps/web/backend/app.py`
+  - compatibility import wrapper around `web.main_app`
 
-- **`chunking.py`**
-  - **`process_pdf(pdf_path, output_path, use_llm_classification)`:** Top-level entry. Optionally runs `PageClassifier.classify()` then builds `PDFChunker(pdf_path, page_metadata).chunk()`, saves JSON.
-  - **`PDFChunker`:** Holds `table_pages`/`figure_pages` from metadata (or processes all pages). For each page: `_process_page_text()` (accumulate cleaned text), `_process_tables()` (LLM + optional pdfplumber fallback), `_process_figures()` (regex + LLM description). After all pages: `_create_large_text_chunks()` (sentence/paragraph chunking). Returns list of chunks (type: text/table/figure, content, page, etc.).
-- **`page_classifier.py`**
-  - **`PageClassifier`:** Uses Gemini to classify which pages have tables/figures; uses `OutputStructurer` to get `TablesResponse`/`FiguresResponse`. **`classify()`** returns `{"tables": [...], "figures": [...]}` for targeted chunking.
-- **`utils_chunking.py`**
-  - Text chunking (`text_chunking()`), table extraction helpers (`extract_tables_pdfplumber()`, `parse_table_extraction_response()`), image/LLM helpers (`ask_gemini_with_image()`, `extract_caption_from_gemini()`), `save_chunks_to_json()`; heuristic header/footer filtering used with preprocessing.
+### Experiment CLIs
 
-### `src/planning/plan_generator.py`
+- `experiment-scripts/run_markdown_pdf_query_agent.py`
+- `experiment-scripts/run_search_agent.py`
+- `experiment-scripts/run_reconciliation_agent.py`
+- `experiment-scripts/run_local_search_agent.py`
+  - compatibility wrapper around `src/evisearch/pipelines/search_pipeline.py`
 
-- **Data structures:** `Column`, `ColumnGroup`; `ColumnExtractionPlanV2` (column_index, column_name, found_in_pdf, page, source_type, confidence, extraction_plan), `GroupExtractionPlanV2` (group_name, columns).
-- **`PlanGenerator(provider, definitions, structurer=None, name_policy)`:** Builds column groups from definitions; uses optional `OutputStructurer` (default from config).
-- **`generate_plan_for_group(group, pdf_handle, chunks, output_dir)`:** Builds prompt with chunk summaries and canonical columns; calls `provider.generate_with_pdf()`; writes raw plan to `logs/{stem}_raw.txt`; calls `structurer.structure()` with `GroupExtractionPlanV2` schema; validates/normalizes with `validate_and_normalize_group_plan()`; saves `{stem}_plan.json`.
-- **`generate_plans(pdf_path, chunks, output_dir, workers)`:** Uploads PDF, runs `generate_plan_for_group` per group in parallel (ThreadPoolExecutor), writes `plans_all_columns.json`, returns `{group_name: plan_data}`.
+## Runtime layout
 
-### `src/extraction/plan_executor.py`
+Runtime paths are defined in `src/config/runtime_paths.py`.
 
-- **Data structures:** `ColumnExtractionV2` (column_index, column_name, value, evidence, page, confidence), `GroupExtractionV2` (group_name, extractions).
-- **Helpers:** `find_relevant_chunks(plan.columns, chunks)` (by source_type and page); `format_chunks()`, `format_columns_for_prompt()`; `validate_and_normalize_plan()`, `validate_and_normalize_extraction()`; `_generate_outputs()` (writes `extraction_metadata.json` and `extracted_table.csv`).
-- **`_extract_group(...)`:** For a single group: filter plan to `found_in_pdf`, get relevant chunks, build prompt with columns + chunks; `provider.generate_with_pdf()`; log raw; `structurer.structure(GroupExtractionV2)` (with OpenAI/Gemini fallback on failure); normalize extraction and return `GroupExtractionV2`.
-- **`PlanExecutor(provider, structurer, name_policy).execute_plans(pdf_path, chunks, plans, output_path, workers)`:** Loads definitions, validates plans, uploads PDF; runs `_extract_group` per group in parallel; calls `_generate_outputs()`; returns loaded metadata dict.
-- **`load_plans_from_dir(plans_dir)`:** Loads from `plans_all_columns.json` or `*_plan.json` in the directory.
+Default locations:
 
-### `src/LLMProvider/provider.py`
-
-- **`LLMProvider(provider, model)`:** Unified interface for Gemini, OpenAI, Novita, Groq, DeepInfra. Methods: `generate()`, `generate_with_image()`, `generate_with_pdf(prompt, pdf_handle, ...)`, `upload_pdf(path)` / `cleanup_pdf(handle)`, and batch helpers. Returns `LLMResponse` (text, tokens, cost, success, error).
-
-### `src/LLMProvider/structurer.py`
-
-- **`OutputStructurer(base_url, model, api_key, enable_thinking)`:** Uses OpenAI-compatible client (e.g. vLLM) to turn free-form text into JSON. **`structure(text, schema, max_retries, temperature, return_dict)`** builds a schema prompt, calls the model, parses JSON and validates with Pydantic; returns `StructurerResponse(data, success, attempts, error)`.
-
-### `src/table_definitions/definitions.py`
-
-- **`load_definitions(csv_path=None, cols_to_test_path=None)`:** Reads CSV (default from config); groups by `Label`; each group is list of `{"Column Name", "Definition"}`. Optional filter via `cols_to_test_path` (included labels).
-
-### `src/evaluation/evaluator_v2.py`
-
-- **`EvaluatorV2(extraction_file, ground_truth_file, definitions_file, document_name, output_dir)`:** Loads extraction JSON (flat column → value), ground truth JSON (document row by `Document Name`), definitions with eval categories (`Definitions_with_eval_category.csv`).
-- **`load_data()`:** Fills `predicted_values`, `ground_truth_values`, `column_categories`, `column_definitions`, `column_labels`.
-- **`group_columns_by_category()`:** Groups common columns into `exact_match`, `numeric_tolerance`, `structured_text`.
-- **`build_prompt(category, columns)`:** Category-specific instructions (exact match, numeric tolerance, structured text) and column-wise GT vs Pred.
-- **`evaluate_batch(category, columns)`:** Gemini evaluation prompt → `structure_response()` (Qwen structurer or Gemini fallback) → list of `{column, correctness, completeness, reason}`.
-- **`evaluate_all(max_workers)`:** Batches by category/label, runs batches in parallel, stores results in `self.results`.
-- **`aggregate_metrics()`:** Overall and per-category avg correctness/completeness/overall.
-- **`save_results()`:** Writes `evaluation_results.json`, `summary_metrics.json`, `llm_logs/gemini_calls.jsonl`, `structurer_calls.jsonl`.
-- **`run()`:** load_data → evaluate_all → save_results.
-
-### `src/preprocessing/pdf_margin_preprocessing.py`
-
-- **`detect_repeating_patterns(pdf_path, sample_pages)`:** Learns top/bottom repeating text patterns from first N pages.
-- **`extract_text_blocks_with_position()`:** PyMuPDF text blocks with bounding boxes.
-- **`is_header_or_footer_by_position()` / `by_pattern()` / `by_heuristics()`:** Filter blocks (used from chunking/utils).
-- **`clean_page_text_advanced(page, page_height, patterns)`:** Applies position → pattern → heuristic filtering; returns cleaned page text.
-
-### `src/utils/logging_utils.py`
-
-- **`setup_logger(name)`:** Returns logger used across pipeline components.
-
----
-
-## Configuration
-
-Key settings in [`src/config/config.py`](src/config/config.py):
-
-| Area | Variables |
-|------|-----------|
-| **V2 Planning** | `PLANNING_PROVIDER`, `PLANNING_MODEL`, `PLANNING_WORKERS` |
-| **V2 Extraction** | `EXTRACTION_PROVIDER_V2`, `EXTRACTION_MODEL_V2`, `EXTRACTION_WORKERS` |
-| **V2 Evaluation** | `EVALUATION_PROVIDER_V2`, `EVALUATION_MODEL_V2`, `EVALUATION_WORKERS` |
-| **Structurer (local)** | `STRUCTURER_BASE_URL`, `STRUCTURER_MODEL` |
-| **Chunking** | `TEXT_CHUNK_MIN_SIZE`, `CHUNKING_MODE`, `USE_LLM_PAGE_CLASSIFICATION`, `PAGE_CLASSIFICATION_MODEL`, `PIXMAP_RESOLUTION` |
-| **Paths** | `DEFINITIONS_CSV_PATH`, `DEFINITIONS_EVAL_CATEGORY_PATH`, `GOLD_TABLE_JSON_PATH`, `RESULTS_BASE_DIR` |
-| **Behavior** | `VERSION_OUTPUTS`, `SKIP_STAGE_IF_EXISTS` |
-
-API keys / env (from `.env`): `VERTEX_API_KEY`, `GOOGLE_CLOUD_PROJECT`, `GOOGLE_CLOUD_LOCATION`, `OPENAI_API_KEY`, `NOVITA_API_KEY`, `LLAMA_KEY`, `DEEPINFRA_API_KEY`.
-
----
-
-## Output Structure
-
-With versioning enabled (`VERSION_OUTPUTS = True`), each run can create `run_YYYY-MM-DD_HH-MM-SS` under the document folder and `latest` symlink. Example:
-
-```
-RESULTS_BASE_DIR / {pdf_name} /
-├── run_2025-02-05_12-00-00/          # or "latest" -> run_...
-│   ├── chunking/
-│   │   └── pdf_chunked.json
-│   ├── planning/
-│   │   ├── *_plan.json
-│   │   ├── plans_all_columns.json
-│   │   └── logs/
-│   ├── extraction/
-│   │   ├── extraction_metadata.json
-│   │   ├── extracted_table.csv
-│   │   └── logs/
-│   └── evaluation/
-│       ├── evaluation_results.json
-│       ├── summary_metrics.json
-│       └── llm_logs/
+```text
+new_pipeline_outputs/
+├── results/
+│   └── <doc_id>/
+│       ├── chunking/
+│       │   ├── parsed_markdown.md
+│       │   └── landing_ai_parse_output.json
+│       ├── agent_extractor/
+│       │   ├── extraction_results.json
+│       │   ├── extraction_metadata.json
+│       │   └── raw_llm_responses/
+│       ├── search_agent/
+│       │   ├── extraction_results.json
+│       │   ├── extraction_metadata.json
+│       │   └── verification_logs/
+│       └── reconciliation_agent/
+│           ├── reconciled_results.json
+│           ├── extraction_metadata.json
+│           └── verification_logs/
+├── chunk_embeddings/
+└── feedback/
 ```
 
-- **extraction_metadata.json:** Per-column value, evidence, page, plan info (e.g. plan_found_in_pdf, plan_page, plan_source_type).
-- **summary_metrics.json:** Overall and by-category avg correctness, completeness, overall score.
+Path overrides:
 
----
+- `EVISEARCH_RUNTIME_ROOT`
+- `EVISEARCH_RESULTS_ROOT`
+- `EVISEARCH_CHUNK_EMBEDDINGS_DIR`
+- `EVISEARCH_UPLOADS_DIR`
+- `EVISEARCH_FEEDBACK_DIR`
+- `EVISEARCH_DATASET_DIR`
 
-## Setup and Dependencies
+## Agent flows
 
-- **Python:** Install from [`src/requirements.txt`](src/requirements.txt):  
-  `pip install -r src/requirements.txt`
-- **spaCy:** `python -m spacy download en_core_web_sm`
-- **Environment:** `.env` in project root with API keys (see Configuration).
-- **Local structurer (vLLM):** For planning/extraction/structuring, run vLLM (e.g. `./run_vllm.sh`) so `STRUCTURER_BASE_URL` is reachable.
-- **Column definitions:** `src/table_definitions/Definitions_open_ended.csv` (and `Definitions_with_eval_category.csv` for evaluation).
-- **Ground truth:** `dataset/Manual_Benchmark_GoldTable_cleaned.json` (or path set in `GOLD_TABLE_JSON_PATH`) for evaluation.
+### 1. Preparation
 
----
+Preparation is required before retrieval-based workflows.
 
-## Usage
+It does two things:
 
-**Interactive (CLI):**
+1. runs Landing AI parse and stores:
+   - `parsed_markdown.md`
+   - `landing_ai_parse_output.json`
+2. builds embedding cache used by retrieval/search
+
+Preparation is triggered from the web app via `/api/qa/prepare-document`.
+
+### 2. Agent extractor
+
+Current local-friendly implementation:
+
+- reads full `parsed_markdown.md`
+- sends markdown + column definitions to the model
+- expects JSON output in the existing `agent_extractor` contract
+- writes page/modality attribution in the same result shape used elsewhere
+
+Primary module:
+
+- `src/evisearch/services/markdown_pdf_query.py`
+
+CLI:
 
 ```bash
-python src/main/main_v2.py
+python experiment-scripts/run_markdown_pdf_query_agent.py "<doc_id>"
 ```
 
-Enter PDF path when prompted, then choose 1–6 (chunk only, plan only, extract only, eval only, full pipeline, or plan→extract→eval from existing chunks).
+### 3. Search agent
 
-**Programmatic / Web:**
+The search agent is retrieval-guided:
 
-```python
-from pathlib import Path
-from src.main.main_v2 import run_pipeline_from_args
+- searches embedding-backed chunks/pages
+- optionally loads specific pages directly
+- submits extracted values plus page/modality attribution
 
-run_dir, extraction_file, err = run_pipeline_from_args(
-    Path("path/to/document.pdf"),
-    "5"  # full pipeline
-)
-if err:
-    print("Error:", err)
-else:
-    print("Run dir:", run_dir, "Extraction:", extraction_file)
+Primary module:
+
+- `src/evisearch/services/search.py`
+
+CLI:
+
+```bash
+python experiment-scripts/run_search_agent.py "<doc_id>"
 ```
 
-**Run a single stage:** Use choices 1–4 and ensure prior stage outputs exist (or run 5 once). With `SKIP_STAGE_IF_EXISTS`, existing chunk/plan/extraction/eval files are reused when paths are found.
+### 4. Reconciliation agent
 
----
+The reconciliation agent reads:
 
-## Preprocessing (used by Chunking)
+- `agent_extractor/extraction_results.json`
+- `search_agent/extraction_results.json`
 
-Chunking uses [`src/preprocessing/pdf_margin_preprocessing.py`](src/preprocessing/pdf_margin_preprocessing.py) to clean page text before building text chunks:
+and writes:
 
-1. **Position-based:** Drop blocks in top/bottom margin regions (`TOP_MARGIN`, `BOTTOM_MARGIN`).
-2. **Pattern-based:** `detect_repeating_patterns()` on first N pages; drop blocks matching learned top/bottom patterns.
-3. **Heuristic-based:** (in `utils_chunking`) Short blocks, copyright/keywords, journal/volume/issue, dates, URLs, page numbers.
+- `reconciliation_agent/reconciled_results.json`
 
-`clean_page_text_advanced()` applies all three; only blocks that pass are kept for accumulation and later text chunking.
+Primary module:
 
----
+- `src/evisearch/services/reconciliation.py`
 
-## Architecture Notes
+CLI:
 
-- **Plan-based extraction:** Planning produces explicit (group, column, page, source_type, confidence) plans; extraction follows these plans and only sends relevant chunks to the LLM, improving consistency and traceability.
-- **Dual LLM roles:** Cloud LLM (e.g. Gemini/OpenAI) for PDF-aware planning and extraction; local structurer (e.g. Qwen via vLLM) for turning free-form text into strict JSON against Pydantic schemas.
-- **Parallelism:** Planning and extraction run per-group in parallel (configurable workers); evaluation runs batches in parallel by category.
-- **Skip-if-exists:** When `SKIP_STAGE_IF_EXISTS` is True, main_v2 looks for existing chunk/plan/extraction/eval outputs and skips re-running that stage.
-- **Logging:** All stages use `setup_logger()` from `src/utils/logging_utils.py`; planning and extraction write raw LLM outputs under `logs/` in their output directories.
+```bash
+python experiment-scripts/run_reconciliation_agent.py "<doc_id>"
+```
 
----
+## Provider configuration
 
-## License
+### Gemini
 
-[Add license information here]
+Gemini is the only provider in this repo that currently supports native PDF upload through `LLMProvider.generate_with_pdf(...)`.
 
-## Citation
+Relevant auth:
 
-[Add citation information here]
+- `VERTEX_API_KEY`
+- or `GOOGLE_CLOUD_PROJECT` + `GOOGLE_CLOUD_LOCATION` with ADC/service-account auth
+
+### Local OpenAI-compatible endpoint
+
+Use `provider=local` to target a vLLM or other OpenAI-compatible server.
+
+Relevant env:
+
+- `LOCAL_OPENAI_BASE_URL`
+- `LOCAL_OPENAI_API_KEY`
+- `LOCAL_OPENAI_MODEL`
+
+Agent-specific overrides:
+
+- `PDF_QUERY_PROVIDER`
+- `PDF_QUERY_MODEL`
+- `PDF_QUERY_MAX_TOKENS`
+- `MARKDOWN_PDF_QUERY_MAX_CHARS`
+- `SEARCH_AGENT_PROVIDER`
+- `SEARCH_AGENT_MODEL`
+- `SEARCH_AGENT_MAX_TOKENS`
+- `RECONCILIATION_AGENT_PROVIDER`
+- `RECONCILIATION_AGENT_MODEL`
+- `RECONCILIATION_AGENT_MAX_TOKENS`
+
+Current local PDF-query path is text-first: it uses `parsed_markdown.md`, not native PDF upload.
+
+## Setup
+
+### Python dependencies
+
+Core code:
+
+```bash
+pip install -r src/requirements.txt
+```
+
+Web app:
+
+```bash
+pip install -r web/requirements.txt
+```
+
+Cloud Run image:
+
+```bash
+pip install -r requirements-cloudrun.txt
+```
+
+### Environment
+
+The repo expects a root `.env` file for provider credentials and runtime config.
+
+Common keys:
+
+- Vertex / Gemini auth
+- Landing AI auth: `VISION_AGENT_API_KEY` or `LANDING_AI_API_KEY`
+- local inference endpoint vars if using vLLM
+
+## Running the system
+
+### Start the web app
+
+```bash
+python web/main_app.py
+```
+
+or:
+
+```bash
+./shell-scripts/start_web_interface.sh
+```
+
+Default URL:
+
+```text
+http://127.0.0.1:8007
+```
+
+### Run agents directly
+
+Agent extractor:
+
+```bash
+python experiment-scripts/run_markdown_pdf_query_agent.py "<doc_id>" --provider local --model "Qwen/Qwen3.6-27B"
+```
+
+Search agent:
+
+```bash
+python experiment-scripts/run_search_agent.py "<doc_id>" --provider local --model "Qwen/Qwen3.6-27B"
+```
+
+Reconciliation agent:
+
+```bash
+python experiment-scripts/run_reconciliation_agent.py "<doc_id>" --provider local --model "Qwen/Qwen3.6-27B"
+```
+
+Smoke-test a partial run:
+
+```bash
+python experiment-scripts/run_search_agent.py "<doc_id>" --max-batches 1 --dry-run
+python experiment-scripts/run_reconciliation_agent.py "<doc_id>" --max-batches 1 --dry-run
+```
+
+## Web surfaces
+
+Current useful routes:
+
+- `/`
+- `/qa`
+- `/extract`
+- `/attribution`
+- `/comparison-report`
+- `/method-comparison-report`
+
+Important report surface:
+
+- `/method-comparison-report`
+  - compares `agent_extractor`, `search_agent`, `reconciliation_agent`, and selected baselines against the same document/column set
+
+## Attribution model
+
+The active agent outputs use normalized source attribution:
+
+```json
+[
+  { "page": 8, "modality": "table" }
+]
+```
+
+The UI then resolves that source attribution back to Landing AI chunk IDs and highlight spans using:
+
+- `src/evisearch/services/attribution.py`
+- `src/evisearch/services/highlight.py`
+
+That means highlights depend on `landing_ai_parse_output.json` being present and aligned with the page/modality evidence emitted by the agents.
+
+## Notes on removed architecture
+
+The old plan-based stack is no longer the active architecture. These components have been removed:
+
+- `src/planning/plan_generator.py`
+- `src/extraction/plan_executor.py`
+- `src/main/main_v2.py`
+- old planning verification scripts
+
+If you see old references to:
+
+- "Planning -> Extraction -> Evaluation"
+- `plans_all_columns.json`
+- `*_plan.json`
+- `src/main/main_v2.py`
+
+those are stale and should not be treated as the current system design.

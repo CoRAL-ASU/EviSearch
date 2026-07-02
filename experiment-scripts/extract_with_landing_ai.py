@@ -32,8 +32,14 @@ sys.path.insert(0, str(SCRIPT_DIR))
 
 from src.LLMProvider.provider import LLMProvider
 from src.LLMProvider.structurer import OutputStructurer
-from src.planning.plan_generator import safe_stem
 from src.table_definitions.definitions import load_definitions
+
+
+def safe_stem(name: str) -> str:
+    """Create a filesystem-safe stem for output files."""
+    stem = re.sub(r"[^A-Za-z0-9._-]+", "_", name.strip())
+    stem = stem.strip("._")
+    return stem or "output"
 
 
 def load_column_definitions() -> Dict[str, str]:
