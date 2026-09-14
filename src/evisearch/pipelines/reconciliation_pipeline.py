@@ -31,6 +31,7 @@ from src.evisearch.pipelines.batching import (
     empty_usage,
     load_groups,
     parse_group_names,
+    unknown_groups,
 )
 
 
@@ -94,8 +95,13 @@ def main(argv: Optional[List[str]] = None) -> int:
             return 1
 
     group_names = parse_group_names(args.groups)
+    groups = load_groups()
+    unknown = unknown_groups(groups, group_names)
+    if unknown:
+        print(f"[reconciliation] unknown group(s) {unknown}; groups are the Label values in the definitions CSV", file=sys.stderr)
+        return 2
     existing = {} if args.no_resume else results_store.load_columns(args.doc_id, "reconciliation")
-    batches = build_batches(load_groups(), group_names, done=done_columns(existing), max_per_batch=args.batch_size)
+    batches = build_batches(groups, group_names, done=done_columns(existing), max_per_batch=args.batch_size)
     if args.max_batches is not None:
         batches = batches[: max(args.max_batches, 0)]
     print(f"[reconciliation] doc_id={args.doc_id} model={model_key_for('reconciliation', args.model)} batches={len(batches)}")

@@ -283,6 +283,17 @@ def test_unified_extraction_runs_both_arms_per_batch(doc, monkeypatch):
     assert result["search"][MEDIAN_OS]["value"] == f"B-{MEDIAN_OS}"
 
 
+def test_clis_reject_unknown_group_names(doc, monkeypatch, capsys):
+    for module in (pdf_query_pipeline, search_pipeline):
+        monkeypatch.setattr(module, "load_groups", lambda: GROUPS)
+
+    assert pdf_query_pipeline.main(["doc-1", "--groups", "ID,12345", "--dry-run"]) == 2
+    assert search_pipeline.main(["doc-1", "--groups", "Nope", "--dry-run"]) == 2
+    errors = capsys.readouterr().err
+    assert "unknown group(s) ['12345']" in errors and "unknown group(s) ['Nope']" in errors
+    assert pdf_query_pipeline.main(["doc-1", "--groups", "ID", "--dry-run", "--no-resume"]) == 0
+
+
 def test_unified_extraction_requires_prepared_document(doc, monkeypatch):
     (doc["results"] / "doc-1" / "chunking" / "parsed_markdown.md").unlink()
     events = []

@@ -24,6 +24,11 @@ def parse_group_names(value: Optional[str]) -> Optional[List[str]]:
     return names or None
 
 
+def unknown_groups(groups: Dict[str, List[Dict[str, Any]]], group_names: Optional[Iterable[str]]) -> List[str]:
+    """Requested group names that are not Labels in the definitions CSV."""
+    return [name for name in (group_names or []) if name not in groups]
+
+
 def done_columns(columns: Dict[str, Any]) -> Set[str]:
     """Columns that already have a result (entries explicitly marked tried=False are redone)."""
     return {name for name, value in (columns or {}).items() if value is not None and (not isinstance(value, dict) or value.get("tried", True))}
