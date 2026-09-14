@@ -77,12 +77,14 @@ and `api_key_env`.
 
 ## Local models (vLLM on the H200s)
 
-vLLM runs in its own environment (it pins its own PyTorch):
+Install vLLM into the project environment (it pins its own PyTorch version):
 
 ```bash
-python -m venv /mnt/data1/$USER/vllm-env && /mnt/data1/$USER/vllm-env/bin/pip install vllm
-export EVISEARCH_VLLM_BIN=/mnt/data1/$USER/vllm-env/bin/vllm   # or put it in .env
+pip install -r requirements-local.txt
 ```
+
+The launcher uses the `vllm` next to the running Python, so the venv does not need to be activated. To use
+a vLLM installed elsewhere, set `EVISEARCH_VLLM_BIN=/path/to/vllm`.
 
 Start the servers the current selection needs:
 

@@ -5,7 +5,8 @@ import subprocess
 import pytest
 
 from src.config.catalog import ConfigError, load_catalog
-from src.inference.serve import PROJECT_ROOT, GpuInfo, build_command, plan_placement, query_gpus
+import src.inference.serve as serve
+from src.inference.serve import PROJECT_ROOT, GpuInfo, build_command, plan_placement, query_gpus, resolve_vllm_bin
 
 CATALOG = load_catalog()
 GIB = 1024
@@ -48,6 +49,19 @@ def test_auto_placement_fails_when_pool_is_full():
     selection = CATALOG.resolve("local", gpu_pool=[0])
     with pytest.raises(ConfigError, match="qwen3_rerank_8b needs 1 GPU"):
         plan_placement(selection, SERVERS, _gpus(0), max_fraction=0.95)
+
+
+def test_vllm_bin_falls_back_to_the_active_python_environment(tmp_path, monkeypatch):
+    bin_dir = tmp_path / "venv" / "bin"
+    bin_dir.mkdir(parents=True)
+    (bin_dir / "vllm").write_text("#!/bin/sh\n")
+    monkeypatch.setattr(serve.sys, "executable", str(bin_dir / "python"))
+    monkeypatch.setenv("PATH", str(tmp_path / "empty"))
+
+    assert resolve_vllm_bin("vllm") == str(bin_dir / "vllm")
+    assert resolve_vllm_bin("/opt/custom/vllm") == "/opt/custom/vllm"
+    (bin_dir / "vllm").unlink()
+    assert resolve_vllm_bin("vllm") == "vllm"
 
 
 def test_build_command_uses_served_name_parsers_and_absolute_template_path():

@@ -54,7 +54,7 @@ GPUS = env("EVISEARCH_GPUS", {
     "qwen3_rerank_8b": "auto",
 })
 GPU_MAX_MEMORY_FRACTION = 0.95  # launcher refuses a GPU if used memory + requested fraction exceeds this
-VLLM_BIN = env("EVISEARCH_VLLM_BIN", "vllm")
+VLLM_BIN = env("EVISEARCH_VLLM_BIN", "vllm")  # found on PATH or next to the running Python (project venv)
 
 SELECTION = CATALOG.resolve(PRESET, ROLE_OVERRIDES, OPTIONS, GPUS, GPU_POOL)
 

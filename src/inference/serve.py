@@ -149,6 +149,17 @@ def build_command(selection: Selection, server: str, vllm_bin: str) -> List[str]
     return command
 
 
+def resolve_vllm_bin(configured: str) -> str:
+    """A configured path as-is; otherwise `vllm` from PATH, or the one installed next to this Python (the venv)."""
+    if os.sep in configured:
+        return configured
+    found = shutil.which(configured)
+    if found:
+        return found
+    sibling = Path(sys.executable).with_name(configured)
+    return str(sibling) if sibling.is_file() else configured
+
+
 def _port_in_use(host: str, port: int) -> bool:
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
         sock.settimeout(0.5)
@@ -273,8 +284,8 @@ def main(argv: Optional[List[str]] = None) -> int:
         print(exc, file=sys.stderr)
         return 2
 
-    vllm_bin = config.VLLM_BIN
-    have_vllm = bool(shutil.which(vllm_bin)) or Path(vllm_bin).is_file()
+    vllm_bin = resolve_vllm_bin(config.VLLM_BIN)
+    have_vllm = Path(vllm_bin).is_file()
     for server in pending:
         command = build_command(selection, server, vllm_bin)
         print(f"\n{server}: CUDA_VISIBLE_DEVICES={','.join(map(str, placement[server]))}")
@@ -285,8 +296,8 @@ def main(argv: Optional[List[str]] = None) -> int:
         return 0
     if not have_vllm:
         print(
-            f"vLLM executable '{vllm_bin}' was not found. Install vLLM in its own environment "
-            "(python -m venv <dir> && <dir>/bin/pip install vllm) and set EVISEARCH_VLLM_BIN=<dir>/bin/vllm.",
+            f"vLLM executable '{vllm_bin}' was not found. Install it into this environment with "
+            "pip install -r requirements-local.txt, or set EVISEARCH_VLLM_BIN to an existing vllm executable.",
             file=sys.stderr,
         )
         return 2
