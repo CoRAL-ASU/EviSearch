@@ -23,8 +23,6 @@ def isolated_app(tmp_path, monkeypatch):
         TESTING=True,
         UPLOAD_FOLDER=upload_dir,
     )
-    main_app.current_pdf_info = {}
-    main_app.extraction_service = None
 
     return main_app
 

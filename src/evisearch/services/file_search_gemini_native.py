@@ -11,10 +11,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 from typing import Any, Dict, List, Tuple
 
-from dotenv import load_dotenv
-
 from src.evisearch.services.markdown_baseline import (
-    GEMINI_PRICING,
     build_json_schema_for_group,
     build_label_groups,
     convert_to_extraction_metadata,
@@ -24,18 +21,8 @@ from src.evisearch.services.markdown_baseline import (
     safe_std,
 )
 
-try:
-    from src.LLMProvider.google_genai_client import (
-        create_vertex_genai_client,
-        get_genai_types,
-    )
-
-    GENAI_AVAILABLE = True
-except ImportError:
-    GENAI_AVAILABLE = False
-
-
-load_dotenv()
+from src.config.config import MAX_TOKENS
+from src.inference import Message, PdfPart, cost_usd, get_chat
 
 PROJECT_ROOT = Path(__file__).resolve().parents[3]
 DEFINITIONS_PATH = "src/table_definitions/Definitions_with_eval_category.csv"
@@ -64,47 +51,37 @@ def build_prompt(label: str, items: List[Dict[str, str]]) -> str:
     return "\n".join(lines)
 
 
-class GeminiPDFProvider:
+class PDFChatProvider:
+    """PDF + JSON schema through any catalog chat model that reads PDFs (role "baseline"; --model picks it)."""
+
     def __init__(self, model: str):
-        if not GENAI_AVAILABLE:
-            raise RuntimeError("google.genai is required. Install with: pip install google-genai")
         self.model = model
-        self.types = get_genai_types()
-        self.client = create_vertex_genai_client(timeout_ms=30_000)
+        self.chat = get_chat("baseline", model)
+        if not self.chat.capabilities.pdf:
+            raise SystemExit(f"Model '{model}' cannot read PDFs; pick a model with pdf support in src/config/catalog.yaml")
         self._pdf_part = None
 
     def upload_pdf(self, pdf_path: str) -> None:
         pdf_bytes = Path(pdf_path).read_bytes()
-        self._pdf_part = self.types.Part.from_bytes(
-            data=pdf_bytes,
-            mime_type="application/pdf",
-        )
-        print(f"PDF loaded as Part ({len(pdf_bytes)} bytes)")
+        self._pdf_part = PdfPart(pdf_bytes, filename=Path(pdf_path).name)
+        print(f"PDF loaded ({len(pdf_bytes)} bytes)")
 
     def query_pdf_with_schema(
         self, prompt: str, json_schema: Dict[str, Any]
     ) -> Tuple[str, int, int]:
-        config = self.types.GenerateContentConfig(
-            temperature=0.0,
-            response_mime_type="application/json",
+        result = self.chat.chat(
+            [Message.user(prompt, self._pdf_part)],
             response_schema=json_schema,
+            max_tokens=MAX_TOKENS["baseline"],
         )
-        response = self.client.models.generate_content(
-            model=self.model,
-            contents=[prompt, self._pdf_part],
-            config=config,
-        )
-        usage = getattr(response, "usage_metadata", None)
-        in_tok = getattr(usage, "prompt_token_count", 0) if usage else 0
-        out_tok = getattr(usage, "candidates_token_count", 0) if usage else 0
-        return (response.text or "").strip(), in_tok, out_tok
+        return result.text, result.usage.input_tokens, result.usage.output_tokens
 
     def cleanup_pdf(self) -> None:
         self._pdf_part = None
 
 
 def extract_once(
-    provider: GeminiPDFProvider,
+    provider: PDFChatProvider,
     label_groups: OrderedDict,
     definitions: Dict[str, Dict[str, Any]],
     output_dir: Path,
@@ -192,7 +169,7 @@ def extract_once(
 
 
 def run_reliability_test(
-    provider: GeminiPDFProvider,
+    provider: PDFChatProvider,
     label_groups: OrderedDict,
     definitions: Dict[str, Dict[str, Any]],
     base_dir: Path,
@@ -282,7 +259,7 @@ def run_reliability_test(
 def run_file_search_gemini_native_baseline(argv: List[str] | None = None) -> None:
     parser = argparse.ArgumentParser("File Search baseline (Gemini only, native JSON)")
     parser.add_argument("--pdf", required=True, help="Path to the PDF file")
-    parser.add_argument("--model", default="gemini-2.0-flash-001", help="Gemini model name")
+    parser.add_argument("--model", default="gemini-2.0-flash-001", help="Catalog model key that reads PDFs")
     parser.add_argument("--workers", type=int, default=10, help="Parallel label groups")
     parser.add_argument("--skip-eval", action="store_true", help="Skip evaluation")
     parser.add_argument("--run-eval-only", action="store_true", help="Skip extraction; use existing extraction_metadata.json and run evaluation only")
@@ -332,7 +309,7 @@ def run_file_search_gemini_native_baseline(argv: List[str] | None = None) -> Non
         return
 
     print("\nPhase 1: Extraction (Gemini native JSON with value + reasoning)")
-    provider = GeminiPDFProvider(args.model)
+    provider = PDFChatProvider(args.model)
     provider.upload_pdf(args.pdf)
 
     if args.reliability_runs > 1:
@@ -377,12 +354,11 @@ def run_file_search_gemini_native_baseline(argv: List[str] | None = None) -> Non
 
     provider.cleanup_pdf()
 
-    pricing = GEMINI_PRICING.get(args.model, {"input": 0, "output": 0})
-    input_cost = (total_in / 1000) * pricing["input"]
-    output_cost = (total_out / 1000) * pricing["output"]
+    input_cost = cost_usd(args.model, total_in, 0)
+    output_cost = cost_usd(args.model, 0, total_out)
     total_cost = input_cost + output_cost
     cost_metrics = {
-        "provider": "gemini",
+        "provider": provider.chat.spec.endpoint,
         "model": args.model,
         "tokens": {"input": total_in, "output": total_out, "total": total_in + total_out},
         "cost_usd": {

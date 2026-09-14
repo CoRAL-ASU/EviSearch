@@ -1,198 +1,22 @@
 """
-search_agent.py
+Arm B (search_agent): a tool-using agent that finds evidence page by page and submits column values.
 
-Search agent that uses OpenAI embedding retriever (parsed_markdown) to find pages,
-then extracts values. Tracks pages_sent to avoid re-sending content.
-Tools: search_chunks (semantic search), get_chunks_by_page, submit_extraction.
+Tools: search_chunks (embedding search, reranked when a reranker is selected), get_chunks_by_page,
+submit_extraction. The model comes from the "search_agent" role in src/config/config.py.
 """
 from __future__ import annotations
 
-import json
-import os
-import re
-from typing import Any, Dict, List, Optional, Set
+from pathlib import Path
+from typing import Any, Dict, List, Optional, Set, Tuple
 
-from src.config.runtime_paths import RESULTS_ROOT
-from src.LLMProvider.provider import LLMProvider
-from src.LLMProvider.google_genai_client import (
-    create_vertex_genai_client,
-    ensure_genai_modules,
-    has_vertex_auth,
-    vertex_auth_error_message,
-)
+from src.config.catalog import ConfigError
+from src.config.config import AGENT_MAX_TOOL_CALLS, AGENT_MAX_TURNS, MAX_TOKENS
+from src.evisearch.columns import column_names, extraction_items_schema, fill_missing, parse_column_entries
+from src.evisearch.pipelines.results_store import write_json
+from src.inference import InferenceError, Tool, ToolOutput, ToolSpec, Usage, get_chat, run_tool_loop
+from src.retrieval import embedding_retriever as retriever
 
-MAX_TOOL_CALLS = 15
-MAX_TURNS = 25
-
-VALID_MODALITIES = frozenset({"text", "table", "figure"})
-
-
-def _normalize_attribution(attr: List[Any], found: bool) -> List[Dict[str, Any]]:
-    """Convert raw attribution to [{page, modality}]. Default modality='text' if missing."""
-    if not found or not isinstance(attr, list):
-        return []
-    out = []
-    for item in attr:
-        if not isinstance(item, dict):
-            continue
-        try:
-            page = item.get("page")
-            page = int(page) if page is not None else None
-        except (TypeError, ValueError):
-            page = None
-        if page is None or page < 1:
-            continue
-        mod = str(item.get("modality") or item.get("source_type") or "text").lower()
-        if mod not in VALID_MODALITIES:
-            mod = "text"
-        out.append({"page": page, "modality": mod})
-    return out
-
-
-def _ensure_genai():
-    return ensure_genai_modules()
-
-
-def _run_search_chunks(
-    doc_id: str,
-    query: str,
-    pages_sent: Set[int],
-) -> Dict[str, Any]:
-    """
-    Semantic search. Returns page numbers + full content for pages NOT in pages_sent.
-    For pages already sent: "Page N: already provided—check your context."
-    """
-    from src.retrieval.openai_embedding_retriever import search_chunks as retriever_search
-
-    hits = retriever_search(doc_id, query=query, top_k=5)
-    if not hits:
-        return {
-            "matches": [],
-            "formatted_chunks": "No matching chunks found. Try different search terms.",
-            "pages_returned": [],
-        }
-
-    parts = []
-    pages_returned = []
-    all_already_sent = True
-
-    for h in hits:
-        page = h.get("page", 0)
-        text = h.get("text") or ""
-        score = h.get("score", 0)
-
-        if page in pages_sent:
-            parts.append(f"[Page {page}, score={score:.2f}] already provided—check your context.")
-        else:
-            all_already_sent = False
-            parts.append(f"[Page {page}, score={score:.2f}]\n{text}")
-            pages_returned.append(page)
-
-    if all_already_sent:
-        formatted = "All retrieved pages have already been provided. Try a different query or submit with what you have."
-    else:
-        formatted = "\n\n---\n\n".join(parts)
-
-    return {
-        "matches": [{"page": h.get("page"), "score": h.get("score")} for h in hits],
-        "formatted_chunks": formatted,
-        "pages_returned": pages_returned,
-    }
-
-
-def _run_get_chunks_by_page(
-    doc_id: str,
-    page_numbers: List[int],
-    pages_sent: Set[int],
-    total_pages: int,
-) -> Dict[str, Any]:
-    """
-    Return content for requested pages. For pages already sent: "already provided."
-    For invalid pages: "Page N does not exist. Document has M pages."
-    """
-    from src.retrieval.openai_embedding_retriever import get_page_content
-
-    content_map = get_page_content(doc_id, page_numbers)
-    parts = []
-    pages_returned = []
-
-    for p in sorted(set(page_numbers)):
-        if p < 1 or p > total_pages:
-            parts.append(content_map.get(p, f"Page {p} does not exist. Document has {total_pages} pages."))
-        elif p in pages_sent:
-            parts.append(f"[Page {p}] already provided—check your context.")
-        else:
-            parts.append(f"[Page {p}]\n{content_map.get(p, '')}")
-            pages_returned.append(p)
-
-    return {
-        "formatted_chunks": "\n\n---\n\n".join(parts),
-        "pages_returned": pages_returned,
-    }
-
-
-def _build_tool_declarations():
-    return [
-        {
-            "name": "search_chunks",
-            "description": "Semantic search over document pages (OpenAI embeddings). Returns top matching pages with full content. Pages you already have will show 'already provided—check your context'.",
-            "parameters": {
-                "type": "object",
-                "properties": {
-                    "query": {
-                        "type": "string",
-                        "description": "Search query (e.g. 'Median overall survival treatment arm months', 'region demographics N percentage')",
-                    },
-                },
-                "required": ["query"],
-            },
-        },
-        {
-            "name": "get_chunks_by_page",
-            "description": "Load full content of specific pages by page number. Use for informational columns (trial name, treatment arm, etc.) that typically appear in the first few pages. Pages you already have will show 'already provided'.",
-            "parameters": {
-                "type": "object",
-                "properties": {
-                    "page_numbers": {
-                        "type": "array",
-                        "items": {"type": "integer"},
-                        "description": "Page numbers to load (1-based, e.g. [1, 2, 3] for first three pages)",
-                    },
-                },
-                "required": ["page_numbers"],
-            },
-        },
-        {
-            "name": "submit_extraction",
-            "description": "Submit extracted values when done. Call when you have enough information for all columns (values or 'Not reported'). You may submit again to revise if you find better information.",
-            "parameters": {
-                "type": "object",
-                "properties": {
-                    "results": {
-                        "type": "object",
-                        "description": "Map of column_name to {value: string, reasoning: string, found: bool, attribution: [{page: number, modality: 'text'|'table'|'figure'}, ...]}",
-                    },
-                },
-                "required": ["results"],
-            },
-        },
-    ]
-
-
-def _build_column_blocks(
-    batch_columns: List[Dict[str, Any]],
-    definitions_map: Dict[str, str],
-) -> str:
-    col_blocks = []
-    for i, col in enumerate(batch_columns, 1):
-        name = col.get("column_name", "")
-        defn = definitions_map.get(name, "") or col.get("definition", "")
-        col_blocks.append(f"\n---\nColumn {i}: {name}\nDefinition: {defn}")
-    return "".join(col_blocks)
-
-
-def _build_system_instruction() -> str:
-    return """You extract clinical trial values from document pages.
+SYSTEM_PROMPT = """You extract clinical trial values from document pages.
 
 WORKFLOW (follow this order):
 1. Load initial pages: get_chunks_by_page([1, 2]) first.
@@ -217,344 +41,104 @@ TABLE SCOPE AND SUBGROUP POLICY:
 
 RULES:
 - Do not request pages you already have. We will tell you "already provided; check your context" for pages already sent.
-- Submit when you have enough information for all columns (values or "Not reported"). You may submit again to revise if you find better information.
+- Submit when you have enough information for all columns (values or "Not reported").
 - For N (%) columns include both count and percentage.
 - Do NOT include "treatment" or "control" in your search queries as they are generic. Use specific terms (drug names, region names, arm labels, column-specific terms).
 
-Tools:
-- search_chunks: semantic search. Only call for columns not found in pages you have. Query = specific column/term you need.
-- get_chunks_by_page: load specific pages by number. Use for first pages (trial info) or when you know the page.
-- submit_extraction: submit {column: {value, reasoning, found, attribution}} when done.
-
 Attribution: For each column, list sources as [{"page": N, "modality": "text"|"table"|"figure"}]. Use "table" for table content, "figure" for figures, "text" for prose. If not found: value="Not reported", found=false."""
 
-
-def _build_user_prompt(doc_id: str, batch_columns: List[Dict[str, Any]], definitions_map: Dict[str, str], total_pages: int) -> str:
-    return f"""Extract values for these columns. Document has {total_pages} pages.
-
-COLUMNS:
-{_build_column_blocks(batch_columns, definitions_map)}
-
-For informational columns (trial name, arms, etc.), use get_chunks_by_page([1, 2]) first. For specific columns, use search_chunks. Submit when you have enough information."""
+FOLLOW_UP = "Summarize what you learned. Then: search for more columns, load more pages, or call submit_extraction when you have enough information."
 
 
-def _normalize_submitted_results(raw_results: Any) -> Dict[str, Dict[str, Any]]:
-    submitted: Dict[str, Dict[str, Any]] = {}
-    for k, v in (raw_results.items() if isinstance(raw_results, dict) else []):
-        if isinstance(v, dict):
-            found = bool(v.get("found", True))
-            raw_attr = v.get("attribution") if isinstance(v.get("attribution"), list) else []
-            submitted[str(k)] = {
-                "value": str(v.get("value", "Not reported")),
-                "reasoning": str(v.get("reasoning", "")),
-                "found": found,
-                "attribution": _normalize_attribution(raw_attr, found),
-            }
-        else:
-            submitted[str(k)] = {"value": str(v), "reasoning": "", "found": True, "attribution": []}
-    return submitted
+def tool_specs(names: List[str]) -> List[ToolSpec]:
+    return [
+        ToolSpec(
+            name="search_chunks",
+            description="Semantic search over document pages. Returns the best matching pages with full content. Pages you already have show 'already provided; check your context'.",
+            parameters={
+                "type": "object",
+                "properties": {
+                    "query": {"type": "string", "description": "Search query, e.g. 'median overall survival abiraterone months'"},
+                },
+                "required": ["query"],
+            },
+        ),
+        ToolSpec(
+            name="get_chunks_by_page",
+            description="Load the full content of specific pages. Use for informational columns (trial name, arms) that appear in the first pages, or when you know the page.",
+            parameters={
+                "type": "object",
+                "properties": {
+                    "page_numbers": {"type": "array", "items": {"type": "integer"}, "description": "1-based page numbers, e.g. [1, 2, 3]"},
+                },
+                "required": ["page_numbers"],
+            },
+        ),
+        ToolSpec(
+            name="submit_extraction",
+            description="Submit the extracted values for all columns (values or 'Not reported'). Ends the task.",
+            parameters={
+                "type": "object",
+                "properties": {"results": extraction_items_schema(names)},
+                "required": ["results"],
+            },
+        ),
+    ]
 
 
-def _fill_missing_results(
-    submitted_results: Dict[str, Dict[str, Any]],
-    batch_columns: List[Dict[str, Any]],
-) -> Dict[str, Dict[str, Any]]:
-    for c in batch_columns:
-        name = c.get("column_name", "")
-        if name and name not in submitted_results:
-            submitted_results[name] = {"value": "Not reported", "reasoning": "Not extracted", "found": False, "attribution": []}
-    return submitted_results
+class _SearchSession:
+    def __init__(self, doc_id: str, names: List[str], total_pages: int):
+        self.doc_id = doc_id
+        self.names = names
+        self.total_pages = total_pages
+        self.pages_sent: Set[int] = set()
+        self.submitted: Optional[Dict[str, Dict[str, Any]]] = None
 
+    def _forget(self, pages: List[int]):
+        return lambda: self.pages_sent.difference_update(pages)
 
-def _extract_json_object(text: str) -> Optional[Dict[str, Any]]:
-    raw = (text or "").strip()
-    if "```" in raw:
-        start = raw.find("{")
-        end = raw.rfind("}") + 1
-        if start >= 0 and end > start:
-            raw = raw[start:end]
-    try:
-        obj = json.loads(raw)
-        return obj if isinstance(obj, dict) else None
-    except json.JSONDecodeError:
-        pass
-
-    decoder = json.JSONDecoder()
-    for match in re.finditer(r"\{", raw):
-        try:
-            obj, _ = decoder.raw_decode(raw[match.start():])
-        except json.JSONDecodeError:
-            continue
-        if isinstance(obj, dict):
-            return obj
-    return None
-
-
-def _parse_local_tool_call(text: str) -> Optional[Dict[str, Any]]:
-    obj = _extract_json_object(text)
-    if not obj:
-        return None
-    if isinstance(obj.get("tool_calls"), list) and obj["tool_calls"]:
-        first = obj["tool_calls"][0]
-        if isinstance(first, dict):
-            name = first.get("name") or first.get("tool") or first.get("action")
-            args = first.get("args") or first.get("arguments") or {}
-            return {"name": str(name or ""), "args": args if isinstance(args, dict) else {}}
-    name = obj.get("name") or obj.get("tool") or obj.get("action")
-    if name:
-        args = obj.get("args") or obj.get("arguments") or {}
-        if str(name) == "submit_extraction" and "results" in obj and not args:
-            args = {"results": obj.get("results")}
-        return {"name": str(name), "args": args if isinstance(args, dict) else {}}
-    return None
-
-
-def _execute_search_tool(
-    doc_id: str,
-    name: str,
-    args: Dict[str, Any],
-    pages_sent: Set[int],
-    total_pages: int,
-) -> tuple[Optional[Dict[str, Dict[str, Any]]], Dict[str, Any], Dict[str, Any]]:
-    if name == "submit_extraction":
-        submitted = _normalize_submitted_results(args.get("results") or {})
-        response = {"submitted": list(submitted.keys())}
-        return submitted, response, {"results_keys": list(submitted.keys())}
-
-    if name == "search_chunks":
-        query = str(args.get("query", ""))
-        result = _run_search_chunks(doc_id, query, pages_sent)
-        for p in result.get("pages_returned", []):
-            pages_sent.add(p)
-        return None, result, dict(args)
-
-    if name == "get_chunks_by_page":
-        page_nums = args.get("page_numbers") or []
-        page_nums = [int(p) for p in page_nums if isinstance(p, (int, float))]
-        result = _run_get_chunks_by_page(doc_id, page_nums, pages_sent, total_pages)
-        for p in result.get("pages_returned", []):
-            pages_sent.add(p)
-        return None, result, dict(args)
-
-    return None, {"error": f"Unknown tool: {name}"}, dict(args)
-
-
-def _write_search_conversation_log(
-    log_path: Optional[Path],
-    doc_id: str,
-    tool_calls_sequence: List[Dict[str, Any]],
-    conversation_log: List[Dict[str, Any]],
-    results: Dict[str, Dict[str, Any]],
-) -> None:
-    if not log_path:
-        return
-    log_path.parent.mkdir(parents=True, exist_ok=True)
-    conv_path = log_path.with_name(log_path.stem + "_conversation.json")
-    conv_path.write_text(
-        json.dumps({
-            "doc_id": doc_id,
-            "tool_calls_sequence": tool_calls_sequence,
-            "conversation": conversation_log,
-            "results": results,
-        }, indent=2, default=str),
-        encoding="utf-8",
-    )
-
-
-def _run_search_agent_gemini(
-    doc_id: str,
-    batch_columns: List[Dict[str, Any]],
-    definitions_map: Dict[str, str],
-    log_path: Optional[Path] = None,
-    model: Optional[str] = None,
-) -> tuple[Dict[str, Dict[str, Any]], Dict[str, int]]:
-    genai, types = _ensure_genai()
-    if not has_vertex_auth():
-        empty_usage = {"input_tokens": 0, "output_tokens": 0, "api_calls": 0, "total_tokens": 0}
-        reason = vertex_auth_error_message()
-        return ({c.get("column_name", ""): {"value": "Not reported", "reasoning": reason, "found": False, "attribution": []} for c in batch_columns}, empty_usage)
-
-    client = create_vertex_genai_client()
-    tools = types.Tool(function_declarations=_build_tool_declarations())
-
-    from src.retrieval.openai_embedding_retriever import get_total_pages
-    total_pages = get_total_pages(doc_id)
-    system_instruction = _build_system_instruction()
-    user_prompt = _build_user_prompt(doc_id, batch_columns, definitions_map, total_pages)
-
-    config = types.GenerateContentConfig(
-        temperature=0.0,
-        tools=[tools],
-        system_instruction=system_instruction,
-    )
-
-    contents = [types.Content(role="user", parts=[types.Part.from_text(text=user_prompt)])]
-    pages_sent: Set[int] = set()
-    tool_call_count = 0
-    submitted_results: Optional[Dict[str, Dict[str, Any]]] = None
-    conversation_log: List[Dict[str, Any]] = [{"turn": 0, "role": "user", "content": user_prompt}]
-    tool_calls_sequence: List[Dict[str, Any]] = []
-    total_usage: Dict[str, int] = {"input_tokens": 0, "output_tokens": 0, "api_calls": 0}
-
-    for _turn in range(MAX_TURNS):
-        if tool_call_count >= MAX_TOOL_CALLS:
-            break
-
-        response = client.models.generate_content(
-            model=model or os.getenv("SEARCH_AGENT_MODEL") or "gemini-2.5-flash",
-            contents=contents,
-            config=config,
+    def search_chunks(self, args: Dict[str, Any]) -> ToolOutput:
+        query = str(args.get("query", "")).strip()
+        if not query:
+            return ToolOutput({"error": "query is required"})
+        hits = retriever.search_chunks(self.doc_id, query)
+        if not hits:
+            return ToolOutput({"matches": [], "formatted_chunks": "No matching chunks found. Try different search terms.", "pages_returned": []})
+        parts, returned = [], []
+        for hit in hits:
+            page = hit["page"]
+            if page in self.pages_sent:
+                parts.append(f"[Page {page}, score={hit['score']:.2f}] already provided; check your context.")
+            else:
+                parts.append(f"[Page {page}, score={hit['score']:.2f}]\n{hit['text']}")
+                returned.append(page)
+        self.pages_sent.update(returned)
+        formatted = (
+            "\n\n---\n\n".join(parts)
+            if returned
+            else "All retrieved pages have already been provided. Try a different query or submit with what you have."
         )
+        content = {"matches": [{"page": h["page"], "score": h["score"]} for h in hits], "formatted_chunks": formatted, "pages_returned": returned}
+        return ToolOutput(content, on_evict=self._forget(returned))
 
-        usage = getattr(response, "usage_metadata", None)
-        if usage:
-            total_usage["input_tokens"] += getattr(usage, "prompt_token_count", 0) or 0
-            total_usage["output_tokens"] += getattr(usage, "candidates_token_count", 0) or 0
-        total_usage["api_calls"] += 1
+    def get_chunks_by_page(self, args: Dict[str, Any]) -> ToolOutput:
+        pages = sorted({int(p) for p in args.get("page_numbers") or [] if isinstance(p, (int, float))})
+        content_map = retriever.get_page_content(self.doc_id, pages)
+        parts, returned = [], []
+        for page in pages:
+            if page < 1 or page > self.total_pages:
+                parts.append(content_map.get(page, f"Page {page} does not exist. Document has {self.total_pages} pages."))
+            elif page in self.pages_sent:
+                parts.append(f"[Page {page}] already provided; check your context.")
+            else:
+                parts.append(f"[Page {page}]\n{content_map.get(page, '')}")
+                returned.append(page)
+        self.pages_sent.update(returned)
+        return ToolOutput({"formatted_chunks": "\n\n---\n\n".join(parts), "pages_returned": returned}, on_evict=self._forget(returned))
 
-        if not response.candidates:
-            break
-        cand = response.candidates[0]
-        if not cand.content:
-            break
-        parts = cand.content.parts or []
-        function_calls = [p for p in parts if hasattr(p, "function_call") and getattr(p, "function_call", None)]
-        reasoning_text = (response.text or "").strip()
-
-        if not function_calls:
-            conversation_log.append({"turn": len(conversation_log) + 1, "role": "model", "content": reasoning_text})
-            break
-
-        if reasoning_text:
-            conversation_log.append({"turn": len(conversation_log) + 1, "role": "model", "content": reasoning_text})
-
-        response_parts = []
-        for fc in function_calls:
-            if tool_call_count >= MAX_TOOL_CALLS:
-                break
-            tool_call_count += 1
-            fc_obj = getattr(fc, "function_call", None)
-            name = getattr(fc_obj, "name", None) or ""
-            args = getattr(fc_obj, "args", None) or {}
-
-            maybe_submitted, tool_response, logged_args = _execute_search_tool(doc_id, name, dict(args), pages_sent, total_pages)
-            if maybe_submitted is not None:
-                submitted_results = maybe_submitted
-            response_parts.append(types.Part.from_function_response(name=name, response=tool_response))
-            tool_calls_sequence.append({"name": name, "args": logged_args})
-            conversation_log.append({"turn": len(conversation_log) + 1, "role": "tool", "name": name, "args": logged_args, "response": tool_response})
-            if submitted_results is not None:
-                break
-
-        if submitted_results is not None:
-            break
-
-        if response_parts:
-            contents.append(cand.content)
-            reason_prompt = types.Part.from_text(
-                text="Summarize what you learned. Then: search for more columns, load more pages, or call submit_extraction when you have enough information."
-            )
-            contents.append(types.Content(role="user", parts=response_parts + [reason_prompt]))
-
-    if submitted_results is None:
-        submitted_results = {c.get("column_name", ""): {"value": "Not reported", "reasoning": "Agent did not submit", "found": False, "attribution": []} for c in batch_columns}
-
-    submitted_results = _fill_missing_results(submitted_results, batch_columns)
-    _write_search_conversation_log(log_path, doc_id, tool_calls_sequence, conversation_log, submitted_results)
-    total_usage["total_tokens"] = total_usage["input_tokens"] + total_usage["output_tokens"]
-    return submitted_results, total_usage
-
-
-def _run_search_agent_local(
-    doc_id: str,
-    batch_columns: List[Dict[str, Any]],
-    definitions_map: Dict[str, str],
-    log_path: Optional[Path] = None,
-    provider_name: Optional[str] = None,
-    model: Optional[str] = None,
-) -> tuple[Dict[str, Dict[str, Any]], Dict[str, int]]:
-    from src.retrieval.openai_embedding_retriever import get_total_pages
-
-    total_pages = get_total_pages(doc_id)
-    provider = LLMProvider(
-        provider=provider_name or os.getenv("SEARCH_AGENT_PROVIDER") or "local",
-        model=model or os.getenv("SEARCH_AGENT_MODEL") or os.getenv("LOCAL_OPENAI_MODEL") or None,
-    )
-
-    tool_protocol = """Use the available tools by returning exactly one JSON object per turn.
-
-Tool-call format:
-{"tool": "get_chunks_by_page", "args": {"page_numbers": [1, 2]}}
-{"tool": "search_chunks", "args": {"query": "specific search terms"}}
-{"tool": "submit_extraction", "args": {"results": {"Column Name": {"value": "...", "reasoning": "...", "found": true, "attribution": [{"page": 1, "modality": "text"}]}}}}
-
-Do not output prose outside JSON. Call one tool at a time. Use submit_extraction only when every requested column has a value or "Not reported"."""
-    system_prompt = _build_system_instruction() + "\n\n" + tool_protocol
-    user_prompt = _build_user_prompt(doc_id, batch_columns, definitions_map, total_pages)
-
-    pages_sent: Set[int] = set()
-    tool_call_count = 0
-    submitted_results: Optional[Dict[str, Dict[str, Any]]] = None
-    conversation_log: List[Dict[str, Any]] = [{"turn": 0, "role": "user", "content": user_prompt}]
-    tool_calls_sequence: List[Dict[str, Any]] = []
-    total_usage: Dict[str, int] = {"input_tokens": 0, "output_tokens": 0, "api_calls": 0}
-    transcript: List[Dict[str, Any]] = [{"role": "user", "content": user_prompt}]
-    max_tokens = int(os.getenv("SEARCH_AGENT_MAX_TOKENS", "4096") or "4096")
-
-    for turn in range(MAX_TURNS):
-        if tool_call_count >= MAX_TOOL_CALLS:
-            break
-
-        prompt = "CONVERSATION SO FAR:\n" + "\n\n".join(
-            f"{m['role'].upper()}: {m['content'] if isinstance(m['content'], str) else json.dumps(m['content'], default=str)}"
-            for m in transcript[-10:]
-        ) + "\n\nReturn the next tool call JSON."
-
-        response = provider.generate(
-            prompt=prompt,
-            system_prompt=system_prompt,
-            temperature=0.0,
-            max_tokens=max_tokens,
-            response_mime_type="application/json",
-        )
-        total_usage["input_tokens"] += getattr(response, "input_tokens", 0) or 0
-        total_usage["output_tokens"] += getattr(response, "output_tokens", 0) or 0
-        total_usage["api_calls"] += 1
-
-        if not response.success:
-            conversation_log.append({"turn": len(conversation_log) + 1, "role": "model", "content": "", "error": response.error})
-            break
-
-        raw_text = (response.text or "").strip()
-        conversation_log.append({"turn": len(conversation_log) + 1, "role": "model", "content": raw_text})
-        transcript.append({"role": "assistant", "content": raw_text})
-
-        call = _parse_local_tool_call(raw_text)
-        if not call:
-            tool_msg = {"error": "Could not parse tool call JSON. Return exactly {\"tool\": ..., \"args\": {...}}."}
-            conversation_log.append({"turn": len(conversation_log) + 1, "role": "tool", "name": "parse_error", "args": {}, "response": tool_msg})
-            transcript.append({"role": "tool", "content": json.dumps(tool_msg)})
-            continue
-
-        name = call.get("name", "")
-        args = call.get("args") or {}
-        tool_call_count += 1
-        maybe_submitted, tool_response, logged_args = _execute_search_tool(doc_id, name, args, pages_sent, total_pages)
-        tool_calls_sequence.append({"name": name, "args": logged_args})
-        conversation_log.append({"turn": len(conversation_log) + 1, "role": "tool", "name": name, "args": logged_args, "response": tool_response})
-        transcript.append({"role": "tool", "content": json.dumps({"tool": name, "response": tool_response}, default=str)})
-
-        if maybe_submitted is not None:
-            submitted_results = maybe_submitted
-            break
-
-    if submitted_results is None:
-        submitted_results = {c.get("column_name", ""): {"value": "Not reported", "reasoning": "Agent did not submit", "found": False, "attribution": []} for c in batch_columns}
-
-    submitted_results = _fill_missing_results(submitted_results, batch_columns)
-    _write_search_conversation_log(log_path, doc_id, tool_calls_sequence, conversation_log, submitted_results)
-    total_usage["total_tokens"] = total_usage["input_tokens"] + total_usage["output_tokens"]
-    return submitted_results, total_usage
+    def submit_extraction(self, args: Dict[str, Any]) -> ToolOutput:
+        self.submitted = parse_column_entries(args, self.names, list_key="results")
+        return ToolOutput({"submitted": sorted(self.submitted)}, stop=True)
 
 
 def run_search_agent(
@@ -562,24 +146,59 @@ def run_search_agent(
     batch_columns: List[Dict[str, Any]],
     definitions_map: Dict[str, str],
     log_path: Optional[Path] = None,
-    provider_name: Optional[str] = None,
     model: Optional[str] = None,
-) -> tuple[Dict[str, Dict[str, Any]], Dict[str, int]]:
-    """
-    Run search agent for one batch of columns.
-    Uses OpenAI retriever for search.
-    Returns (results, usage) where results is {column_name: {value, reasoning, found, attribution}}
-    and usage is {input_tokens, output_tokens, api_calls, total_tokens}.
-    """
-    selected_provider = (provider_name or os.getenv("SEARCH_AGENT_PROVIDER") or "gemini").strip().lower()
-    selected_model = model or os.getenv("SEARCH_AGENT_MODEL") or None
-    if selected_provider == "gemini":
-        return _run_search_agent_gemini(doc_id, batch_columns, definitions_map, log_path=log_path, model=selected_model)
-    return _run_search_agent_local(
-        doc_id,
-        batch_columns,
-        definitions_map,
-        log_path=log_path,
-        provider_name=selected_provider,
-        model=selected_model,
+) -> Tuple[Dict[str, Dict[str, Any]], Dict[str, int]]:
+    """Run the search agent for one batch. Returns ({column: result}, usage); never raises for model errors."""
+    names = column_names(batch_columns)
+    try:
+        chat = get_chat("search_agent", model)
+    except (ConfigError, InferenceError) as exc:
+        return fill_missing({}, names, f"search_agent not run: {exc}"), Usage().to_dict()
+
+    total_pages = retriever.get_total_pages(doc_id)
+    session = _SearchSession(doc_id, names, total_pages)
+    blocks = "".join(
+        f"\n---\nColumn {i}: {col.get('column_name', '')}\nDefinition: {definitions_map.get(col.get('column_name', ''), '') or col.get('definition', '')}"
+        for i, col in enumerate(batch_columns, 1)
     )
+    user_prompt = (
+        f"Extract values for these columns. Document has {total_pages} pages.\n\nCOLUMNS:\n{blocks}\n\n"
+        "For informational columns (trial name, arms, etc.), use get_chunks_by_page([1, 2]) first. "
+        "For specific columns, use search_chunks. Submit when you have enough information."
+    )
+    specs = {spec.name: spec for spec in tool_specs(names)}
+    loop = run_tool_loop(
+        chat,
+        system=SYSTEM_PROMPT,
+        user=user_prompt,
+        tools=[
+            Tool(specs["search_chunks"], session.search_chunks),
+            Tool(specs["get_chunks_by_page"], session.get_chunks_by_page),
+            Tool(specs["submit_extraction"], session.submit_extraction),
+        ],
+        max_turns=AGENT_MAX_TURNS,
+        max_tool_calls=AGENT_MAX_TOOL_CALLS,
+        max_tokens=MAX_TOKENS["search_agent"],
+        follow_up=FOLLOW_UP,
+    )
+
+    if session.submitted is None:
+        reason = f"Agent did not submit ({loop.stopped_by}{': ' + loop.error if loop.error else ''})"
+        results = fill_missing({}, names, reason)
+    else:
+        results = fill_missing(dict(session.submitted), names, "Not extracted")
+
+    if log_path:
+        write_json(
+            log_path.with_name(log_path.stem + "_conversation.json"),
+            {
+                "doc_id": doc_id,
+                "model": chat.key,
+                "stopped_by": loop.stopped_by,
+                "error": loop.error,
+                "tool_calls_sequence": [{"name": e["name"], "args": e["args"]} for e in loop.transcript if e["role"] == "tool"],
+                "conversation": loop.transcript,
+                "results": results,
+            },
+        )
+    return results, loop.usage.to_dict()

@@ -1,18 +1,12 @@
 from __future__ import annotations
-"""baseline_file_search.py
+"""File-search free-form baseline (OpenAI Assistants file_search or Gemini PDF input):
+1. **Extraction phase** – parallel label-group queries against a PDF
+2. **Structuring phase** – the "structurer" role model turns free-form answers into JSON
+3. **Evaluation phase** – evaluator_v2 for consistent evaluation
 
-File Search baseline supporting both OpenAI and Gemini:
-1. **Extraction phase** – parallel label-group queries against a PDF via file upload APIs
-2. **Structuring phase** – uses OutputStructurer to parse responses into clean JSON
-3. **Evaluation phase** – uses evaluator_v2 for consistent evaluation
-
-Usage example:
-bash
-python baseline_file_search.py \
-  --pdf "dataset/NCT00104715_Gravis_GETUG_EU'15.pdf" \
-  --provider openai \
-  --model gpt-4o \
-  --workers 10
+Usage:
+  python experiment-scripts/baseline_file_search_free_form.py \
+    --pdf "dataset/NCT00104715_Gravis_GETUG_EU'15.pdf" --model gpt-4o --workers 10
 """
 
 import argparse
@@ -25,16 +19,7 @@ from collections import defaultdict, OrderedDict
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from typing import Dict, List, Tuple, Any
 from pathlib import Path
-from openai import OpenAI
-try:
-    from src.LLMProvider.google_genai_client import (
-        create_vertex_genai_client,
-        get_genai_types,
-    )
-    GENAI_AVAILABLE = True
-except ImportError:
-    GENAI_AVAILABLE = False
-from dotenv import load_dotenv
+from pydantic import ValidationError
 
 from src.evisearch.services.markdown_baseline import (
     load_definitions_with_metadata,
@@ -42,17 +27,27 @@ from src.evisearch.services.markdown_baseline import (
     run_evaluation,
 )
 
-# Import OutputStructurer
-from src.LLMProvider.structurer import OutputStructurer
+from src.config.config import CATALOG, MAX_TOKENS
+from src.inference import ChatModel, InferenceError, Message, PdfPart, cost_usd, get_chat
+from src.inference.factory import openai_client
 
-# Load environment variables
-load_dotenv()
+STRUCTURER_SYSTEM = (
+    "You are a JSON structuring assistant. Extract the values from the given text into JSON matching the "
+    "provided schema. Output only the JSON object."
+)
 
-# ─── Pricing (USD per 1 K tokens) ──────────────────────────────────────────────
-PRICING = {
-    "gpt-4o": {"input": 0.005, "output": 0.015},
-    "gemini-2.0-flash-001": {"input": 0.00015, "output": 0.0006},
-}
+
+def structure_text(structurer: ChatModel, text: str, schema: Any) -> Tuple[Dict[str, Any] | None, str | None]:
+    """Turn free-form model output into a dict validated against a pydantic schema (structurer role)."""
+    try:
+        result = structurer.chat(
+            [Message.system(STRUCTURER_SYSTEM), Message.user(f"TEXT TO STRUCTURE:\n{text}")],
+            response_schema=schema.model_json_schema(),
+            max_tokens=MAX_TOKENS["structurer"],
+        )
+        return schema.model_validate(result.json()).model_dump(), None
+    except (InferenceError, ValueError, ValidationError) as exc:
+        return None, str(exc)
 
 
 PROJECT_ROOT = Path(__file__).resolve().parents[3]
@@ -68,38 +63,36 @@ def get_stem_pathlib(path: str) -> str:
 
 # ─── Provider Abstraction ──────────────────────────────────────────────────────
 class PDFQueryProvider:
-    """Abstraction for querying PDFs via OpenAI or Gemini APIs."""
-    
-    def __init__(self, provider: str, model: str):
-        self.provider = provider
+    """Query a PDF with an OpenAI model (Assistants file_search over a vector store) or a Gemini model (PDF input)."""
+
+    def __init__(self, model: str):
         self.model = model
-        self.pdf_handle = None
-        
-        if provider == "openai":
-            api_key = os.getenv("OPENAI_API_KEY")
-            if not api_key:
-                raise EnvironmentError("OPENAI_API_KEY not set")
-            self.client = OpenAI(api_key=api_key)
+        endpoint = CATALOG.endpoint_for(model) if model in CATALOG.models else None
+        if endpoint is not None and endpoint.type == "gemini":
+            self.provider = "gemini"
+            self.chat = get_chat("baseline", model)
+        elif endpoint is not None and endpoint.type == "openai_compatible" and endpoint.server is None:
+            get_chat("baseline", model)  # validates the model for the baseline role
+            self.provider = "openai"
+            self.client = openai_client(model)
             self.assistant = None
-        elif provider == "gemini":
-            if not GENAI_AVAILABLE:
-                raise RuntimeError("google.genai is required. Install with: pip install google-genai")
-            self.types = get_genai_types()
-            self.client = create_vertex_genai_client(timeout_ms=30_000)
-    
+        else:
+            raise SystemExit(f"File-search baseline needs an OpenAI or Gemini model from src/config/catalog.yaml; got '{model}'")
+        self.pdf_handle = None
+
     def upload_pdf(self, pdf_path: str):
         """Upload PDF and return handle. Uses Vector Store for reliable file_search access."""
         pdf_path = str(Path(pdf_path).resolve())
         if not Path(pdf_path).exists():
             raise FileNotFoundError(f"PDF not found: {pdf_path}")
         print(f"📤 Uploading PDF to {self.provider}...", end=" ", flush=True)
-        
+
         if self.provider == "openai":
             # Create vector store and upload PDF (required for file_search to work correctly)
-            vector_store = self.client.beta.vector_stores.create(name="PDF Extractor")
+            vector_store = self.client.vector_stores.create(name="PDF Extractor")
             try:
                 with open(pdf_path, "rb") as f:
-                    file_batch = self.client.beta.vector_stores.file_batches.upload_and_poll(
+                    file_batch = self.client.vector_stores.file_batches.upload_and_poll(
                         vector_store_id=vector_store.id,
                         files=[f],
                     )
@@ -114,7 +107,7 @@ class PDFQueryProvider:
             # https://community.openai.com/t/bug-vector-store-status-completed-does-not-guarantee-searchability
             print("waiting for index...", end=" ", flush=True)
             time.sleep(12)
-            
+
             # Create assistant with file_search, attaching the vector store
             self.assistant = self.client.beta.assistants.create(
                 name="PDF Extractor (file_search)",
@@ -126,22 +119,18 @@ class PDFQueryProvider:
                     "Provide step-by-step reasoning and final answers in JSON format: "
                     "{\"Column Name\": \"Value\"}"
                 ),
-                model=self.model,
+                model=CATALOG.models[self.model].name,
                 tools=[{"type": "file_search"}],
                 tool_resources={"file_search": {"vector_store_ids": [vector_store.id]}},
             )
             self.pdf_handle = {"vector_store_id": vector_store.id}
             print(f"✅ Vector store: {vector_store.id}, Assistant ID: {self.assistant.id}")
-        
+
         elif self.provider == "gemini":
             pdf_bytes = Path(pdf_path).read_bytes()
-            pdf_part = self.types.Part.from_bytes(
-                data=pdf_bytes,
-                mime_type="application/pdf"
-            )
-            self.pdf_handle = {"file_part": pdf_part}
-            print(f"✅ PDF loaded as Part ({len(pdf_bytes)} bytes)")
-    
+            self.pdf_handle = {"file_part": PdfPart(pdf_bytes, filename=Path(pdf_path).name)}
+            print(f"✅ PDF loaded ({len(pdf_bytes)} bytes)")
+
     def query_pdf(self, prompt: str) -> Tuple[str, int, int]:
         """
         Query the PDF with a prompt.
@@ -152,13 +141,13 @@ class PDFQueryProvider:
             thread = self.client.beta.threads.create(
                 messages=[{"role": "user", "content": prompt}]
             )
-            
+
             # Run assistant
             run = self.client.beta.threads.runs.create(
                 thread_id=thread.id,
                 assistant_id=self.assistant.id
             )
-            
+
             # Poll for completion
             while True:
                 run = self.client.beta.threads.runs.retrieve(
@@ -170,44 +159,35 @@ class PDFQueryProvider:
                 if run.status in {"failed", "cancelled", "expired"}:
                     raise RuntimeError(f"Run failed: {run.status}")
                 time.sleep(2)
-            
+
             # Extract usage
             usage = run.usage
             in_tok = getattr(usage, "prompt_tokens", 0) if usage else 0
             out_tok = getattr(usage, "completion_tokens", 0) if usage else 0
-            
+
             # Get response
             msgs = self.client.beta.threads.messages.list(thread_id=thread.id)
             response_text = next(
                 (m.content[0].text.value for m in msgs.data if m.role == "assistant"),
                 ""
             ).strip()
-            
-            return response_text, in_tok, out_tok
-        
-        elif self.provider == "gemini":
-            file_part = self.pdf_handle["file_part"]
 
-            response = self.client.models.generate_content(
-                model=self.model,
-                contents=[prompt, file_part]
-            )
-            usage = getattr(response, 'usage_metadata', None)
-            in_tok = getattr(usage, 'prompt_token_count', 0) if usage else 0
-            out_tok = getattr(usage, 'candidates_token_count', 0) if usage else 0
-            return response.text.strip(), in_tok, out_tok
-    
+            return response_text, in_tok, out_tok
+
+        result = self.chat.chat([Message.user(prompt, self.pdf_handle["file_part"])], max_tokens=MAX_TOKENS["baseline"])
+        return result.text, result.usage.input_tokens, result.usage.output_tokens
+
     def cleanup_pdf(self):
         """Clean up uploaded resources if needed."""
         if self.provider == "openai" and self.pdf_handle:
             try:
                 vs_id = self.pdf_handle.get("vector_store_id")
                 if vs_id:
-                    self.client.beta.vector_stores.delete(vs_id)
+                    self.client.vector_stores.delete(vs_id)
                     print("🗑️  Cleaned up OpenAI vector store")
             except Exception:
                 pass
-            
+
 
 # ─── Prompt Builder ────────────────────────────────────────────────────────────
 def build_prompt(label: str, items: List[Dict[str, str]]) -> str:
@@ -234,7 +214,7 @@ def extract_once(
     provider: PDFQueryProvider,
     label_groups: OrderedDict,
     definitions: Dict,
-    structurer: OutputStructurer,
+    structurer: ChatModel,
     output_dir: str,
     workers: int
 ) -> Tuple[Dict, int, int]:
@@ -284,7 +264,7 @@ def extract_once(
     print(f"💾 Raw responses saved to {raw_file}")
 
     # Phase 2: Structure responses
-    print("\n🔧 Phase 2: Structuring responses with Qwen")
+    print("\n🔧 Phase 2: Structuring responses with the structurer model")
     extracted_dict = {}
     for label, raw_response in raw_responses.items():
         if raw_response.startswith("ERROR:"):
@@ -304,17 +284,12 @@ def extract_once(
                 **field_definitions
             )
             
-            structured_response = structurer.structure(
-                raw_response,
-                DynamicSchema,
-                return_dict=True
-            )
-            
-            if structured_response.success:
-                for col_name, value in structured_response.data.items():
+            data, error = structure_text(structurer, raw_response, DynamicSchema)
+            if data is not None:
+                for col_name, value in data.items():
                     extracted_dict[col_name] = value
             else:
-                print(f"⚠️  Structuring failed for {label}: {structured_response.error}")
+                print(f"⚠️  Structuring failed for {label}: {error}")
                 for col in columns:
                     extracted_dict[col] = "Structuring error"
         except Exception as e:
@@ -344,7 +319,7 @@ def run_reliability_test(
     provider: PDFQueryProvider,
     label_groups: OrderedDict,
     definitions: Dict,
-    structurer: OutputStructurer,
+    structurer: ChatModel,
     base_dir: str,
     pdf_name: str,
     n_runs: int,
@@ -496,13 +471,7 @@ def _resolve_pdf_path(pdf_arg: str) -> Path:
 def run_file_search_free_form_baseline(argv: List[str] | None = None) -> None:
     parser = argparse.ArgumentParser("File Search baseline with OpenAI/Gemini support")
     parser.add_argument("--pdf", required=True, help="Path to the PDF file")
-    parser.add_argument(
-        "--provider",
-        choices=["openai", "gemini"],
-        default="openai",
-        help="Provider to use (openai or gemini)",
-    )
-    parser.add_argument("--model", default=None, help="Model name (defaults based on provider)")
+    parser.add_argument("--model", default="gpt-4.1", help="Catalog model key: OpenAI (Assistants file_search) or Gemini (PDF input)")
     parser.add_argument("--workers", type=int, default=10, help="Parallel label groups (default 10)")
     parser.add_argument("--skip-eval", action="store_true", help="Skip evaluation step")
     parser.add_argument(
@@ -517,16 +486,13 @@ def run_file_search_free_form_baseline(argv: List[str] | None = None) -> None:
     args.pdf = str(pdf_path)
     print(f"📄 PDF: {pdf_path.resolve()} ({pdf_path.stat().st_size:,} bytes)")
 
-    if args.model is None:
-        args.model = "gpt-4.1" if args.provider == "openai" else "gemini-2.0-flash-001"
-
     pdf_stem = get_stem_pathlib(args.pdf)
     output_dir = RESULTS_ROOT / args.model / pdf_stem
     output_dir.mkdir(parents=True, exist_ok=True)
     dirname = str(output_dir)
 
     print(f"\n{'=' * 60}")
-    print(f"FILE SEARCH BASELINE - {args.provider.upper()}")
+    print(f"FILE SEARCH BASELINE - {args.model}")
     print(f"PDF: {pdf_stem}")
     print(f"Model: {args.model}")
     if args.reliability_runs > 1:
@@ -544,13 +510,11 @@ def run_file_search_free_form_baseline(argv: List[str] | None = None) -> None:
     print(f"📋 Loaded {len(definitions)} columns in {len(label_groups)} label groups")
 
     print("\n📑 Phase 1: Extraction")
-    provider = PDFQueryProvider(args.provider, args.model)
+    provider = PDFQueryProvider(args.model)
     try:
         provider.upload_pdf(args.pdf)
 
-        from src.config.config import STRUCTURER_BASE_URL, STRUCTURER_MODEL
-
-        structurer = OutputStructurer(base_url=STRUCTURER_BASE_URL, model=STRUCTURER_MODEL)
+        structurer = get_chat("structurer")
 
         if args.reliability_runs > 1:
             reliability_summary = run_reliability_test(
@@ -597,12 +561,11 @@ def run_file_search_free_form_baseline(argv: List[str] | None = None) -> None:
     finally:
         provider.cleanup_pdf()
 
-    pricing = PRICING.get(args.model, {"input": 0, "output": 0})
-    input_cost = (total_in / 1000) * pricing["input"]
-    output_cost = (total_out / 1000) * pricing["output"]
+    input_cost = cost_usd(args.model, total_in, 0)
+    output_cost = cost_usd(args.model, 0, total_out)
     total_cost = input_cost + output_cost
     cost_metrics = {
-        "provider": args.provider,
+        "provider": provider.provider,
         "model": args.model,
         "tokens": {
             "input": total_in,

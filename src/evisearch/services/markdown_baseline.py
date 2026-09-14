@@ -12,27 +12,8 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 from typing import Any, Callable, Dict, List, Tuple
 
-from dotenv import load_dotenv
-
-try:
-    from src.LLMProvider.google_genai_client import (
-        create_vertex_genai_client,
-        get_genai_types,
-    )
-
-    GENAI_AVAILABLE = True
-except ImportError:
-    GENAI_AVAILABLE = False
-
-try:
-    from openai import OpenAI
-
-    OPENAI_AVAILABLE = True
-except ImportError:
-    OPENAI_AVAILABLE = False
-
-
-load_dotenv()
+from src.config.config import MAX_TOKENS
+from src.inference import Message, cost_usd, get_chat
 
 PROJECT_ROOT = Path(__file__).resolve().parents[3]
 DEFINITIONS_PATH = "src/table_definitions/Definitions_with_eval_category.csv"
@@ -40,16 +21,6 @@ PARSED_MARKDOWN_ROOT = (
     PROJECT_ROOT / "experiment-scripts" / "baselines_landing_ai_new_results"
 )
 GROUND_TRUTH_FILE = "dataset/Manual_Benchmark_GoldTable_cleaned.json"
-
-GEMINI_PRICING = {
-    "gemini-2.0-flash-001": {"input": 0.00015, "output": 0.0025},
-    "gemini-2.5-flash": {"input": 0.00015, "output": 0.0025},
-}
-OPENAI_PRICING = {
-    "gpt-4.1": {"input": 0.002, "output": 0.008},
-    "gpt-4.1-mini": {"input": 0.0004, "output": 0.0016},
-    "gpt-4.1-nano": {"input": 0.0001, "output": 0.0004},
-}
 
 REASONING_DESCRIPTION = (
     "Brief reasoning on where in the document you found the value and how you derived it; "
@@ -101,11 +72,6 @@ def convert_to_extraction_metadata(
             "page": "Not applicable",
             "column_index": col_def.get("index", "Not applicable"),
             "group_name": col_def.get("label", "Not applicable"),
-            "plan_found_in_pdf": "Not applicable",
-            "plan_page": "Not applicable",
-            "plan_source_type": "Not applicable",
-            "plan_confidence": "Not applicable",
-            "plan_extraction_plan": "Not applicable",
         }
     return metadata
 
@@ -195,68 +161,22 @@ def build_prompt(label: str, items: List[Dict[str, str]]) -> str:
     return "\n".join(lines)
 
 
-class GeminiMarkdownProvider:
+class ChatMarkdownProvider:
+    """Parsed markdown + JSON schema through any catalog chat model (role "baseline"; --model picks it)."""
+
     def __init__(self, model: str):
-        if not GENAI_AVAILABLE:
-            raise RuntimeError("google.genai is required. Install with: pip install google-genai")
         self.model = model
-        self.types = get_genai_types()
-        self.client = create_vertex_genai_client(timeout_ms=30_000)
+        self.chat = get_chat("baseline", model)
 
     def query_markdown_with_schema(
         self, prompt: str, markdown_text: str, json_schema: Dict[str, Any]
     ) -> Tuple[str, int, int]:
-        config = self.types.GenerateContentConfig(
-            temperature=0.0,
-            response_mime_type="application/json",
+        result = self.chat.chat(
+            [Message.user(prompt, "---\n\nDOCUMENT:\n\n" + markdown_text)],
             response_schema=json_schema,
+            max_tokens=MAX_TOKENS["baseline"],
         )
-        response = self.client.models.generate_content(
-            model=self.model,
-            contents=[prompt, markdown_text],
-            config=config,
-        )
-        usage = getattr(response, "usage_metadata", None)
-        in_tok = getattr(usage, "prompt_token_count", 0) if usage else 0
-        out_tok = getattr(usage, "candidates_token_count", 0) if usage else 0
-        return (response.text or "").strip(), in_tok, out_tok
-
-
-class GPT4MarkdownProvider:
-    def __init__(self, model: str):
-        if not OPENAI_AVAILABLE:
-            raise RuntimeError("openai is required. Install with: pip install openai")
-        self.model = model
-        api_key = os.getenv("OPENAI_API_KEY")
-        if not api_key:
-            raise EnvironmentError("OPENAI_API_KEY not set")
-        self.client = OpenAI(api_key=api_key)
-
-    def query_markdown_with_schema(
-        self, prompt: str, markdown_text: str, json_schema: Dict[str, Any]
-    ) -> Tuple[str, int, int]:
-        system_content = (
-            "You are a precise data extractor. Output ONLY valid JSON matching the exact schema provided. "
-            "No markdown, no explanation. Use null for missing values. Schema:\n"
-            + json.dumps(json_schema, indent=2)
-        )
-        user_content = prompt + "\n\n---\n\nDOCUMENT:\n\n" + markdown_text
-
-        response = self.client.chat.completions.create(
-            model=self.model,
-            messages=[
-                {"role": "system", "content": system_content},
-                {"role": "user", "content": user_content},
-            ],
-            temperature=0.0,
-            response_format={"type": "json_object"},
-            timeout=30,
-        )
-        text = (response.choices[0].message.content or "").strip()
-        usage = response.usage
-        in_tok = usage.prompt_tokens if usage else 0
-        out_tok = usage.completion_tokens if usage else 0
-        return text, in_tok, out_tok
+        return result.text, result.usage.input_tokens, result.usage.output_tokens
 
 
 def safe_mean(values: List[float]) -> float:
@@ -483,7 +403,6 @@ def run_markdown_baseline(
     method_name: str,
     title: str,
     default_model: str,
-    pricing: Dict[str, Dict[str, float]],
     results_root: Path,
     parsed_markdown_root: Path = PARSED_MARKDOWN_ROOT,
     definitions_path: str = DEFINITIONS_PATH,
@@ -623,9 +542,8 @@ def run_markdown_baseline(
             except Exception as e:
                 print(f"Evaluation failed: {e}")
 
-    model_pricing = pricing.get(args.model, {"input": 0, "output": 0})
-    input_cost = (total_in / 1000) * model_pricing["input"]
-    output_cost = (total_out / 1000) * model_pricing["output"]
+    input_cost = cost_usd(args.model, total_in, 0)
+    output_cost = cost_usd(args.model, 0, total_out)
     total_cost = input_cost + output_cost
     cost_metrics = {
         "provider": provider_name.split("_")[0],
@@ -649,12 +567,11 @@ def run_markdown_baseline(
 
 def run_gemini_markdown_baseline(argv: List[str] | None = None) -> None:
     run_markdown_baseline(
-        provider_factory=GeminiMarkdownProvider,
+        provider_factory=ChatMarkdownProvider,
         provider_name="landing_ai_w_gemini",
         method_name="baseline_landing_ai_w_gemini",
         title="BASELINE: Landing-AI parsed markdown + Gemini (native JSON)",
         default_model="gemini-2.5-flash",
-        pricing=GEMINI_PRICING,
         results_root=PROJECT_ROOT / "experiment-scripts" / "baseline_landing_ai_w_gemini" / "results",
         argv=argv,
     )
@@ -662,12 +579,11 @@ def run_gemini_markdown_baseline(argv: List[str] | None = None) -> None:
 
 def run_gpt4_markdown_baseline(argv: List[str] | None = None) -> None:
     run_markdown_baseline(
-        provider_factory=GPT4MarkdownProvider,
+        provider_factory=ChatMarkdownProvider,
         provider_name="landing_ai_w_gpt4",
         method_name="baseline_landing_ai_w_gpt4",
         title="BASELINE: Landing-AI parsed markdown + GPT-4.1 (native JSON)",
         default_model="gpt-4.1",
-        pricing=OPENAI_PRICING,
         results_root=PROJECT_ROOT / "experiment-scripts" / "baseline_landing_ai_w_gpt4" / "results",
         argv=argv,
     )

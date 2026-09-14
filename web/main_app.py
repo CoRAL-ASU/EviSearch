@@ -8,8 +8,6 @@ Provides endpoints for PDF upload, query submission, and result retrieval.
 Run from project root: python web/main_app.py
 Then open http://127.0.0.1:8007
 """
-import csv
-import io
 import json
 import os
 import sys
@@ -40,12 +38,10 @@ if _env_path.exists():
                     os.environ.setdefault(_k, _v)
 
 from flask import Flask, request, jsonify, redirect, render_template, Response, send_from_directory, stream_with_context
-from werkzeug.utils import secure_filename
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(PROJECT_ROOT))
 
-from src.evisearch.services.legacy_extraction import ExtractionService
 from src.evisearch.services.reports import (
     get_document_status,
     load_comparison_data,
@@ -69,7 +65,6 @@ from src.documents.pdf_registry import (
     register_uploaded_pdf,
     resolve_canonical_doc_id,
 )
-from src.LLMProvider.google_genai_client import vertex_auth_error_message
 
 FRONTEND_ROOT = PROJECT_ROOT / "apps" / "web" / "frontend"
 app = Flask(
@@ -83,11 +78,6 @@ app.config['UPLOAD_FOLDER'] = UPLOADS_DIR
 app.config['UPLOAD_FOLDER'].mkdir(parents=True, exist_ok=True)
 app.config['BOOT_ID'] = str(uuid.uuid4())  # Changes on each app restart; used to invalidate browser session
 
-# Global extraction service instance
-extraction_service = None
-current_pdf_info = {}
-
-
 def _canonical_doc_id(doc_id: str) -> str:
     return resolve_canonical_doc_id(
         doc_id,
@@ -98,7 +88,7 @@ def _canonical_doc_id(doc_id: str) -> str:
 
 
 def _document_runtime_state(doc_id: str) -> Dict[str, Any]:
-    from src.retrieval.openai_embedding_retriever import has_embedding_cache
+    from src.retrieval.embedding_retriever import has_embedding_cache
 
     canonical_doc_id = _canonical_doc_id(doc_id)
     pdf_path = resolve_pdf_path(canonical_doc_id)
@@ -203,19 +193,6 @@ def _document_option_payload(doc_id: str, name: str, source: str, has_extraction
         "is_prepared": state["is_prepared"],
         "upload_count": len(upload_aliases),
     }
-
-
-def get_extraction_service() -> ExtractionService:
-    """Get or create extraction service instance (lazy initialization)."""
-    global extraction_service
-    if extraction_service is None:
-        try:
-            extraction_service = ExtractionService()
-        except Exception as e:
-            # If initialization fails, return None - will be handled by routes
-            print(f"Warning: Could not initialize ExtractionService: {e}")
-            return None
-    return extraction_service
 
 
 @app.route('/')
@@ -559,13 +536,11 @@ def api_run_reconciliation(doc_id):
             group_names = None
 
     try:
-        sys.path.insert(0, str(PROJECT_ROOT / "experiment-scripts"))
         from src.evisearch.pipelines.reconciliation_pipeline import run_reconciliation_pipeline
         result = run_reconciliation_pipeline(
             doc_id=doc_id,
             group_names=group_names,
             resume=not no_resume,
-            no_resume=no_resume,
         )
         if result.get("error"):
             return jsonify({"success": False, "error": result["error"]}), 400
@@ -659,14 +634,12 @@ def api_extract_unified_stream():
         return jsonify({"success": False, "error": err}), 400
 
     groups_filter = data.get("column_groups")
-    resume = data.get("resume", True)
-    no_resume = not resume or data.get("no_resume", False)
+    resume = bool(data.get("resume", True)) and not data.get("no_resume", False)
 
     def generate():
         import queue
         import threading
 
-        sys.path.insert(0, str(PROJECT_ROOT / "experiment-scripts"))
         from src.evisearch.pipelines.unified_extraction import run_unified_extraction
 
         q = queue.Queue()
@@ -677,7 +650,6 @@ def api_extract_unified_stream():
                     doc_id=doc_id,
                     group_names=groups_filter,
                     resume=resume,
-                    no_resume=no_resume,
                     on_event=q.put,
                 )
             except Exception as e:
@@ -700,166 +672,10 @@ def api_extract_unified_stream():
     )
 
 
-@app.route('/api/extract/agentic/stream', methods=['POST'])
-def api_extract_agentic_stream():
-    """Run agent_extractor and search_agent in parallel, stream SSE events."""
-    data = request.get_json() or {}
-    requested_doc_id = (data.get("doc_id") or "").strip()
-    doc_id = _canonical_doc_id(requested_doc_id)
-    if not doc_id:
-        return jsonify({"success": False, "error": "doc_id required"}), 400
-
-    err = _ensure_pdf_for_extraction(requested_doc_id)
-    if err:
-        return jsonify({"success": False, "error": err}), 400
-
-    groups_filter = data.get("column_groups")
-    max_turns = data.get("max_turns", 50)
-    resume = data.get("resume", True)
-    skip_if_done = data.get("skip_if_done", True)
-
-    # Capture paths needed inside generate() (closures are fine here)
-    _pdf_path_for_prepare = resolve_pdf_path(doc_id)
-    _prepare_state = _document_runtime_state(doc_id)
-
-    def generate():
-        import queue
-        import threading
-
-        # Prepare any document missing a fresh parse or embeddings.
-        # This keeps duplicate uploads on the canonical cache path instead of rebuilding per upload alias.
-        if not _prepare_state["is_prepared"]:
-            try:
-                from src.evisearch.services.preparation import parse_pdf_for_qa
-                from src.retrieval.openai_embedding_retriever import embed_chunks
-
-                if not _pdf_path_for_prepare or not _pdf_path_for_prepare.exists():
-                    raise FileNotFoundError(f"PDF not found for {doc_id}: {_pdf_path_for_prepare}")
-
-                if not _prepare_state["has_cached_parse"]:
-                    yield f"data: {json.dumps({'type': 'prepare_status', 'text': 'Parsing PDF with Landing AI… (this may take 30–60 s)'})}\n\n"
-                    parse_result = parse_pdf_for_qa(doc_id, _pdf_path_for_prepare, on_event=lambda e: None)
-                    if not parse_result.get("success"):
-                        raise RuntimeError(parse_result.get("error", "PDF parse failed"))
-                    yield f"data: {json.dumps({'type': 'prepare_status', 'text': 'Parse complete. Building embeddings…'})}\n\n"
-                else:
-                    yield f"data: {json.dumps({'type': 'prepare_status', 'text': 'Using cached Landing AI parse. Checking embeddings…'})}\n\n"
-
-                embed_result = embed_chunks(doc_id, force=False)
-                if not embed_result:
-                    raise RuntimeError("embed_chunks returned None — no parsed content found")
-
-                n_chunks = len(embed_result[0]) if embed_result and embed_result[0] else 0
-                yield f"data: {json.dumps({'type': 'prepare_status', 'text': f'Ready: {n_chunks} page chunks indexed. Starting extraction…'})}\n\n"
-
-            except Exception as _prep_ex:
-                _err = f"[PREPARE FAILED] {_prep_ex}"
-                yield f"data: {json.dumps({'type': 'prepare_error', 'text': _err})}\n\n"
-                # Do not run agents — search agent will see 0 pages without embeddings
-                return
-
-        sys.path.insert(0, str(PROJECT_ROOT / "experiment-scripts"))
-        from src.evisearch.services.agent_extraction import run_extraction_loop_deterministic
-        from src.evisearch.pipelines.search_pipeline import load_definitions, build_extraction_batches, run_search_agent_pipeline
-
-        # Emit extraction_start with total and batches for empty table init
-        groups = load_definitions()
-        batches = build_extraction_batches(groups, group_names=groups_filter, resume_from=None)
-        all_column_names = []
-        for b in batches:
-            all_column_names.extend(c.get("column_name", "") for c in b)
-        total = len(all_column_names)
-        batch_column_names = [[c.get("column_name", "") for c in b] for b in batches]
-
-        first_batch_size = len(batch_column_names[0]) if batch_column_names else 0
-        if total == 0:
-            first_batch_size = 0
-        yield f"data: {json.dumps({'type': 'extraction_start', 'total': total, 'column_names': all_column_names, 'batches': batch_column_names})}\n\n"
-        yield f"data: {json.dumps({'type': 'stream_message', 'text': f'Loaded {first_batch_size} queries — ', 'show_columns': 0})}\n\n"
-
-        q = queue.Queue()
-        agent_done_payload = {}
-
-        def on_agent_event(ev):
-            if ev.get("type") == "done":
-                agent_done_payload.update(ev)
-                q.put({"type": "phase_done", "phase": "agent_extractor", **ev})
-            else:
-                q.put(ev)
-
-        def run_agent():
-            try:
-                run_extraction_loop_deterministic(
-                    doc_id=doc_id,
-                    max_turns=max_turns,
-                    groups_filter=groups_filter,
-                    resume=resume,
-                    skip_if_done=skip_if_done,
-                    on_event=on_agent_event,
-                )
-            except Exception as e:
-                q.put({"type": "error", "error": str(e)})
-            finally:
-                q.put({"type": "thread_done", "thread": "agent"})
-
-        def run_search():
-            try:
-                run_search_agent_pipeline(
-                    doc_id=doc_id,
-                    group_names=groups_filter,
-                    resume=resume,
-                    no_resume=not resume or skip_if_done,
-                    on_event=q.put,
-                )
-            except Exception as e:
-                q.put({"type": "error", "error": str(e)})
-            finally:
-                q.put({"type": "thread_done", "thread": "search"})
-
-        # Verify embedding cache exists before firing the search agent (warn loudly if missing)
-        _md_check = RESULTS_ROOT / doc_id / "chunking" / "parsed_markdown.md"
-        if not _md_check.exists():
-            yield f"data: {json.dumps({'type': 'prepare_warning', 'text': f'WARNING: No parsed_markdown.md for {doc_id}. Search-Agent will see 0 pages and return Not Reported for everything. Restart server and re-upload the PDF to trigger Landing AI parsing.'})}\n\n"
-
-        threading.Thread(target=run_agent).start()
-        threading.Thread(target=run_search).start()
-        yield f"data: {json.dumps({'type': 'stream_message', 'text': 'Running 2 methods: Agent Extractor + Search Agent.'})}\n\n"
-
-        agent_done = search_done = False
-        while True:
-            ev = q.get()
-            if ev.get("type") == "thread_done":
-                if ev.get("thread") == "agent":
-                    agent_done = True
-                elif ev.get("thread") == "search":
-                    search_done = True
-                if agent_done and search_done:
-                    yield f"data: {json.dumps({'type': 'done', **agent_done_payload})}\n\n"
-                    break
-                continue
-            yield f"data: {json.dumps(ev)}\n\n"
-
-    return Response(
-        stream_with_context(generate()),
-        mimetype="text/event-stream",
-        headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"},
-    )
-
-
 @app.route('/attribution')
 def attribution_index():
     """Serve attribution viewer — select doc and column, see highlighted chunks on PDF."""
     return render_template('attribution.html')
-
-
-@app.route('/agent-viewer/<path:doc_id>')
-def agent_viewer(doc_id):
-    """Serve static conversation viewer HTML (generated by agent_extractor.py)."""
-    doc_id = unquote(doc_id)
-    path = RESULTS_ROOT / doc_id / "agent_extractor" / "conversation_viewer.html"
-    if not path.exists():
-        return f"Run: python experiment-scripts/agent_extractor.py \"{doc_id}\"", 404
-    return send_from_directory(str(path.parent), path.name)
 
 
 @app.route('/api/documents/reconciled', methods=['GET'])
@@ -1140,26 +956,6 @@ def api_save_human_edited(doc_id):
 RECON_AGENT_DIR = "reconciliation_agent"
 
 
-def _deprecated_reconciliation_agent_to_columns(cols_dict: Dict[str, Any]) -> list:
-    """Convert reconciliation_agent columns dict to list format for enrich_reconciled_with_attribution."""
-    out = []
-    for col_name, r in (cols_dict or {}).items():
-        if not isinstance(r, dict):
-            continue
-        src = r.get("source") or {}
-        out.append({
-            "column_name": col_name,
-            "final_value": str(r.get("value", "")) or "",
-            "contributing_methods": ["reconciliation_agent"],
-            "page": src.get("page") if isinstance(src, dict) else None,
-            "source_type": src.get("modality", "text") if isinstance(src, dict) else "text",
-            "verbatim_quote": src.get("verbatim_quote", "") if isinstance(src, dict) else "",
-            "agent_reasoning": str(r.get("reasoning", "") or "").strip() or None,
-            "verification_label": str(r.get("verification", "") or "").strip() or None,
-        })
-    return out
-
-
 def _build_agent_attribution(doc_id: str) -> Dict[str, Any] | None:
     """Build attribution columns from agent extraction, run enrich, return."""
     from src.evisearch.services.attribution import enrich_reconciled_with_attribution
@@ -1222,7 +1018,7 @@ def _build_agent_attribution(doc_id: str) -> Dict[str, Any] | None:
 
 @app.route('/api/upload/extract', methods=['POST'])
 def upload_pdf_for_extract():
-    """Upload PDF for agentic extraction. Returns doc_id for use with /api/extract/agentic/stream."""
+    """Upload a PDF for extraction. Returns the doc_id used by /api/qa/prepare-document and /api/extract/unified/stream."""
     if 'file' not in request.files:
         return jsonify({"success": False, "error": "No file provided"}), 400
     file = request.files['file']
@@ -1291,7 +1087,7 @@ def api_qa_prepare_document():
 
     def generate():
         from src.evisearch.services.preparation import parse_pdf_for_qa
-        from src.retrieval.openai_embedding_retriever import embed_chunks, has_embedding_cache
+        from src.retrieval.embedding_retriever import embed_chunks, has_embedding_cache
 
         # Require landing_ai_parse_output.json for attribution. Skip parse only if it exists and is fresh.
         # No baseline fallback: baseline markdown lacks chunk ids/grounding needed for attribution.
@@ -1367,17 +1163,27 @@ def api_qa_ask():
 
 
 def _api_qa_ask_quick(doc_id: str, question: str, history: list):
-    """Quick mode: Multi-turn Gemini chat with PDF. No attribution."""
+    """Quick mode: one call to the qa model with the whole document (the PDF when the model reads PDFs,
+    otherwise the parsed markdown). No attribution."""
+    from src.retrieval.embedding_retriever import parsed_markdown_path
+
     pdf_path = resolve_pdf_path(doc_id)
-    if not pdf_path or not pdf_path.exists():
+    markdown_path = parsed_markdown_path(doc_id)
+    if not (pdf_path and pdf_path.exists()) and not markdown_path.exists():
         return jsonify({"success": False, "error": f"PDF not found for {doc_id}"}), 400
 
     def generate():
-        from src.LLMProvider.provider import LLMProvider
+        from src.config.config import MAX_TOKENS
+        from src.inference import Message, PdfPart, TextPart, get_chat
 
-        provider = LLMProvider(provider="gemini", model="gemini-2.5-flash")
         try:
-            pdf_handle = provider.upload_pdf(str(pdf_path))
+            chat = get_chat("qa")
+            if chat.capabilities.pdf and pdf_path and pdf_path.exists():
+                document = [PdfPart(pdf_path.read_bytes(), filename=pdf_path.name)]
+            elif markdown_path.exists():
+                document = [TextPart("DOCUMENT MARKDOWN:\n\n" + markdown_path.read_text(encoding="utf-8"))]
+            else:
+                raise FileNotFoundError(f"Model '{chat.key}' reads parsed markdown; prepare the document first.")
         except Exception as e:
             yield f"data: {json.dumps({'type': 'error', 'error': str(e)})}\n\n"
             return
@@ -1391,26 +1197,15 @@ def _api_qa_ask_quick(doc_id: str, question: str, history: list):
                 f"Q: {h.get('question', '')}\nA: {h.get('answer', '')}" for h in turns
             )
 
-        prompt = f"""You are answering questions about this clinical trial research PDF. Use only the document to answer. Be concise and cite specific values when possible.{context_block}
+        prompt = f"""You are answering questions about this clinical trial research paper. Use only the document to answer. Be concise and cite specific values when possible.{context_block}
 
 Current question: {question}
 
 Answer:"""
 
         try:
-            response = provider.generate_with_pdf(
-                prompt=prompt,
-                pdf_handle=pdf_handle,
-                temperature=0.2,
-                max_tokens=4096,
-            )
-            provider.cleanup_pdf(pdf_handle)
-
-            if response.success:
-                answer = (response.text or "").strip()
-                yield f"data: {json.dumps({'type': 'done', 'mode': 'quick', 'answer': answer})}\n\n"
-            else:
-                yield f"data: {json.dumps({'type': 'error', 'error': response.error or 'Generation failed'})}\n\n"
+            result = chat.chat([Message.user(*document, prompt)], temperature=0.2, max_tokens=MAX_TOKENS["qa"])
+            yield f"data: {json.dumps({'type': 'done', 'mode': 'quick', 'answer': result.text})}\n\n"
         except Exception as e:
             yield f"data: {json.dumps({'type': 'error', 'error': str(e)})}\n\n"
 
@@ -1422,14 +1217,11 @@ Answer:"""
 
 
 def _api_qa_ask_full(doc_id: str, question: str, history: list):
-    """Full mode: Agent + Search + Reconcile with attribution."""
+    """Full mode: Arm A (pdf_query) + Arm B (search agent) + reconciliation, with attribution."""
     def generate():
         import threading
+        from src.evisearch.services.pdf_query import run_pdf_query
         from src.evisearch.services.qa import build_definition_with_context
-
-        sys.path.insert(0, str(PROJECT_ROOT / "experiment-scripts"))
-        from src.evisearch.services.agent_extraction import extract_batch
-        from src.LLMProvider.provider import LLMProvider
         from src.evisearch.services.search import run_search_agent
 
         col_name = "qa_query"
@@ -1443,14 +1235,7 @@ def _api_qa_ask_full(doc_id: str, question: str, history: list):
         def run_agent():
             nonlocal agent_result
             try:
-                pdf_path = resolve_pdf_path(doc_id)
-                if not pdf_path or not pdf_path.exists():
-                    agent_result = {col_name: {"value": "Not reported", "reasoning": "PDF not found", "found": False, "attribution": []}}
-                    return
-                provider = LLMProvider(provider="gemini", model="gemini-2.5-flash")
-                pdf_handle = provider.upload_pdf(str(pdf_path))
-                agent_result = extract_batch(doc_id, batch, pdf_handle, provider)
-                provider.cleanup_pdf(pdf_handle)
+                agent_result, _ = run_pdf_query(doc_id, batch)
             except Exception as e:
                 agent_result = {col_name: {"value": "Not reported", "reasoning": str(e), "found": False, "attribution": []}}
 
@@ -1461,7 +1246,7 @@ def _api_qa_ask_full(doc_id: str, question: str, history: list):
             except Exception as e:
                 search_result = {col_name: {"value": "Not reported", "reasoning": str(e), "found": False, "attribution": []}}
 
-        yield f"data: {json.dumps({'type': 'stage', 'stage': 'direct_pdf', 'message': 'Extracting with Direct PDF…'})}\n\n"
+        yield f"data: {json.dumps({'type': 'stage', 'stage': 'direct_pdf', 'message': 'Extracting from the full document…'})}\n\n"
         t_agent = threading.Thread(target=run_agent)
         t_search = threading.Thread(target=run_search)
         t_agent.start()
@@ -1557,95 +1342,6 @@ def _api_qa_ask_full(doc_id: str, question: str, history: list):
         mimetype="text/event-stream",
         headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"},
     )
-
-
-@app.route('/api/upload', methods=['POST'])
-def upload_pdf():
-    """Upload a PDF file for extraction."""
-    global current_pdf_info
-    
-    if 'file' not in request.files:
-        return jsonify({"success": False, "error": "No file provided"}), 400
-    
-    file = request.files['file']
-    
-    if file.filename == '':
-        return jsonify({"success": False, "error": "No file selected"}), 400
-    
-    if not file.filename.lower().endswith('.pdf'):
-        return jsonify({"success": False, "error": "Only PDF files are allowed"}), 400
-    
-    try:
-        # Save the uploaded file
-        filename = secure_filename(file.filename)
-        filepath = app.config['UPLOAD_FOLDER'] / filename
-        file.save(str(filepath))
-        
-        # Load PDF into extraction service
-        service = get_extraction_service()
-        if service is None:
-            return jsonify({
-                "success": False, 
-                "error": f"Extraction service not available. {vertex_auth_error_message()}"
-            }), 500
-        
-        result = service.upload_pdf(str(filepath))
-        
-        if result.get("success"):
-            current_pdf_info = {
-                "filename": filename,
-                "filepath": str(filepath),
-                "message": result.get("message")
-            }
-            return jsonify(result), 200
-        else:
-            return jsonify(result), 400
-            
-    except Exception as e:
-        return jsonify({"success": False, "error": f"Upload failed: {str(e)}"}), 500
-
-
-@app.route('/api/columns', methods=['GET'])
-def get_columns():
-    """Get list of all available columns."""
-    try:
-        service = get_extraction_service()
-        columns = service.get_available_columns()
-        return jsonify({
-            "success": True,
-            "columns": columns,
-            "total": len(columns)
-        }), 200
-    except Exception as e:
-        return jsonify({"success": False, "error": str(e)}), 500
-
-
-@app.route('/api/extract/single', methods=['POST'])
-def extract_single():
-    """Extract a single column value."""
-    data = request.get_json()
-    
-    if not data:
-        return jsonify({"success": False, "error": "No data provided"}), 400
-    
-    column_name = data.get('column_name')
-    definition = data.get('definition')
-    
-    if not column_name:
-        return jsonify({"success": False, "error": "column_name is required"}), 400
-    
-    try:
-        service = get_extraction_service()
-        if service is None:
-            return jsonify({
-                "success": False, 
-                "error": f"Extraction service not available. {vertex_auth_error_message()}"
-            }), 500
-        
-        result = service.extract_single_column(column_name, definition)
-        return jsonify(result), 200 if result.get("success") else 400
-    except Exception as e:
-        return jsonify({"success": False, "error": str(e)}), 500
 
 
 @app.route('/api/documents/<doc_id>/status', methods=['GET'])
@@ -1761,234 +1457,6 @@ def api_document_pdf(doc_id):
         return jsonify({"success": False, "error": str(e)}), 500
 
 
-@app.route('/api/documents/available', methods=['GET'])
-def get_available_documents():
-    """Get list of documents with existing extractions."""
-    try:
-        results_dir = PROJECT_ROOT / 'experiment-scripts' / 'baselines_file_search_results' / 'gemini_native'
-        
-        documents = []
-        
-        if results_dir.exists():
-            # Look for extraction_metadata.json files
-            for model_dir in results_dir.iterdir():
-                if model_dir.is_dir():
-                    for doc_dir in model_dir.iterdir():
-                        if doc_dir.is_dir():
-                            extraction_file = doc_dir / 'extraction_metadata.json'
-                            if extraction_file.exists():
-                                documents.append({
-                                    'id': f"{model_dir.name}/{doc_dir.name}",
-                                    'name': doc_dir.name,
-                                    'model': model_dir.name,
-                                    'path': str(extraction_file)
-                                })
-        
-        # Sort by document name
-        documents.sort(key=lambda x: x['name'])
-        
-        return jsonify({
-            "success": True,
-            "documents": documents,
-            "count": len(documents)
-        }), 200
-        
-    except Exception as e:
-        return jsonify({"success": False, "error": str(e)}), 500
-
-
-@app.route('/api/documents/<path:doc_id>/extraction', methods=['GET'])
-def get_document_extraction(doc_id):
-    """Get extraction data for a specific document."""
-    try:
-        results_dir = PROJECT_ROOT / 'experiment-scripts' / 'baselines_file_search_results' / 'gemini_native'
-        extraction_file = results_dir / doc_id / 'extraction_metadata.json'
-        
-        if not extraction_file.exists():
-            return jsonify({
-                "success": False,
-                "error": f"Extraction file not found for document: {doc_id}"
-            }), 404
-        
-        # Load extraction metadata
-        with open(extraction_file, 'r', encoding='utf-8') as f:
-            extraction_data = json.load(f)
-        
-        # Transform to web interface format
-        results = {}
-        for col_name, col_data in extraction_data.items():
-            # Try to extract page number from evidence or page field
-            page = col_data.get("page", "N/A")
-            if page == "Not applicable" or page == "N/A":
-                # Try to parse from evidence if available
-                evidence = col_data.get("evidence", "")
-                if "page" in evidence.lower():
-                    import re
-                    page_match = re.search(r'page\s+(\d+)', evidence, re.IGNORECASE)
-                    if page_match:
-                        page = page_match.group(1)
-                    else:
-                        page = "Unknown"
-                else:
-                    page = "Unknown"
-            
-            # Determine modality from plan_source_type or evidence
-            modality = col_data.get("plan_source_type", "unknown")
-            if modality == "Not applicable" or modality == "unknown":
-                evidence = col_data.get("evidence", "").lower()
-                if "table" in evidence:
-                    modality = "table"
-                elif "figure" in evidence or "chart" in evidence:
-                    modality = "figure"
-                else:
-                    modality = "text"
-            
-            results[col_name] = {
-                "value": col_data.get("value", "not found"),
-                "page_number": page,
-                "modality": modality,
-                "evidence": col_data.get("evidence", ""),
-                "definition": ""  # Could load from definitions if needed
-            }
-        
-        # Try to load summary metrics if available
-        summary_file = extraction_file.parent / 'evaluation' / 'summary_metrics.json'
-        summary_info = None
-        if summary_file.exists():
-            with open(summary_file, 'r', encoding='utf-8') as f:
-                summary_info = json.load(f)
-        
-        return jsonify({
-            "success": True,
-            "document_id": doc_id,
-            "results": results,
-            "total_columns": len(results),
-            "summary": summary_info
-        }), 200
-        
-    except Exception as e:
-        return jsonify({"success": False, "error": str(e)}), 500
-
-
-@app.route('/api/extract/csv', methods=['POST'])
-def extract_from_csv():
-    """Extract columns from uploaded CSV file."""
-    if 'file' not in request.files:
-        return jsonify({"success": False, "error": "No CSV file provided"}), 400
-    
-    file = request.files['file']
-    
-    if file.filename == '':
-        return jsonify({"success": False, "error": "No file selected"}), 400
-    
-    if not file.filename.lower().endswith('.csv'):
-        return jsonify({"success": False, "error": "Only CSV files are allowed"}), 400
-    
-    try:
-        # Read CSV file
-        stream = io.StringIO(file.stream.read().decode("UTF-8"), newline=None)
-        csv_reader = csv.DictReader(stream)
-        
-        # Validate CSV headers
-        headers = csv_reader.fieldnames
-        if not headers:
-            return jsonify({"success": False, "error": "CSV file is empty"}), 400
-        
-        # Check for required columns (case-insensitive)
-        headers_lower = [h.lower() for h in headers]
-        has_column_name = 'column_name' in headers_lower or 'column name' in headers_lower
-        has_definition = 'definition' in headers_lower
-        
-        if not (has_column_name and has_definition):
-            return jsonify({
-                "success": False,
-                "error": "CSV must contain 'column_name' (or 'Column Name') and 'definition' (or 'Definition') columns"
-            }), 400
-        
-        # Read all rows
-        csv_data = list(csv_reader)
-        
-        if not csv_data:
-            return jsonify({"success": False, "error": "CSV file contains no data rows"}), 400
-        
-        # Extract columns
-        service = get_extraction_service()
-        if service is None:
-            return jsonify({
-                "success": False, 
-                "error": f"Extraction service not available. {vertex_auth_error_message()}"
-            }), 500
-        
-        result = service.extract_from_csv(csv_data)
-        
-        return jsonify(result), 200 if result.get("success") else 400
-        
-    except Exception as e:
-        return jsonify({"success": False, "error": f"CSV processing failed: {str(e)}"}), 500
-
-
-@app.route('/api/pdf/info', methods=['GET'])
-def get_pdf_info():
-    """Get information about the currently loaded PDF."""
-    global current_pdf_info
-    
-    if not current_pdf_info:
-        return jsonify({
-            "success": False,
-            "error": "No PDF loaded"
-        }), 404
-    
-    return jsonify({
-        "success": True,
-        **current_pdf_info
-    }), 200
-
-
-@app.route('/api/export/<format>', methods=['POST'])
-def export_results(format):
-    """Export extraction results in various formats."""
-    data = request.get_json()
-    
-    if not data or 'results' not in data:
-        return jsonify({"success": False, "error": "No results to export"}), 400
-    
-    results = data['results']
-    
-    try:
-        if format == 'json':
-            return jsonify(results), 200
-        
-        elif format == 'csv':
-            output = io.StringIO()
-            writer = csv.writer(output)
-            
-            # Write header
-            writer.writerow(['Column Name', 'Value', 'Page Number', 'Modality', 'Evidence', 'Definition'])
-            
-            # Write rows
-            for col_name, col_data in results.items():
-                writer.writerow([
-                    col_name,
-                    col_data.get('value', ''),
-                    col_data.get('page_number', ''),
-                    col_data.get('modality', ''),
-                    col_data.get('evidence', ''),
-                    col_data.get('definition', '')
-                ])
-            
-            output.seek(0)
-            return output.getvalue(), 200, {
-                'Content-Type': 'text/csv',
-                'Content-Disposition': 'attachment; filename=extraction_results.csv'
-            }
-        
-        else:
-            return jsonify({"success": False, "error": f"Unsupported format: {format}"}), 400
-            
-    except Exception as e:
-        return jsonify({"success": False, "error": f"Export failed: {str(e)}"}), 500
-
-
 @app.errorhandler(413)
 def request_entity_too_large(error):
     """Handle file too large error."""
@@ -2007,11 +1475,8 @@ if __name__ == "__main__":
     print("=" * 60)
     port = int(os.getenv("PORT", "8007"))
     print(f"\nServer starting at: http://127.0.0.1:{port}")
-    print("\nFeatures:")
-    print("  • Upload PDF files for extraction")
-    print("  • Extract single column or all 133 columns")
-    print("  • Upload CSV with custom queries")
-    print("  • View results with evidence and location")
+    from src.config.config import SELECTION
+    print(f"\nInference preset: {SELECTION.preset}  (python -m src.config shows the models in use)")
     print("\nPress Ctrl+C to stop the server")
     print("=" * 60 + "\n")
     

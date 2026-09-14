@@ -23,19 +23,11 @@ from pathlib import Path
 
 repo_root = Path(__file__).resolve().parents[3]
 
-from dotenv import load_dotenv
-
 from src.table_definitions.definitions import load_definitions
 from src.evisearch.services.highlight import load_landing_ai_parse, _chunk_text, _landing_type_to_pipeline
 from src.evisearch.services.table_utils import html_table_to_markdown
 
-from src.evisearch.services.markdown_baseline import (
-    GENAI_AVAILABLE,
-    build_json_schema_for_group,
-    GeminiMarkdownProvider,
-)
-
-load_dotenv()
+from src.evisearch.services.markdown_baseline import ChatMarkdownProvider, build_json_schema_for_group
 
 PIPELINE_RESULTS = repo_root / "new_pipeline_outputs" / "results"
 MAX_MARKDOWN_CHARS = 100_000
@@ -127,7 +119,7 @@ def build_markdown_from_landing_ai(doc_id: str, strip_figure_placeholders: bool 
 
 
 def extract_groups(
-    provider: GeminiMarkdownProvider,
+    provider: ChatMarkdownProvider,
     markdown_text: str,
     label_groups: OrderedDict,
 ) -> dict:
@@ -182,7 +174,7 @@ def main() -> None:
         required=True,
         help="Comma-separated group Labels to extract (e.g. \"Region - N (%%),Race - N (%%)\")",
     )
-    parser.add_argument("--model", default="gemini-2.5-flash", help="Gemini model")
+    parser.add_argument("--model", default="gemini-2.5-flash", help="Catalog model key (role baseline)")
     parser.add_argument(
         "--output",
         type=Path,
@@ -190,9 +182,6 @@ def main() -> None:
         help="Output JSON path (default: temp/extract_<doc_id>_<timestamp>.json)",
     )
     args = parser.parse_args()
-
-    if not GENAI_AVAILABLE:
-        raise RuntimeError("google.genai required. pip install google-genai")
 
     doc_id = args.doc_id.strip()
     if not doc_id:
@@ -211,7 +200,7 @@ def main() -> None:
     markdown_text = build_markdown_from_landing_ai(doc_id)
     print(f"Markdown length: {len(markdown_text)} chars")
 
-    provider = GeminiMarkdownProvider(args.model)
+    provider = ChatMarkdownProvider(args.model)
     print(f"Extracting {len(label_groups)} groups with {args.model}...")
     columns = extract_groups(provider, markdown_text, label_groups)
 
