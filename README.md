@@ -1,377 +1,192 @@
-# CoRal-Map-Make
+# EviSearch (CoRal-Map-Make)
 
-Clinical-trial PDF extraction system with a shared runtime for:
-
-- document preparation with Landing AI parse + embedding cache
-- `agent_extractor` / PDF-query extraction
-- `search_agent` / retrieval-guided extraction
-- `reconciliation_agent` / A-vs-B resolution
-- attribution highlighting and method-comparison reporting
-
-The current codebase is centered on `src/evisearch`. The older plan-generator / plan-executor stack has been removed.
-
-## Current architecture
+Extracts a 133-column clinical-trial table from research papers with two independent extraction arms,
+reconciles their answers, attributes every value to the page it came from, and scores the result against
+a gold table. Every model call goes through one inference layer, so the same code runs on **local models
+served by vLLM on the H200s** or on **Gemini / OpenAI**, selected by configuration.
 
 ```mermaid
 flowchart LR
-    A[PDF] --> B[Prepare Document]
-    B --> C[Landing AI parse]
-    C --> D[parsed_markdown.md]
-    C --> E[landing_ai_parse_output.json]
-    D --> F[agent_extractor]
-    E --> G[chunk embeddings]
-    G --> H[search_agent]
-    F --> I[reconciliation_agent]
-    H --> I
-    F --> J[method comparison + attribution]
-    H --> J
-    I --> J
+    PDF --> Prep["Prepare: LandingAI parse"]
+    Prep --> MD[parsed_markdown.md]
+    Prep --> PJ[landing_ai_parse_output.json]
+    MD --> A["Arm A: pdf_query<br/>(whole document, one call per batch)"]
+    MD --> Emb["page embeddings<br/>(+ reranker)"]
+    Emb --> B["Arm B: search_agent<br/>tools: search_chunks, get_chunks_by_page, submit_extraction"]
+    A --> R["reconciliation<br/>tools: get_page, submit_verification"]
+    B --> R
+    R --> Attr["attribution + web UI"]
+    PJ --> Attr
+    R --> Eval["evaluator_v2 (judge)"]
 ```
 
-## Source of truth
+## Quick start
 
-There is one active application layer:
+```bash
+python -m venv venv && source venv/bin/activate
+pip install -r requirements-dev.txt
+cp .env.example .env                              # fill in the keys your preset needs (see below)
+python -m src.config                              # what this run will use
+python -m pytest -q                               # offline tests, no keys or GPUs needed
+```
 
-- `src/evisearch/services/`: business logic for preparation, extraction, search, reconciliation, attribution, reports
-- `src/evisearch/pipelines/`: orchestration and batching used by scripts and web
-- `web/main_app.py`: Flask app that calls the same `src/evisearch` modules
-- `experiment-scripts/`: thin CLIs and benchmark wrappers around the same services/pipelines
+## Configuration
 
-That split matters:
+Three files, three jobs:
 
-- `services` implement the actual behavior
-- `pipelines` coordinate multi-batch runs, resume logic, and per-agent output writing
-- scripts and web should stay thin and call into `src/evisearch`, not duplicate logic
+| File | Holds | Changes when |
+|---|---|---|
+| `src/config/catalog.yaml` | **Every option that exists**: endpoints, models and their capabilities (`tools`, `json_schema`, `images`, `pdf`, context size, price), pipeline roles and what they require, local vLLM server specs, presets, enumerated options | you add a model or server |
+| `src/config/config.py` | **What this run uses**: preset, per-role overrides, options, GPU pool and placement, token budgets. Validated against the catalog on import | per run / experiment |
+| `src/config/runtime_paths.py` | Where results, embeddings, uploads and feedback live | rarely |
+| `.env` | Secrets only: `VERTEX_API_KEY` (or `GOOGLE_CLOUD_PROJECT` + ADC), `OPENAI_API_KEY`, `VISION_AGENT_API_KEY` | rarely |
 
-## Repo map
+Code never names a provider or model; it asks for a role (`get_chat("search_agent")`, `get_embedder()`,
+`get_reranker()`). Roles: `pdf_query`, `search_agent`, `reconciliation`, `qa`, `judge`, `baseline`,
+`structurer`, `embedding`, `reranker`.
 
-### Core runtime
+### Presets
 
-- `src/evisearch/services/preparation.py`
-  - runs Landing AI parse
-  - writes `parsed_markdown.md` and `landing_ai_parse_output.json`
-- `src/evisearch/services/markdown_pdf_query.py`
-  - full-markdown PDF-query extractor
-  - keeps the same output contract as `agent_extractor`
-- `src/evisearch/services/search.py`
-  - retrieval-guided search agent
-  - uses semantic search over cached page/chunk embeddings
-- `src/evisearch/services/reconciliation.py`
-  - resolves disagreements between Agent A and Agent B
-- `src/evisearch/services/attribution.py`
-  - maps agent/source attribution back to Landing AI chunks
-- `src/evisearch/services/highlight.py`
-  - resolves highlight chunk IDs and PDF highlight spans for the UI
-- `src/evisearch/services/reports.py`
-  - loads outputs from agents and baselines for comparison/report pages
+| Preset | Agents (A, B, reconciliation, QA) | Embeddings / reranker | Judge + baselines | Needs |
+|---|---|---|---|---|
+| `local` (default) | Qwen3.6-27B on vLLM | Qwen3-Embedding-8B / Qwen3-Reranker-8B on vLLM | Gemini 2.5 Flash (scores stay comparable) | vLLM servers + Vertex auth |
+| `offline` | Qwen3.6-27B | Qwen3 embedding / reranker | Qwen3.6-27B | vLLM servers only |
+| `cloud` | Gemini 2.5 Flash | OpenAI text-embedding-3-large / none | Gemini 2.5 Flash | Vertex auth + `OPENAI_API_KEY` |
 
-### Orchestration
+### Switching without editing files
 
-- `src/evisearch/pipelines/unified_extraction.py`
-  - shared batching logic
-  - parallel Agent A + Search Agent orchestration for the app
-- `src/evisearch/pipelines/search_pipeline.py`
-  - batch runner for `search_agent`
-- `src/evisearch/pipelines/reconciliation_pipeline.py`
-  - batch runner for `reconciliation_agent`
+```bash
+EVISEARCH_PRESET=cloud python experiment-scripts/run_search_agent.py "<doc_id>"
+EVISEARCH_ROLE_JUDGE=gemini-2.5-pro python -m src.evaluation.evaluator_v2 ...   # override one role
+EVISEARCH_ROLE_RERANKER=none ...                                              # disable reranking
+EVISEARCH_PDF_QUERY_INPUT=pdf ...          # Arm A reads the PDF itself (model must support pdf)
+EVISEARCH_RECONCILIATION_PAGE_IMAGES=never ...
+EVISEARCH_VLLM_CHAT_URL=http://gpu-box:8002/v1 ...   # use a vLLM server running elsewhere
+```
 
-### Provider layer
+An invalid choice fails immediately and lists the valid ones, e.g.
+`role 'search_agent' needs a chat model, but 'qwen3-embedding-8b' has kind=embedding. Valid: qwen3.6-27b, qwen3-8b, gemini-2.5-flash, ...`.
+`python -m src.config --check` also verifies credentials and that the needed local servers answer `/health`.
 
-- `src/LLMProvider/provider.py`
-  - unified provider interface
-  - supports `gemini`, `openai`, `novita`, `groq`, `deepinfra`, `local`
-- `local` means OpenAI-compatible inference, typically a vLLM endpoint
+### Adding a model
 
-### Web app
+Add it under `models:` in `catalog.yaml` with its endpoint and capabilities (and a `servers:` entry if it
+runs locally), then select it in a preset, `ROLE_OVERRIDES`, or `EVISEARCH_ROLE_<ROLE>`. Any
+OpenAI-compatible API (vLLM, OpenAI, DeepInfra, Groq, ...) only needs an `endpoints:` entry with `base_url`
+and `api_key_env`.
 
-- `web/main_app.py`
-  - active Flask entrypoint
-- `apps/web/frontend/`
-  - templates and static assets
-- `apps/web/backend/app.py`
-  - compatibility import wrapper around `web.main_app`
+## Local models (vLLM on the H200s)
 
-### Experiment CLIs
+vLLM runs in its own environment (it pins its own PyTorch):
 
-- `experiment-scripts/run_markdown_pdf_query_agent.py`
-- `experiment-scripts/run_search_agent.py`
-- `experiment-scripts/run_reconciliation_agent.py`
-- `experiment-scripts/run_local_search_agent.py`
-  - compatibility wrapper around `src/evisearch/pipelines/search_pipeline.py`
+```bash
+python -m venv /mnt/data1/$USER/vllm-env && /mnt/data1/$USER/vllm-env/bin/pip install vllm
+export EVISEARCH_VLLM_BIN=/mnt/data1/$USER/vllm-env/bin/vllm   # or put it in .env
+```
 
-## Runtime layout
+Start the servers the current selection needs:
 
-Runtime paths are defined in `src/config/runtime_paths.py`.
+```bash
+python -m src.inference.serve --dry-run   # GPU placement + exact vllm commands
+python -m src.inference.serve --detach    # start in the background, wait until healthy
+python -m src.inference.serve --status
+python -m src.inference.serve --stop
+python -m src.inference.serve --only qwen36_27b
+```
 
-Default locations:
+| Server | Model | Port | Default memory | Notes |
+|---|---|---|---|---|
+| `qwen36_27b` | Qwen/Qwen3.6-27B | 8002 | 0.90 of one GPU | `--tool-call-parser qwen3_coder --reasoning-parser qwen3`, thinking off, 65k context, images on |
+| `qwen3_embed_8b` | Qwen/Qwen3-Embedding-8B | 8003 | 0.40 | `--runner pooling` |
+| `qwen3_rerank_8b` | Qwen/Qwen3-Reranker-8B | 8004 | 0.40 | pooling + `hf_overrides`, template in `src/config/templates/` |
+| `qwen3_8b` | Qwen/Qwen3-8B | 8006 | 0.40 | optional small chat model |
+
+**GPUs** are chosen in `config.py`: `GPU_POOL` lists the GPUs the project may use and `GPUS` pins a server
+to indices or `"auto"` (least-used pool GPUs). Before starting, the launcher reads `nvidia-smi` and refuses
+a GPU whose used memory plus the server's `gpu_memory_utilization` would exceed `GPU_MAX_MEMORY_FRACTION`
+(servers can share a GPU when they fit). Environment: `EVISEARCH_GPU_POOL="0,1,2,3"`,
+`EVISEARCH_GPUS="qwen36_27b=0;qwen3_embed_8b=1;qwen3_rerank_8b=1"`. Logs go to `.cache/serve/`.
+
+Agents on models with a finite context window drop their oldest tool outputs (and let the model re-fetch
+those pages) when a conversation would not fit.
+
+## Running the pipeline
+
+All CLIs share flags: `--groups "A,B"`, `--no-resume`, `--max-batches N`, `--model <catalog key>`, `--dry-run`.
+
+```bash
+python experiment-scripts/run_pdf_query_agent.py "<doc_id>"            # Arm A  (--input markdown|pdf)
+python experiment-scripts/run_search_agent.py "<doc_id>"               # Arm B
+python experiment-scripts/run_reconciliation_agent.py "<doc_id>"       # needs both arms' results
+shell-scripts/run_benchmarks.sh full [--resume] [--max-batches 1]      # all benchmark trials
+```
+
+Documents must be prepared first (LandingAI parse → `parsed_markdown.md`); the web app does this from
+the extract and QA pages, and the benchmark papers already have parsed markdown.
+
+**Web app:** `shell-scripts/start_web_interface.sh` (or `python web/main_app.py`) →
+`http://127.0.0.1:8007` with `/extract`, `/qa`, `/attribution`, `/comparison-report`,
+`/method-comparison-report`.
+
+## Evaluation and baselines
+
+```bash
+python -m src.evaluation.evaluator_v2 <extraction_metadata.json> "<doc_id>" <output_dir> [--model gemini-2.5-pro]
+python experiment-scripts/evaluate_reconciliation_output.py [--doc "<doc_id>"]
+python experiment-scripts/baseline_landing_ai_w_gemini.py --trial "<doc_id>" --model gemini-2.5-flash
+python experiment-scripts/baseline_landing_ai_w_gpt4.py --trial "<doc_id>" --model gpt-4.1
+python experiment-scripts/baseline_file_search_gemini_native.py --pdf "dataset/<doc_id>.pdf" --model gemini-2.5-flash
+python experiment-scripts/baseline_file_search_free_form.py --pdf "dataset/<doc_id>.pdf" --model gpt-4.1
+shell-scripts/run_baselines.sh
+```
+
+Baseline `--model` values are catalog keys; results are written per model under
+`experiment-scripts/<baseline>/results/<model>/<doc_id>/`.
+
+## Code map
+
+| Path | What |
+|---|---|
+| `src/config/` | catalog, selection (`config.py`), runtime paths, `python -m src.config` |
+| `src/inference/` | `types.py` (messages, tools, results), `openai_compat.py` (OpenAI + vLLM chat/embeddings), `gemini.py`, `rerank.py`, `factory.py` (roles → models, credential/health checks, cost), `tool_loop.py`, `serve.py` (vLLM launcher) |
+| `src/retrieval/` | `embedding_retriever.py` (page embeddings cached per model, reranking), `markdown_preprocessor.py` |
+| `src/evisearch/services/` | `pdf_query.py` (Arm A), `search.py` (Arm B), `reconciliation.py`, `preparation.py` (LandingAI), attribution, highlight, reports, baselines |
+| `src/evisearch/pipelines/` | batch runners + CLIs for each arm, `unified_extraction.py` (web), shared `batching.py` and `results_store.py` |
+| `src/evaluation/` | `evaluator_v2.py` (judge role), Excel export |
+| `web/main_app.py`, `apps/web/frontend/` | Flask app and templates |
+| `experiment-scripts/` | thin CLIs, baselines, analysis scripts |
+| `tests/` | offline tests (scripted models, mocked HTTP) |
+
+### Using the inference layer
+
+```python
+from src.inference import Message, Tool, ToolOutput, ToolSpec, get_chat, run_tool_loop
+
+chat = get_chat("search_agent")            # model from config.py; get_chat("baseline", "gpt-4.1") overrides
+result = chat.chat([Message.system("..."), Message.user("...")], response_schema={...})
+data = result.json()
+
+loop = run_tool_loop(chat, system="...", user="...", max_turns=25, max_tool_calls=15, max_tokens=8192,
+                     tools=[Tool(ToolSpec("get_page", "Load pages", {...json schema...}), handler)])
+```
+
+Tools are declared once as JSON schema. The OpenAI-compatible adapter sends them as `tools` (vLLM parses
+Qwen's tool-call format server-side); the Gemini adapter sends function declarations and replays the
+model's own turns verbatim so thought signatures survive. Page images from tools are attached the way each
+API requires. Structured output uses `response_format: json_schema` (OpenAI/vLLM) or `response_schema` (Gemini).
+
+## Outputs
 
 ```text
 new_pipeline_outputs/
-├── results/
-│   └── <doc_id>/
-│       ├── chunking/
-│       │   ├── parsed_markdown.md
-│       │   └── landing_ai_parse_output.json
-│       ├── agent_extractor/
-│       │   ├── extraction_results.json
-│       │   ├── extraction_metadata.json
-│       │   └── raw_llm_responses/
-│       ├── search_agent/
-│       │   ├── extraction_results.json
-│       │   ├── extraction_metadata.json
-│       │   └── verification_logs/
-│       └── reconciliation_agent/
-│           ├── reconciled_results.json
-│           ├── extraction_metadata.json
-│           └── verification_logs/
-├── chunk_embeddings/
+├── results/<doc_id>/
+│   ├── chunking/            parsed_markdown.md, landing_ai_parse_output.json
+│   ├── agent_extractor/     extraction_results.json, extraction_metadata.json, raw_llm_responses/
+│   ├── search_agent/        extraction_results.json, extraction_metadata.json, verification_logs/
+│   └── reconciliation_agent/ reconciled_results.json, extraction_metadata.json, verification_logs/, evaluation/
+├── chunk_embeddings/        <doc_id>_<embedding model>_markdown.npz
 └── feedback/
 ```
 
-Path overrides:
-
-- `EVISEARCH_RUNTIME_ROOT`
-- `EVISEARCH_RESULTS_ROOT`
-- `EVISEARCH_CHUNK_EMBEDDINGS_DIR`
-- `EVISEARCH_UPLOADS_DIR`
-- `EVISEARCH_FEEDBACK_DIR`
-- `EVISEARCH_DATASET_DIR`
-
-## Agent flows
-
-### 1. Preparation
-
-Preparation is required before retrieval-based workflows.
-
-It does two things:
-
-1. runs Landing AI parse and stores:
-   - `parsed_markdown.md`
-   - `landing_ai_parse_output.json`
-2. builds embedding cache used by retrieval/search
-
-Preparation is triggered from the web app via `/api/qa/prepare-document`.
-
-### 2. Agent extractor
-
-Current local-friendly implementation:
-
-- reads full `parsed_markdown.md`
-- sends markdown + column definitions to the model
-- expects JSON output in the existing `agent_extractor` contract
-- writes page/modality attribution in the same result shape used elsewhere
-
-Primary module:
-
-- `src/evisearch/services/markdown_pdf_query.py`
-
-CLI:
-
-```bash
-python experiment-scripts/run_markdown_pdf_query_agent.py "<doc_id>"
-```
-
-### 3. Search agent
-
-The search agent is retrieval-guided:
-
-- searches embedding-backed chunks/pages
-- optionally loads specific pages directly
-- submits extracted values plus page/modality attribution
-
-Primary module:
-
-- `src/evisearch/services/search.py`
-
-CLI:
-
-```bash
-python experiment-scripts/run_search_agent.py "<doc_id>"
-```
-
-### 4. Reconciliation agent
-
-The reconciliation agent reads:
-
-- `agent_extractor/extraction_results.json`
-- `search_agent/extraction_results.json`
-
-and writes:
-
-- `reconciliation_agent/reconciled_results.json`
-
-Primary module:
-
-- `src/evisearch/services/reconciliation.py`
-
-CLI:
-
-```bash
-python experiment-scripts/run_reconciliation_agent.py "<doc_id>"
-```
-
-## Provider configuration
-
-### Gemini
-
-Gemini is the only provider in this repo that currently supports native PDF upload through `LLMProvider.generate_with_pdf(...)`.
-
-Relevant auth:
-
-- `VERTEX_API_KEY`
-- or `GOOGLE_CLOUD_PROJECT` + `GOOGLE_CLOUD_LOCATION` with ADC/service-account auth
-
-### Local OpenAI-compatible endpoint
-
-Use `provider=local` to target a vLLM or other OpenAI-compatible server.
-
-Relevant env:
-
-- `LOCAL_OPENAI_BASE_URL`
-- `LOCAL_OPENAI_API_KEY`
-- `LOCAL_OPENAI_MODEL`
-
-Agent-specific overrides:
-
-- `PDF_QUERY_PROVIDER`
-- `PDF_QUERY_MODEL`
-- `PDF_QUERY_MAX_TOKENS`
-- `MARKDOWN_PDF_QUERY_MAX_CHARS`
-- `SEARCH_AGENT_PROVIDER`
-- `SEARCH_AGENT_MODEL`
-- `SEARCH_AGENT_MAX_TOKENS`
-- `RECONCILIATION_AGENT_PROVIDER`
-- `RECONCILIATION_AGENT_MODEL`
-- `RECONCILIATION_AGENT_MAX_TOKENS`
-
-Current local PDF-query path is text-first: it uses `parsed_markdown.md`, not native PDF upload.
-
-## Setup
-
-### Python dependencies
-
-Core code:
-
-```bash
-pip install -r src/requirements.txt
-```
-
-Web app:
-
-```bash
-pip install -r web/requirements.txt
-```
-
-Cloud Run image:
-
-```bash
-pip install -r requirements-cloudrun.txt
-```
-
-### Environment
-
-The repo expects a root `.env` file for provider credentials and runtime config.
-
-Common keys:
-
-- Vertex / Gemini auth
-- Landing AI auth: `VISION_AGENT_API_KEY` or `LANDING_AI_API_KEY`
-- local inference endpoint vars if using vLLM
-
-## Running the system
-
-### Start the web app
-
-```bash
-python web/main_app.py
-```
-
-or:
-
-```bash
-./shell-scripts/start_web_interface.sh
-```
-
-Default URL:
-
-```text
-http://127.0.0.1:8007
-```
-
-### Run agents directly
-
-Agent extractor:
-
-```bash
-python experiment-scripts/run_markdown_pdf_query_agent.py "<doc_id>" --provider local --model "Qwen/Qwen3.6-27B"
-```
-
-Search agent:
-
-```bash
-python experiment-scripts/run_search_agent.py "<doc_id>" --provider local --model "Qwen/Qwen3.6-27B"
-```
-
-Reconciliation agent:
-
-```bash
-python experiment-scripts/run_reconciliation_agent.py "<doc_id>" --provider local --model "Qwen/Qwen3.6-27B"
-```
-
-Smoke-test a partial run:
-
-```bash
-python experiment-scripts/run_search_agent.py "<doc_id>" --max-batches 1 --dry-run
-python experiment-scripts/run_reconciliation_agent.py "<doc_id>" --max-batches 1 --dry-run
-```
-
-## Web surfaces
-
-Current useful routes:
-
-- `/`
-- `/qa`
-- `/extract`
-- `/attribution`
-- `/comparison-report`
-- `/method-comparison-report`
-
-Important report surface:
-
-- `/method-comparison-report`
-  - compares `agent_extractor`, `search_agent`, `reconciliation_agent`, and selected baselines against the same document/column set
-
-## Attribution model
-
-The active agent outputs use normalized source attribution:
-
-```json
-[
-  { "page": 8, "modality": "table" }
-]
-```
-
-The UI then resolves that source attribution back to Landing AI chunk IDs and highlight spans using:
-
-- `src/evisearch/services/attribution.py`
-- `src/evisearch/services/highlight.py`
-
-That means highlights depend on `landing_ai_parse_output.json` being present and aligned with the page/modality evidence emitted by the agents.
-
-## Notes on removed architecture
-
-The old plan-based stack is no longer the active architecture. These components have been removed:
-
-- `src/planning/plan_generator.py`
-- `src/extraction/plan_executor.py`
-- `src/main/main_v2.py`
-- old planning verification scripts
-
-If you see old references to:
-
-- "Planning -> Extraction -> Evaluation"
-- `plans_all_columns.json`
-- `*_plan.json`
-- `src/main/main_v2.py`
-
-those are stale and should not be treated as the current system design.
+Per-column results always have `{value, reasoning, found, attribution: [{page, modality}], tried}`;
+reconciled columns add `verification` and `source` (with `verbatim_quote` for text).

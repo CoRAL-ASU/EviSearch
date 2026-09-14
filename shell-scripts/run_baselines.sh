@@ -1,5 +1,7 @@
-# Run from experiment-scripts/ with: bash ../run_baselines.sh
-# Or from repo root: cd experiment-scripts && bash ../run_baselines.sh
+#!/bin/bash
+# Run benchmark baselines from the repository root (the script changes into it).
+# Baseline models are catalog keys (src/config/catalog.yaml); override with MODEL=...
+cd "$(dirname "${BASH_SOURCE[0]}")/.." || exit 1
 
 # python experiment-scripts/baseline_landing_ai_new.py --pdf_name "NCT00104715_Gravis_GETUG_EU'15.pdf" --run-eval-only 
 # python experiment-scripts/baseline_landing_ai_new.py --pdf_name "NCT00268476_Attard_STAMPEDE_Lancet'23.pdf" --run-eval-only
