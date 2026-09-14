@@ -49,11 +49,6 @@ def reconciled_to_extraction(columns: dict) -> dict:
             "page": "Not applicable",
             "column_index": col_def.get("index", "Not applicable"),
             "group_name": col_def.get("label", "Not applicable"),
-            "plan_found_in_pdf": "Not applicable",
-            "plan_page": "Not applicable",
-            "plan_source_type": "Not applicable",
-            "plan_confidence": "Not applicable",
-            "plan_extraction_plan": "Not applicable",
         }
     return metadata
 

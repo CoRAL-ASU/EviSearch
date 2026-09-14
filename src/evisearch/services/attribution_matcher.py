@@ -3,7 +3,7 @@ attribution_matcher.py
 
 Custom keyword matching for attribution: numeric parts + column-name tokens only.
 No free-form words from values (they can mislead).
-Implements Phase 0 (attribution: text/table/figure), Phase 1 (numeric match), Phase 2 (planner page/type) per ATTRIBUTION_ALGORITHM_SPEC.md.
+Implements Phase 0 (attribution: text/table/figure), Phase 1 (numeric match), Phase 2 (page + modality location).
 """
 from __future__ import annotations
 
@@ -400,7 +400,7 @@ def phase1_numeric_match(
     return matching[:top_k]
 
 
-def phase2_planner_location(
+def phase2_page_type_location(
     valid_chunks: List[Dict],
     chunk_text_fn,
     page_1: int,
@@ -410,7 +410,7 @@ def phase2_planner_location(
     top_k: int = 3,
 ) -> List[Tuple[Dict, float]]:
     """
-    Phase 2: Chunks on planner page with matching type, ranked by column tokens.
+    Phase 2: Chunks on the attributed page with matching modality, ranked by column tokens.
     Returns list of (chunk, score).
     """
     if page_1 < 1:

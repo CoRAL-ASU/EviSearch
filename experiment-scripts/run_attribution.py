@@ -2,7 +2,7 @@
 """
 Run attribution scoring on EXISTING reconciled results.
 Does NOT run extractions or LLM reconciliation — only scores chunks and picks top 3-4.
-Uses attribution/numeric/planner matching (no semantic embeddings).
+Uses attribution/numeric/location matching (no semantic embeddings).
 
 Usage:
   python experiment-scripts/run_attribution.py "NCT00268476_Attard_STAMPEDE_Lancet'23"

@@ -1,9 +1,9 @@
 """
 attribution_service.py
 
-Attribution retrieval: attribution (agent) → numeric match → planner location.
+Attribution retrieval: attribution (agent) → numeric match → page + modality location.
 No semantic/embedding fallback; attribution will be done agentically.
-See web/attribution_matcher.py for Phase 0, 1, 2.
+See src/evisearch/services/attribution_matcher.py for Phase 0, 1, 2.
 """
 from __future__ import annotations
 
@@ -22,7 +22,7 @@ from src.evisearch.services.attribution_matcher import (
     extract_column_tokens,
     phase0_attribution_match,
     phase1_numeric_match,
-    phase2_planner_location,
+    phase2_page_type_location,
     chunks_to_attribution_output,
 )
 
@@ -106,7 +106,7 @@ def retrieve_chunks_for_evidence(
     attribution: Optional[List[Dict[str, Any]]] = None,
 ) -> List[Dict[str, Any]]:
     """
-    Strategy: ATTRIBUTION (when provided) → numeric match → planner location.
+    Strategy: ATTRIBUTION (when provided) → numeric match → page + modality location.
     - attribution: list of {source_type, page, snippet?, table_number?, figure_number?, caption?} from agent
     - attribution_snippet: legacy single snippet (converted to text source)
     - When pipeline has page/type: prefer chunks on that page and type
@@ -196,11 +196,11 @@ def retrieve_chunks_for_evidence(
                 score_label=1.0,
             )
 
-    # Phase 2: Planner location — chunks on page with matching type
+    # Phase 2: Page + modality location — chunks on the attributed page with matching type
     if hint_page and hint_page >= 1 and pipeline_source_type:
         st = str(pipeline_source_type or "").lower()
         if st not in ("not applicable", "not_applicable", "n/a", "na"):
-            matched = phase2_planner_location(
+            matched = phase2_page_type_location(
                 valid,
                 _chunk_text_clean,
                 hint_page,
@@ -214,7 +214,7 @@ def retrieve_chunks_for_evidence(
                     matched,
                     _chunk_text_clean,
                     _landing_type_to_pipeline,
-                    score_label=0.9,  # planner-based
+                    score_label=0.9,  # location-based
                 )
 
     return []
@@ -227,7 +227,7 @@ def enrich_reconciled_with_attribution(
     top_k: int = 3,
 ) -> List[Dict[str, Any]]:
     """
-    For each reconciled column: collate evidence, run attribution/numeric/planner matching, add attributed_chunks.
+    For each reconciled column: collate evidence, run attribution/numeric/location matching, add attributed_chunks.
     """
     col_to_row = {r.get("column_name"): r for r in (comparison_rows or [])}
 

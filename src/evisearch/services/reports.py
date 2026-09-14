@@ -33,7 +33,7 @@ def _normalize_gemini_result(col_name: str, data: Dict[str, Any]) -> Dict[str, A
         "primary_value": value,
         "found": value not in ("not found", "Not reported", "Not applicable", ""),
         "page": data.get("page"),
-        "source_type": data.get("plan_source_type") or "text",
+        "source_type": data.get("source_type") or "text",
         "candidates": [
             {
                 "value": value,
