@@ -1,121 +1,77 @@
 # src/config/config.py
-import os
+"""
+Selected options for this run.
+
+Every model, option and server named here must exist in src/config/catalog.yaml; the selection is
+validated when this module is imported. Each value can be overridden with the environment variable
+shown next to it. List everything that is available with:  python -m src.config
+"""
 from pathlib import Path
+
 from dotenv import load_dotenv
+
+from src.config.catalog import env, load_catalog, role_overrides_from_env
 
 # Load environment variables from .env file
 load_dotenv()
 
-# ============== API KEYS / CLOUD CONFIG ==============
-# These are loaded from .env file.
-# Gemini runs on Vertex AI, using either:
-# - VERTEX_API_KEY for local development
-# - ADC / attached service account for deployed environments
-GROQ_API_KEY = os.getenv("LLAMA_KEY", "")
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "")
-NOVITA_API_KEY = os.getenv("NOVITA_API_KEY", "")
-VERTEX_API_KEY = os.getenv("VERTEX_API_KEY", "")
-GOOGLE_CLOUD_PROJECT = os.getenv("GOOGLE_CLOUD_PROJECT", os.getenv("GCP_PROJECT_ID", ""))
-GOOGLE_CLOUD_LOCATION = os.getenv("GOOGLE_CLOUD_LOCATION", os.getenv("GCP_LOCATION", "us-central1"))
-DEEPINFRA_API_KEY = os.getenv("DEEPINFRA_API_KEY", "")
+CATALOG = load_catalog()
 
+# ============== INFERENCE ==============
+PRESET = env("EVISEARCH_PRESET", "local")  # local | offline | cloud
 
-# ============== PER-TASK LLM CONFIG ==============
-# Each task can use a different provider and model
-# Supported providers: "gemini", "openai", "novita", "groq", "deepinfra"
+# Per-role model overrides on top of the preset (role -> model key from the catalog).
+# Environment: EVISEARCH_ROLE_<ROLE>=<model key>, e.g. EVISEARCH_ROLE_JUDGE=gemini-2.5-pro
+ROLE_OVERRIDES = {
+    # "judge": "gemini-2.5-pro",
+    **role_overrides_from_env(),
+}
 
-# Chunking (image/table analysis - requires multimodal)
-CHUNKING_PROVIDER = "openai"
-CHUNKING_MODEL = "gpt-4.1"
+OPTIONS = {
+    "pdf_query_input": env("EVISEARCH_PDF_QUERY_INPUT", "markdown"),  # markdown | pdf
+    "reconciliation_page_images": env("EVISEARCH_RECONCILIATION_PAGE_IMAGES", "auto"),  # auto | never
+}
+
+# Output token budget per role
+MAX_TOKENS = {
+    "pdf_query": 16000,
+    "search_agent": 8192,
+    "reconciliation": 8192,
+    "qa": 4096,
+    "judge": 32000,
+    "baseline": 16000,
+    "structurer": 4096,
+}
+
+# ============== GPUS (local vLLM servers) ==============
+# GPUs this project may use, and where each server runs: a list of GPU indices, or "auto" to pick the
+# least-used GPUs from the pool when the server starts. Environment: EVISEARCH_GPU_POOL="0,1,2,3",
+# EVISEARCH_GPUS="qwen36_27b=0;qwen3_embed_8b=1;qwen3_rerank_8b=1"
+GPU_POOL = env("EVISEARCH_GPU_POOL", [0, 1, 2, 3, 4, 5, 6, 7])
+GPUS = env("EVISEARCH_GPUS", {
+    "qwen36_27b": "auto",
+    "qwen3_embed_8b": "auto",
+    "qwen3_rerank_8b": "auto",
+})
+GPU_MAX_MEMORY_FRACTION = 0.95  # launcher refuses a GPU if used memory + requested fraction exceeds this
+VLLM_BIN = env("EVISEARCH_VLLM_BIN", "vllm")
+
+SELECTION = CATALOG.resolve(PRESET, ROLE_OVERRIDES, OPTIONS, GPUS, GPU_POOL)
+
+# ============== AGENTS ==============
+BATCH_MAX_COLUMNS = 15  # columns per LLM call / agent run
+AGENT_MAX_TURNS = 25
+AGENT_MAX_TOOL_CALLS = 15
+PDF_QUERY_MAX_MARKDOWN_CHARS = 0  # 0 = send the whole parsed markdown
+RECONCILIATION_MAX_PAGE_IMAGES = 6  # page images attached per reconciliation batch
+
+# ============== RETRIEVAL ==============
+RETRIEVAL_TOP_K = 5  # pages returned by search_chunks
+RERANK_CANDIDATES = 12  # embedding hits passed to the reranker when one is selected
+SEARCH_PAGE_MAX_CHARS = 15000  # page text returned per hit
 
 # ============== PATHS ==============
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 DEFINITIONS_CSV_PATH = PROJECT_ROOT / "src" / "table_definitions" / "Definitions_with_eval_category.csv"
-GOLD_TABLE_PATH = PROJECT_ROOT / "dataset" / "GoldTable.csv"
-EVALUATION_PROMPT_PATH = PROJECT_ROOT / "src" / "evaluation" / "llm_judge.txt"
-
-# ============== CHUNKING CONFIGS ==============
-TEXT_CHUNK_MIN_SIZE = 5000  # Larger chunks for 4-5 chunks per PDF
-TEXT_CHUNK_OVERLAP = 0      # No overlap (deprecated, but kept for compatibility)
-CHUNKING_MODE = "paragraph" # 'paragraph' (default), 'sentence' (legacy)
-PATTERN_SAMPLE_PAGES = 5
-TOP_MARGIN = 60
-BOTTOM_MARGIN = 60
-TOP_THRESHOLD_RATIO = 0.1
-BOTTOM_THRESHOLD_RATIO = 0.9
-HEURISTIC_MAX_LENGTH = 150
-
-# ============== IMAGE PROCESSING ==============
-PIXMAP_RESOLUTION = 6
-
-# ============== EMBEDDINGS ==============
-EMBEDDING_MODEL_NAME = "all-MiniLM-L6-v2"
-
-# ============== RETRIEVAL CONFIGS ==============
-# Enable/disable retrieval-based extraction (vs brute-force all chunks)
-USE_RETRIEVAL = True
-
-# Retrieval strategy: "bm25" (keyword), "semantic" (embedding), "hybrid" (both)
-RETRIEVAL_STRATEGY = "hybrid"  # Options: "bm25", "semantic", "hybrid"
-
-# Number of chunks to retrieve per group
-RETRIEVAL_TOP_N = 3
-
-# For hybrid strategy: weights for BM25 and semantic scores (should sum to ~1.0)
-RETRIEVAL_BM25_WEIGHT = 0.7
-RETRIEVAL_SEMANTIC_WEIGHT = 0.3
-
-# Maximum number of chunks to combine in a single LLM call
-# Set to None to combine all retrieved chunks
-RETRIEVAL_MAX_COMBINED_CHUNKS = None
-
-# ============== CONTEXT GENERATION CONFIGS (deprecated)==============
-# Context generation settings for extraction guide
-USE_FILE_API_CONTEXT = True  # Use Gemini File API for context (vs old 2-page text)
-CONTEXT_GENERATION_PROVIDER = "gemini"  # Provider for context generation
-CONTEXT_GENERATION_MODEL = "gemini-2.5-flash"  # Model for context generation
-CONTEXT_MAX_RETRIES = 3  # Retry attempts for context generation
-
-
-## Table Filling Configs
-MAX_WORKERS = 8
-
-# ============== PAGE CLASSIFICATION CONFIGS ==============
-# LLM-based page classification for targeted chunking (requires structurer at STRUCTURER_BASE_URL)
-# Set to False if vLLM is not running (chunking will proceed without table/figure page hints)
-USE_LLM_PAGE_CLASSIFICATION = True  # Use Gemini to identify table/figure pages
-PAGE_CLASSIFICATION_MODEL = "gemini-2.5-flash"  # Gemini model for classification
-STRUCTURER_MODEL = "Qwen/Qwen3-8B"  # Local model for structuring responses
-STRUCTURER_BASE_URL = "http://localhost:8001/v1"  # Local LLM endpoint for structuring
-
-# ============== PIPELINE V2 (Plan-Based Extraction) ==============
-EXTRACTION_MODE = "plan"  # "plan" (V2) or "rag" (legacy)
-
-# Planning stage (multimodal: PDF + chunks)
-PLANNING_PROVIDER = "gemini"
-PLANNING_MODEL = "gemini-2.5-flash"
-PLANNING_WORKERS = 10
-
-# Extraction stage (execute plans)
-EXTRACTION_PROVIDER_V2 = "gemini"
-EXTRACTION_MODEL_V2 = "gemini-2.0-flash-001"
-EXTRACTION_WORKERS = 10
-
-# Evaluation stage (category-aware)
-EVALUATION_PROVIDER_V2 = "gemini"
-EVALUATION_MODEL_V2 = "gemini-2.5-flash"
-EVALUATION_WORKERS = 5
-
-# Output versioning (timestamped run directories)
-VERSION_OUTPUTS = False
-
-# Results base directory (pipeline writes to RESULTS_BASE_DIR / {pdf_name} / ...)
-RESULTS_BASE_DIR = PROJECT_ROOT / "new_pipeline_outputs" / "results"
-
-# Skip pipeline stages when output already exists (no re-run unless forced)
-SKIP_STAGE_IF_EXISTS = False
-
-# Ground truth for V2 evaluation
+DEFINITIONS_EVAL_CATEGORY_PATH = DEFINITIONS_CSV_PATH
 GOLD_TABLE_JSON_PATH = PROJECT_ROOT / "dataset" / "Manual_Benchmark_GoldTable_cleaned.json"
-DEFINITIONS_EVAL_CATEGORY_PATH = PROJECT_ROOT / "src" / "table_definitions" / "Definitions_with_eval_category.csv"
-

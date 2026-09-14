@@ -1,0 +1,238 @@
+# EviSearch inference catalog: every option that exists.
+#
+# This file lists what CAN be used: endpoints, models (and what each supports), the pipeline roles
+# (and what each needs), local vLLM servers, presets and enumerated options.
+# What a run DOES use is selected in src/config/config.py and validated against this file on import.
+#
+#   python -m src.config           # show options and the current selection
+#   python -m src.config --check   # also check credentials and local server health
+#
+# Prices are approximate USD per 1K tokens; update them when provider pricing changes.
+
+endpoints:
+  # Local vLLM servers (OpenAI-compatible API). The base URL comes from the server's host/port;
+  # set the *_URL environment variable to point at a server running somewhere else.
+  vllm_chat:
+    type: openai_compatible
+    server: qwen36_27b
+    base_url_env: EVISEARCH_VLLM_CHAT_URL
+  vllm_chat_small:
+    type: openai_compatible
+    server: qwen3_8b
+    base_url_env: EVISEARCH_VLLM_CHAT_SMALL_URL
+  vllm_embed:
+    type: openai_compatible
+    server: qwen3_embed_8b
+    base_url_env: EVISEARCH_VLLM_EMBED_URL
+  vllm_rerank:
+    type: vllm_rerank
+    server: qwen3_rerank_8b
+    base_url_env: EVISEARCH_VLLM_RERANK_URL
+
+  # Cloud APIs
+  openai:
+    type: openai_compatible
+    base_url: https://api.openai.com/v1
+    api_key_env: OPENAI_API_KEY
+  vertex:
+    type: gemini
+    api_key_env: VERTEX_API_KEY          # local development
+    project_env: GOOGLE_CLOUD_PROJECT    # ADC / service-account auth
+    location_env: GOOGLE_CLOUD_LOCATION
+    default_location: us-central1
+    timeout_s: 300
+
+models:
+  # ---- Local chat (vLLM) ----
+  qwen3.6-27b:
+    kind: chat
+    endpoint: vllm_chat
+    name: Qwen/Qwen3.6-27B
+    capabilities: {tools: true, json_schema: true, images: true, pdf: false}
+    context_tokens: 65536
+    thinking: false
+    page_image_scale: 2
+  qwen3-8b:
+    kind: chat
+    endpoint: vllm_chat_small
+    name: Qwen/Qwen3-8B
+    capabilities: {tools: true, json_schema: true, images: false, pdf: false}
+    context_tokens: 32768
+    thinking: false
+
+  # ---- Local retrieval (vLLM) ----
+  qwen3-embedding-8b:
+    kind: embedding
+    endpoint: vllm_embed
+    name: Qwen/Qwen3-Embedding-8B
+    query_instruction: "Instruct: Given a question about a clinical trial publication, retrieve the document page that answers it\nQuery:"
+  qwen3-reranker-8b:
+    kind: reranker
+    endpoint: vllm_rerank
+    name: Qwen/Qwen3-Reranker-8B
+
+  # ---- Gemini (Vertex AI) ----
+  gemini-2.5-flash:
+    kind: chat
+    endpoint: vertex
+    name: gemini-2.5-flash
+    capabilities: {tools: true, json_schema: true, images: true, pdf: true}
+    context_tokens: 1048576
+    page_image_scale: 8
+    price_per_1k: {input: 0.0003, output: 0.0025}
+  gemini-2.5-pro:
+    kind: chat
+    endpoint: vertex
+    name: gemini-2.5-pro
+    capabilities: {tools: true, json_schema: true, images: true, pdf: true}
+    context_tokens: 1048576
+    page_image_scale: 8
+    price_per_1k: {input: 0.00125, output: 0.01}
+  gemini-2.0-flash-001:
+    kind: chat
+    endpoint: vertex
+    name: gemini-2.0-flash-001
+    capabilities: {tools: true, json_schema: true, images: true, pdf: true}
+    context_tokens: 1048576
+    page_image_scale: 8
+    price_per_1k: {input: 0.00015, output: 0.0006}
+
+  # ---- OpenAI ----
+  gpt-4.1:
+    kind: chat
+    endpoint: openai
+    name: gpt-4.1
+    capabilities: {tools: true, json_schema: true, images: true, pdf: true}
+    context_tokens: 1047576
+    page_image_scale: 4
+    price_per_1k: {input: 0.002, output: 0.008}
+  gpt-4.1-mini:
+    kind: chat
+    endpoint: openai
+    name: gpt-4.1-mini
+    capabilities: {tools: true, json_schema: true, images: true, pdf: true}
+    context_tokens: 1047576
+    page_image_scale: 4
+    price_per_1k: {input: 0.0004, output: 0.0016}
+  gpt-4o:
+    kind: chat
+    endpoint: openai
+    name: gpt-4o
+    capabilities: {tools: true, json_schema: true, images: true, pdf: true}
+    context_tokens: 128000
+    page_image_scale: 4
+    price_per_1k: {input: 0.0025, output: 0.01}
+  text-embedding-3-large:
+    kind: embedding
+    endpoint: openai
+    name: text-embedding-3-large
+    price_per_1k: {input: 0.00013, output: 0.0}
+
+roles:
+  pdf_query:
+    kind: chat
+    requires: [json_schema]
+    description: Arm A - extracts a batch of columns from the whole document (markdown or PDF) in one call
+  search_agent:
+    kind: chat
+    requires: [tools]
+    description: Arm B - tool-using agent that searches pages and submits extractions
+  reconciliation:
+    kind: chat
+    requires: [tools]
+    description: Resolves Arm A vs Arm B per column by reading pages (and page images when supported)
+  qa:
+    kind: chat
+    description: Quick-mode question answering in the web app
+  judge:
+    kind: chat
+    requires: [json_schema]
+    description: evaluator_v2 - scores extractions against the gold table
+  baseline:
+    kind: chat
+    description: Default model for benchmark baselines (baseline scripts accept --model)
+  structurer:
+    kind: chat
+    requires: [json_schema]
+    description: Turns free-form baseline output into JSON (file-search free-form baseline)
+  embedding:
+    kind: embedding
+    description: Page embeddings behind the search_chunks tool
+  reranker:
+    kind: reranker
+    optional: true
+    description: Reorders embedding hits for search_chunks; null disables reranking
+
+servers:
+  # What each local vLLM process needs. Which GPUs it runs on is chosen in config.py (GPUS / GPU_POOL).
+  # Relative paths in args are resolved against the repository root.
+  qwen36_27b:
+    model_path: /mnt/shared/shared_hf_home/hub/models--Qwen--Qwen3.6-27B/snapshots/6a9e13bd6fc8f0983b9b99948120bc37f49c13e9
+    port: 8002
+    tensor_parallel: 1
+    gpu_memory_utilization: 0.90
+    max_model_len: 65536
+    max_num_seqs: 8
+    args: [--dtype, bfloat16, --enable-auto-tool-choice, --tool-call-parser, qwen3_coder, --reasoning-parser, qwen3, --limit-mm-per-prompt, '{"image": 16}']
+  qwen3_8b:
+    model_path: /mnt/shared/shared_hf_home/hub/models--Qwen--Qwen3-8B/snapshots/b968826d9c46dd6066d109eabc6255188de91218
+    port: 8006
+    tensor_parallel: 1
+    gpu_memory_utilization: 0.40
+    max_model_len: 32768
+    max_num_seqs: 16
+    args: [--dtype, bfloat16, --enable-auto-tool-choice, --tool-call-parser, hermes, --reasoning-parser, qwen3]
+  qwen3_embed_8b:
+    model_path: /mnt/shared/shared_hf_home/hub/models--Qwen--Qwen3-Embedding-8B/snapshots/1d8ad4ca9b3dd8059ad90a75d4983776a23d44af
+    port: 8003
+    tensor_parallel: 1
+    gpu_memory_utilization: 0.40
+    max_model_len: 32768
+    args: [--runner, pooling, --dtype, bfloat16]
+  qwen3_rerank_8b:
+    model_path: /mnt/shared/shared_hf_home/hub/models--Qwen--Qwen3-Reranker-8B/snapshots/77d193c791ed757ca307ee72715aa132723da912
+    port: 8004
+    tensor_parallel: 1
+    gpu_memory_utilization: 0.40
+    max_model_len: 16384
+    args: [--runner, pooling, --dtype, bfloat16, --hf-overrides, '{"architectures": ["Qwen3ForSequenceClassification"], "classifier_from_token": ["no", "yes"], "is_original_qwen3_reranker": true}', --chat-template, src/config/templates/qwen3_reranker.jinja]
+
+presets:
+  # Agents, retrieval and reranking on local GPUs; judge and baselines stay on Gemini so scores stay comparable.
+  local:
+    pdf_query: qwen3.6-27b
+    search_agent: qwen3.6-27b
+    reconciliation: qwen3.6-27b
+    qa: qwen3.6-27b
+    judge: gemini-2.5-flash
+    baseline: gemini-2.5-flash
+    structurer: qwen3.6-27b
+    embedding: qwen3-embedding-8b
+    reranker: qwen3-reranker-8b
+  # Everything on local GPUs; no cloud credentials needed.
+  offline:
+    pdf_query: qwen3.6-27b
+    search_agent: qwen3.6-27b
+    reconciliation: qwen3.6-27b
+    qa: qwen3.6-27b
+    judge: qwen3.6-27b
+    baseline: qwen3.6-27b
+    structurer: qwen3.6-27b
+    embedding: qwen3-embedding-8b
+    reranker: qwen3-reranker-8b
+  # Cloud APIs only (the setup the repository used before local models): Gemini agents, OpenAI embeddings.
+  cloud:
+    pdf_query: gemini-2.5-flash
+    search_agent: gemini-2.5-flash
+    reconciliation: gemini-2.5-flash
+    qa: gemini-2.5-flash
+    judge: gemini-2.5-flash
+    baseline: gemini-2.5-flash
+    structurer: gemini-2.5-flash
+    embedding: text-embedding-3-large
+    reranker: null
+
+options:
+  # Enumerated knobs; config.py picks one value for each.
+  pdf_query_input: [markdown, pdf]
+  reconciliation_page_images: [auto, never]
