@@ -160,6 +160,18 @@ def resolve_vllm_bin(configured: str) -> str:
     return str(sibling) if sibling.is_file() else configured
 
 
+def server_env(vllm_bin: str, gpus: Sequence[int], extra: Optional[Dict[str, str]] = None) -> Dict[str, str]:
+    """Environment for a server process: its GPUs, offline model loading, the server's catalog `env`, and the vllm
+    environment's bin/ first on PATH so tools vLLM runs itself (e.g. ninja) are found."""
+    env = dict(os.environ)
+    if os.sep in vllm_bin:
+        env["PATH"] = os.pathsep.join([str(Path(vllm_bin).resolve().parent), env.get("PATH", "")])
+    env["CUDA_VISIBLE_DEVICES"] = ",".join(map(str, gpus))
+    env["HF_HUB_OFFLINE"] = "1"
+    env.update(extra or {})
+    return env
+
+
 def _port_in_use(host: str, port: int) -> bool:
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
         sock.settimeout(0.5)
@@ -288,7 +300,8 @@ def main(argv: Optional[List[str]] = None) -> int:
     have_vllm = Path(vllm_bin).is_file()
     for server in pending:
         command = build_command(selection, server, vllm_bin)
-        print(f"\n{server}: CUDA_VISIBLE_DEVICES={','.join(map(str, placement[server]))}")
+        overrides = {"CUDA_VISIBLE_DEVICES": ",".join(map(str, placement[server])), **selection.catalog.servers[server].env}
+        print(f"\n{server}: " + " ".join(f"{k}={v}" for k, v in overrides.items()))
         print("  " + shlex.join(command))
     if args.dry_run:
         if not have_vllm:
@@ -308,13 +321,12 @@ def main(argv: Optional[List[str]] = None) -> int:
     try:
         for server in pending:
             log_path = STATE_DIR / f"{server}.log"
-            env = {**os.environ, "CUDA_VISIBLE_DEVICES": ",".join(map(str, placement[server])), "HF_HUB_OFFLINE": "1"}
             with open(log_path, "ab") as log:
                 process = subprocess.Popen(
                     build_command(selection, server, vllm_bin),
                     stdout=log,
                     stderr=subprocess.STDOUT,
-                    env=env,
+                    env=server_env(vllm_bin, placement[server], selection.catalog.servers[server].env),
                     cwd=PROJECT_ROOT,
                     start_new_session=True,
                 )

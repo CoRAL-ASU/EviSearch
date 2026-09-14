@@ -87,6 +87,7 @@ class ServerSpec(_Spec):
     max_model_len: Optional[int] = None
     max_num_seqs: Optional[int] = None
     args: List[str] = []
+    env: Dict[str, str] = {}  # extra environment variables for the server process
 
 
 class Catalog(_Spec):

@@ -6,7 +6,7 @@ import pytest
 
 from src.config.catalog import ConfigError, load_catalog
 import src.inference.serve as serve
-from src.inference.serve import PROJECT_ROOT, GpuInfo, build_command, plan_placement, query_gpus, resolve_vllm_bin
+from src.inference.serve import PROJECT_ROOT, GpuInfo, build_command, plan_placement, query_gpus, resolve_vllm_bin, server_env
 
 CATALOG = load_catalog()
 GIB = 1024
@@ -62,6 +62,23 @@ def test_vllm_bin_falls_back_to_the_active_python_environment(tmp_path, monkeypa
     assert resolve_vllm_bin("/opt/custom/vllm") == "/opt/custom/vllm"
     (bin_dir / "vllm").unlink()
     assert resolve_vllm_bin("vllm") == "vllm"
+
+
+def test_server_env_sets_gpus_catalog_env_and_vllm_tools_on_path(tmp_path, monkeypatch):
+    bin_dir = tmp_path / "venv" / "bin"
+    bin_dir.mkdir(parents=True)
+    monkeypatch.setenv("PATH", "/usr/bin")
+
+    catalog_env = CATALOG.servers["qwen36_27b"].env
+    env = server_env(str(bin_dir / "vllm"), [0, 6], catalog_env)
+
+    assert catalog_env == {"VLLM_USE_FLASHINFER_SAMPLER": "0"}
+    assert env["VLLM_USE_FLASHINFER_SAMPLER"] == "0"
+    assert env["PATH"].split(":")[:2] == [str(bin_dir), "/usr/bin"]
+    assert env["CUDA_VISIBLE_DEVICES"] == "0,6"
+    assert env["HF_HUB_OFFLINE"] == "1"
+    assert server_env("vllm", [1])["PATH"] == "/usr/bin"
+    assert "VLLM_USE_FLASHINFER_SAMPLER" not in server_env("vllm", [1], CATALOG.servers["qwen3_embed_8b"].env)
 
 
 def test_build_command_uses_served_name_parsers_and_absolute_template_path():
