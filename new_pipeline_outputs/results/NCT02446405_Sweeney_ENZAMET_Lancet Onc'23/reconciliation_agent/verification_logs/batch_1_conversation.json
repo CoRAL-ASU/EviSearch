@@ -1,0 +1,350 @@
+{
+  "doc_id": "NCT02446405_Sweeney_ENZAMET_Lancet Onc'23",
+  "tool_calls_sequence": [
+    {
+      "name": "submit_verification",
+      "args": {
+        "results_keys": [
+          "PFS Rate (%) | Overall | Control",
+          "Median Age (years) | Control",
+          "Median On-Treatment Duration (mo) | Control",
+          "PFS Rate (%) | Overall | Treatment",
+          "Median Age (years) | Treatment",
+          "TTPSA (mo) | Control",
+          "Docetaxel administration - N (%) | Control",
+          "TTPSA (mo) | Treatment",
+          "Treatment Class",
+          "Trial",
+          "Docetaxel administration - N (%) | Treatment",
+          "Median On-Treatment Duration (mo) | Treatment",
+          "No. of Deaths - N | Control",
+          "No. of Deaths - N | Treatment"
+        ]
+      }
+    },
+    {
+      "name": "get_page",
+      "args": {
+        "page_numbers": [
+          1
+        ]
+      }
+    },
+    {
+      "name": "submit_verification",
+      "args": {
+        "results_keys": [
+          "Type of Therapy"
+        ]
+      }
+    }
+  ],
+  "conversation": [
+    {
+      "turn": 0,
+      "role": "user",
+      "content": "Reconcile the following columns. Document has 12 pages. Sources are anonymous (A and B).\n\nCOLUMNS:\n\n---\nColumn 1: Treatment Class\nDefinition: What is the categorization or classification of the treatment or therapy received by participants in the clinical trial?. If reported, provide the value; otherwise use 'Not reported'.\n  A: value=\"Androgen Deprivation Therapy (ADT) with additional androgen receptor inhibition\" | page=1 | modality=text | reasoning=\"The summary and introduction describe the treatment as testosterone suppression (ADT) plus either enzalutamide (a new androgen receptor inhibitor) or standard antiandrogen therapy (weaker androgen receptor inhibitor).\"\n  B: value=\"Androgen Deprivation Therapy / Androgen Receptor Inhibitors\" | page=1 | modality=text | reasoning=\"Page 1 mentions 'Testosterone suppression plus enzalutamide versus testosterone suppression plus standard antiandrogen therapy' and page 2 mentions 'androgen deprivation therapy with testosterone suppression' and 'androgen receptor signalling inhibitor'.\"\n\n---\nColumn 2: Trial\nDefinition: What name of the clinical study or experiment being referenced?. If reported, provide the value; otherwise use 'Not reported'.\n  A: value=\"ENZAMET\" | page=1 | modality=text | reasoning=\"The trial name is explicitly stated in the title and throughout the document.\"\n  B: value=\"ENZAMET\" | page=1 | modality=text | reasoning=\"Page 1, title of the article.\"\n\n---\nColumn 3: Type of Therapy\nDefinition: What is the description of the type of treatment or intervention provided to participants in the clinical trial?. If reported, provide the value; otherwise use 'Not reported'.\n  A: value=\"Treatment: testosterone suppression plus oral enzalutamide (160 mg once per day); Control: testosterone suppression plus a weaker standard oral non-steroidal antiandrogen (bicalutamide, nilutamide, or\" | page=1 | modality=text | reasoning=\"The methods section details the specific therapies for both groups and the allowed concurrent docetaxel.\"\n  B: value=\"Testosterone suppression, enzalutamide, standard nonsteroidal antiandrogen (bicalutamide, nilutamide, or flutamide), and docetaxel.\" | page=1 | modality=text | reasoning=\"Page 1 describes the treatment and control arms, and mentions concurrent docetaxel.\"\n\n---\nColumn 4: Docetaxel administration - N (%) | Treatment\nDefinition: What percentage of participants in the treatment arm of the clinical trial who received docetaxel before or during the trial? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.\n  A: value=\"243 (43%)\" | page=5 | modality=table | reasoning=\"Table 1 reports the 'Actual use of early docetaxel' for the Enzalutamide group.\"\n  B: value=\"243 (43%)\" | page=5 | modality=table | reasoning=\"From Table 1 on Page 5, 'Actual use of early docetaxel*' for the Enzalutamide group (n=563) is 243 (43%).\"\n\n---\nColumn 5: Docetaxel administration - N (%) | Control\nDefinition: What number and percentage of participants who received docetaxel before or during the trial in the control arm of the clinical trial? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.\n  A: value=\"240 (43%)\" | page=5 | modality=table | reasoning=\"Table 1 reports the 'Actual use of early docetaxel' for the Control group.\"\n  B: value=\"240 (43%)\" | page=5 | modality=table | reasoning=\"From Table 1 on Page 5, 'Actual use of early docetaxel*' for the Control group (n=562) is 240 (43%).\"\n\n---\nColumn 6: Median Age (years) | Treatment\nDefinition: What median age in years of participants included in the treatment arm of the clinical trial? If reported, include the value; use 'Not reported' if missing.\n  A: value=\"69 (IQR 63-74)\" | page=5 | modality=table | reasoning=\"Table 1 provides the median age for the Enzalutamide group.\"\n  B: value=\"69\" | page=5 | modality=table | reasoning=\"From Table 1 on Page 5, 'Age, years Median' for the Enzalutamide group (n=563) is 69 (63-74).\"\n\n---\nColumn 7: Median Age (years) | Control\nDefinition: What the median age of participants included in the control arm of the clinical trial? If reported, include the value; use 'Not reported' if missing.\n  A: value=\"69 (IQR 64-75)\" | page=5 | modality=table | reasoning=\"Table 1 provides the median age for the Control group.\"\n  B: value=\"69\" | page=5 | modality=table | reasoning=\"From Table 1 on Page 5, 'Age, years Median' for the Control group (n=562) is 69 (64-75).\"\n\n---\nColumn 8: Median On-Treatment Duration (mo) | Treatment\nDefinition: What is the median duration in months that participants in the treatment arm of the trial received on-treatment therapy? If reported, include the value; use 'Not reported' if missing.\n  A: value=\"58 months (IQR 49-67)\" | page=6 | modality=text | reasoning=\"The results section states the median time on protocol therapy for the enzalutamide group.\"\n  B: value=\"58\" | page=6 | modality=text | reasoning=\"From Page 6, 'Median time on protocol therapy was 58 months (IQR 49\u201367) for the enzalutamide group'.\"\n\n---\nColumn 9: Median On-Treatment Duration (mo) | Control\nDefinition: What is the median duration in months of participants receiving treatment in the control arm of the clinical trial? If reported, include the value; use 'Not reported' if missing.\n  A: value=\"23 months (IQR 21-25)\" | page=6 | modality=text | reasoning=\"The results section states the median time on protocol therapy for the control group.\"\n  B: value=\"23\" | page=6 | modality=text | reasoning=\"From Page 6, 'Median time on protocol therapy was ... 23 months (21\u201325) for the control group'.\"\n\n---\nColumn 10: No. of Deaths - N | Treatment\nDefinition: What the number of participants who died in the treatment arm of the clinical trial?.\n  A: value=\"208\" | page=6 | modality=text | reasoning=\"The results section states the number of participants who died in the enzalutamide group.\"\n  B: value=\"208\" | page=6 | modality=text | reasoning=\"From Page 6, '208 (37%) of 563 participants in the enzalutamide group ... had died.'\"\n\n---\nColumn 11: No. of Deaths - N | Control\nDefinition: What number of deaths that occurred in the control arm of the clinical trial?.\n  A: value=\"268\" | page=6 | modality=text | reasoning=\"The results section states the number of participants who died in the control group.\"\n  B: value=\"268\" | page=6 | modality=text | reasoning=\"From Page 6, '... and 268 (48%) of 562 in the control group had died.'\"\n\n---\nColumn 12: PFS Rate (%) | Overall | Treatment\nDefinition: What the hazard ratio with confidence intervals of progression-free survival (PFS) of all comparisons in all participants, regardless of metastasis type or volume, in the treatment arm of the trial? If reported, include the rate (percentage) and any accompanying details. If multiple arms are reported, list each arm separately. Use 'Not reported' if missing.\n  A: value=\"54% (95% CI 49\u201358) at 5 years; HR 0.44 (95% CI 0.38\u20130.52)\" | page=6 | modality=text | reasoning=\"The results section provides the 5-year PSA progression-free survival rate for the enzalutamide group. Figure 2B provides the HR for PSA progression-free survival.\"\n  B: value=\"54% (95% CI 49\u201358)\" | page=6 | modality=text | reasoning=\"From Page 6, '5-year PSA progression-free survival was 54% (95% 49\u201358) in the enzalutamide group'.\"\n\n---\nColumn 13: PFS Rate (%) | Overall | Control\nDefinition: What hazard ratio with confidence intervals of Progression-Free Survival (PFS) of all comparisons in all participants in the control arm of the trial? If reported, include the rate (percentage) and any accompanying details. If multiple arms are reported, list each arm separately. Use 'Not reported' if missing.\n  A: value=\"25% (95% CI 22\u201329) at 5 years; HR 0.44 (95% CI 0.38\u20130.52)\" | page=6 | modality=text | reasoning=\"The results section provides the 5-year PSA progression-free survival rate for the control group. Figure 2B provides the HR for PSA progression-free survival.\"\n  B: value=\"25% (95% CI 22\u201329)\" | page=6 | modality=text | reasoning=\"From Page 6, '... versus 25% (22\u201329) in the control group'.\"\n\n---\nColumn 14: TTPSA (mo) | Treatment\nDefinition: What time To Progression of Serum Androgen (in months) in the treatment arm of the clinical trial? If reported, include the value; use 'Not reported' if missing.\n  A: value=\"68.0 months (95% CI 59.0\u201381.0)\" | page=6 | modality=figure | reasoning=\"Figure 2B, 'PSA progression-free survival (%)' graph, shows the median for the enzalutamide group.\"\n  B: value=\"68.0 (95% CI 59.0-81.0)\" | page=6 | modality=figure | reasoning=\"From Page 6, Figure 2B (PSA progression-free survival) legend: 'Enzalutamide group: median 68.0 months (95% CI 59.0-81.0)'. TTPSA is Time To Progression of Serum Androgen, which is consistent with PSA progression-free survival.\"\n\n---\nColumn 15: TTPSA (mo) | Control\nDefinition: What time to Progressive Serum Androgen (TTPSA) in months for participants in the control arm of the clinical trial? If reported, include the value; use 'Not reported' if missing.\n  A: value=\"22.0 months (95% CI 20.0\u201325.0)\" | page=6 | modality=figure | reasoning=\"Figure 2B, 'PSA progression-free survival (%)' graph, shows the median for the control group.\"\n  B: value=\"22.0 (95% CI 20.0-25.0)\" | page=6 | modality=figure | reasoning=\"From Page 6, Figure 2B (PSA progression-free survival) legend: 'Control group: median 22.0 months (95% CI 20.0-25.0)'. TTPSA is Time To Progression of Serum Androgen, which is consistent with PSA progression-free survival.\"\n\n\nSubmit verification for easy columns first. For disputed columns, use get_page then submit."
+    },
+    {
+      "turn": 2,
+      "role": "tool",
+      "name": "submit_verification",
+      "args": {
+        "results_keys": [
+          "PFS Rate (%) | Overall | Control",
+          "Median Age (years) | Control",
+          "Median On-Treatment Duration (mo) | Control",
+          "PFS Rate (%) | Overall | Treatment",
+          "Median Age (years) | Treatment",
+          "TTPSA (mo) | Control",
+          "Docetaxel administration - N (%) | Control",
+          "TTPSA (mo) | Treatment",
+          "Treatment Class",
+          "Trial",
+          "Docetaxel administration - N (%) | Treatment",
+          "Median On-Treatment Duration (mo) | Treatment",
+          "No. of Deaths - N | Control",
+          "No. of Deaths - N | Treatment"
+        ]
+      },
+      "response": {
+        "submitted": [
+          "PFS Rate (%) | Overall | Control",
+          "Median Age (years) | Control",
+          "Median On-Treatment Duration (mo) | Control",
+          "PFS Rate (%) | Overall | Treatment",
+          "Median Age (years) | Treatment",
+          "TTPSA (mo) | Control",
+          "Docetaxel administration - N (%) | Control",
+          "TTPSA (mo) | Treatment",
+          "Treatment Class",
+          "Trial",
+          "Docetaxel administration - N (%) | Treatment",
+          "Median On-Treatment Duration (mo) | Treatment",
+          "No. of Deaths - N | Control",
+          "No. of Deaths - N | Treatment"
+        ]
+      }
+    },
+    {
+      "turn": 3,
+      "role": "tool",
+      "name": "get_page",
+      "args": {
+        "page_numbers": [
+          1
+        ]
+      },
+      "response": {
+        "formatted_chunks": "[Page 1]\n## Page 1\n\nArticles\n\n\n\nTestosterone suppression plus enzalutamide versus\ntestosterone suppression plus standard antiandrogen\ntherapy for metastatic hormone-sensitive prostate cancer\n(ENZAMET): an international, open-label, randomised,\nphase 3 trial\n\n\n\n<::logo: CrossMark\nCrossMark\nA red cursor icon pointing to a red bookmark icon::>\n\n\n\nChristopher J Sweeney, Andrew J Martin, Martin R Stockler, Stephen Begbie, Leanna Cheung, Kim N Chi, Simon Chowdhury, Mark Frydenberg, Lisa G Horvath, Anthony M Joshua, Nicola J Lawrence, Gavin Marx, John McCaffrey, Ray McDermott, Margaret McJannett, Scott A North, Francis Parnis, Wendy Parulekar, David W Pook, Martin Neil Reaume, Shahneen K Sandhu, Alvin Tan, Thean Hsiang Tan, Alastair Thomson, Francisco Vera-Badillo, Scott G Williams, Diana Winter, Sonia Yip, Alison Y Zhang, Robert R Zielinski, Ian D Davis, for the ENZAMET trial investigators* and Australian and New Zealand Urogenital and Prostate Cancer Trials Group\n\n\n\n## Summary\n\n**Background** The interim analysis of the ENZAMET trial of testosterone suppression plus either enzalutamide or standard nonsteroidal antiandrogen therapy showed an early overall survival benefit with enzalutamide. Here, we report the planned primary overall survival analysis, with the aim of defining the benefit of enzalutamide treatment in different prognostic subgroups (synchronous and metachronous high-volume or low-volume disease) and in those who received concurrent docetaxel.\n\n\n\nMethods ENZAMET is an international, open-label, randomised, phase 3 trial conducted at 83 sites (including clinics, hospitals, and university centres) in Australia, Canada, Ireland, New Zealand, the UK, and the USA. Eligible participants were males aged 18 years or older with metastatic, hormone-sensitive prostate adenocarcinoma evident on CT or bone scanning with 99mTc and an Eastern Cooperative Oncology Group performance status score of 0\u20132. Participants were randomly assigned (1:1), using a centralised web-based system and stratified by volume of disease, planned use of concurrent docetaxel and bone antiresorptive therapy, comorbidities, and study site, to receive testosterone suppression plus oral enzalutamide (160 mg once per day) or a weaker standard oral non-steroidal antiandrogen (bicalutamide, nilutamide, or flutamide; control group) until clinical disease progression or prohibitive toxicity. Testosterone suppression was allowed up to 12 weeks before randomisation and for up to 24 months as adjuvant therapy. Concurrent docetaxel (75 mg/m\u00b2 intravenously) was allowed for up to six cycles once every 3 weeks, at the discretion of participants and physicians. The primary endpoint was overall survival in the intention-to-treat population. This planned analysis was triggered by reaching 470 deaths. This study is registered with ClinicalTrials.gov, NCT02446405, ANZCTR, ACTRN12614000110684, and EudraCT, 2014-003190-42.\n\n\n\nFindings Between March 31, 2014, and March 24, 2017, 1125 participants were randomly assigned to receive non-steroidal antiandrogen (n=562; control group) or enzalutamide (n=563). The median age was 69 years (IQR 63\u201374). This analysis was triggered on Jan 19, 2022, and an updated survival status identified a total of 476 (42%) deaths. After a median follow-up of 68 months (IQR 67\u201369), the median overall survival was not reached (hazard ratio 0.70 [95% CI 0.58\u20130.84]; p<0.0001), with 5-year overall survival of 57% (0.53\u20130.61) in the control group and 67% (0.63\u20130.70) in the enzalutamide group. Overall survival benefits with enzalutamide were consistent across predefined prognostic subgroups and planned use of concurrent docetaxel. The most common grade 3\u20134 adverse events were febrile neutropenia associated with docetaxel use (33 [6%] of 558 in the control group vs 37 [6%] of 563 in the enzalutamide group), fatigue (four [1%] vs 33 [6%]), and hypertension (31 [6%] vs 59 [10%]). The incidence of grade 1\u20133 memory impairment was 25 (4%) versus 75 (13%). No deaths were attributed to study treatment.\n\n\n\n**Interpretation** The addition of enzalutamide to standard of care showed sustained improvement in overall survival for patients with metastatic hormone-sensitive prostate cancer and should be considered as a treatment option for eligible patients.\n\n\n\nLancet Oncol 2023; 24: 323-34\n*Members listed in the\nappendix (p 2)\nSouth Australian\nImmunogenomics Cancer\nInstitute\n(Prof C J Sweeney MBBS) and\nFaculty of Health and Medical\nSciences (F Parnis MBBS FRACP),\nUniversity of Adelaide,\nAdelaide, SA, Australia; NHMRC\nClinical Trials Centre, University\nof Sydney, Sydney, NSW,\nAustralia (Prof A J Martin PhD,\nProf M R Stockler MBBS MSc,\nL Cheung PhD, D Winter BMedSci,\nS Yip BSc PhD,\nA Y Zhang MBBS MMed);\nConcord Cancer Centre, Concord\nRepatriation General Hospital,\nConcord, NSW, Australia\n(Prof M R Stockler); Chris O'Brien\nLifehouse, Sydney, NSW\nAustralia (Prof M R Stockler,\nProf L G Horvath MBBS PhD,\nA Y Zhang); Port Macquarie Base\nHospital, Port Macquarie, NSW,\nAustralia\n(S Begbie MBBS FRACP); Mid\nNorth Coast Cancer Institute,\nPort Macquarie, NSW, Australia\n(S Begbie); BC Cancer,\nVancouver, BC, Canada\n(Prof K N Chi MD); University of\nBritish Columbia, Vancouver,\nBC, Canada (Prof K N Chi); Guys\nand St Thomas' NHS\nFoundation Trust, Biomedical\nResearch Centre, Cancer\nResearch UK, King's College\nLondon, UK\n(S Chowdhury MBBS PhD);\nSarah Cannon Research\nInstitute, London, UK\n(S Chowdhury); Monash\nUniversity, Melbourne, VIC,\nAustralia\n(Prof M Frydenberg MBBS FRACS,\nD W Pook MBBS MD,\n\n\n\nFunding Astellas Pharma.\n\n\n\nCopyright \u00a9 2023 Published by Elsevier Ltd. All rights reserved.\n\n\n\nwww.thelancet.com/oncology Vol 24 April 2023\n\n\n\n323",
+        "pages_returned": [
+          1
+        ]
+      }
+    },
+    {
+      "turn": 4,
+      "role": "tool",
+      "name": "submit_verification",
+      "args": {
+        "results_keys": [
+          "Type of Therapy"
+        ]
+      },
+      "response": {
+        "submitted": [
+          "Type of Therapy"
+        ]
+      }
+    }
+  ],
+  "results": {
+    "PFS Rate (%) | Overall | Control": {
+      "value": "25% (95% CI 22\u201329) at 5 years; HR 0.44 (95% CI 0.38\u20130.52)",
+      "reasoning": "",
+      "verification": "both_correct",
+      "source": {
+        "page": 6,
+        "modality": "text"
+      },
+      "attribution": [
+        {
+          "page": 6,
+          "modality": "text"
+        }
+      ]
+    },
+    "Median Age (years) | Control": {
+      "value": "69 (IQR 64-75)",
+      "reasoning": "",
+      "verification": "both_correct",
+      "source": {
+        "page": 5,
+        "modality": "table"
+      },
+      "attribution": [
+        {
+          "page": 5,
+          "modality": "table"
+        }
+      ]
+    },
+    "Median On-Treatment Duration (mo) | Control": {
+      "value": "23 months (IQR 21-25)",
+      "reasoning": "",
+      "verification": "both_correct",
+      "source": {
+        "page": 6,
+        "modality": "text"
+      },
+      "attribution": [
+        {
+          "page": 6,
+          "modality": "text"
+        }
+      ]
+    },
+    "PFS Rate (%) | Overall | Treatment": {
+      "value": "54% (95% CI 49\u201358) at 5 years; HR 0.44 (95% CI 0.38\u20130.52)",
+      "reasoning": "",
+      "verification": "both_correct",
+      "source": {
+        "page": 6,
+        "modality": "text"
+      },
+      "attribution": [
+        {
+          "page": 6,
+          "modality": "text"
+        }
+      ]
+    },
+    "Median Age (years) | Treatment": {
+      "value": "69 (IQR 63-74)",
+      "reasoning": "",
+      "verification": "both_correct",
+      "source": {
+        "page": 5,
+        "modality": "table"
+      },
+      "attribution": [
+        {
+          "page": 5,
+          "modality": "table"
+        }
+      ]
+    },
+    "TTPSA (mo) | Control": {
+      "value": "22.0 months (95% CI 20.0\u201325.0)",
+      "reasoning": "",
+      "verification": "both_correct",
+      "source": {
+        "page": 6,
+        "modality": "figure"
+      },
+      "attribution": [
+        {
+          "page": 6,
+          "modality": "figure"
+        }
+      ]
+    },
+    "Docetaxel administration - N (%) | Control": {
+      "value": "240 (43%)",
+      "reasoning": "",
+      "verification": "both_correct",
+      "source": {
+        "page": 5,
+        "modality": "table"
+      },
+      "attribution": [
+        {
+          "page": 5,
+          "modality": "table"
+        }
+      ]
+    },
+    "TTPSA (mo) | Treatment": {
+      "value": "68.0 months (95% CI 59.0\u201381.0)",
+      "reasoning": "",
+      "verification": "both_correct",
+      "source": {
+        "page": 6,
+        "modality": "figure"
+      },
+      "attribution": [
+        {
+          "page": 6,
+          "modality": "figure"
+        }
+      ]
+    },
+    "Treatment Class": {
+      "value": "Androgen Deprivation Therapy (ADT) with additional androgen receptor inhibition",
+      "reasoning": "",
+      "verification": "both_correct",
+      "source": {
+        "page": 1,
+        "modality": "text"
+      },
+      "attribution": [
+        {
+          "page": 1,
+          "modality": "text"
+        }
+      ]
+    },
+    "Trial": {
+      "value": "ENZAMET",
+      "reasoning": "",
+      "verification": "both_correct",
+      "source": {
+        "page": 1,
+        "modality": "text"
+      },
+      "attribution": [
+        {
+          "page": 1,
+          "modality": "text"
+        }
+      ]
+    },
+    "Docetaxel administration - N (%) | Treatment": {
+      "value": "243 (43%)",
+      "reasoning": "",
+      "verification": "both_correct",
+      "source": {
+        "page": 5,
+        "modality": "table"
+      },
+      "attribution": [
+        {
+          "page": 5,
+          "modality": "table"
+        }
+      ]
+    },
+    "Median On-Treatment Duration (mo) | Treatment": {
+      "value": "58 months (IQR 49-67)",
+      "reasoning": "",
+      "verification": "both_correct",
+      "source": {
+        "page": 6,
+        "modality": "text"
+      },
+      "attribution": [
+        {
+          "page": 6,
+          "modality": "text"
+        }
+      ]
+    },
+    "No. of Deaths - N | Control": {
+      "value": "268",
+      "reasoning": "",
+      "verification": "both_correct",
+      "source": {
+        "page": 6,
+        "modality": "text"
+      },
+      "attribution": [
+        {
+          "page": 6,
+          "modality": "text"
+        }
+      ]
+    },
+    "No. of Deaths - N | Treatment": {
+      "value": "208",
+      "reasoning": "",
+      "verification": "both_correct",
+      "source": {
+        "page": 6,
+        "modality": "text"
+      },
+      "attribution": [
+        {
+          "page": 6,
+          "modality": "text"
+        }
+      ]
+    },
+    "Type of Therapy": {
+      "value": "Treatment: testosterone suppression plus oral enzalutamide (160 mg once per day); Control: testosterone suppression plus a weaker standard oral non-steroidal antiandrogen (bicalutamide, nilutamide, or flutamide). Concurrent docetaxel was allowed.",
+      "reasoning": "",
+      "verification": "both_wrong",
+      "source": {
+        "page": 1,
+        "modality": "text",
+        "verbatim_quote": "to receive testosterone suppression plus oral enzalutamide (160 mg once per day) or a weaker standard oral non-steroidal antiandrogen (bicalutamide, nilutamide, or flutamide; control group) until clinical disease progression or prohibitive toxicity. ... Concurrent docetaxel (75 mg/m\u00b2 intravenously) was allowed for up to six cycles once every 3 weeks, at the discretion of participants and physicians."
+      },
+      "attribution": [
+        {
+          "page": 1,
+          "modality": "text",
+          "verbatim_quote": "to receive testosterone suppression plus oral enzalutamide (160 mg once per day) or a weaker standard oral non-steroidal antiandrogen (bicalutamide, nilutamide, or flutamide; control group) until clinical disease progression or prohibitive toxicity. ... Concurrent docetaxel (75 mg/m\u00b2 intravenously) was allowed for up to six cycles once every 3 weeks, at the discretion of participants and physicians."
+        }
+      ]
+    }
+  }
+}

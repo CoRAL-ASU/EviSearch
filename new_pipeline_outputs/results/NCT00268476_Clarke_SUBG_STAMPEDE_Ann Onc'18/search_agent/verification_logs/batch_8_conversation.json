@@ -1,0 +1,143 @@
+{
+  "doc_id": "NCT00268476_Clarke_SUBG_STAMPEDE_Ann Onc'18",
+  "tool_calls_sequence": [
+    {
+      "name": "search_chunks",
+      "args": {
+        "query": "OS Rate (%) Overall Treatment"
+      }
+    },
+    {
+      "name": "submit_extraction",
+      "args": {
+        "results_keys": [
+          "OS Rate (%) | Low volume | Treatment",
+          "OS Rate (%) | Overall | Treatment",
+          "OS Rate (%) | Synchronous | Treatment",
+          "OS Rate (%) | High volume | Treatment",
+          "OS Rate (%) | Overall | Control",
+          "OS Rate (%) | Metachronous | Control",
+          "OS Rate (%) | High volume | Control",
+          "OS Rate (%) | Metachronous | Treatment",
+          "OS Rate (%) | Low volume | Control",
+          "OS Rate (%) | Synchronous | Control"
+        ]
+      }
+    }
+  ],
+  "conversation": [
+    {
+      "turn": 0,
+      "role": "user",
+      "content": "Extract values for these columns. Document has 0 pages.\n\nCOLUMNS:\n\n---\nColumn 1: OS Rate (%) | Overall | Treatment\nDefinition: What percentage of total patients in the experimental arm survived at the latest follow-up? If reported, include the rate (percentage) and any accompanying details. If multiple arms are reported, list each arm separately. Use 'Not reported' if missing.\n---\nColumn 2: OS Rate (%) | Overall | Control\nDefinition: What percentage of total patients in the control arm survived at the latest follow-up? If reported, include the rate (percentage) and any accompanying details. If multiple arms are reported, list each arm separately. Use 'Not reported' if missing.\n---\nColumn 3: OS Rate (%) | Synchronous | Treatment\nDefinition: What percentage of patients with metastasis at the time of diagnosis (synchronous metastasis) in the experimental arm survived at the latest follow-up? If reported, include the rate (percentage) and any accompanying details. If multiple arms are reported, list each arm separately. Use 'Not reported' if missing.\n---\nColumn 4: OS Rate (%) | Synchronous | Control\nDefinition: What percentage of patients with metastasis at the time of diagnosis (synchronous metastasis) in the control arm survived at the latest follow-up? If reported, include the rate (percentage) and any accompanying details. If multiple arms are reported, list each arm separately. Use 'Not reported' if missing.\n---\nColumn 5: OS Rate (%) | Metachronous | Treatment\nDefinition: What percentage of patients with metastasis after diagnosis (metachronous metastasis) in the experimental arm survived at the latest follow-up? If reported, include the rate (percentage) and any accompanying details. If multiple arms are reported, list each arm separately. Use 'Not reported' if missing.\n---\nColumn 6: OS Rate (%) | Metachronous | Control\nDefinition: What percentage of patients with metastasis after diagnosis (metachronous metastasis) in the control arm survived at the latest follow-up? If reported, include the rate (percentage) and any accompanying details. If multiple arms are reported, list each arm separately. Use 'Not reported' if missing.\n---\nColumn 7: OS Rate (%) | High volume | Treatment\nDefinition: What percentage of patients with high volume metastasis (by CHAARTED criteria) in the experimental arm survived at the latest follow-up? If reported, include the rate (percentage) and any accompanying details. If multiple arms are reported, list each arm separately. Use 'Not reported' if missing.\n---\nColumn 8: OS Rate (%) | High volume | Control\nDefinition: What percentage of patients with high volume metastasis (by CHAARTED criteria) in the control arm survived at the latest follow-up? If reported, include the rate (percentage) and any accompanying details. If multiple arms are reported, list each arm separately. Use 'Not reported' if missing.\n---\nColumn 9: OS Rate (%) | Low volume | Treatment\nDefinition: What percentage of patients with low volume metastasis (by CHAARTED criteria) in the experimental arm survived at the latest follow-up? If reported, include the rate (percentage) and any accompanying details. If multiple arms are reported, list each arm separately. Use 'Not reported' if missing.\n---\nColumn 10: OS Rate (%) | Low volume | Control\nDefinition: What percentage of patients with low volume metastasis (by CHAARTED criteria) in the control arm survived at the latest follow-up? If reported, include the rate (percentage) and any accompanying details. If multiple arms are reported, list each arm separately. Use 'Not reported' if missing.\n\nFor informational columns (trial name, arms, etc.), use get_chunks_by_page([1, 2]) first. For specific columns, use search_chunks. Submit when you have enough information."
+    },
+    {
+      "turn": 2,
+      "role": "tool",
+      "name": "search_chunks",
+      "args": {
+        "query": "OS Rate (%) Overall Treatment"
+      },
+      "response": {
+        "matches": [],
+        "formatted_chunks": "No matching chunks found. Try different search terms.",
+        "pages_returned": []
+      }
+    },
+    {
+      "turn": 3,
+      "role": "tool",
+      "name": "submit_extraction",
+      "args": {
+        "results_keys": [
+          "OS Rate (%) | Low volume | Treatment",
+          "OS Rate (%) | Overall | Treatment",
+          "OS Rate (%) | Synchronous | Treatment",
+          "OS Rate (%) | High volume | Treatment",
+          "OS Rate (%) | Overall | Control",
+          "OS Rate (%) | Metachronous | Control",
+          "OS Rate (%) | High volume | Control",
+          "OS Rate (%) | Metachronous | Treatment",
+          "OS Rate (%) | Low volume | Control",
+          "OS Rate (%) | Synchronous | Control"
+        ]
+      },
+      "response": {
+        "submitted": [
+          "OS Rate (%) | Low volume | Treatment",
+          "OS Rate (%) | Overall | Treatment",
+          "OS Rate (%) | Synchronous | Treatment",
+          "OS Rate (%) | High volume | Treatment",
+          "OS Rate (%) | Overall | Control",
+          "OS Rate (%) | Metachronous | Control",
+          "OS Rate (%) | High volume | Control",
+          "OS Rate (%) | Metachronous | Treatment",
+          "OS Rate (%) | Low volume | Control",
+          "OS Rate (%) | Synchronous | Control"
+        ]
+      }
+    }
+  ],
+  "results": {
+    "OS Rate (%) | Low volume | Treatment": {
+      "value": "Not reported",
+      "reasoning": "Document has 0 pages, no information available.",
+      "found": false,
+      "attribution": []
+    },
+    "OS Rate (%) | Overall | Treatment": {
+      "value": "Not reported",
+      "reasoning": "Document has 0 pages, no information available.",
+      "found": false,
+      "attribution": []
+    },
+    "OS Rate (%) | Synchronous | Treatment": {
+      "value": "Not reported",
+      "reasoning": "Document has 0 pages, no information available.",
+      "found": false,
+      "attribution": []
+    },
+    "OS Rate (%) | High volume | Treatment": {
+      "value": "Not reported",
+      "reasoning": "Document has 0 pages, no information available.",
+      "found": false,
+      "attribution": []
+    },
+    "OS Rate (%) | Overall | Control": {
+      "value": "Not reported",
+      "reasoning": "Document has 0 pages, no information available.",
+      "found": false,
+      "attribution": []
+    },
+    "OS Rate (%) | Metachronous | Control": {
+      "value": "Not reported",
+      "reasoning": "Document has 0 pages, no information available.",
+      "found": false,
+      "attribution": []
+    },
+    "OS Rate (%) | High volume | Control": {
+      "value": "Not reported",
+      "reasoning": "Document has 0 pages, no information available.",
+      "found": false,
+      "attribution": []
+    },
+    "OS Rate (%) | Metachronous | Treatment": {
+      "value": "Not reported",
+      "reasoning": "Document has 0 pages, no information available.",
+      "found": false,
+      "attribution": []
+    },
+    "OS Rate (%) | Low volume | Control": {
+      "value": "Not reported",
+      "reasoning": "Document has 0 pages, no information available.",
+      "found": false,
+      "attribution": []
+    },
+    "OS Rate (%) | Synchronous | Control": {
+      "value": "Not reported",
+      "reasoning": "Document has 0 pages, no information available.",
+      "found": false,
+      "attribution": []
+    }
+  }
+}

@@ -1,0 +1,395 @@
+{
+  "doc_id": "NCT02799602_Smith_ARASENS_NEJM'22",
+  "tool_calls_sequence": [
+    {
+      "name": "get_chunks_by_page",
+      "args": {
+        "page_numbers": [
+          1,
+          2
+        ]
+      }
+    },
+    {
+      "name": "search_chunks",
+      "args": {
+        "query": "Previous local therapy prostatectomy orchiectomy radiotherapy treatment control arm N (%)"
+      }
+    },
+    {
+      "name": "search_chunks",
+      "args": {
+        "query": "PubMed ID"
+      }
+    },
+    {
+      "name": "search_chunks",
+      "args": {
+        "query": "previous local therapy"
+      }
+    },
+    {
+      "name": "search_chunks",
+      "args": {
+        "query": "PubMed ID"
+      }
+    },
+    {
+      "name": "submit_extraction",
+      "args": {
+        "results_keys": [
+          "Original/Follow Up",
+          "Previous local therapy - N (%) | Radiotherapy | Control",
+          "Trial Name",
+          "NCT",
+          "PubMed ID",
+          "Previous local therapy - N (%) | Prostatectomy | Treatment",
+          "Previous local therapy - N (%) | Orchiectomy | Treatment",
+          "Previous local therapy - N (%) | Radiotherapy | Treatment",
+          "Phase",
+          "Author",
+          "Previous local therapy - N (%) | Prostatectomy | Control",
+          "Year",
+          "Previous local therapy - N (%) | Orchiectomy | Control",
+          "Full Pub or Abstract"
+        ]
+      }
+    }
+  ],
+  "conversation": [
+    {
+      "turn": 0,
+      "role": "user",
+      "content": "Extract values for these columns. Document has 11 pages.\n\nCOLUMNS:\n\n---\nColumn 1: Previous local therapy - N (%) | Prostatectomy | Treatment\nDefinition: What the number and percentage of participants in the treatment arm of the trial who received prostatectomy as a previous local therapy? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.\n---\nColumn 2: Previous local therapy - N (%) | Prostatectomy | Control\nDefinition: What number and percentage of patients in the control arm of the trial who received previous local therapy in the form of prostatectomy? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.\n---\nColumn 3: Previous local therapy - N (%) | Orchiectomy | Treatment\nDefinition: What number and percentage of participants who received orchiectomy as a previous local therapy in the treatment arm of the clinical trial? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.\n---\nColumn 4: Previous local therapy - N (%) | Orchiectomy | Control\nDefinition: What the number and percentage of patients in the control arm of the trial who received previous local orchiectomy therapy? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.\n---\nColumn 5: Previous local therapy - N (%) | Radiotherapy | Treatment\nDefinition: What number and percentage of participants in the treatment arm who received radiotherapy as previous local therapy? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.\n---\nColumn 6: Previous local therapy - N (%) | Radiotherapy | Control\nDefinition: What number and percentage of patients in the control arm of the trial who received previous local radiotherapy? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.\n---\nColumn 7: NCT\nDefinition: What national Clinical Trial identifier, a unique identification number assigned to a clinical trial?. If reported, provide the value; otherwise use 'Not reported'.\n---\nColumn 8: PubMed ID\nDefinition: What a unique identifier assigned to a clinical trial publication in the PubMed database?. If reported, provide the value; otherwise use 'Not reported'.\n---\nColumn 9: Trial Name\nDefinition: What the title or identifier of the clinical trial being referred to in the study?. If reported, provide the value; otherwise use 'Not reported'.\n---\nColumn 10: Author\nDefinition: What the name of the person or people responsible for writing or publishing the clinical trial study? Your answer should be a name/ list of names (you can use th et al. format )or 'NA'. If reported, provide the value; otherwise use 'Not reported'.\n---\nColumn 11: Year\nDefinition: Publication year of the clinical trial. Use 'Not reported' if unclear.\n---\nColumn 12: Full Pub or Abstract\nDefinition: Indicates whether results are fully published or only an abstract is available. Use 'Full Pub' or 'Abstract'; use 'Not reported' if unclear.\n---\nColumn 13: Phase\nDefinition: Clinical trial phase (e.g., I, II, III, IV) as reported. Use 'Not reported' if unclear.\n---\nColumn 14: Original/Follow Up\nDefinition: Whether the study is an original report or a follow-up analysis. Use Original or Follow up; use 'Not reported' if unclear.\n\nFor informational columns (trial name, arms, etc.), use get_chunks_by_page([1, 2]) first. For specific columns, use search_chunks. Submit when you have enough information."
+    },
+    {
+      "turn": 2,
+      "role": "tool",
+      "name": "get_chunks_by_page",
+      "args": {
+        "page_numbers": [
+          1,
+          2
+        ]
+      },
+      "response": {
+        "formatted_chunks": "[Page 1]\n## Page 1\n\n*The* NEW ENGLAND JOURNAL *of* MEDICINE\n\n\n\nORIGINAL ARTICLE\n\n\n\nDarolutamide and Survival in Metastatic,\nHormone-Sensitive Prostate Cancer\n\nMatthew R. Smith, M.D., Ph.D., Maha Hussain, M.D., Fred Saad, M.D.,\nKarim Fizazi, M.D., Ph.D., Cora N. Sternberg, M.D., E. David Crawford, M.D.,\nEvgeny Kopyltsov, M.D., Chandler H. Park, M.D., Boris Alekseev, M.D.,\n\u00c1lvaro Montesa-Pino, M.D., Dingwei Ye, M.D., Francis Parnis, M.B., B.S.,\nFelipe Cruz, M.D., Teuvo L.J. Tammela, M.D., Ph.D., Hiroyoshi Suzuki, M.D., Ph.D.,\nTapio Utriainen, M.D., Cheng Fu, M.D., Motohide Uemura, M.D., Ph.D.,\nMar\u00eda J. M\u00e9ndez-Vidal, M.D., Benjamin L. Maughan, M.D., Pharm.D.,\nHeikki Joensuu, M.D., Silke Thiele, M.D., Rui Li, M.S., Iris Kuss, M.D.,\nand Bertrand Tombal, M.D., Ph.D., for the ARASENS Trial Investigators*\n\n\n\nABSTRACT\n\n\n\n## BACKGROUND\nDarolutamide is a potent androgen-receptor inhibitor that has been associated with increased overall survival among patients with nonmetastatic, castration-resistant prostate cancer. Whether a combination of darolutamide, androgen-deprivation therapy, and docetaxel would increase survival among patients with metastatic, hormone-sensitive prostate cancer is unknown.\n\n\n\nMETHODS\nIn this international, phase 3 trial, we randomly assigned patients with metastatic,\nhormone-sensitive prostate cancer in a 1:1 ratio to receive darolutamide (at a dose\nof 600 mg [two 300-mg tablets] twice daily) or matching placebo, both in combi-\nnation with androgen-deprivation therapy and docetaxel. The primary end point\nwas overall survival.\n\n\n\n## RESULTS\nThe primary analysis involved 1306 patients (651 in the darolutamide group and 655 in the placebo group); 86.1% of the patients had disease that was metastatic at the time of the initial diagnosis. At the data cutoff date for the primary analysis (October 25, 2021), the risk of death was significantly lower, by 32.5%, in the darolutamide group than in the placebo group (hazard ratio 0.68; 95% confidence interval, 0.57 to 0.80; P<0.001). Darolutamide was also associated with consistent benefits with respect to the secondary end points and prespecified subgroups. Adverse events were similar in the two groups, and the incidences of the most common adverse events (occurring in \u226510% of the patients) were highest during the overlapping docetaxel treatment period in both groups. The frequency of grade 3 or 4 adverse events was 66.1% in the darolutamide group and 63.5% in the placebo group; neutropenia was the most common grade 3 or 4 adverse event (in 33.7% and 34.2%, respectively).\n\n\n\nCONCLUSIONS\nIn this trial involving patients with metastatic, hormone-sensitive prostate cancer, overall survival was significantly longer with the combination of darolutamide, androgen-deprivation therapy, and docetaxel than with placebo plus androgen-deprivation therapy and docetaxel, and the addition of darolutamide led to improvement in key secondary end points. The frequency of adverse events was similar in the two groups. (Funded by Bayer and Orion Pharma; ARASENS ClinicalTrials.gov number, NCT02799602.)\n\n\n\nThe authors' affiliations are listed in the\nAppendix. Dr. Smith can be contacted at\nmrsmith@mgh.harvard.edu or at the\nGenitourinary Malignancies Program,\nMassachusetts General Hospital Cancer\nCenter and Harvard Medical School,\nYawkey 7030, 55 Fruit St., Boston, MA\n02114.\n\n\n\n*A full list of investigators in the ARASENS trial is provided in the Supplementary Appendix, available at NEJM.org.\n\n\n\nThis article was published on February\n17, 2022, at NEJM.org.\n\n\n\nDOI: 10.1056/NEJMoa2119115\nCopyright \u00a9 2022 Massachusetts Medical Society.\n\n\n\nN ENGL J MED NEJM.ORG\n\n\n\n1\n\n\n\nThe New England Journal of Medicine\nDownloaded from nejm.org by Syed Arsalan Ahmed NAQVI on February 17, 2022. For personal use only. No other uses without permission.\nCopyright \u00a9 2022 Massachusetts Medical Society. All rights reserved.\n\n---\n\n[Page 2]\n## Page 2\n\nThe NEW ENGLAND JOURNAL of MEDICINE\n\n\n\nSTANDARD TREATMENT FOR PATIENTS\nwith metastatic, hormone-sensitive prostate cancer includes the addition of either docetaxel or an androgen-receptor pathway inhibitor to androgen-deprivation therapy.\u00b9-\u2074 In two randomized, phase 3 trials involving such patients, overall survival was longer among those who received docetaxel plus androgen-deprivation therapy than among those who received androgen-deprivation therapy alone.\u2075-\u2078 Subsequent randomized, phase 3 trials have shown that the addition of an androgen-receptor pathway inhibitor (abiraterone, enzalutamide, or apalutamide) to androgen-deprivation therapy has greater clinical benefit than the use of androgen-deprivation therapy alone.\u2079-\u00b9\u00b2\n\n\n\nPhase 3 trials of combination therapy with an androgen-receptor pathway inhibitor, androgen-deprivation therapy, and docetaxel have shown conflicting results. In PEACE-1 (A Phase III Study for Patients with Metastatic Hormone-na\u00efve Prostate Cancer), overall survival was longer among patients who received abiraterone in combination with androgen-deprivation therapy and docetaxel than among those who received androgen-deprivation therapy and docetaxel alone. 13 In contrast, a subgroup analysis of the ENZAMET (Enzalutamide in First Line Androgen Deprivation Therapy for Metastatic Prostate Cancer) trial showed that survival was not longer with enzalutamide, androgen-deprivation therapy, and docetaxel than with androgen-deprivation therapy and docetaxel alone. 12\n\n\n\nDarolutamide is a structurally distinct andro-\ngen-receptor inhibitor with low blood\u2013brain bar-\nrier penetration and limited potential for clini-\ncally relevant drug\u2013drug interactions. 14-17 Studies\ninvolving patients with prostate cancer, includ-\ning the phase 3 ARAMIS (Androgen Receptor\nAntagonizing Agent for Metastasis-free Survival)\ntrial involving patients with nonmetastatic, cas-\ntration-resistant prostate cancer, have shown that\ndarolutamide has potent antitumor efficacy. 18-22\nIn the ARAMIS trial, the median metastasis-free\nsurvival was almost 2 years longer and the risk\nof death was 31% lower among patients who re-\nceived darolutamide with androgen-deprivation\ntherapy than among those who received placebo\nwith androgen-deprivation therapy, and the inci-\ndence of adverse events was similar in the two\ngroups. 21,22 In the phase 3 ARASENS (ODM-201\nin Addition to Standard ADT and Docetaxel in\n\n\n\nMetastatic Castration Sensitive Prostate Cancer)\ntrial, we evaluated the efficacy and safety of da-\nrolutamide added to androgen-deprivation therapy\nand docetaxel in patients with metastatic, hor-\nmone-sensitive prostate cancer.\n\n\n\n## METHODS\n\n### TRIAL DESIGN AND CONDUCT\n\nThis international, randomized, double-blind, placebo-controlled trial was sponsored by Bayer and Orion Pharma. The trial was designed by Bayer and the first and last authors, with support from the protocol steering committee. The institutional review board at each participating institution approved the trial, which was conducted in accordance with the principles of the Declaration of Helsinki and the International Council for Harmonisation Good Clinical Practice guidelines. All the patients provided written informed consent.\n\n\n\nAn independent data and safety monitoring board reviewed unblinded safety and efficacy data throughout the trial. The data were collected by the investigators, analyzed by statisticians who were employed by Bayer, and interpreted by the authors, including employees of the sponsors. Bayer provided funding for medical writing assistance. All the authors reviewed and approved the manuscript that was submitted for publication. The authors assume responsibility for the completeness and accuracy of the data and for the fidelity of the trial to the protocol and the statistical analysis plan, available with the full text of this article at NEJM.org.\n\n\n\nPATIENTS AND INTERVENTIONS\nPatients were eligible for participation if they\nwere 18 years of age or older and had an Eastern\nCooperative Oncology Group (ECOG) perfor-\nmance-status score of 0 or 1 (scores range from\n0 to 5, with higher scores indicating greater dis-\nability), histologically or cytologically confirmed\nprostate cancer, and metastases detected on bone\nscanning, contrast-enhanced computed tomog-\nraphy (CT), or magnetic resonance imaging (MRI).\nEligible patients had to be candidates for andro-\ngen-deprivation therapy and docetaxel, in the\ninvestigator's judgment. Patients were excluded\nif they had regional lymph-node involvement\nonly (N1, below the aortic bifurcation) or if they\nhad received androgen-deprivation therapy more\n\n\n\n2\n\n\n\nN ENGL J MED NEJM.ORG\n\n\n\nThe New England Journal of Medicine\nDownloaded from nejm.org by Syed Arsalan Ahmed NAQVI on February 17, 2022. For personal use only. No other uses without permission.\nCopyright \u00a9 2022 Massachusetts Medical Society. All rights reserved.",
+        "pages_returned": [
+          1,
+          2
+        ]
+      }
+    },
+    {
+      "turn": 3,
+      "role": "tool",
+      "name": "search_chunks",
+      "args": {
+        "query": "Previous local therapy prostatectomy orchiectomy radiotherapy treatment control arm N (%)"
+      },
+      "response": {
+        "matches": [
+          {
+            "page": 2,
+            "score": 0.4970448613166809
+          },
+          {
+            "page": 5,
+            "score": 0.4711674451828003
+          },
+          {
+            "page": 3,
+            "score": 0.45605528354644775
+          },
+          {
+            "page": 4,
+            "score": 0.45506659150123596
+          },
+          {
+            "page": 9,
+            "score": 0.45344939827919006
+          }
+        ],
+        "formatted_chunks": "[Page 2, score=0.50] already provided\u2014check your context.\n\n---\n\n[Page 5, score=0.47]\n## Page 5\n\nDAROLUTAMIDE IN METASTATIC PROSTATE CANCER\n\n\n\n|  |  |  |\n| --- | --- | --- |\n| Table 1. Patient Demographic and Clinical Characteristics at Baseline.\\* | Table 1. Patient Demographic and Clinical Characteristics at Baseline.\\* | Table 1. Patient Demographic and Clinical Characteristics at Baseline.\\* |\n| Characteristic | Darolutamide\u2014ADT\u2014 Docetaxel (N=651)\u2020 | Placebo\u2014ADT\u2014 Docetaxel (N=654)\u2020 |\n| Median age (range) \u2014 yr | 67 (41\u201389) | 67 (42\u201386) |\n| Age group \u2014 no. (%) | Age group \u2014 no. (%) | Age group \u2014 no. (%) |\n| <65 yr | 243 (37.3) | 234 (35.8) |\n| 65\u201374 yr | 303 (46.5) | 306 (46.8) |\n| 75\u201384 yr | 102 (15.7) | 110 (16.8) |\n| \u226585 yr | 3 (0.5) | 4 (0.6) |\n| ECOG performance-status score\u2014 no. (%)\u2021 | ECOG performance-status score\u2014 no. (%)\u2021 | ECOG performance-status score\u2014 no. (%)\u2021 |\n| 0 | 466 (71.6) | 462 (70.6) |\n| 1 | 185 (28.4) | 190 (29.1) |\n| Race - no. (%) | Race - no. (%) | Race - no. (%) |\n| White | 345 (53.0) | 333 (50.9) |\n| Asian | 230 (35.3) | 245 (37.5) |\n| Black | 26 (4.0) | 28 (4.3) |\n| Other | 7 (1.1) | 2 (0.3) |\n| Not reported | 43 (6.6) | 46 (7.0) |\n| Region \u2014 no. (%) | Region \u2014 no. (%) | Region \u2014 no. (%) |\n| North America | 125 (19.2) | 119 (18.2) |\n| Asia-Pacific | 229 (35.2) | 244 (37.3) |\n| Rest of the world | 297 (45.6) | 291 (44.5) |\n| Gleason score at initial diagnosis \u2014 no. (%) | Gleason score at initial diagnosis \u2014 no. (%) | Gleason score at initial diagnosis \u2014 no. (%) |\n| <8 | 122 (18.7) | 118 (18.0) |\n| \u22658 | 505 (77.6) | 516 (78.9) |\n| Data missing | 24 (3.7) | 20 (3.1) |\n| Metastasis stage at initial diagnosis \u2014 no. (%) | Metastasis stage at initial diagnosis \u2014 no. (%) | Metastasis stage at initial diagnosis \u2014 no. (%) |\n| M1, distant metastasis | 558 (85.7) | 566 (86.5) |\n| M0, no distant metastasis | 86 (13.2) | 82 (12.5) |\n| MX, distant metastasis not assessed | 7 (1.1) | 6 (0.9) |\n| Metastasis stage at screening \u2014 no. (%) | Metastasis stage at screening \u2014 no. (%) | Metastasis stage at screening \u2014 no. (%) |\n| M1a, nonregional lymph-node metastases only | 23 (3.5) | 16 (2.4) |\n| M1b, bone metastases with or without lymph-node metastases | 517 (79.4) | 520 (79.5) |\n| M1c, visceral metastases with or without lymph-node or bone metastases | 111 (17.1) | 118 (18.0) |\n| Median serum PSA level (range) \u2014 ng/ml\\*\\* | 30.3 (0.0-9219.0) | 24.2 (0.0-11,947.0) |\n| Median serum ALP level (range) \u2014 U/liter\\*\\* | 148 (40-4885) | 140 (36-7680) |\n| ALP category \u2014 no. (%)\\*\\* | ALP category \u2014 no. (%)\\*\\* | ALP category \u2014 no. (%)\\*\\* |\n| <ULN | 290 (44.5) | 291 (44.5) |\n| \u2265ULN | 361 (55.5) | 363 (55.5) |\n\n\n\n* Percentages may not total 100 because of rounding. ADT denotes androgen-deprivation therapy, ALP alkaline phosphatase, PSA prostate-specific antigen, and ULN upper limit of the normal range.\n\u2020 One patient who was randomly assigned to the placebo group but received darolutamide was included in the placebo group in the full analysis set.\n\u2021 Eastern Cooperative Oncology Group (ECOG) performance-status scores range from 0 to 5, with higher scores indicating greater disability.\n\u00a7 Race was reported by the investigators.\n\u00b6 The \"rest of the world\" geographic region was made up predominantly of European countries, Australia, Brazil, Israel, and Mexico.\n| Gleason scores for the histologic pattern of carcinoma range from 6 to 10, with higher scores indicating a more aggressive form of prostate cancer.\n** These values were centrally assessed. Samples were obtained while patients were receiving ADT.\n\n\n\nN ENGL J MED NEJM.ORG\n\n\n\n5\n\n\n\nThe New England Journal of Medicine\nDownloaded from nejm.org by Syed Arsalan Ahmed NAQVI on February 17, 2022. For personal use only. No other uses without permission.\nCopyright \u00a9 2022 Massachusetts Medical Society. All rights reserved.\n\n---\n\n[Page 3, score=0.46]\n## Page 3\n\nDAROLUTAMIDE IN METASTATIC PROSTATE CANCER\n\n\n\nthan 12 weeks before randomization, second-\ngeneration androgen-receptor pathway inhibitors,\nchemotherapy, or immunotherapy for prostate\ncancer before randomization, or radiotherapy\nwithin 2 weeks before randomization. Full eligi-\nbility criteria are provided in the Supplementary\nAppendix, available at NEJM.org.\n\n\n\nAll the patients received androgen-depriva-\ntion therapy (a luteinizing hormone-releasing\nhormone [LHRH] agonist or an LHRH antago-\nnist) or underwent orchiectomy within 12 weeks\nbefore randomization and received six cycles of\ndocetaxel (75 mg per square meter of body-sur-\nface area on day 1 and every 21 days), with pred-\nnisone or prednisolone administered at the in-\nvestigator's discretion, initiated within 6 weeks\nafter randomization. The recommended pre-\nmedication to prevent docetaxel-related hyper-\nsensitivity reactions and fluid retention was oral\ndexamethasone, administered at a dose of 8 mg\nat 12 hours, 3 hours, and 1 hour before infusion.\nFor patients receiving LHRH agonists, the use of\nthese agonists in combination with a first-gen-\neration antiandrogen for at least 4 weeks before\nrandomization was recommended. First-genera-\ntion antiandrogen therapy was discontinued be-\nfore randomization.\n\n\n\nPatients were randomly assigned in a 1:1 ratio to receive either darolutamide (at a dose of 600 mg [two 300-mg tablets] twice daily with food) or matched placebo. Randomization was stratified according to the metastasis stage in the tumor-node-metastasis system (nonregional lymph-node metastases only [M1a], bone metastases with or without lymph-node metastases [M1b], or visceral metastases with or without lymph-node or bone metastases [M1c]) and according to whether the alkaline phosphatase level was below or at or above the upper limit of the normal range. Patients continued to receive darolutamide or placebo until symptomatic disease progression, a change in antineoplastic therapy, unacceptable toxic effects, patient or physician decision, death, or nonadherence.\n\n\n\nEND POINTS\nThe primary end point was overall survival,\nwhich was defined as the time from randomiza-\ntion until death from any cause. The secondary\nend points were time to castration-resistant pros-\ntate cancer, time to pain progression, symptom-\natic skeletal event-free survival, time to a first\n\n\n\nsymptomatic skeletal event, time to initiation of\nsubsequent systemic antineoplastic therapy, time\nto worsening of disease-related physical symp-\ntoms, time to initiation of opioid treatment for\n7 or more consecutive days, and safety. Definitions\nof the secondary efficacy end points are provided\nin the Supplementary Appendix.\n\n\n\n## ASSESSMENTS\nDuring the trial, patients were evaluated every\n12 weeks for evidence of castration resistance,\nthe initiation of subsequent antineoplastic ther-\napy, symptomatic skeletal events, opioid use for\n7 or more consecutive days, pain progression,\nthe worsening of physical symptoms of disease,\nand adverse events and serious adverse events that\noccurred during treatment. Patients underwent\ncontrast-enhanced chest, abdomen, and pelvic CT\nor MRI and bone scanning at baseline, within 30\ndays after the last cycle of docetaxel, and yearly\nthereafter during trial treatment. Pain was as-\nsessed with the use of the Brief Pain Inventory\nShort-Form questionnaire, and disease-related\nphysical symptoms were assessed with the use\nof the Functional Assessment of Cancer Therapy-\nProstate (National Comprehensive Cancer Net-\nwork) symptom index 17-item questionnaire. In\nsafety assessments, adverse events were graded\nwith the use of the National Cancer Institute\nCommon Terminology Criteria for Adverse Events,\nversion 4.03.\n\n\n\nSTATISTICAL ANALYSIS\nThe sample size was calculated on the basis of\nthe primary end point, overall survival. We esti-\nmated that approximately 1300 patients would\nbe required to observe approximately 509 deaths,\nallowing for a 5% dropout rate, which would\nprovide the trial with 90% power to detect a 25%\ndecrease in the risk of death in the darolutamide\ngroup versus the placebo group, at a two-sided\nalpha level of 0.05. The secondary end points\nwere tested with a hierarchical gatekeeping pro-\ncedure in the order described above only if the\nprimary end point and each preceding secondary\nend point in the hierarchy were statistically sig-\nnificant. If the primary end point or a secondary\nend point did not reach significance, the hierar-\nchical procedure was stopped, and subsequent\nanalyses were considered to be exploratory.\n\n\n\nThe full analysis set (all the patients who\nunderwent randomization and were assessed ac-\n\n\n\nN ENGL J MED NEJM.ORG\n\n\n\n3\n\n\n\nThe New England Journal of Medicine\nDownloaded from nejm.org by Syed Arsalan Ahmed NAQVI on February 17, 2022. For personal use only. No other uses without permission.\nCopyright \u00a9 2022 Massachusetts Medical Society. All rights reserved.\n\n---\n\n[Page 4, score=0.46]\n## Page 4\n\nThe NEW ENGLAND JOURNAL of MEDICINE\n\n\n\ncording to the treatment to which they were as-signed) was included in the analysis of the pri-mary and secondary efficacy end points with the use of a stratified log-rank test, with randomiza-tion stratification factors. Hazard ratios for the comparison of darolutamide with placebo and 95% confidence intervals were calculated with the Cox proportional-hazards model stratified according to the randomization factors. A log-log survival plot, which was produced to assess whether application of the Cox proportional-hazards model was appropriate, confirmed that the proportional-hazards assumption was met for all time-to-event end points. Kaplan\u2013Meier estimates for overall survival are presented for both treatment groups. For the analysis of over-all survival, data on patients in whom death had not been confirmed were censored as of the last known date the patients were alive. For sub-group analyses, intervals were not adjusted for multiplicity and cannot be used to infer effects. Descriptive statistics were used to summarize baseline characteristics in the full analysis set, and safety end points were assessed in the safety analysis set (i.e., all the patients who re-ceived at least one dose of darolutamide or pla-cebo and were assessed in accordance with the treatment that they actually received). For the primary efficacy end point, subgroup analyses were prespecified to assess the consistency of treatment effect. Statistical analyses were per-formed with the use of SAS software, version 9.4 (SAS Institute).\n\n\n\n## RESULTS\n\n**PATIENTS**\n\nBetween November 2016 and June 2018, a total of 1306 patients underwent randomization at 286 centers in 23 countries. A total of 651 patients were assigned to receive darolutamide and 655 patients were assigned to receive placebo, both in combination with androgen-deprivation therapy and docetaxel (Fig. S1 and Table S1 in the Supplementary Appendix). Of these patients, 1305 patients (651 in the darolutamide group and 654 in the placebo group) were included in the full analysis set, and 1302 patients (652 in the darolutamide group and 650 in the placebo group) were included in the safety analysis set. Demographic and baseline characteristics were\n\n\n\nwell balanced in the two groups (Tables 1 and S2).\nThe median age was 67 years in both groups,\nmost patients (71.1%) had an ECOG perfor-\nmance-status score of 0, and 78.2% of the pa-\ntients had a Gleason score of 8 or greater (scores\nrange from 6 to 10, with higher scores indicat-\ning a more aggressive form of prostate cancer).\nAll the patients had metastatic disease at base-\nline; 79.5% had bone metastases (metastasis\nstage M1b) and 17.5% had visceral metastases\n(metastasis stage M1c). Most patients (86.1%)\nhad disease that was metastatic at the time of\nthe initial diagnosis.\n\n\n\nAt the data cutoff date for the primary analy-\nsis (October 25, 2021), the median treatment\nduration was longer in the darolutamide group\n(41.0 months) than in the placebo group (16.7\nmonths), and a higher percentage of patients in\nthe darolutamide group (45.9% [299 of 651 pa-\ntients]) than in the placebo group (19.1% [125 of\n654 patients]) were still receiving the assigned\ntrial treatment. Six cycles of docetaxel were com-\npleted in 571 of 652 patients (87.6%) in the da-\nrolutamide group and in 556 of 650 patients\n(85.5%) in the placebo group. The reasons for\ndiscontinuation of the trial agent are provided in\nFigure S1. The median follow-up for overall sur-\nvival was 43.7 months in the darolutamide group\nand 42.4 months in the placebo group.\n\n\n\nPRIMARY END POINT\nThe primary analysis of overall survival was performed after 533 patients had died (229 patients in the darolutamide group and 304 patients in the placebo group). The risk of death was 32.5% lower in the darolutamide group than in the placebo group (hazard ratio, 0.68; 95% confidence interval [CI], 0.57 to 0.80; P<0.001) (Fig. 1). A significant improvement in overall survival was observed despite a high percentage of patients who received subsequent life-prolonging systemic therapies, primarily different androgen-receptor pathway inhibitors, among those who entered follow-up in the placebo group (374 of 495 patients [75.6%]) (Table S3). The overall survival at 4 years was 62.7% (95% CI, 58.7 to 66.7) in the darolutamide group and 50.4% (95% CI, 46.3 to 54.6) in the placebo group. The treatment effect of darolutamide with respect to overall survival was favorable across most subgroups (Figs. S2 and S3).\n\n\n\n4\n\n\n\nN ENGL J MED NEJM.ORG\n\n\n\nThe New England Journal of Medicine\nDownloaded from nejm.org by Syed Arsalan Ahmed NAQVI on February 17, 2022. For personal use only. No other uses without permission.\nCopyright \u00a9 2022 Massachusetts Medical Society. All rights reserved.\n\n---\n\n[Page 9, score=0.45]\n## Page 9\n\nDAROLUTAMIDE IN METASTATIC PROSTATE CANCER\n\n\n\ntamide group and 10.6% of those in the placebo group). The most frequently reported adverse events were alopecia (in 40.5% of the patients in the darolutamide group and 40.6% of the patients in the placebo group), neutropenia (in 39.3% and 38.8%, respectively), fatigue (in 33.1% and 32.9%), and anemia (in 27.8% and 25.1%) (Table S5).\n\n\n\nCertain adverse events are of special interest for patients receiving androgen-receptor pathway inhibitors. These events include fatigue, falls, fractures, mental impairment, rash, hypertension, and cardiovascular events. In this trial, the incidences of these events of interest were similar (with no more than a 2 percentage-point difference) in the two groups, with the exception of rash (in 16.6% of the patients in the darolutamide group and 13.5% of those in the placebo group) and hypertension (in 13.7% and 9.2%, respectively) (Table S6). Among the most frequently reported adverse events of interest, the incidences of vasodilation and flushing (in 20.4% of the patients in the darolutamide group and 21.7% of those in the placebo group) and diabetes mellitus and hyperglycemia (in 15.2% and 14.3%) were also similar in the two groups.\n\n\n\nDISCUSSION\n\nIn this international, randomized, double-blind,\nplacebo-controlled, phase 3 trial involving patients\nwith metastatic, hormone-sensitive prostate can-\ncer, overall survival was significantly longer\namong patients who received darolutamide plus\nandrogen-deprivation therapy and docetaxel than\namong those who received androgen-deprivation\ntherapy and docetaxel alone. This survival ben-\nefit was observed despite a high percentage of\npatients who received subsequent life-prolong-\ning systemic therapy in the placebo group. The\nsurvival benefit of darolutamide was consistent\nacross most subgroups. The time to the develop-\nment of castration-resistant disease was signifi-\ncantly longer in the patients who received darolu-\ntamide, and improvements were observed with\nrespect to the other key secondary end points. The\nincidence, severity, and nature of adverse events\nwere consistent with the established safety profiles\nof androgen-deprivation therapy and docetaxel.\n\n\n\nOur results are consistent with those in the\nPEACE-1 trial, which had a two-by-two factorial\ndesign. In that trial, 1173 patients with hormone-\n\n\n\nsensitive prostate cancer that was metastatic at\nthe time of the initial diagnosis were randomly\nassigned to receive abiraterone, prostate radio-\ntherapy, neither, or both. All the patients received\nstandard of care (androgen-deprivation therapy\nwith or without docetaxel). In a planned subgroup\nanalysis involving 710 patients who received\ndocetaxel, overall survival was significantly longer\namong those who received abiraterone than among\nthose who did not (hazard ratio, 0.75; 95% CI,\n0.59 to 0.96).13\n\n\n\nAll the patients in the ARASENS trial were prospectively assigned to receive androgen-deprivation therapy and docetaxel. This trial provided clear and compelling evidence that overall survival was significantly longer among patients who received combination therapy with darolutamide, androgen-deprivation therapy, and docetaxel than among those who received androgen-deprivation therapy and docetaxel alone. Darolutamide was associated with a 32.5% reduction in the risk of death. The combination did not result in more toxic effects than did the combination of androgen-deprivation therapy and docetaxel alone. In both the phase 3 ARAMIS trial involving patients with nonmetastatic, castration-resistant prostate cancer and the ARASENS trial, there was no more than a 2 percentage-point difference between the darolutamide and placebo groups with respect to the incidence of most adverse events that are commonly associated with androgen-receptor pathway inhibitors. 22\n\n\n\nThis trial has several strengths and limitations.\nThe large sample size enabled us to conduct a\nrobust statistical analysis to assess the effect of\nthe addition of darolutamide, an androgen-receptor\npathway inhibitor, to androgen-deprivation\ntherapy and docetaxel on overall survival and a\nnumber of key secondary endpoints. Most pa-\ntients who were enrolled in our trial had meta-\nstatic disease, with bone metastases, visceral me-\ntastases, or both, at the time of the initial\ndiagnosis. Thus, limited information is available\non the benefit\u2013risk considerations for patients\nwith metastatic, hormone-sensitive prostate can-\ncer and a better prognosis, including those with\nrecurrent metastatic disease, node-only metasta-\nses, or both. In addition, the efficacy and safety\nof combination therapy are unknown in patients\nwith a poor performance status, because the trial\nincluded only patients with an ECOG performance-\n\n\n\nN ENGL J MED NEJM.ORG\n\n\n\n9\n\n\n\nThe New England Journal of Medicine\nDownloaded from nejm.org by Syed Arsalan Ahmed NAQVI on February 17, 2022. For personal use only. No other uses without permission.\nCopyright \u00a9 2022 Massachusetts Medical Society. All rights reserved.",
+        "pages_returned": [
+          5,
+          3,
+          4,
+          9
+        ]
+      }
+    },
+    {
+      "turn": 4,
+      "role": "tool",
+      "name": "search_chunks",
+      "args": {
+        "query": "PubMed ID"
+      },
+      "response": {
+        "matches": [
+          {
+            "page": 5,
+            "score": 0.339896023273468
+          },
+          {
+            "page": 11,
+            "score": 0.3349371552467346
+          },
+          {
+            "page": 10,
+            "score": 0.331745982170105
+          },
+          {
+            "page": 9,
+            "score": 0.31007999181747437
+          },
+          {
+            "page": 6,
+            "score": 0.3071965277194977
+          }
+        ],
+        "formatted_chunks": "[Page 5, score=0.34] already provided\u2014check your context.\n\n---\n\n[Page 11, score=0.33]\n## Page 11\n\nDAROLUTAMIDE IN METASTATIC PROSTATE CANCER\n\n\n\nidel D, Nubbemeyer R, Gieschen H. Higher blood\u2013brain barrier penetration of [\u00b9\u2074C]apalutamide and [C]enzalutamide compared to [\u00b9\u2074C]darolutamide in rats using whole-body autoradiography. J Clin Oncol 2019;37:Suppl:156. abstract (https://ascopubs.org/doi/10.1200/JCO.2019.37.7_suppl.156).\n\n\n\n--\n18. Fizazi K, Massard C, Bono P, et al. Ac-\ntivity and safety of ODM-201 in patients\nwith progressive metastatic castration-\nresistant prostate cancer (ARADES): an\nopen-label phase 1 dose-escalation and\n\n\n\nrandomised phase 2 dose expansion trial.\nLancet Oncol 2014;15:975-85.\n\n\n\n19. Massard C, Penttinen HM, Vjaters E,\net al. Pharmacokinetics, antitumor activ-\nity, and safety of ODM-201 in patients\nwith chemotherapy-naive metastatic cas-\ntration-resistant prostate cancer: an open-\nlabel phase 1 study. Eur Urol 2016;69:834-\n40.\n\n\n\n20. Fizazi K, Massard C, Bono P, et al.\nSafety and antitumour activity of ODM-\n201 (BAY-1841788) in castration-resistant,\nCYP17 inhibitor-na\u00efve prostate cancer:\n\n\n\nresults from extended follow-up of the\nARADES trial. Eur Urol Focus 2017;3:606-\n14.\n\n\n\n21. Fizazi K, Shore N, Tammela TL, et al.\nDarolutamide in nonmetastatic, castra-\ntion-resistant prostate cancer. N Engl J\nMed 2019;380:1235-46.\n\n\n\n22. Fizazi K, Shore N, Tammela TL, et al. Nonmetastatic, castration-resistant prostate cancer and survival with darolutamide. N Engl J Med 2020;383:1040-9.\nCopyright \u00a9 2022 Massachusetts Medical Society.\n\n\n\nN ENGL J MED NEJM.ORG\n\n\n\n11\n\n\n\nThe New England Journal of Medicine\nDownloaded from nejm.org by Syed Arsalan Ahmed NAQVI on February 17, 2022. For personal use only. No other uses without permission.\nCopyright \u00a9 2022 Massachusetts Medical Society. All rights reserved.\n\n---\n\n[Page 10, score=0.33]\n## Page 10\n\nThe NEW ENGLAND JOURNAL of MEDICINE\n\n\n\nstatus score of 0 or 1. Our trial was not designed\nto compare the efficacy of darolutamide plus\nandrogen-deprivation therapy with that of docetax-\nel plus androgen-deprivation therapy.\n\n\n\nThe results of our trial support the use of\ndarolutamide in combination with androgen-depri-\nvation therapy and docetaxel in patients with\nmetastatic, hormone-sensitive prostate cancer. The\naddition of darolutamide to androgen-deprivation\ntherapy and docetaxel increased overall survival,\n\n\n\nand improvements were observed with respect to\nkey secondary end points, with no increase in\nadverse events.\n\n\n\nSupported by Bayer and Orion Pharma.\nDisclosure forms provided by the authors are available with\nthe full text of this article at NEJM.org.\nA data sharing statement provided by the authors is available\nwith the full text of this article at NEJM.org.\n\n\n\nWe thank the patients and their families and Sara Black, B.A.,\nand Lauren Gallagher, R.Ph., Ph.D., both of OPEN Health Com-\nmunications, London, for medical writing and editorial assis-\ntance with an earlier version of the manuscript.\n\n\n\nAPPENDIX\nThe authors' affiliations are as follows: the Massachusetts General Hospital Cancer Center and Harvard Medical School \u2014 both in Boston (M.R.S.); the Robert H. Lurie Comprehensive Cancer Center, Northwestern University Feinberg School of Medicine, Chicago (M.H.); the University of Montreal Hospital Center, Montreal (F.S.); Institut Gustave Roussy, University of Paris-Saclay, Villejuif, France (K.F.); the Englander Institute for Precision Medicine, Weill Cornell Medicine, Meyer Cancer Center, New York\u2013Presbyterian Hospital, New York (C.N.S.); the University of California San Diego School of Medicine, La Jolla (E.D.C.); the Clinical Oncologic Dispensary of Omsk Region, Omsk (E.K.), and P. Hertsen Moscow Oncology Research Institute, Moscow (B.A.) \u2014 both in Russia; Norton Cancer Institute, Louisville, KY (C.H.P.); La Unidad de Gesti\u00f3n Cl\u00ednica Intercentros de Oncolog\u00eda M\u00e9dica, Hospitales Universitarios Regional y Virgen Victoria, Instituto de Investigaci\u00f3n Biom\u00e9dica de M\u00e1laga, Malaga (A.M.-P.), and Maimonides Institute for Biomedical Research of C\u00f3rdoba, Reina Sof\u00eda University Hospital, Cordoba (M.J.M.-V.) \u2014 both in Spain; Fudan University Shanghai Cancer Center, Shanghai (D.Y.), and Liaoning Cancer Hospital and Institute, Shenyang (C.F.) \u2014 both in China; Ashford Cancer Centre Research, Kurralta Park, SA, Australia (F.P.); N\u00facleo de Pesquisa e Ensino da Rede S\u00e3o Camilo, S\u00e3o Paulo (F.C.); Tampere University Hospital and Tampere University, Tampere (T.L.J.T.), Helsinki University Central Hospital, Comprehensive Cancer Center, Helsinki (T.U.), and Orion Pharma, Espoo (H.J.) \u2014 all in Finland; Toho University Sakura Medical Center, Chiba (H.S.), and Osaka University Hospital, Osaka (M.U.) \u2014 both in Japan; the Huntsman Cancer Institute, Salt Lake City (B.L.M.); Bayer, Berlin (S.T., I.K.); Bayer HealthCare, Whippany, NJ (R.L.); and the Division of Urology, Institut de Recherche Clinique, Cliniques Universitaires Saint Luc, Universit\u00e9 Catholique de Louvain, Brussels (B.T.).\n\n\n\nREFERENCES\n1. Gillessen S, Attard G, Beer TM, et al.\nManagement of patients with advanced\nprostate cancer: report of the Advanced\nProstate Cancer Consensus Conference\n2019. Eur Urol 2020;77:508-47.\n2. Lowrance W, Breau R, Chou R, et al.\nAdvanced prostate cancer: AUA/ASTRO/\nSUO guideline. American Urological As-\nsociation, 2020 (https://www.auanet.org/\ndocuments/Guidelines/PDF/Advanced%20\nProstate%20Cancer%20Guideline.pdf).\n3. Mottet N, Cornford P, van den Bergh\nRCN, et al. Guidelines on prostate cancer.\nEuropean Associated of Urology, 2021\n(https://uroweb.org/guideline/prostate\n-cancer/).\n4. Parker C, Castro E, Fizazi K, et al.\nProstate cancer: ESMO clinical practice\nguidelines for diagnosis, treatment and\nfollow-up. Ann Oncol 2020;31:1119-34.\n5. Sweeney CJ, Chen YH, Carducci M, et\nal. Chemohormonal therapy in metastatic\nhormone-sensitive prostate cancer. N Engl\nJ Med 2015;373:737-46.\n6. James ND, de Bono JS, Spears MR, et\nal. Abiraterone for prostate cancer not\npreviously treated with hormone therapy.\nN Engl J Med 2017;377:338-51.\n7. Kyriakopoulos CE, Chen YH, Carducci\nMA, et al. Chemohormonal therapy in\nmetastatic hormone-sensitive prostate\ncancer: long-term survival analysis of the\n\n\n\nrandomized phase III E3805 CHAARTED\ntrial. J Clin Oncol 2018;36:1080-7.\n8. Clarke NW, Ali A, Ingleby FC, et al.\nAddition of docetaxel to hormonal thera-\npy in low- and high-burden metastatic\nhormone sensitive prostate cancer: long-\nterm survival results from the STAMPEDE\ntrial. Ann Oncol 2019;30:1992-2003.\n9. Fizazi K, Tran N, Fein L, et al. Abi-\nraterone acetate plus prednisone in pa-\ntients with newly diagnosed high-risk met-\nastatic castration-sensitive prostate cancer\n(LATITUDE): final overall survival analysis\nof a randomised, double-blind, phase 3 tri-\nal. Lancet Oncol 2019;20:686-700.\n10. Chi KN, Chowdhury S, Bjartell A, et\nal. Apalutamide in patients with meta-\nstatic castration-sensitive prostate cancer:\nfinal survival analysis of the randomized,\ndouble-blind, phase III TITAN study.\nJ Clin Oncol 2021;39:2294-303.\n11. Armstrong AJ, Szmulewitz RZ, Petry-\nlak DP, et al. ARCHES: a randomized,\nphase III study of androgen deprivation\ntherapy with enzalutamide or placebo in\nmen with metastatic hormone-sensitive\nprostate cancer. J Clin Oncol 2019;37:\n2974-86.\n12. Davis ID, Martin AJ, Stockler MR, et\nal. Enzalutamide with standard first-line\ntherapy in metastatic prostate cancer.\nN Engl J Med 2019;381:121-31.\n\n\n\n13. Fizazi K, Carles Galceran J, Foulon S, et al. A phase III trial with a 2x2 factorial design in men with de novo metastatic castration-sensitive prostate cancer: overall survival with abiraterone acetate plus prednisone in PEACE-1. Ann Oncol 2021; 32:Suppl 5:$1299. abstract (https://www.annalsofoncology.org/article/S0923-7534(21)04403-3/fulltext).\n14. Zurth C, Koskinen M, Fricke R, et al. Drug-drug interaction potential of darolutamide: In vitro and clinical studies. Eur J Drug Metab Pharmacokinet 2019;44: 747-59.\n15. Shore N, Zurth C, Fricke R, et al. Evaluation of clinically relevant drug-drug interactions and population pharmacokinetics of darolutamide in patients with non-metastatic castration-resistant prostate cancer: results of pre-specified and post hoc analyses of the phase III ARAMIS trial. Target Oncol 2019;14:527-39.\n16. Williams S, Mazibuko N, O'Daly O, et al. Significant localized reduction in cerebral blood flow (CBF) in regions relevant to cognitive function with enzalutamide (ENZA) compared to darolutamide (DARO) and placebo (PBO) in healthy volunteers. J Clin Oncol 2020;38:Suppl:326. abstract (https://ascopubs.org/doi/abs/10.1200/JCO.2020.38.6_suppl.326).\n17. Zurth C, Sandman S, Trummel D, Se-\n\n\n\n10\n\n\n\nN ENGL J MED NEJM.ORG\n\n\n\nThe New England Journal of Medicine\nDownloaded from nejm.org by Syed Arsalan Ahmed NAQVI on February 17, 2022. For personal use only. No other uses without permission.\nCopyright \u00a9 2022 Massachusetts Medical Society. All rights reserved.\n\n---\n\n[Page 9, score=0.31] already provided\u2014check your context.\n\n---\n\n[Page 6, score=0.31]\n## Page 6\n\nThe NEW ENGLAND JOURNAL of MEDICINE\n\n\n\n|  |  |  |  |  |  |  |\n| --- | --- | --- | --- | --- | --- | --- |\n| Table 2. Secondary Efficacy End Points (Full Analysis Set).\\* | Table 2. Secondary Efficacy End Points (Full Analysis Set).\\* | Table 2. Secondary Efficacy End Points (Full Analysis Set).\\* | Table 2. Secondary Efficacy End Points (Full Analysis Set).\\* | Table 2. Secondary Efficacy End Points (Full Analysis Set).\\* | Table 2. Secondary Efficacy End Points (Full Analysis Set).\\* | Table 2. Secondary Efficacy End Points (Full Analysis Set).\\* |\n| End Point | Darolutamide\u2013ADT\u2013Docetaxel (N=651)\u2020 |  | Placebo\u2013ADT\u2013Docetaxel (N=654)\u2020 |  | Hazard Ratio (95% CI) | P Value |\n|  | Median | Patients with Event | Median | Patients with Event |  |  |\n|  | mo | no. (%) | mo | no. (%) |  |  |\n| Time to castration-resistant prostate cancer | NR | 225 (35) | 19.1 | 391 (60) | 0.36 (0.30-0.42) | <0.001 |\n| Time to pain progression | NR | 222 (34) | 27.5 | 248 (38) | 0.79 (0.66\u20130.95) | 0.01 |\n| Symptomatic skeletal event-free survival | 51.2 | 257 (40) | 39.7 | 329 (50) | 0.61 (0.52\u20130.72) | <0.001 |\n| Time to first symptomatic skeletal event | NR | 95 (15) | NR | 108 (17) | 0.71 (0.54\u20130.94) | 0.02 |\n| Time to initiation of subsequent systemic antineoplastic therapy | NR | 219 (34) | 25.3 | 395 (60) | 0.39 (0.33\u20130.46) | <0.001 |\n| Time to worsening of disease-related physical symptoms | 19.3 | 351 (54) | 19.4 | 308 (47) | 1.04 (0.89\u20131.22) | 0.59 |\n| Time to initiation of opioid use for \u22657 consecutive days | NR | 92 (14) | NR | 117 (18) | 0.69 (0.52\u20130.91) | NA |\n\n\n\n* NA denotes not applicable, and NR not reached.\n\u2020 One patient who was randomly assigned to the placebo group but received darolutamide was included in the placebo group in the full analysis set.\n\n\n\n<::transcription of the content\n: chart::>\nPercentage of Patients Who Survived\n100\n90\n80\n70\n60\n50\n40\n30\n20\n10\n0\n\nDarolutamide\nPlacebo\n\nMedian Survival\n(95% CI)\nmo\nDarolutamide NE\nPlacebo 48.9 (44.4\u2013NE)\n\nHazard ratio for death, 0.68 (95% CI, 0.57\u20130.80)\nP<0.001\n\nMonths since Randomization\n0 3 6 9 12 15 18 21 24 27 30 33 36 39 42 45 48 51 54 57 60\n\nNo. at Risk\nDarolutamide 651 645 637 627 608 593 570 548 525 509 486 468 452 436 402 267 139 56 9 0 0\nPlacebo 654 646 630 607 580 565 535 510 488 470 441 424 402 383 340 218 107 37 6 1 0\n<::/transcription of the content\n: chart::>\n\nFigure 1. Overall Survival (Full Analysis Set).\nKaplan\u2013Meier estimates of overall survival are shown. For the analysis of overall survival, data were censored as of the last known date\nthe patients were alive. One patient who was randomly assigned to the placebo group but received darolutamide was included in the\nplacebo group in the full analysis set. CI denotes confidence interval, and NE not estimable.\n\n\n\nSECONDARY EFFICACY END POINTS\nDarolutamide was associated with significantly\ngreater benefits than placebo for the first five sec-\nondary efficacy end points tested hierarchically\n\n\n\n(Table 2 and Fig. 2). The time to development of\ncastration-resistant disease was significantly lon-\nger in the darolutamide group (hazard ratio, 0.36;\n95% CI, 0.30 to 0.42; P<0.001). The time to pain\n\n\n\n6\n\n\n\nN ENGL J MED NEJM.ORG\n\n\n\nThe New England Journal of Medicine\nDownloaded from nejm.org by Syed Arsalan Ahmed NAQVI on February 17, 2022. For personal use only. No other uses without permission.\nCopyright \u00a9 2022 Massachusetts Medical Society. All rights reserved.",
+        "pages_returned": [
+          11,
+          10,
+          6
+        ]
+      }
+    },
+    {
+      "turn": 5,
+      "role": "tool",
+      "name": "search_chunks",
+      "args": {
+        "query": "previous local therapy"
+      },
+      "response": {
+        "matches": [
+          {
+            "page": 2,
+            "score": 0.3410703241825104
+          },
+          {
+            "page": 9,
+            "score": 0.3204583525657654
+          },
+          {
+            "page": 5,
+            "score": 0.3092930018901825
+          },
+          {
+            "page": 11,
+            "score": 0.3045292794704437
+          },
+          {
+            "page": 10,
+            "score": 0.3028470277786255
+          }
+        ],
+        "formatted_chunks": "All retrieved pages have already been provided. Try a different query or submit with what you have.",
+        "pages_returned": []
+      }
+    },
+    {
+      "turn": 6,
+      "role": "tool",
+      "name": "search_chunks",
+      "args": {
+        "query": "PubMed ID"
+      },
+      "response": {
+        "matches": [
+          {
+            "page": 5,
+            "score": 0.339896023273468
+          },
+          {
+            "page": 11,
+            "score": 0.3349371552467346
+          },
+          {
+            "page": 10,
+            "score": 0.331745982170105
+          },
+          {
+            "page": 9,
+            "score": 0.31007999181747437
+          },
+          {
+            "page": 6,
+            "score": 0.3071965277194977
+          }
+        ],
+        "formatted_chunks": "All retrieved pages have already been provided. Try a different query or submit with what you have.",
+        "pages_returned": []
+      }
+    },
+    {
+      "turn": 7,
+      "role": "tool",
+      "name": "submit_extraction",
+      "args": {
+        "results_keys": [
+          "Original/Follow Up",
+          "Previous local therapy - N (%) | Radiotherapy | Control",
+          "Trial Name",
+          "NCT",
+          "PubMed ID",
+          "Previous local therapy - N (%) | Prostatectomy | Treatment",
+          "Previous local therapy - N (%) | Orchiectomy | Treatment",
+          "Previous local therapy - N (%) | Radiotherapy | Treatment",
+          "Phase",
+          "Author",
+          "Previous local therapy - N (%) | Prostatectomy | Control",
+          "Year",
+          "Previous local therapy - N (%) | Orchiectomy | Control",
+          "Full Pub or Abstract"
+        ]
+      },
+      "response": {
+        "submitted": [
+          "Original/Follow Up",
+          "Previous local therapy - N (%) | Radiotherapy | Control",
+          "Trial Name",
+          "NCT",
+          "PubMed ID",
+          "Previous local therapy - N (%) | Prostatectomy | Treatment",
+          "Previous local therapy - N (%) | Orchiectomy | Treatment",
+          "Previous local therapy - N (%) | Radiotherapy | Treatment",
+          "Phase",
+          "Author",
+          "Previous local therapy - N (%) | Prostatectomy | Control",
+          "Year",
+          "Previous local therapy - N (%) | Orchiectomy | Control",
+          "Full Pub or Abstract"
+        ]
+      }
+    }
+  ],
+  "results": {
+    "Original/Follow Up": {
+      "value": "Original",
+      "reasoning": "Indicated as \"ORIGINAL ARTICLE\" on page 1.",
+      "found": true,
+      "attribution": [
+        {
+          "page": 1,
+          "modality": "text"
+        }
+      ]
+    },
+    "Previous local therapy - N (%) | Radiotherapy | Control": {
+      "value": "Not reported",
+      "reasoning": "Information not found in the provided pages or search results. Page 3 mentions radiotherapy as an exclusion criterion, not as previous local therapy counts.",
+      "found": false,
+      "attribution": []
+    },
+    "Trial Name": {
+      "value": "ARASENS (ODM-201 in Addition to Standard ADT and Docetaxel in Metastatic Castration Sensitive Prostate Cancer)",
+      "reasoning": "Found in the methods section on page 2 and abstract on page 1.",
+      "found": true,
+      "attribution": [
+        {
+          "page": 1,
+          "modality": "text"
+        },
+        {
+          "page": 2,
+          "modality": "text"
+        }
+      ]
+    },
+    "NCT": {
+      "value": "NCT02799602",
+      "reasoning": "Found in the conclusions section on page 1.",
+      "found": true,
+      "attribution": [
+        {
+          "page": 1,
+          "modality": "text"
+        }
+      ]
+    },
+    "PubMed ID": {
+      "value": "Not reported",
+      "reasoning": "PubMed ID was not found in the provided pages or search results. DOI is present but not PubMed ID.",
+      "found": false,
+      "attribution": []
+    },
+    "Previous local therapy - N (%) | Prostatectomy | Treatment": {
+      "value": "Not reported",
+      "reasoning": "Information not found in the provided pages or search results.",
+      "found": false,
+      "attribution": []
+    },
+    "Previous local therapy - N (%) | Orchiectomy | Treatment": {
+      "value": "Not reported",
+      "reasoning": "Information not found in the provided pages or search results. Page 3 mentions orchiectomy as part of standard treatment or exclusion criteria, not as previous local therapy counts.",
+      "found": false,
+      "attribution": []
+    },
+    "Previous local therapy - N (%) | Radiotherapy | Treatment": {
+      "value": "Not reported",
+      "reasoning": "Information not found in the provided pages or search results. Page 3 mentions radiotherapy as an exclusion criterion, not as previous local therapy counts.",
+      "found": false,
+      "attribution": []
+    },
+    "Phase": {
+      "value": "3",
+      "reasoning": "Found in the methods section on page 1: \"In this international, phase 3 trial\".",
+      "found": true,
+      "attribution": [
+        {
+          "page": 1,
+          "modality": "text"
+        }
+      ]
+    },
+    "Author": {
+      "value": "Matthew R. Smith et al.",
+      "reasoning": "Found on page 1 under the title.",
+      "found": true,
+      "attribution": [
+        {
+          "page": 1,
+          "modality": "text"
+        }
+      ]
+    },
+    "Previous local therapy - N (%) | Prostatectomy | Control": {
+      "value": "Not reported",
+      "reasoning": "Information not found in the provided pages or search results.",
+      "found": false,
+      "attribution": []
+    },
+    "Year": {
+      "value": "2022",
+      "reasoning": "Found on page 1: \"This article was published on February 17, 2022, at NEJM.org.\"",
+      "found": true,
+      "attribution": [
+        {
+          "page": 1,
+          "modality": "text"
+        }
+      ]
+    },
+    "Previous local therapy - N (%) | Orchiectomy | Control": {
+      "value": "Not reported",
+      "reasoning": "Information not found in the provided pages or search results. Page 3 mentions orchiectomy as part of standard treatment or exclusion criteria, not as previous local therapy counts.",
+      "found": false,
+      "attribution": []
+    },
+    "Full Pub or Abstract": {
+      "value": "Full Pub",
+      "reasoning": "Indicated as \"ORIGINAL ARTICLE\" and \"published on February 17, 2022, at NEJM.org.\" on page 1.",
+      "found": true,
+      "attribution": [
+        {
+          "page": 1,
+          "modality": "text"
+        }
+      ]
+    }
+  }
+}

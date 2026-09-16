@@ -1,0 +1,317 @@
+{
+  "doc_id": "NCT00309985_Sweeney_CHAARTED_NEJM'15",
+  "tool_calls_sequence": [
+    {
+      "name": "get_chunks_by_page",
+      "args": {
+        "page_numbers": [
+          1,
+          2
+        ]
+      }
+    },
+    {
+      "name": "search_chunks",
+      "args": {
+        "query": "synchronous metastases"
+      }
+    },
+    {
+      "name": "submit_extraction",
+      "args": {
+        "results_keys": [
+          "Column 2: Reporting by prognostic groups - Y/N | Metachronous",
+          "Column 7: Adverse Events - N (%) | Treatment-related Grade 3 or Higher | Treatment",
+          "Column 1: Reporting by prognostic groups - Y/N | Synchronous",
+          "Column 10: Adverse Events - N (%) | Treatment-related Grade 5 | Control",
+          "Column 9: Adverse Events - N (%) | Treatment-related Grade 5 | Treatment",
+          "Column 6: Adverse Events - N (%) | All-Cause Grade 3 or Higher | Control",
+          "Column 8: Adverse Events - N (%) | Treatment-related Grade 3 or Higher | Control",
+          "Column 4: Reporting by prognostic groups - Y/N | Low volume",
+          "Column 3: Reporting by prognostic groups - Y/N | High volume",
+          "Column 5: Adverse Events - N (%) | All-Cause Grade 3 or Higher | Treatment"
+        ]
+      }
+    }
+  ],
+  "conversation": [
+    {
+      "turn": 0,
+      "role": "user",
+      "content": "Extract values for these columns. Document has 10 pages.\n\nCOLUMNS:\n\n---\nColumn 1: Reporting by prognostic groups - Y/N | Synchronous\nDefinition: What indicates whether the results of the clinical trial were reported based on prognostic groups with synchronous metastases, where synchronous metastases refers to metastases present at the time of diagnosis of prostate cancer. with a response of either \"yes\" (Y) or \"no\" (N)? Answer Yes or No;\n---\nColumn 2: Reporting by prognostic groups - Y/N | Metachronous\nDefinition: What indicates whether the results of the clinical trial were reported based on prognostic groups of patients with metachronous diseases (diseases that occur at different times). with a response of either \"yes\" (Y) or \"no\" (N)? Answer Yes or No\n---\nColumn 3: Reporting by prognostic groups - Y/N | High volume\nDefinition: What indicates whether the results of the clinical trial were reported based on prognostic groups with high volume/burden of metastases, with a response of either \"yes\" (Y) or \"no\" (N)? Answer Yes or No\n---\nColumn 4: Reporting by prognostic groups - Y/N | Low volume\nDefinition: What indicates whether the results were reported based on prognostic groups having a low volume of metastasis, with a yes or no response (Y/N)? Answer Yes or No\n---\nColumn 5: Adverse Events - N (%) | All-Cause Grade 3 or Higher | Treatment\nDefinition: What the number and percentage of patients experiencing adverse events of all causes with a grade of 3 or higher in the treatment arm of the trial? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.\n---\nColumn 6: Adverse Events - N (%) | All-Cause Grade 3 or Higher | Control\nDefinition: What number and percentage of patients experiencing all-cause adverse events with a grade of 3 or higher in the control arm of the trial? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.\n---\nColumn 7: Adverse Events - N (%) | Treatment-related Grade 3 or Higher | Treatment\nDefinition: What number and percentage of patients experiencing treatment-related adverse events with a grade of 3 or higher in the treatment arm of the trial? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.\n---\nColumn 8: Adverse Events - N (%) | Treatment-related Grade 3 or Higher | Control\nDefinition: What the number and percentage of patients experiencing adverse events that are related to the treatment and have a severity grade of 3 or higher in the control arm of the clinical trial? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.\n---\nColumn 9: Adverse Events - N (%) | Treatment-related Grade 5 | Treatment\nDefinition: What the number and percentage of patients showing adverse events that are treatment-related and have a grade of 5 in the treatment arm of the trial? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.\n---\nColumn 10: Adverse Events - N (%) | Treatment-related Grade 5 | Control\nDefinition: What the number and percentage of patients experiencing treatment-related adverse events with a grade of 5 in the control arm of the clinical trial? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.\n\nFor informational columns (trial name, arms, etc.), use get_chunks_by_page([1, 2]) first. For specific columns, use search_chunks. Submit when you have enough information."
+    },
+    {
+      "turn": 2,
+      "role": "tool",
+      "name": "get_chunks_by_page",
+      "args": {
+        "page_numbers": [
+          1,
+          2
+        ]
+      },
+      "response": {
+        "formatted_chunks": "[Page 1]\n## Page 1\n\nThe NEW ENGLAND JOURNAL of MEDICINE\n\n\n\nORIGINAL ARTICLE\n\n\n\nChemohormonal Therapy in Metastatic\nHormone-Sensitive Prostate Cancer\nChristopher J. Sweeney, M.B., B.S., Yu-Hui Chen, M.S., M.P.H.,\nMichael Carducci, M.D., Glenn Liu, M.D., David F. Jarrard, M.D.,\nMario Eisenberger, M.D., Yu-Ning Wong, M.D., M.S.C.E., Noah Hahn, M.D.,\nManish Kohli, M.D., Matthew M. Cooney, M.D., Robert Dreicer, M.D.,\nNicholas J. Vogelzang, M.D., Joel Picus, M.D., Daniel Shevrin, M.D.,\nMaha Hussain, M.B., Ch.B., Jorge A. Garcia, M.D., and Robert S. DiPaola, M.D.\n\n\n\nABSTRACT\n\n\n\nBACKGROUND\nAndrogen-deprivation therapy (ADT) has been the backbone of treatment for metastatic prostate cancer since the 1940s. We assessed whether concomitant treatment with ADT plus docetaxel would result in longer overall survival than that with ADT alone.\n\n\n\nMETHODS\nWe assigned men with metastatic, hormone-sensitive prostate cancer to receive either ADT plus docetaxel (at a dose of 75 mg per square meter of body-surface area every 3 weeks for six cycles) or ADT alone. The primary objective was to test the hypothesis that the median overall survival would be 33.3% longer among patients receiving docetaxel added to ADT early during therapy than among patients receiving ADT alone.\n\n\n\nRESULTS\nA total of 790 patients (median age, 63 years) underwent randomization. After a\nmedian follow-up of 28.9 months, the median overall survival was 13.6 months\nlonger with ADT plus docetaxel (combination therapy) than with ADT alone (57.6\nmonths vs. 44.0 months; hazard ratio for death in the combination group, 0.61;\n95% confidence interval [CI], 0.47 to 0.80; P<0.001). The median time to bio-\nchemical, symptomatic, or radiographic progression was 20.2 months in the com-\nbination group, as compared with 11.7 months in the ADT-alone group (hazard\nratio, 0.61; 95% CI, 0.51 to 0.72; P<0.001). The rate of a prostate-specific antigen\nlevel of less than 0.2 ng per milliliter at 12 months was 27.7% in the combination\ngroup versus 16.8% in the ADT-alone group (P<0.001). In the combination group,\nthe rate of grade 3 or 4 febrile neutropenia was 6.2%, the rate of grade 3 or 4\ninfection with neutropenia was 2.3%, and the rate of grade 3 sensory neuropathy\nand of grade 3 motor neuropathy was 0.5%.\n\n\n\nCONCLUSIONS\nSix cycles of docetaxel at the beginning of ADT for metastatic prostate cancer resulted in significantly longer overall survival than that with ADT alone. (Funded by the National Cancer Institute and others; ClinicalTrials.gov number, NCT00309985.)\n\n\n\nFrom the Department of Medicine (C.J.S.)\nand the Department of Biostatistics and\nComputational Biology (Y.-H.C.), Dana-\nFarber Cancer Institute, Boston; Harvard\nMedical School, Boston (C.J.S.); Johns\nHopkins University, Baltimore (M.C., M.E.);\nUniversity of Wisconsin Carbone Cancer\nCenter (G.L., D.F.J.) and School of Medi-\ncine and Public Health (D.F.J.), Madison;\nFox Chase Cancer Center, Temple Univer-\nsity Health System, Philadelphia (Y.-N.W.);\nIndiana University Melvin and Bren Simon\nCancer Center, Indianapolis (N.H.); Mayo\nClinic, Rochester, MN (M.K.); University\nHospitals Case Medical Center, Seidman\nCancer Center (M.M.C.), and Cleveland\nClinic Taussig Cancer Institute (J.A.G.)\n\u2014 both in Cleveland; University of Virginia\nCancer Center, Charlottesville (R.D.); Com-\nprehensive Cancer Centers of Nevada, Las\nVegas (N.J.V.); Siteman Cancer Center,\nWashington University School of Medi-\ncine, St. Louis (J.P.); NorthShore University\nHealthSystem, Evanston, IL (D.S.); Univer-\nsity of Michigan Comprehensive Cancer\nCenter, Ann Arbor (M.H.); and Rutgers\nCancer Institute of New Jersey, New Bruns-\nwick (R.S.D.). Address reprint requests to\nDr. Sweeney at christopher_sweeney@dfci\n.harvard.edu.\n\n\n\nThis article was published on August 5,\n2015, at NEJM.org.\n\n\n\nN Engl J Med 2015;373:737-46.\nDOI: 10.1056/NEJMoa1503747\nCopyright \u00a9 2015 Massachusetts Medical Society.\n\n\n\nN ENGL J MED 373;8 NEJM.ORG AUGUST 20, 2015\n\n\n\n737\n\n\n\nThe New England Journal of Medicine\nDownloaded from nejm.org on October 9, 2021. For personal use only. No other uses without permission.\nCopyright \u00a9 2015 Massachusetts Medical Society. All rights reserved.\n\n---\n\n[Page 2]\n## Page 2\n\nThe NEW ENGLAND JOURNAL of MEDICINE\n\n\n\nREGRESSIONS OF METASTATIC PROSTATE\ncancer were first documented in the 1940s\nand were achieved with surgical castration;\nsubsequently, androgen-deprivation therapy\n(ADT) became the mainstay of therapy.\u00b9 Attempts\nto improve the efficacy or decrease the treatment\nburden of ADT have included the use of antiandrogens alone, intermittent dosing of ADT,\nand the use of an antiandrogen combined with\nmedical or surgical castration.\u00b2\u207b\u2074 A meta-analysis\nrevealed an increase in survival of 3 percentage\npoints at 5 years with concurrent use of a non-\nsteroidal antiandrogen at the time of initiation\nof ADT.\u00b2 However, resistance to ADT occurs in\nmost patients, with the result that the median\nsurvival among patients with metastatic prostate\ncancer is approximately 3 years.\u2075,\u2076 In patients\nwith resistance to ADT, docetaxel therapy re-\nsulted in a median survival that was approxi-\nmately 2.5 months longer than that with mito-\nxantrone and prednisone.\u2077,\u2078\n\n\n\nPrior studies of chemotherapy plus ADT, which\ndid not show a benefit, were small studies that\ninvolved primarily patients with a relatively low\ntumor burden.9,10 Definitions of a high burden of\ndisease have included the presence of visceral\nmetastases, a bone-metastasis burden categorized\nby site (beyond the axial skeleton) or by a high\nnumber of lesions, or a combination of these.9,11,12\nIn this study, the E3805 study, patients received\nADT alone or ADT plus docetaxel at the begin-\nning of ADT for metastatic hormone-sensitive\nprostate cancer, and stratification was performed\nprospectively according to high or low burden of\nmetastatic disease.\n\n\n\n## METHODS\n\n### STUDY OVERSIGHT\nThe primary objective of the E3805 study was to determine whether docetaxel therapy at the beginning of ADT for metastatic hormone-sensitive prostate cancer would result in longer overall survival than that with ADT alone. The study was designed in 2005 by the Eastern Cooperative Oncology Group (ECOG; now part of ECOG-ACRIN) and was approved by the institutional review board at each participating institution. The study was coordinated by the ECOG-ACRIN Cancer Research Group. The ECOG-ACRIN Statistical Center collected the data and was the leading cooperative group and data coordinating center.\n\n\n\nThe first two authors attest that the study was conducted and monitored as specified by the protocol. The first author wrote the first draft of the manuscript, with subsequent contributions by all the coauthors. The authors vouch for the accuracy and completeness of the data presented. The protocol with the statistical analysis plan is available with the full text of this article at NEJM.org. Sanofi donated the docetaxel for early use (i.e., before progression during ADT) and provided a grant to ECOG-ACRIN but had no role in the design of the protocol, the collection or analysis of the data, or the preparation of the manuscript.\n\n\n\nPATIENTS\nPatients were enrolled by ECOG-ACRIN, the Southwest Oncology Group, the Alliance for Clinical Trials in Oncology, and NRG Oncology (a merged group that includes the National Surgical Adjuvant Breast and Bowel Project, the Radiation Therapy Oncology Group, and the Gynecologic Oncology Group) and through the Clinical Trials Support Unit. Eligible patients had a pathological diagnosis of prostate cancer or a clinical scenario consistent with prostate cancer with an elevated prostate-specific antigen (PSA) level; radiologic evidence of metastatic disease; and an ECOG performance-status score of 0, 1, or 2 (on a scale from 0 to 5, with higher scores indicating greater disability; patients with a score of 2 were eligible if the decrement in functioning was due to prostate cancer). Prior adjuvant ADT was allowed if the duration of therapy was 24 months or less and progression had occurred more than 12 months after completion of therapy. Patients who were receiving ADT for metastatic disease were eligible if there was no evidence of progression and treatment had commenced within 120 days before randomization. Organ function that was adequate for docetaxel treatment was required (details are provided in the protocol). All patients provided written informed consent in accordance with institutional and federal guidelines.\n\n\n\n**TREATMENT PLAN, STRATIFICATION,\nAND RANDOMIZATION**\nPatients were randomly assigned to ADT alone\nor to combination therapy with ADT plus doce-\ntaxel at a dose of 75 mg per square meter of\nbody-surface area given every 3 weeks for six\n\n\n\n738\n\n\n\nN ENGL J MED 373;8 NEJM.ORG AUGUST 20, 2015\n\n\n\nThe New England Journal of Medicine\nDownloaded from nejm.org on October 9, 2021. For personal use only. No other uses without permission.\nCopyright \u00a9 2015 Massachusetts Medical Society. All rights reserved.",
+        "pages_returned": [
+          1,
+          2
+        ]
+      }
+    },
+    {
+      "turn": 3,
+      "role": "model",
+      "content": "The results of the clinical trial were reported based on prognostic groups with high volume and low volume of metastases.\n\nNow I will search for information regarding synchronous and metachronous metastases, and then for the adverse events."
+    },
+    {
+      "turn": 4,
+      "role": "tool",
+      "name": "search_chunks",
+      "args": {
+        "query": "synchronous metastases"
+      },
+      "response": {
+        "matches": [
+          {
+            "page": 2,
+            "score": 0.30630823969841003
+          },
+          {
+            "page": 4,
+            "score": 0.29961955547332764
+          },
+          {
+            "page": 8,
+            "score": 0.2954912483692169
+          },
+          {
+            "page": 10,
+            "score": 0.29527780413627625
+          },
+          {
+            "page": 6,
+            "score": 0.29452651739120483
+          }
+        ],
+        "formatted_chunks": "[Page 2, score=0.31] already provided\u2014check your context.\n\n---\n\n[Page 4, score=0.30]\n## Page 4\n\nThe NEW ENGLAND JOURNAL of MEDICINE\n\n\n\nwas adjusted so that the study would have 80%\npower to detect a 33.3% difference in median\noverall survival between the combination group\nand the ADT-alone group, with the use of a\nstratified log-rank test at a one-sided alpha level\nof 2.5%. At study inception, only patients with\nhigh-volume disease were to be enrolled, and the\nsample size was to be 568 patients. After com-\npletion of enrollment in the NCI-sponsored\nS9346 trial, an amendment to the E3805 study\nwas made in July 2008, after 53 patients had been\nenrolled, to include patients with low-volume\ndisease. A prospective stratification of high vol-\nume versus low volume of metastatic disease\nwas added, and the sample size was increased to\n600 patients. The final amendment was made in\nDecember 2011, after 579 patients had been en-\nrolled, to reflect new data documenting an in-\ncrease in median overall survival owing to the\nuse of PSA in the detection and monitoring of\ndisease activity (initial projections were based\non studies from the pre-PSA era) and to address\nthe September 2011 report of the data and safety\nmonitoring committee, which noted that 70% of\nenrolled patients had high-volume disease. The\nfinal design required the enrollment of 780 pa-\ntients, with projections of median overall sur-\nvival with ADT alone of 33 months among pa-\ntients with high-volume disease and 67 months\namong patients with low-volume disease.\n\n\n\nInterim analyses were to be performed before\nall semiannual meetings of the data and safety\nmonitoring committee starting when approxi-\nmately 25% of the planned full information was\nobtained and continuing until either the criteria\nfor early stopping were met or full information\nwas obtained (after 399 deaths). The study was\nmonitored for early stopping for futility with the\nuse of repeated-confidence-interval methods. 14 At\neach interim analysis, the nominal (1-[2x alpha])\nconfidence interval for the hazard ratio for death\nin the comparison of the combination-therapy\ngroup with the ADT-alone group was computed.\nFor a given analysis time (information fraction),\nalpha was set at the nominal one-sided signifi-\ncance level of the use function boundary. Infor-\nmation from interim analyses was reviewed by\nmembers of the independent data and safety\nmonitoring committee, who determined wheth-\ner efficacy or futility had been demonstrated and\nwho decided whether the study should be stopped\nand the results reported early.\n\n\n\nDescriptive statistics were used to characterize patients at study entry. Kaplan-Meier estimates\u00b9\u2075 were used for event-time distributions. Cox proportional-hazard models,\u00b9\u2076 stratified according to the factors described above, were used to estimate hazard ratios for time-to-event end points. Stratified log-rank tests\u00b9\u2077 were used to compare event-time distributions between the two groups. Response rates were compared with the use of Fisher's exact test.\u00b9\u2078 An intention-to-treat analysis was conducted that included all randomly assigned patients regardless of eligibility and treatment status. P values are two-sided, and confidence intervals are at the 95% level.\n\n\n\nRESULTS\n\n\n\nPATIENTS\nFrom July 2006 through December 2012, a total\nof 790 patients were enrolled and underwent ran-\ndomization. Ten patients were ineligible, 7 had\nincomplete information to assess eligibility, and\n6 patients in the combination group did not\nstart the assigned therapy (Fig. S1 in the Supple-\nmentary Appendix, available at NEJM.org). All\nrandomly assigned patients were followed and\nincluded in the primary analysis of their assigned\ngroup. At the planned interim analysis in Octo-\nber 2013, a total of 53% of the planned full in-\nformation had been obtained, prespecified crite-\nria for significance had been met, and the data\nwere released by the data and safety monitoring\ncommittee. This report represents data with a\ncutoff date for survival of December 23, 2013;\nthe median follow-up was 28.9 months, with\n136 deaths in the ADT-alone group and 101\ndeaths in the combination group. All other data\nreflect the database as of December 23, 2014.\n\n\n\nPatient characteristics were well balanced be-\ntween the two groups (Table 1). The median age\nwas 64 years (range, 36 to 88) in the combina-\ntion group and 63 years (range, 39 to 91) in the\nADT-alone group. In both groups, approximately\n85% of the patients were white, approximately\n70% had an ECOG performance-status score of 0,\napproximately 65% had high-volume disease, and\napproximately 60% had a Gleason score of 8 or\nhigher (on a scale from 2 to 10, with higher\nscores indicating a more aggressive form of pros-\ntate cancer and a worse prognosis). In both\ngroups, 73% of the patients had received no\nprior local therapy for prostate cancer with cura-\n\n\n\n740\n\n\n\nN ENGL J MED 373;8 NEJM.ORG AUGUST 20, 2015\n\n\n\nThe New England Journal of Medicine\nDownloaded from nejm.org on October 9, 2021. For personal use only. No other uses without permission.\nCopyright \u00a9 2015 Massachusetts Medical Society. All rights reserved.\n\n---\n\n[Page 8, score=0.30]\n## Page 8\n\nThe NEW ENGLAND JOURNAL of MEDICINE\n\n\n\n|  |  |  |  |  |\n| --- | --- | --- | --- | --- |\n| Table 2. Secondary End Points. | Table 2. Secondary End Points. | Table 2. Secondary End Points. | Table 2. Secondary End Points. | Table 2. Secondary End Points. |\n| End Point | ADT plus Docetaxel (N=397) | ADT Alone (N=393) | P Value | Hazard Ratio (95% CI) |\n| PSA level <0.2 ng/ml at 6 mo\u2014 no. (%) | 127 (32.0) | 77 (19.6) | <0.001 |  |\n| PSA level <0.2 ng/ml at 12 mo\u2014 no. (%) | 110 (27.7) | 66 (16.8) | <0.001 |  |\n| Time to castration-resistant prostate cancer \u2014 mo\\* | Time to castration-resistant prostate cancer \u2014 mo\\* | Time to castration-resistant prostate cancer \u2014 mo\\* | Time to castration-resistant prostate cancer \u2014 mo\\* | Time to castration-resistant prostate cancer \u2014 mo\\* |\n| Median | 20.2 | 11.7 | <0.001 | 0.61 (0.51-0.72) |\n| 95% CI | 17.2-23.6 | 10.8-14.7 |  |  |\n| Time to clinical progression -- mo | Time to clinical progression -- mo | Time to clinical progression -- mo | Time to clinical progression -- mo | Time to clinical progression -- mo |\n| Median | 33.0 | 19.8 | <0.001 | 0.61 (0.50-0.75) |\n| 95% CI | 27.3-41.2 | 17.9-22.8 |  |  |\n\n\n\n* The time to castration-resistant prostate cancer was the time until documented clinical or serologic progression with a testosterone level of less than 50 ng per deciliter (or source documentation of medical castration or surgical castration).\n\n\u2020 Clinical progression was defined by increasing symptoms of bone metastases; progression according to the Response Evaluation Criteria in Solid Tumors, version 1.0; or clinical deterioration due to cancer according to the investigator's opinion.\n\n\n\n|  |  |  |  |\n| --- | --- | --- | --- |\n| Table 3. Adverse Events of Grade 3 or Higher among the 390 Patients Who Received the Docetaxel-Containing Regimen and Had Follow-up Data Available.\\* | Table 3. Adverse Events of Grade 3 or Higher among the 390 Patients Who Received the Docetaxel-Containing Regimen and Had Follow-up Data Available.\\* | Table 3. Adverse Events of Grade 3 or Higher among the 390 Patients Who Received the Docetaxel-Containing Regimen and Had Follow-up Data Available.\\* | Table 3. Adverse Events of Grade 3 or Higher among the 390 Patients Who Received the Docetaxel-Containing Regimen and Had Follow-up Data Available.\\* |\n| Event | Grade 3 | Grade 4 | Grade 5 |\n| no. of patients (%) | no. of patients (%) | no. of patients (%) | no. of patients (%) |\n| Allergic reaction | 7 (1.8) | 1 (0.3) | 0 |\n| Fatigue | 16 (4.1) | 0 | 0 |\n| Diarrhea | 4 (1.0) | 0 | 0 |\n| Stomatitis | 2 (0.5) | 0 | 0 |\n| Neuropathy, motor | 2 (0.5) | 0 | 0 |\n| Neuropathy, sensory | 2 (0.5) | 0 | 0 |\n| Thromboembolism | 1 (0.3) | 2 (0.5) | 0 |\n| Sudden death | 0 | 0 | 1 (0.3) |\n| Anemia | 4 (1.0) | 1 (0.3) | 0 |\n| Thrombocytopenia | 0 | 1 (0.3) | 0 |\n| Neutropenia | 12 (3.1) | 35 (9.0) | 0 |\n| Febrile neutropenia | 15 (3.8) | 9 (2.3) | 0 |\n| Infection with neutropenia | 5 (1.3) | 4 (1.0) | 0 |\n| Any event | 65 (16.7) | 49 (12.6) | 1 (0.3) |\n\n\n\n* Patients were classified according to the worst grade reported across all body systems. Patients assigned to ADT plus docetaxel were monitored every 3 weeks during the time docetaxel was administered and then every 3 months, whereas patients assigned to the ADT-alone group were seen every 3 months after randomization. Toxic effects in the group that received ADT plus docetaxel were captured at this frequency to ascertain the adverse-event profile of chemotherapy. The adverse-event profile of ADT was assumed to be common to the two groups. The potential risk of ascertainment bias for adverse events and early progression in the ADT-plus-docetaxel group was recognized, but such bias, if it existed, would have favored the ADT-alone group.\n\n\n\nASSIGNED THERAPY ADMINISTERED\nAND SUBSEQUENT THERAPY\nApproximately 86% of the 390 patients in the\ncombination group who started the assigned\ntherapy completed six cycles of docetaxel therapy\n(Table S2 in the Supplementary Appendix), and\napproximately 74% of all the treated patients\nreceived all planned cycles without dose modifi-\ncations. At the time of this analysis, castration-\nresistant prostate cancer with at least biochemi-\ncal progression had developed in 287 patients\nassigned to ADT alone; 137 patients of these\npatients had received docetaxel for castration-\nresistant prostate cancer, and another 10 patients\nhad received docetaxel before castration resis-\ntance was confirmed. In addition, 104 patients\nhad received abiraterone or enzalutamide after\nconfirmed castration resistance (9 of these pa-\ntients may have received placebo as part of a\ntrial). Table S3 in the Supplementary Appendix\ndocuments the use of other therapies that have\nbeen shown to prolong overall survival in patients\nwith castration-resistant prostate cancer.\n\n\n\nDISCUSSION\nImprovements in outcomes in men with meta-\nstatic castration-resistant prostate cancer have\nbeen achieved with the use of cytotoxic chemo-\ntherapy, next-generation hormonal therapies,\nimmunotherapy, and therapy with radiopharma-\nceutical agents. 19-25 This study showed that\n\n\n\n744\n\n\n\nN ENGL J MED 373;8 NEJM.ORG AUGUST 20, 2015\n\n\n\nThe New England Journal of Medicine Downloaded from nejm.org on October 9, 2021. For personal use only. No other uses without permission. Copyright \u0016 2015 Massachusetts Medical Society. All rights reserved.\n\n---\n\n[Page 10, score=0.30]\n## Page 10\n\nCHEMOHORMONAL THERAPY IN PROSTATE CANCER\n\n\n\n5. Tangen CM, Hussain MH, Higano CS, et al. Improved overall survival trends of men with newly diagnosed M1 prostate cancer: a SWOG phase III trial experience (S8494, S8894 and S9346). J Urol 2012; 188:1164-9.\n6. Wu JN, Fish KM, Evans CP, Devere White RW, Dall'Era MA. No improvement noted in overall or cause-specific survival for men presenting with metastatic prostate cancer over a 20-year period. Cancer 2014;120:818-23.\n7. Petrylak DP, Tangen CM, Hussain MH, et al. Docetaxel and estramustine compared with mitoxantrone and prednisone for advanced refractory prostate cancer. N Engl J Med 2004;351:1513-20.\n8. Tannock IF, de Wit R, Berry WR, et al. Docetaxel plus prednisone or mitoxantrone plus prednisone for advanced prostate cancer. N Engl J Med 2004;351:1502-12.\n9. Millikan RE, Wen S, Pagliaro LC, et al. Phase III trial of androgen ablation with or without three cycles of systemic chemotherapy for advanced prostate cancer. J Clin Oncol 2008;26:5936-42.\n10. Gravis G, Fizazi K, Joly F, et al. Androgen-deprivation therapy alone or with docetaxel in non-castrate metastatic prostate cancer (GETUG-AFU 15): a randomised, open-label, phase 3 trial. Lancet Oncol 2013;14:149-58.\n11. Crawford ED, Eisenberger MA, McLeod DG, et al. A controlled trial of leuprolide\n\n\n\nwith and without flutamide in prostatic\ncarcinoma. N Engl J Med 1989;321:419-24.\n12. Eisenberger MA, Blumenstein BA,\nCrawford ED, et al. Bilateral orchiectomy\nwith or without flutamide for metastatic\nprostate cancer. N Engl J Med 1998;339:\n1036-42.\n13. Therasse P, Arbuck SG, Eisenhauer\nEA, et al. New guidelines to evaluate the\nresponse to treatment in solid tumors.\nEuropean Organization for Research and\nTreatment of Cancer, National Cancer In-\nstitute of the United States, National Can-\ncer Institute of Canada. J Natl Cancer Inst\n2000;92:205-16.\n14. Jennison CTB. Statistical approaches\nto interim monitoring of medical trials: a\nreview and commentary. Stat Sci 1990;5:\n299-317.\n15. Kaplan EL, Meier P. Nonparametric\nestimation from incomplete observations.\nJ Am Stat Assoc 1958;53:457-81.\n16. Cox DR. Regression models and life-\ntables. J R Stat Soc B 1972;34:187-220.\n17. Mantel N. Evaluation of survival data\nand two new rank order statistics arising\nin its consideration. Cancer Chemother\nRep 1966;50:163-70.\n18. Cox D. Analysis of binary data. Lon-\ndon: Methuen and Co., 1970.\n19. de Bono JS, Logothetis CJ, Molina A,\net al. Abiraterone and increased survival\nin metastatic prostate cancer. N Engl J\nMed 2011;364:1995-2005.\n\n\n\n20. Ryan CJ, Smith MR, de Bono JS, et al. Abiraterone in metastatic prostate cancer without previous chemotherapy. N Engl J Med 2013;368:138-48.\n21. Beer TM, strong AJ, Rathkopf DE, et al. Enzalutamide in metastatic prostate cancer before chemotherapy. N Engl J Med 2014;371:424-33.\n22. Scher HI, Fizazi K, Saad F, et al. Increased survival with enzalutamide in prostate cancer after chemotherapy. N Engl J Med 2012;367:1187-97.\n23. Kantoff PW, Higano CS, Shore ND, et al. Sipuleucel-T immunotherapy for castration-resistant prostate cancer. N Engl J Med 2010;363:411-22.\n24. de Bono JS, Oudard S, Ozguroglu M, et al. Prednisone plus cabazitaxel or mitoxantrone for metastatic castration-resistant prostate cancer progressing after docetaxel treatment: a randomised open-label trial. Lancet 2010;376:1147-54.\n25. Parker C, Nilsson S, Heinrich D, et al. Alpha emitter radium-223 and survival in metastatic prostate cancer. N Engl J Med 2013;369:213-23.\n26. James ND, Spears MR, Clarke NW, et al. Survival with newly diagnosed metastatic prostate cancer in the \"docetaxel era\": data from 917 patients in the control of the STAMPEDE trial (MRC PR08, CRUK/06/019). Eur Urol 2015;67:1028-38.\nCopyright \u00a9 2015 Massachusetts Medical Society.\n\n\n\nSPECIALTIES AND TOPICS AT NEJM.ORG\n\nSpecialty pages at the Journal's website (NEJM.org) feature articles in cardiology, endocrinology, genetics, infectious disease, nephrology, pediatrics, and many other medical specialties. These pages, along with collections of articles on clinical and nonclinical topics, offer links to interactive and multimedia content and feature recently published articles as well as material from the NEJM archive (1812\u20131989).\n\n\n\n746\n\n\n\nN ENGL J MED 373;8 NEJM.ORG AUGUST 20, 2015\n\n\n\nThe New England Journal of Medicine\nDownloaded from nejm.org on October 9, 2021. For personal use only. No other uses without permission.\nCopyright \u00a9 2015 Massachusetts Medical Society. All rights reserved.\n\n---\n\n[Page 6, score=0.29]\n## Page 6\n\nThe NEW ENGLAND JOURNAL of MEDICINE\n\n\n\n<::A All Patients\n: Kaplan-Meier survival curve::>\n<::chart\n: Y-axis: Patients Surviving (%)\n: X-axis: Months\n: Hazard ratio for death with ADT+docetaxel, 0.61 (95% CI, 0.47\u20130.80) P<0.001\n: Legend:\n  - ADT+docetaxel (median overall survival, 57.6 mo)\n  - ADT alone (median overall survival, 44.0 mo)\n: No. at Risk table:\n  - ADT+docetaxel: 397, 333, 189, 89, 46, 5, 2, 0\n  - ADT alone: 393, 318, 168, 71, 27, 3, 1, 0::>\n\n\n\nB Patients with High-Volume Disease\n<::\nchart: Kaplan-Meier survival curve\nY-axis: Patients Surviving (%)\nX-axis: Months\n\nCurve 1 (green line): ADT+docetaxel (median overall survival, 49.2 mo)\nCurve 2 (blue line): ADT alone (median overall survival, 32.2 mo)\n\nHazard ratio for death with ADT+docetaxel, 0.60 (95% CI, 0.45\u20130.81) P<0.001\n\nTable: No. at Risk\nMonths: 0, 12, 24, 36, 48, 60, 72, 84\nADT+docetaxel: 263, 213, 123, 56, 31, 5, 2, 0\nADT alone: 250, 193, 92, 40, 14, 3, 1, 0\n::>\n\n\n\n<::C Patients with Low-Volume Disease\nPatients Surviving (%)\nADT+docetaxel (median overall survival, NR)\nADT alone (median overall survival, NR)\nHazard ratio for death with ADT+docetaxel, 0.60 (95% CI, 0.32\u20131.13) P=0.11\nMonths\nNo. at Risk\nADT+docetaxel 134 120 66 33 15 0\nADT alone 143 125 76 31 13 0\n: chart::>\n\n\n\nFigure 1. Kaplan\u2013Meier Estimates of Overall Survival.\nThe median duration of follow-up was 28.9 months among all patients (Panel A), 29.2 months among patients with high-volume disease (Panel B), and 27.6 months among patients with low-volume disease (Panel C). ADT denotes androgen-deprivation therapy, and NR not reached.\n\n\n\ntive (rather than palliative) intent. Among pa-\ntients who started ADT before randomization,\nthe median time from the start of ADT to ran-\ndomization was 1.2 months (range, 0 to 3.9) in\nthe combination group and 1.3 months (range,\n0 to 3.9) in the ADT-alone group.\n\n\n\nSURVIVAL\nThe median overall survival was 13.6 months longer with the addition to ADT of early docetaxel than with ADT alone (57.6 months vs. 44.0 months; hazard ratio for death in the combination group, 0.61; 95% confidence interval [CI], 0.47 to 0.80; P<0.001) (Fig. 1A). There were 85 prostate-cancer deaths in the combination group and 114 prostate-cancer deaths in the ADT-alone group (Table S1 in the Supplementary Appendix). The benefit at the last analysis was more apparent in the subgroup with high-volume disease than in the overall study population (Fig. 1B), with a median overall survival that was 17.0 months longer in the combination group than in the ADT-alone group (49.2 months vs. 32.2 months; hazard ratio for death, 0.60; 95% CI, 0.45 to 0.81; P<0.001). The median survival at the time of the analysis had not been reached in the subgroup with low-volume disease in either study group (Fig. 1C). A benefit of docetaxel treatment was detected in all the subgroups analyzed (Fig. 2).\n\n\n\nSECONDARY END POINTS AND TOXIC EFFECTS\nThe proportion of patients who had a decrease\nin the PSA level to less than 0.2 ng per milliliter\nat 12 months was 27.7% in the combination\ngroup, as compared with 16.8% in the ADT-\nalone group (P<0.001) (Table 2). The median\ntime to the development of castration-resistant\nprostate cancer (biochemical, symptomatic, or\nradiographic) was 20.2 months with combina-\ntion therapy, as compared with 11.7 months\nwith ADT alone (hazard ratio in the combina-\ntion group, 0.61; 95% CI, 0.51 to 0.72; P<0.001)\n\n\n\n742\n\n\n\nN ENGL J MED 373;8 NEJM.ORG AUGUST 20, 2015\n\n\n\nThe New England Journal of Medicine\nDownloaded from nejm.org on October 9, 2021. For personal use only. No other uses without permission.\nCopyright \u00a9 2015 Massachusetts Medical Society. All rights reserved.",
+        "pages_returned": [
+          4,
+          8,
+          10,
+          6
+        ]
+      }
+    },
+    {
+      "turn": 5,
+      "role": "model",
+      "content": "I have reviewed the document and the search results.\n\nFor \"Reporting by prognostic groups - Y/N | Synchronous\" and \"Reporting by prognostic groups - Y/N | Metachronous\", the document only mentions stratification by \"high or low burden of metastatic disease\" and does not explicitly report by synchronous or metachronous metastases. Therefore, the answer for these columns is 'N'.\n\nFor the Adverse Events columns:\nPage 8, Table 3, provides detailed adverse event data for the treatment arm (ADT plus Docetaxel).\n- **All-Cause Grade 3 or Higher | Treatment:** The \"Any event\" row in Table 3 shows Grade 3 as 65 (16.7%), Grade 4 as 49 (12.6%), and Grade 5 as 1 (0.3%). Summing these gives 115 (29.6%).\n- **Treatment-related Grade 3 or Higher | Treatment:** The table is specifically for the docetaxel-containing regimen and its toxic effects, so these are considered treatment-related. The sum of Grade 3, 4, and 5 for \"Any event\" is 115 (29.6%).\n- **Treatment-related Grade 5 | Treatment:** The \"Any event\" row in Table 3 shows Grade 5 as 1 (0.3%).\n\nFor the control arm, Table 3 does not provide specific adverse event data for Grade 3 or higher, or Grade 5. The text mentions that \"The adverse-event profile of ADT was assumed to be common to the two groups,\" implying that detailed separate reporting for the control arm is not available in this table. Therefore, these are marked as 'Not reported'.\n\nI have gathered all the necessary information to fill all the columns. I will now submit the extraction."
+    },
+    {
+      "turn": 6,
+      "role": "tool",
+      "name": "submit_extraction",
+      "args": {
+        "results_keys": [
+          "Column 2: Reporting by prognostic groups - Y/N | Metachronous",
+          "Column 7: Adverse Events - N (%) | Treatment-related Grade 3 or Higher | Treatment",
+          "Column 1: Reporting by prognostic groups - Y/N | Synchronous",
+          "Column 10: Adverse Events - N (%) | Treatment-related Grade 5 | Control",
+          "Column 9: Adverse Events - N (%) | Treatment-related Grade 5 | Treatment",
+          "Column 6: Adverse Events - N (%) | All-Cause Grade 3 or Higher | Control",
+          "Column 8: Adverse Events - N (%) | Treatment-related Grade 3 or Higher | Control",
+          "Column 4: Reporting by prognostic groups - Y/N | Low volume",
+          "Column 3: Reporting by prognostic groups - Y/N | High volume",
+          "Column 5: Adverse Events - N (%) | All-Cause Grade 3 or Higher | Treatment"
+        ]
+      },
+      "response": {
+        "submitted": [
+          "Column 2: Reporting by prognostic groups - Y/N | Metachronous",
+          "Column 7: Adverse Events - N (%) | Treatment-related Grade 3 or Higher | Treatment",
+          "Column 1: Reporting by prognostic groups - Y/N | Synchronous",
+          "Column 10: Adverse Events - N (%) | Treatment-related Grade 5 | Control",
+          "Column 9: Adverse Events - N (%) | Treatment-related Grade 5 | Treatment",
+          "Column 6: Adverse Events - N (%) | All-Cause Grade 3 or Higher | Control",
+          "Column 8: Adverse Events - N (%) | Treatment-related Grade 3 or Higher | Control",
+          "Column 4: Reporting by prognostic groups - Y/N | Low volume",
+          "Column 3: Reporting by prognostic groups - Y/N | High volume",
+          "Column 5: Adverse Events - N (%) | All-Cause Grade 3 or Higher | Treatment"
+        ]
+      }
+    }
+  ],
+  "results": {
+    "Column 2: Reporting by prognostic groups - Y/N | Metachronous": {
+      "value": "N",
+      "reasoning": "The document mentions stratification by high/low volume of metastatic disease, but not by synchronous or metachronous metastases.",
+      "found": true,
+      "attribution": [
+        {
+          "page": 2,
+          "modality": "text"
+        },
+        {
+          "page": 4,
+          "modality": "text"
+        },
+        {
+          "page": 6,
+          "modality": "text"
+        }
+      ]
+    },
+    "Column 7: Adverse Events - N (%) | Treatment-related Grade 3 or Higher | Treatment": {
+      "value": "115 (29.6%)",
+      "reasoning": "Table 3 is titled \"Adverse Events of Grade 3 or Higher among the 390 Patients Who Received the Docetaxel-Containing Regimen\". The footnote states \"Toxic effects in the group that received ADT plus docetaxel were captured at this frequency to ascertain the adverse-event profile of chemotherapy.\" This indicates these are treatment-related. Summing \"Any event\" for Grade 3 (65), Grade 4 (49), and Grade 5 (1) gives 115 patients, and summing percentages (16.7 + 12.6 + 0.3) gives 29.6%.",
+      "found": true,
+      "attribution": [
+        {
+          "page": 8,
+          "modality": "table"
+        }
+      ]
+    },
+    "Column 1: Reporting by prognostic groups - Y/N | Synchronous": {
+      "value": "N",
+      "reasoning": "The document mentions stratification by high/low volume of metastatic disease, but not by synchronous or metachronous metastases.",
+      "found": true,
+      "attribution": [
+        {
+          "page": 2,
+          "modality": "text"
+        },
+        {
+          "page": 4,
+          "modality": "text"
+        },
+        {
+          "page": 6,
+          "modality": "text"
+        }
+      ]
+    },
+    "Column 10: Adverse Events - N (%) | Treatment-related Grade 5 | Control": {
+      "value": "Not reported",
+      "reasoning": "Table 3 only reports adverse events for the docetaxel-containing regimen. The text states \"The adverse-event profile of ADT was assumed to be common to the two groups,\" implying specific data for the control arm is not provided.",
+      "found": false,
+      "attribution": []
+    },
+    "Column 9: Adverse Events - N (%) | Treatment-related Grade 5 | Treatment": {
+      "value": "1 (0.3%)",
+      "reasoning": "From Table 3 on page 8, \"Any event\" for Grade 5 is 1 (0.3%). The table is for the docetaxel-containing regimen and focuses on toxic effects of chemotherapy.",
+      "found": true,
+      "attribution": [
+        {
+          "page": 8,
+          "modality": "table"
+        }
+      ]
+    },
+    "Column 6: Adverse Events - N (%) | All-Cause Grade 3 or Higher | Control": {
+      "value": "Not reported",
+      "reasoning": "Table 3 only reports adverse events for the docetaxel-containing regimen. The text states \"The adverse-event profile of ADT was assumed to be common to the two groups,\" implying specific data for the control arm is not provided.",
+      "found": false,
+      "attribution": []
+    },
+    "Column 8: Adverse Events - N (%) | Treatment-related Grade 3 or Higher | Control": {
+      "value": "Not reported",
+      "reasoning": "Table 3 only reports adverse events for the docetaxel-containing regimen. The text states \"The adverse-event profile of ADT was assumed to be common to the two groups,\" implying specific data for the control arm is not provided.",
+      "found": false,
+      "attribution": []
+    },
+    "Column 4: Reporting by prognostic groups - Y/N | Low volume": {
+      "value": "Y",
+      "reasoning": "Page 2 states \"stratification was performed prospectively according to high or low burden of metastatic disease.\"",
+      "found": true,
+      "attribution": [
+        {
+          "page": 2,
+          "modality": "text"
+        }
+      ]
+    },
+    "Column 3: Reporting by prognostic groups - Y/N | High volume": {
+      "value": "Y",
+      "reasoning": "Page 2 states \"stratification was performed prospectively according to high or low burden of metastatic disease.\"",
+      "found": true,
+      "attribution": [
+        {
+          "page": 2,
+          "modality": "text"
+        }
+      ]
+    },
+    "Column 5: Adverse Events - N (%) | All-Cause Grade 3 or Higher | Treatment": {
+      "value": "115 (29.6%)",
+      "reasoning": "From Table 3 on page 8, \"Any event\" for Grade 3 is 65 (16.7%), Grade 4 is 49 (12.6%), and Grade 5 is 1 (0.3%). Summing these gives 115 (29.6%). The table is titled \"Adverse Events of Grade 3 or Higher\".",
+      "found": true,
+      "attribution": [
+        {
+          "page": 8,
+          "modality": "table"
+        }
+      ]
+    },
+    "Reporting by prognostic groups - Y/N | Synchronous": {
+      "value": "Not reported",
+      "reasoning": "Not extracted",
+      "found": false,
+      "attribution": []
+    },
+    "Reporting by prognostic groups - Y/N | Metachronous": {
+      "value": "Not reported",
+      "reasoning": "Not extracted",
+      "found": false,
+      "attribution": []
+    },
+    "Reporting by prognostic groups - Y/N | High volume": {
+      "value": "Not reported",
+      "reasoning": "Not extracted",
+      "found": false,
+      "attribution": []
+    },
+    "Reporting by prognostic groups - Y/N | Low volume": {
+      "value": "Not reported",
+      "reasoning": "Not extracted",
+      "found": false,
+      "attribution": []
+    },
+    "Adverse Events - N (%) | All-Cause Grade 3 or Higher | Treatment": {
+      "value": "Not reported",
+      "reasoning": "Not extracted",
+      "found": false,
+      "attribution": []
+    },
+    "Adverse Events - N (%) | All-Cause Grade 3 or Higher | Control": {
+      "value": "Not reported",
+      "reasoning": "Not extracted",
+      "found": false,
+      "attribution": []
+    },
+    "Adverse Events - N (%) | Treatment-related Grade 3 or Higher | Treatment": {
+      "value": "Not reported",
+      "reasoning": "Not extracted",
+      "found": false,
+      "attribution": []
+    },
+    "Adverse Events - N (%) | Treatment-related Grade 3 or Higher | Control": {
+      "value": "Not reported",
+      "reasoning": "Not extracted",
+      "found": false,
+      "attribution": []
+    },
+    "Adverse Events - N (%) | Treatment-related Grade 5 | Treatment": {
+      "value": "Not reported",
+      "reasoning": "Not extracted",
+      "found": false,
+      "attribution": []
+    },
+    "Adverse Events - N (%) | Treatment-related Grade 5 | Control": {
+      "value": "Not reported",
+      "reasoning": "Not extracted",
+      "found": false,
+      "attribution": []
+    }
+  }
+}

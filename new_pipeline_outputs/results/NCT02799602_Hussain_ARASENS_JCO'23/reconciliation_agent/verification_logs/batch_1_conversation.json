@@ -1,0 +1,351 @@
+{
+  "doc_id": "NCT02799602_Hussain_ARASENS_JCO'23",
+  "tool_calls_sequence": [
+    {
+      "name": "submit_verification",
+      "args": {
+        "results_keys": [
+          "TTPSA (mo) | Control",
+          "Docetaxel administration - N (%) | Treatment",
+          "Type of Therapy",
+          "Trial",
+          "No. of Deaths - N | Treatment",
+          "Treatment Class",
+          "No. of Deaths - N | Control",
+          "TTPSA (mo) | Treatment",
+          "Median Age (years) | Control",
+          "Median Age (years) | Treatment"
+        ]
+      }
+    },
+    {
+      "name": "get_page",
+      "args": {
+        "page_numbers": [
+          1,
+          3,
+          8,
+          11
+        ]
+      }
+    },
+    {
+      "name": "submit_verification",
+      "args": {
+        "results_keys": [
+          "Median On-Treatment Duration (mo) | Treatment",
+          "PFS Rate (%) | Overall | Treatment",
+          "PFS Rate (%) | Overall | Control",
+          "Docetaxel administration - N (%) | Control",
+          "Median On-Treatment Duration (mo) | Control"
+        ]
+      }
+    }
+  ],
+  "conversation": [
+    {
+      "turn": 0,
+      "role": "user",
+      "content": "Reconcile the following columns. Document has 18 pages. Sources are anonymous (A and B).\n\nCOLUMNS:\n\n---\nColumn 1: Treatment Class\nDefinition: What is the categorization or classification of the treatment or therapy received by participants in the clinical trial?. If reported, provide the value; otherwise use 'Not reported'.\n  A: value=\"androgen receptor pathway inhibitor\" | page=1 | modality=text | reasoning=\"The abstract mentions 'androgen receptor pathway inhibitor' as the class for darolutamide.\"\n  B: value=\"Androgen receptor pathway inhibitor, Androgen-deprivation therapy, Chemotherapy\" | page=1 | modality=text | reasoning=\"The trial investigates a combination of darolutamide (an androgen receptor pathway inhibitor), androgen-deprivation therapy (ADT), and docetaxel (chemotherapy).\"\n\n---\nColumn 2: Trial\nDefinition: What name of the clinical study or experiment being referenced?. If reported, provide the value; otherwise use 'Not reported'.\n  A: value=\"ARASENS Trial\" | page=1 | modality=text | reasoning=\"The title of the paper explicitly states 'ARASENS Trial'.\"\n  B: value=\"ARASENS\" | page=1 | modality=text | reasoning=\"The title of the paper and multiple mentions throughout the text refer to the 'ARASENS Trial'.\"\n\n---\nColumn 3: Type of Therapy\nDefinition: What is the description of the type of treatment or intervention provided to participants in the clinical trial?. If reported, provide the value; otherwise use 'Not reported'.\n  A: value=\"treatment intensification with darolutamide, androgen-deprivation therapy, and docetaxel\" | page=1 | modality=text | reasoning=\"The abstract describes the treatment as 'treatment intensification with darolutamide, androgen-deprivation therapy, and docetaxel'.\"\n  B: value=\"Combination of darolutamide, androgen-deprivation therapy (ADT), and docetaxel\" | page=1 | modality=text | reasoning=\"The study investigates a triplet therapy combining darolutamide, ADT, and docetaxel.\"\n\n---\nColumn 4: Docetaxel administration - N (%) | Treatment\nDefinition: What percentage of participants in the treatment arm of the clinical trial who received docetaxel before or during the trial? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.\n  A: value=\"651 (100%)\" | page=1 | modality=text | reasoning=\"The abstract states that patients were 'randomly assigned to darolutamide or placebo plus androgen-deprivation therapy and docetaxel', implying all patients in both arms received docetaxel. Figure 1 shows 'Received allocated treatment (n = 651)' for the Darolutamide arm and 'Analyzed for primary end\"\n  B: value=\"651 (100%)\" | page=3 | modality=figure | reasoning=\"The CONSORT flow diagram on page 3 shows that 651 patients were assigned to the Darolutamide + docetaxel + ADT arm and received allocated treatment.\"\n\n---\nColumn 5: Docetaxel administration - N (%) | Control\nDefinition: What number and percentage of participants who received docetaxel before or during the trial in the control arm of the clinical trial? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.\n  A: value=\"654 (100%)\" | page=1 | modality=text | reasoning=\"The abstract states that patients were 'randomly assigned to darolutamide or placebo plus androgen-deprivation therapy and docetaxel', implying all patients in both arms received docetaxel. Figure 1 shows 'Analyzed for primary end point (n = 654c)' for the Placebo arm.\"\n  B: value=\"651 (100%)\" | page=3 | modality=figure | reasoning=\"The CONSORT flow diagram on page 3 shows that 655 patients were assigned to the Placebo + docetaxel + ADT arm, and 651 received allocated treatment.\"\n\n---\nColumn 6: Median Age (years) | Treatment\nDefinition: What median age in years of participants included in the treatment arm of the clinical trial? If reported, include the value; use 'Not reported' if missing.\n  A: value=\"67.0 (41-89)\" | page=5 | modality=table | reasoning=\"Table 1, 'All Patients (N = 1,305)' row, 'Darolutamide (n = 651)' column, 'Age, median, years (range)' is '67.0 (41-89)'.\"\n  B: value=\"67.0\" | page=5 | modality=table | reasoning=\"Table 1 on page 5, under 'All Patients', 'Darolutamide' column, reports the median age as 67.0 years.\"\n\n---\nColumn 7: Median Age (years) | Control\nDefinition: What the median age of participants included in the control arm of the clinical trial? If reported, include the value; use 'Not reported' if missing.\n  A: value=\"67.0 (42-85)\" | page=5 | modality=table | reasoning=\"Table 1, 'All Patients (N = 1,305)' row, 'Placebo (n = 654)' column, 'Age, median, years (range)' is '67.0 (42-85)'.\"\n  B: value=\"67.0\" | page=5 | modality=table | reasoning=\"Table 1 on page 5, under 'All Patients', 'Placebo' column, reports the median age as 67.0 years.\"\n\n---\nColumn 8: Median On-Treatment Duration (mo) | Treatment\nDefinition: What is the median duration in months that participants in the treatment arm of the trial received on-treatment therapy? If reported, include the value; use 'Not reported' if missing.\n  A: value=\"41 months\" | page=11 | modality=text | reasoning=\"Page 11, 'median treatment duration in ARASENS was 41 months for darolutamide plus ADT and docetaxel'.\"\n  B: value=\"Not reported\" | page=None | modality=text | reasoning=\"Information on median on-treatment duration for the treatment arm was not found in the provided document chunks or through targeted searches.\"\n\n---\nColumn 9: Median On-Treatment Duration (mo) | Control\nDefinition: What is the median duration in months of participants receiving treatment in the control arm of the clinical trial? If reported, include the value; use 'Not reported' if missing.\n  A: value=\"34.1 months\" | page=11 | modality=text | reasoning=\"Page 11, 'median treatment duration in ARASENS was 41 months for darolutamide plus ADT and docetaxel versus 34.1 months'.\"\n  B: value=\"Not reported\" | page=None | modality=text | reasoning=\"Information on median on-treatment duration for the control arm was not found in the provided document chunks or through targeted searches.\"\n\n---\nColumn 10: No. of Deaths - N | Treatment\nDefinition: What the number of participants who died in the treatment arm of the clinical trial?.\n  A: value=\"229\" | page=3 | modality=figure | reasoning=\"Figure 1 caption states: 'OS was assessed after 533 patients had died (229 in the darolutamide group and 304 in the placebo group)'.\"\n  B: value=\"229\" | page=3 | modality=figure | reasoning=\"Footnote c of the CONSORT flow diagram on page 3 states that 229 patients died in the darolutamide group.\"\n\n---\nColumn 11: No. of Deaths - N | Control\nDefinition: What number of deaths that occurred in the control arm of the clinical trial?.\n  A: value=\"304\" | page=3 | modality=figure | reasoning=\"Figure 1 caption states: 'OS was assessed after 533 patients had died (229 in the darolutamide group and 304 in the placebo group)'.\"\n  B: value=\"304\" | page=3 | modality=figure | reasoning=\"Footnote c of the CONSORT flow diagram on page 3 states that 304 patients died in the placebo group.\"\n\n---\nColumn 12: PFS Rate (%) | Overall | Treatment\nDefinition: What the hazard ratio with confidence intervals of progression-free survival (PFS) of all comparisons in all participants, regardless of metastasis type or volume, in the treatment arm of the trial? If reported, include the rate (percentage) and any accompanying details. If multiple arms are reported, list each arm separately. Use 'Not reported' if missing.\n  A: value=\"HR: 0.36 (95% CI, 0.30 to 0.42)\" | page=8 | modality=table | reasoning=\"The definition asks for the hazard ratio with confidence intervals for PFS. Table 2, 'All Patients' column, 'Time to CRPC' row (a proxy for PFS), reports 'HR (95% CI)' as '0.36 (0.30 to 0.42)'. A specific PFS rate (%) for the overall population is not provided.\"\n  B: value=\"Not reported\" | page=None | modality=text | reasoning=\"Information on progression-free survival rate for the overall treatment arm was not found in the provided document chunks or through targeted searches.\"\n\n---\nColumn 13: PFS Rate (%) | Overall | Control\nDefinition: What hazard ratio with confidence intervals of Progression-Free Survival (PFS) of all comparisons in all participants in the control arm of the trial? If reported, include the rate (percentage) and any accompanying details. If multiple arms are reported, list each arm separately. Use 'Not reported' if missing.\n  A: value=\"HR: 0.36 (95% CI, 0.30 to 0.42)\" | page=8 | modality=table | reasoning=\"The definition asks for the hazard ratio with confidence intervals for PFS. Table 2, 'All Patients' column, 'Time to CRPC' row (a proxy for PFS), reports 'HR (95% CI)' as '0.36 (0.30 to 0.42)'. This hazard ratio is a comparative measure between the treatment and control arms. A specific PFS rate (%)\"\n  B: value=\"Not reported\" | page=None | modality=text | reasoning=\"Information on progression-free survival rate for the overall control arm was not found in the provided document chunks or through targeted searches.\"\n\n---\nColumn 14: TTPSA (mo) | Treatment\nDefinition: What time To Progression of Serum Androgen (in months) in the treatment arm of the clinical trial? If reported, include the value; use 'Not reported' if missing.\n  A: value=\"Not reported\" | page=None | modality=text | reasoning=\"The document reports 'Time to CRPC' (castration-resistant prostate cancer) which is related to PSA progression, but not specifically 'Time To Progression of Serum Androgen (TTPSA)'. For the treatment arm, the median time to CRPC was 'NR' (Not Reached), which is not a specific numerical value for TTP\"\n  B: value=\"Not reported\" | page=None | modality=text | reasoning=\"Information on time to progression of serum androgen (TTPSA) for the treatment arm was not found in the provided document chunks or through targeted searches.\"\n\n---\nColumn 15: TTPSA (mo) | Control\nDefinition: What time to Progressive Serum Androgen (TTPSA) in months for participants in the control arm of the clinical trial? If reported, include the value; use 'Not reported' if missing.\n  A: value=\"Not reported\" | page=None | modality=text | reasoning=\"The document reports 'Time to CRPC' (castration-resistant prostate cancer) which is related to PSA progression, but not specifically 'Time To Progression of Serum Androgen (TTPSA)'. For the control arm, the median time to CRPC was 19.1 months, but this is for CRPC, not explicitly TTPSA.\"\n  B: value=\"Not reported\" | page=None | modality=text | reasoning=\"Information on time to progression of serum androgen (TTPSA) for the control arm was not found in the provided document chunks or through targeted searches.\"\n\n\nSubmit verification for easy columns first. For disputed columns, use get_page then submit."
+    },
+    {
+      "turn": 2,
+      "role": "tool",
+      "name": "submit_verification",
+      "args": {
+        "results_keys": [
+          "TTPSA (mo) | Control",
+          "Docetaxel administration - N (%) | Treatment",
+          "Type of Therapy",
+          "Trial",
+          "No. of Deaths - N | Treatment",
+          "Treatment Class",
+          "No. of Deaths - N | Control",
+          "TTPSA (mo) | Treatment",
+          "Median Age (years) | Control",
+          "Median Age (years) | Treatment"
+        ]
+      },
+      "response": {
+        "submitted": [
+          "TTPSA (mo) | Control",
+          "Docetaxel administration - N (%) | Treatment",
+          "Type of Therapy",
+          "Trial",
+          "No. of Deaths - N | Treatment",
+          "Treatment Class",
+          "No. of Deaths - N | Control",
+          "TTPSA (mo) | Treatment",
+          "Median Age (years) | Control",
+          "Median Age (years) | Treatment"
+        ]
+      }
+    },
+    {
+      "turn": 3,
+      "role": "tool",
+      "name": "get_page",
+      "args": {
+        "page_numbers": [
+          1,
+          3,
+          8,
+          11
+        ]
+      },
+      "response": {
+        "formatted_chunks": "[Page 1]\n## Page 1\n\n<::logo: [Unknown] Check for updates A grey button with a colorful circular icon featuring a red banner and yellow arrow.::>\n\n\n\noriginal reports\n\nDarolutamide Plus Androgen-Deprivation\nTherapy and Docetaxel in Metastatic\nHormone-Sensitive Prostate Cancer by Disease\nVolume and Risk Subgroups in the Phase III\nARASENS Trial\n\n\n\nMaha Hussain, MD\u00b9; Bertrand Tombal, MD, PhD\u00b2; Fred Saad, MD\u00b3; Karim Fizazi, MD, PhD\u2074; Cora N. Sternberg, MD\u2075;\nE. David Crawford, MD\u2076; Neal Shore, MD\u2077; Evgeny Kopyltsov, MD\u2078; Arash Rezazadeh Kalebasty, MD\u2079; Martin B\u00f6gemann, MD\u00b9\u2070;\nDingwei Ye, MD\u00b9\u00b9; Felipe Cruz, MD, PhD\u00b9\u00b2; Hiroyoshi Suzuki, MD, PhD\u00b9\u00b3; Shivani Kapur, MD\u00b9\u2074; Shankar Srinivasan, PhD\u00b9\u2075;\nFrank Verholen, MD\u00b9\u2076; Iris Kuss, MD\u00b9\u2077; Heikki Joensuu, MD\u00b9\u2078; and Matthew R. Smith, MD, PhD\u00b9\u2079\n\n\n\nPURPOSE For patients with metastatic hormone-sensitive prostate cancer, metastatic burden affects outcome.\nWe examined efficacy and safety from the ARASENS trial for subgroups by disease volume and risk.\n\nabs1\n\n\n\ntract\nMETHODS Patients with metastatic hormone-sensitive prostate cancer were randomly assigned to darolutamide or placebo plus androgen-deprivation therapy and docetaxel. High-volume disease was defined as visceral metastases and/or \u2265 4 bone metastases with \u2265 1 beyond the vertebral column/pelvis. High-risk disease was defined as \u2265 2 risk factors: Gleason score \u2265 8, \u2265 3 bone lesions, and presence of measurable visceral metastases.\n\n\n\n## RESULTS\nOf 1,305 patients, 1,005 (77%) had high-volume disease and 912 (70%) had high-risk disease. Darolutamide increased overall survival (OS) versus placebo in patients with high-volume (hazard ratio [HR], 0.69; 95% CI, 0.57 to 0.82), high-risk (HR, 0.71; 95% CI, 0.58 to 0.86), and low-risk disease (HR, 0.62; 95% CI, 0.42 to 0.90), and in the smaller low-volume subgroup, the results were also suggestive of survival benefit (HR, 0.68; 95% CI, 0.41 to 1.13). Darolutamide improved clinically relevant secondary end points of time to castration-resistant prostate cancer and subsequent systemic antineoplastic therapy versus placebo in all disease volume and risk subgroups. Adverse events (AEs) were similar between treatment groups across subgroups. Grade 3 or 4 AEs occurred in 64.9% of darolutamide patients versus 64.2% of placebo patients in the high-volume subgroup and 70.1% versus 61.1% in the low-volume subgroup. Among the most common AEs, many were known toxicities related to docetaxel.\n\n\n\n**CONCLUSION** In patients with high-volume and high-risk/low-risk metastatic hormone-sensitive prostate cancer, treatment intensification with darolutamide, androgen-deprivation therapy, and docetaxel increased OS with a similar AE profile in the subgroups, consistent with the overall population.\n\n\n\nJ Clin Oncol 00. \u00a9 2023 by American Society of Clinical Oncology\n\n\n\n## INTRODUCTION\nIn patients with metastatic hormone-sensitive prostate cancer, early treatment intensification with a combination of androgen-deprivation therapy (ADT) plus either docetaxel or an androgen receptor pathway inhibitor improved survival versus ADT alone in several randomized controlled trials.<sup>1-6</sup> The combination of ADT, docetaxel, and an androgen receptor pathway inhibitor was evaluated in several phase III trials (PEACE-1, ENZAMET, and ARASENS) with varying results.<sup>7-9</sup> PEACE-1 was a randomized, open-label trial using a 2 \u00d7 2 factorial design that was conducted in patients with de novo metastatic hormone-sensitive prostate cancer.<sup>8</sup> In a preplanned analysis of patients who received docetaxel, longer survival was observed with abiraterone in combination\n\n\n\nwith ADT and docetaxel versus ADT and docetaxel\nalone (hazard ratio [HR], 0.75; 95% CI, 0.59 to 0.95).\u2078\nThe ENZAMET trial allowed for early administration of\ndocetaxel with enzalutamide.\u2077 Among patients who\nreceived docetaxel, the effect of enzalutamide on overall\nsurvival (OS) appeared to be smaller (HR, 0.82; 95% CI,\n0.63 to 1.06) than that observed for all patients (HR,\n0.70; 95% CI, 0.58 to 0.84).\u00b9\u2070 In ARASENS, patients\nwith metastatic hormone-sensitive prostate cancer were\nrandomly assigned to double-blind treatment with either\ndarolutamide or placebo, in combination with ADT and\ndocetaxel. The darolutamide group had a significant\nreduction in the risk of death by 32.5% (HR, 0.68; 95%\nCI, 0.57 to 0.80; P < .0001) compared with the placebo\ngroup.\u2079\n\n\n\nASSOCIATED\nCONTENT\nAppendix\n\n\n\n## Protocol\nAuthor affiliations\nand support\ninformation (if\napplicable) appear\nat the end of this\narticle.\n\n\n\nAccepted on January\n19, 2023 and\npublished at\nascopubs.org/journal/\njco on February 16,\n2023: DOI https://doi.\norg/10.1200/JC0.23.\n00041\n\n\n\nASCO\u00ae\n\n\n\nJournal of Clinical Oncology\u00ae\n\n\n\n1\n\n\n\nDownloaded from ascopubs.org by Mayo Foundation--Rochester on June 12, 2023 from 129.176.151.029\nCopyright \u0016 2023 American Society of Clinical Oncology. All rights reserved.\n\n---\n\n[Page 3]\n## Page 3\n\nDarolutamide, ADT, and Docetaxel in mHSPC Volume/Risk Subgroups\n\n\n\nrespective high-volume and high-risk criteria. High-volume/\nhigh-risk groups further included patients with diffusely in-\ncreased skeletal metastases with superscan. 17\n\n\n\n## Study Assessments\nOS was the primary end point. Secondary efficacy end points included time to castration-resistant prostate cancer, time to pain progression on the basis of the Brief Pain Inventory Short-Form questionnaire, symptomatic skeletal event-free survival, time to first symptomatic-skeletal event, time to initiation of subsequent systemic antineoplastic therapy, time to worsening of disease-related physical symptoms as measured by the Functional Assessment of Cancer Therapy\u2013Prostate (National Comprehensive Cancer Network) symptom index 17-item questionnaire, and time to initiation of opioid use for 7 or more days. Safety was assessed by AEs, which were graded using the National Cancer\n\n\n\nInstitute Common Terminology Criteria for Adverse Events,\nversion 4.03.\n\n\n\n## Statistical Analysis\nThis subgroup analysis used Kaplan-Meier estimates to determine medians and 95% CIs. Treatment groups were compared by HRs and associated 95% CIs on the basis of an unstratified Cox regression model. The Cox models used HR estimation on the basis of fitting separate models for each volume/risk subgroup (four models overall). AEs were summarized by treatment group for the subgroups of patients by disease volume and disease risk.\n\n\n\n## RESULTS\n\n### Patient Characteristics\n\nAs previously reported, a total of 1,306 patients were randomly assigned, and 1,305 patients were included in\n\n\n\n<::Patients screened (N = 1,686)\n\nNot eligible (n = 380)\nScreen failure\u1d43 (n = 309)\nWithdrawal by patient (n = 43)\nAE (n = 4)\nPhysician's decision (n = 2)\nOther (n = 22)\n\nPatients randomly assigned (N = 1,306)\n\nDarolutamide + docetaxel + ADT (n = 651)\nReceived allocated treatment (n = 651)\nDid not receive allocated treatment (n = 0)\n\nPlacebo + docetaxel + ADT (n = 655)\nExcluded for GCP violation (n = 1)\nReceived allocated treatment (n = 651)\nDid not receive allocated treatment\nWithdrawal by patient (n = 2)\nPhysician's decision (n = 1)\n\nDiscontinued (n = 352)\nPrimary reason for discontinuation\nDisease progression, clinical (n = 127)\nDisease progression, radiological (n = 84)\nAE (n = 72)\nDeath (n = 8)\nWithdrawal by patient (n = 25)\nPhysician's decision (n = 3)\nOther\u1d47 (n = 33)\n\nDiscontinued (n = 526)\nPrimary reason for discontinuation\nDisease progression, clinical (n = 272)\nDisease progression, radiological (n = 132)\nAE (n = 53)\nDeath (n = 5)\nWithdrawal by patient (n = 35)\nPhysician's decision (n = 6)\nOther\u1d47 (n = 23)\n\nAnalyzed for primary end point (n = 651\u1d9c)\nAnalyzed for safety (n = 652\u1d48)\n\nAnalyzed for primary end point (n = 654\u1d9c)\nAnalyzed for safety (n = 650\u1d48)\n: flowchart::>\n\n\n\nFIG 1. CONSORT flow diagram. \u00aaPatient had signed informed consent but did not meet inclusion/exclusion criteria.\nbOther includes noncompliance, additional primary malignancy, lost to follow-up, protocol violation, and other. cThe\nprimary end point (OS) was assessed after 533 patients had died (229 in the darolutamide group and 304 in the placebo\ngroup). Most deaths were related to disease progression (415 of 533 [77.9%] in the overall population, 172 of 229\n[75.1%] in the darolutamide group, and 243 of 304 [79.9%] in the placebo group). dOne patient was randomly assigned\nin the placebo arm but received darolutamide. The patient was included in the darolutamide arm for the safety analysis\nand the placebo arm for the full analysis set. AE, adverse event; ADT, androgen-deprivation therapy; GCP, good clinical\npractice; HR, hazard ratio; OS, overall survival. From N Engl J Med, Smith MR, Hussain M, Saad F, et al, Darolutamide\nand Survival in Metastatic, Hormone-Sensitive Prostate Cancer, 386(12), 1132-1142,9 Copyright \u00a9 2022, Massa-\nchusetts Medical Society. Reprinted with permission from Massachusetts Medical Society.\n\n\n\nJournal of Clinical Oncology\n\n\n\n3\n\n\n\nDownloaded from ascopubs.org by Mayo Foundation--Rochester on June 12, 2023 from 129.176.151.029\nCopyright \u00a9 2023 American Society of Clinical Oncology. All rights reserved.\n\n---\n\n[Page 8]\n## Page 8\n\nTABLE 2. Secondary Efficacy End Points for the Subgroups of Patients by Disease Volume and Disease Risk in ARASENS\n|  |  |  |  |  |  |  |  |  |  |  |\n| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |\n|  | High Volume\u00aa | High Volume\u00aa | Low Volume\u00aa | Low Volume\u00aa | High Risk\" | High Risk\" | Low Risk\" | Low Risk\" | All Patients\u2079 (N = 1,305) |  |\n| End Point, Median Months | Darolutamide (n = 497) | Placebo (n = 508) | Darolutamide (n = 154) | Placebo (n = 146) | Darolutamide (n = 452) | Placebo (n = 460) | Darolutamide (n = 199) | Placebo (n = 194) | Darolutamide (n = 651) | Placebo (n = 654) |\n| Time to CRPC | NR | 16.4 | NR | 25.8 | NR | 16.1 | NR | 25.1 | NR | 19.1 |\n| No. (%) | 198 (40) | 315 (62) | 27 (18) | 76 (52) | 175 (39) | 289 (63) | 50 (25) | 102 (53) | 225 (35) | 391 (60) |\n| HR (95% CI) | 0.41 (0.34 to 0.49) |  | 0.21 (0.14 to 0.33) |  | 0.38 (0.32 to 0.46) |  | 0.32 (0.23 to 0.45) |  | 0.36 (0.30 to 0.42) |  |\n| Time to pain progression | NR | 24.4 | 46.1 | 39.5 | 35.4 | 25.0 | NR | 28.8 | NR | 27.5 |\n| No. (%) | 161 (32) | 192 (38) | 61 (40) | 56 (38) | 155 (34) | 173 (38) | 67 (34) | 75 (39) | 222 (34) | 248 (38) |\n| HR (95% CI) | 0.75 (0.61 to 0.93) |  | 0.94 (0.66 to 1.36) |  | 0.81 (0.65 to 1.01) |  | 0.76 (0.55 to 1.06) |  | 0.79 (0.66 to 0.95) |  |\n| SSE-free survival | 46.1 | 35.7 | NR | NR | 47.1 | 35.8 | NR | 46.7 | 51.2 | 39.7 |\n| No. (%) | 225 (45) | 287 (57) | 32 (21) | 42 (29) | 205 (45) | 257 (56) | 52 (26) | 72 (37) | 257 (40) | 329 (50) |\n| HR (95% CI) | 0.63 (0.53 to 0.75) |  | 0.61 (0.38 to 0.96) |  | 0.65 (0.54 to 0.78) |  | 0.55 (0.39 to 0.79) |  | 0.61 (0.52 to 0.72) |  |\n| Time to first SSE | NR | NR | NR | NR | NR | NR | NR | NR | NR | NR |\n| No. (%) | 82 (17) | 96 (19) | 13 (8) | 12 (8) | 78 (17) | 79 (17) | 17 (9) | 29 (15) | 95 (15) | 108 (17) |\n| HR (95% CI) | 0.71 (0.53 to 0.96) |  | 0.89 (0.40 to 1.95) |  | 0.84 (0.61 to 1.15) |  | 0.46 (0.25 to 0.84) |  | 0.71 (0.54 to 0.94) |  |\n| Time to subsequent antineoplastic therapy | NR | 22.7 | NR | 42.5 | NR | 21.3 | NR | 39.0 | NR | 25.3 |\n| No. (%) | 187 (38) | 324 (64) | 32 (21) | 71 (49) | 173 (38) | 299 (65) | 46 (23) | 96 (49) | 219 (34) | 395 (60) |\n| HR (95% CI) | 0.40 (0.34 to 0.49) |  | 0.34 (0.22 to 0.52) |  | 0.40 (0.33 to 0.48) |  | 0.36 (0.26 to 0.52) |  | 0.39 (0.33 to 0.46) |  |\n| Time to worsening disease- related symptoms | 22.0 | 22.1 | 11.1 | 11.2 | 19.3 | 16.7 | 19.4 | 24.6 | 19.3 | 19.4 |\n| No. (%) | 259 (52) | 229 (45) | 92 (60) | 79 (54) | 241 (53) | 217 (47) | 110 (55) | 91 (47) | 351 (54) | 308 (47) |\n| HR (95% CI) | 1.05 (0.88 to 1.25) |  | 1.04 (0.77 to 1.40) |  | 1.01 (0.84 to 1.22) |  | 1.13 (0.86 to 1.50) |  | 1.04 (0.89 to 1.22) |  |\n| Time to opioid use \u2265 7 days | NR | NR | NR | NR | NR | NR | NR | NR | NR | NR |\n| No. (%) | 74 (15) | 106 (21) | 18 (12) | 11 (8) | 68 (15) | 94 (20) | 24 (12) | 23 (12) | 92 (14) | 117 (18) |\n| HR (95% CI) | 0.63 (0.47 to 0.85) |  | 1.46 (0.69 to 3.10) |  | 0.66 (0.48 to 0.90) |  | 0.94 (0.53 to 1.66) |  | 0.69 (0.52 to 0.91) |  |\n\n\n\nAbbreviations: CRPC, castration-resistant prostate cancer; mo, months; HR, hazard ratio; NR, not reached; SSE, symptomatic skeletal event.\n\n\u00aaDisease volume defined by CHAARTED criteria: presence of visceral metastases or \u2265 4 bone metastases with \u2265 1 beyond vertebral bodies and pelvis (Sweeney et al).\u00b9\n\n\u1d47Disease risk defined by LATITUDE criteria (two of the following three factors): Gleason score of \u2265 8, the presence of \u2265 3 bone lesions, or the presence of measurable visceral metastasis (Fizazi et al).\u00b2\n\n\u1d9cNo. of patients with an event.\n\n\n\nDownloaded from ascopubs.org by Mayo Foundation--Rochester on June 12, 2023 from 129.176.151.029\nCopyright \u00a9 2023 American Society of Clinical Oncology. All rights reserved.\n\n\n\nHussain et al\n\n\n\n8\n\u00a9 2023 by American Society of Clinical Oncology\n\n---\n\n[Page 11]\n## Page 11\n\nDarolutamide, ADT, and Docetaxel in mHSPC Volume/Risk Subgroups\n\n\n\nmedian treatment duration in ARASENS was 41 months\nfor darolutamide plus ADT and docetaxel versus 34.1 months\nin the docetaxel subgroup of the abiraterone group in\nPEACE-1 and not reported for the docetaxel subgroup in\nENZAMET.\n\n\n\nARASENS was designed before results were reported for the\nLATITUDE trial, which showed an OS benefit with androgen\nreceptor pathway inhibitors, and before the long-term sur-\nvival analysis of the CHAARTED trial. 15 The standard of care\nfor patients with metastatic hormone-sensitive prostate\ncancer was ADT and docetaxel when ARASENS was\ndesigned. In the 2015 CHAARTED trial publication, the HR\nfor OS in the low-volume subgroup was 0.60, with clear\nseparation of the survival curves, and the authors concluded\nthat docetaxel benefit was observed in all subgroups ana-\nlyzed. 1 In the STAMPEDE trial, the survival effect of docetaxel\nwas consistent for patients with low-volume (HR, 0.76; 95%\nCI, 0.54 to 1.07) and high-volume (HR, 0.81; 95% CI, 0.64 to\n1.02) disease. 20 Consequently, the multinational ARASENS\nstudy was designed to stratify patients on the basis of the\nTNM staging system and alkaline phosphatase levels.\nHowever, the case report form collected all necessary in-\nformation to conduct analyses by disease volume and risk\npost hoc to determine which patients would benefit from\ntriple combination therapy. The high-volume and high-risk\nsubgroups had two- to three-fold more patients than the\nrespective low-volume and low-risk subgroups, and, there-\nfore, for some subgroup analyses the number of events was\nsmall. Moreover, the majority of patients in ARASENS had de\nnovo disease; thus, the volume and risk subgroups of pa-\ntients with recurrent disease have insufficient power to draw\ndefinitive conclusions. Notably, the later separation in the\nsurvival curves in the low-volume subgroup is expected as\nthese patients had better prognosis, with lower prostate-\n\n\n\nAFFILIATIONS\n\n\u00b9Robert H. Lurie Comprehensive Cancer Center, Northwestern University,\nFeinberg School of Medicine, Chicago, IL\n\u00b2Division of Urology, IREC, Cliniques Universitaires Saint Luc,\nUCLouvain, Brussels, Belgium\n\u00b3Centre Hospitalier de l'Universit\u00e9 de Montr\u00e9al, University of Montreal,\nMontreal, Quebec, Canada\n\u2074Institut Gustave Roussy, University of Paris-Saclay, Villejuif, France\n\u2075Englander Institute for Precision Medicine, Weill Cornell Department of\nMedicine, Meyer Cancer Center, New York-Presbyterian Hospital, New\nYork, NY\n\u2076UC San Diego School of Medicine, San Diego, CA\n\u2077Carolina Urologic Research Center/Genesis Care, Myrtle Beach, SC\n\u2078Clinical Oncological Dispensary of Omsk Region, Omsk, Russian\nFederation\n\u2079University of California Irvine, Division of Hematology/Oncology, Orange,\nCA\n\u00b9\u2070Department of Urology, M\u00fcnster University Medical Center, M\u00fcnster,\nGermany\n\u00b9\u00b9Fudan University Shanghai Cancer Center, Xuhui District, Shanghai,\nChina\n\u00b9\u00b2N\u00facleo de Pesquisa e Ensino da Rede S\u00e3o Camilo, S\u00e3o Paulo, Brazil\n\u00b9\u00b3Toho University Sakura Medical Center, Chiba, Japan\n\n\n\nspecific antigen and alkaline phosphatase levels at base-\nline. The late separation in the curves also indicates non-\nproportional hazards by treatment group for low-volume\npatients that may reduce the likelihood of detecting a\ntreatment effect in this subgroup. However, it appears to\nrepresent a real treatment effect because a large proportion\nof patients continued in follow-up, with 124 of 154 (81%) in\nthe darolutamide group and 114 of 146 (78%) in the placebo\ngroup still at risk beyond 3 years.\n\n\n\nResults of ARASENS indicate an advantage to adding an androgen receptor inhibitor (darolutamide) to ADT and docetaxel, but other studies have shown that benefits are not consistent for all types of androgen receptor pathway inhibitors. Given the unique structure, benefit-risk profile, and limited drug-drug interactions of darolutamide, 9,21-23 the results of ARASENS should not be extrapolated to other second-generation androgen receptor pathway inhibitors. ARASENS was not designed to compare outcomes for triple combination therapy versus darolutamide plus ADT to evaluate whether docetaxel has added benefit in patients with metastatic hormone-sensitive prostate cancer. In patients with low-volume disease, an additional study evaluating the effect of a triple combination versus combination with ADT and androgen receptor pathway inhibitor might provide more information for optimal treatment selection.\n\n\n\nIn patients with high-volume and high-risk/low-risk met-\nastatic hormone-sensitive prostate cancer, treatment in-\ntensification with darolutamide, ADT, and docetaxel\nincreased OS, consistent with the overall population; the\nresults in the low-volume subgroup were suggestive of\nsurvival benefit. The favorable safety profile of dar-\nolutamide was confirmed in the disease volume and risk\nsubgroups.\n\n\n\n14Bayer SEA, Singapore\n15Bayer HealthCare Pharmaceuticals Inc, Whippany, NJ\n16Bayer Consumer Care AG, Basel, Switzerland\n17Bayer AG, Berlin, Germany\n18Orion Corporation, Espoo, Finland\n19Massachusetts General Hospital Cancer Center, Boston, MA\n\n\n\nCORRESPONDING AUTHOR\nMaha Hussain, MD, Robert H. Lurie Comprehensive Cancer Center,\nNorthwestern University, Feinberg School of Medicine, 303 E. Superior,\nChicago, IL 60611; e-mail: maha.hussain@northwestern.edu.\n\n\n\nPRIOR PRESENTATION\nPresented in part at the ASCO Genitourinary Cancer Symposium, San\nFrancisco, CA, February 17-19, 2022; and the ASCO Genitourinary\nCancer Symposium, San Francisco, CA, February 16-18, 2023.\n\n\n\nSUPPORT\nSupported by Bayer AG and Orion Pharma.\n\n\n\nJournal of Clinical Oncology\n\n\n\n11\n\n\n\nDownloaded from ascopubs.org by Mayo Foundation--Rochester on June 12, 2023 from 129.176.151.029\nCopyright \u00a9 2023 American Society of Clinical Oncology. All rights reserved.",
+        "pages_returned": [
+          1,
+          3,
+          8,
+          11
+        ]
+      }
+    },
+    {
+      "turn": 4,
+      "role": "tool",
+      "name": "submit_verification",
+      "args": {
+        "results_keys": [
+          "Median On-Treatment Duration (mo) | Treatment",
+          "PFS Rate (%) | Overall | Treatment",
+          "PFS Rate (%) | Overall | Control",
+          "Docetaxel administration - N (%) | Control",
+          "Median On-Treatment Duration (mo) | Control"
+        ]
+      },
+      "response": {
+        "submitted": [
+          "Median On-Treatment Duration (mo) | Treatment",
+          "PFS Rate (%) | Overall | Treatment",
+          "PFS Rate (%) | Overall | Control",
+          "Docetaxel administration - N (%) | Control",
+          "Median On-Treatment Duration (mo) | Control"
+        ]
+      }
+    }
+  ],
+  "results": {
+    "TTPSA (mo) | Control": {
+      "value": "Not reported",
+      "reasoning": "Both sources report \"Not reported\".",
+      "verification": "both_correct",
+      "source": {
+        "page": null,
+        "modality": "text"
+      },
+      "attribution": []
+    },
+    "Docetaxel administration - N (%) | Treatment": {
+      "value": "651 (100%)",
+      "reasoning": "Both sources agree on the value.",
+      "verification": "both_correct",
+      "source": {
+        "page": 1,
+        "modality": "text",
+        "verbatim_quote": "The abstract states that patients were 'randomly assigned to darolutamide or placebo plus androgen-deprivation therapy and docetaxel', implying all patients in both arms received docetaxel. Figure 1 shows 'Received allocated treatment (n = 651)' for the Darolutamide arm and 'Analyzed for primary end"
+      },
+      "attribution": [
+        {
+          "page": 1,
+          "modality": "text",
+          "verbatim_quote": "The abstract states that patients were 'randomly assigned to darolutamide or placebo plus androgen-deprivation therapy and docetaxel', implying all patients in both arms received docetaxel. Figure 1 shows 'Received allocated treatment (n = 651)' for the Darolutamide arm and 'Analyzed for primary end"
+        }
+      ]
+    },
+    "Type of Therapy": {
+      "value": "treatment intensification with darolutamide, androgen-deprivation therapy, and docetaxel",
+      "reasoning": "A's value is slightly more descriptive and complete.",
+      "verification": "both_correct",
+      "source": {
+        "page": 1,
+        "modality": "text",
+        "verbatim_quote": "The abstract describes the treatment as 'treatment intensification with darolutamide, androgen-deprivation therapy, and docetaxel'."
+      },
+      "attribution": [
+        {
+          "page": 1,
+          "modality": "text",
+          "verbatim_quote": "The abstract describes the treatment as 'treatment intensification with darolutamide, androgen-deprivation therapy, and docetaxel'."
+        }
+      ]
+    },
+    "Trial": {
+      "value": "ARASENS Trial",
+      "reasoning": "A's value is more complete than B's.",
+      "verification": "both_correct",
+      "source": {
+        "page": 1,
+        "modality": "text",
+        "verbatim_quote": "The title of the paper explicitly states 'ARASENS Trial'."
+      },
+      "attribution": [
+        {
+          "page": 1,
+          "modality": "text",
+          "verbatim_quote": "The title of the paper explicitly states 'ARASENS Trial'."
+        }
+      ]
+    },
+    "No. of Deaths - N | Treatment": {
+      "value": "229",
+      "reasoning": "Both sources agree on the value.",
+      "verification": "both_correct",
+      "source": {
+        "page": 3,
+        "modality": "figure"
+      },
+      "attribution": [
+        {
+          "page": 3,
+          "modality": "figure"
+        }
+      ]
+    },
+    "Treatment Class": {
+      "value": "Androgen receptor pathway inhibitor, Androgen-deprivation therapy, Chemotherapy",
+      "reasoning": "B's value is a superset of A's, providing more complete information.",
+      "verification": "both_correct",
+      "source": {
+        "page": 1,
+        "modality": "text",
+        "verbatim_quote": "The trial investigates a combination of darolutamide (an androgen receptor pathway inhibitor), androgen-deprivation therapy (ADT), and docetaxel (chemotherapy)."
+      },
+      "attribution": [
+        {
+          "page": 1,
+          "modality": "text",
+          "verbatim_quote": "The trial investigates a combination of darolutamide (an androgen receptor pathway inhibitor), androgen-deprivation therapy (ADT), and docetaxel (chemotherapy)."
+        }
+      ]
+    },
+    "No. of Deaths - N | Control": {
+      "value": "304",
+      "reasoning": "Both sources agree on the value.",
+      "verification": "both_correct",
+      "source": {
+        "page": 3,
+        "modality": "figure"
+      },
+      "attribution": [
+        {
+          "page": 3,
+          "modality": "figure"
+        }
+      ]
+    },
+    "TTPSA (mo) | Treatment": {
+      "value": "Not reported",
+      "reasoning": "Both sources report \"Not reported\".",
+      "verification": "both_correct",
+      "source": {
+        "page": null,
+        "modality": "text"
+      },
+      "attribution": []
+    },
+    "Median Age (years) | Control": {
+      "value": "67.0 (42-85)",
+      "reasoning": "A's value is a superset of B's, providing more complete information.",
+      "verification": "both_correct",
+      "source": {
+        "page": 5,
+        "modality": "table"
+      },
+      "attribution": [
+        {
+          "page": 5,
+          "modality": "table"
+        }
+      ]
+    },
+    "Median Age (years) | Treatment": {
+      "value": "67.0 (41-89)",
+      "reasoning": "A's value is a superset of B's, providing more complete information.",
+      "verification": "both_correct",
+      "source": {
+        "page": 5,
+        "modality": "table"
+      },
+      "attribution": [
+        {
+          "page": 5,
+          "modality": "table"
+        }
+      ]
+    },
+    "Median On-Treatment Duration (mo) | Treatment": {
+      "value": "41 months",
+      "reasoning": "Page 11 explicitly states the median treatment duration for the darolutamide arm.",
+      "verification": "A_correct_B_wrong",
+      "source": {
+        "page": 11,
+        "modality": "text",
+        "verbatim_quote": "median treatment duration in ARASENS was 41 months for darolutamide plus ADT and docetaxel"
+      },
+      "attribution": [
+        {
+          "page": 11,
+          "modality": "text",
+          "verbatim_quote": "median treatment duration in ARASENS was 41 months for darolutamide plus ADT and docetaxel"
+        }
+      ]
+    },
+    "PFS Rate (%) | Overall | Treatment": {
+      "value": "Not reported",
+      "reasoning": "The definition asks for a PFS Rate (%), but the document only provides a Hazard Ratio for 'Time to CRPC', which is a proxy for PFS but not the rate itself. Therefore, the rate is 'Not reported'.",
+      "verification": "both_correct",
+      "source": {
+        "page": null,
+        "modality": "text"
+      },
+      "attribution": []
+    },
+    "PFS Rate (%) | Overall | Control": {
+      "value": "Not reported",
+      "reasoning": "The definition asks for a PFS Rate (%), but the document only provides a Hazard Ratio for 'Time to CRPC', which is a proxy for PFS but not the rate itself. Therefore, the rate is 'Not reported'.",
+      "verification": "both_correct",
+      "source": {
+        "page": null,
+        "modality": "text"
+      },
+      "attribution": []
+    },
+    "Docetaxel administration - N (%) | Control": {
+      "value": "651 (100%)",
+      "reasoning": "Source B's value is supported by the 'Received allocated treatment' count in Figure 1 on page 3, which is more relevant to the definition than Source A's 'Analyzed for primary end point'.",
+      "verification": "B_correct_A_wrong",
+      "source": {
+        "page": 3,
+        "modality": "figure",
+        "verbatim_quote": "Received allocated treatment (n = 651)"
+      },
+      "attribution": [
+        {
+          "page": 3,
+          "modality": "figure",
+          "verbatim_quote": "Received allocated treatment (n = 651)"
+        }
+      ]
+    },
+    "Median On-Treatment Duration (mo) | Control": {
+      "value": "34.1 months",
+      "reasoning": "Page 11 explicitly states the median treatment duration for the control arm in comparison.",
+      "verification": "A_correct_B_wrong",
+      "source": {
+        "page": 11,
+        "modality": "text",
+        "verbatim_quote": "versus 34.1 months"
+      },
+      "attribution": [
+        {
+          "page": 11,
+          "modality": "text",
+          "verbatim_quote": "versus 34.1 months"
+        }
+      ]
+    }
+  }
+}

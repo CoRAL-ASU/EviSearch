@@ -1,0 +1,348 @@
+{
+  "doc_id": "NCT01957436_Fizazi_PEACE1_Lancet'22",
+  "tool_calls_sequence": [
+    {
+      "name": "submit_verification",
+      "args": {
+        "results_keys": [
+          "Volume of disease - N (%) | High | Treatment",
+          "Volume of disease - N (%) | Low | Control",
+          "Mode of metastases - N (%) | Metachronous | Control",
+          "PS - N (%) | 1-2 | Control",
+          "PS - N (%) | 0 | Treatment",
+          "Volume of disease - N (%) | High | Control",
+          "PS - N (%) | 1-2 | Treatment",
+          "PS - N (%) | 0 | Control",
+          "Mode of metastases - N (%) | Metachronous | Treatment"
+        ]
+      }
+    },
+    {
+      "name": "get_page",
+      "args": {
+        "page_numbers": [
+          1,
+          6,
+          7
+        ]
+      }
+    },
+    {
+      "name": "submit_verification",
+      "args": {
+        "results_keys": [
+          "Gleason score - N (%) | \u2264 7 | Control",
+          "Gleason score - N (%) | \u2265 8 | Treatment",
+          "Gleason score - N (%) | \u2265 8 | Control",
+          "Mode of metastases - N (%) | Synchronous | Treatment",
+          "Gleason score - N (%) | \u2264 7 | Treatment",
+          "Mode of metastases - N (%) | Synchronous | Control"
+        ]
+      }
+    }
+  ],
+  "conversation": [
+    {
+      "turn": 0,
+      "role": "user",
+      "content": "Reconcile the following columns. Document has 13 pages. Sources are anonymous (A and B).\n\nCOLUMNS:\n\n---\nColumn 1: Volume of disease - N (%) | High | Treatment\nDefinition: What the number and percentage of participants in the treatment arm of the clinical trial with a high volume or burden of metastatic disease? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.\n  A: value=\"Overall population: 331 (57%); ADT with docetaxel population: 224 (63%)\" | page=6 | modality=table | reasoning=\"Extracted from Table 1, 'Metastatic burdens' row 'High burden', for 'SOC plus abiraterone groups' in both 'Overall population' and 'ADT with docetaxel population'.\"\n  B: value=\"331 (57%)\" | page=6 | modality=table | reasoning=\"Extracted from Table 1, 'Baseline characteristics in the intention-to-treat population', under 'Metastatic burden' for 'High burden' in the 'SOC plus abiraterone groups'.\"\n\n---\nColumn 2: Volume of disease - N (%) | High | Control\nDefinition: What the number and percentage of participants in the control arm of the clinical trial with high volume/burden metastasis? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.\n  A: value=\"Overall population: 336 (57%); ADT with docetaxel population: 232 (65%)\" | page=6 | modality=table | reasoning=\"Extracted from Table 1, 'Metastatic burdens' row 'High burden', for 'SOC without abiraterone groups' in both 'Overall population' and 'ADT with docetaxel population'.\"\n  B: value=\"336 (57%)\" | page=6 | modality=table | reasoning=\"Extracted from Table 1, 'Baseline characteristics in the intention-to-treat population', under 'Metastatic burden' for 'High burden' in the 'SOC without abiraterone groups'.\"\n\n---\nColumn 3: Volume of disease - N (%) | Low | Control\nDefinition: What the number and percentage of participants in the control arm of the trial with low volume/burden metastases? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.\n  A: value=\"Overall population: 253 (43%); ADT with docetaxel population: 123 (35%)\" | page=6 | modality=table | reasoning=\"Extracted from Table 1, 'Metastatic burdens' row 'Low burden', for 'SOC without abiraterone groups' in both 'Overall population' and 'ADT with docetaxel population'.\"\n  B: value=\"253 (43%)\" | page=6 | modality=table | reasoning=\"Extracted from Table 1, 'Baseline characteristics in the intention-to-treat population', under 'Metastatic burden' for 'Low burden' in the 'SOC without abiraterone groups'.\"\n\n---\nColumn 4: Gleason score - N (%) | \u2264 7 | Treatment\nDefinition: What number and percentage of participants included in the treatment arm of the clinical trial with a Gleason score of 7 or less? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.\n  A: value=\"Overall population: 145 (25%); ADT with docetaxel population: 79 (23%)\" | page=6 | modality=table | reasoning=\"Extracted from Table 1, 'Gleason score' row '\u22647', for 'SOC plus abiraterone groups' in both 'Overall population' and 'ADT with docetaxel population'.\"\n  B: value=\"145 (25%)\" | page=7 | modality=table | reasoning=\"Extracted from Table 1, 'Baseline characteristics in the intention-to-treat population', under 'Gleason score' for '\u22647' in the 'SOC plus abiraterone groups'.\"\n\n---\nColumn 5: Gleason score - N (%) | \u2264 7 | Control\nDefinition: What number and percentage of patients with a Gleason score of 7 or less in the control arm of the trial? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.\n  A: value=\"Overall population: 133 (23%); ADT with docetaxel population: 71 (20%)\" | page=6 | modality=table | reasoning=\"Extracted from Table 1, 'Gleason score' row '\u22647', for 'SOC without abiraterone groups' in both 'Overall population' and 'ADT with docetaxel population'.\"\n  B: value=\"133 (23%)\" | page=7 | modality=table | reasoning=\"Extracted from Table 1, 'Baseline characteristics in the intention-to-treat population', under 'Gleason score' for '\u22647' in the 'SOC without abiraterone groups'.\"\n\n---\nColumn 6: Gleason score - N (%) | \u2265 8 | Treatment\nDefinition: What number and percentage of participants in the treatment arm of the clinical trial with a Gleason score of 8 or higher? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.\n  A: value=\"Overall population: 429 (75%); ADT with docetaxel population: 270 (77%)\" | page=6 | modality=table | reasoning=\"Extracted from Table 1, 'Gleason score' row '8-10', for 'SOC plus abiraterone groups' in both 'Overall population' and 'ADT with docetaxel population'.\"\n  B: value=\"429 (75%)\" | page=7 | modality=table | reasoning=\"Extracted from Table 1, 'Baseline characteristics in the intention-to-treat population', under 'Gleason score' for '8-10' in the 'SOC plus abiraterone groups'. The definition asks for '8 or higher', and '8-10' fits this.\"\n\n---\nColumn 7: Gleason score - N (%) | \u2265 8 | Control\nDefinition: What number and percentage of patients in the control arm of the clinical trial with a Gleason score of 8 or higher? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.\n  A: value=\"Overall population: 441 (77%); ADT with docetaxel population: 276 (80%)\" | page=6 | modality=table | reasoning=\"Extracted from Table 1, 'Gleason score' row '8-10', for 'SOC without abiraterone groups' in both 'Overall population' and 'ADT with docetaxel population'.\"\n  B: value=\"441 (77%)\" | page=7 | modality=table | reasoning=\"Extracted from Table 1, 'Baseline characteristics in the intention-to-treat population', under 'Gleason score' for '8-10' in the 'SOC without abiraterone groups'. The definition asks for '8 or higher', and '8-10' fits this.\"\n\n---\nColumn 8: Mode of metastases - N (%) | Synchronous | Treatment\nDefinition: What the number and percentage of participants with synchronous metastases (metastases at the time of diagnosis of prostate cancer) in the treatment arm of the clinical trial? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.\n  A: value=\"Overall population: 583 (100%); ADT with docetaxel population: 355 (100%)\" | page=1 | modality=text | reasoning=\"The study explicitly states it focuses on 'de novo metastatic prostate cancer' in the abstract and methods. The total N for the treatment arms are taken from Figure 1.\"\n  B: value=\"Not reported\" | page=None | modality=text | reasoning=\"The document states the trial is for 'de novo metastatic prostate adenocarcinoma', implying synchronous metastases. However, a specific N (%) for synchronous or metachronous metastases is not explicitly reported in a table or text.\"\n\n---\nColumn 9: Mode of metastases - N (%) | Synchronous | Control\nDefinition: What the number and percentage of participants with synchronous metastases (metastases at the time of diagnosis of prostate cancer) in the control arm of the clinical trial? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.\n  A: value=\"Overall population: 589 (100%); ADT with docetaxel population: 355 (100%)\" | page=1 | modality=text | reasoning=\"The study explicitly states it focuses on 'de novo metastatic prostate cancer' in the abstract and methods. The total N for the control arms are taken from Figure 1.\"\n  B: value=\"Not reported\" | page=None | modality=text | reasoning=\"The document states the trial is for 'de novo metastatic prostate adenocarcinoma', implying synchronous metastases. However, a specific N (%) for synchronous or metachronous metastases is not explicitly reported in a table or text.\"\n\n---\nColumn 10: Mode of metastases - N (%) | Metachronous | Treatment\nDefinition: What number and percentage of participants with metachronous metastases (metastases that occur after the diagnosis of prostate cancer) in the treatment arm of the clinical trial? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.\n  A: value=\"Not reported\" | page=None | modality=text | reasoning=\"The study focuses exclusively on 'de novo metastatic prostate cancer', meaning all metastases are synchronous.\"\n  B: value=\"Not reported\" | page=None | modality=text | reasoning=\"The document states the trial is for 'de novo metastatic prostate adenocarcinoma', implying synchronous metastases. However, a specific N (%) for synchronous or metachronous metastases is not explicitly reported in a table or text.\"\n\n---\nColumn 11: Mode of metastases - N (%) | Metachronous | Control\nDefinition: What the number and percentage of patients with metachronous metastases (metastases that occur after the diagnosis of prostate cancer) in the control arm of the clinical trial? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.\n  A: value=\"Not reported\" | page=None | modality=text | reasoning=\"The study focuses exclusively on 'de novo metastatic prostate cancer', meaning all metastases are synchronous.\"\n  B: value=\"Not reported\" | page=None | modality=text | reasoning=\"The document states the trial is for 'de novo metastatic prostate adenocarcinoma', implying synchronous metastases. However, a specific N (%) for synchronous or metachronous metastases is not explicitly reported in a table or text.\"\n\n---\nColumn 12: PS - N (%) | 0 | Treatment\nDefinition: What number and percentage of participants included in the treatment arm with a Performance Status (PS) score of 0? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.\n  A: value=\"Overall population: 412 (71%); ADT with docetaxel population: 250 (70%)\" | page=6 | modality=table | reasoning=\"Extracted from Table 1, 'ECOG performance status' row '0', for 'SOC plus abiraterone groups' in both 'Overall population' and 'ADT with docetaxel population'.\"\n  B: value=\"412 (71%)\" | page=6 | modality=table | reasoning=\"Extracted from Table 1, 'Baseline characteristics in the intention-to-treat population', under 'ECOG performance status' for '0' in the 'SOC plus abiraterone groups'.\"\n\n---\nColumn 13: PS - N (%) | 0 | Control\nDefinition: What the number and percentage of patients with a Performance Status (PS) score of 0 in the control arm of the trial? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.\n  A: value=\"Overall population: 412 (70%); ADT with docetaxel population: 246 (69%)\" | page=6 | modality=table | reasoning=\"Extracted from Table 1, 'ECOG performance status' row '0', for 'SOC without abiraterone groups' in both 'Overall population' and 'ADT with docetaxel population'.\"\n  B: value=\"412 (70%)\" | page=6 | modality=table | reasoning=\"Extracted from Table 1, 'Baseline characteristics in the intention-to-treat population', under 'ECOG performance status' for '0' in the 'SOC without abiraterone groups'.\"\n\n---\nColumn 14: PS - N (%) | 1-2 | Treatment\nDefinition: What number and percentage of participants with a Performance Status (PS) score of 1-2 in the treatment arm of the clinical trial? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.\n  A: value=\"Overall population: 171 (29%); ADT with docetaxel population: 105 (30%)\" | page=6 | modality=table | reasoning=\"Extracted from Table 1, 'ECOG performance status' row '1-2', for 'SOC plus abiraterone groups' in both 'Overall population' and 'ADT with docetaxel population'.\"\n  B: value=\"171 (29%)\" | page=6 | modality=table | reasoning=\"Extracted from Table 1, 'Baseline characteristics in the intention-to-treat population', under 'ECOG performance status' for '1-2' in the 'SOC plus abiraterone groups'.\"\n\n---\nColumn 15: PS - N (%) | 1-2 | Control\nDefinition: What number and percentage of patients with performance status (PS) score of 1-2 in the control arm of the clinical trial? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.\n  A: value=\"Overall population: 177 (30%); ADT with docetaxel population: 109 (31%)\" | page=6 | modality=table | reasoning=\"Extracted from Table 1, 'ECOG performance status' row '1-2', for 'SOC without abiraterone groups' in both 'Overall population' and 'ADT with docetaxel population'.\"\n  B: value=\"177 (30%)\" | page=6 | modality=table | reasoning=\"Extracted from Table 1, 'Baseline characteristics in the intention-to-treat population', under 'ECOG performance status' for '1-2' in the 'SOC without abiraterone groups'.\"\n\n\nSubmit verification for easy columns first. For disputed columns, use get_page then submit."
+    },
+    {
+      "turn": 2,
+      "role": "tool",
+      "name": "submit_verification",
+      "args": {
+        "results_keys": [
+          "Volume of disease - N (%) | High | Treatment",
+          "Volume of disease - N (%) | Low | Control",
+          "Mode of metastases - N (%) | Metachronous | Control",
+          "PS - N (%) | 1-2 | Control",
+          "PS - N (%) | 0 | Treatment",
+          "Volume of disease - N (%) | High | Control",
+          "PS - N (%) | 1-2 | Treatment",
+          "PS - N (%) | 0 | Control",
+          "Mode of metastases - N (%) | Metachronous | Treatment"
+        ]
+      },
+      "response": {
+        "submitted": [
+          "Volume of disease - N (%) | High | Treatment",
+          "Volume of disease - N (%) | Low | Control",
+          "Mode of metastases - N (%) | Metachronous | Control",
+          "PS - N (%) | 1-2 | Control",
+          "PS - N (%) | 0 | Treatment",
+          "Volume of disease - N (%) | High | Control",
+          "PS - N (%) | 1-2 | Treatment",
+          "PS - N (%) | 0 | Control",
+          "Mode of metastases - N (%) | Metachronous | Treatment"
+        ]
+      }
+    },
+    {
+      "turn": 3,
+      "role": "tool",
+      "name": "get_page",
+      "args": {
+        "page_numbers": [
+          1,
+          6,
+          7
+        ]
+      },
+      "response": {
+        "formatted_chunks": "[Page 1]\n## Page 1\n\nArticles\n\n\n\nAbiraterone plus prednisone added to androgen deprivation therapy and docetaxel in de novo metastatic castration-sensitive prostate cancer (PEACE-1): a multicentre, open-label, randomised, phase 3 study with a 2 x 2 factorial design\n\n\n\n<::logo: CrossMark\nCrossMark\nThe logo features a stylized 'W' with an arrow, a cursor icon, and a bookmark symbol, all in a deep red color.::>\n\n\n\nKarim Fizazi, St\u00e9phanie Foulon, Joan Carles, Guilhem Roubaud, Ray McDermott, Aude Fl\u00e9chon, Bertrand Tombal, St\u00e9phane Supiot,\nDominik Berthold, Philippe Ronchin, Gabriel Kacso, Gwena\u00eblle Gravis, Fabio Calabro, Jean-Fran\u00e7ois Berdah, Ali Hasbini, Marlon Silva,\nAntoine Thiery-Vuillemin, Igor Latorzeff, Lo\u00efc Mourey, Brigitte Laguerre, Sophie Abadie-Lacourtoisie, Etienne Martin, Claude El Kouri,\nAnne Escande, Alvar Rosello, Nicolas Magne, Friederike Schlurmann, Frank Priou, Marie-Eve Chand-Fouche, Salvador Vill\u00e0 Freixa,\nMuhammad Jamaluddin, Isabelle Rieger, Alberto Bossi, on behalf of the PEACE-1 investigators*\n\n\n\n## Summary\n\n**Background** Current standard of care for metastatic castration-sensitive prostate cancer supplements androgen deprivation therapy with either docetaxel, second-generation hormonal therapy, or radiotherapy. We aimed to evaluate the efficacy and safety of abiraterone plus prednisone, with or without radiotherapy, in addition to standard of care.\n\n\n\nMethods We conducted an open-label, randomised, phase 3 study with a 2x2 factorial design (PEACE-1) at 77 hospitals across Belgium, France, Ireland, Italy, Romania, Spain, and Switzerland. Eligible patients were male, aged 18 years or older, with histologically confirmed or cytologically confirmed de novo metastatic prostate adenocarcinoma, and an Eastern Cooperative Oncology Group performance status of 0\u20131 (or 2 due to bone pain).\nParticipants were randomly assigned (1:1:1:1) to standard of care (androgen deprivation therapy alone or with intravenous docetaxel 75 mg/m\u00b2 once every 3 weeks), standard of care plus radiotherapy, standard of care plus abiraterone (oral 1000 mg abiraterone once daily plus oral 5 mg prednisone twice daily), or standard of care plus radiotherapy plus abiraterone. Neither the investigators nor the patients were masked to treatment allocation. The coprimary endpoints were radiographic progression-free survival and overall survival. Abiraterone efficacy was first assessed in the overall population and then in the population who received androgen deprivation therapy with docetaxel as standard of care (population of interest). This study is ongoing and is registered with ClinicalTrials.gov, NCT01957436.\n\n\n\nFindings Between Nov 27, 2013, and Dec 20, 2018, 1173 patients were enrolled (one patient subsequently withdrew consent for analysis of his data) and assigned to receive standard of care (n=296), standard of care plus radiotherapy (n=293), standard of care plus abiraterone (n=292), or standard of care plus radiotherapy plus abiraterone (n=291). Median follow-up was 3.5 years (IQR 2.8\u20134.6) for radiographic progression-free survival and 4.4 years (3.5\u20135.4) for overall survival. Adjusted Cox regression modelling revealed no interaction between abiraterone and radiotherapy, enabling the pooled analysis of abiraterone efficacy. In the overall population, patients assigned to receive abiraterone (n=583) had longer radiographic progression-free survival (hazard ratio [HR] 0.54, 99.9% CI 0.41\u20130.71; p<0.0001) and overall survival (0.82, 95.1% CI 0.69\u20130.98; p=0.030) than patients who did not receive abiraterone (n=589). In the androgen deprivation therapy with docetaxel population (n=355 in both with abiraterone and without abiraterone groups), the HRs were consistent (radiographic progression-free survival 0.50, 99.9% CI 0.34\u20130.71; p<0.0001; overall survival 0.75, 95.1% CI 0.59\u20130.95; p=0.017). In the androgen deprivation therapy with docetaxel population, grade 3 or worse adverse events occurred in 217 (63%) of 347 patients who received abiraterone and 181 (52%) of 350 who did not; hypertension had the largest difference in occurrence (76 [22%] patients and 45 [13%], respectively). Addition of abiraterone to androgen deprivation therapy plus docetaxel did not increase the rates of neutropenia, febrile neutropenia, fatigue, or neuropathy compared with androgen deprivation therapy plus docetaxel alone.\n\n\n\n**Interpretation** Combining androgen deprivation therapy, docetaxel, and abiraterone in de novo metastatic castration-sensitive prostate cancer improved overall survival and radiographic progression-free survival with a modest increase in toxicity, mostly hypertension. This triplet therapy could become a standard of care for these patients.\n\n\n\nFunding Janssen-Cilag, Ipsen, Sanofi, and the French Government.\n\n\n\nCopyright \u00a9 2022 Elsevier Ltd. All rights reserved.\n\n\n\nPublished Online\nApril 8, 2022\nhttps://doi.org/10.1016/\nS0140-6736(22)00367-1\n\nSee Online/Comment\nhttps://doi.org/10.1016/\nS0140-6736(22)00427-5\n*Members are listed in the\nappendix (p 2)\n\n\n\nDepartment of Cancer\nMedicine (Prof K Fizazi MD),\nDepartment of Biostatistics\nand Epidemiology\n(S Foulon MD), Oncostat\nU1018, Inserm, Ligue Contre le\nCancer (S Foulon), and\nDepartment of Radiotherapy\n(A Bossi MD), Institut Gustave\nRoussy, University of Paris-\nSaclay, Villejuif, France; Vall\nd'Hebron Institute of\nOncology, Vall d'Hebron\nUniversity Hospital,\nBarcelona, Spain\n(Prof J Carles MD); Institut\nBergoni\u00e9 229 cours de\nl'Argonne, Bordeaux, France\n(G Roubaud MD); Cancer Trials\nIreland, St Vincent's University\nHospital, Dublin, Ireland\n(Prof R McDermott MD); Centre\nL\u00e9on B\u00e9rard, Lyon, France\n(A Fl\u00e9chon MD); Clinique\nUniversitaire St Luc, Brussels,\nBelgium (Prof B Tombal MD);\nInstitut de Canc\u00e9rologie de\nl'Ouest, Ren\u00e9 Gauducheau,\nSaint-Herblain, France\n(Prof S Supiot MD); Centre\nPluridisciplinaire d'Oncologie,\nCentre Hospitalier Universitaire\nVaudois, Lausanne, Switzerland\n(D Berthold MD); Centre\nAzureen de Cancerologie,\nMougins, France\n(P Ronchin MD); Amethyst\nRadiotherapy Center, Iuliu\nHatieganu University of\nMedicine and Pharmacy,\nCluj-Napoca, Romania\n(G Kacso MD); Institut\n\n\n\nwww.thelancet.com Published online April 8, 2022 https://doi.org/10.1016/ S0140-6736(22)00367-1\n\n\n\n1\n\n---\n\n[Page 6]\n## Page 6\n\nArticles\n\n\n\nfound for radiographic progression-free survival (p=0.94),\noverall survival (p=0.85), CRPC-free survival (p=0.75), or\nprostate-cancer-specific survival (p=0.98), after adjusting\nfor ECOG performance status, ADT type, and disease\nburden. Consequently, the comparative evaluation of\nabiraterone efficacy on survival outcomes was conducted\nby pooling the groups two by two (SOC without\nabiraterone [with or without radiotherapy] groups vs SOC\nplus abiraterone [with or without radiotherapy] groups).\n\n\n\n|  |  |  |  |  |\n| --- | --- | --- | --- | --- |\n|  | Overall population (n=1172) | Overall population (n=1172) | ADT with docetaxel population (n=710)\\* |  |\n|  | SOC plus abiraterone groups (with or without radiotherapy; n=583) | SOC without abiraterone groups (with or without radiotherapy; n=589) | SOC plus abiraterone groups (with or without radiotherapy; n=355) | SOC without abiraterone groups (with or without radiotherapy; n=355) |\n| Assigned to receive radiotherapy | 291 (50%) | 293 (50%) | 178 (50%) | 177 (50%) |\n| Country | Country | Country | Country | Country |\n| Belgium | 29 (5%) | 25 (4%) | 16 (5%) | 16 (5%) |\n| France | 458 (79%) | 462 (78%) | 278 (78%) | 280 (79%) |\n| Ireland | 30 (5%) | 30 (5%) | 17 (5%) | 13 (4%) |\n| Italy | 1(<1%) | 3 (1%) | 0 | 0 |\n| Romania | 4(1%) | 5 (1%) | 0 | 0 |\n| Spain | 55 (9%) | 56 (10%) | 38 (11%) | 39 (11%) |\n| Switzerland | 6 (1%) | 8 (1%) | 6 (2%) | 7 (2%) |\n| Age, years Median | 67 (61-72) | 66 (59-72) | 66 (60-70) | 66 (59-70) |\n| Range | 37-94 | 43-87 | 37-85 | 44-84 |\n| ECOG performance status | ECOG performance status | ECOG performance status | ECOG performance status | ECOG performance status |\n| 0 | 412 (71%) | 412 (70%) | 250 (70%) | 246 (69%) |\n| 1-2 | 171 (29%) | 177 (30%) | 105 (30%) | 109 (31%) |\n| T stage | T stage | T stage | T stage | T stage |\n| T1 | 23 (4%) | 23 (4%) | 10 (3%) | 13 (4%) |\n| T2 | 109 (19%) | 94 (16%) | 64 (19%) | 45 (13%) |\n| T3 | 287 (51%) | 310 (53%) | 167 (49%) | 189 (55%) |\n| T4 | 98 (17%) | 99 (17%) | 68 (20%) | 65 (19%) |\n| Tx | 45 (8%) | 54 (9%) | 32 (9%) | 35 (10%) |\n| Missing data | 21 (4%) | 9 (2%) | 14 (4%) | 8 (2%) |\n| N stage | N stage | N stage | N stage | N stage |\n| N1 | 307 (55%) | 325 (57%) | 198 (58%) | 207 (60%) |\n| NO | 186 (33%) | 174 (30%) | 99 (29%) | 97 (28%) |\n| NX | 69 (12%) | 76 (13%) | 43 (13%) | 39 (11%) |\n| Missing data | 21 (4%) | 14 (2%) | 15 (4%) | 12 (3%) |\n| Time from diagnosis, months Median 2-3 (1-6-3-2) |  | 2-3 (1-4-3-1) | 2-2 (1-6-3-0) | 2-2 (1-4-2-9) |\n| Missing data | 10 (2%) | 10 (2%) | 6 (2%) | 7(2%) |\n| Metastatic localisation | Metastatic localisation | Metastatic localisation | Metastatic localisation | Metastatic localisation |\n| Bone\u2020 | 472 (81%) | 475 (81%) | 287 (81%) | 279 (79%) |\n| Lymph node only | 47 (8%) | 52 (9%) | 27 (8%) | 29 (8%) |\n| Visceral\u2021 | 64 (11%) | 62 (11%) | 41 (12%) | 47 (13%) |\n| Metastatic burden\u00a7 High burden | 331 (57%) | 336 (57%) | 224 (63%) | 232 (65%) |\n| Low burden | 252 (43%) | 253 (43%) | 131 (37%) | 123 (35%) |\n| (Table 1 continues on next page) | (Table 1 continues on next page) | (Table 1 continues on next page) | (Table 1 continues on next page) | (Table 1 continues on next page) |\n\n\n\nIn the overall population, the addition of abiraterone to SOC (with or without docetaxel and with or without radiotherapy) decreased the number of radiographic progression events or deaths from 371 to 252, improved the median progression-free survival from 2.22 years (IQR 1.09\u20136.03) to 4.46 years (1.72\u2013not reached), and reduced the relative risk of radiographic progression or death by 46% compared with patients who did not receive abiraterone (adjusted HR for radiographic progression-free survival 0.54, 99.9% CI 0.41\u20130.71; p<0.0001; figure 2A, table 2). The addition of abiraterone to SOC (with or without docetaxel and with or without radiotherapy) decreased the number of deaths from 268 to 228, improved the median overall survival from 4.72 years (IQR 2.59\u2013not reached) to 5.72 years (2.72\u2013not reached), and reduced the risk of death from any cause by 18% (adjusted HR for overall survival 0.82, 95.1% CI 0.69\u20130.98; p=0.030; figure 2C, table 2). In the overall population, the effect of abiraterone on radiographic progression-free survival and overall survival showed a high consistency across most of the predefined subgroups, except for the under-represented subgroup of patients who had bilateral orchiectomy and those who did not receive docetaxel based on the investigator's decision (figures 3A, 3C). For overall survival only, the effect of the addition of abiraterone was pronounced in patients with high-volume metastatic burden (figure 3C).\n\n\n\nAs SOC plus abiraterone showed a superior efficacy\ncompared with SOC without abiraterone that met the\nrequired predefined significance level (type I error of\n0.049 for overall survival and 0.001 for radiographic\nprogression-free survival) within the overall population,\nabiraterone efficacy was further investigated within the\nmore restricted ADT with docetaxel population to assess\nthe preplanned coprimary endpoints. In this population,\ncompared with SOC (including docetaxel) without\nabiraterone, the addition of abiraterone decreased the\nnumber of radiographic progression events or deaths\nfrom 211 to 139, improved the median radiographic\nprogression-free survival from 2.03 years (IQR\n1.09\u2013not reached) to 4.46 years (1.90\u2013not reached), and\nreduced the relative risk of radiographic progression or\ndeath by 50% (adjusted HR for radiographic\nprogression-free survival 0.50, 99.9% CI 0.34\u20130.71;\np<0.0001; figure 2B, table 2). Similarly, compared with\nSOC (including docetaxel) without abiraterone, the\naddition of abiraterone reduced the number of deaths\nfrom 151 to 121, improved the median overall survival\nfrom 4.43 years (IQR 2.47\u2013not reached) to not reached,\nand reduced the relative risk of death from any cause by\n25% (adjusted HR for overall survival 0.75, 95.1% CI\n0.59\u20130.95; p=0.017; figure 2D, table 2).\n\n\n\nBy analysing the ADT with docetaxel population\naccording to the disease burden, we observed that\ncompared with SOC (including docetaxel) without\nabiraterone, the addition of abiraterone decreased the\nnumber of radiographic progression events or deaths\n\n\n\n6\n\n\n\nwww.thelancet.com Published online April 8, 2022 https://doi.org/10.1016/S0140-6736(22)00367-1\n\n---\n\n[Page 7]\n## Page 7\n\nArticles\n\n\n\nfrom 55 to 41 and from 156 to 97, and reduced the\nrelative risk of radiographic progression or death by\n42% and 53%, in patients with low metastatic burden\nand patients with high metastatic burden, respectively\n(low-volume burden median not reached vs 2.7 years;\nadjusted HR 0.58, 99.9% CI 0.29-1.15; p=0.0061;\nhigh-volume burden median 4.1 years vs 1.6 years;\nadjusted HR 0.47, 99.9% CI 0.30-0.72; p<0.0001;\nappendix p 10, table 2). Median overall survival in\npatients with high metastatic burden improved from\n3.47 years with SOC without abiraterone to 5.14 years\nwhen abiraterone was added, corresponding to a 28%\nreduction in relative risk of death from any cause\n(adjusted HR 0.72, 95.1% CI 0.55-0.95; p=0.019;\nfigure 2F, table 2). As the data were not mature, no\nconclusive response in overall survival could be shown\nfor patients with low metastatic burden (figures 2E, 3D,\ntable 2).\n\n\n\nIn the ADT with docetaxel population, compared with\nSOC without abiraterone, the addition of abiraterone\ndelayed castration resistance (median CRPC-free survival\n1.45 years vs 3.21 years; HR 0.38, 95% CI 0.31\u20130.47;\np<0.0001; table 2, appendix p 11). Among patients in\nthe ADT with docetaxel population who developed\ncastration resistance and were alive at the data cutoff\ndate, 221 (84%) of 263 patients were subsequently\ntreated by at least one life-prolonging therapy and\n213 (81%) of 263 by at least one next-generation\nhormonal therapy in the SOC without abiraterone\ngroups, compared with 104 (74%) of 141 and 65 (46%)\nof 141, respectively, in the SOC plus abiraterone groups\n(appendix p 14). Prostate-cancer-specific survival was\nalso improved by the addition of abiraterone in the ADT\nwith docetaxel population (median 4.72 years vs not\nreached; HR 0.69, 95% CI 0.53\u20130.90; p=0.0062;\ntable 2, appendix p 11).\n\n\n\nAdding abiraterone to ADT with docetaxel (with or without radiotherapy) had no effect on the number of docetaxel cycles administered (median 6 [IQR 6-6] in both groups). 138 (61%) of 226 patients in the ADT with docetaxel population and 183 (53%) of 347 in the ADT without docetaxel population had abiraterone treatment discontinued, including 29 (21%) of 138 and 32 (17%) of 183 due to toxicity, respectively (appendix p 14). Overall, the median abiraterone treatment duration before discontinuation was 33.2 months (95% CI 25.5-43.2) in the ADT without docetaxel population and 34.1 months (30.0-43.5) in the ADT with docetaxel population.\n\n\n\nIn the ADT with docetaxel safety population, 217 (63%)\nof 347 patients who received abiraterone versus 181 (52%)\nof 350 who did not receive abiraterone had at least\none severe adverse event (grade 3 or worse) and\nseven (2%) versus three (1%) had a fatal adverse event\n(table 3, appendix p 14). In the ADT without docetaxel\npopulation, 149 (66%) of 226 patients who received\nabiraterone had at least one severe adverse event and\neight (4%) had a fatal adverse event (table 2). Therefore,\n\n\n\n|  |  |  |  |  |\n| --- | --- | --- | --- | --- |\n|  | Overall population (n=1172) | Overall population (n=1172) | ADT with docetaxel population (n=710)\\* |  |\n|  | SOC plus abiraterone groups (with or without radiotherapy; n=583) | SOC without abiraterone groups (with or without radiotherapy; n=589) | SOC plus abiraterone groups (with or without radiotherapy; n=355) | SOC without abiraterone groups (with or without radiotherapy; n=355) |\n| (Continued from previous page) | (Continued from previous page) | (Continued from previous page) | (Continued from previous page) | (Continued from previous page) |\n| Gleason score | Gleason score | Gleason score | Gleason score | Gleason score |\n| \u22647 | 145 (25%) | 133 (23%) | 79 (23%) | 71 (20%) |\n| 8-10 | 429 (75%) | 441 (77%) | 270 (77%) | 276 (80%) |\n| Missing data | 9 (2%) | 15 (3%) | 6 (2%) | 8 (2%) |\n| PSA at randomisation, ng/mL | PSA at randomisation, ng/mL | PSA at randomisation, ng/mL | PSA at randomisation, ng/mL | PSA at randomisation, ng/mL |\n| Median | 14 (3-62) | 11 (3-55) | 14 (2-59) | 12 (3-60) |\n| Missing data | 2 (<1%) | 4 (1%) | 0 | 2 (<1%) |\n| Medical history | Medical history | Medical history | Medical history | Medical history |\n| Hypertension | 270 (47%); N=574 | 241 (43%); N=562 | 156 (44%); N=352 | 148 (43%); N=344 |\n| Type 2 diabetes | 62 (11%); N=566 | 80 (14%); N=556 | 33 (9%); N=351 | 56 (16%); N=344 |\n| High cholesterol | 229 (40%); N=568 | 229 (41%); N=556 | 136 (39%); N=351 | 130 (38%); N=343 |\nData are n (%) or median (IQR) unless otherwise stated. All numbers are rounded to the nearest integer. Ethnicity-related information are not presented, as French laws forbid the collection of such data. SOC in the overall population was ADT with or without docetaxel. SOC in the ADT with docetaxel population was ADT with docetaxel. ADT=androgen deprivation therapy. ECOG=Eastern Cooperative Oncology Group. PSA=prostate-specific antigen. SOC=standard of care. *The median number of docetaxel cycles was 6 (IQR 6\u20136) in both the SOC with abiraterone and SOC without abiraterone groups. \u2020Without visceral metastases. \u2021With or without lymph node and bone metastases. \u00a7The metastatic burden was classified as reported by Sweeney and colleagues (2015), with a high burden characterised by four or more bone metastases with one or more outside the vertebral bodies or pelvis, or visceral metastases, or both; all other assessable situations were classified as low burden.\nTable 1: Baseline characteristics in the intention-to-treat population\n\n\n\nthe addition of docetaxel to abiraterone did not increase the incidence of severe or fatal adverse events. In the ADT with docetaxel population, 49 severe adverse events occurred per 100 person-years in patients who received abiraterone compared with 55 per 100 person-years in patients who did not receive abiraterone (appendix p 14). The incidence of frequent severe adverse events (grade 3 or worse adverse events that were reported in \u22655% of patients) was similar between patients who received abiraterone and patients who did not in the ADT with docetaxel population, except for hypertension (76 [22%] of 347 patients vs 45 [13%] of 350) and hepatotoxicity with increased aminotransferases (20 [6%] of 347 vs two [1%] of 350), which were more frequent among those who received abiraterone (table 3). Although the incidence of severe hypertension and hepatotoxicity were similar in patients who received abiraterone in the ADT with docetaxel and ADT without docetaxel populations, there was a difference, as expected, in the incidence of severe neutropenia, which occurred in 34 (10%) of 347 patients versus none of 226, respectively (appendix p 15). Although severe fatigue and peripheral neuropathy events did not reach the frequency cutoff of 5% in the ADT with docetaxel population, ten (3%) of 347 patients who received abiraterone and 15 (4%) of 350 who did not receive abiraterone had at least one event of severe fatigue, and four (1%) and six (2%) had at least one severe peripheral neuropathy event (table 3).\n\n\n\nwww.thelancet.com Published online April 8, 2022 https://doi.org/10.1016/ S0140-6736(22)00367-1\n\n\n\n7",
+        "pages_returned": [
+          1,
+          6,
+          7
+        ]
+      }
+    },
+    {
+      "turn": 4,
+      "role": "tool",
+      "name": "submit_verification",
+      "args": {
+        "results_keys": [
+          "Gleason score - N (%) | \u2264 7 | Control",
+          "Gleason score - N (%) | \u2265 8 | Treatment",
+          "Gleason score - N (%) | \u2265 8 | Control",
+          "Mode of metastases - N (%) | Synchronous | Treatment",
+          "Gleason score - N (%) | \u2264 7 | Treatment",
+          "Mode of metastases - N (%) | Synchronous | Control"
+        ]
+      },
+      "response": {
+        "submitted": [
+          "Gleason score - N (%) | \u2264 7 | Control",
+          "Gleason score - N (%) | \u2265 8 | Treatment",
+          "Gleason score - N (%) | \u2265 8 | Control",
+          "Mode of metastases - N (%) | Synchronous | Treatment",
+          "Gleason score - N (%) | \u2264 7 | Treatment",
+          "Mode of metastases - N (%) | Synchronous | Control"
+        ]
+      }
+    }
+  ],
+  "results": {
+    "Volume of disease - N (%) | High | Treatment": {
+      "value": "Overall population: 331 (57%); ADT with docetaxel population: 224 (63%)",
+      "reasoning": "A's value is a superset of B's value, both from page 6, table.",
+      "verification": "both_correct",
+      "source": {
+        "page": 6,
+        "modality": "table"
+      },
+      "attribution": [
+        {
+          "page": 6,
+          "modality": "table"
+        }
+      ]
+    },
+    "Volume of disease - N (%) | Low | Control": {
+      "value": "Overall population: 253 (43%); ADT with docetaxel population: 123 (35%)",
+      "reasoning": "A's value is a superset of B's value, both from page 6, table.",
+      "verification": "both_correct",
+      "source": {
+        "page": 6,
+        "modality": "table"
+      },
+      "attribution": [
+        {
+          "page": 6,
+          "modality": "table"
+        }
+      ]
+    },
+    "Mode of metastases - N (%) | Metachronous | Control": {
+      "value": "Not reported",
+      "reasoning": "Both sources reported \"Not reported\".",
+      "verification": "both_correct",
+      "source": {
+        "page": null,
+        "modality": "text"
+      },
+      "attribution": []
+    },
+    "PS - N (%) | 1-2 | Control": {
+      "value": "Overall population: 177 (30%); ADT with docetaxel population: 109 (31%)",
+      "reasoning": "A's value is a superset of B's value, both from page 6, table.",
+      "verification": "both_correct",
+      "source": {
+        "page": 6,
+        "modality": "table"
+      },
+      "attribution": [
+        {
+          "page": 6,
+          "modality": "table"
+        }
+      ]
+    },
+    "PS - N (%) | 0 | Treatment": {
+      "value": "Overall population: 412 (71%); ADT with docetaxel population: 250 (70%)",
+      "reasoning": "A's value is a superset of B's value, both from page 6, table.",
+      "verification": "both_correct",
+      "source": {
+        "page": 6,
+        "modality": "table"
+      },
+      "attribution": [
+        {
+          "page": 6,
+          "modality": "table"
+        }
+      ]
+    },
+    "Volume of disease - N (%) | High | Control": {
+      "value": "Overall population: 336 (57%); ADT with docetaxel population: 232 (65%)",
+      "reasoning": "A's value is a superset of B's value, both from page 6, table.",
+      "verification": "both_correct",
+      "source": {
+        "page": 6,
+        "modality": "table"
+      },
+      "attribution": [
+        {
+          "page": 6,
+          "modality": "table"
+        }
+      ]
+    },
+    "PS - N (%) | 1-2 | Treatment": {
+      "value": "Overall population: 171 (29%); ADT with docetaxel population: 105 (30%)",
+      "reasoning": "A's value is a superset of B's value, both from page 6, table.",
+      "verification": "both_correct",
+      "source": {
+        "page": 6,
+        "modality": "table"
+      },
+      "attribution": [
+        {
+          "page": 6,
+          "modality": "table"
+        }
+      ]
+    },
+    "PS - N (%) | 0 | Control": {
+      "value": "Overall population: 412 (70%); ADT with docetaxel population: 246 (69%)",
+      "reasoning": "A's value is a superset of B's value, both from page 6, table.",
+      "verification": "both_correct",
+      "source": {
+        "page": 6,
+        "modality": "table"
+      },
+      "attribution": [
+        {
+          "page": 6,
+          "modality": "table"
+        }
+      ]
+    },
+    "Mode of metastases - N (%) | Metachronous | Treatment": {
+      "value": "Not reported",
+      "reasoning": "Both sources reported \"Not reported\".",
+      "verification": "both_correct",
+      "source": {
+        "page": null,
+        "modality": "text"
+      },
+      "attribution": []
+    },
+    "Gleason score - N (%) | \u2264 7 | Control": {
+      "value": "Overall population: 133 (23%); ADT with docetaxel population: 71 (20%)",
+      "reasoning": "A's value is a superset of B's value, both from Table 1 which spans pages 6 and 7. A is more complete.",
+      "verification": "both_correct",
+      "source": {
+        "page": 6,
+        "modality": "table"
+      },
+      "attribution": [
+        {
+          "page": 6,
+          "modality": "table"
+        }
+      ]
+    },
+    "Gleason score - N (%) | \u2265 8 | Treatment": {
+      "value": "Overall population: 429 (75%); ADT with docetaxel population: 270 (77%)",
+      "reasoning": "A's value is a superset of B's value, both from Table 1 which spans pages 6 and 7. A is more complete.",
+      "verification": "both_correct",
+      "source": {
+        "page": 6,
+        "modality": "table"
+      },
+      "attribution": [
+        {
+          "page": 6,
+          "modality": "table"
+        }
+      ]
+    },
+    "Gleason score - N (%) | \u2265 8 | Control": {
+      "value": "Overall population: 441 (77%); ADT with docetaxel population: 276 (80%)",
+      "reasoning": "A's value is a superset of B's value, both from Table 1 which spans pages 6 and 7. A is more complete.",
+      "verification": "both_correct",
+      "source": {
+        "page": 6,
+        "modality": "table"
+      },
+      "attribution": [
+        {
+          "page": 6,
+          "modality": "table"
+        }
+      ]
+    },
+    "Mode of metastases - N (%) | Synchronous | Treatment": {
+      "value": "Overall population: 583 (100%); ADT with docetaxel population: 355 (100%)",
+      "reasoning": "The document states the study is for 'de novo metastatic prostate adenocarcinoma', which implies synchronous metastases. Source A correctly extracts the total N for the treatment arms from the findings section on page 1.",
+      "verification": "A_correct_B_wrong",
+      "source": {
+        "page": 1,
+        "modality": "text",
+        "verbatim_quote": "Eligible patients were male, aged 18 years or older, with histologically confirmed or cytologically confirmed de novo metastatic prostate adenocarcinoma, and an Eastern Cooperative Oncology Group performance status of 0\u20131 (or 2 due to bone pain). Participants were randomly assigned (1:1:1:1) to standard of care (androgen deprivation therapy alone or with intravenous docetaxel 75 mg/m\u00b2 once every 3 weeks), standard of care plus radiotherapy, standard of care plus abiraterone (oral 1000 mg abiraterone once daily plus oral 5 mg prednisone twice daily), or standard of care plus radiotherapy plus abiraterone. Neither the investigators nor the patients were masked to treatment allocation. The coprimary endpoints were radiographic progression-free survival and overall survival. Abiraterone efficacy was first assessed in the overall population and then in the population who received androgen deprivation therapy with docetaxel as standard of care (population of interest). This study is ongoing and is registered with ClinicalTrials.gov, NCT01957436. Findings Between Nov 27, 2013, and Dec 20, 2018, 1173 patients were enrolled (one patient subsequently withdrew consent for analysis of his data) and assigned to receive standard of care (n=296), standard of care plus radiotherapy (n=293), standard of care plus abiraterone (n=292), or standard of care plus radiotherapy plus abiraterone (n=291). Median follow-up was 3.5 years (IQR 2.8\u20134.6) for radiographic progression-free survival and 4.4 years (3.5\u20135.4) for overall survival. Adjusted Cox regression modelling revealed no interaction between abiraterone and radiotherapy, enabling the pooled analysis of abiraterone efficacy. In the overall population, patients assigned to receive abiraterone (n=583) had longer radiographic progression-free survival (hazard ratio [HR] 0.54, 99.9% CI 0.41\u20130.71; p<0.0001) and overall survival (0.82, 95.1% CI 0.69\u20130.98; p=0.030) than patients who did not receive abiraterone (n=589). In the androgen deprivation therapy with docetaxel population (n=355 in both with abiraterone and without abiraterone groups), the HRs were consistent (radiographic progression-free survival 0.50, 99.9% CI 0.34\u20130.71; p<0.0001; overall survival 0.75, 95.1% CI 0.59\u20130.95; p=0.017). In the androgen deprivation therapy with docetaxel population, grade 3 or worse adverse events occurred in 217 (63%) of 347 patients who received abiraterone and 181 (52%) of 350 who did not; hypertension had the largest difference in occurrence (76 [22%] patients and 45 [13%], respectively). Addition of abiraterone to androgen deprivation therapy plus docetaxel did not increase the rates of neutropenia, febrile neutropenia, fatigue, or neuropathy compared with androgen deprivation therapy plus docetaxel alone."
+      },
+      "attribution": [
+        {
+          "page": 1,
+          "modality": "text",
+          "verbatim_quote": "Eligible patients were male, aged 18 years or older, with histologically confirmed or cytologically confirmed de novo metastatic prostate adenocarcinoma, and an Eastern Cooperative Oncology Group performance status of 0\u20131 (or 2 due to bone pain). Participants were randomly assigned (1:1:1:1) to standard of care (androgen deprivation therapy alone or with intravenous docetaxel 75 mg/m\u00b2 once every 3 weeks), standard of care plus radiotherapy, standard of care plus abiraterone (oral 1000 mg abiraterone once daily plus oral 5 mg prednisone twice daily), or standard of care plus radiotherapy plus abiraterone. Neither the investigators nor the patients were masked to treatment allocation. The coprimary endpoints were radiographic progression-free survival and overall survival. Abiraterone efficacy was first assessed in the overall population and then in the population who received androgen deprivation therapy with docetaxel as standard of care (population of interest). This study is ongoing and is registered with ClinicalTrials.gov, NCT01957436. Findings Between Nov 27, 2013, and Dec 20, 2018, 1173 patients were enrolled (one patient subsequently withdrew consent for analysis of his data) and assigned to receive standard of care (n=296), standard of care plus radiotherapy (n=293), standard of care plus abiraterone (n=292), or standard of care plus radiotherapy plus abiraterone (n=291). Median follow-up was 3.5 years (IQR 2.8\u20134.6) for radiographic progression-free survival and 4.4 years (3.5\u20135.4) for overall survival. Adjusted Cox regression modelling revealed no interaction between abiraterone and radiotherapy, enabling the pooled analysis of abiraterone efficacy. In the overall population, patients assigned to receive abiraterone (n=583) had longer radiographic progression-free survival (hazard ratio [HR] 0.54, 99.9% CI 0.41\u20130.71; p<0.0001) and overall survival (0.82, 95.1% CI 0.69\u20130.98; p=0.030) than patients who did not receive abiraterone (n=589). In the androgen deprivation therapy with docetaxel population (n=355 in both with abiraterone and without abiraterone groups), the HRs were consistent (radiographic progression-free survival 0.50, 99.9% CI 0.34\u20130.71; p<0.0001; overall survival 0.75, 95.1% CI 0.59\u20130.95; p=0.017). In the androgen deprivation therapy with docetaxel population, grade 3 or worse adverse events occurred in 217 (63%) of 347 patients who received abiraterone and 181 (52%) of 350 who did not; hypertension had the largest difference in occurrence (76 [22%] patients and 45 [13%], respectively). Addition of abiraterone to androgen deprivation therapy plus docetaxel did not increase the rates of neutropenia, febrile neutropenia, fatigue, or neuropathy compared with androgen deprivation therapy plus docetaxel alone."
+        }
+      ]
+    },
+    "Gleason score - N (%) | \u2264 7 | Treatment": {
+      "value": "Overall population: 145 (25%); ADT with docetaxel population: 79 (23%)",
+      "reasoning": "A's value is a superset of B's value, both from Table 1 which spans pages 6 and 7. A is more complete.",
+      "verification": "both_correct",
+      "source": {
+        "page": 6,
+        "modality": "table"
+      },
+      "attribution": [
+        {
+          "page": 6,
+          "modality": "table"
+        }
+      ]
+    },
+    "Mode of metastases - N (%) | Synchronous | Control": {
+      "value": "Overall population: 589 (100%); ADT with docetaxel population: 355 (100%)",
+      "reasoning": "The document states the study is for 'de novo metastatic prostate adenocarcinoma', which implies synchronous metastases. Source A correctly extracts the total N for the control arms from the findings section on page 1.",
+      "verification": "A_correct_B_wrong",
+      "source": {
+        "page": 1,
+        "modality": "text",
+        "verbatim_quote": "Eligible patients were male, aged 18 years or older, with histologically confirmed or cytologically confirmed de novo metastatic prostate adenocarcinoma, and an Eastern Cooperative Oncology Group performance status of 0\u20131 (or 2 due to bone pain). Participants were randomly assigned (1:1:1:1) to standard of care (androgen deprivation therapy alone or with intravenous docetaxel 75 mg/m\u00b2 once every 3 weeks), standard of care plus radiotherapy, standard of care plus abiraterone (oral 1000 mg abiraterone once daily plus oral 5 mg prednisone twice daily), or standard of care plus radiotherapy plus abiraterone. Neither the investigators nor the patients were masked to treatment allocation. The coprimary endpoints were radiographic progression-free survival and overall survival. Abiraterone efficacy was first assessed in the overall population and then in the population who received androgen deprivation therapy with docetaxel as standard of care (population of interest). This study is ongoing and is registered with ClinicalTrials.gov, NCT01957436. Findings Between Nov 27, 2013, and Dec 20, 2018, 1173 patients were enrolled (one patient subsequently withdrew consent for analysis of his data) and assigned to receive standard of care (n=296), standard of care plus radiotherapy (n=293), standard of care plus abiraterone (n=292), or standard of care plus radiotherapy plus abiraterone (n=291). Median follow-up was 3.5 years (IQR 2.8\u20134.6) for radiographic progression-free survival and 4.4 years (3.5\u20135.4) for overall survival. Adjusted Cox regression modelling revealed no interaction between abiraterone and radiotherapy, enabling the pooled analysis of abiraterone efficacy. In the overall population, patients assigned to receive abiraterone (n=583) had longer radiographic progression-free survival (hazard ratio [HR] 0.54, 99.9% CI 0.41\u20130.71; p<0.0001) and overall survival (0.82, 95.1% CI 0.69\u20130.98; p=0.030) than patients who did not receive abiraterone (n=589). In the androgen deprivation therapy with docetaxel population (n=355 in both with abiraterone and without abiraterone groups), the HRs were consistent (radiographic progression-free survival 0.50, 99.9% CI 0.34\u20130.71; p<0.0001; overall survival 0.75, 95.1% CI 0.59\u20130.95; p=0.017). In the androgen deprivation therapy with docetaxel population, grade 3 or worse adverse events occurred in 217 (63%) of 347 patients who received abiraterone and 181 (52%) of 350 who did not; hypertension had the largest difference in occurrence (76 [22%] patients and 45 [13%], respectively). Addition of abiraterone to androgen deprivation therapy plus docetaxel did not increase the rates of neutropenia, febrile neutropenia, fatigue, or neuropathy compared with androgen deprivation therapy plus docetaxel alone."
+      },
+      "attribution": [
+        {
+          "page": 1,
+          "modality": "text",
+          "verbatim_quote": "Eligible patients were male, aged 18 years or older, with histologically confirmed or cytologically confirmed de novo metastatic prostate adenocarcinoma, and an Eastern Cooperative Oncology Group performance status of 0\u20131 (or 2 due to bone pain). Participants were randomly assigned (1:1:1:1) to standard of care (androgen deprivation therapy alone or with intravenous docetaxel 75 mg/m\u00b2 once every 3 weeks), standard of care plus radiotherapy, standard of care plus abiraterone (oral 1000 mg abiraterone once daily plus oral 5 mg prednisone twice daily), or standard of care plus radiotherapy plus abiraterone. Neither the investigators nor the patients were masked to treatment allocation. The coprimary endpoints were radiographic progression-free survival and overall survival. Abiraterone efficacy was first assessed in the overall population and then in the population who received androgen deprivation therapy with docetaxel as standard of care (population of interest). This study is ongoing and is registered with ClinicalTrials.gov, NCT01957436. Findings Between Nov 27, 2013, and Dec 20, 2018, 1173 patients were enrolled (one patient subsequently withdrew consent for analysis of his data) and assigned to receive standard of care (n=296), standard of care plus radiotherapy (n=293), standard of care plus abiraterone (n=292), or standard of care plus radiotherapy plus abiraterone (n=291). Median follow-up was 3.5 years (IQR 2.8\u20134.6) for radiographic progression-free survival and 4.4 years (3.5\u20135.4) for overall survival. Adjusted Cox regression modelling revealed no interaction between abiraterone and radiotherapy, enabling the pooled analysis of abiraterone efficacy. In the overall population, patients assigned to receive abiraterone (n=583) had longer radiographic progression-free survival (hazard ratio [HR] 0.54, 99.9% CI 0.41\u20130.71; p<0.0001) and overall survival (0.82, 95.1% CI 0.69\u20130.98; p=0.030) than patients who did not receive abiraterone (n=589). In the androgen deprivation therapy with docetaxel population (n=355 in both with abiraterone and without abiraterone groups), the HRs were consistent (radiographic progression-free survival 0.50, 99.9% CI 0.34\u20130.71; p<0.0001; overall survival 0.75, 95.1% CI 0.59\u20130.95; p=0.017). In the androgen deprivation therapy with docetaxel population, grade 3 or worse adverse events occurred in 217 (63%) of 347 patients who received abiraterone and 181 (52%) of 350 who did not; hypertension had the largest difference in occurrence (76 [22%] patients and 45 [13%], respectively). Addition of abiraterone to androgen deprivation therapy plus docetaxel did not increase the rates of neutropenia, febrile neutropenia, fatigue, or neuropathy compared with androgen deprivation therapy plus docetaxel alone."
+        }
+      ]
+    }
+  }
+}

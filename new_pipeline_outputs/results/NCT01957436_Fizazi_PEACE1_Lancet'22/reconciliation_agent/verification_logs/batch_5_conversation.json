@@ -1,0 +1,337 @@
+{
+  "doc_id": "NCT01957436_Fizazi_PEACE1_Lancet'22",
+  "tool_calls_sequence": [
+    {
+      "name": "submit_verification",
+      "args": {
+        "results_keys": [
+          "Full Pub or Abstract",
+          "Trial Name",
+          "PubMed ID",
+          "Phase",
+          "Year",
+          "Author",
+          "Original/Follow Up",
+          "NCT"
+        ]
+      }
+    },
+    {
+      "name": "get_page",
+      "args": {
+        "page_numbers": [
+          2
+        ]
+      }
+    },
+    {
+      "name": "submit_verification",
+      "args": {
+        "results_keys": [
+          "Previous local therapy - N (%) | Orchiectomy | Control",
+          "Previous local therapy - N (%) | Radiotherapy | Treatment",
+          "Previous local therapy - N (%) | Orchiectomy | Treatment",
+          "Previous local therapy - N (%) | Prostatectomy | Control",
+          "Previous local therapy - N (%) | Prostatectomy | Treatment",
+          "Previous local therapy - N (%) | Radiotherapy | Control"
+        ]
+      }
+    }
+  ],
+  "conversation": [
+    {
+      "turn": 0,
+      "role": "user",
+      "content": "Reconcile the following columns. Document has 13 pages. Sources are anonymous (A and B).\n\nCOLUMNS:\n\n---\nColumn 1: Previous local therapy - N (%) | Prostatectomy | Treatment\nDefinition: What the number and percentage of participants in the treatment arm of the trial who received prostatectomy as a previous local therapy? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.\n  A: value=\"0%\" | page=2 | modality=text | reasoning=\"The exclusion criteria state that patients with previous prostate cancer treated by a definitive local treatment (which includes prostatectomy) were not eligible.\"\n  B: value=\"Not reported\" | page=None | modality=text | reasoning=\"Not extracted\"\n\n---\nColumn 2: Previous local therapy - N (%) | Prostatectomy | Control\nDefinition: What number and percentage of patients in the control arm of the trial who received previous local therapy in the form of prostatectomy? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.\n  A: value=\"0%\" | page=2 | modality=text | reasoning=\"The exclusion criteria state that patients with previous prostate cancer treated by a definitive local treatment (which includes prostatectomy) were not eligible.\"\n  B: value=\"Not reported\" | page=None | modality=text | reasoning=\"Not extracted\"\n\n---\nColumn 3: Previous local therapy - N (%) | Orchiectomy | Treatment\nDefinition: What number and percentage of participants who received orchiectomy as a previous local therapy in the treatment arm of the clinical trial? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.\n  A: value=\"0%\" | page=2 | modality=text | reasoning=\"The exclusion criteria state that patients with previous prostate cancer treated by a definitive local treatment were not eligible. While orchiectomy can be a local therapy, in the context of metastatic prostate cancer, it's typically a form of systemic ADT. If it were a definitive local treatment f\"\n  B: value=\"Not reported\" | page=None | modality=text | reasoning=\"Not extracted\"\n\n---\nColumn 4: Previous local therapy - N (%) | Orchiectomy | Control\nDefinition: What the number and percentage of patients in the control arm of the trial who received previous local orchiectomy therapy? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.\n  A: value=\"0%\" | page=2 | modality=text | reasoning=\"The exclusion criteria state that patients with previous prostate cancer treated by a definitive local treatment were not eligible. While orchiectomy can be a local therapy, in the context of metastatic prostate cancer, it's typically a form of systemic ADT. If it were a definitive local treatment f\"\n  B: value=\"Not reported\" | page=None | modality=text | reasoning=\"Not extracted\"\n\n---\nColumn 5: Previous local therapy - N (%) | Radiotherapy | Treatment\nDefinition: What number and percentage of participants in the treatment arm who received radiotherapy as previous local therapy? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.\n  A: value=\"0%\" | page=2 | modality=text | reasoning=\"The exclusion criteria state that patients with previous prostate cancer treated by a definitive local treatment (which includes radiotherapy) were not eligible.\"\n  B: value=\"Not reported\" | page=None | modality=text | reasoning=\"Not extracted\"\n\n---\nColumn 6: Previous local therapy - N (%) | Radiotherapy | Control\nDefinition: What number and percentage of patients in the control arm of the trial who received previous local radiotherapy? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.\n  A: value=\"0%\" | page=2 | modality=text | reasoning=\"The exclusion criteria state that patients with previous prostate cancer treated by a definitive local treatment (which includes radiotherapy) were not eligible.\"\n  B: value=\"Not reported\" | page=None | modality=text | reasoning=\"Not extracted\"\n\n---\nColumn 7: NCT\nDefinition: What national Clinical Trial identifier, a unique identification number assigned to a clinical trial?. If reported, provide the value; otherwise use 'Not reported'.\n  A: value=\"NCT01957436\" | page=1 | modality=text | reasoning=\"Found in the 'Methods' section on page 1.\"\n  B: value=\"NCT01957436\" | page=1 | modality=text | reasoning=\"Found on page 1 under the 'Methods' section.\"\n\n---\nColumn 8: PubMed ID\nDefinition: What a unique identifier assigned to a clinical trial publication in the PubMed database?. If reported, provide the value; otherwise use 'Not reported'.\n  A: value=\"Not reported\" | page=None | modality=text | reasoning=\"PubMed ID is not explicitly stated in the document. A DOI is provided, but not a PubMed ID.\"\n  B: value=\"Not reported\" | page=None | modality=text | reasoning=\"A PubMed ID was not explicitly found on pages 1 or 2. A DOI was present, but not a PubMed ID.\"\n\n---\nColumn 9: Trial Name\nDefinition: What the title or identifier of the clinical trial being referred to in the study?. If reported, provide the value; otherwise use 'Not reported'.\n  A: value=\"PEACE-1\" | page=1 | modality=text | reasoning=\"The trial is identified as 'PEACE-1' in the title and throughout the document.\"\n  B: value=\"Abiraterone plus prednisone added to androgen deprivation therapy and docetaxel in de novo metastatic castration-sensitive prostate cancer (PEACE-1): a multicentre, open-label, randomised, phase 3 stu\" | page=1 | modality=text | reasoning=\"Found on page 1 as the main title of the article.\"\n\n---\nColumn 10: Author\nDefinition: What the name of the person or people responsible for writing or publishing the clinical trial study? Your answer should be a name/ list of names (you can use th et al. format )or 'NA'. If reported, provide the value; otherwise use 'Not reported'.\n  A: value=\"Karim Fizazi et al.\" | page=1 | modality=text | reasoning=\"The first author listed on page 1 is Karim Fizazi.\"\n  B: value=\"Karim Fizazi et al.\" | page=1 | modality=text | reasoning=\"Found on page 1, listing the authors.\"\n\n---\nColumn 11: Year\nDefinition: Publication year of the clinical trial. Use 'Not reported' if unclear.\n  A: value=\"2022\" | page=1 | modality=text | reasoning=\"The publication date is stated as 'Published Online April 8, 2022' on page 1.\"\n  B: value=\"2022\" | page=1 | modality=text | reasoning=\"Found on page 1: 'Published Online April 8, 2022'.\"\n\n---\nColumn 12: Full Pub or Abstract\nDefinition: Indicates whether results are fully published or only an abstract is available. Use 'Full Pub' or 'Abstract'; use 'Not reported' if unclear.\n  A: value=\"Full Pub\" | page=None | modality=text | reasoning=\"The document is a full research article from The Lancet, not an abstract.\"\n  B: value=\"Full Pub\" | page=1 | modality=text | reasoning=\"The document is presented as an 'Article' and 'Published Online', indicating a full publication.\"\n\n---\nColumn 13: Phase\nDefinition: Clinical trial phase (e.g., I, II, III, IV) as reported. Use 'Not reported' if unclear.\n  A: value=\"3\" | page=1 | modality=text | reasoning=\"The title on page 1 explicitly states 'phase 3 study'.\"\n  B: value=\"3\" | page=1 | modality=text | reasoning=\"Found on page 1: 'phase 3 study'.\"\n\n---\nColumn 14: Original/Follow Up\nDefinition: Whether the study is an original report or a follow-up analysis. Use Original or Follow up; use 'Not reported' if unclear.\n  A: value=\"Original\" | page=1 | modality=text | reasoning=\"The title describes the study as 'a multicentre, open-label, randomised, phase 3 study', indicating it is the original report of the PEACE-1 trial.\"\n  B: value=\"Original\" | page=1 | modality=text | reasoning=\"The summary and introduction describe the study's purpose and findings, indicating it is an original report.\"\n\n\nSubmit verification for easy columns first. For disputed columns, use get_page then submit."
+    },
+    {
+      "turn": 2,
+      "role": "tool",
+      "name": "submit_verification",
+      "args": {
+        "results_keys": [
+          "Full Pub or Abstract",
+          "Trial Name",
+          "PubMed ID",
+          "Phase",
+          "Year",
+          "Author",
+          "Original/Follow Up",
+          "NCT"
+        ]
+      },
+      "response": {
+        "submitted": [
+          "Full Pub or Abstract",
+          "Trial Name",
+          "PubMed ID",
+          "Phase",
+          "Year",
+          "Author",
+          "Original/Follow Up",
+          "NCT"
+        ]
+      }
+    },
+    {
+      "turn": 3,
+      "role": "tool",
+      "name": "get_page",
+      "args": {
+        "page_numbers": [
+          2
+        ]
+      },
+      "response": {
+        "formatted_chunks": "[Page 2]\n## Page 2\n\nArticles\n\n\n\nPaoli-Calmettes, Aix-Marseille\nUniversit\u00e9, CRCM,\nMarseille, France (G Gravis MD);\nSan Camillo Forlanini Hospitals,\nRome, Italy (F Calabro MD);\nClinique Sainte Marguerite,\nHyeres, France (J-F Berdah MD);\nClinique Pasteur,\nBrest, France(A Hasbini MD);\nCentre Fran\u00e7ois Baclesse, Caen,\nFrance (M Silva MD); CHU Jean\nMinjoz, Besancon, France\n(A Thiery-Vuillemin MD);\nClinique Pasteur, Toulouse,\nFrance (I Latorzeff MD); IUCT\u2013\nOncopole, Toulouse, France\n(L Mourey MD); Centre Eug\u00e8ne\nMarquis, Rennes, France\n(B Laguerre MD); Institut de\nCancerologie de l'Ouest,\nAngers, France\n(S Abadie-Lacourtoisie MD);\nCentre Georges-Fran\u00e7ois\nLeclerc, Dijon, France\n(E Martin MD); Centre Catherine\nde Sienne, Nantes, France\n(C El Kouri MD); Strasbourg\nOncologie Lib\u00e9rale, Strasbourg,\nFrance (A Escande MD); Institut\nCatal\u00e0 d'Oncologia, Hospital\nUniversitari Josep Trueta,\nGirona, Spain (A Rosello MD);\nInstitut de Canc\u00e9rologie Lucien\nNeuwirth, St Priest en Jarez,\nFrance (N Magne MD); CHIC\nQuimper, Quimper, France\n(F Schlurmann MD); CHD\nVend\u00e9e, La Roche sur Yon,\nFrance (F Priou MD); Centre\nAntoine Lacassagne, Nice,\nFrance (M-E Chand-Fouche MD);\nInstitut Catal\u00e0 d'Oncologia,\nCap de Servei Oncologia\nRadioter\u00e0pica, Hospital\nUniversitari Germans Trias,\nBadalona, Catalunya, Spain\n(S V Freixa MD); Cork University\nHospital, Cork, Ireland\n(M Jamaluddin MD); Unicancer,\nParis, France (I Rieger MSc)\n\nCorrespondence to:\nProf Karim Fizazi, Department of\nCancer Medicine, Institut\nGustave Roussy, University of\nParis-Saclay, Villejuif 94805,\nFrance\nkarim.fizazi@gustaveroussy.fr\nSee Online for appendix\n\n\n\n## Research in context\n\n### Evidence before this study\nWe searched PubMed from Jan 1, 1984, to Dec 31, 2012, for papers in English, using the terms \"prostate cancer\", \"metastases\", and \"phase 3 trial\", and found 16 studies. When the PEACE-1 trial began in 2013, androgen deprivation therapy (ADT) had for several decades been the standard of care for men with metastatic castration-sensitive prostate cancer (mCSPC). All randomised trials conducted before the mid-2010s had not shown improvement in outcomes with new therapies compared with ADT. During recruitment for the PEACE-1 trial (2013\u201318), overall survival of patients with de novo mCSPC was shown to be improved by combining ADT with either docetaxel or one of the second-generation androgen receptor axis inhibitors (abiraterone, apalutamide, or enzalutamide) and radiotherapy to the primary tumour, in men with low metastatic burden. It had not yet been shown whether combining some of these new therapies with ADT in triple therapy could provide further clinical benefits.\n\n\n\n**Added value of this study**\nTo our knowledge, PEACE-1 is the first trial to show that a triple systemic therapy\u2014consisting of ADT, docetaxel, and a second-generation androgen signalling inhibitor (abiraterone, combined with prednisone)\u2014improves both radiographic progression-free survival and overall survival in patients with de novo mCSPC, without excessively increasing toxicity (mostly hypertension and aminotransferase increase).\n\n\n\n### Implications of all the available evidence\nThe findings from the PEACE-1 trial, combined with the evidence\nfrom other studies, add weight to the concept that systemic\ntreatment intensification provides clinical benefit for men with\nmCSPC and illustrate that early treatment intensification is more\neffective than identical or similar treatments being used\nsequentially when the disease has become castration-resistant.\nAt a minimum, patients with mCSPC with a high metastatic\nburden who are fit enough to be treated with docetaxel should\nbe considered for this triple systemic therapy.\n\n\n\n## Introduction\nAfter several decades with no substantial progress, the treatment of de novo (synchronous) metastatic prostate cancer has drastically evolved in the past 10 years with the addition of diverse treatments to androgen deprivation therapy (ADT), the former standard of care (SOC). The prognosis for men with de novo metastatic castration-sensitive prostate cancer (mCSPC) has been improved by using ADT concomitantly with either docetaxel\u00b9\u207b\u2075 or one of the second-generation androgen receptor axis inhibitors (abiraterone,\u2076\u207b\u2078 apalutamide,\u2079 or enzalutamide\u00b9\u2070,\u00b9\u00b9). In 2018, radiotherapy to the primary tumour was also shown to extend the overall survival of patients with low-volume metastatic burden.\u00b9\u00b2 The benefits of these various combinatory therapies were confirmed by meta-analyses\u00b9\u00b3\u207b\u00b9\u2075 and have helped to shape the current guidelines for the treatment of mCSPC.\u00b9\u2076\u207b\u00b9\u2078\n\n\n\nNevertheless, it remains to be established whether\nmerging some of these new therapies could provide\nfurther clinical benefits and, if so, what combination\nmight be most suitable for de novo mCSPC.19 Conducted\nby a European consortium (PEACE), 20 this study aimed to\nevaluate the efficacy and safety of abiraterone plus\nprednisone, with or without radiotherapy, in addition to\nSOC (ADT with or without docetaxel).\n\n\n\n## Methods\n### Study design and participants\nWe conducted an open-label, randomised, active-controlled, phase 3 study with a 2x2 factorial design (PEACE-1) at 77 sites across seven European countries (Belgium, France, Ireland, Italy, Romania, Spain, and Switzerland). The complete list of inclusion and exclusion criteria is provided in the appendix (pp 5\u20136). Briefly, male patients aged 18 years or older with histologically confirmed\n\n\n\nor cytologically confirmed prostate adenocarcinoma\ndocumented as de novo metastatic by bone scan, CT, or\nMRI (according to Response Evaluation Criteria in Solid\nTumors [RECIST] version 1.1 criteria) and an Eastern\nCooperative Oncology Group (ECOG) performance status\nof 0\u20131 (or 2 due to bone pain) were eligible for inclusion,\nprovided they had received ADT for no more than\n3 months before randomisation and had at least 6 weeks\nbetween the initiation of ADT and the first docetaxel\ndose. Patients with a pure small-cell carcinoma, or\nprevious prostate cancer treated by a definitive local\ntreatment were not eligible. All participants provided\nwritten informed consent before any study-specific\nprocedures or randomisation were initiated.\n\n\n\nThe initial protocol was reviewed and first approved on July 10, 2013, by the French Independent Ethics Committee (Comit\u00e9 de Protection des Personnes Ile de France VII). The protocol complied with the ethical principles of the Declaration of Helsinki and was approved by Institutional Review Boards at each study site. The trial conformed with the International Conference on Harmonization and Good Clinical Practice guidelines, and applicable regulatory requirements. Steering and Independent Data Monitoring Committees roles and members are described in the appendix (pp 3\u20134).\n\n\n\nTwo major protocol amendments were made during\nthe accrual period, to account for the evolution of SOC\nfor men with mCSPC. Although ADT alone was the SOC\nwhen the trial began recruitment in 2013, the protocol\nwas amended on Oct 5, 2015 (273 patients had already\nbeen accrued), to allow for docetaxel use in SOC\nworldwide, after ADT with docetaxel had shown\nimprovement in overall survival.2,3 Then, in 2017, ADT\nplus abiraterone was also shown to improve overall\n\n\n\n2\n\n\n\nwww.thelancet.com Published online April 8, 2022 https://doi.org/10.1016/ S0140-6736(22)00367-1",
+        "pages_returned": [
+          2
+        ]
+      }
+    },
+    {
+      "turn": 4,
+      "role": "tool",
+      "name": "submit_verification",
+      "args": {
+        "results_keys": [
+          "Previous local therapy - N (%) | Orchiectomy | Control",
+          "Previous local therapy - N (%) | Radiotherapy | Treatment",
+          "Previous local therapy - N (%) | Orchiectomy | Treatment",
+          "Previous local therapy - N (%) | Prostatectomy | Control",
+          "Previous local therapy - N (%) | Prostatectomy | Treatment",
+          "Previous local therapy - N (%) | Radiotherapy | Control"
+        ]
+      },
+      "response": {
+        "submitted": [
+          "Previous local therapy - N (%) | Orchiectomy | Control",
+          "Previous local therapy - N (%) | Radiotherapy | Treatment",
+          "Previous local therapy - N (%) | Orchiectomy | Treatment",
+          "Previous local therapy - N (%) | Prostatectomy | Control",
+          "Previous local therapy - N (%) | Prostatectomy | Treatment",
+          "Previous local therapy - N (%) | Radiotherapy | Control"
+        ]
+      }
+    }
+  ],
+  "results": {
+    "Full Pub or Abstract": {
+      "value": "Full Pub",
+      "reasoning": "Both sources agreed that it is a full publication.",
+      "verification": "both_correct",
+      "source": {
+        "page": 1,
+        "modality": "text"
+      },
+      "attribution": [
+        {
+          "page": 1,
+          "modality": "text"
+        }
+      ]
+    },
+    "Trial Name": {
+      "value": "Abiraterone plus prednisone added to androgen deprivation therapy and docetaxel in de novo metastatic castration-sensitive prostate cancer (PEACE-1): a multicentre, open-label, randomised, phase 3 stu",
+      "reasoning": "Source B provided a more complete trial name which includes the name from Source A. Both are from page 1.",
+      "verification": "both_correct",
+      "source": {
+        "page": 1,
+        "modality": "text"
+      },
+      "attribution": [
+        {
+          "page": 1,
+          "modality": "text"
+        }
+      ]
+    },
+    "PubMed ID": {
+      "value": "Not reported",
+      "reasoning": "Both sources reported 'Not reported'.",
+      "verification": "both_correct",
+      "source": {
+        "page": null,
+        "modality": "text"
+      },
+      "attribution": []
+    },
+    "Phase": {
+      "value": "3",
+      "reasoning": "Both sources provided the same phase.",
+      "verification": "both_correct",
+      "source": {
+        "page": 1,
+        "modality": "text"
+      },
+      "attribution": [
+        {
+          "page": 1,
+          "modality": "text"
+        }
+      ]
+    },
+    "Year": {
+      "value": "2022",
+      "reasoning": "Both sources provided the same publication year.",
+      "verification": "both_correct",
+      "source": {
+        "page": 1,
+        "modality": "text"
+      },
+      "attribution": [
+        {
+          "page": 1,
+          "modality": "text"
+        }
+      ]
+    },
+    "Author": {
+      "value": "Karim Fizazi et al.",
+      "reasoning": "Both sources provided the same author information.",
+      "verification": "both_correct",
+      "source": {
+        "page": 1,
+        "modality": "text"
+      },
+      "attribution": [
+        {
+          "page": 1,
+          "modality": "text"
+        }
+      ]
+    },
+    "Original/Follow Up": {
+      "value": "Original",
+      "reasoning": "Both sources agreed that it is an original report.",
+      "verification": "both_correct",
+      "source": {
+        "page": 1,
+        "modality": "text"
+      },
+      "attribution": [
+        {
+          "page": 1,
+          "modality": "text"
+        }
+      ]
+    },
+    "NCT": {
+      "value": "NCT01957436",
+      "reasoning": "Both sources provided the same NCT identifier.",
+      "verification": "both_correct",
+      "source": {
+        "page": 1,
+        "modality": "text"
+      },
+      "attribution": [
+        {
+          "page": 1,
+          "modality": "text"
+        }
+      ]
+    },
+    "Previous local therapy - N (%) | Orchiectomy | Control": {
+      "value": "0%",
+      "reasoning": "The exclusion criteria on page 2 state that patients with previous prostate cancer treated by a definitive local treatment were not eligible. Orchiectomy can be a definitive local treatment, thus 0% of participants would have received it.",
+      "verification": "A_correct_B_wrong",
+      "source": {
+        "page": 2,
+        "modality": "text",
+        "verbatim_quote": "Patients with a pure small-cell carcinoma, or previous prostate cancer treated by a definitive local treatment were not eligible."
+      },
+      "attribution": [
+        {
+          "page": 2,
+          "modality": "text",
+          "verbatim_quote": "Patients with a pure small-cell carcinoma, or previous prostate cancer treated by a definitive local treatment were not eligible."
+        }
+      ]
+    },
+    "Previous local therapy - N (%) | Radiotherapy | Treatment": {
+      "value": "0%",
+      "reasoning": "The exclusion criteria on page 2 state that patients with previous prostate cancer treated by a definitive local treatment were not eligible. Radiotherapy is a definitive local treatment, thus 0% of participants would have received it.",
+      "verification": "A_correct_B_wrong",
+      "source": {
+        "page": 2,
+        "modality": "text",
+        "verbatim_quote": "Patients with a pure small-cell carcinoma, or previous prostate cancer treated by a definitive local treatment were not eligible."
+      },
+      "attribution": [
+        {
+          "page": 2,
+          "modality": "text",
+          "verbatim_quote": "Patients with a pure small-cell carcinoma, or previous prostate cancer treated by a definitive local treatment were not eligible."
+        }
+      ]
+    },
+    "Previous local therapy - N (%) | Orchiectomy | Treatment": {
+      "value": "0%",
+      "reasoning": "The exclusion criteria on page 2 state that patients with previous prostate cancer treated by a definitive local treatment were not eligible. Orchiectomy can be a definitive local treatment, thus 0% of participants would have received it.",
+      "verification": "A_correct_B_wrong",
+      "source": {
+        "page": 2,
+        "modality": "text",
+        "verbatim_quote": "Patients with a pure small-cell carcinoma, or previous prostate cancer treated by a definitive local treatment were not eligible."
+      },
+      "attribution": [
+        {
+          "page": 2,
+          "modality": "text",
+          "verbatim_quote": "Patients with a pure small-cell carcinoma, or previous prostate cancer treated by a definitive local treatment were not eligible."
+        }
+      ]
+    },
+    "Previous local therapy - N (%) | Prostatectomy | Control": {
+      "value": "0%",
+      "reasoning": "The exclusion criteria on page 2 state that patients with previous prostate cancer treated by a definitive local treatment were not eligible. Prostatectomy is a definitive local treatment, thus 0% of participants would have received it.",
+      "verification": "A_correct_B_wrong",
+      "source": {
+        "page": 2,
+        "modality": "text",
+        "verbatim_quote": "Patients with a pure small-cell carcinoma, or previous prostate cancer treated by a definitive local treatment were not eligible."
+      },
+      "attribution": [
+        {
+          "page": 2,
+          "modality": "text",
+          "verbatim_quote": "Patients with a pure small-cell carcinoma, or previous prostate cancer treated by a definitive local treatment were not eligible."
+        }
+      ]
+    },
+    "Previous local therapy - N (%) | Prostatectomy | Treatment": {
+      "value": "0%",
+      "reasoning": "The exclusion criteria on page 2 state that patients with previous prostate cancer treated by a definitive local treatment were not eligible. Prostatectomy is a definitive local treatment, thus 0% of participants would have received it.",
+      "verification": "A_correct_B_wrong",
+      "source": {
+        "page": 2,
+        "modality": "text",
+        "verbatim_quote": "Patients with a pure small-cell carcinoma, or previous prostate cancer treated by a definitive local treatment were not eligible."
+      },
+      "attribution": [
+        {
+          "page": 2,
+          "modality": "text",
+          "verbatim_quote": "Patients with a pure small-cell carcinoma, or previous prostate cancer treated by a definitive local treatment were not eligible."
+        }
+      ]
+    },
+    "Previous local therapy - N (%) | Radiotherapy | Control": {
+      "value": "0%",
+      "reasoning": "The exclusion criteria on page 2 state that patients with previous prostate cancer treated by a definitive local treatment were not eligible. Radiotherapy is a definitive local treatment, thus 0% of participants would have received it.",
+      "verification": "A_correct_B_wrong",
+      "source": {
+        "page": 2,
+        "modality": "text",
+        "verbatim_quote": "Patients with a pure small-cell carcinoma, or previous prostate cancer treated by a definitive local treatment were not eligible."
+      },
+      "attribution": [
+        {
+          "page": 2,
+          "modality": "text",
+          "verbatim_quote": "Patients with a pure small-cell carcinoma, or previous prostate cancer treated by a definitive local treatment were not eligible."
+        }
+      ]
+    }
+  }
+}

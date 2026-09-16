@@ -1,0 +1,187 @@
+{
+  "doc_id": "NCT01957436_Fizazi_PEACE1_Lancet'22",
+  "tool_calls_sequence": [
+    {
+      "name": "get_chunks_by_page",
+      "args": {
+        "page_numbers": [
+          1,
+          2
+        ]
+      }
+    },
+    {
+      "name": "submit_extraction",
+      "args": {
+        "results_keys": [
+          "Region - N (%) | Oceania | Treatment",
+          "Region - N (%) | South America | Treatment",
+          "Region - N (%) | Europe | Treatment",
+          "Region - N (%) | Oceania | Control",
+          "Region - N (%) | South America | Control",
+          "Region - N (%) | Africa | Control",
+          "Region - N (%) | North America | Treatment",
+          "Region - N (%) | Africa | Treatment",
+          "Region - N (%) | Europe | Control",
+          "Region - N (%) | Asia | Control",
+          "Region - N (%) | Asia | Treatment",
+          "Region - N (%) | North America | Control"
+        ]
+      }
+    }
+  ],
+  "conversation": [
+    {
+      "turn": 0,
+      "role": "user",
+      "content": "Extract values for these columns. Document has 13 pages.\n\nCOLUMNS:\n\n---\nColumn 1: Region - N (%) | North America | Treatment\nDefinition: What number and percentage of participants from North America included in the treatment arm of the clinical trial? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.\n---\nColumn 2: Region - N (%) | North America | Control\nDefinition: What number and percentage of participants in the control arm of the trial who were from the North America region? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.\n---\nColumn 3: Region - N (%) | South America | Treatment\nDefinition: What number and percentage of participants in the treatment arm of the clinical trial from the South America region? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.\n---\nColumn 4: Region - N (%) | South America | Control\nDefinition: What number and percentage of patients in the control arm of the trial from the South America region? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.\n---\nColumn 5: Region - N (%) | Europe | Treatment\nDefinition: What number and percentage of participants included in the treatment arm of the clinical trial from the Europe region? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.\n---\nColumn 6: Region - N (%) | Europe | Control\nDefinition: What number and percentage of patients in the control arm of the trial from the Europe region? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.\n---\nColumn 7: Region - N (%) | Africa | Treatment\nDefinition: What number and percentage of participants in the treatment arm of the trial who were from the Africa region? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.\n---\nColumn 8: Region - N (%) | Africa | Control\nDefinition: What number and percentage of participants in the control arm of the trial from the Africa region? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.\n---\nColumn 9: Region - N (%) | Asia | Treatment\nDefinition: What the number and percentage of participants in the treatment arm of the clinical trial who are from the Asia region? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.\n---\nColumn 10: Region - N (%) | Asia | Control\nDefinition: What number and percentage of patients in the control arm of the trial from the Asian region? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.\n---\nColumn 11: Region - N (%) | Oceania | Treatment\nDefinition: What number and percentage of participants in the treatment arm of the clinical trial who are from the Oceania region? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.\n---\nColumn 12: Region - N (%) | Oceania | Control\nDefinition: What number and percentage of participants in the control arm of the trial from the Oceania region? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.\n\nFor informational columns (trial name, arms, etc.), use get_chunks_by_page([1, 2]) first. For specific columns, use search_chunks. Submit when you have enough information."
+    },
+    {
+      "turn": 2,
+      "role": "tool",
+      "name": "get_chunks_by_page",
+      "args": {
+        "page_numbers": [
+          1,
+          2
+        ]
+      },
+      "response": {
+        "formatted_chunks": "[Page 1]\n## Page 1\n\nArticles\n\n\n\nAbiraterone plus prednisone added to androgen deprivation therapy and docetaxel in de novo metastatic castration-sensitive prostate cancer (PEACE-1): a multicentre, open-label, randomised, phase 3 study with a 2 x 2 factorial design\n\n\n\n<::logo: CrossMark\nCrossMark\nThe logo features a stylized 'W' with an arrow, a cursor icon, and a bookmark symbol, all in a deep red color.::>\n\n\n\nKarim Fizazi, St\u00e9phanie Foulon, Joan Carles, Guilhem Roubaud, Ray McDermott, Aude Fl\u00e9chon, Bertrand Tombal, St\u00e9phane Supiot,\nDominik Berthold, Philippe Ronchin, Gabriel Kacso, Gwena\u00eblle Gravis, Fabio Calabro, Jean-Fran\u00e7ois Berdah, Ali Hasbini, Marlon Silva,\nAntoine Thiery-Vuillemin, Igor Latorzeff, Lo\u00efc Mourey, Brigitte Laguerre, Sophie Abadie-Lacourtoisie, Etienne Martin, Claude El Kouri,\nAnne Escande, Alvar Rosello, Nicolas Magne, Friederike Schlurmann, Frank Priou, Marie-Eve Chand-Fouche, Salvador Vill\u00e0 Freixa,\nMuhammad Jamaluddin, Isabelle Rieger, Alberto Bossi, on behalf of the PEACE-1 investigators*\n\n\n\n## Summary\n\n**Background** Current standard of care for metastatic castration-sensitive prostate cancer supplements androgen deprivation therapy with either docetaxel, second-generation hormonal therapy, or radiotherapy. We aimed to evaluate the efficacy and safety of abiraterone plus prednisone, with or without radiotherapy, in addition to standard of care.\n\n\n\nMethods We conducted an open-label, randomised, phase 3 study with a 2x2 factorial design (PEACE-1) at 77 hospitals across Belgium, France, Ireland, Italy, Romania, Spain, and Switzerland. Eligible patients were male, aged 18 years or older, with histologically confirmed or cytologically confirmed de novo metastatic prostate adenocarcinoma, and an Eastern Cooperative Oncology Group performance status of 0\u20131 (or 2 due to bone pain).\nParticipants were randomly assigned (1:1:1:1) to standard of care (androgen deprivation therapy alone or with intravenous docetaxel 75 mg/m\u00b2 once every 3 weeks), standard of care plus radiotherapy, standard of care plus abiraterone (oral 1000 mg abiraterone once daily plus oral 5 mg prednisone twice daily), or standard of care plus radiotherapy plus abiraterone. Neither the investigators nor the patients were masked to treatment allocation. The coprimary endpoints were radiographic progression-free survival and overall survival. Abiraterone efficacy was first assessed in the overall population and then in the population who received androgen deprivation therapy with docetaxel as standard of care (population of interest). This study is ongoing and is registered with ClinicalTrials.gov, NCT01957436.\n\n\n\nFindings Between Nov 27, 2013, and Dec 20, 2018, 1173 patients were enrolled (one patient subsequently withdrew consent for analysis of his data) and assigned to receive standard of care (n=296), standard of care plus radiotherapy (n=293), standard of care plus abiraterone (n=292), or standard of care plus radiotherapy plus abiraterone (n=291). Median follow-up was 3.5 years (IQR 2.8\u20134.6) for radiographic progression-free survival and 4.4 years (3.5\u20135.4) for overall survival. Adjusted Cox regression modelling revealed no interaction between abiraterone and radiotherapy, enabling the pooled analysis of abiraterone efficacy. In the overall population, patients assigned to receive abiraterone (n=583) had longer radiographic progression-free survival (hazard ratio [HR] 0.54, 99.9% CI 0.41\u20130.71; p<0.0001) and overall survival (0.82, 95.1% CI 0.69\u20130.98; p=0.030) than patients who did not receive abiraterone (n=589). In the androgen deprivation therapy with docetaxel population (n=355 in both with abiraterone and without abiraterone groups), the HRs were consistent (radiographic progression-free survival 0.50, 99.9% CI 0.34\u20130.71; p<0.0001; overall survival 0.75, 95.1% CI 0.59\u20130.95; p=0.017). In the androgen deprivation therapy with docetaxel population, grade 3 or worse adverse events occurred in 217 (63%) of 347 patients who received abiraterone and 181 (52%) of 350 who did not; hypertension had the largest difference in occurrence (76 [22%] patients and 45 [13%], respectively). Addition of abiraterone to androgen deprivation therapy plus docetaxel did not increase the rates of neutropenia, febrile neutropenia, fatigue, or neuropathy compared with androgen deprivation therapy plus docetaxel alone.\n\n\n\n**Interpretation** Combining androgen deprivation therapy, docetaxel, and abiraterone in de novo metastatic castration-sensitive prostate cancer improved overall survival and radiographic progression-free survival with a modest increase in toxicity, mostly hypertension. This triplet therapy could become a standard of care for these patients.\n\n\n\nFunding Janssen-Cilag, Ipsen, Sanofi, and the French Government.\n\n\n\nCopyright \u00a9 2022 Elsevier Ltd. All rights reserved.\n\n\n\nPublished Online\nApril 8, 2022\nhttps://doi.org/10.1016/\nS0140-6736(22)00367-1\n\nSee Online/Comment\nhttps://doi.org/10.1016/\nS0140-6736(22)00427-5\n*Members are listed in the\nappendix (p 2)\n\n\n\nDepartment of Cancer\nMedicine (Prof K Fizazi MD),\nDepartment of Biostatistics\nand Epidemiology\n(S Foulon MD), Oncostat\nU1018, Inserm, Ligue Contre le\nCancer (S Foulon), and\nDepartment of Radiotherapy\n(A Bossi MD), Institut Gustave\nRoussy, University of Paris-\nSaclay, Villejuif, France; Vall\nd'Hebron Institute of\nOncology, Vall d'Hebron\nUniversity Hospital,\nBarcelona, Spain\n(Prof J Carles MD); Institut\nBergoni\u00e9 229 cours de\nl'Argonne, Bordeaux, France\n(G Roubaud MD); Cancer Trials\nIreland, St Vincent's University\nHospital, Dublin, Ireland\n(Prof R McDermott MD); Centre\nL\u00e9on B\u00e9rard, Lyon, France\n(A Fl\u00e9chon MD); Clinique\nUniversitaire St Luc, Brussels,\nBelgium (Prof B Tombal MD);\nInstitut de Canc\u00e9rologie de\nl'Ouest, Ren\u00e9 Gauducheau,\nSaint-Herblain, France\n(Prof S Supiot MD); Centre\nPluridisciplinaire d'Oncologie,\nCentre Hospitalier Universitaire\nVaudois, Lausanne, Switzerland\n(D Berthold MD); Centre\nAzureen de Cancerologie,\nMougins, France\n(P Ronchin MD); Amethyst\nRadiotherapy Center, Iuliu\nHatieganu University of\nMedicine and Pharmacy,\nCluj-Napoca, Romania\n(G Kacso MD); Institut\n\n\n\nwww.thelancet.com Published online April 8, 2022 https://doi.org/10.1016/ S0140-6736(22)00367-1\n\n\n\n1\n\n---\n\n[Page 2]\n## Page 2\n\nArticles\n\n\n\nPaoli-Calmettes, Aix-Marseille\nUniversit\u00e9, CRCM,\nMarseille, France (G Gravis MD);\nSan Camillo Forlanini Hospitals,\nRome, Italy (F Calabro MD);\nClinique Sainte Marguerite,\nHyeres, France (J-F Berdah MD);\nClinique Pasteur,\nBrest, France(A Hasbini MD);\nCentre Fran\u00e7ois Baclesse, Caen,\nFrance (M Silva MD); CHU Jean\nMinjoz, Besancon, France\n(A Thiery-Vuillemin MD);\nClinique Pasteur, Toulouse,\nFrance (I Latorzeff MD); IUCT\u2013\nOncopole, Toulouse, France\n(L Mourey MD); Centre Eug\u00e8ne\nMarquis, Rennes, France\n(B Laguerre MD); Institut de\nCancerologie de l'Ouest,\nAngers, France\n(S Abadie-Lacourtoisie MD);\nCentre Georges-Fran\u00e7ois\nLeclerc, Dijon, France\n(E Martin MD); Centre Catherine\nde Sienne, Nantes, France\n(C El Kouri MD); Strasbourg\nOncologie Lib\u00e9rale, Strasbourg,\nFrance (A Escande MD); Institut\nCatal\u00e0 d'Oncologia, Hospital\nUniversitari Josep Trueta,\nGirona, Spain (A Rosello MD);\nInstitut de Canc\u00e9rologie Lucien\nNeuwirth, St Priest en Jarez,\nFrance (N Magne MD); CHIC\nQuimper, Quimper, France\n(F Schlurmann MD); CHD\nVend\u00e9e, La Roche sur Yon,\nFrance (F Priou MD); Centre\nAntoine Lacassagne, Nice,\nFrance (M-E Chand-Fouche MD);\nInstitut Catal\u00e0 d'Oncologia,\nCap de Servei Oncologia\nRadioter\u00e0pica, Hospital\nUniversitari Germans Trias,\nBadalona, Catalunya, Spain\n(S V Freixa MD); Cork University\nHospital, Cork, Ireland\n(M Jamaluddin MD); Unicancer,\nParis, France (I Rieger MSc)\n\nCorrespondence to:\nProf Karim Fizazi, Department of\nCancer Medicine, Institut\nGustave Roussy, University of\nParis-Saclay, Villejuif 94805,\nFrance\nkarim.fizazi@gustaveroussy.fr\nSee Online for appendix\n\n\n\n## Research in context\n\n### Evidence before this study\nWe searched PubMed from Jan 1, 1984, to Dec 31, 2012, for papers in English, using the terms \"prostate cancer\", \"metastases\", and \"phase 3 trial\", and found 16 studies. When the PEACE-1 trial began in 2013, androgen deprivation therapy (ADT) had for several decades been the standard of care for men with metastatic castration-sensitive prostate cancer (mCSPC). All randomised trials conducted before the mid-2010s had not shown improvement in outcomes with new therapies compared with ADT. During recruitment for the PEACE-1 trial (2013\u201318), overall survival of patients with de novo mCSPC was shown to be improved by combining ADT with either docetaxel or one of the second-generation androgen receptor axis inhibitors (abiraterone, apalutamide, or enzalutamide) and radiotherapy to the primary tumour, in men with low metastatic burden. It had not yet been shown whether combining some of these new therapies with ADT in triple therapy could provide further clinical benefits.\n\n\n\n**Added value of this study**\nTo our knowledge, PEACE-1 is the first trial to show that a triple systemic therapy\u2014consisting of ADT, docetaxel, and a second-generation androgen signalling inhibitor (abiraterone, combined with prednisone)\u2014improves both radiographic progression-free survival and overall survival in patients with de novo mCSPC, without excessively increasing toxicity (mostly hypertension and aminotransferase increase).\n\n\n\n### Implications of all the available evidence\nThe findings from the PEACE-1 trial, combined with the evidence\nfrom other studies, add weight to the concept that systemic\ntreatment intensification provides clinical benefit for men with\nmCSPC and illustrate that early treatment intensification is more\neffective than identical or similar treatments being used\nsequentially when the disease has become castration-resistant.\nAt a minimum, patients with mCSPC with a high metastatic\nburden who are fit enough to be treated with docetaxel should\nbe considered for this triple systemic therapy.\n\n\n\n## Introduction\nAfter several decades with no substantial progress, the treatment of de novo (synchronous) metastatic prostate cancer has drastically evolved in the past 10 years with the addition of diverse treatments to androgen deprivation therapy (ADT), the former standard of care (SOC). The prognosis for men with de novo metastatic castration-sensitive prostate cancer (mCSPC) has been improved by using ADT concomitantly with either docetaxel\u00b9\u207b\u2075 or one of the second-generation androgen receptor axis inhibitors (abiraterone,\u2076\u207b\u2078 apalutamide,\u2079 or enzalutamide\u00b9\u2070,\u00b9\u00b9). In 2018, radiotherapy to the primary tumour was also shown to extend the overall survival of patients with low-volume metastatic burden.\u00b9\u00b2 The benefits of these various combinatory therapies were confirmed by meta-analyses\u00b9\u00b3\u207b\u00b9\u2075 and have helped to shape the current guidelines for the treatment of mCSPC.\u00b9\u2076\u207b\u00b9\u2078\n\n\n\nNevertheless, it remains to be established whether\nmerging some of these new therapies could provide\nfurther clinical benefits and, if so, what combination\nmight be most suitable for de novo mCSPC.19 Conducted\nby a European consortium (PEACE), 20 this study aimed to\nevaluate the efficacy and safety of abiraterone plus\nprednisone, with or without radiotherapy, in addition to\nSOC (ADT with or without docetaxel).\n\n\n\n## Methods\n### Study design and participants\nWe conducted an open-label, randomised, active-controlled, phase 3 study with a 2x2 factorial design (PEACE-1) at 77 sites across seven European countries (Belgium, France, Ireland, Italy, Romania, Spain, and Switzerland). The complete list of inclusion and exclusion criteria is provided in the appendix (pp 5\u20136). Briefly, male patients aged 18 years or older with histologically confirmed\n\n\n\nor cytologically confirmed prostate adenocarcinoma\ndocumented as de novo metastatic by bone scan, CT, or\nMRI (according to Response Evaluation Criteria in Solid\nTumors [RECIST] version 1.1 criteria) and an Eastern\nCooperative Oncology Group (ECOG) performance status\nof 0\u20131 (or 2 due to bone pain) were eligible for inclusion,\nprovided they had received ADT for no more than\n3 months before randomisation and had at least 6 weeks\nbetween the initiation of ADT and the first docetaxel\ndose. Patients with a pure small-cell carcinoma, or\nprevious prostate cancer treated by a definitive local\ntreatment were not eligible. All participants provided\nwritten informed consent before any study-specific\nprocedures or randomisation were initiated.\n\n\n\nThe initial protocol was reviewed and first approved on July 10, 2013, by the French Independent Ethics Committee (Comit\u00e9 de Protection des Personnes Ile de France VII). The protocol complied with the ethical principles of the Declaration of Helsinki and was approved by Institutional Review Boards at each study site. The trial conformed with the International Conference on Harmonization and Good Clinical Practice guidelines, and applicable regulatory requirements. Steering and Independent Data Monitoring Committees roles and members are described in the appendix (pp 3\u20134).\n\n\n\nTwo major protocol amendments were made during\nthe accrual period, to account for the evolution of SOC\nfor men with mCSPC. Although ADT alone was the SOC\nwhen the trial began recruitment in 2013, the protocol\nwas amended on Oct 5, 2015 (273 patients had already\nbeen accrued), to allow for docetaxel use in SOC\nworldwide, after ADT with docetaxel had shown\nimprovement in overall survival.2,3 Then, in 2017, ADT\nplus abiraterone was also shown to improve overall\n\n\n\n2\n\n\n\nwww.thelancet.com Published online April 8, 2022 https://doi.org/10.1016/ S0140-6736(22)00367-1",
+        "pages_returned": [
+          1,
+          2
+        ]
+      }
+    },
+    {
+      "turn": 3,
+      "role": "tool",
+      "name": "submit_extraction",
+      "args": {
+        "results_keys": [
+          "Region - N (%) | Oceania | Treatment",
+          "Region - N (%) | South America | Treatment",
+          "Region - N (%) | Europe | Treatment",
+          "Region - N (%) | Oceania | Control",
+          "Region - N (%) | South America | Control",
+          "Region - N (%) | Africa | Control",
+          "Region - N (%) | North America | Treatment",
+          "Region - N (%) | Africa | Treatment",
+          "Region - N (%) | Europe | Control",
+          "Region - N (%) | Asia | Control",
+          "Region - N (%) | Asia | Treatment",
+          "Region - N (%) | North America | Control"
+        ]
+      },
+      "response": {
+        "submitted": [
+          "Region - N (%) | Oceania | Treatment",
+          "Region - N (%) | South America | Treatment",
+          "Region - N (%) | Europe | Treatment",
+          "Region - N (%) | Oceania | Control",
+          "Region - N (%) | South America | Control",
+          "Region - N (%) | Africa | Control",
+          "Region - N (%) | North America | Treatment",
+          "Region - N (%) | Africa | Treatment",
+          "Region - N (%) | Europe | Control",
+          "Region - N (%) | Asia | Control",
+          "Region - N (%) | Asia | Treatment",
+          "Region - N (%) | North America | Control"
+        ]
+      }
+    }
+  ],
+  "results": {
+    "Region - N (%) | Oceania | Treatment": {
+      "value": "Not reported",
+      "reasoning": "The study was conducted exclusively in European countries as stated on pages 1 and 2.",
+      "found": false,
+      "attribution": []
+    },
+    "Region - N (%) | South America | Treatment": {
+      "value": "Not reported",
+      "reasoning": "The study was conducted exclusively in European countries as stated on pages 1 and 2.",
+      "found": false,
+      "attribution": []
+    },
+    "Region - N (%) | Europe | Treatment": {
+      "value": "583 (49.7%)",
+      "reasoning": "Page 1 states the study was conducted in European countries. The 'Findings' section on page 1 indicates that 583 patients were assigned to receive abiraterone (treatment arm) out of a total of 1172 evaluable patients (1173 enrolled - 1 withdrew). Percentage calculated as (583/1172)*100.",
+      "found": true,
+      "attribution": [
+        {
+          "page": 1,
+          "modality": "text"
+        },
+        {
+          "page": 2,
+          "modality": "text"
+        }
+      ]
+    },
+    "Region - N (%) | Oceania | Control": {
+      "value": "Not reported",
+      "reasoning": "The study was conducted exclusively in European countries as stated on pages 1 and 2.",
+      "found": false,
+      "attribution": []
+    },
+    "Region - N (%) | South America | Control": {
+      "value": "Not reported",
+      "reasoning": "The study was conducted exclusively in European countries as stated on pages 1 and 2.",
+      "found": false,
+      "attribution": []
+    },
+    "Region - N (%) | Africa | Control": {
+      "value": "Not reported",
+      "reasoning": "The study was conducted exclusively in European countries as stated on pages 1 and 2.",
+      "found": false,
+      "attribution": []
+    },
+    "Region - N (%) | North America | Treatment": {
+      "value": "Not reported",
+      "reasoning": "The study was conducted exclusively in European countries as stated on pages 1 and 2.",
+      "found": false,
+      "attribution": []
+    },
+    "Region - N (%) | Africa | Treatment": {
+      "value": "Not reported",
+      "reasoning": "The study was conducted exclusively in European countries as stated on pages 1 and 2.",
+      "found": false,
+      "attribution": []
+    },
+    "Region - N (%) | Europe | Control": {
+      "value": "589 (50.3%)",
+      "reasoning": "Page 1 states the study was conducted in European countries. The 'Findings' section on page 1 indicates that 589 patients did not receive abiraterone (control arm) out of a total of 1172 evaluable patients (1173 enrolled - 1 withdrew). Percentage calculated as (589/1172)*100.",
+      "found": true,
+      "attribution": [
+        {
+          "page": 1,
+          "modality": "text"
+        },
+        {
+          "page": 2,
+          "modality": "text"
+        }
+      ]
+    },
+    "Region - N (%) | Asia | Control": {
+      "value": "Not reported",
+      "reasoning": "The study was conducted exclusively in European countries as stated on pages 1 and 2.",
+      "found": false,
+      "attribution": []
+    },
+    "Region - N (%) | Asia | Treatment": {
+      "value": "Not reported",
+      "reasoning": "The study was conducted exclusively in European countries as stated on pages 1 and 2.",
+      "found": false,
+      "attribution": []
+    },
+    "Region - N (%) | North America | Control": {
+      "value": "Not reported",
+      "reasoning": "The study was conducted exclusively in European countries as stated on pages 1 and 2.",
+      "found": false,
+      "attribution": []
+    }
+  }
+}

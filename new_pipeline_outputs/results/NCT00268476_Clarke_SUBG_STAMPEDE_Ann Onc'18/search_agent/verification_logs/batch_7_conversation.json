@@ -1,0 +1,125 @@
+{
+  "doc_id": "NCT00268476_Clarke_SUBG_STAMPEDE_Ann Onc'18",
+  "tool_calls_sequence": [
+    {
+      "name": "search_chunks",
+      "args": {
+        "query": "ORR N (%) Treatment Overall Response"
+      }
+    },
+    {
+      "name": "submit_extraction",
+      "args": {
+        "results_keys": [
+          "ORR - N (%) | Treatment | PD",
+          "ORR - N (%) | Control | PD",
+          "ORR - N (%) | Control | CR",
+          "ORR - N (%) | Control | Overall",
+          "ORR - N (%) | Control | SD",
+          "ORR - N (%) | Treatment | CR",
+          "ORR - N (%) | Treatment | Overall",
+          "ORR - N (%) | Treatment | SD"
+        ]
+      }
+    }
+  ],
+  "conversation": [
+    {
+      "turn": 0,
+      "role": "user",
+      "content": "Extract values for these columns. Document has 0 pages.\n\nCOLUMNS:\n\n---\nColumn 1: ORR - N (%) | Treatment | Overall\nDefinition: What percentage of total patients in the experimental arm showed overall response (complete or partial response) of metastatic disease? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.\n---\nColumn 2: ORR - N (%) | Treatment | CR\nDefinition: What percentage of total patients in the experimental arm showed complete response of metastatic disease? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.\n---\nColumn 3: ORR - N (%) | Treatment | SD\nDefinition: What percentage of total patients in the experimental arm showed stable metastatic disease? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.\n---\nColumn 4: ORR - N (%) | Treatment | PD\nDefinition: What percentage of total patients in the experimental arm showed progression of metastatic disease? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.\n---\nColumn 5: ORR - N (%) | Control | Overall\nDefinition: What percentage of total patients in the control arm showed overall response (complete or partial response) of metastatic disease? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.\n---\nColumn 6: ORR - N (%) | Control | CR\nDefinition: What percentage of total patients in the control arm showed complete response of metastatic disease? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.\n---\nColumn 7: ORR - N (%) | Control | SD\nDefinition: What percentage of total patients in the control arm showed stable metastatic disease? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.\n---\nColumn 8: ORR - N (%) | Control | PD\nDefinition: What percentage of total patients in the control arm showed progression of metastatic disease? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.\n\nFor informational columns (trial name, arms, etc.), use get_chunks_by_page([1, 2]) first. For specific columns, use search_chunks. Submit when you have enough information."
+    },
+    {
+      "turn": 2,
+      "role": "tool",
+      "name": "search_chunks",
+      "args": {
+        "query": "ORR N (%) Treatment Overall Response"
+      },
+      "response": {
+        "matches": [],
+        "formatted_chunks": "No matching chunks found. Try different search terms.",
+        "pages_returned": []
+      }
+    },
+    {
+      "turn": 3,
+      "role": "tool",
+      "name": "submit_extraction",
+      "args": {
+        "results_keys": [
+          "ORR - N (%) | Treatment | PD",
+          "ORR - N (%) | Control | PD",
+          "ORR - N (%) | Control | CR",
+          "ORR - N (%) | Control | Overall",
+          "ORR - N (%) | Control | SD",
+          "ORR - N (%) | Treatment | CR",
+          "ORR - N (%) | Treatment | Overall",
+          "ORR - N (%) | Treatment | SD"
+        ]
+      },
+      "response": {
+        "submitted": [
+          "ORR - N (%) | Treatment | PD",
+          "ORR - N (%) | Control | PD",
+          "ORR - N (%) | Control | CR",
+          "ORR - N (%) | Control | Overall",
+          "ORR - N (%) | Control | SD",
+          "ORR - N (%) | Treatment | CR",
+          "ORR - N (%) | Treatment | Overall",
+          "ORR - N (%) | Treatment | SD"
+        ]
+      }
+    }
+  ],
+  "results": {
+    "ORR - N (%) | Treatment | PD": {
+      "value": "Not reported",
+      "reasoning": "No information found in the document.",
+      "found": false,
+      "attribution": []
+    },
+    "ORR - N (%) | Control | PD": {
+      "value": "Not reported",
+      "reasoning": "No information found in the document.",
+      "found": false,
+      "attribution": []
+    },
+    "ORR - N (%) | Control | CR": {
+      "value": "Not reported",
+      "reasoning": "No information found in the document.",
+      "found": false,
+      "attribution": []
+    },
+    "ORR - N (%) | Control | Overall": {
+      "value": "Not reported",
+      "reasoning": "No information found in the document.",
+      "found": false,
+      "attribution": []
+    },
+    "ORR - N (%) | Control | SD": {
+      "value": "Not reported",
+      "reasoning": "No information found in the document.",
+      "found": false,
+      "attribution": []
+    },
+    "ORR - N (%) | Treatment | CR": {
+      "value": "Not reported",
+      "reasoning": "No information found in the document.",
+      "found": false,
+      "attribution": []
+    },
+    "ORR - N (%) | Treatment | Overall": {
+      "value": "Not reported",
+      "reasoning": "No information found in the document.",
+      "found": false,
+      "attribution": []
+    },
+    "ORR - N (%) | Treatment | SD": {
+      "value": "Not reported",
+      "reasoning": "No information found in the document.",
+      "found": false,
+      "attribution": []
+    }
+  }
+}

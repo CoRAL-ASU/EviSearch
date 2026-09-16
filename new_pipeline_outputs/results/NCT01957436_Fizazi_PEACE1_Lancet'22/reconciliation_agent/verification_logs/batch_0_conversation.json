@@ -1,0 +1,356 @@
+{
+  "doc_id": "NCT01957436_Fizazi_PEACE1_Lancet'22",
+  "tool_calls_sequence": [
+    {
+      "name": "submit_verification",
+      "args": {
+        "results_keys": [
+          "Median Follow-Up Duration (mo)",
+          "Number of Arms Included",
+          "Quality of Life Scale",
+          "Secondary Endpoint(s)",
+          "Total Participants - N",
+          "Primary Endpoint(s)",
+          "Treatment Arm 1 Regimen",
+          "Control Arm",
+          "COE_RCT_IND_OVERALL_RJ"
+        ]
+      }
+    },
+    {
+      "name": "get_page",
+      "args": {
+        "page_numbers": [
+          1,
+          2,
+          3
+        ]
+      }
+    },
+    {
+      "name": "submit_verification",
+      "args": {
+        "results_keys": [
+          "Class of Agent in Treatment Arm 1",
+          "Control Arm - N",
+          "Add-on Treatment",
+          "Treatment Arm(s)",
+          "Quality of Life reported",
+          "Treatment Arm - N"
+        ]
+      }
+    }
+  ],
+  "conversation": [
+    {
+      "turn": 0,
+      "role": "user",
+      "content": "Reconcile the following columns. Document has 13 pages. Sources are anonymous (A and B).\n\nCOLUMNS:\n\n---\nColumn 1: Add-on Treatment\nDefinition: What is the name of additional therapy or intervention given in combination with the primary treatment in the clinical trial?. If reported, provide the value; otherwise use 'Not reported'.\n  A: value=\"abiraterone plus prednisone\" | page=1 | modality=text | reasoning=\"The summary states: 'We aimed to evaluate the efficacy and safety of abiraterone plus prednisone, with or without radiotherapy, in addition to standard of care.' The methods section further details: 'standard of care plus abiraterone (oral 1000 mg abiraterone once daily plus oral 5 mg prednisone twi\"\n  B: value=\"Abiraterone plus prednisone, and radiotherapy\" | page=1 | modality=text | reasoning=\"Page 1 states 'Abiraterone plus prednisone added to androgen deprivation therapy and docetaxel' and 'abiraterone plus prednisone, with or without radiotherapy, in addition to standard of care.'\"\n\n---\nColumn 2: COE_RCT_IND_OVERALL_RJ\nDefinition: What is the overall risk judgment of individual criteria of evidence (COE) in randomized controlled trials (RCT)?.\n  A: value=\"Not reported\" | page=None | modality=text | reasoning=\"The document describes the clinical trial's design, methods, and results but does not provide an overall risk judgment of individual criteria of evidence, which is typically an external assessment.\"\n  B: value=\"Not reported\" | page=None | modality=text | reasoning=\"The document does not contain information about the overall risk judgment of individual criteria of evidence (COE) in randomized controlled trials (RCT).\"\n\n---\nColumn 3: Class of Agent in Treatment Arm 1\nDefinition: What the type or category of therapeutic agent used in the first experimental arm of the clinical trial?. If reported, provide the value; otherwise use 'Not reported'.\n  A: value=\"second-generation androgen signalling inhibitor (abiraterone)\" | page=2 | modality=text | reasoning=\"The summary mentions 'second-generation hormonal therapy' and the discussion refers to 'second-generation androgen signalling inhibitor (abiraterone)' as the class of agent for abiraterone.\"\n  B: value=\"Second-generation androgen receptor axis inhibitor (abiraterone)\" | page=1 | modality=text | reasoning=\"Page 1 mentions 'abiraterone (oral 1000 mg abiraterone once daily plus oral 5 mg prednisone twice daily)'. Page 2 mentions 'second-generation androgen signalling inhibitor (abiraterone)'.\"\n\n---\nColumn 4: Control Arm\nDefinition: What the name of the arm in the clinical trial that does not receive the experimental treatment, serving as a comparison group?. If reported, provide the value; otherwise use 'Not reported'.\n  A: value=\"standard of care (androgen deprivation therapy alone or with intravenous docetaxel 75 mg/m\u00b2 once every 3 weeks)\" | page=1 | modality=text | reasoning=\"The methods section states: 'Participants were randomly assigned (1:1:1:1) to standard of care (androgen deprivation therapy alone or with intravenous docetaxel 75 mg/m\u00b2 once every 3 weeks)'.\"\n  B: value=\"Standard of care (androgen deprivation therapy alone or with intravenous docetaxel)\" | page=1 | modality=text | reasoning=\"Page 1 states 'standard of care (androgen deprivation therapy alone or with intravenous docetaxel 75 mg/m\u00b2 once every 3 weeks)'.\"\n\n---\nColumn 5: Control Arm - N\nDefinition: What the total number of participants included in the control arm of the clinical trial?. If reported, provide the value; otherwise use 'Not reported'. If the trial contains multiple control arms, report for all separately\n  A: value=\"589\" | page=1 | modality=text | reasoning=\"The results section states: 'patients who did not receive abiraterone (n=589)'. Table 1, under 'Overall population (n=1172)', shows 'SOC without abiraterone groups (with or without radiotherapy; n=589)'.\"\n  B: value=\"296\" | page=1 | modality=text | reasoning=\"Page 1 states 'standard of care (n=296)'.\"\n\n---\nColumn 6: Median Follow-Up Duration (mo)\nDefinition: What the median length of time, measured in months, that participants in the clinical trial were followed up or monitored after the start of the trial? If reported, include the value; use 'Not reported' if missing.\n  A: value=\"3.5 years (42 months) for radiographic progression-free survival and 4.4 years (52.8 months) for overall survival\" | page=1 | modality=text | reasoning=\"The results section states: 'Median follow-up was 3.5 years (IQR 2.8-4.6) for radiographic progression-free survival and 4.4 years (3.5-5.4) for overall survival.'\"\n  B: value=\"42 months (for radiographic progression-free survival) and 52.8 months (for overall survival)\" | page=1 | modality=text | reasoning=\"Page 1 states 'Median follow-up was 3.5 years (IQR 2.8\u20134.6) for radiographic progression-free survival and 4.4 years (3.5\u20135.4) for overall survival.' Converted years to months (3.5 * 12 = 42, 4.4 * 12 = 52.8).\"\n\n---\nColumn 7: Number of Arms Included\nDefinition: What is the total count of experimental treatment arms and control arms included in the clinical trial?. If reported, provide the value; otherwise use 'Not reported'.\n  A: value=\"4\" | page=1 | modality=text | reasoning=\"The methods section states: 'We conducted an open-label, randomised, phase 3 study with a 2x2 factorial design (PEACE-1)'. A 2x2 factorial design implies 4 arms.\"\n  B: value=\"4\" | page=1 | modality=text | reasoning=\"Page 1 states 'Participants were randomly assigned (1:1:1:1) to standard of care... standard of care plus radiotherapy, standard of care plus abiraterone... or standard of care plus radiotherapy plus abiraterone'.\"\n\n---\nColumn 8: Primary Endpoint(s)\nDefinition: What the main outcome(s) or objective(s) that the clinical trial is designed to measure or achieve?. If reported, provide the value; otherwise use 'Not reported'.\n  A: value=\"radiographic progression-free survival and overall survival\" | page=1 | modality=text | reasoning=\"The methods section states: 'The coprimary endpoints were radiographic progression-free survival and overall survival.'\"\n  B: value=\"Radiographic progression-free survival and overall survival\" | page=1 | modality=text | reasoning=\"Page 1 states 'The coprimary endpoints were radiographic progression-free survival and overall survival.'\"\n\n---\nColumn 9: Quality of Life Scale\nDefinition: What a measure of the participants' overall well-being and satisfaction with their health status, as assessed through a standardized questionnaire or survey, reflecting their perceived quality of life during the clinical trial?.\n  A: value=\"Not reported\" | page=None | modality=text | reasoning=\"The methods section lists 'quality of life' as a secondary endpoint, but no specific scale or questionnaire used to measure it is mentioned.\"\n  B: value=\"Not reported\" | page=None | modality=text | reasoning=\"While quality of life is mentioned as a secondary endpoint, the specific scale used is not reported in the document.\"\n\n---\nColumn 10: Quality of Life reported\nDefinition: Does the clinical trial report results on the quality of life of participants? Answer Yes or No\n  A: value=\"No\" | page=3 | modality=text | reasoning=\"The methods section lists 'quality of life' as a secondary endpoint. However, the results section states: 'secondary endpoint results were still under investigation at the time this manuscript was submitted and so are not reported here.'\"\n  B: value=\"Yes\" | page=3 | modality=text | reasoning=\"Page 3 lists 'quality of life' as a secondary endpoint. Page 9 mentions 'formal analysis of quality-of-life data'.\"\n\n---\nColumn 11: Secondary Endpoint(s)\nDefinition: What the secondary outcome(s) or objective(s) of the clinical trial, in addition to the primary endpoint, that are being measured or evaluated?. If reported, provide the value; otherwise use 'Not reported'.\n  A: value=\"castration-resistant prostate cancer (CRPC)-free survival, serious-genito-urinary-event-free survival, prostate-cancer-specificsurvival, time to next skeletal-related event, PSA response rate, prognos\" | page=3 | modality=text | reasoning=\"The methods section, under 'Outcomes', lists all secondary endpoints.\"\n  B: value=\"Castration-resistant prostate cancer (CRPC)-free survival, serious-genito-urinary-event-free survival, prostate-cancer-specific-survival, time to next skeletal-related event, PSA response rate, progno\" | page=3 | modality=text | reasoning=\"Page 3 explicitly lists these as secondary endpoints.\"\n\n---\nColumn 12: Total Participants - N\nDefinition: What are the total number of participants included in the clinical trial? These include only participants who were inlcuded in either the treatment or control arm of the clinical trial. If reported, provide the value; otherwise use 'Not reported'.If multiple comparative trials are mentioned, report for all separately\n  A: value=\"1173\" | page=1 | modality=text | reasoning=\"The results section states: 'Between Nov 27, 2013, and Dec 20, 2018, 1173 patients were enrolled (one patient subsequently withdrew consent for analysis of his data)'. Figure 1 also shows '1173 patients enrolled and randomly assigned'.\"\n  B: value=\"1173\" | page=1 | modality=text | reasoning=\"Page 1 states '1173 patients were enrolled'.\"\n\n---\nColumn 13: Treatment Arm - N\nDefinition: What are the total number of participants included in the experimental arm of the clinical trial?. If reported, provide the value; otherwise use 'Not reported'. If the trial contains multiple treatment arms, report for all separately\n  A: value=\"583\" | page=1 | modality=text | reasoning=\"The results section states: 'patients assigned to receive abiraterone (n=583)'. Table 1, under 'Overall population (n=1172)', shows 'SOC plus abiraterone groups (with or without radiotherapy; n=583)'.\"\n  B: value=\"Standard of care plus radiotherapy: 293; Standard of care plus abiraterone: 292; Standard of care plus radiotherapy plus abiraterone: 291.\" | page=1 | modality=text | reasoning=\"Page 1 states 'standard of care plus radiotherapy (n=293), standard of care plus abiraterone (n=292), or standard of care plus radiotherapy plus abiraterone (n=291).'\"\n\n---\nColumn 14: Treatment Arm 1 Regimen\nDefinition: What the specific treatment protocol or regimen used in the experimental arms of the clinical trial?. If reported, provide the treament regimen used ; otherwise use 'Not reported'.\n  A: value=\"oral 1000 mg abiraterone once daily plus oral 5 mg prednisone twice daily\" | page=1 | modality=text | reasoning=\"The methods section states: 'Patients assigned to receive abiraterone received 1000 mg of abiraterone (four 250 mg tablets, orally) once daily plus prednisone 5 mg orally twice daily'.\"\n  B: value=\"Oral 1000 mg abiraterone once daily plus oral 5 mg prednisone twice daily (in combination with standard of care)\" | page=1 | modality=text | reasoning=\"Page 1 states 'standard of care plus abiraterone (oral 1000 mg abiraterone once daily plus oral 5 mg prednisone twice daily)'.\"\n\n---\nColumn 15: Treatment Arm(s)\nDefinition: What name of the experimental arm or arms in the clinical trial?. If reported, provide the value; otherwise use 'Not reported'.\n  A: value=\"standard of care plus abiraterone (oral 1000 mg abiraterone once daily plus oral 5 mg prednisone twice daily); standard of care plus radiotherapy plus abiraterone\" | page=1 | modality=text | reasoning=\"The methods section states: 'Participants were randomly assigned (1:1:1:1) to... standard of care plus abiraterone (oral 1000 mg abiraterone once daily plus oral 5 mg prednisone twice daily), or standard of care plus radiotherapy plus abiraterone.'\"\n  B: value=\"Standard of care plus radiotherapy; Standard of care plus abiraterone; Standard of care plus radiotherapy plus abiraterone.\" | page=1 | modality=text | reasoning=\"Page 1 lists these as the arms participants were assigned to.\"\n\n\nSubmit verification for easy columns first. For disputed columns, use get_page then submit."
+    },
+    {
+      "turn": 2,
+      "role": "tool",
+      "name": "submit_verification",
+      "args": {
+        "results_keys": [
+          "Median Follow-Up Duration (mo)",
+          "Number of Arms Included",
+          "Quality of Life Scale",
+          "Secondary Endpoint(s)",
+          "Total Participants - N",
+          "Primary Endpoint(s)",
+          "Treatment Arm 1 Regimen",
+          "Control Arm",
+          "COE_RCT_IND_OVERALL_RJ"
+        ]
+      },
+      "response": {
+        "submitted": [
+          "Median Follow-Up Duration (mo)",
+          "Number of Arms Included",
+          "Quality of Life Scale",
+          "Secondary Endpoint(s)",
+          "Total Participants - N",
+          "Primary Endpoint(s)",
+          "Treatment Arm 1 Regimen",
+          "Control Arm",
+          "COE_RCT_IND_OVERALL_RJ"
+        ]
+      }
+    },
+    {
+      "turn": 3,
+      "role": "tool",
+      "name": "get_page",
+      "args": {
+        "page_numbers": [
+          1,
+          2,
+          3
+        ]
+      },
+      "response": {
+        "formatted_chunks": "[Page 1]\n## Page 1\n\nArticles\n\n\n\nAbiraterone plus prednisone added to androgen deprivation therapy and docetaxel in de novo metastatic castration-sensitive prostate cancer (PEACE-1): a multicentre, open-label, randomised, phase 3 study with a 2 x 2 factorial design\n\n\n\n<::logo: CrossMark\nCrossMark\nThe logo features a stylized 'W' with an arrow, a cursor icon, and a bookmark symbol, all in a deep red color.::>\n\n\n\nKarim Fizazi, St\u00e9phanie Foulon, Joan Carles, Guilhem Roubaud, Ray McDermott, Aude Fl\u00e9chon, Bertrand Tombal, St\u00e9phane Supiot,\nDominik Berthold, Philippe Ronchin, Gabriel Kacso, Gwena\u00eblle Gravis, Fabio Calabro, Jean-Fran\u00e7ois Berdah, Ali Hasbini, Marlon Silva,\nAntoine Thiery-Vuillemin, Igor Latorzeff, Lo\u00efc Mourey, Brigitte Laguerre, Sophie Abadie-Lacourtoisie, Etienne Martin, Claude El Kouri,\nAnne Escande, Alvar Rosello, Nicolas Magne, Friederike Schlurmann, Frank Priou, Marie-Eve Chand-Fouche, Salvador Vill\u00e0 Freixa,\nMuhammad Jamaluddin, Isabelle Rieger, Alberto Bossi, on behalf of the PEACE-1 investigators*\n\n\n\n## Summary\n\n**Background** Current standard of care for metastatic castration-sensitive prostate cancer supplements androgen deprivation therapy with either docetaxel, second-generation hormonal therapy, or radiotherapy. We aimed to evaluate the efficacy and safety of abiraterone plus prednisone, with or without radiotherapy, in addition to standard of care.\n\n\n\nMethods We conducted an open-label, randomised, phase 3 study with a 2x2 factorial design (PEACE-1) at 77 hospitals across Belgium, France, Ireland, Italy, Romania, Spain, and Switzerland. Eligible patients were male, aged 18 years or older, with histologically confirmed or cytologically confirmed de novo metastatic prostate adenocarcinoma, and an Eastern Cooperative Oncology Group performance status of 0\u20131 (or 2 due to bone pain).\nParticipants were randomly assigned (1:1:1:1) to standard of care (androgen deprivation therapy alone or with intravenous docetaxel 75 mg/m\u00b2 once every 3 weeks), standard of care plus radiotherapy, standard of care plus abiraterone (oral 1000 mg abiraterone once daily plus oral 5 mg prednisone twice daily), or standard of care plus radiotherapy plus abiraterone. Neither the investigators nor the patients were masked to treatment allocation. The coprimary endpoints were radiographic progression-free survival and overall survival. Abiraterone efficacy was first assessed in the overall population and then in the population who received androgen deprivation therapy with docetaxel as standard of care (population of interest). This study is ongoing and is registered with ClinicalTrials.gov, NCT01957436.\n\n\n\nFindings Between Nov 27, 2013, and Dec 20, 2018, 1173 patients were enrolled (one patient subsequently withdrew consent for analysis of his data) and assigned to receive standard of care (n=296), standard of care plus radiotherapy (n=293), standard of care plus abiraterone (n=292), or standard of care plus radiotherapy plus abiraterone (n=291). Median follow-up was 3.5 years (IQR 2.8\u20134.6) for radiographic progression-free survival and 4.4 years (3.5\u20135.4) for overall survival. Adjusted Cox regression modelling revealed no interaction between abiraterone and radiotherapy, enabling the pooled analysis of abiraterone efficacy. In the overall population, patients assigned to receive abiraterone (n=583) had longer radiographic progression-free survival (hazard ratio [HR] 0.54, 99.9% CI 0.41\u20130.71; p<0.0001) and overall survival (0.82, 95.1% CI 0.69\u20130.98; p=0.030) than patients who did not receive abiraterone (n=589). In the androgen deprivation therapy with docetaxel population (n=355 in both with abiraterone and without abiraterone groups), the HRs were consistent (radiographic progression-free survival 0.50, 99.9% CI 0.34\u20130.71; p<0.0001; overall survival 0.75, 95.1% CI 0.59\u20130.95; p=0.017). In the androgen deprivation therapy with docetaxel population, grade 3 or worse adverse events occurred in 217 (63%) of 347 patients who received abiraterone and 181 (52%) of 350 who did not; hypertension had the largest difference in occurrence (76 [22%] patients and 45 [13%], respectively). Addition of abiraterone to androgen deprivation therapy plus docetaxel did not increase the rates of neutropenia, febrile neutropenia, fatigue, or neuropathy compared with androgen deprivation therapy plus docetaxel alone.\n\n\n\n**Interpretation** Combining androgen deprivation therapy, docetaxel, and abiraterone in de novo metastatic castration-sensitive prostate cancer improved overall survival and radiographic progression-free survival with a modest increase in toxicity, mostly hypertension. This triplet therapy could become a standard of care for these patients.\n\n\n\nFunding Janssen-Cilag, Ipsen, Sanofi, and the French Government.\n\n\n\nCopyright \u00a9 2022 Elsevier Ltd. All rights reserved.\n\n\n\nPublished Online\nApril 8, 2022\nhttps://doi.org/10.1016/\nS0140-6736(22)00367-1\n\nSee Online/Comment\nhttps://doi.org/10.1016/\nS0140-6736(22)00427-5\n*Members are listed in the\nappendix (p 2)\n\n\n\nDepartment of Cancer\nMedicine (Prof K Fizazi MD),\nDepartment of Biostatistics\nand Epidemiology\n(S Foulon MD), Oncostat\nU1018, Inserm, Ligue Contre le\nCancer (S Foulon), and\nDepartment of Radiotherapy\n(A Bossi MD), Institut Gustave\nRoussy, University of Paris-\nSaclay, Villejuif, France; Vall\nd'Hebron Institute of\nOncology, Vall d'Hebron\nUniversity Hospital,\nBarcelona, Spain\n(Prof J Carles MD); Institut\nBergoni\u00e9 229 cours de\nl'Argonne, Bordeaux, France\n(G Roubaud MD); Cancer Trials\nIreland, St Vincent's University\nHospital, Dublin, Ireland\n(Prof R McDermott MD); Centre\nL\u00e9on B\u00e9rard, Lyon, France\n(A Fl\u00e9chon MD); Clinique\nUniversitaire St Luc, Brussels,\nBelgium (Prof B Tombal MD);\nInstitut de Canc\u00e9rologie de\nl'Ouest, Ren\u00e9 Gauducheau,\nSaint-Herblain, France\n(Prof S Supiot MD); Centre\nPluridisciplinaire d'Oncologie,\nCentre Hospitalier Universitaire\nVaudois, Lausanne, Switzerland\n(D Berthold MD); Centre\nAzureen de Cancerologie,\nMougins, France\n(P Ronchin MD); Amethyst\nRadiotherapy Center, Iuliu\nHatieganu University of\nMedicine and Pharmacy,\nCluj-Napoca, Romania\n(G Kacso MD); Institut\n\n\n\nwww.thelancet.com Published online April 8, 2022 https://doi.org/10.1016/ S0140-6736(22)00367-1\n\n\n\n1\n\n---\n\n[Page 2]\n## Page 2\n\nArticles\n\n\n\nPaoli-Calmettes, Aix-Marseille\nUniversit\u00e9, CRCM,\nMarseille, France (G Gravis MD);\nSan Camillo Forlanini Hospitals,\nRome, Italy (F Calabro MD);\nClinique Sainte Marguerite,\nHyeres, France (J-F Berdah MD);\nClinique Pasteur,\nBrest, France(A Hasbini MD);\nCentre Fran\u00e7ois Baclesse, Caen,\nFrance (M Silva MD); CHU Jean\nMinjoz, Besancon, France\n(A Thiery-Vuillemin MD);\nClinique Pasteur, Toulouse,\nFrance (I Latorzeff MD); IUCT\u2013\nOncopole, Toulouse, France\n(L Mourey MD); Centre Eug\u00e8ne\nMarquis, Rennes, France\n(B Laguerre MD); Institut de\nCancerologie de l'Ouest,\nAngers, France\n(S Abadie-Lacourtoisie MD);\nCentre Georges-Fran\u00e7ois\nLeclerc, Dijon, France\n(E Martin MD); Centre Catherine\nde Sienne, Nantes, France\n(C El Kouri MD); Strasbourg\nOncologie Lib\u00e9rale, Strasbourg,\nFrance (A Escande MD); Institut\nCatal\u00e0 d'Oncologia, Hospital\nUniversitari Josep Trueta,\nGirona, Spain (A Rosello MD);\nInstitut de Canc\u00e9rologie Lucien\nNeuwirth, St Priest en Jarez,\nFrance (N Magne MD); CHIC\nQuimper, Quimper, France\n(F Schlurmann MD); CHD\nVend\u00e9e, La Roche sur Yon,\nFrance (F Priou MD); Centre\nAntoine Lacassagne, Nice,\nFrance (M-E Chand-Fouche MD);\nInstitut Catal\u00e0 d'Oncologia,\nCap de Servei Oncologia\nRadioter\u00e0pica, Hospital\nUniversitari Germans Trias,\nBadalona, Catalunya, Spain\n(S V Freixa MD); Cork University\nHospital, Cork, Ireland\n(M Jamaluddin MD); Unicancer,\nParis, France (I Rieger MSc)\n\nCorrespondence to:\nProf Karim Fizazi, Department of\nCancer Medicine, Institut\nGustave Roussy, University of\nParis-Saclay, Villejuif 94805,\nFrance\nkarim.fizazi@gustaveroussy.fr\nSee Online for appendix\n\n\n\n## Research in context\n\n### Evidence before this study\nWe searched PubMed from Jan 1, 1984, to Dec 31, 2012, for papers in English, using the terms \"prostate cancer\", \"metastases\", and \"phase 3 trial\", and found 16 studies. When the PEACE-1 trial began in 2013, androgen deprivation therapy (ADT) had for several decades been the standard of care for men with metastatic castration-sensitive prostate cancer (mCSPC). All randomised trials conducted before the mid-2010s had not shown improvement in outcomes with new therapies compared with ADT. During recruitment for the PEACE-1 trial (2013\u201318), overall survival of patients with de novo mCSPC was shown to be improved by combining ADT with either docetaxel or one of the second-generation androgen receptor axis inhibitors (abiraterone, apalutamide, or enzalutamide) and radiotherapy to the primary tumour, in men with low metastatic burden. It had not yet been shown whether combining some of these new therapies with ADT in triple therapy could provide further clinical benefits.\n\n\n\n**Added value of this study**\nTo our knowledge, PEACE-1 is the first trial to show that a triple systemic therapy\u2014consisting of ADT, docetaxel, and a second-generation androgen signalling inhibitor (abiraterone, combined with prednisone)\u2014improves both radiographic progression-free survival and overall survival in patients with de novo mCSPC, without excessively increasing toxicity (mostly hypertension and aminotransferase increase).\n\n\n\n### Implications of all the available evidence\nThe findings from the PEACE-1 trial, combined with the evidence\nfrom other studies, add weight to the concept that systemic\ntreatment intensification provides clinical benefit for men with\nmCSPC and illustrate that early treatment intensification is more\neffective than identical or similar treatments being used\nsequentially when the disease has become castration-resistant.\nAt a minimum, patients with mCSPC with a high metastatic\nburden who are fit enough to be treated with docetaxel should\nbe considered for this triple systemic therapy.\n\n\n\n## Introduction\nAfter several decades with no substantial progress, the treatment of de novo (synchronous) metastatic prostate cancer has drastically evolved in the past 10 years with the addition of diverse treatments to androgen deprivation therapy (ADT), the former standard of care (SOC). The prognosis for men with de novo metastatic castration-sensitive prostate cancer (mCSPC) has been improved by using ADT concomitantly with either docetaxel\u00b9\u207b\u2075 or one of the second-generation androgen receptor axis inhibitors (abiraterone,\u2076\u207b\u2078 apalutamide,\u2079 or enzalutamide\u00b9\u2070,\u00b9\u00b9). In 2018, radiotherapy to the primary tumour was also shown to extend the overall survival of patients with low-volume metastatic burden.\u00b9\u00b2 The benefits of these various combinatory therapies were confirmed by meta-analyses\u00b9\u00b3\u207b\u00b9\u2075 and have helped to shape the current guidelines for the treatment of mCSPC.\u00b9\u2076\u207b\u00b9\u2078\n\n\n\nNevertheless, it remains to be established whether\nmerging some of these new therapies could provide\nfurther clinical benefits and, if so, what combination\nmight be most suitable for de novo mCSPC.19 Conducted\nby a European consortium (PEACE), 20 this study aimed to\nevaluate the efficacy and safety of abiraterone plus\nprednisone, with or without radiotherapy, in addition to\nSOC (ADT with or without docetaxel).\n\n\n\n## Methods\n### Study design and participants\nWe conducted an open-label, randomised, active-controlled, phase 3 study with a 2x2 factorial design (PEACE-1) at 77 sites across seven European countries (Belgium, France, Ireland, Italy, Romania, Spain, and Switzerland). The complete list of inclusion and exclusion criteria is provided in the appendix (pp 5\u20136). Briefly, male patients aged 18 years or older with histologically confirmed\n\n\n\nor cytologically confirmed prostate adenocarcinoma\ndocumented as de novo metastatic by bone scan, CT, or\nMRI (according to Response Evaluation Criteria in Solid\nTumors [RECIST] version 1.1 criteria) and an Eastern\nCooperative Oncology Group (ECOG) performance status\nof 0\u20131 (or 2 due to bone pain) were eligible for inclusion,\nprovided they had received ADT for no more than\n3 months before randomisation and had at least 6 weeks\nbetween the initiation of ADT and the first docetaxel\ndose. Patients with a pure small-cell carcinoma, or\nprevious prostate cancer treated by a definitive local\ntreatment were not eligible. All participants provided\nwritten informed consent before any study-specific\nprocedures or randomisation were initiated.\n\n\n\nThe initial protocol was reviewed and first approved on July 10, 2013, by the French Independent Ethics Committee (Comit\u00e9 de Protection des Personnes Ile de France VII). The protocol complied with the ethical principles of the Declaration of Helsinki and was approved by Institutional Review Boards at each study site. The trial conformed with the International Conference on Harmonization and Good Clinical Practice guidelines, and applicable regulatory requirements. Steering and Independent Data Monitoring Committees roles and members are described in the appendix (pp 3\u20134).\n\n\n\nTwo major protocol amendments were made during\nthe accrual period, to account for the evolution of SOC\nfor men with mCSPC. Although ADT alone was the SOC\nwhen the trial began recruitment in 2013, the protocol\nwas amended on Oct 5, 2015 (273 patients had already\nbeen accrued), to allow for docetaxel use in SOC\nworldwide, after ADT with docetaxel had shown\nimprovement in overall survival.2,3 Then, in 2017, ADT\nplus abiraterone was also shown to improve overall\n\n\n\n2\n\n\n\nwww.thelancet.com Published online April 8, 2022 https://doi.org/10.1016/ S0140-6736(22)00367-1\n\n---\n\n[Page 3]\n## Page 3\n\nArticles\n\n\n\nsurvival compared with ADT alone. 6,7 Thereby, an additional amendment was filed on Aug 10, 2017, to make docetaxel mandatory for the remainder of the patients to be accrued, so that the trial could evaluate the addition of abiraterone to ADT with docetaxel (given that the evaluation of ADT plus abiraterone compared with ADT alone had already been addressed by other trials). Further details on the amendments to the protocol and statistical analysis plan are provided in the appendix (pp 7\u20138). Evolution of the sample size and allocation of patients according to these key amendments is depicted in the appendix (pp 9\u201310).\n\n\n\nRandomisation and masking\nEligible patients were centrally randomly assigned in the\nAlea Clinical Portal), in a 1:1:1:1 ratio, to SOC, SOC plus\nradiotherapy, SOC plus abiraterone (abiraterone plus\nprednisone), or SOC plus radiotherapy plus abiraterone.\nThis randomisation process was performed via the\nTenalea autonomous software, solely accessed by the trial\ndata manager within the Epidemioloy and Biostatistics\nfacility of the Gustave Roussy Center in Villejuif, France\nuntil 2015, then by each investigator.\n\n\n\nRandomisation was done using a minimisation algorithm, stratified by study site, ECOG performance status (0 vs 1-2), type of ADT (gonadotropin-releasing hormone agonist vs antagonist vs bilateral orchiectomy), planned administration of docetaxel (yes vs no), and disease extent or burden based on metastatic status (lymph node metastases only vs bone metastases [with or without lymph node metastases] vs visceral metastases).\nA similar weight was given to each of the five stratification factors, with 80% probability to minimise imbalance in the number of patients assigned to each treatment group. As the case report form gathered information for patient stratification according to high-volume versus low-volume metastatic burden classification (as defined in the CHAARTED study\u00b2 [high volume was defined as the presence of visceral metastases or at least four bone lesions with one beyond the vertebral bodies and pelvis]), this later classification was retained to enable inter-trial comparisons. No masking was performed in this study.\n\n\n\nProcedures\nIn all patients in the study, ADT was planned to be continuously maintained by either a gonadotropin-releasing hormone agonist or antagonist, or bilateral orchiectomy. Patients assigned to receive docetaxel as part of SOC with continuous ADT were to receive six cycles of intravenous docetaxel (75 mg/m\u00b2 per cycle; maximum dose of 150 mg per cycle), to be administered every 3 weeks (plus or minus 3 days). Granulocyte colony-stimulating factor (G-CSF) injections after each docetaxel cycle were recommended until the protocol amendment on Jan 22, 2018, made G-CSF prophylaxis mandatory for patients who received docetaxel. The first docetaxel cycle\n\n\n\nhad to be administered within 14 days after randomisation and be at least 6 weeks after ADT initiation. Patients assigned to receive abiraterone received 1000 mg of abiraterone (four 250 mg tablets, orally) once daily plus prednisone 5 mg orally twice daily, starting within 6 weeks after ADT initiation. PEACE-1 began accrual in 2013, before the LATITUDE and the STAMPEDE' abiraterone trials were reported and before abiraterone was approved for mCSPC, which is why we used 10 mg of prednisone, similar to what is approved for metastatic castration-resistant prostate cancer (mCRPC). Abiraterone and prednisone (hereafter referred to as abiraterone) were administered until disease progression to castration resistance, withdrawal of consent, unacceptable toxicity, or death. Patients assigned to receive radiotherapy (74 Gy in 37 fractions administered over 7\u20138 weeks) were planned to start radiotherapy at least 3 weeks after docetaxel completion (but no more than 8 weeks after completion). Treatments given after disease progression followed common practice, and investigators were able to change therapy as they thought was most appropriate, on the basis of prostate-specific antigen (PSA) concentration variation or clinical progression, even in absence of radiographical evidence. The treatment flow chart is depicted in the appendix (p 10).\n\n\n\nEvery enrolled patient was to be followed-up for a\nduration of 10 years. The complete list of assessments\nperformed at each visit and follow-up intervals are\ndetailed in the appendix (pp 12\u201313). Survival status data\nwere gathered within 3 months of the cutoff date for\n97% of patients.\n\n\n\n## Outcomes\nThe coprimary endpoints were radiographic progression-free survival and overall survival. Radiographical progression of soft-tissue lesions was evaluated by either CT or MRI, on the basis of RECIST version 1.1. Progression of bone lesions was assessed by bone scan according to the adapted version of Prostate Cancer Working Group 2 criteria,\u00b2\u00b9 with no secondary bone scan required to confirm progression. Radiographic progression-free survival was defined as the time between randomisation and the occurrence of radiographical progression or death from any cause. Overall survival was defined as the time between randomisation and death from any cause. Patients without events were censored at the date of last follow-up.\n\n\n\nThe secondary endpoints were castration-resistant\nprostate cancer (CRPC)-free survival, serious-genito-\nurinary-event-free survival, prostate-cancer-specificsurvival,\ntime to next skeletal-related event, PSA response rate,\nprognostic study of serum PSA measured 6\u20138 months\nafter initiation of systemic therapy, time to pain pro-\ngression, time to chemotherapy for CRPC, quality of life,\nchanges in bone mineral density, correlation of biomarkers\nwith outcome, event rate per 100 person-years of treatment\nanalysis, and toxicity. CRPC-free survival was defined as\n\n\n\nwww.thelancet.com Published online April 8, 2022 https://doi.org/10.1016/ S0140-6736(22)00367-1\n\n\n\n3\n\n\n\nFor more on the **Alea Clinical**\n**Portal** see https://www.\naleaclinical.eu",
+        "pages_returned": [
+          1,
+          2,
+          3
+        ]
+      }
+    },
+    {
+      "turn": 4,
+      "role": "tool",
+      "name": "submit_verification",
+      "args": {
+        "results_keys": [
+          "Class of Agent in Treatment Arm 1",
+          "Control Arm - N",
+          "Add-on Treatment",
+          "Treatment Arm(s)",
+          "Quality of Life reported",
+          "Treatment Arm - N"
+        ]
+      },
+      "response": {
+        "submitted": [
+          "Class of Agent in Treatment Arm 1",
+          "Control Arm - N",
+          "Add-on Treatment",
+          "Treatment Arm(s)",
+          "Quality of Life reported",
+          "Treatment Arm - N"
+        ]
+      }
+    }
+  ],
+  "results": {
+    "Median Follow-Up Duration (mo)": {
+      "value": "3.5 years (42 months) for radiographic progression-free survival and 4.4 years (52.8 months) for overall survival",
+      "reasoning": "Source A provides both the years and the converted months, making it more complete than B, which only provides the months. Both sources are from page 1, text modality.",
+      "verification": "both_correct",
+      "source": {
+        "page": 1,
+        "modality": "text"
+      },
+      "attribution": [
+        {
+          "page": 1,
+          "modality": "text"
+        }
+      ]
+    },
+    "Number of Arms Included": {
+      "value": "4",
+      "reasoning": "Both sources agree on the number of arms included.",
+      "verification": "both_correct",
+      "source": {
+        "page": 1,
+        "modality": "text"
+      },
+      "attribution": [
+        {
+          "page": 1,
+          "modality": "text"
+        }
+      ]
+    },
+    "Quality of Life Scale": {
+      "value": "Not reported",
+      "reasoning": "Both sources agree that the specific quality of life scale is not reported.",
+      "verification": "both_correct",
+      "source": {
+        "page": null,
+        "modality": "text"
+      },
+      "attribution": []
+    },
+    "Secondary Endpoint(s)": {
+      "value": "Castration-resistant prostate cancer (CRPC)-free survival, serious-genito-urinary-event-free survival, prostate-cancer-specific-survival, time to next skeletal-related event, PSA response rate, progno",
+      "reasoning": "Source B provides a slightly more complete and better-formatted list of secondary endpoints, including a hyphen in 'prostate-cancer-specific-survival' and a slightly longer 'progno' which is likely an abbreviation for 'prognostic factors' or similar. Both sources are from page 3, text modality.",
+      "verification": "both_correct",
+      "source": {
+        "page": 3,
+        "modality": "text"
+      },
+      "attribution": [
+        {
+          "page": 3,
+          "modality": "text"
+        }
+      ]
+    },
+    "Total Participants - N": {
+      "value": "1173",
+      "reasoning": "Both sources agree on the total number of participants.",
+      "verification": "both_correct",
+      "source": {
+        "page": 1,
+        "modality": "text"
+      },
+      "attribution": [
+        {
+          "page": 1,
+          "modality": "text"
+        }
+      ]
+    },
+    "Primary Endpoint(s)": {
+      "value": "Radiographic progression-free survival and overall survival",
+      "reasoning": "Both sources provide the same primary endpoints, with only a difference in capitalization. Preferring B's capitalization.",
+      "verification": "both_correct",
+      "source": {
+        "page": 1,
+        "modality": "text"
+      },
+      "attribution": [
+        {
+          "page": 1,
+          "modality": "text"
+        }
+      ]
+    },
+    "Treatment Arm 1 Regimen": {
+      "value": "Oral 1000 mg abiraterone once daily plus oral 5 mg prednisone twice daily (in combination with standard of care)",
+      "reasoning": "Source B provides a more complete description of the treatment regimen, explicitly mentioning 'in combination with standard of care', which is a superset of A's value. Both sources are from page 1, text modality.",
+      "verification": "both_correct",
+      "source": {
+        "page": 1,
+        "modality": "text"
+      },
+      "attribution": [
+        {
+          "page": 1,
+          "modality": "text"
+        }
+      ]
+    },
+    "Control Arm": {
+      "value": "standard of care (androgen deprivation therapy alone or with intravenous docetaxel 75 mg/m\u00b2 once every 3 weeks)",
+      "reasoning": "Source A provides a more complete description of the control arm, including the dosage and frequency of docetaxel, which is a superset of B's value. Both sources are from page 1, text modality.",
+      "verification": "both_correct",
+      "source": {
+        "page": 1,
+        "modality": "text"
+      },
+      "attribution": [
+        {
+          "page": 1,
+          "modality": "text"
+        }
+      ]
+    },
+    "COE_RCT_IND_OVERALL_RJ": {
+      "value": "Not reported",
+      "reasoning": "Both sources agree that the information is not reported.",
+      "verification": "both_correct",
+      "source": {
+        "page": null,
+        "modality": "text"
+      },
+      "attribution": []
+    },
+    "Class of Agent in Treatment Arm 1": {
+      "value": "second-generation androgen signalling inhibitor (abiraterone)",
+      "reasoning": "Page 2, in the 'Added value of this study' section, explicitly refers to abiraterone as a 'second-generation androgen signalling inhibitor'. While 'androgen receptor axis inhibitor' is also used for the class, 'androgen signalling inhibitor' is directly attributed to abiraterone in the context of this study's findings.",
+      "verification": "A_correct_B_wrong",
+      "source": {
+        "page": 2,
+        "modality": "text",
+        "verbatim_quote": "To our knowledge, PEACE-1 is the first trial to show that a triple systemic therapy\u2014consisting of ADT, docetaxel, and a second-generation androgen signalling inhibitor (abiraterone, combined with prednisone)\u2014improves both radiographic progression-free survival and overall survival in patients with de novo mCSPC, without excessively increasing toxicity (mostly hypertension and aminotransferase increase)."
+      },
+      "attribution": [
+        {
+          "page": 2,
+          "modality": "text",
+          "verbatim_quote": "To our knowledge, PEACE-1 is the first trial to show that a triple systemic therapy\u2014consisting of ADT, docetaxel, and a second-generation androgen signalling inhibitor (abiraterone, combined with prednisone)\u2014improves both radiographic progression-free survival and overall survival in patients with de novo mCSPC, without excessively increasing toxicity (mostly hypertension and aminotransferase increase)."
+        }
+      ]
+    },
+    "Control Arm - N": {
+      "value": "589",
+      "reasoning": "Page 1 states that 'patients who did not receive abiraterone (n=589)'. The control arm, by definition, does not receive the experimental treatment (abiraterone). Source A's value of 589 represents this total control group, while B's value of 296 refers to only one specific control arm.",
+      "verification": "A_correct_B_wrong",
+      "source": {
+        "page": 1,
+        "modality": "text",
+        "verbatim_quote": "In the overall population, patients assigned to receive abiraterone (n=583) had longer radiographic progression-free survival (hazard ratio [HR] 0.54, 99.9% CI 0.41\u20130.71; p<0.0001) and overall survival (0.82, 95.1% CI 0.69\u20130.98; p=0.030) than patients who did not receive abiraterone (n=589)."
+      },
+      "attribution": [
+        {
+          "page": 1,
+          "modality": "text",
+          "verbatim_quote": "In the overall population, patients assigned to receive abiraterone (n=583) had longer radiographic progression-free survival (hazard ratio [HR] 0.54, 99.9% CI 0.41\u20130.71; p<0.0001) and overall survival (0.82, 95.1% CI 0.69\u20130.98; p=0.030) than patients who did not receive abiraterone (n=589)."
+        }
+      ]
+    },
+    "Add-on Treatment": {
+      "value": "Abiraterone plus prednisone, and radiotherapy",
+      "reasoning": "Page 1 indicates that both abiraterone plus prednisone and radiotherapy are add-on treatments, as the study evaluates 'abiraterone plus prednisone, with or without radiotherapy'. Source B is more complete.",
+      "verification": "B_correct_A_wrong",
+      "source": {
+        "page": 1,
+        "modality": "text",
+        "verbatim_quote": "We aimed to evaluate the efficacy and safety of abiraterone plus prednisone, with or without radiotherapy, in addition to standard of care."
+      },
+      "attribution": [
+        {
+          "page": 1,
+          "modality": "text",
+          "verbatim_quote": "We aimed to evaluate the efficacy and safety of abiraterone plus prednisone, with or without radiotherapy, in addition to standard of care."
+        }
+      ]
+    },
+    "Treatment Arm(s)": {
+      "value": "Standard of care plus radiotherapy; Standard of care plus abiraterone; Standard of care plus radiotherapy plus abiraterone.",
+      "reasoning": "Page 1 lists all the arms participants were assigned to, beyond standard of care alone, as 'standard of care plus radiotherapy, standard of care plus abiraterone (oral 1000 mg abiraterone once daily plus oral 5 mg prednisone twice daily), or standard of care plus radiotherapy plus abiraterone'. Source B correctly identifies these three distinct treatment arms without including regimen details, which are not requested by the definition of 'Treatment Arm(s)'. Source A is missing one of the treatment arms and includes regimen details.",
+      "verification": "B_correct_A_wrong",
+      "source": {
+        "page": 1,
+        "modality": "text",
+        "verbatim_quote": "Participants were randomly assigned (1:1:1:1) to standard of care (androgen deprivation therapy alone or with intravenous docetaxel 75 mg/m\u00b2 once every 3 weeks), standard of care plus radiotherapy, standard of care plus abiraterone (oral 1000 mg abiraterone once daily plus oral 5 mg prednisone twice daily), or standard of care plus radiotherapy plus abiraterone."
+      },
+      "attribution": [
+        {
+          "page": 1,
+          "modality": "text",
+          "verbatim_quote": "Participants were randomly assigned (1:1:1:1) to standard of care (androgen deprivation therapy alone or with intravenous docetaxel 75 mg/m\u00b2 once every 3 weeks), standard of care plus radiotherapy, standard of care plus abiraterone (oral 1000 mg abiraterone once daily plus oral 5 mg prednisone twice daily), or standard of care plus radiotherapy plus abiraterone."
+        }
+      ]
+    },
+    "Quality of Life reported": {
+      "value": "No",
+      "reasoning": "Page 3 lists 'quality of life' as a secondary endpoint, but no results for quality of life are presented in the provided text. Therefore, it is not reported.",
+      "verification": "A_correct_B_wrong",
+      "source": {
+        "page": 3,
+        "modality": "text",
+        "verbatim_quote": "The secondary endpoints were castration-resistant prostate cancer (CRPC)-free survival, serious-genito-urinary-event-free survival, prostate-cancer-specificsurvival, time to next skeletal-related event, PSA response rate, prognostic study of serum PSA measured 6\u20138 months after initiation of systemic therapy, time to pain pro-gression, time to chemotherapy for CRPC, quality of life, changes in bone mineral density, correlation of biomarkers with outcome, event rate per 100 person-years of treatment analysis, and toxicity."
+      },
+      "attribution": [
+        {
+          "page": 3,
+          "modality": "text",
+          "verbatim_quote": "The secondary endpoints were castration-resistant prostate cancer (CRPC)-free survival, serious-genito-urinary-event-free survival, prostate-cancer-specificsurvival, time to next skeletal-related event, PSA response rate, prognostic study of serum PSA measured 6\u20138 months after initiation of systemic therapy, time to pain pro-gression, time to chemotherapy for CRPC, quality of life, changes in bone mineral density, correlation of biomarkers with outcome, event rate per 100 person-years of treatment analysis, and toxicity."
+        }
+      ]
+    },
+    "Treatment Arm - N": {
+      "value": "Standard of care plus radiotherapy: 293; Standard of care plus abiraterone: 292; Standard of care plus radiotherapy plus abiraterone: 291.",
+      "reasoning": "Page 1 explicitly lists the number of participants for each assigned arm separately: 'standard of care plus radiotherapy (n=293), standard of care plus abiraterone (n=292), or standard of care plus radiotherapy plus abiraterone (n=291)'. The definition asks to report for all separately if multiple treatment arms exist. Source B provides these individual counts, which is more aligned with the instruction than A's aggregated number.",
+      "verification": "B_correct_A_wrong",
+      "source": {
+        "page": 1,
+        "modality": "text",
+        "verbatim_quote": "Findings Between Nov 27, 2013, and Dec 20, 2018, 1173 patients were enrolled (one patient subsequently withdrew consent for analysis of his data) and assigned to receive standard of care (n=296), standard of care plus radiotherapy (n=293), standard of care plus abiraterone (n=292), or standard of care plus radiotherapy plus abiraterone (n=291)."
+      },
+      "attribution": [
+        {
+          "page": 1,
+          "modality": "text",
+          "verbatim_quote": "Findings Between Nov 27, 2013, and Dec 20, 2018, 1173 patients were enrolled (one patient subsequently withdrew consent for analysis of his data) and assigned to receive standard of care (n=296), standard of care plus radiotherapy (n=293), standard of care plus abiraterone (n=292), or standard of care plus radiotherapy plus abiraterone (n=291)."
+        }
+      ]
+    }
+  }
+}

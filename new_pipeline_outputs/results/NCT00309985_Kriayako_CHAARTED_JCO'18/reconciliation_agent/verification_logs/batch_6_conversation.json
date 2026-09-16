@@ -1,0 +1,138 @@
+{
+  "doc_id": "NCT00309985_Kriayako_CHAARTED_JCO'18",
+  "tool_calls_sequence": [
+    {
+      "name": "submit_verification",
+      "args": {
+        "results_keys": [
+          "Metastases - N (%) | Nodal | Treatment",
+          "Metastases - N (%) | Liver | Control",
+          "Metastases - N (%) | Nodal | Control",
+          "Metastases - N (%) | Bone | Treatment",
+          "Metastases - N (%) | Lungs | Treatment",
+          "Metastases - N (%) | Lungs | Control",
+          "Metastases - N (%) | Bone | Control",
+          "Metastases - N (%) | Liver | Treatment"
+        ]
+      }
+    }
+  ],
+  "conversation": [
+    {
+      "turn": 0,
+      "role": "user",
+      "content": "Reconcile the following columns. Document has 10 pages. Sources are anonymous (A and B).\n\nCOLUMNS:\n\n---\nColumn 1: Metastases - N (%) | Liver | Treatment\nDefinition: What the number and percentage of participants in the treatment of the trial who had liver as the metastatic site? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.\n  A: value=\"Not reported\" | page=None | modality=text | reasoning=\"The document defines 'high-volume disease' as including 'visceral metastases' but does not provide specific counts or percentages for liver metastases in the treatment arm.\"\n  B: value=\"Not reported\" | page=None | modality=text | reasoning=\"The document discusses high-volume disease defined by visceral and bone metastases, but does not provide a breakdown of the number and percentage of participants with liver metastases in the treatment arm.\"\n\n---\nColumn 2: Metastases - N (%) | Liver | Control\nDefinition: What the number and percentage of participants in the control arm of the trial who had liver as the metastatic site? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.\n  A: value=\"Not reported\" | page=None | modality=text | reasoning=\"The document defines 'high-volume disease' as including 'visceral metastases' but does not provide specific counts or percentages for liver metastases in the control arm.\"\n  B: value=\"Not reported\" | page=None | modality=text | reasoning=\"The document discusses high-volume disease defined by visceral and bone metastases, but does not provide a breakdown of the number and percentage of participants with liver metastases in the control arm.\"\n\n---\nColumn 3: Metastases - N (%) | Lungs | Treatment\nDefinition: What the number and percentage of participants in the treatment arm of the trial who had lungs as the metastatic site? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.\n  A: value=\"Not reported\" | page=None | modality=text | reasoning=\"The document defines 'high-volume disease' as including 'visceral metastases' but does not provide specific counts or percentages for lung metastases in the treatment arm.\"\n  B: value=\"Not reported\" | page=None | modality=text | reasoning=\"The document discusses high-volume disease defined by visceral and bone metastases, but does not provide a breakdown of the number and percentage of participants with lung metastases in the treatment arm.\"\n\n---\nColumn 4: Metastases - N (%) | Lungs | Control\nDefinition: What the number and percentage of participants in the control arm of the trial who had lungs as the metastatic site? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.\n  A: value=\"Not reported\" | page=None | modality=text | reasoning=\"The document defines 'high-volume disease' as including 'visceral metastases' but does not provide specific counts or percentages for lung metastases in the control arm.\"\n  B: value=\"Not reported\" | page=None | modality=text | reasoning=\"The document discusses high-volume disease defined by visceral and bone metastases, but does not provide a breakdown of the number and percentage of participants with lung metastases in the control arm.\"\n\n---\nColumn 5: Metastases - N (%) | Bone | Treatment\nDefinition: What number and percentage of participants in the treatment arm of the clinical trial who have metastases in the bone? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.\n  A: value=\"Not reported\" | page=None | modality=text | reasoning=\"The document defines 'high-volume disease' as including '\u2265 four bone metastases with at least one outside of the vertebral column and pelvis', but does not provide the total number or percentage of participants with any bone metastases in the treatment arm.\"\n  B: value=\"Not reported\" | page=None | modality=text | reasoning=\"The document discusses high-volume disease defined by visceral and bone metastases, but does not provide a breakdown of the number and percentage of participants with bone metastases in the treatment arm.\"\n\n---\nColumn 6: Metastases - N (%) | Bone | Control\nDefinition: What the number and percentage of patients showing metastases in the bone in the control arm of the trial? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.\n  A: value=\"Not reported\" | page=None | modality=text | reasoning=\"The document defines 'high-volume disease' as including '\u2265 four bone metastases with at least one outside of the vertebral column and pelvis', but does not provide the total number or percentage of participants with any bone metastases in the control arm.\"\n  B: value=\"Not reported\" | page=None | modality=text | reasoning=\"The document discusses high-volume disease defined by visceral and bone metastases, but does not provide a breakdown of the number and percentage of participants with bone metastases in the control arm.\"\n\n---\nColumn 7: Metastases - N (%) | Nodal | Treatment\nDefinition: What the number and percentage of participants in the treatment arm of the clinical trial who have metastases in the lymph nodes? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.\n  A: value=\"Not reported\" | page=None | modality=text | reasoning=\"The document does not report the number or percentage of participants with nodal metastases in the treatment arm.\"\n  B: value=\"Not reported\" | page=None | modality=text | reasoning=\"The document discusses high-volume disease defined by visceral and bone metastases, but does not provide a breakdown of the number and percentage of participants with nodal metastases in the treatment arm.\"\n\n---\nColumn 8: Metastases - N (%) | Nodal | Control\nDefinition: What the number and percentage of patients showing metastases in the nodal region in the control arm of the trial? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.\n  A: value=\"Not reported\" | page=None | modality=text | reasoning=\"The document does not report the number or percentage of participants with nodal metastases in the control arm.\"\n  B: value=\"Not reported\" | page=None | modality=text | reasoning=\"The document discusses high-volume disease defined by visceral and bone metastases, but does not provide a breakdown of the number and percentage of participants with nodal metastases in the control arm.\"\n\n\nSubmit verification for easy columns first. For disputed columns, use get_page then submit."
+    },
+    {
+      "turn": 2,
+      "role": "tool",
+      "name": "submit_verification",
+      "args": {
+        "results_keys": [
+          "Metastases - N (%) | Nodal | Treatment",
+          "Metastases - N (%) | Liver | Control",
+          "Metastases - N (%) | Nodal | Control",
+          "Metastases - N (%) | Bone | Treatment",
+          "Metastases - N (%) | Lungs | Treatment",
+          "Metastases - N (%) | Lungs | Control",
+          "Metastases - N (%) | Bone | Control",
+          "Metastases - N (%) | Liver | Treatment"
+        ]
+      },
+      "response": {
+        "submitted": [
+          "Metastases - N (%) | Nodal | Treatment",
+          "Metastases - N (%) | Liver | Control",
+          "Metastases - N (%) | Nodal | Control",
+          "Metastases - N (%) | Bone | Treatment",
+          "Metastases - N (%) | Lungs | Treatment",
+          "Metastases - N (%) | Lungs | Control",
+          "Metastases - N (%) | Bone | Control",
+          "Metastases - N (%) | Liver | Treatment"
+        ]
+      }
+    }
+  ],
+  "results": {
+    "Metastases - N (%) | Nodal | Treatment": {
+      "value": "Not reported",
+      "reasoning": "Both sources reported \"Not reported\".",
+      "verification": "both_correct",
+      "source": {
+        "page": null,
+        "modality": "text"
+      },
+      "attribution": []
+    },
+    "Metastases - N (%) | Liver | Control": {
+      "value": "Not reported",
+      "reasoning": "Both sources reported \"Not reported\".",
+      "verification": "both_correct",
+      "source": {
+        "page": null,
+        "modality": "text"
+      },
+      "attribution": []
+    },
+    "Metastases - N (%) | Nodal | Control": {
+      "value": "Not reported",
+      "reasoning": "Both sources reported \"Not reported\".",
+      "verification": "both_correct",
+      "source": {
+        "page": null,
+        "modality": "text"
+      },
+      "attribution": []
+    },
+    "Metastases - N (%) | Bone | Treatment": {
+      "value": "Not reported",
+      "reasoning": "Both sources reported \"Not reported\".",
+      "verification": "both_correct",
+      "source": {
+        "page": null,
+        "modality": "text"
+      },
+      "attribution": []
+    },
+    "Metastases - N (%) | Lungs | Treatment": {
+      "value": "Not reported",
+      "reasoning": "Both sources reported \"Not reported\".",
+      "verification": "both_correct",
+      "source": {
+        "page": null,
+        "modality": "text"
+      },
+      "attribution": []
+    },
+    "Metastases - N (%) | Lungs | Control": {
+      "value": "Not reported",
+      "reasoning": "Both sources reported \"Not reported\".",
+      "verification": "both_correct",
+      "source": {
+        "page": null,
+        "modality": "text"
+      },
+      "attribution": []
+    },
+    "Metastases - N (%) | Bone | Control": {
+      "value": "Not reported",
+      "reasoning": "Both sources reported \"Not reported\".",
+      "verification": "both_correct",
+      "source": {
+        "page": null,
+        "modality": "text"
+      },
+      "attribution": []
+    },
+    "Metastases - N (%) | Liver | Treatment": {
+      "value": "Not reported",
+      "reasoning": "Both sources reported \"Not reported\".",
+      "verification": "both_correct",
+      "source": {
+        "page": null,
+        "modality": "text"
+      },
+      "attribution": []
+    }
+  }
+}

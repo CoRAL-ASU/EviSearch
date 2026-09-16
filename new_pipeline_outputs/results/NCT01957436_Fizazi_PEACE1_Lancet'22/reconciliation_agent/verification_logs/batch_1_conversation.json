@@ -1,0 +1,324 @@
+{
+  "doc_id": "NCT01957436_Fizazi_PEACE1_Lancet'22",
+  "tool_calls_sequence": [
+    {
+      "name": "submit_verification",
+      "args": {
+        "results_keys": [
+          "Docetaxel administration - N (%) | Control",
+          "Median Age (years) | Treatment",
+          "Trial",
+          "TTPSA (mo) | Control",
+          "Median On-Treatment Duration (mo) | Control",
+          "No. of Deaths - N | Control",
+          "No. of Deaths - N | Treatment",
+          "PFS Rate (%) | Overall | Treatment",
+          "Docetaxel administration - N (%) | Treatment",
+          "PFS Rate (%) | Overall | Control",
+          "TTPSA (mo) | Treatment",
+          "Median On-Treatment Duration (mo) | Treatment",
+          "Median Age (years) | Control"
+        ]
+      }
+    },
+    {
+      "name": "get_page",
+      "args": {
+        "page_numbers": [
+          1
+        ]
+      }
+    },
+    {
+      "name": "submit_verification",
+      "args": {
+        "results_keys": [
+          "Treatment Class",
+          "Type of Therapy"
+        ]
+      }
+    }
+  ],
+  "conversation": [
+    {
+      "turn": 0,
+      "role": "user",
+      "content": "Reconcile the following columns. Document has 13 pages. Sources are anonymous (A and B).\n\nCOLUMNS:\n\n---\nColumn 1: Treatment Class\nDefinition: What is the categorization or classification of the treatment or therapy received by participants in the clinical trial?. If reported, provide the value; otherwise use 'Not reported'.\n  A: value=\"triplet therapy (androgen deprivation therapy, docetaxel, and abiraterone)\" | page=1 | modality=text | reasoning=\"The summary section on page 1 describes the combination of androgen deprivation therapy, docetaxel, and abiraterone as 'triplet therapy'. The 'Added value of this study' section on page 2 further specifies it as 'triple systemic therapy-consisting of ADT, docetaxel, and a second-generation androgen \"\n  B: value=\"Androgen deprivation therapy, docetaxel, and abiraterone plus prednisone (second-generation androgen signalling inhibitor)\" | page=1 | modality=text | reasoning=\"Found in the summary and introduction on page 1, describing the components of the triple systemic therapy.\"\n\n---\nColumn 2: Trial\nDefinition: What name of the clinical study or experiment being referenced?. If reported, provide the value; otherwise use 'Not reported'.\n  A: value=\"PEACE-1\" | page=1 | modality=text | reasoning=\"The trial name 'PEACE-1' is explicitly mentioned in the title of the paper.\"\n  B: value=\"PEACE-1\" | page=1 | modality=text | reasoning=\"Clearly stated in the title of the article on page 1.\"\n\n---\nColumn 3: Type of Therapy\nDefinition: What is the description of the type of treatment or intervention provided to participants in the clinical trial?. If reported, provide the value; otherwise use 'Not reported'.\n  A: value=\"standard of care (androgen deprivation therapy alone or with intravenous docetaxel 75 mg/m\u00b2 once every 3 weeks), standard of care plus radiotherapy, standard of care plus abiraterone (oral 1000 mg abi\" | page=1 | modality=text | reasoning=\"The 'Methods' section on page 1 details the different treatment arms, including 'standard of care (androgen deprivation therapy alone or with intravenous docetaxel 75 mg/m\u00b2 once every 3 weeks), standard of care plus radiotherapy, standard of care plus abiraterone (oral 1000 mg abiraterone once daily\"\n  B: value=\"Triple systemic therapy (androgen deprivation therapy, docetaxel, and abiraterone plus prednisone)\" | page=1 | modality=text | reasoning=\"Described as 'triple systemic therapy' in the interpretation on page 1 and further detailed in the summary and introduction.\"\n\n---\nColumn 4: Docetaxel administration - N (%) | Treatment\nDefinition: What percentage of participants in the treatment arm of the clinical trial who received docetaxel before or during the trial? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.\n  A: value=\"355 (60.9%)\" | page=5 | modality=figure | reasoning=\"Figure 1 shows that in the '583 in SOC (with or without radiotherapy) plus abiraterone groups', '355 included in the ADT with docetaxel population for efficacy analysis'. This means 355 out of 583 patients in the abiraterone (treatment) arm received docetaxel. (355/583)*100 = 60.89%.\"\n  B: value=\"355 (60.9%)\" | page=5 | modality=figure | reasoning=\"From Figure 1 on page 5, summing patients who received docetaxel in the 'SOC plus abiraterone' and 'SOC plus abiraterone plus radiotherapy' groups (177 + 178 = 355) out of the total patients in these groups (292 + 291 = 583).\"\n\n---\nColumn 5: Docetaxel administration - N (%) | Control\nDefinition: What number and percentage of participants who received docetaxel before or during the trial in the control arm of the clinical trial? If reported, include count and/or percentage. If multiple relevant arms are reported, list each arm separately. Use 'Not reported' if missing.\n  A: value=\"355 (60.3%)\" | page=5 | modality=figure | reasoning=\"Figure 1 shows that in the '589 in SOC (with or without radiotherapy) without abiraterone groups', '355 included in the ADT with docetaxel population for efficacy analysis'. This means 355 out of 589 patients in the control arm received docetaxel. (355/589)*100 = 60.27%.\"\n  B: value=\"355 (60.3%)\" | page=5 | modality=figure | reasoning=\"From Figure 1 on page 5, summing patients who received docetaxel in the 'SOC' and 'SOC plus radiotherapy' groups (178 + 177 = 355) out of the total patients in these groups (296 + 293 = 589).\"\n\n---\nColumn 6: Median Age (years) | Treatment\nDefinition: What median age in years of participants included in the treatment arm of the clinical trial? If reported, include the value; use 'Not reported' if missing.\n  A: value=\"67 (IQR 61-72)\" | page=6 | modality=table | reasoning=\"Table 1, 'Age, years' row, 'Median' sub-row, under 'SOC plus abiraterone groups (with or without radiotherapy; n=583)' column, reports '67 (61-72)'.\"\n  B: value=\"67 (IQR 61-72)\" | page=6 | modality=table | reasoning=\"From Table 1 on page 6, under 'Age, years Median' for 'SOC plus abiraterone groups'.\"\n\n---\nColumn 7: Median Age (years) | Control\nDefinition: What the median age of participants included in the control arm of the clinical trial? If reported, include the value; use 'Not reported' if missing.\n  A: value=\"66 (IQR 59-72)\" | page=6 | modality=table | reasoning=\"Table 1, 'Age, years' row, 'Median' sub-row, under 'SOC without abiraterone groups (with or without radiotherapy; n=589)' column, reports '66 (59-72)'.\"\n  B: value=\"66 (IQR 59-72)\" | page=6 | modality=table | reasoning=\"From Table 1 on page 6, under 'Age, years Median' for 'SOC without abiraterone groups'.\"\n\n---\nColumn 8: Median On-Treatment Duration (mo) | Treatment\nDefinition: What is the median duration in months that participants in the treatment arm of the trial received on-treatment therapy? If reported, include the value; use 'Not reported' if missing.\n  A: value=\"Not reported\" | page=None | modality=text | reasoning=\"The document provides 'median abiraterone treatment duration before discontinuation' for specific subgroups (ADT with docetaxel population and ADT without docetaxel population) within the abiraterone arm, but not for the entire abiraterone treatment arm (n=583). The question asks for 'Median On-Trea\"\n  B: value=\"Not reported\" | page=None | modality=text | reasoning=\"The document provides the duration of abiraterone treatment and the number of docetaxel cycles, but not a single median on-treatment duration for the entire regimen in the treatment arm.\"\n\n---\nColumn 9: Median On-Treatment Duration (mo) | Control\nDefinition: What is the median duration in months of participants receiving treatment in the control arm of the clinical trial? If reported, include the value; use 'Not reported' if missing.\n  A: value=\"Not reported\" | page=None | modality=text | reasoning=\"The median on-treatment duration for the control arm (SOC without abiraterone) is not explicitly reported in the document.\"\n  B: value=\"Not reported\" | page=None | modality=text | reasoning=\"The document provides the number of docetaxel cycles, but not a single median on-treatment duration for the entire regimen in the control arm.\"\n\n---\nColumn 10: No. of Deaths - N | Treatment\nDefinition: What the number of participants who died in the treatment arm of the clinical trial?.\n  A: value=\"228\" | page=5 | modality=figure | reasoning=\"Figure 1, under '583 in SOC (with or without radiotherapy) plus abiraterone groups', states '228 deceased at data cutoff'.\"\n  B: value=\"228\" | page=5 | modality=figure | reasoning=\"From Figure 1 on page 5, '228 deceased at data cutoff' for 'SOC (with or without radiotherapy) plus abiraterone groups'.\"\n\n---\nColumn 11: No. of Deaths - N | Control\nDefinition: What number of deaths that occurred in the control arm of the clinical trial?.\n  A: value=\"268\" | page=5 | modality=figure | reasoning=\"Figure 1, under '589 in SOC (with or without radiotherapy) without abiraterone groups', states '268 deceased at data cutoff'.\"\n  B: value=\"268\" | page=5 | modality=figure | reasoning=\"From Figure 1 on page 5, '268 deceased at data cutoff' for 'SOC (with or without radiotherapy) without abiraterone groups'.\"\n\n---\nColumn 12: PFS Rate (%) | Overall | Treatment\nDefinition: What the hazard ratio with confidence intervals of progression-free survival (PFS) of all comparisons in all participants, regardless of metastasis type or volume, in the treatment arm of the trial? If reported, include the rate (percentage) and any accompanying details. If multiple arms are reported, list each arm separately. Use 'Not reported' if missing.\n  A: value=\"Not reported\" | page=None | modality=text | reasoning=\"The document reports median radiographic progression-free survival duration (4.46 years) and hazard ratios (HR 0.54) for the overall population, but not a percentage rate for PFS.\"\n  B: value=\"Not reported\" | page=None | modality=text | reasoning=\"The document provides median radiographic progression-free survival and hazard ratios, but not a specific PFS rate (percentage) for the treatment arm.\"\n\n---\nColumn 13: PFS Rate (%) | Overall | Control\nDefinition: What hazard ratio with confidence intervals of Progression-Free Survival (PFS) of all comparisons in all participants in the control arm of the trial? If reported, include the rate (percentage) and any accompanying details. If multiple arms are reported, list each arm separately. Use 'Not reported' if missing.\n  A: value=\"Not reported\" | page=None | modality=text | reasoning=\"The document reports median radiographic progression-free survival duration (2.22 years) and hazard ratios (HR 0.54) for the overall population, but not a percentage rate for PFS.\"\n  B: value=\"Not reported\" | page=None | modality=text | reasoning=\"The document provides median radiographic progression-free survival and hazard ratios, but not a specific PFS rate (percentage) for the control arm.\"\n\n---\nColumn 14: TTPSA (mo) | Treatment\nDefinition: What time To Progression of Serum Androgen (in months) in the treatment arm of the clinical trial? If reported, include the value; use 'Not reported' if missing.\n  A: value=\"Not reported\" | page=None | modality=text | reasoning=\"The document mentions PSA response rate and CRPC-free survival (which involves PSA criteria) but does not report a specific 'Time To Progression of Serum Androgen (TTPSA)' as a distinct endpoint with a median value.\"\n  B: value=\"Not reported\" | page=None | modality=text | reasoning=\"TTPSA (Time To Progression of Serum Androgen) was not reported in the provided document pages.\"\n\n---\nColumn 15: TTPSA (mo) | Control\nDefinition: What time to Progressive Serum Androgen (TTPSA) in months for participants in the control arm of the clinical trial? If reported, include the value; use 'Not reported' if missing.\n  A: value=\"Not reported\" | page=None | modality=text | reasoning=\"The document mentions PSA response rate and CRPC-free survival (which involves PSA criteria) but does not report a specific 'Time To Progression of Serum Androgen (TTPSA)' as a distinct endpoint with a median value.\"\n  B: value=\"Not reported\" | page=None | modality=text | reasoning=\"TTPSA (Time To Progression of Serum Androgen) was not reported in the provided document pages.\"\n\n\nSubmit verification for easy columns first. For disputed columns, use get_page then submit."
+    },
+    {
+      "turn": 2,
+      "role": "tool",
+      "name": "submit_verification",
+      "args": {
+        "results_keys": [
+          "Docetaxel administration - N (%) | Control",
+          "Median Age (years) | Treatment",
+          "Trial",
+          "TTPSA (mo) | Control",
+          "Median On-Treatment Duration (mo) | Control",
+          "No. of Deaths - N | Control",
+          "No. of Deaths - N | Treatment",
+          "PFS Rate (%) | Overall | Treatment",
+          "Docetaxel administration - N (%) | Treatment",
+          "PFS Rate (%) | Overall | Control",
+          "TTPSA (mo) | Treatment",
+          "Median On-Treatment Duration (mo) | Treatment",
+          "Median Age (years) | Control"
+        ]
+      },
+      "response": {
+        "submitted": [
+          "Docetaxel administration - N (%) | Control",
+          "Median Age (years) | Treatment",
+          "Trial",
+          "TTPSA (mo) | Control",
+          "Median On-Treatment Duration (mo) | Control",
+          "No. of Deaths - N | Control",
+          "No. of Deaths - N | Treatment",
+          "PFS Rate (%) | Overall | Treatment",
+          "Docetaxel administration - N (%) | Treatment",
+          "PFS Rate (%) | Overall | Control",
+          "TTPSA (mo) | Treatment",
+          "Median On-Treatment Duration (mo) | Treatment",
+          "Median Age (years) | Control"
+        ]
+      }
+    },
+    {
+      "turn": 3,
+      "role": "tool",
+      "name": "get_page",
+      "args": {
+        "page_numbers": [
+          1
+        ]
+      },
+      "response": {
+        "formatted_chunks": "[Page 1]\n## Page 1\n\nArticles\n\n\n\nAbiraterone plus prednisone added to androgen deprivation therapy and docetaxel in de novo metastatic castration-sensitive prostate cancer (PEACE-1): a multicentre, open-label, randomised, phase 3 study with a 2 x 2 factorial design\n\n\n\n<::logo: CrossMark\nCrossMark\nThe logo features a stylized 'W' with an arrow, a cursor icon, and a bookmark symbol, all in a deep red color.::>\n\n\n\nKarim Fizazi, St\u00e9phanie Foulon, Joan Carles, Guilhem Roubaud, Ray McDermott, Aude Fl\u00e9chon, Bertrand Tombal, St\u00e9phane Supiot,\nDominik Berthold, Philippe Ronchin, Gabriel Kacso, Gwena\u00eblle Gravis, Fabio Calabro, Jean-Fran\u00e7ois Berdah, Ali Hasbini, Marlon Silva,\nAntoine Thiery-Vuillemin, Igor Latorzeff, Lo\u00efc Mourey, Brigitte Laguerre, Sophie Abadie-Lacourtoisie, Etienne Martin, Claude El Kouri,\nAnne Escande, Alvar Rosello, Nicolas Magne, Friederike Schlurmann, Frank Priou, Marie-Eve Chand-Fouche, Salvador Vill\u00e0 Freixa,\nMuhammad Jamaluddin, Isabelle Rieger, Alberto Bossi, on behalf of the PEACE-1 investigators*\n\n\n\n## Summary\n\n**Background** Current standard of care for metastatic castration-sensitive prostate cancer supplements androgen deprivation therapy with either docetaxel, second-generation hormonal therapy, or radiotherapy. We aimed to evaluate the efficacy and safety of abiraterone plus prednisone, with or without radiotherapy, in addition to standard of care.\n\n\n\nMethods We conducted an open-label, randomised, phase 3 study with a 2x2 factorial design (PEACE-1) at 77 hospitals across Belgium, France, Ireland, Italy, Romania, Spain, and Switzerland. Eligible patients were male, aged 18 years or older, with histologically confirmed or cytologically confirmed de novo metastatic prostate adenocarcinoma, and an Eastern Cooperative Oncology Group performance status of 0\u20131 (or 2 due to bone pain).\nParticipants were randomly assigned (1:1:1:1) to standard of care (androgen deprivation therapy alone or with intravenous docetaxel 75 mg/m\u00b2 once every 3 weeks), standard of care plus radiotherapy, standard of care plus abiraterone (oral 1000 mg abiraterone once daily plus oral 5 mg prednisone twice daily), or standard of care plus radiotherapy plus abiraterone. Neither the investigators nor the patients were masked to treatment allocation. The coprimary endpoints were radiographic progression-free survival and overall survival. Abiraterone efficacy was first assessed in the overall population and then in the population who received androgen deprivation therapy with docetaxel as standard of care (population of interest). This study is ongoing and is registered with ClinicalTrials.gov, NCT01957436.\n\n\n\nFindings Between Nov 27, 2013, and Dec 20, 2018, 1173 patients were enrolled (one patient subsequently withdrew consent for analysis of his data) and assigned to receive standard of care (n=296), standard of care plus radiotherapy (n=293), standard of care plus abiraterone (n=292), or standard of care plus radiotherapy plus abiraterone (n=291). Median follow-up was 3.5 years (IQR 2.8\u20134.6) for radiographic progression-free survival and 4.4 years (3.5\u20135.4) for overall survival. Adjusted Cox regression modelling revealed no interaction between abiraterone and radiotherapy, enabling the pooled analysis of abiraterone efficacy. In the overall population, patients assigned to receive abiraterone (n=583) had longer radiographic progression-free survival (hazard ratio [HR] 0.54, 99.9% CI 0.41\u20130.71; p<0.0001) and overall survival (0.82, 95.1% CI 0.69\u20130.98; p=0.030) than patients who did not receive abiraterone (n=589). In the androgen deprivation therapy with docetaxel population (n=355 in both with abiraterone and without abiraterone groups), the HRs were consistent (radiographic progression-free survival 0.50, 99.9% CI 0.34\u20130.71; p<0.0001; overall survival 0.75, 95.1% CI 0.59\u20130.95; p=0.017). In the androgen deprivation therapy with docetaxel population, grade 3 or worse adverse events occurred in 217 (63%) of 347 patients who received abiraterone and 181 (52%) of 350 who did not; hypertension had the largest difference in occurrence (76 [22%] patients and 45 [13%], respectively). Addition of abiraterone to androgen deprivation therapy plus docetaxel did not increase the rates of neutropenia, febrile neutropenia, fatigue, or neuropathy compared with androgen deprivation therapy plus docetaxel alone.\n\n\n\n**Interpretation** Combining androgen deprivation therapy, docetaxel, and abiraterone in de novo metastatic castration-sensitive prostate cancer improved overall survival and radiographic progression-free survival with a modest increase in toxicity, mostly hypertension. This triplet therapy could become a standard of care for these patients.\n\n\n\nFunding Janssen-Cilag, Ipsen, Sanofi, and the French Government.\n\n\n\nCopyright \u00a9 2022 Elsevier Ltd. All rights reserved.\n\n\n\nPublished Online\nApril 8, 2022\nhttps://doi.org/10.1016/\nS0140-6736(22)00367-1\n\nSee Online/Comment\nhttps://doi.org/10.1016/\nS0140-6736(22)00427-5\n*Members are listed in the\nappendix (p 2)\n\n\n\nDepartment of Cancer\nMedicine (Prof K Fizazi MD),\nDepartment of Biostatistics\nand Epidemiology\n(S Foulon MD), Oncostat\nU1018, Inserm, Ligue Contre le\nCancer (S Foulon), and\nDepartment of Radiotherapy\n(A Bossi MD), Institut Gustave\nRoussy, University of Paris-\nSaclay, Villejuif, France; Vall\nd'Hebron Institute of\nOncology, Vall d'Hebron\nUniversity Hospital,\nBarcelona, Spain\n(Prof J Carles MD); Institut\nBergoni\u00e9 229 cours de\nl'Argonne, Bordeaux, France\n(G Roubaud MD); Cancer Trials\nIreland, St Vincent's University\nHospital, Dublin, Ireland\n(Prof R McDermott MD); Centre\nL\u00e9on B\u00e9rard, Lyon, France\n(A Fl\u00e9chon MD); Clinique\nUniversitaire St Luc, Brussels,\nBelgium (Prof B Tombal MD);\nInstitut de Canc\u00e9rologie de\nl'Ouest, Ren\u00e9 Gauducheau,\nSaint-Herblain, France\n(Prof S Supiot MD); Centre\nPluridisciplinaire d'Oncologie,\nCentre Hospitalier Universitaire\nVaudois, Lausanne, Switzerland\n(D Berthold MD); Centre\nAzureen de Cancerologie,\nMougins, France\n(P Ronchin MD); Amethyst\nRadiotherapy Center, Iuliu\nHatieganu University of\nMedicine and Pharmacy,\nCluj-Napoca, Romania\n(G Kacso MD); Institut\n\n\n\nwww.thelancet.com Published online April 8, 2022 https://doi.org/10.1016/ S0140-6736(22)00367-1\n\n\n\n1",
+        "pages_returned": [
+          1
+        ]
+      }
+    },
+    {
+      "turn": 4,
+      "role": "tool",
+      "name": "submit_verification",
+      "args": {
+        "results_keys": [
+          "Treatment Class",
+          "Type of Therapy"
+        ]
+      },
+      "response": {
+        "submitted": [
+          "Treatment Class",
+          "Type of Therapy"
+        ]
+      }
+    }
+  ],
+  "results": {
+    "Docetaxel administration - N (%) | Control": {
+      "value": "355 (60.3%)",
+      "reasoning": "",
+      "verification": "both_correct",
+      "source": {
+        "page": 5,
+        "modality": "figure"
+      },
+      "attribution": [
+        {
+          "page": 5,
+          "modality": "figure"
+        }
+      ]
+    },
+    "Median Age (years) | Treatment": {
+      "value": "67 (IQR 61-72)",
+      "reasoning": "",
+      "verification": "both_correct",
+      "source": {
+        "page": 6,
+        "modality": "table"
+      },
+      "attribution": [
+        {
+          "page": 6,
+          "modality": "table"
+        }
+      ]
+    },
+    "Trial": {
+      "value": "PEACE-1",
+      "reasoning": "",
+      "verification": "both_correct",
+      "source": {
+        "page": 1,
+        "modality": "text",
+        "verbatim_quote": "PEACE-1"
+      },
+      "attribution": [
+        {
+          "page": 1,
+          "modality": "text",
+          "verbatim_quote": "PEACE-1"
+        }
+      ]
+    },
+    "TTPSA (mo) | Control": {
+      "value": "Not reported",
+      "reasoning": "",
+      "verification": "both_correct",
+      "source": {
+        "page": null,
+        "modality": "text"
+      },
+      "attribution": []
+    },
+    "Median On-Treatment Duration (mo) | Control": {
+      "value": "Not reported",
+      "reasoning": "",
+      "verification": "both_correct",
+      "source": {
+        "page": null,
+        "modality": "text"
+      },
+      "attribution": []
+    },
+    "No. of Deaths - N | Control": {
+      "value": "268",
+      "reasoning": "",
+      "verification": "both_correct",
+      "source": {
+        "page": 5,
+        "modality": "figure"
+      },
+      "attribution": [
+        {
+          "page": 5,
+          "modality": "figure"
+        }
+      ]
+    },
+    "No. of Deaths - N | Treatment": {
+      "value": "228",
+      "reasoning": "",
+      "verification": "both_correct",
+      "source": {
+        "page": 5,
+        "modality": "figure"
+      },
+      "attribution": [
+        {
+          "page": 5,
+          "modality": "figure"
+        }
+      ]
+    },
+    "PFS Rate (%) | Overall | Treatment": {
+      "value": "Not reported",
+      "reasoning": "",
+      "verification": "both_correct",
+      "source": {
+        "page": null,
+        "modality": "text"
+      },
+      "attribution": []
+    },
+    "Docetaxel administration - N (%) | Treatment": {
+      "value": "355 (60.9%)",
+      "reasoning": "",
+      "verification": "both_correct",
+      "source": {
+        "page": 5,
+        "modality": "figure"
+      },
+      "attribution": [
+        {
+          "page": 5,
+          "modality": "figure"
+        }
+      ]
+    },
+    "PFS Rate (%) | Overall | Control": {
+      "value": "Not reported",
+      "reasoning": "",
+      "verification": "both_correct",
+      "source": {
+        "page": null,
+        "modality": "text"
+      },
+      "attribution": []
+    },
+    "TTPSA (mo) | Treatment": {
+      "value": "Not reported",
+      "reasoning": "",
+      "verification": "both_correct",
+      "source": {
+        "page": null,
+        "modality": "text"
+      },
+      "attribution": []
+    },
+    "Median On-Treatment Duration (mo) | Treatment": {
+      "value": "Not reported",
+      "reasoning": "",
+      "verification": "both_correct",
+      "source": {
+        "page": null,
+        "modality": "text"
+      },
+      "attribution": []
+    },
+    "Median Age (years) | Control": {
+      "value": "66 (IQR 59-72)",
+      "reasoning": "",
+      "verification": "both_correct",
+      "source": {
+        "page": 6,
+        "modality": "table"
+      },
+      "attribution": [
+        {
+          "page": 6,
+          "modality": "table"
+        }
+      ]
+    },
+    "Treatment Class": {
+      "value": "Androgen deprivation therapy, docetaxel, and abiraterone plus prednisone (second-generation androgen signalling inhibitor)",
+      "reasoning": "",
+      "verification": "B_correct_A_wrong",
+      "source": {
+        "page": 1,
+        "modality": "text",
+        "verbatim_quote": "Abiraterone plus prednisone added to androgen deprivation therapy and docetaxel in de novo metastatic castration-sensitive prostate cancer (PEACE-1)"
+      },
+      "attribution": [
+        {
+          "page": 1,
+          "modality": "text",
+          "verbatim_quote": "Abiraterone plus prednisone added to androgen deprivation therapy and docetaxel in de novo metastatic castration-sensitive prostate cancer (PEACE-1)"
+        }
+      ]
+    },
+    "Type of Therapy": {
+      "value": "standard of care (androgen deprivation therapy alone or with intravenous docetaxel 75 mg/m\u00b2 once every 3 weeks), standard of care plus radiotherapy, standard of care plus abiraterone (oral 1000 mg abiraterone once daily plus oral 5 mg prednisone twice daily), or standard of care plus radiotherapy plus abiraterone",
+      "reasoning": "",
+      "verification": "A_correct_B_wrong",
+      "source": {
+        "page": 1,
+        "modality": "text",
+        "verbatim_quote": "Participants were randomly assigned (1:1:1:1) to standard of care (androgen deprivation therapy alone or with intravenous docetaxel 75 mg/m\u00b2 once every 3 weeks), standard of care plus radiotherapy, standard of care plus abiraterone (oral 1000 mg abiraterone once daily plus oral 5 mg prednisone twice daily), or standard of care plus radiotherapy plus abiraterone."
+      },
+      "attribution": [
+        {
+          "page": 1,
+          "modality": "text",
+          "verbatim_quote": "Participants were randomly assigned (1:1:1:1) to standard of care (androgen deprivation therapy alone or with intravenous docetaxel 75 mg/m\u00b2 once every 3 weeks), standard of care plus radiotherapy, standard of care plus abiraterone (oral 1000 mg abiraterone once daily plus oral 5 mg prednisone twice daily), or standard of care plus radiotherapy plus abiraterone."
+        }
+      ]
+    }
+  }
+}

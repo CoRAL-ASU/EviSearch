@@ -1,0 +1,286 @@
+{
+  "doc_id": "NCT01809691_Aggarwal_SWOG1216_JCO'22",
+  "tool_calls_sequence": [
+    {
+      "name": "submit_verification",
+      "args": {
+        "results_keys": [
+          "Median PFS (mo) | Overall | Control",
+          "Median OS (mo) | Overall | Control",
+          "Median PFS (mo) | Overall | Treatment",
+          "Median OS (mo) | Low volume | Control",
+          "Median PFS (mo) | Low volume | Treatment",
+          "Median OS (mo) | Overall | Treatment",
+          "Median OS (mo) | Low volume | Treatment"
+        ]
+      }
+    },
+    {
+      "name": "get_page",
+      "args": {
+        "page_numbers": [
+          13
+        ]
+      }
+    },
+    {
+      "name": "get_page",
+      "args": {
+        "page_numbers": [
+          2
+        ]
+      }
+    },
+    {
+      "name": "submit_verification",
+      "args": {
+        "results_keys": [
+          "Median PFS (mo) | Low volume | Control",
+          "Median PFS (mo) | High volume | Treatment",
+          "Median PFS (mo) | High volume | Control",
+          "Median OS (mo) | High volume | Control",
+          "Median OS (mo) | High volume | Treatment"
+        ]
+      }
+    }
+  ],
+  "conversation": [
+    {
+      "turn": 0,
+      "role": "user",
+      "content": "Reconcile the following columns. Document has 14 pages. Sources are anonymous (A and B).\n\nCOLUMNS:\n\n---\nColumn 1: Median OS (mo) | Overall | Treatment\nDefinition: What is the median overall survival (in months) for all patients in the experimental arm? If reported, include the value; use 'Not reported' if missing.\n  A: value=\"81.1\" | page=1 | modality=text | reasoning=\"The abstract states 'OS (median 81.1 v 70.2 months)' for the experimental versus control arm. Figure 1 also shows 'LHRH agonist plus orteronel: median 81.1 months'.\"\n  B: value=\"81.1\" | page=1 | modality=text | reasoning=\"From Page 1, RESULTS section: 'OS (median 81.1 v 70.2 months, hazard ratio 0.86; 95% CI, 0.72 to 1.02; P = .040, one-sided).' The experimental arm is orteronel.\"\n\n---\nColumn 2: Median OS (mo) | Overall | Control\nDefinition: What is the median overall survival (in months) for all patients in the control arm? If reported, include the value; use 'Not reported' if missing.\n  A: value=\"70.2\" | page=1 | modality=text | reasoning=\"The abstract states 'OS (median 81.1 v 70.2 months)' for the experimental versus control arm. Figure 1 also shows 'LHRH agonist plus bicalutamide: median 70.2 months'.\"\n  B: value=\"70.2\" | page=1 | modality=text | reasoning=\"From Page 1, RESULTS section: 'OS (median 81.1 v 70.2 months, hazard ratio 0.86; 95% CI, 0.72 to 1.02; P = .040, one-sided).' The control arm is bicalutamide.\"\n\n---\nColumn 3: Median OS (mo) | High volume | Treatment\nDefinition: What is the median overall survival (in months) for patients with high volume metastasis (by CHAARTED criteria) in the experimental arm? If reported, include the value; use 'Not reported' if missing.\n  A: value=\"Not reported\" | page=None | modality=text | reasoning=\"The document reports outcomes for 'Extensive disease' (Table A3), which is defined by SWOG criteria for this study (page 2). It explicitly states that CHAARTED criteria for high-volume disease are different and used in 'other trials' (Table A2, footnote b). Therefore, outcomes specifically by CHAART\"\n  B: value=\"57.6\" | page=13 | modality=table | reasoning=\"From Page 13, TABLE A3, 'Extensive' (High volume) row, 'Orteronel Arm' column, 'OS Orteronel Median/5 Year' sub-column: '4.8 years'. Converted to months: 4.8 * 12 = 57.6 months.\"\n\n---\nColumn 4: Median OS (mo) | High volume | Control\nDefinition: What is the median overall survival (in months) for patients with high volume metastasis (by CHAARTED criteria) in the control arm? If reported, include the value; use 'Not reported' if missing.\n  A: value=\"Not reported\" | page=None | modality=text | reasoning=\"The document reports outcomes for 'Extensive disease' (Table A3), which is defined by SWOG criteria for this study (page 2). It explicitly states that CHAARTED criteria for high-volume disease are different and used in 'other trials' (Table A2, footnote b). Therefore, outcomes specifically by CHAART\"\n  B: value=\"49.2\" | page=13 | modality=table | reasoning=\"From Page 13, TABLE A3, 'Extensive' (High volume) row, 'Control Arm' column, 'OS Control Median/5 Year' sub-column: '4.1 years'. Converted to months: 4.1 * 12 = 49.2 months.\"\n\n---\nColumn 5: Median OS (mo) | Low volume | Treatment\nDefinition: What is the median overall survival (in months) for patients with low volume metastasis (by CHAARTED criteria) in the experimental arm? If reported, include the value; use 'Not reported' if missing.\n  A: value=\"Not reported\" | page=None | modality=text | reasoning=\"The document reports outcomes for 'Minimal disease' (Table A3), which is defined by SWOG criteria for this study (page 2). It explicitly states that CHAARTED criteria for high-volume disease are different and used in 'other trials' (Table A2, footnote b). Therefore, outcomes specifically by CHAARTED\"\n  B: value=\"Not reported\" | page=None | modality=text | reasoning=\"From Page 13, TABLE A3, 'Minimal' (Low volume) row, 'Orteronel Arm' column, 'OS Orteronel Median/5 Year' sub-column: 'NR' (Not Reached).\"\n\n---\nColumn 6: Median OS (mo) | Low volume | Control\nDefinition: What is the median overall survival (in months) for patients with low volume metastasis (by CHAARTED criteria) in the control arm? If reported, include the value; use 'Not reported' if missing.\n  A: value=\"Not reported\" | page=None | modality=text | reasoning=\"The document reports outcomes for 'Minimal disease' (Table A3), which is defined by SWOG criteria for this study (page 2). It explicitly states that CHAARTED criteria for high-volume disease are different and used in 'other trials' (Table A2, footnote b). Therefore, outcomes specifically by CHAARTED\"\n  B: value=\"Not reported\" | page=None | modality=text | reasoning=\"From Page 13, TABLE A3, 'Minimal' (Low volume) row, 'Control Arm' column, 'OS Control Median/5 Year' sub-column: 'NR' (Not Reached).\"\n\n---\nColumn 7: Median PFS (mo) | Overall | Treatment\nDefinition: What is the median progression free survival (in months) for all patients in the experimental arm? If reported, include the value; use 'Not reported' if missing.\n  A: value=\"47.6\" | page=1 | modality=text | reasoning=\"The abstract states 'PFS (median 47.6 v 23.0 months)' for the experimental versus control arm. Figure 2 also shows 'LHRH agonist plus orteronel: median 47.6 months'.\"\n  B: value=\"47.6\" | page=1 | modality=text | reasoning=\"From Page 1, RESULTS section: 'PFS (median 47.6 v 23.0 months, hazard ratio 0.58; 95% CI, 0.51 to 0.67; P < .0001)'. The experimental arm is orteronel.\"\n\n---\nColumn 8: Median PFS (mo) | Overall | Control\nDefinition: What is the median progression free survival (in months) for all patients in the control arm? If reported, include the value; use 'Not reported' if missing.\n  A: value=\"23.0\" | page=1 | modality=text | reasoning=\"The abstract states 'PFS (median 47.6 v 23.0 months)' for the experimental versus control arm. Figure 2 also shows 'LHRH agonist plus bicalutamide: median 23.0 months'.\"\n  B: value=\"23.0\" | page=1 | modality=text | reasoning=\"From Page 1, RESULTS section: 'PFS (median 47.6 v 23.0 months, hazard ratio 0.58; 95% CI, 0.51 to 0.67; P < .0001)'. The control arm is bicalutamide.\"\n\n---\nColumn 9: Median PFS (mo) | High volume | Treatment\nDefinition: What is the median progression free survival (in months) for patients with high volume metastasis (by CHAARTED criteria) in the experimental arm? If reported, include the value; use 'Not reported' if missing.\n  A: value=\"Not reported\" | page=None | modality=text | reasoning=\"The document reports outcomes for 'Extensive disease' (Table A3), which is defined by SWOG criteria for this study (page 2). It explicitly states that CHAARTED criteria for high-volume disease are different and used in 'other trials' (Table A2, footnote b). Therefore, outcomes specifically by CHAART\"\n  B: value=\"26.4\" | page=13 | modality=table | reasoning=\"From Page 13, TABLE A3, 'Extensive' (High volume) row, 'Orteronel Arm' column, 'PFS Orteronel Median/5 Year' sub-column: '2.2 years'. Converted to months: 2.2 * 12 = 26.4 months.\"\n\n---\nColumn 10: Median PFS (mo) | High volume | Control\nDefinition: What is the median progression free survival (in months) for patients with high volume metastasis (by CHAARTED criteria) in the control arm? If reported, include the value; use 'Not reported' if missing.\n  A: value=\"Not reported\" | page=None | modality=text | reasoning=\"The document reports outcomes for 'Extensive disease' (Table A3), which is defined by SWOG criteria for this study (page 2). It explicitly states that CHAARTED criteria for high-volume disease are different and used in 'other trials' (Table A2, footnote b). Therefore, outcomes specifically by CHAART\"\n  B: value=\"13.2\" | page=13 | modality=table | reasoning=\"From Page 13, TABLE A3, 'Extensive' (High volume) row, 'Control Arm' column, 'PFS Control Median/5 Year' sub-column: '1.1 years'. Converted to months: 1.1 * 12 = 13.2 months.\"\n\n---\nColumn 11: Median PFS (mo) | Low volume | Treatment\nDefinition: What is the median progression free survival (in months) for patients with low volume metastasis (by CHAARTED criteria) in the experimental arm? If reported, include the value; use 'Not reported' if missing.\n  A: value=\"Not reported\" | page=None | modality=text | reasoning=\"The document reports outcomes for 'Minimal disease' (Table A3), which is defined by SWOG criteria for this study (page 2). It explicitly states that CHAARTED criteria for high-volume disease are different and used in 'other trials' (Table A2, footnote b). Therefore, outcomes specifically by CHAARTED\"\n  B: value=\"Not reported\" | page=None | modality=text | reasoning=\"From Page 13, TABLE A3, 'Minimal' (Low volume) row, 'Orteronel Arm' column, 'PFS Orteronel Median/5 Year' sub-column: 'NR' (Not Reached).\"\n\n---\nColumn 12: Median PFS (mo) | Low volume | Control\nDefinition: What is the median progression free survival (in months) for patients with low volume metastasis (by CHAARTED criteria) in the control arm? If reported, include the value; use 'Not reported' if missing.\n  A: value=\"Not reported\" | page=None | modality=text | reasoning=\"The document reports outcomes for 'Minimal disease' (Table A3), which is defined by SWOG criteria for this study (page 2). It explicitly states that CHAARTED criteria for high-volume disease are different and used in 'other trials' (Table A2, footnote b). Therefore, outcomes specifically by CHAARTED\"\n  B: value=\"43.2\" | page=13 | modality=table | reasoning=\"From Page 13, TABLE A3, 'Minimal' (Low volume) row, 'Control Arm' column, 'PFS Control Median/5 Year' sub-column: '3.6 years'. Converted to months: 3.6 * 12 = 43.2 months.\"\n\n\nSubmit verification for easy columns first. For disputed columns, use get_page then submit."
+    },
+    {
+      "turn": 2,
+      "role": "tool",
+      "name": "submit_verification",
+      "args": {
+        "results_keys": [
+          "Median PFS (mo) | Overall | Control",
+          "Median OS (mo) | Overall | Control",
+          "Median PFS (mo) | Overall | Treatment",
+          "Median OS (mo) | Low volume | Control",
+          "Median PFS (mo) | Low volume | Treatment",
+          "Median OS (mo) | Overall | Treatment",
+          "Median OS (mo) | Low volume | Treatment"
+        ]
+      },
+      "response": {
+        "submitted": [
+          "Median PFS (mo) | Overall | Control",
+          "Median OS (mo) | Overall | Control",
+          "Median PFS (mo) | Overall | Treatment",
+          "Median OS (mo) | Low volume | Control",
+          "Median PFS (mo) | Low volume | Treatment",
+          "Median OS (mo) | Overall | Treatment",
+          "Median OS (mo) | Low volume | Treatment"
+        ]
+      }
+    },
+    {
+      "turn": 3,
+      "role": "tool",
+      "name": "get_page",
+      "args": {
+        "page_numbers": [
+          13
+        ]
+      },
+      "response": {
+        "formatted_chunks": "[Page 13]\n## Page 13\n\nOrteronel for Metastatic Hormone-Sensitive Prostate Cancer\n\n\n\nTABLE A3. Treatment Outcomes by Disease Severity\n|  |  |  |  |  |  |  |  |  |\n| --- | --- | --- | --- | --- | --- | --- | --- | --- |\n| Disease Group | Control Arm | Orteronel Arm | PFS Control Median/5 Year | PFS Orteronel Median/5 Year | HR (95% CI) | OS Control Median/5 Year | OS Orteronel Median/5 Year | HR (95% CI) |\n| Extensive | 313 | 310 | 1.1 years/20% | 2.2 years/29% | 0.66 (0.55 to 0.79) | 4.1 years/44% | 4.8 years/47% | 0.88 (0.71 to 1.10) |\n| Minimal | 328 | 328 | 3.6 years/38% | NR/58% | 0.53 (0.42 to 0.66) | NR/71% | NR/71% | 0.89 (0.67 to 1.18) |\nAbbreviations: HR, hazard ratio; NR, not reached; OS, overall survival; PFS, progression-free survival.\n\n\n\n<::flowchart\n: Total randomly assigned\n(N = 1,313)\n\nLHRHa plus bicalutamide\n(n = 660)\n\nIneligible\n(n = 17)\nBaseline out of range (n = 3)\nQTc out of range (n = 1)\nExtent of disease (n = 2)\nPrior ADT outside protocol limits (n = 11)\n\nWithdrew all consent\n(n = 2)\n\nITT analysis population\n\nTreatment status (n = 641)\nCurrently on treatment (n = 100)\nNo protocol treatment (n = 11)\nDiscontinued treatment (n = 530)\nAdverse events (n = 21)\nDisease progression (n = 372)\nDeath (n = 13)\nPatient refusal (n = 72)\nOther (n = 52)\n\nWithdrew consent\n(n = 37)\n\nDocumented lost to follow-up\n(n = 3)\n\nLast contact > 18 months ago\n(n = 13)\n\nLHRHa plus orteronel\n(n = 653)\n\nIneligible\n(n = 15)\nBaseline out of range (n = 6)\nQTc out of range (n = 1)\nExtent of disease (n = 1)\nPrior ADT outside protocol limits (n = 5)\nProhibited concomitant therapy (n = 1)\nProhibited heart condition (n = 1)\n\nWithdrew all consent\n(n = 0)\n\nTreatment status (n = 638)\nCurrently on treatment (n = 192)\nNo protocol treatment (n = 10)\nDiscontinued treatment (n = 436)\nAdverse events (n = 80)\nDisease progression (n = 226)\nDeath (n = 26)\nPatient refusal (n = 70)\nOther (n = 34)\n\nWithdrew consent\n(n = 43)\n\nDocumented lost to follow-up\n(n = 4)\n\nLast contact > 18 months ago\n(n = 12)\n\nFIG A1. CONSORT diagram for the S1216 trial. ADT, androgen deprivation therapy; ITT, intention-to-treat; LHRHa, luteinizing hormone-releasing hormone agonist; QTc, corrected QT interval.\n::>\n\n\n\nJournal of Clinical Oncology\n\n\n\nDownloaded from ascopubs.org by Mayo Foundation--Rochester on April 26, 2022 from 129.176.151.025 Copyright \u0016 2022 American Society of Clinical Oncology. All rights reserved.",
+        "pages_returned": [
+          13
+        ]
+      }
+    },
+    {
+      "turn": 4,
+      "role": "tool",
+      "name": "get_page",
+      "args": {
+        "page_numbers": [
+          2
+        ]
+      },
+      "response": {
+        "formatted_chunks": "[Page 2]\n## Page 2\n\nAgarwal et al\n\n\n\nCONTEXT\n\n**Key Objective**\nWe examined if adding orteronel, a novel androgen axis inhibitor, to androgen deprivation therapy (ADT) would improve outcomes compared with ADT plus bicalutamide in men with metastatic hormone-sensitive prostate cancer in a phase III trial.\n\n**Knowledge Generated**\nAddition of orteronel to ADT resulted in a significant improvement in progression-free survival and prostate-specific antigen response but not in overall survival (OS), the primary end point. Interestingly, the median OS of patients in the control arm of SWOG-1216 was 24 months higher than that in patients with metastatic hormone-sensitive prostate cancer on the SWOG-9346 trial (reported in 2013) who had similar disease severity and also received ADT plus bicalutamide (70.2 v46 months).\n\n\n\n## Relevance\nThese results indicate that orteronel is likely not an effective androgen axis inhibitor compared with recently approved agents in this setting. Higher than anticipated OS of patients in the control arm is reflective of therapeutic advancements made over the past decade in men with metastatic prostate cancer.\n\n\n\nWe hypothesized that the addition of orteronel to ADT would improve overall survival (OS), progression-free survival (PFS), and prostate-specific antigen (PSA) response relative to bicalutamide with ADT among men with mHSPC.\n\n\n\n## METHODS\n\n### Trial Design and Conduct\n\nThe S1216 trial was a phase III, randomized, open-label, multicenter trial involving patients with mHSPC. The trial was designed by the SWOG study team and was approved by the National Cancer Institute (NCI). Patients were enrolled from 248 academic and community centers throughout the United States, incorporating three other NCI-funded cooperative groups (ECOG-ACRIN, ALLIANCE, and NRG). The NCI Central Institutional Review Board approved the initial version of the Protocol (online only) and all subsequent amendments. The study was conducted in accordance with the International Conference on Harmonization of Good Clinical Practice guidelines and the principles of the Declaration of Helsinki. Signed written consent was obtained from all patients. First and last authors (N.A. and D.I.Q.) and the statisticians (C.M.T. and M.P.) among the authors assume responsibility for the completeness and accuracy of the data and analyses and for the fidelity of the trial to the Protocol.\n\n\n\n## Patients and Interventions\nEligible patients were required to have histologically con-\nfirmed adenocarcinoma of the prostate and metastatic\ndisease as evidenced by soft tissue and/or bony metasta-\nses. Enrolled patients had a Zubrod performance status of\n0-2; a Zubrod performance status of 3 was allowed if from\nbone pain only and a PSA \u2265 2.0 ng/mL. No other prior\nsystemic therapy for metastatic prostate cancer was\nallowed (with the exception of up to 30 days of ADT for\n\n\n\nmetastatic disease before registration), and at least 6 months\nmust have elapsed since completion of prior neoadjuvant\nand/or adjuvant ADT. Concomitant radiotherapy was allowed\nonly for baseline symptoms per investigator's clinical judg-\nment during the first 4 months of protocol treatment. Patients\nwho had not started any therapy with luteinizing hormone-\nreleasing hormone (LHRH) agonist, antagonist, or orchi-\nectomy (early induction group) and patients who had already\nstarted therapy with LHRH agonist, antagonist, or orchi-\nectomy within 30 days before registration (late induction\ngroup) were eligible. Patients who were deemed to have\nextensive mHSPC were eligible for enrollment if, on the basis\nof the judgment of the treating physician, they were un-\nsuitable candidates for docetaxel or if they declined doce-\ntaxel therapy. 11\n\n\n\nExclusion criteria included brain metastases; prior therapy with ketoconazole, abiraterone acetate, or enzalutamide; New York Heart Association class III or IV heart failure at screening or thromboembolic event; unstable angina pectoris; myocardial infarction; or serious uncontrolled cardiac arrhythmia \u2264 6 months before registration.\n\n\n\nPatients were randomly assigned in a 1:1 ratio to receive\norteronel (300 mg) orally twice daily or bicalutamide (50\nmg) administered orally once daily, in addition to contin-\nuous ADT. Patient assignment was dynamically balanced\non three stratification factors: severity of disease (minimal v\nextensive), Zubrod performance status (0-1 v 2-3), and\npreregistration treatment status (early v late induction).\nSeverity (or risk) of disease criteria in this study was orig-\ninally reported in 1989, and since then, it has been used in\nall SWOG trials in the mHSPC setting to date. 11-13 Minimal\ndisease was defined as involvement of vertebrae and/or\npelvic bones and/or lymph nodes, and extensive disease\nwas defined as that with greater than minimal involvement.\nDynamic balancing is a general procedure for treatment\n\n\n\n2 \u00a9 2022 by American Society of Clinical Oncology\n\n\n\nDownloaded from ascopubs.org by Mayo Foundation--Rochester on April 26, 2022 from 129.176.151.025 Copyright \u00a9 2022 American Society of Clinical Oncology. All rights reserved.",
+        "pages_returned": [
+          2
+        ]
+      }
+    },
+    {
+      "turn": 5,
+      "role": "tool",
+      "name": "submit_verification",
+      "args": {
+        "results_keys": [
+          "Median PFS (mo) | Low volume | Control",
+          "Median PFS (mo) | High volume | Treatment",
+          "Median PFS (mo) | High volume | Control",
+          "Median OS (mo) | High volume | Control",
+          "Median OS (mo) | High volume | Treatment"
+        ]
+      },
+      "response": {
+        "submitted": [
+          "Median PFS (mo) | Low volume | Control",
+          "Median PFS (mo) | High volume | Treatment",
+          "Median PFS (mo) | High volume | Control",
+          "Median OS (mo) | High volume | Control",
+          "Median OS (mo) | High volume | Treatment"
+        ]
+      }
+    }
+  ],
+  "results": {
+    "Median PFS (mo) | Overall | Control": {
+      "value": "23.0",
+      "reasoning": "Both sources agree on the value and page.",
+      "verification": "both_correct",
+      "source": {
+        "page": 1,
+        "modality": "text",
+        "verbatim_quote": "PFS (median 47.6 v 23.0 months)"
+      },
+      "attribution": [
+        {
+          "page": 1,
+          "modality": "text",
+          "verbatim_quote": "PFS (median 47.6 v 23.0 months)"
+        }
+      ]
+    },
+    "Median OS (mo) | Overall | Control": {
+      "value": "70.2",
+      "reasoning": "Both sources agree on the value and page.",
+      "verification": "both_correct",
+      "source": {
+        "page": 1,
+        "modality": "text",
+        "verbatim_quote": "OS (median 81.1 v 70.2 months)"
+      },
+      "attribution": [
+        {
+          "page": 1,
+          "modality": "text",
+          "verbatim_quote": "OS (median 81.1 v 70.2 months)"
+        }
+      ]
+    },
+    "Median PFS (mo) | Overall | Treatment": {
+      "value": "47.6",
+      "reasoning": "Both sources agree on the value and page.",
+      "verification": "both_correct",
+      "source": {
+        "page": 1,
+        "modality": "text",
+        "verbatim_quote": "PFS (median 47.6 v 23.0 months)"
+      },
+      "attribution": [
+        {
+          "page": 1,
+          "modality": "text",
+          "verbatim_quote": "PFS (median 47.6 v 23.0 months)"
+        }
+      ]
+    },
+    "Median OS (mo) | Low volume | Control": {
+      "value": "Not reported",
+      "reasoning": "Both sources indicate \"Not reported\".",
+      "verification": "both_correct",
+      "source": {
+        "page": null,
+        "modality": "text"
+      },
+      "attribution": []
+    },
+    "Median PFS (mo) | Low volume | Treatment": {
+      "value": "Not reported",
+      "reasoning": "Both sources indicate \"Not reported\".",
+      "verification": "both_correct",
+      "source": {
+        "page": null,
+        "modality": "text"
+      },
+      "attribution": []
+    },
+    "Median OS (mo) | Overall | Treatment": {
+      "value": "81.1",
+      "reasoning": "Both sources agree on the value and page.",
+      "verification": "both_correct",
+      "source": {
+        "page": 1,
+        "modality": "text",
+        "verbatim_quote": "OS (median 81.1 v 70.2 months)"
+      },
+      "attribution": [
+        {
+          "page": 1,
+          "modality": "text",
+          "verbatim_quote": "OS (median 81.1 v 70.2 months)"
+        }
+      ]
+    },
+    "Median OS (mo) | Low volume | Treatment": {
+      "value": "Not reported",
+      "reasoning": "Both sources indicate \"Not reported\".",
+      "verification": "both_correct",
+      "source": {
+        "page": null,
+        "modality": "text"
+      },
+      "attribution": []
+    },
+    "Median PFS (mo) | Low volume | Control": {
+      "value": "Not reported",
+      "reasoning": "The column asks for 'Low volume (by CHAARTED criteria)'. Page 2 states that the 'Minimal disease' category in Table A3 (page 13) is defined by SWOG criteria, not CHAARTED criteria. Therefore, the values from Table A3 are not applicable to this column. A is correct in reporting 'Not reported'.",
+      "verification": "A_correct_B_wrong",
+      "source": {
+        "page": null,
+        "modality": "text"
+      },
+      "attribution": []
+    },
+    "Median PFS (mo) | High volume | Treatment": {
+      "value": "Not reported",
+      "reasoning": "The column asks for 'High volume (by CHAARTED criteria)'. Page 2 states that the 'Extensive disease' category in Table A3 (page 13) is defined by SWOG criteria, not CHAARTED criteria. Therefore, the values from Table A3 are not applicable to this column. A is correct in reporting 'Not reported'.",
+      "verification": "A_correct_B_wrong",
+      "source": {
+        "page": null,
+        "modality": "text"
+      },
+      "attribution": []
+    },
+    "Median PFS (mo) | High volume | Control": {
+      "value": "Not reported",
+      "reasoning": "The column asks for 'High volume (by CHAARTED criteria)'. Page 2 states that the 'Extensive disease' category in Table A3 (page 13) is defined by SWOG criteria, not CHAARTED criteria. Therefore, the values from Table A3 are not applicable to this column. A is correct in reporting 'Not reported'.",
+      "verification": "A_correct_B_wrong",
+      "source": {
+        "page": null,
+        "modality": "text"
+      },
+      "attribution": []
+    },
+    "Median OS (mo) | High volume | Control": {
+      "value": "Not reported",
+      "reasoning": "The column asks for 'High volume (by CHAARTED criteria)'. Page 2 states that the 'Extensive disease' category in Table A3 (page 13) is defined by SWOG criteria, not CHAARTED criteria. Therefore, the values from Table A3 are not applicable to this column. A is correct in reporting 'Not reported'.",
+      "verification": "A_correct_B_wrong",
+      "source": {
+        "page": null,
+        "modality": "text"
+      },
+      "attribution": []
+    },
+    "Median OS (mo) | High volume | Treatment": {
+      "value": "Not reported",
+      "reasoning": "The column asks for 'High volume (by CHAARTED criteria)'. Page 2 states that the 'Extensive disease' category in Table A3 (page 13) is defined by SWOG criteria, not CHAARTED criteria. Therefore, the values from Table A3 are not applicable to this column. A is correct in reporting 'Not reported'.",
+      "verification": "A_correct_B_wrong",
+      "source": {
+        "page": null,
+        "modality": "text"
+      },
+      "attribution": []
+    }
+  }
+}
