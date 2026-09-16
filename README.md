@@ -141,11 +141,11 @@ uploads survive redeploys. Setting `EVISEARCH_DEMO_PASSWORD` puts the whole site
 ```bash
 curl -L https://fly.io/install.sh | sh && export PATH="$HOME/.fly/bin:$PATH"
 fly auth login                        # add a card: the trial stops machines after 5 minutes
-fly apps create evisearch-demo        # names are global; if taken, change `app` in fly.toml too
-fly secrets set --stage -a evisearch-demo VERTEX_API_KEY=... OPENAI_API_KEY=... \
+fly apps create evisearch            # names are global; if taken, change `app` in fly.toml too
+fly secrets set --stage -a evisearch VERTEX_API_KEY=... OPENAI_API_KEY=... \
     VISION_AGENT_API_KEY=... EVISEARCH_DEMO_PASSWORD=...
 fly deploy --ha=false                 # builds remotely; creates the volume on first deploy
-fly status && fly logs                # then open https://evisearch-demo.fly.dev
+fly status && fly logs                # then open https://evisearch.fly.dev
 ```
 
 Keep it to one machine (`--ha=false`, no `fly scale count`): the volume attaches to one machine and running
