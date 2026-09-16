@@ -125,10 +125,26 @@ def plan_placement(
     return placement
 
 
+def served_model_name(selection: Selection, server: str) -> str:
+    catalog = selection.catalog
+    return catalog.models[catalog.models_on_server(server)[0]].name
+
+
+def served_models(host: str, port: int) -> Optional[List[str]]:
+    """Model names an OpenAI-compatible server on this port reports, or None when it does not answer /v1/models."""
+    host = "127.0.0.1" if host in ("0.0.0.0", "") else host
+    try:
+        response = httpx.get(f"http://{host}:{port}/v1/models", timeout=3.0)
+        response.raise_for_status()
+        return [item.get("id") for item in response.json().get("data", [])]
+    except (httpx.HTTPError, ValueError, AttributeError):
+        return None
+
+
 def build_command(selection: Selection, server: str, vllm_bin: str) -> List[str]:
     catalog = selection.catalog
     spec = catalog.servers[server]
-    served = catalog.models[catalog.models_on_server(server)[0]].name
+    served = served_model_name(selection, server)
     command = [
         vllm_bin, "serve", spec.model_path,
         "--served-model-name", served,
@@ -283,10 +299,18 @@ def main(argv: Optional[List[str]] = None) -> int:
     pending = []
     for server in servers:
         spec = selection.catalog.servers[server]
-        if _port_in_use(spec.host, spec.port):
-            print(f"{server}: port {spec.port} is already in use; assuming it is running and skipping it.")
-        else:
+        if not _port_in_use(spec.host, spec.port):
             pending.append(server)
+            continue
+        expected, found = served_model_name(selection, server), served_models(spec.host, spec.port)
+        if found is not None and expected not in found:
+            print(
+                f"{server}: port {spec.port} is in use by a server that serves {found}, not '{expected}' "
+                f"(someone else's server?). Give {server} a free port in src/config/catalog.yaml.",
+                file=sys.stderr,
+            )
+            return 2
+        print(f"{server}: '{expected}' is already running on port {spec.port}; skipping it.")
     if not pending:
         return 0
 

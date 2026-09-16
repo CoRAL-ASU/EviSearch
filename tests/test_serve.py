@@ -81,6 +81,17 @@ def test_server_env_sets_gpus_catalog_env_and_vllm_tools_on_path(tmp_path, monke
     assert "VLLM_USE_FLASHINFER_SAMPLER" not in server_env("vllm", [1], CATALOG.servers["qwen3_embed_8b"].env)
 
 
+def test_port_taken_by_another_model_is_an_error_not_a_running_server(monkeypatch, capsys):
+    monkeypatch.setattr(serve, "_port_in_use", lambda host, port: True)
+    monkeypatch.setattr(serve, "served_models", lambda host, port: ["qwen3-embedding-8b"])
+    assert serve.main(["--only", "qwen3_embed_8b"]) == 2
+    assert "serves ['qwen3-embedding-8b'], not 'Qwen/Qwen3-Embedding-8B'" in capsys.readouterr().err
+
+    monkeypatch.setattr(serve, "served_models", lambda host, port: ["Qwen/Qwen3-Embedding-8B"])
+    assert serve.main(["--only", "qwen3_embed_8b"]) == 0
+    assert "already running" in capsys.readouterr().out
+
+
 def test_build_command_uses_served_name_parsers_and_absolute_template_path():
     selection = CATALOG.resolve("local", gpu_pool=[0])
     chat = build_command(selection, "qwen36_27b", "/opt/vllm/bin/vllm")

@@ -100,7 +100,7 @@ python -m src.inference.serve --only qwen36_27b
 | Server | Model | Port | Default memory | Notes |
 |---|---|---|---|---|
 | `qwen36_27b` | Qwen/Qwen3.6-27B | 8002 | 0.90 of one GPU | `--tool-call-parser qwen3_coder --reasoning-parser qwen3`, thinking off, 131k context, up to 32 images per prompt, cached-token counts in usage (`--enable-prompt-tokens-details`), PyTorch sampler (`VLLM_USE_FLASHINFER_SAMPLER=0`: FlashInfer's JIT kernels cannot be built with the pip CUDA wheels) |
-| `qwen3_embed_8b` | Qwen/Qwen3-Embedding-8B | 8003 | 0.40 | `--runner pooling` |
+| `qwen3_embed_8b` | Qwen/Qwen3-Embedding-8B | 8005 | 0.40 | `--runner pooling` (8003 is used by another group's server on this machine) |
 | `qwen3_rerank_8b` | Qwen/Qwen3-Reranker-8B | 8004 | 0.40 | pooling + `hf_overrides`, template in `src/config/templates/` |
 | `qwen3_8b` | Qwen/Qwen3-8B | 8006 | 0.40 | optional small chat model |
 

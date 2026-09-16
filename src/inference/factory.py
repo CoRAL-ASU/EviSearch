@@ -202,4 +202,13 @@ def check_selection(selection: Optional[Selection] = None) -> List[str]:
             except Exception as exc:
                 hint = f"start it with: python -m src.inference.serve --only {endpoint.server}" if endpoint.server else ""
                 problems.append(f"{endpoint_key} {used_by}: server not reachable at {root} ({type(exc).__name__}). {hint}".strip())
+                continue
+            expected = sorted({catalog.models[selection.roles[role]].name for role in roles})
+            try:
+                found = [item.get("id") for item in httpx.get(f"{root}/v1/models", timeout=3.0).json().get("data", [])]
+            except Exception:
+                continue  # health answered; a server without /v1/models cannot be checked further
+            missing = [name for name in expected if name not in found]
+            if missing:
+                problems.append(f"{endpoint_key} {used_by}: {root} serves {found}, not {missing} (another server on that port?)")
     return problems
