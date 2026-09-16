@@ -19,7 +19,7 @@ import src.retrieval.embedding_retriever as retriever
 from src.config.catalog import Capabilities, ModelSpec
 from src.evisearch.columns import column_result
 from src.inference.base import ChatModel
-from src.inference.types import ChatResult, ImagePart, InferenceError, Message, PdfPart, TextPart, ToolCall, Usage
+from src.inference.types import ChatResult, ImagePart, InferenceError, Message, TextPart, ToolCall, Usage
 
 PAGES = [
     "STAMPEDE: abiraterone acetate and prednisolone added to ADT",
@@ -34,13 +34,12 @@ BATCH = [{"column_name": TRIAL, "definition": "Trial name"}, {"column_name": MED
 class ScriptedChat(ChatModel):
     """Each queued turn is either reply text or a list of (tool name, arguments)."""
 
-    def __init__(self, turns, images=False, pdf=False, page_image_scale=None):
+    def __init__(self, turns, images=False):
         spec = ModelSpec(
             kind="chat",
             endpoint="fake",
             name="fake",
-            capabilities=Capabilities(tools=True, json_schema=True, images=images, pdf=pdf),
-            page_image_scale=page_image_scale,
+            capabilities=Capabilities(tools=True, json_schema=True, images=images),
         )
         super().__init__("fake-model", spec)
         self.turns = list(turns)
@@ -105,8 +104,10 @@ def test_pdf_query_markdown_input_uses_structured_output(doc, monkeypatch):
     results, usage = pdf_query.run_pdf_query("doc-1", BATCH, input_mode="markdown", raw_response_path=raw_path)
 
     request = chat.requests[0]
-    document_text = request["messages"][1].parts[0].text
-    assert "DOCUMENT MARKDOWN" in document_text and "76.6 months" in document_text
+    parts = request["messages"][1].parts
+    assert all(isinstance(part, TextPart) for part in parts)
+    assert parts[2].text.startswith("=== PAGE 2: parsed text ===") and "76.6 months" in parts[2].text
+    assert "trust the image" not in request["messages"][0].text
     assert request["schema"]["properties"]["columns"]["items"]["properties"]["column"]["enum"] == [TRIAL, MEDIAN_OS]
     assert results[TRIAL] == {"value": "STAMPEDE", "reasoning": "title", "found": True, "attribution": [{"page": 1, "modality": "text"}], "tried": True}
     assert results[MEDIAN_OS]["found"] is False
@@ -114,15 +115,44 @@ def test_pdf_query_markdown_input_uses_structured_output(doc, monkeypatch):
     assert json.loads(raw_path.read_text())["response_text"] == reply
 
 
-def test_pdf_query_pdf_input_needs_a_pdf_capable_model(doc, monkeypatch):
+def test_pdf_query_sends_each_page_text_followed_by_its_image(doc, monkeypatch):
     _use(pdf_query, ScriptedChat([]), monkeypatch)
-    results, _ = pdf_query.run_pdf_query("doc-1", BATCH, input_mode="pdf")
-    assert "cannot read PDFs" in results[TRIAL]["reasoning"]
+    results, _ = pdf_query.run_pdf_query("doc-1", BATCH, input_mode="markdown_images")
+    assert "cannot read images" in results[TRIAL]["reasoning"]
 
-    reader = ScriptedChat(['{"columns": []}'], pdf=True)
+    reader = ScriptedChat(['{"columns": []}'], images=True)
     _use(pdf_query, reader, monkeypatch)
-    pdf_query.run_pdf_query("doc-1", BATCH, input_mode="pdf")
-    assert isinstance(reader.requests[0]["messages"][1].parts[1], PdfPart)
+    details = {}
+    pdf_query.run_pdf_query("doc-1", BATCH, input_mode="markdown_images", details=details)
+
+    system, user = reader.requests[0]["messages"]
+    assert "trust the image" in system.text
+    kinds = ["image" if isinstance(part, ImagePart) else part.text.split("\n")[0] for part in user.parts]
+    assert kinds[:7] == [kinds[0], "=== PAGE 1: parsed text ===", "image", "=== PAGE 2: parsed text ===", "image", "=== PAGE 3: parsed text ===", "image"]
+    assert kinds[7] == "END OF DOCUMENT." and "COLUMNS TO EXTRACT" in user.parts[-1].text  # document first, columns last
+    assert user.parts[3].text.endswith("=== PAGE 2: image ===") and user.parts[4].data.startswith(b"\x89PNG")
+    assert details["image_pages"] == [1, 2, 3] and details["fallback"] is None and details["page_image_scale"] == 2.0
+
+
+def test_document_input_strips_anchors_and_falls_back_when_images_do_not_fit(doc, monkeypatch):
+    pages = ["<a id='x1'></a>\n\nSTAMPEDE trial", "<a id='x2'></a>\n\n<table><tr><td>76.6</td></tr></table>", "Discussion"]
+    (doc["results"] / "doc-1" / "chunking" / "parsed_markdown.md").write_text("\n<!-- PAGE BREAK -->\n".join(pages), encoding="utf-8")
+
+    full = pdf_query.build_document_input("doc-1", "markdown_images")
+    assert full.info["image_pages"] == [1, 2, 3] and full.info["fallback"] is None
+    assert not any("<a id" in part.text for part in full.parts if isinstance(part, TextPart))
+
+    text_only = pdf_query.build_document_input("doc-1", "markdown").info["estimated_tokens"]
+    one_image = (full.info["estimated_tokens"] - text_only) // 3
+    tables = pdf_query.build_document_input("doc-1", "markdown_images", token_budget=text_only + one_image)
+    assert tables.info["fallback"] == "figure_table_pages" and tables.info["image_pages"] == [2]
+    assert sum(isinstance(part, ImagePart) for part in tables.parts) == 1
+
+    none = pdf_query.build_document_input("doc-1", "markdown_images", token_budget=text_only)
+    assert none.info["fallback"] == "markdown_only" and not any(isinstance(part, ImagePart) for part in none.parts)
+
+    monkeypatch.setattr(pdf_query, "PDF_QUERY_MAX_PAGE_IMAGES", 2)
+    assert pdf_query.build_document_input("doc-1", "markdown_images").info["fallback"] == "figure_table_pages"
 
 
 # ---- Arm B -----------------------------------------------------------------------------------------
@@ -190,7 +220,6 @@ def test_reconciliation_reads_pages_with_images_until_every_column_is_submitted(
             [("submit_verification", {"results": [{"column": MEDIAN_OS, "value": "76.6", "reasoning": "Table 2", "verification": "A_correct_B_wrong", "source": {"page": 2, "modality": "table"}}]})],
         ],
         images=True,
-        page_image_scale=1,
     )
     _use(reconciliation, chat, monkeypatch)
 
@@ -268,6 +297,23 @@ def test_pipelines_write_results_resume_and_reconcile(doc, monkeypatch):
     assert saved[TRIAL] == {"value": f"A-{TRIAL}", "verification": "both_correct", "tried": True}
 
 
+def test_named_runs_keep_results_apart_and_resume_refuses_other_settings(doc, monkeypatch):
+    monkeypatch.setattr(pdf_query_pipeline, "load_groups", lambda: GROUPS)
+    monkeypatch.setattr(pdf_query, "run_pdf_query", _fake_arm("A", []))
+    monkeypatch.setattr(store, "_run", "")
+
+    pdf_query_pipeline.run_pdf_query_pipeline("doc-1", input_mode="markdown_images")
+    with pytest.raises(store.ResumeError, match="input_mode: saved 'markdown_images', now 'markdown'"):
+        pdf_query_pipeline.run_pdf_query_pipeline("doc-1", input_mode="markdown")
+
+    store.use_run("text_only")
+    assert store.method_dir("doc-1", "agent") == doc["results"] / "doc-1" / "runs" / "text_only" / "agent_extractor"
+    pdf_query_pipeline.run_pdf_query_pipeline("doc-1", input_mode="markdown")
+    assert json.loads((store.method_dir("doc-1", "agent") / "extraction_metadata.json").read_text())["run"] == "text_only"
+    with pytest.raises(ValueError):
+        store.use_run("../elsewhere")
+
+
 def test_unified_extraction_runs_both_arms_per_batch(doc, monkeypatch):
     monkeypatch.setattr(unified_extraction, "load_groups", lambda: GROUPS)
     monkeypatch.setattr(pdf_query, "run_pdf_query", _fake_arm("A", []))
@@ -292,6 +338,7 @@ def test_clis_reject_unknown_group_names(doc, monkeypatch, capsys):
     errors = capsys.readouterr().err
     assert "unknown group(s) ['12345']" in errors and "unknown group(s) ['Nope']" in errors
     assert pdf_query_pipeline.main(["doc-1", "--groups", "ID", "--dry-run", "--no-resume"]) == 0
+    assert "document: 3 pages, images for 3" in capsys.readouterr().out
 
 
 def test_unified_extraction_requires_prepared_document(doc, monkeypatch):

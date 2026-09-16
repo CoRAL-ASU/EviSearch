@@ -35,7 +35,7 @@ def run_unified_extraction(
         error = f"Parsed markdown not found for {doc_id}; prepare the document (LandingAI parse) first."
         emit({"type": "error", "error": error})
         return {"error": error}
-    if SELECTION.option("pdf_query_input") == "pdf" and not resolve_pdf_path(doc_id):
+    if SELECTION.option("pdf_query_input") == "markdown_images" and not resolve_pdf_path(doc_id):
         error = f"PDF not found for {doc_id}"
         emit({"type": "error", "error": error})
         return {"error": error}

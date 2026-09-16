@@ -14,7 +14,7 @@ def test_every_preset_resolves(catalog):
     for preset in catalog.presets:
         selection = catalog.resolve(preset, gpu_pool=[0, 1])
         assert selection.preset == preset
-        assert selection.option("pdf_query_input") == "markdown"
+        assert selection.option("pdf_query_input") == "markdown_images"
 
 
 def test_local_preset_needs_local_servers_and_cloud_needs_none(catalog):
@@ -30,16 +30,16 @@ def test_role_override_rejects_wrong_kind_and_names_valid_models(catalog):
     assert "qwen3.6-27b" in message and "gemini-2.5-flash" in message
 
 
-def test_pdf_input_requires_pdf_capable_model(catalog):
-    with pytest.raises(ConfigError, match="cannot read PDFs"):
-        catalog.resolve("local", options={"pdf_query_input": "pdf"}, gpu_pool=[0])
-    selection = catalog.resolve("cloud", options={"pdf_query_input": "pdf"}, gpu_pool=[0])
-    assert selection.option("pdf_query_input") == "pdf"
+def test_image_input_requires_image_capable_model(catalog):
+    with pytest.raises(ConfigError, match="cannot read images"):
+        catalog.resolve("local", role_overrides={"pdf_query": "qwen3-8b"}, gpu_pool=[0])
+    selection = catalog.resolve("local", role_overrides={"pdf_query": "qwen3-8b"}, options={"pdf_query_input": "markdown"}, gpu_pool=[0])
+    assert selection.option("pdf_query_input") == "markdown"
 
 
 def test_unknown_option_value_lists_choices(catalog):
-    with pytest.raises(ConfigError, match="markdown \\| pdf"):
-        catalog.resolve("local", options={"pdf_query_input": "html"}, gpu_pool=[0])
+    with pytest.raises(ConfigError, match="markdown_images \\| markdown"):
+        catalog.resolve("local", options={"pdf_query_input": "pdf"}, gpu_pool=[0])
 
 
 def test_optional_reranker_can_be_disabled_but_judge_cannot(catalog):

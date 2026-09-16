@@ -92,6 +92,7 @@ class Usage:
     input_tokens: int = 0
     output_tokens: int = 0
     api_calls: int = 0
+    cached_input_tokens: int = 0  # part of input_tokens served from the provider's prompt cache
 
     @property
     def total_tokens(self) -> int:
@@ -101,6 +102,7 @@ class Usage:
         self.input_tokens += other.input_tokens
         self.output_tokens += other.output_tokens
         self.api_calls += other.api_calls
+        self.cached_input_tokens += other.cached_input_tokens
         return self
 
     def to_dict(self) -> Dict[str, int]:
@@ -109,6 +111,7 @@ class Usage:
             "output_tokens": self.output_tokens,
             "api_calls": self.api_calls,
             "total_tokens": self.total_tokens,
+            "cached_input_tokens": self.cached_input_tokens,
         }
 
 

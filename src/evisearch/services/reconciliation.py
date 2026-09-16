@@ -10,10 +10,18 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional, Set, Tuple
 
 from src.config.catalog import ConfigError
-from src.config.config import AGENT_MAX_TOOL_CALLS, AGENT_MAX_TURNS, MAX_TOKENS, RECONCILIATION_MAX_PAGE_IMAGES, SELECTION
+from src.config.config import (
+    AGENT_MAX_TOOL_CALLS,
+    AGENT_MAX_TURNS,
+    MAX_TOKENS,
+    PAGE_IMAGE_SCALE,
+    RECONCILIATION_MAX_PAGE_IMAGES,
+    SELECTION,
+)
 from src.evisearch.columns import MODALITIES, NOT_REPORTED, column_names
 from src.evisearch.pipelines.results_store import write_json
 from src.evisearch.services.highlight import resolve_pdf_path
+from src.evisearch.services.page_images import render_pdf_pages_to_png
 from src.inference import ImagePart, InferenceError, TextPart, Tool, ToolOutput, ToolSpec, Usage, get_chat, run_tool_loop
 from src.retrieval import embedding_retriever as retriever
 
@@ -42,18 +50,6 @@ SOURCE: When value is not "Not reported", include source: {page: N, modality: "t
 Prefer get_page for pages from A and B. Do not request pages you already have."""
 
 FOLLOW_UP = "Continue. Submit verification for any columns you can resolve. Use get_page for more pages if needed. Submit all columns when done."
-
-
-def render_pdf_pages_to_png(pdf_path: Path, page_numbers: List[int], scale: float) -> List[Tuple[int, bytes]]:
-    import fitz
-
-    out = []
-    with fitz.open(pdf_path) as doc:
-        for page_number in page_numbers:
-            if 1 <= page_number <= len(doc):
-                pixmap = doc[page_number - 1].get_pixmap(matrix=fitz.Matrix(scale, scale))
-                out.append((page_number, pixmap.tobytes("png")))
-    return out
 
 
 def _extract_source_output(col_data: Any) -> Dict[str, Any]:
@@ -228,7 +224,7 @@ def run_reconciliation_agent(
 
     use_images = SELECTION.option("reconciliation_page_images") == "auto" and chat.capabilities.images
     total_pages = retriever.get_total_pages(doc_id)
-    session = _ReconciliationSession(doc_id, names, total_pages, chat.spec.page_image_scale if use_images else None)
+    session = _ReconciliationSession(doc_id, names, total_pages, PAGE_IMAGE_SCALE if use_images else None)
 
     blocks = []
     for i, col in enumerate(batch_columns, 1):

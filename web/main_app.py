@@ -1163,27 +1163,24 @@ def api_qa_ask():
 
 
 def _api_qa_ask_quick(doc_id: str, question: str, history: list):
-    """Quick mode: one call to the qa model with the whole document (the PDF when the model reads PDFs,
-    otherwise the parsed markdown). No attribution."""
+    """Quick mode: one call to the qa model with the whole document, given exactly as Arm A gets it (parsed text,
+    plus page images when the model reads images). No attribution."""
     from src.retrieval.embedding_retriever import parsed_markdown_path
 
     pdf_path = resolve_pdf_path(doc_id)
-    markdown_path = parsed_markdown_path(doc_id)
-    if not (pdf_path and pdf_path.exists()) and not markdown_path.exists():
-        return jsonify({"success": False, "error": f"PDF not found for {doc_id}"}), 400
+    if not parsed_markdown_path(doc_id).exists():
+        return jsonify({"success": False, "error": f"Parsed markdown not found for {doc_id}; prepare the document first."}), 400
 
     def generate():
-        from src.config.config import MAX_TOKENS
-        from src.inference import Message, PdfPart, TextPart, get_chat
+        from src.config.config import MAX_TOKENS, SELECTION
+        from src.evisearch.services.pdf_query import build_document_input, document_token_budget
+        from src.inference import Message, get_chat
 
         try:
             chat = get_chat("qa")
-            if chat.capabilities.pdf and pdf_path and pdf_path.exists():
-                document = [PdfPart(pdf_path.read_bytes(), filename=pdf_path.name)]
-            elif markdown_path.exists():
-                document = [TextPart("DOCUMENT MARKDOWN:\n\n" + markdown_path.read_text(encoding="utf-8"))]
-            else:
-                raise FileNotFoundError(f"Model '{chat.key}' reads parsed markdown; prepare the document first.")
+            with_images = SELECTION.option("pdf_query_input") == "markdown_images" and chat.capabilities.images and pdf_path and pdf_path.exists()
+            budget = document_token_budget(chat.spec.context_tokens, question + json.dumps(history), MAX_TOKENS["qa"])
+            document = build_document_input(doc_id, "markdown_images" if with_images else "markdown", budget).parts
         except Exception as e:
             yield f"data: {json.dumps({'type': 'error', 'error': str(e)})}\n\n"
             return

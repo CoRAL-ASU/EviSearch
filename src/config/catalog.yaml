@@ -49,9 +49,8 @@ models:
     endpoint: vllm_chat
     name: Qwen/Qwen3.6-27B
     capabilities: {tools: true, json_schema: true, images: true, pdf: false}
-    context_tokens: 65536
+    context_tokens: 131072  # keep in step with max_model_len of the qwen36_27b server
     thinking: false
-    page_image_scale: 2
   qwen3-8b:
     kind: chat
     endpoint: vllm_chat_small
@@ -78,7 +77,7 @@ models:
     name: gemini-2.5-flash
     capabilities: {tools: true, json_schema: true, images: true, pdf: true}
     context_tokens: 1048576
-    page_image_scale: 8
+    thinking: false  # same as the local models; Gemini 2.5 Pro cannot turn thinking off
     price_per_1k: {input: 0.0003, output: 0.0025}
   gemini-2.5-pro:
     kind: chat
@@ -86,7 +85,6 @@ models:
     name: gemini-2.5-pro
     capabilities: {tools: true, json_schema: true, images: true, pdf: true}
     context_tokens: 1048576
-    page_image_scale: 8
     price_per_1k: {input: 0.00125, output: 0.01}
   gemini-2.0-flash-001:
     kind: chat
@@ -94,7 +92,6 @@ models:
     name: gemini-2.0-flash-001
     capabilities: {tools: true, json_schema: true, images: true, pdf: true}
     context_tokens: 1048576
-    page_image_scale: 8
     price_per_1k: {input: 0.00015, output: 0.0006}
 
   # ---- OpenAI ----
@@ -104,7 +101,6 @@ models:
     name: gpt-4.1
     capabilities: {tools: true, json_schema: true, images: true, pdf: true}
     context_tokens: 1047576
-    page_image_scale: 4
     price_per_1k: {input: 0.002, output: 0.008}
   gpt-4.1-mini:
     kind: chat
@@ -112,7 +108,6 @@ models:
     name: gpt-4.1-mini
     capabilities: {tools: true, json_schema: true, images: true, pdf: true}
     context_tokens: 1047576
-    page_image_scale: 4
     price_per_1k: {input: 0.0004, output: 0.0016}
   gpt-4o:
     kind: chat
@@ -120,7 +115,6 @@ models:
     name: gpt-4o
     capabilities: {tools: true, json_schema: true, images: true, pdf: true}
     context_tokens: 128000
-    page_image_scale: 4
     price_per_1k: {input: 0.0025, output: 0.01}
   text-embedding-3-large:
     kind: embedding
@@ -132,7 +126,7 @@ roles:
   pdf_query:
     kind: chat
     requires: [json_schema]
-    description: Arm A - extracts a batch of columns from the whole document (markdown or PDF) in one call
+    description: Arm A - extracts a batch of columns from the whole document (parsed markdown, plus page images) in one call
   search_agent:
     kind: chat
     requires: [tools]
@@ -171,9 +165,9 @@ servers:
     port: 8002
     tensor_parallel: 1
     gpu_memory_utilization: 0.90
-    max_model_len: 65536
+    max_model_len: 131072
     max_num_seqs: 8
-    args: [--dtype, bfloat16, --enable-auto-tool-choice, --tool-call-parser, qwen3_coder, --reasoning-parser, qwen3, --limit-mm-per-prompt, '{"image": 16}']
+    args: [--dtype, bfloat16, --enable-auto-tool-choice, --tool-call-parser, qwen3_coder, --reasoning-parser, qwen3, --limit-mm-per-prompt, '{"image": 32}', --enable-prompt-tokens-details]
     env:
       # FlashInfer's sampler JIT-compiles CUDA kernels at startup, which needs a full CUDA toolkit matching PyTorch;
       # the pip CUDA wheels cannot link them. PyTorch's sampler needs no compilation.
@@ -240,5 +234,5 @@ presets:
 
 options:
   # Enumerated knobs; config.py picks one value for each.
-  pdf_query_input: [markdown, pdf]
+  pdf_query_input: [markdown_images, markdown]  # markdown_images: each page's parsed text followed by its rendered image
   reconciliation_page_images: [auto, never]

@@ -72,11 +72,11 @@ def build_batches(
 
 
 def add_usage(total: Dict[str, int], usage: Dict[str, Any]) -> Dict[str, int]:
-    for key in ("input_tokens", "output_tokens", "api_calls"):
+    for key in ("input_tokens", "output_tokens", "api_calls", "cached_input_tokens"):
         total[key] = total.get(key, 0) + int(usage.get(key, 0) or 0)
     total["total_tokens"] = total.get("input_tokens", 0) + total.get("output_tokens", 0)
     return total
 
 
 def empty_usage() -> Dict[str, int]:
-    return {"input_tokens": 0, "output_tokens": 0, "api_calls": 0, "total_tokens": 0}
+    return {"input_tokens": 0, "output_tokens": 0, "api_calls": 0, "total_tokens": 0, "cached_input_tokens": 0}

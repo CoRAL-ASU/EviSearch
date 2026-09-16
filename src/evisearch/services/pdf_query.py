@@ -1,22 +1,27 @@
 """
 Arm A (pdf_query): extract a batch of columns from the whole document in one structured call.
 
-The model reads either the parsed markdown (any chat model) or the PDF itself (models that accept PDFs),
-chosen by OPTIONS["pdf_query_input"] in src/config/config.py.
+The document is the parsed markdown, page by page. With OPTIONS["pdf_query_input"] = "markdown_images" (the default)
+each page's text is followed by its rendered image; with "markdown" the text is sent alone. Every provider gets
+exactly this input: the PDF file itself is never uploaded, so local and API models read the same evidence.
 """
 from __future__ import annotations
 
+import re
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
 from src.config.catalog import ConfigError
-from src.config.config import MAX_TOKENS, PDF_QUERY_MAX_MARKDOWN_CHARS, SELECTION
+from src.config.config import MAX_TOKENS, PAGE_IMAGE_SCALE, PDF_QUERY_MAX_PAGE_IMAGES, SELECTION
 from src.evisearch.columns import column_names, extraction_items_schema, fill_missing, parse_column_entries
 from src.evisearch.knowledge.preferences import load_extraction_preferences
 from src.evisearch.pipelines.results_store import write_json
 from src.evisearch.services.highlight import resolve_pdf_path
-from src.inference import InferenceError, Message, PdfPart, TextPart, Usage, get_chat
+from src.evisearch.services.page_images import pdf_page_count, render_pages
+from src.inference import ImagePart, InferenceError, Message, TextPart, Usage, get_chat
 from src.retrieval.embedding_retriever import parsed_markdown_path
+from src.retrieval.markdown_preprocessor import PAGE_BREAK
 
 SYSTEM_PROMPT = """You extract clinical trial data from a research paper.
 
@@ -30,10 +35,23 @@ Rules:
   combine the subgroups that make up the whole population.
 - Attribution lists the 1-based page number(s) the value came from, with modality "table", "figure" or "text"."""
 
-MARKDOWN_PAGES_NOTE = (
-    "Pages in the markdown are separated by <!-- PAGE BREAK -->: page 1 is the text before the first marker, "
-    "page 2 the text after it, and so on."
-)
+IMAGE_RULES = """
+- Pages come with their parsed text and, where included, their rendered image. Use the parsed text for exact wording
+  and numbers in text and tables; use the image for figures (Kaplan-Meier curves, forest plots, flow diagrams) and to
+  check table layout. When the parsed text and the image disagree about a value, trust the image."""
+
+ANCHOR_RE = re.compile(r"<a\s+id=['\"][^'\"]*['\"][^>]*>\s*</a>\s*")
+FIGURE_RE = re.compile(r"<::(?!\s*logo)", re.IGNORECASE)  # LandingAI figure descriptions; logos are not evidence
+CHARS_PER_TEXT_TOKEN = 2  # benchmark papers measure 2.5-3.3 characters per Qwen token; 2 keeps estimates above the real count
+
+# Steps tried in order until the document fits the token budget; None means every page went in with its image.
+FALLBACK_STEPS = (None, "figure_table_pages", "markdown_only")
+
+
+@dataclass
+class DocumentInput:
+    parts: List[Any]
+    info: Dict[str, Any]  # input_mode, pages, image_pages, page_image_scale, fallback, estimated_tokens, warnings
 
 
 def extraction_schema(names: List[str]) -> Dict[str, Any]:
@@ -53,21 +71,86 @@ def build_columns_prompt(batch_columns: List[Dict[str, Any]], preferences: str) 
     )
 
 
-def _document_parts(doc_id: str, input_mode: str) -> List[Any]:
-    if input_mode == "pdf":
-        pdf_path = resolve_pdf_path(doc_id)
-        if not pdf_path or not pdf_path.exists():
-            raise FileNotFoundError(f"PDF not found for {doc_id}")
-        return [TextPart("DOCUMENT: the attached PDF."), PdfPart(pdf_path.read_bytes(), filename=pdf_path.name)]
-
+def load_markdown_pages(doc_id: str) -> List[str]:
+    """Parsed markdown split into pages, without LandingAI's <a id> anchors (~15-20% of the tokens)."""
     path = parsed_markdown_path(doc_id)
     if not path.exists():
         raise FileNotFoundError(f"Parsed markdown not found: {path}. Prepare the document (LandingAI parse) first.")
-    markdown = path.read_text(encoding="utf-8")
-    if PDF_QUERY_MAX_MARKDOWN_CHARS and len(markdown) > PDF_QUERY_MAX_MARKDOWN_CHARS:
-        markdown = markdown[:PDF_QUERY_MAX_MARKDOWN_CHARS] + "\n\n[... markdown truncated ...]"
-    # Document first: requests for the same paper share a prefix, which vLLM prefix caching reuses.
-    return [TextPart(f"DOCUMENT MARKDOWN ({MARKDOWN_PAGES_NOTE}):\n\n{markdown}\n\nEND DOCUMENT MARKDOWN.")]
+    markdown = ANCHOR_RE.sub("", path.read_text(encoding="utf-8"))
+    return [page.strip() for page in markdown.split(PAGE_BREAK)]
+
+
+def figure_or_table_pages(pages: List[str]) -> List[int]:
+    return [number for number, text in enumerate(pages, 1) if FIGURE_RE.search(text) or "<table" in text.lower()]
+
+
+def document_token_budget(context_tokens: Optional[int], prompt_text: str, max_output_tokens: int) -> Optional[int]:
+    """Tokens left for the document once the output and the rest of the prompt are reserved (None: no limit known)."""
+    if not context_tokens:
+        return None
+    return context_tokens - max_output_tokens - len(prompt_text) // CHARS_PER_TEXT_TOKEN
+
+
+def build_document_input(doc_id: str, input_mode: str, token_budget: Optional[int] = None) -> DocumentInput:
+    """Document parts for one call. In markdown_images mode every page gets its image; when that would exceed
+    token_budget, images are limited to pages with figures or tables, then dropped (info["fallback"] says which)."""
+    pages = load_markdown_pages(doc_id)
+    texts = {number: f"=== PAGE {number}: parsed text ===\n{text}" for number, text in enumerate(pages, 1)}
+    text_tokens = sum(len(text) for text in texts.values()) // CHARS_PER_TEXT_TOKEN
+    info: Dict[str, Any] = {
+        "input_mode": input_mode,
+        "pages": len(pages),
+        "image_pages": [],
+        "page_image_scale": None,
+        "fallback": None,
+        "estimated_tokens": text_tokens,
+        "token_budget": token_budget,
+        "warnings": [],
+    }
+    if input_mode == "markdown":
+        parts = [TextPart(f"DOCUMENT: {len(pages)} pages of parsed text.")]
+        parts += [TextPart(texts[number]) for number in sorted(texts)]
+        return DocumentInput(parts + [TextPart("END OF DOCUMENT.")], info)
+    if input_mode != "markdown_images":
+        raise ConfigError(f"pdf_query_input={input_mode!r}: choose markdown_images or markdown")
+
+    pdf_path = resolve_pdf_path(doc_id)
+    if not pdf_path or not Path(pdf_path).exists():
+        raise FileNotFoundError(f"PDF not found for {doc_id}; markdown_images renders the page images from it")
+    pdf_pages = pdf_page_count(Path(pdf_path))
+    if pdf_pages != len(pages):
+        info["warnings"].append(f"page count mismatch: markdown has {len(pages)} pages, PDF has {pdf_pages}")
+    images = {image.page: image for image in render_pages(Path(pdf_path), list(range(1, pdf_pages + 1)), PAGE_IMAGE_SCALE)}
+    candidates = {
+        None: sorted(images),
+        "figure_table_pages": [number for number in figure_or_table_pages(pages) if number in images],
+        "markdown_only": [],
+    }
+    for fallback in FALLBACK_STEPS:
+        image_pages = candidates[fallback]
+        estimate = text_tokens + sum(images[number].estimated_tokens for number in image_pages)
+        fits = token_budget is None or estimate <= token_budget
+        if (fits and len(image_pages) <= PDF_QUERY_MAX_PAGE_IMAGES) or fallback == "markdown_only":
+            break
+    if token_budget is not None and estimate > token_budget:
+        info["warnings"].append(f"document needs ~{estimate} tokens but only {token_budget} are available")
+    info.update(image_pages=image_pages, fallback=fallback, estimated_tokens=estimate,
+                page_image_scale=PAGE_IMAGE_SCALE if image_pages else None)
+
+    if fallback is None:
+        header = f"DOCUMENT: {len(pages)} pages, each given as its parsed text followed by its rendered image."
+    elif image_pages:
+        header = f"DOCUMENT: {len(pages)} pages of parsed text; rendered images follow the pages with figures or tables ({', '.join(map(str, image_pages))})."
+    else:
+        header = f"DOCUMENT: {len(pages)} pages of parsed text (page images left out: they do not fit the model's context)."
+    parts: List[Any] = [TextPart(header)]
+    for number in range(1, max(len(pages), pdf_pages) + 1):
+        text = texts.get(number, f"=== PAGE {number}: parsed text ===\n(no parsed text for this page)")
+        if number in image_pages:
+            parts += [TextPart(f"{text}\n=== PAGE {number}: image ==="), ImagePart(images[number].png)]
+        else:
+            parts.append(TextPart(text))
+    return DocumentInput(parts + [TextPart("END OF DOCUMENT.")], info)
 
 
 def run_pdf_query(
@@ -78,27 +161,34 @@ def run_pdf_query(
     model: Optional[str] = None,
     preferences: Optional[str] = None,
     raw_response_path: Optional[Path] = None,
+    details: Optional[Dict[str, Any]] = None,
 ) -> Tuple[Dict[str, Dict[str, Any]], Dict[str, int]]:
     """Returns ({column: {value, reasoning, found, attribution, tried}}, usage). Never raises for model errors:
-    affected columns come back as "Not reported" with the error as reasoning."""
+    affected columns come back as "Not reported" with the error as reasoning. `details`, when given, receives the
+    document info (pages, image pages, fallback, estimated tokens)."""
     names = column_names(batch_columns)
     usage = Usage()
     input_mode = input_mode or SELECTION.option("pdf_query_input")
+    prefs = load_extraction_preferences() if preferences is None else preferences
+    columns_prompt = build_columns_prompt(batch_columns, prefs)
 
     try:
         chat = get_chat("pdf_query", model)
-        if input_mode == "pdf" and not chat.capabilities.pdf:
-            raise ConfigError(f"model '{chat.key}' cannot read PDFs; use pdf_query_input=markdown")
-        document = _document_parts(doc_id, input_mode)
+        if input_mode == "markdown_images" and not chat.capabilities.images:
+            raise ConfigError(f"model '{chat.key}' cannot read images; use pdf_query_input=markdown")
+        budget = document_token_budget(chat.spec.context_tokens, SYSTEM_PROMPT + IMAGE_RULES + columns_prompt, MAX_TOKENS["pdf_query"])
+        document = build_document_input(doc_id, input_mode, budget)
     except (ConfigError, InferenceError, FileNotFoundError) as exc:
         return fill_missing({}, names, f"pdf_query not run: {exc}"), usage.to_dict()
+    if details is not None:
+        details.update(document.info)
 
-    prefs = load_extraction_preferences() if preferences is None else preferences
-    columns_prompt = build_columns_prompt(batch_columns, prefs)
-    messages = [Message.system(SYSTEM_PROMPT), Message.user(*document, columns_prompt)]
+    system = SYSTEM_PROMPT + (IMAGE_RULES if document.info["image_pages"] else "")
+    # Document first: every batch for the same paper shares this prefix, which prompt caching reuses.
+    messages = [Message.system(system), Message.user(*document.parts, columns_prompt)]
     schema = extraction_schema(names) if chat.capabilities.json_schema else None
 
-    log: Dict[str, Any] = {"model": chat.key, "input_mode": input_mode, "system": SYSTEM_PROMPT, "prompt": columns_prompt}
+    log: Dict[str, Any] = {"model": chat.key, "input_mode": input_mode, "document": document.info, "system": system, "prompt": columns_prompt}
     try:
         result = chat.chat(messages, response_schema=schema, max_tokens=MAX_TOKENS["pdf_query"])
     except InferenceError as exc:

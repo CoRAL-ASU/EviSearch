@@ -88,7 +88,7 @@ class GeminiChat(ChatModel):
         max_tokens: int,
     ) -> ChatResult:
         system, contents = to_gemini_contents(messages)
-        config = build_config(system, tools, tool_choice, response_schema, temperature, max_tokens)
+        config = build_config(system, tools, tool_choice, response_schema, temperature, max_tokens, self.spec.thinking)
         try:
             response = self.client.models.generate_content(model=self.spec.name, contents=contents, config=config)
         except Exception as exc:
@@ -103,8 +103,11 @@ def build_config(
     response_schema: Optional[Dict[str, Any]],
     temperature: float,
     max_tokens: int,
+    thinking: Optional[bool] = None,
 ) -> types.GenerateContentConfig:
     kwargs: Dict[str, Any] = {"temperature": temperature, "max_output_tokens": max_tokens}
+    if thinking is False:
+        kwargs["thinking_config"] = types.ThinkingConfig(thinking_budget=0)
     if system:
         kwargs["system_instruction"] = system
     if tools:
@@ -167,6 +170,7 @@ def parse_gemini_response(response: Any, key: str) -> ChatResult:
         input_tokens=getattr(metadata, "prompt_token_count", 0) or 0,
         output_tokens=(getattr(metadata, "candidates_token_count", 0) or 0) + (getattr(metadata, "thoughts_token_count", 0) or 0),
         api_calls=1,
+        cached_input_tokens=getattr(metadata, "cached_content_token_count", 0) or 0,
     )
     candidates = getattr(response, "candidates", None) or []
     if not candidates:

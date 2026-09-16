@@ -28,13 +28,14 @@ ROLE_OVERRIDES = {
 }
 
 OPTIONS = {
-    "pdf_query_input": env("EVISEARCH_PDF_QUERY_INPUT", "markdown"),  # markdown | pdf
+    # Arm A input, identical for every provider (the PDF file itself is never sent to a model).
+    "pdf_query_input": env("EVISEARCH_PDF_QUERY_INPUT", "markdown_images"),  # markdown_images | markdown
     "reconciliation_page_images": env("EVISEARCH_RECONCILIATION_PAGE_IMAGES", "auto"),  # auto | never
 }
 
 # Output token budget per role
 MAX_TOKENS = {
-    "pdf_query": 16000,
+    "pdf_query": 8000,  # Arm A answers use ~3k tokens per batch
     "search_agent": 8192,
     "reconciliation": 8192,
     "qa": 4096,
@@ -45,9 +46,9 @@ MAX_TOKENS = {
 
 # ============== GPUS (local vLLM servers) ==============
 # GPUs this project may use, and where each server runs: a list of GPU indices, or "auto" to pick the
-# least-used GPUs from the pool when the server starts. Environment: EVISEARCH_GPU_POOL="0,1,2,3",
-# EVISEARCH_GPUS="qwen36_27b=0;qwen3_embed_8b=1;qwen3_rerank_8b=1"
-GPU_POOL = env("EVISEARCH_GPU_POOL", [0, 1, 2, 3, 4, 5, 6, 7])
+# least-used GPUs from the pool when the server starts. Environment: EVISEARCH_GPU_POOL="4,5,6,7",
+# EVISEARCH_GPUS="qwen36_27b=4;qwen3_embed_8b=5;qwen3_rerank_8b=5"
+GPU_POOL = env("EVISEARCH_GPU_POOL", [4, 5, 6, 7])  # GPUs 0-3 are reserved for other groups
 GPUS = env("EVISEARCH_GPUS", {
     "qwen36_27b": "auto",
     "qwen3_embed_8b": "auto",
@@ -62,7 +63,8 @@ SELECTION = CATALOG.resolve(PRESET, ROLE_OVERRIDES, OPTIONS, GPUS, GPU_POOL)
 BATCH_MAX_COLUMNS = 15  # columns per LLM call / agent run
 AGENT_MAX_TURNS = 25
 AGENT_MAX_TOOL_CALLS = 15
-PDF_QUERY_MAX_MARKDOWN_CHARS = 0  # 0 = send the whole parsed markdown
+PAGE_IMAGE_SCALE = 2.0  # render scale for every page image sent to a model (Arm A, reconciliation); 2 = 144 dpi
+PDF_QUERY_MAX_PAGE_IMAGES = 32  # page images per Arm A call; keep in step with --limit-mm-per-prompt in catalog.yaml
 RECONCILIATION_MAX_PAGE_IMAGES = 6  # page images attached per reconciliation batch
 
 # ============== RETRIEVAL ==============

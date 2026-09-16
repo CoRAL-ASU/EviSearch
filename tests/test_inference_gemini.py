@@ -47,6 +47,7 @@ def test_tool_turn_config_parsing_and_thought_signature_replay():
             {"function_call": {"name": "get_page", "args": {"page_numbers": [2]}}, "thought_signature": "c2ln"},
         ],
         thoughts_token_count=5,
+        cached_content_token_count=40,
     )
     second = _response([{"text": "done"}])
     client = FakeClient([first, second])
@@ -57,6 +58,7 @@ def test_tool_turn_config_parsing_and_thought_signature_replay():
     config = client.models.calls[0]["config"]
     assert config.system_instruction == "be precise"
     assert config.max_output_tokens == 1000
+    assert config.thinking_config.thinking_budget == 0  # catalog: thinking false, like the local models
     declaration = config.tools[0].function_declarations[0]
     assert declaration.name == "get_page"
     assert declaration.parameters.properties["page_numbers"].items.type == types.Type.INTEGER
@@ -65,6 +67,7 @@ def test_tool_turn_config_parsing_and_thought_signature_replay():
     assert result.tool_calls[0].name == "get_page"
     assert result.tool_calls[0].id.startswith(SYNTHETIC_ID_PREFIX)
     assert result.usage.output_tokens == 25  # candidates + thoughts
+    assert result.usage.cached_input_tokens == 40
 
     history = [
         Message.system("be precise"),

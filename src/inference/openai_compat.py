@@ -89,6 +89,8 @@ class OpenAICompatChat(ChatModel):
             input_tokens=getattr(usage_data, "prompt_tokens", 0) or 0,
             output_tokens=getattr(usage_data, "completion_tokens", 0) or 0,
             api_calls=1,
+            # vLLM reports this only with --enable-prompt-tokens-details
+            cached_input_tokens=getattr(getattr(usage_data, "prompt_tokens_details", None), "cached_tokens", 0) or 0,
         )
         assistant = Message(role="assistant", parts=[TextPart(text)] if text else [], tool_calls=calls)
         return ChatResult(

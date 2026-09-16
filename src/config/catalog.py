@@ -66,7 +66,6 @@ class ModelSpec(_Spec):
     capabilities: Capabilities = Capabilities()
     context_tokens: Optional[int] = None
     thinking: Optional[bool] = None
-    page_image_scale: Optional[float] = None
     query_instruction: Optional[str] = None
     price_per_1k: Price = Price()
 
@@ -227,11 +226,11 @@ class Catalog(_Spec):
                 chosen[name] = value
 
         pdf_model = roles.get("pdf_query")
-        if chosen.get("pdf_query_input") == "pdf" and pdf_model in self.models:
-            if not self.models[pdf_model].capabilities.pdf:
-                readers = [key for key in self.models_for_role("pdf_query") if self.models[key].capabilities.pdf]
+        if chosen.get("pdf_query_input") == "markdown_images" and pdf_model in self.models:
+            if not self.models[pdf_model].capabilities.images:
+                readers = [key for key in self.models_for_role("pdf_query") if self.models[key].capabilities.images]
                 errors.append(
-                    f"OPTIONS['pdf_query_input']='pdf' but '{pdf_model}' cannot read PDFs. "
+                    f"OPTIONS['pdf_query_input']='markdown_images' but '{pdf_model}' cannot read images. "
                     f"Use 'markdown' or pick: {', '.join(readers)}"
                 )
 

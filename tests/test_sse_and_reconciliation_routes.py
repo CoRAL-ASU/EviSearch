@@ -129,6 +129,6 @@ def test_api_qa_ask_quick_uses_qa_role_with_parsed_markdown(client, isolated_app
 
     body = response.data.decode("utf-8")
     assert '"type": "done"' in body and "76.6 months" in body
-    document, prompt = chat.messages[0].parts
-    assert "Median overall survival 76.6 months" in document.text
+    *document, prompt = chat.messages[0].parts
+    assert "=== PAGE 1: parsed text ===\nMedian overall survival 76.6 months" in "\n".join(part.text for part in document)
     assert "Current question: What was median OS?" in prompt.text

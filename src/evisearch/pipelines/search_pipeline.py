@@ -8,7 +8,7 @@ Usage:
   python experiment-scripts/run_search_agent.py "<doc_id>" --max-batches 1 --model gemini-2.5-flash
   python experiment-scripts/run_search_agent.py "<doc_id>" --dry-run
 
-Outputs:
+Outputs (under runs/<run>/ when --run or EVISEARCH_RUN is set):
   new_pipeline_outputs/results/<doc_id>/search_agent/extraction_results.json
   new_pipeline_outputs/results/<doc_id>/search_agent/verification_logs/batch_N_conversation.json
 """
@@ -44,11 +44,15 @@ def run_search_agent_pipeline(
     model: Optional[str] = None,
     on_event: Optional[Callable[[Dict[str, Any]], None]] = None,
 ) -> Dict[str, Any]:
-    """Run all batches; emits phase_start / search_columns_written / search_batch_done / phase_done events."""
+    """Run all batches; emits phase_start / search_columns_written / search_batch_done / phase_done events.
+    Raises results_store.ResumeError when resuming results made with another model."""
     from src.evisearch.services.search import run_search_agent
     from src.inference.factory import model_key_for
 
     emit = on_event or (lambda event: None)
+    settings = {"model": model_key_for("search_agent", model)}
+    if resume:
+        results_store.check_resume(doc_id, "search", settings)
     groups = load_groups()
     definitions = definitions_map(groups)
     existing = results_store.load_columns(doc_id, "search") if resume else {}
@@ -68,7 +72,7 @@ def run_search_agent_pipeline(
         columns.update(results)
         add_usage(usage, batch_usage)
         results_store.save_columns(doc_id, "search", columns)
-        results_store.save_metadata(doc_id, "search", {"method": "search_agent", "model": model_key_for("search_agent", model), "usage": usage})
+        results_store.save_metadata(doc_id, "search", {"method": "search_agent", **settings, "run": results_store.current_run(), "usage": usage})
         emit({"type": "search_columns_written", "columns": [{"column": name, "value": r["value"]} for name, r in results.items()]})
         emit({"type": "search_batch_done", "batch": index + 1, "total_batches": len(batches), "filled": count_found(columns), "total": len(columns)})
     emit({"type": "phase_done", "phase": "search_agent", "filled": count_found(columns), "total": len(columns)})
@@ -82,22 +86,31 @@ def main(argv: Optional[List[str]] = None) -> int:
     parser.add_argument("--no-resume", action="store_true", help="Ignore existing search_agent results")
     parser.add_argument("--max-batches", type=int, help="Run only the first N batches")
     parser.add_argument("--model", help="Catalog model key overriding the search_agent role for this run")
+    parser.add_argument("--run", help="Run name: results go to results/<doc_id>/runs/<run>/ (default: EVISEARCH_RUN)")
     parser.add_argument("--dry-run", action="store_true", help="Print batches without calling the model")
     args = parser.parse_args(argv)
 
     from src.inference.factory import model_key_for
 
+    if args.run is not None:
+        results_store.use_run(args.run)
     group_names = parse_group_names(args.groups)
     groups = load_groups()
     unknown = unknown_groups(groups, group_names)
     if unknown:
         print(f"[search_agent] unknown group(s) {unknown}; groups are the Label values in the definitions CSV", file=sys.stderr)
         return 2
+    if not args.no_resume:
+        try:
+            results_store.check_resume(args.doc_id, "search", {"model": model_key_for("search_agent", args.model)})
+        except results_store.ResumeError as exc:
+            print(f"[search_agent] {exc}", file=sys.stderr)
+            return 2
     existing = {} if args.no_resume else results_store.load_columns(args.doc_id, "search")
     batches = build_batches(groups, group_names, done=done_columns(existing))
     if args.max_batches is not None:
         batches = batches[: max(args.max_batches, 0)]
-    print(f"[search_agent] doc_id={args.doc_id} model={model_key_for('search_agent', args.model)} batches={len(batches)}")
+    print(f"[search_agent] doc_id={args.doc_id} model={model_key_for('search_agent', args.model)} run={results_store.current_run() or '-'} batches={len(batches)}")
     if args.dry_run:
         for index, batch in enumerate(batches):
             print(f"  batch {index}: {[c['column_name'] for c in batch]}")

@@ -59,7 +59,8 @@ Code never names a provider or model; it asks for a role (`get_chat("search_agen
 EVISEARCH_PRESET=cloud python experiment-scripts/run_search_agent.py "<doc_id>"
 EVISEARCH_ROLE_JUDGE=gemini-2.5-pro python -m src.evaluation.evaluator_v2 ...   # override one role
 EVISEARCH_ROLE_RERANKER=none ...                                              # disable reranking
-EVISEARCH_PDF_QUERY_INPUT=pdf ...          # Arm A reads the PDF itself (model must support pdf)
+EVISEARCH_PDF_QUERY_INPUT=markdown ...     # Arm A without page images (default markdown_images: each page's text + image)
+EVISEARCH_RUN=qwen_md_images ...           # keep this run's results apart: results/<doc_id>/runs/qwen_md_images/
 EVISEARCH_RECONCILIATION_PAGE_IMAGES=never ...
 EVISEARCH_VLLM_CHAT_URL=http://gpu-box:8002/v1 ...   # use a vLLM server running elsewhere
 ```
@@ -98,7 +99,7 @@ python -m src.inference.serve --only qwen36_27b
 
 | Server | Model | Port | Default memory | Notes |
 |---|---|---|---|---|
-| `qwen36_27b` | Qwen/Qwen3.6-27B | 8002 | 0.90 of one GPU | `--tool-call-parser qwen3_coder --reasoning-parser qwen3`, thinking off, 65k context, images on, PyTorch sampler (`VLLM_USE_FLASHINFER_SAMPLER=0`: FlashInfer's JIT kernels cannot be built with the pip CUDA wheels) |
+| `qwen36_27b` | Qwen/Qwen3.6-27B | 8002 | 0.90 of one GPU | `--tool-call-parser qwen3_coder --reasoning-parser qwen3`, thinking off, 131k context, up to 32 images per prompt, cached-token counts in usage (`--enable-prompt-tokens-details`), PyTorch sampler (`VLLM_USE_FLASHINFER_SAMPLER=0`: FlashInfer's JIT kernels cannot be built with the pip CUDA wheels) |
 | `qwen3_embed_8b` | Qwen/Qwen3-Embedding-8B | 8003 | 0.40 | `--runner pooling` |
 | `qwen3_rerank_8b` | Qwen/Qwen3-Reranker-8B | 8004 | 0.40 | pooling + `hf_overrides`, template in `src/config/templates/` |
 | `qwen3_8b` | Qwen/Qwen3-8B | 8006 | 0.40 | optional small chat model |
@@ -114,10 +115,16 @@ those pages) when a conversation would not fit.
 
 ## Running the pipeline
 
-All CLIs share flags: `--groups "A,B"`, `--no-resume`, `--max-batches N`, `--model <catalog key>`, `--dry-run`.
+All CLIs share flags: `--groups "A,B"`, `--no-resume`, `--max-batches N`, `--model <catalog key>`, `--run <name>`, `--dry-run`.
+Resuming refuses results made with a different model, input or image scale; use `--no-resume` or another `--run`.
+
+Arm A sends every provider the same input: the parsed markdown page by page, each page followed by its image rendered
+at `PAGE_IMAGE_SCALE` (the PDF file itself is never uploaded). If a document would not fit the model's context, images
+are limited to pages with figures or tables, then dropped; the metadata records it and the CLI warns.
+`--dry-run` shows whether a document fits.
 
 ```bash
-python experiment-scripts/run_pdf_query_agent.py "<doc_id>"            # Arm A  (--input markdown|pdf)
+python experiment-scripts/run_pdf_query_agent.py "<doc_id>"            # Arm A  (--input markdown_images|markdown)
 python experiment-scripts/run_search_agent.py "<doc_id>"               # Arm B
 python experiment-scripts/run_reconciliation_agent.py "<doc_id>"       # needs both arms' results
 shell-scripts/run_benchmarks.sh full [--resume] [--max-batches 1]      # all benchmark trials
@@ -181,7 +188,7 @@ API requires. Structured output uses `response_format: json_schema` (OpenAI/vLLM
 
 ```text
 new_pipeline_outputs/
-├── results/<doc_id>/
+├── results/<doc_id>/                 (a named run keeps its arm folders under runs/<run>/)
 │   ├── chunking/            parsed_markdown.md, landing_ai_parse_output.json
 │   ├── agent_extractor/     extraction_results.json, extraction_metadata.json, raw_llm_responses/
 │   ├── search_agent/        extraction_results.json, extraction_metadata.json, verification_logs/
