@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import os
+import shutil
 from pathlib import Path
 
 
@@ -45,3 +46,32 @@ DATASET_DIR = Path(os.getenv("EVISEARCH_DATASET_DIR", str(PROJECT_ROOT / "datase
 def ensure_runtime_dirs() -> None:
     for path in (UPLOADS_DIR, RESULTS_ROOT, CHUNK_EMBEDDINGS_DIR, FEEDBACK_DIR):
         path.mkdir(parents=True, exist_ok=True)
+
+
+# Outputs shipped with the repo, and the runtime directory each one is served from.
+SEEDED_DIRS = (
+    (PROJECT_ROOT / "new_pipeline_outputs" / "results", RESULTS_ROOT),
+    (PROJECT_ROOT / "new_pipeline_outputs" / "chunk_embeddings", CHUNK_EMBEDDINGS_DIR),
+    (PROJECT_ROOT / "new_pipeline_outputs" / "feedback", FEEDBACK_DIR),
+)
+
+
+def seed_runtime_dirs(pairs=SEEDED_DIRS) -> int:
+    """Copy repo outputs into relocated runtime dirs (e.g. a Fly volume), never overwriting.
+
+    A no-op when the runtime dirs are the repo dirs. Files already on the volume win, so
+    uploads and human edits survive redeploys while new benchmark outputs still appear.
+    Returns the number of files copied.
+    """
+    copied = 0
+    for source, target in pairs:
+        if not source.is_dir() or source.resolve() == target.resolve():
+            continue
+        for path in source.rglob("*"):
+            dest = target / path.relative_to(source)
+            if not path.is_file() or dest.exists():
+                continue
+            dest.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copy2(path, dest)
+            copied += 1
+    return copied

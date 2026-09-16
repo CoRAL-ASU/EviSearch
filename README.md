@@ -130,6 +130,28 @@ the extract and QA pages, and the benchmark papers already have parsed markdown.
 `http://127.0.0.1:8007` with `/extract`, `/qa`, `/attribution`, `/comparison-report`,
 `/method-comparison-report`.
 
+## Deploying the demo (Fly.io)
+
+`fly.toml` runs the `Dockerfile` on one `shared-cpu-2x` / 2 GB machine with the `cloud` preset (Fly has no
+GPUs) and a 5 GB volume at `/data` for uploads, results, embeddings and feedback. On startup the app
+copies the outputs shipped in `new_pipeline_outputs/` onto the volume without overwriting, so edits and
+uploads survive redeploys. Setting `EVISEARCH_DEMO_PASSWORD` puts the whole site behind HTTP Basic auth
+(user `evisearch`, or `EVISEARCH_DEMO_USER`); `/healthz` stays open for Fly's health check.
+
+```bash
+curl -L https://fly.io/install.sh | sh && export PATH="$HOME/.fly/bin:$PATH"
+fly auth login                        # add a card: the trial stops machines after 5 minutes
+fly apps create evisearch-demo        # names are global; if taken, change `app` in fly.toml too
+fly secrets set --stage -a evisearch-demo VERTEX_API_KEY=... OPENAI_API_KEY=... \
+    VISION_AGENT_API_KEY=... EVISEARCH_DEMO_PASSWORD=...
+fly deploy --ha=false                 # builds remotely; creates the volume on first deploy
+fly status && fly logs                # then open https://evisearch-demo.fly.dev
+```
+
+Keep it to one machine (`--ha=false`, no `fly scale count`): the volume attaches to one machine and running
+jobs live in memory. The machine stops when idle and starts on the next request, so an extraction dies if
+every browser tab closes mid-run.
+
 ## Evaluation and baselines
 
 ```bash
