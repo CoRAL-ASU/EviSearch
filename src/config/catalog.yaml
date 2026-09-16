@@ -167,7 +167,10 @@ servers:
     gpu_memory_utilization: 0.90
     max_model_len: 131072
     max_num_seqs: 8
-    args: [--dtype, bfloat16, --enable-auto-tool-choice, --tool-call-parser, qwen3_coder, --reasoning-parser, qwen3, --limit-mm-per-prompt, '{"image": 32}', --enable-prompt-tokens-details]
+    # --mamba-cache-mode all: Qwen3.6 is a hybrid (linear attention) model; the default "align" mode keeps a reusable
+    # prefix only where a scheduler step ends on a block boundary, so Arm A batches sharing a 75k-token document got no
+    # cache hits. "all" keeps one at every block, and later batches reuse the document.
+    args: [--dtype, bfloat16, --enable-auto-tool-choice, --tool-call-parser, qwen3_coder, --reasoning-parser, qwen3, --limit-mm-per-prompt, '{"image": 32}', --enable-prompt-tokens-details, --mamba-cache-mode, all]
     env:
       # FlashInfer's sampler JIT-compiles CUDA kernels at startup, which needs a full CUDA toolkit matching PyTorch;
       # the pip CUDA wheels cannot link them. PyTorch's sampler needs no compilation.
