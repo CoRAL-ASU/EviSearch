@@ -195,14 +195,16 @@ def test_search_agent_reports_retrieval_errors_to_the_model_instead_of_crashing(
         raise InferenceError("embedding server down")
 
     monkeypatch.setattr(retriever, "get_embedder", unavailable)
-    chat = ScriptedChat([[("search_chunks", {"query": "survival"})], "Nothing found."])
+    chat = ScriptedChat([[("search_chunks", {"query": "survival"})], "Nothing found.", [("submit_extraction", {"results": []})]])
     _use(search, chat, monkeypatch)
+    log_path = doc["results"] / "doc-1" / "search_agent" / "verification_logs" / "batch_0.txt"
 
-    results, _ = search.run_search_agent("doc-1", BATCH, {})
+    results, _ = search.run_search_agent("doc-1", BATCH, {}, log_path=log_path)
 
     assert "embedding server down" in chat.requests[1]["messages"][3].tool_results[0].content["error"]
+    assert chat.requests[2]["tools"] == ["submit_extraction"]  # replying without a tool call forces a final submit
     assert results[TRIAL]["found"] is False
-    assert "did not submit (no_tool_call)" in results[TRIAL]["reasoning"]
+    assert json.loads((log_path.parent / "batch_0_conversation.json").read_text())["stopped_by"] == "forced_finish"
 
 
 # ---- Reconciliation ---------------------------------------------------------------------------------

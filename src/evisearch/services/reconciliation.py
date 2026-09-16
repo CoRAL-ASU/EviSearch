@@ -250,6 +250,7 @@ def run_reconciliation_agent(
         max_tokens=MAX_TOKENS["reconciliation"],
         follow_up=FOLLOW_UP,
         is_done=session.done,
+        finish_tool="submit_verification",
     )
 
     results = dict(session.submitted)

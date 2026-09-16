@@ -118,7 +118,12 @@ class _SearchSession:
             if returned
             else "All retrieved pages have already been provided. Try a different query or submit with what you have."
         )
-        content = {"matches": [{"page": h["page"], "score": h["score"]} for h in hits], "formatted_chunks": formatted, "pages_returned": returned}
+        content = {
+            "matches": [{"page": h["page"], "score": h["score"]} for h in hits],
+            "retrieval": hits[0]["retrieval"],  # "rerank", or "embedding (reranker unavailable: ...)"
+            "formatted_chunks": formatted,
+            "pages_returned": returned,
+        }
         return ToolOutput(content, on_evict=self._forget(returned))
 
     def get_chunks_by_page(self, args: Dict[str, Any]) -> ToolOutput:
@@ -180,6 +185,7 @@ def run_search_agent(
         max_tool_calls=AGENT_MAX_TOOL_CALLS,
         max_tokens=MAX_TOKENS["search_agent"],
         follow_up=FOLLOW_UP,
+        finish_tool="submit_extraction",
     )
 
     if session.submitted is None:

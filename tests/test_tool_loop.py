@@ -37,6 +37,36 @@ def _tool(name, handler):
     return Tool(ToolSpec(name, name, {"type": "object", "properties": {}}), handler)
 
 
+def test_exhausted_tool_budget_forces_one_submit_with_only_the_finish_tool():
+    submitted = {}
+    tools = [
+        _tool("lookup", lambda args: ToolOutput({"text": "Trial: STAMPEDE"})),
+        _tool("submit", lambda args: (submitted.update(args), ToolOutput({"ok": True}, stop=True))[1]),
+    ]
+    offered = []
+
+    class RecordingChat(ScriptedChat):
+        def _chat(self, messages, tools, tool_choice, response_schema, temperature, max_tokens):
+            offered.append(([t.name for t in tools], tool_choice))
+            return super()._chat(messages, tools, tool_choice, response_schema, temperature, max_tokens)
+
+    chat = RecordingChat([[("lookup", {})], [("lookup", {})], [("submit", {"Trial": "STAMPEDE"})]])
+    result = run_tool_loop(chat, system="s", user="u", tools=tools, max_turns=5, max_tool_calls=2, max_tokens=100,
+                           follow_up="Continue.", finish_tool="submit")
+
+    assert result.stopped_by == "forced_finish" and submitted == {"Trial": "STAMPEDE"}
+    assert offered[-1] == (["submit"], "required")
+    assert "no tool calls left" in chat.seen[-1][-1].text and "Continue." not in chat.seen[-1][-1].text
+
+    no_finish = run_tool_loop(ScriptedChat([[("lookup", {})], [("lookup", {})]]), system="s", user="u", tools=tools,
+                              max_turns=5, max_tool_calls=2, max_tokens=100)
+    assert no_finish.stopped_by == "max_tool_calls"
+
+    replied_in_text = run_tool_loop(ScriptedChat(["I think it is STAMPEDE.", [("submit", {"Trial": "STAMPEDE"})]]), system="s",
+                                    user="u", tools=tools, max_turns=5, max_tool_calls=5, max_tokens=100, finish_tool="submit")
+    assert replied_in_text.stopped_by == "forced_finish"
+
+
 def test_loop_runs_tools_until_finish_tool():
     submitted = {}
     tools = [

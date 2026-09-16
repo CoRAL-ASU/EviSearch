@@ -16,6 +16,12 @@ EVICTED_CONTENT = {
     "evicted": True,
     "note": "This tool output was removed to fit the context window. Call the tool again if you still need it.",
 }
+FORCED_FINISH = (
+    "You have no tool calls left. Call {tool} now with every value you have found so far; "
+    'use "Not reported" for anything you could not find.'
+)
+# Ways a loop can end without the finish tool; with finish_tool set, the model then gets one forced turn.
+UNFINISHED = ("max_tool_calls", "max_turns", "no_tool_call")
 
 
 @dataclass
@@ -38,7 +44,7 @@ class LoopResult:
     usage: Usage
     turns: int
     tool_calls: int
-    stopped_by: str  # finish_tool | done | no_tool_call | max_turns | max_tool_calls | error
+    stopped_by: str  # finish_tool | done | forced_finish | no_tool_call | max_turns | max_tool_calls | error
     error: Optional[str]
     transcript: List[Dict[str, Any]]
 
@@ -55,8 +61,13 @@ def run_tool_loop(
     temperature: float = 0.0,
     follow_up: Optional[str] = None,
     is_done: Optional[Callable[[], bool]] = None,
+    finish_tool: Optional[str] = None,
 ) -> LoopResult:
     """Let the model call tools until a handler stops the loop, is_done() is true, or a limit is hit.
+
+    When the loop ends unfinished (tool budget or turns used up, or a reply without a tool call) and finish_tool is
+    given, the model gets one more turn in which it must call that tool, so work done so far is submitted rather than
+    lost; stopped_by is then "forced_finish".
 
     The full conversation is kept. When a model has a finite context window, the oldest tool outputs are
     replaced with a note (and their on_evict hooks run) so the next request still fits.
@@ -116,6 +127,38 @@ def run_tool_loop(
         if is_done and is_done():
             stopped_by = "done"
             break
+
+    if finish_tool and finish_tool in registry and stopped_by in UNFINISHED and not (is_done and is_done()):
+        instruction = FORCED_FINISH.format(tool=finish_tool)
+        if messages[-1].role == "tool":
+            messages[-1] = Message.tool(messages[-1].tool_results, instruction)  # replaces the usual follow-up
+        else:
+            messages.append(Message.user(instruction))
+        transcript.append({"turn": len(transcript), "role": "user", "content": instruction})
+        _fit_context(chat, messages, evictable, max_tokens)
+        turns += 1
+        try:
+            result = chat.chat(messages, tools=[registry[finish_tool].spec], tool_choice="required", max_tokens=max_tokens, temperature=temperature)
+        except InferenceError as exc:
+            error = str(exc)
+            transcript.append({"turn": len(transcript), "role": "model", "content": "", "error": error})
+        else:
+            usage.add(result.usage)
+            messages.append(result.message)
+            if result.text:
+                transcript.append({"turn": len(transcript), "role": "model", "content": result.text})
+            results = []
+            for call in result.tool_calls:
+                if call.name != finish_tool:
+                    results.append(ToolResult(call.id, call.name, {"error": f"Only {finish_tool} can be called now."}))
+                    continue
+                tool_calls += 1
+                output = _execute(registry, call)
+                results.append(ToolResult(call.id, call.name, output.content, list(output.attachments)))
+                transcript.append({"turn": len(transcript), "role": "tool", "name": call.name, "args": call.arguments, "response": output.content})
+                stopped_by = "forced_finish"
+            if results:
+                messages.append(Message.tool(results))
 
     return LoopResult(
         messages=messages,
