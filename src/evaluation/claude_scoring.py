@@ -78,6 +78,18 @@ class Cell:
     verification: Optional[str] = None  # reconciler label, EviSearch outputs only
     missing: bool = False  # column absent from the system's output
     failed: bool = False  # the model call for this column failed (its value was a failure marker)
+    a_pred: Optional[str] = None  # EviSearch outputs: Agent A's and Agent B's values from the same run
+    b_pred: Optional[str] = None
+    needs_review: Optional[bool] = None  # EviSearch outputs: flagged for human review
+
+    @property
+    def agents_agree(self) -> Optional[bool]:
+        """Agent A and Agent B gave the same answer (up to case, spacing and "%"), or both said "Not reported"."""
+        if self.a_pred is None or self.b_pred is None:
+            return None
+        if is_empty(self.a_pred) and is_empty(self.b_pred):
+            return True
+        return _squash(self.a_pred) == _squash(self.b_pred)
 
     @property
     def id(self) -> str:
@@ -165,10 +177,23 @@ def cells(system: System, docs: Sequence[str], results_root: Path = RESULTS_ROOT
         if not path.exists():
             raise FileNotFoundError(f"{system.name}: no output for {doc} at {path}")
         predicted = load_output(path)
+        agents = {}
+        if system.stage == "reconciliation_agent":
+            for key, stage in (("a", "agent_extractor"), ("b", "search_agent")):
+                arm = System(system.name, system.run, stage).path(doc, results_root)
+                agents[key] = load_output(arm) if arm.exists() else None
         for name, column in columns.items():
             entry = predicted.get(name)
             pred = normalize((entry or {}).get("value", ""))
             failed = pred.lower() in FAILED_VALUES
+            arm_values = {
+                key: (None if out_arm is None else _answer((out_arm.get(name) or {}).get("value", "")))
+                for key, out_arm in agents.items()
+            }
+            verification = (entry or {}).get("verification")
+            flag = (entry or {}).get("needs_review")
+            if flag is None and verification:
+                flag = verification == "both_wrong"
             out.append(Cell(
                 doc=doc,
                 column=name,
@@ -176,9 +201,12 @@ def cells(system: System, docs: Sequence[str], results_root: Path = RESULTS_ROOT
                 definition=column.definition,
                 gold=gold[doc].get(name, ""),
                 pred="" if failed else pred,
-                verification=(entry or {}).get("verification"),
+                verification=verification,
                 missing=entry is None,
                 failed=failed,
+                a_pred=arm_values.get("a"),
+                b_pred=arm_values.get("b"),
+                needs_review=None if flag is None else bool(flag),
             ))
     return out
 
@@ -303,26 +331,29 @@ def summarize(rows: Sequence[Scored]) -> dict:
 
 
 def review_stats(rows: Sequence[Scored]) -> Optional[dict]:
-    """Agreement-cell accuracy (T3) and review flags (both_wrong), for outputs carrying reconciler labels."""
-    labelled = [r for r in rows if r.cell.verification]
+    """For EviSearch outputs: accuracy where Agent A and Agent B agree (T3, from their own values in the same run) and
+    the human-review flags (needs_review, or the reconciler's both_wrong label for outputs that predate it)."""
+    labelled = [r for r in rows if r.cell.needs_review is not None or r.cell.agents_agree is not None]
     if not labelled:
         return None
-    agreed = [r for r in labelled if r.cell.verification == "both_correct"]
+    agreed = [r for r in labelled if r.cell.agents_agree]
     agreed_value = [r for r in agreed if not is_empty(r.cell.pred)]
     agreed_absent = [r for r in agreed if is_empty(r.cell.pred)]
-    flagged = [r for r in labelled if r.cell.verification == "both_wrong"]
+    flagged = [r for r in labelled if r.cell.needs_review]
     errors = [r for r in labelled if r.score < 1]
     flagged_errors = [r for r in flagged if r.score < 1]
-    unflagged = [r for r in labelled if r.cell.verification != "both_wrong"]
-    after_review = sum(1.0 if r.cell.verification == "both_wrong" else r.score for r in labelled) / len(labelled)
+    unflagged = [r for r in labelled if not r.cell.needs_review]
+    after_review = sum(1.0 if r.cell.needs_review else r.score for r in labelled) / len(labelled)
     counts: Dict[str, int] = {}
     for r in labelled:
-        counts[r.cell.verification] = counts.get(r.cell.verification, 0) + 1
+        if r.cell.verification:
+            counts[r.cell.verification] = counts.get(r.cell.verification, 0) + 1
     return {
         "verification_counts": counts,
         "agreed": summarize(agreed),
         "agreed_on_value": summarize(agreed_value),
         "agreed_not_reported": summarize(agreed_absent),
+        "reconciler_both_correct": summarize([r for r in labelled if r.cell.verification == "both_correct"]),
         "flag_rate": round(100 * len(flagged) / len(labelled), 2),
         "flag_precision": round(100 * len(flagged_errors) / len(flagged), 2) if flagged else None,
         "flag_recall": round(100 * len(flagged_errors) / len(errors), 2) if errors else None,
@@ -388,6 +419,16 @@ def rubric_text(category: str) -> str:
     from src.evaluation.evaluator_v2 import EvaluatorV2
 
     return EvaluatorV2.build_prompt(object.__new__(EvaluatorV2), category, [])
+
+
+def _answer(value) -> str:
+    """An agent's value as scored: normalized, with failure markers counted as no answer."""
+    value = normalize(value)
+    return "" if value.lower() in FAILED_VALUES else value
+
+
+def _squash(value: str) -> str:
+    return "".join(ch for ch in normalize(value).lower() if not ch.isspace() and ch != "%")
 
 
 def _slug(text: str) -> str:

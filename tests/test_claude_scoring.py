@@ -83,10 +83,14 @@ def test_ingest_validates_and_appends(tmp_path):
 
 
 def test_review_stats_compute_agreement_accuracy_and_flags():
-    def scored(v, c, k):
-        return cs.Scored(cs.Cell("d", f"c{v}{c}{k}", "numeric_tolerance", "", "1", "1", verification=v), c, k, "label")
-    rows = [scored("both_correct", 1, 1), scored("both_correct", 1, 0), scored("both_wrong", 0, 0),
-            scored("both_wrong", 1, 1), scored("A_correct_B_wrong", 0, 0)]
+    def scored(i, a, b, flag, c, k):
+        cell = cs.Cell("d", f"c{i}", "numeric_tolerance", "", "1", "1", a_pred=a, b_pred=b, needs_review=flag)
+        return cs.Scored(cell, c, k, "label")
+    rows = [scored(1, "12 (5%)", "12 (5)", False, 1, 1),  # same answer up to "%": agreed
+            scored(2, "7", "7", False, 1, 0),
+            scored(3, "1", "2", True, 0, 0),
+            scored(4, "1", "2", True, 1, 1),
+            scored(5, "1", "3", False, 0, 0)]
     stats = cs.review_stats(rows)
     assert stats["agreed"]["accuracy"] == 75.0
     assert stats["agreed_on_value"]["n"] == 2 and stats["agreed_not_reported"]["n"] == 0
@@ -94,6 +98,22 @@ def test_review_stats_compute_agreement_accuracy_and_flags():
     assert stats["flag_precision"] == 50.0  # 1 of 2 flagged cells is wrong
     assert stats["flag_recall"] == pytest.approx(33.33)  # 1 of 3 imperfect cells was flagged
     assert stats["accuracy_after_simulated_review"] == 70.0  # (1 + 0.5 + 1 + 1 + 0) / 5: flagged cells counted as fixed
+
+
+def test_reconciled_cells_carry_agent_values_and_the_review_flag(tmp_path):
+    run = "e"
+    _write_output(tmp_path, run, "agent_extractor", "docA", {"Control Arm - N": {"value": "454"}, "Region": {"value": "Not reported"}, "NCT": {"value": "Extraction error"}})
+    _write_output(tmp_path, run, "search_agent", "docA", {"Control Arm - N": {"value": "454"}, "Region": {"value": "Europe"}, "NCT": {"value": "not found"}})
+    _write_output(tmp_path, run, "reconciliation_agent", "docA", {
+        "Control Arm - N": {"value": "454", "verification": "both_correct"},          # E0-style: flag from the label
+        "Region": {"value": "Europe", "verification": "both_wrong"},
+        "NCT": {"value": "NCT1", "needs_review": False, "verification": "both_wrong"},  # needs_review wins
+    })
+    got = {c.column: c for c in cs.cells(cs.System("E", run, "reconciliation_agent"), ["docA"], tmp_path, COLUMNS, GOLD)}
+    assert got["Control Arm - N"].agents_agree and got["Control Arm - N"].needs_review is False
+    assert got["Region"].agents_agree is False and got["Region"].needs_review is True
+    assert got["NCT"].agents_agree  # failed call and "not found" are both no answer
+    assert got["NCT"].needs_review is False
 
 
 def test_agreement_kappa():
