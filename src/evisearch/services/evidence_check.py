@@ -1,14 +1,15 @@
 """
-Evidence verifier: checks (column, value, page, evidence) claims against the cited page with a separate model call.
+Evidence verifier: checks (column, value, pages, evidence) claims against the cited page(s) with a separate model call.
 
-One structured call per page (claims on the same page share it): the page's parsed text, its rendered image when the
-model reads images, the column definitions and the claims. For each claim the model says whether the page supports
-the value for that column (population, arm, timepoint, unit), what the page itself states, and the supporting text
-copied from the page. Two deterministic signals are recorded next to each verdict (the value's numbers and the claimed
-evidence found in the parsed text); they do not decide the verdict, because values read from page images are often
-missing from the parsed text.
+One structured call per page set (claims citing the same pages share it): each page's parsed text and, when the model
+reads images, its rendered image, then the column definitions and the claims. A claim cites one page, or up to
+MAX_CLAIM_PAGES pages when its value combines numbers from several (a table continued on the next page, subgroup
+tables to add up). For each claim the model says whether the pages support the value for that column (population,
+arm, timepoint, unit), what the pages state, and the supporting text copied from them. Two deterministic signals are
+recorded next to each verdict (the value's numbers and the claimed evidence found in the parsed text); they do not
+decide the verdict, because values read from page images are often missing from the parsed text.
 
-The reconciler uses this to verify both arms' claims before it decides, and to check every value it submits.
+The reconciler's verify_attribution tool calls this, and its submit tool accepts only values verified here.
 """
 from __future__ import annotations
 
@@ -16,7 +17,7 @@ import re
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Sequence, Tuple
+from typing import Any, Dict, List, Optional, Sequence, Tuple, Union
 
 from src.config.config import MAX_TOKENS
 from src.evisearch.columns import MODALITIES
@@ -28,53 +29,76 @@ from src.retrieval import embedding_retriever as retriever
 
 VERDICTS = ("supported", "partial", "not_supported")
 CLAIMS_PER_CALL = 12
+MAX_CLAIM_PAGES = 3
 MAX_WORKERS = 4  # concurrent verifier calls; vLLM batches them
 
-SYSTEM_PROMPT = """You check values extracted from a clinical trial paper against one page of that paper.
+SYSTEM_PROMPT = """You check values extracted from a clinical trial paper against the page or pages they were taken from.
 
-You get the page's parsed text and, when available, its image, then a list of claims. Each claim names a column with
-its definition, a value someone extracted for it, and the evidence they quoted. Judge every claim only from this page.
+You get each page's parsed text and, when available, its image, then a list of claims. Each claim names a column with
+its definition, a value someone extracted for it, and the evidence they quoted. Judge every claim only from these
+pages.
 
 For each claim return:
 - verdict:
-  "supported": the page states this value for this column, for the population or subgroup, arm, timepoint and unit the
-    definition asks for. Different formatting or rounding of the same number is fine. A value the definition asks to
-    derive (for example subgroups added up to the whole population) is supported when every number it uses is on this
-    page and the arithmetic is right.
-  "partial": the page supports only part of the value (for example the count but not the percentage, or one of two
-    required items), or the value is right but the definition asks for more that the page also states.
-  "not_supported": the page does not state this value for this column: a different number, a different population,
-    arm or timepoint, or nothing about it on this page.
-- page_value: what this page states for the column, written as printed ("" when the page does not report it).
-- evidence: the text from the page that shows page_value, copied as printed: the sentence, or for a table the row
-  label, column header and cell, or for a figure its label and the number read from it ("" when there is none).
+  "supported": the pages state this value for this column, for the population or subgroup, arm, timepoint and unit
+    the definition asks for. Also supported:
+    - the same number in another format or rounding;
+    - the page's value converted to the unit the column asks for, when the conversion is right (for example years
+      times 12 for months, within 0.1 after rounding);
+    - the population, subgroup, arm or event named differently on the page (a synonym or abbreviation for the same
+      thing);
+    - a value the pages imply directly: every patient enrolled in one country gives 100% for the region containing
+      it; deaths attributed to the treatment are treatment-related grade 5 events; an arm's randomised count is its N;
+    - a value the definition asks to derive (subgroups added up to the whole population, a percentage computed from a
+      printed count and denominator) when every number it uses is on these pages and the arithmetic is right. The
+      claimed evidence may spell out the derivation ("349 + 113 = 462; 462 / 654 = 70.6%"): find each of its numbers
+      on the pages, in the right rows and columns, and redo the arithmetic yourself before you decide.
+  "partial": the pages support only part of the value (for example the count but not the percentage, or one of two
+    required items), or the value is right but the definition asks for more that the pages also state.
+  "not_supported": the pages do not state this value for this column: a different number, a different population,
+    arm or timepoint, or nothing about it on these pages.
+- page_value: what the pages state for the column, written as printed ("" when they do not report it).
+- evidence: the text that shows page_value, copied as printed: the sentence, or for a table the row label, column
+  header and cell, or for a figure its label and the number read from it ("" when there is none).
 - modality: "table", "figure" or "text": where page_value appears.
 - reason: one short sentence.
 
-When the parsed text and the image disagree, trust the image. Do not use knowledge from outside this page."""
+When the parsed text and the image disagree, trust the image. Do not use knowledge from outside these pages."""
 
 NUMBER_RE = re.compile(r"\d+(?:\.\d+)?")
 TRIVIAL_NUMBERS = {"0", "1", "2", "3"}  # too common on any page to count as evidence
+
+Pages = Tuple[int, ...]
+
+
+def as_pages(page: Union[int, Sequence[int]]) -> Pages:
+    """1-based page(s) as a sorted tuple of at most MAX_CLAIM_PAGES distinct pages."""
+    pages = [page] if isinstance(page, int) else list(page)
+    return tuple(sorted({int(p) for p in pages}))[:MAX_CLAIM_PAGES]
 
 
 @dataclass(frozen=True)
 class Claim:
     column: str
     value: str
-    page: int
+    page: Union[int, Pages]  # one page, or the pages a combined value comes from
     evidence: str = ""
 
     @property
-    def key(self) -> Tuple[str, str, int]:
-        return claim_key(self.column, self.value, self.page)
+    def pages(self) -> Pages:
+        return as_pages(self.page)
+
+    @property
+    def key(self) -> Tuple[str, str, Pages]:
+        return claim_key(self.column, self.value, self.pages)
 
 
 def normalize_value(value: Any) -> str:
     return re.sub(r"\s+", " ", str(value or "")).strip().lower().rstrip(".")
 
 
-def claim_key(column: str, value: Any, page: int) -> Tuple[str, str, int]:
-    return (column, normalize_value(value), int(page))
+def claim_key(column: str, value: Any, page: Union[int, Sequence[int]]) -> Tuple[str, str, Pages]:
+    return (column, normalize_value(value), as_pages(page))
 
 
 def _flat(text: str) -> str:
@@ -134,7 +158,8 @@ def _record(claim: Claim, verdict: str, reason: str, page_text: str = "", **foun
     return {
         "column": claim.column,
         "value": claim.value,
-        "page": claim.page,
+        "page": claim.pages[0],
+        "pages": list(claim.pages),
         "claimed_evidence": claim.evidence,
         "verdict": verdict,
         "page_value": str(found.get("page_value") or "").strip(),
@@ -157,18 +182,21 @@ def _claims_block(claims: Sequence[Claim], definitions: Dict[str, str]) -> str:
     return "\n".join(lines)
 
 
-def _verify_page(
-    chat: ChatModel, page: int, page_text: str, png: Optional[bytes], claims: Sequence[Claim], definitions: Dict[str, str]
+def _verify_pages(
+    chat: ChatModel, pages: Pages, texts: Dict[int, str], images: Dict[int, bytes], claims: Sequence[Claim], definitions: Dict[str, str]
 ) -> Tuple[List[Dict[str, Any]], Usage, Dict[str, Any]]:
     ids = [f"c{i}" for i in range(1, len(claims) + 1)]
-    parts: List[Any] = [TextPart(f"=== PAGE {page}: parsed text ===\n{page_text or '(no parsed text for this page)'}")]
-    if png:
-        parts += [TextPart(f"=== PAGE {page}: image ==="), ImagePart(png)]
+    parts: List[Any] = []
+    for page in pages:
+        parts.append(TextPart(f"=== PAGE {page}: parsed text ===\n{texts.get(page) or '(no parsed text for this page)'}"))
+        if images.get(page):
+            parts += [TextPart(f"=== PAGE {page}: image ==="), ImagePart(images[page])]
     parts.append(TextPart(_claims_block(claims, definitions)))
     messages = [Message.system(SYSTEM_PROMPT + shared_rules()), Message.user(*parts)]
     schema = response_schema(ids) if chat.capabilities.json_schema else None
+    pages_text = "\n".join(texts.get(page, "") for page in pages)
     usage = Usage()
-    call: Dict[str, Any] = {"page": page, "claims": len(claims), "image": bool(png)}
+    call: Dict[str, Any] = {"page": pages[0], "pages": list(pages), "claims": len(claims), "image": all(images.get(p) for p in pages)}
     try:
         result = chat.chat(messages, response_schema=schema, max_tokens=MAX_TOKENS["verifier"])
         usage.add(result.usage)
@@ -176,17 +204,17 @@ def _verify_page(
         parsed = result.json()
     except (InferenceError, ValueError) as exc:
         call["error"] = str(exc)
-        return [_record(c, "error", f"verifier call failed: {exc}", page_text) for c in claims], usage, call
+        return [_record(c, "error", f"verifier call failed: {exc}", pages_text) for c in claims], usage, call
     by_id = {str(item.get("id")): item for item in (parsed or {}).get("results", []) if isinstance(item, dict)}
     records = []
     for claim_id, claim in zip(ids, claims):
         item = by_id.get(claim_id)
         if item is None:
-            records.append(_record(claim, "error", "verifier returned no verdict for this claim", page_text))
+            records.append(_record(claim, "error", "verifier returned no verdict for this claim", pages_text))
             continue
         verdict = str(item.get("verdict", "")).strip()
         found = {key: item.get(key) for key in ("page_value", "evidence", "modality")}
-        records.append(_record(claim, verdict if verdict in VERDICTS else "error", str(item.get("reason", "")).strip(), page_text, **found))
+        records.append(_record(claim, verdict if verdict in VERDICTS else "error", str(item.get("reason", "")).strip(), pages_text, **found))
     return records, usage, call
 
 
@@ -198,41 +226,43 @@ def verify_claims(
     *,
     pdf_path: Optional[Path] = None,
     image_scale: Optional[float] = None,
-) -> Tuple[Dict[Tuple[str, str, int], Dict[str, Any]], Usage, List[Dict[str, Any]]]:
-    """Verify claims, one call per page (at most CLAIMS_PER_CALL claims each). Returns ({claim key: record}, usage,
-    per-call logs). Claims on pages outside the document are not_supported without a call; a failed call gives
-    verdict "error" (treated as not verified)."""
-    unique: Dict[Tuple[str, str, int], Claim] = {}
+) -> Tuple[Dict[Tuple[str, str, Pages], Dict[str, Any]], Usage, List[Dict[str, Any]]]:
+    """Verify claims, one call per page set (at most CLAIMS_PER_CALL claims each). Returns ({claim key: record},
+    usage, per-call logs). Claims citing a page outside the document are not_supported without a call; a failed call
+    gives verdict "error" (treated as not verified)."""
+    unique: Dict[Tuple[str, str, Pages], Claim] = {}
     for claim in claims:
         unique.setdefault(claim.key, claim)
     total_pages = retriever.get_total_pages(doc_id)
-    records: Dict[Tuple[str, str, int], Dict[str, Any]] = {}
-    by_page: Dict[int, List[Claim]] = {}
+    records: Dict[Tuple[str, str, Pages], Dict[str, Any]] = {}
+    by_pages: Dict[Pages, List[Claim]] = {}
     for key, claim in unique.items():
-        if 1 <= claim.page <= total_pages:
-            by_page.setdefault(claim.page, []).append(claim)
+        missing = [page for page in claim.pages if not 1 <= page <= total_pages]
+        if missing or not claim.pages:
+            records[key] = _record(claim, "not_supported", f"page {missing} does not exist (document has {total_pages} pages)")
         else:
-            records[key] = _record(claim, "not_supported", f"page {claim.page} does not exist (document has {total_pages} pages)")
-    if not by_page:
+            by_pages.setdefault(claim.pages, []).append(claim)
+    if not by_pages:
         return records, Usage(), []
 
-    texts = retriever.get_page_content(doc_id, sorted(by_page))
+    needed = sorted({page for pages in by_pages for page in pages})
+    texts = retriever.get_page_content(doc_id, needed)
     images: Dict[int, bytes] = {}
     if image_scale and pdf_path and Path(pdf_path).exists():
-        images = dict(render_pdf_pages_to_png(Path(pdf_path), sorted(by_page), image_scale))
+        images = dict(render_pdf_pages_to_png(Path(pdf_path), needed, image_scale))
     jobs = [
-        (page, page_claims[i : i + CLAIMS_PER_CALL])
-        for page, page_claims in sorted(by_page.items())
-        for i in range(0, len(page_claims), CLAIMS_PER_CALL)
+        (pages, group[i : i + CLAIMS_PER_CALL])
+        for pages, group in sorted(by_pages.items())
+        for i in range(0, len(group), CLAIMS_PER_CALL)
     ]
     usage = Usage()
     calls: List[Dict[str, Any]] = []
     with ThreadPoolExecutor(max_workers=min(MAX_WORKERS, len(jobs))) as pool:
-        futures = [pool.submit(_verify_page, chat, page, texts.get(page, ""), images.get(page), group, definitions) for page, group in jobs]
+        futures = [pool.submit(_verify_pages, chat, pages, texts, images, group, definitions) for pages, group in jobs]
         for future in futures:
             page_records, page_usage, call = future.result()
             usage.add(page_usage)
             calls.append(call)
             for record in page_records:
-                records[claim_key(record["column"], record["value"], record["page"])] = record
+                records[claim_key(record["column"], record["value"], record["pages"])] = record
     return records, usage, calls

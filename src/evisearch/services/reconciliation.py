@@ -30,13 +30,13 @@ from src.config.config import AGENT_MAX_TOOL_CALLS, AGENT_MAX_TURNS, MAX_TOKENS,
 from src.evisearch.columns import MODALITIES, NOT_REPORTED, column_names, is_no_value
 from src.evisearch.pipelines.results_store import write_json
 from src.evisearch.services import document_reader
-from src.evisearch.services.evidence_check import Claim, normalize_value, verify_claims
+from src.evisearch.services.evidence_check import MAX_CLAIM_PAGES, Claim, as_pages, normalize_value, verify_claims
 from src.evisearch.services.extraction_rules import shared_rules
 from src.evisearch.services.highlight import resolve_pdf_path
 from src.inference import InferenceError, Tool, ToolOutput, ToolSpec, Usage, get_chat, run_tool_loop
 from src.retrieval import embedding_retriever as retriever
 
-RECONCILER_VERSION = "verified_tools_v1"  # part of the run settings: results of other versions are not resumed
+RECONCILER_VERSION = "verified_tools_v2"  # part of the run settings: results of other versions are not resumed
 VERIFICATIONS = ("A_correct_B_wrong", "B_correct_A_wrong", "both_correct", "both_wrong")
 VERIFY_MAX_CLAIMS = 30  # per verify_attribution call; split into one verifier call per page
 REASONING_CHARS = 2000  # of each arm's reasoning shown to the agent
@@ -62,13 +62,18 @@ Deciding a column:
    at different levels of detail (a drug class and the drug, a count and the same count with its percentage) are
    merged into the complete value the definition asks for. A different label for the same quantity, or a named subtype
    of the requested measure, is not absence.
-4. "Not reported" wins over a value only when the page that value cites does not contain the quantity. Never replace
-   a value the verifier supports with "Not reported". "Not reported", and "No" in a yes/no column, claim absence: they
-   need no verification.
+4. When the verifier does not support a value, find out why before dropping it: it may be on another page (ask the
+   reader where the paper reports it), or combine numbers from several pages (verify it with pages=[...] together).
+   For a value derived from printed numbers (subgroups added up, a percentage from a count and the arm size), put
+   the derivation in the claim's evidence, e.g. "349 + 113 = 462; 462 / 654 = 70.6%", taken from the reasoning.
+   Never replace an extracted value with "Not reported" because it failed verification: submit the value with
+   review=true and a review_reason instead, so a human checks it. "Not reported" over an extracted value is only for
+   a value that answers a different question (another statistic, population or timepoint), and it too needs
+   review=true. "Not reported", and "No" in a yes/no column, claim absence: they need no verification.
 5. Both say "Not reported": accept it, unless either reasoning mentions a candidate (a number with %, months or n/N;
    "not reached"; "all patients" or a value fixed by the design; enrolment in one country or region). Then ask the
    reader and verify what it finds.
-6. Verify the value you choose on the page that shows it, then submit it with that page. If the verifier supports
+6. Verify the value you choose on the page(s) that show it, then submit it with those pages. If the verifier supports
    none of the values you can find, submit your best value with review=true and a review_reason: a human reviewer
    checks it.
 
@@ -86,6 +91,15 @@ def _page(raw: Any) -> Optional[int]:
     except (TypeError, ValueError):
         return None
     return page if page >= 1 else None
+
+
+def _claim_pages(item: Dict[str, Any]) -> Optional[Tuple[int, ...]]:
+    """The page(s) a claim or submission cites: "pages" (a list) or "page"; None when neither is valid."""
+    raw = item.get("pages")
+    pages = [p for p in (_page(x) for x in raw) if p] if isinstance(raw, list) else []
+    if not pages and _page(item.get("page")):
+        pages = [_page(item.get("page"))]
+    return as_pages(pages) if pages else None
 
 
 def _extract_source_output(col_data: Any) -> Dict[str, Any]:
@@ -124,7 +138,7 @@ def _same(value: Any, other: Any) -> bool:
 
 
 def _compact(record: Dict[str, Any]) -> Dict[str, Any]:
-    keys = ("column", "value", "page", "verdict", "page_value", "evidence", "modality", "reason")
+    keys = ("column", "value", "pages", "verdict", "page_value", "evidence", "modality", "reason")
     return {key: record.get(key) for key in keys}
 
 
@@ -143,6 +157,7 @@ def tool_specs(names: List[str]) -> List[ToolSpec]:
         "type": "object",
         "properties": {
             "page": {"type": "integer", "description": "1-based page that shows the value"},
+            "pages": {"type": "array", "items": {"type": "integer"}, "description": "Instead of page: the pages of a value verified on several pages"},
             "modality": {"type": "string", "enum": list(MODALITIES)},
             "evidence": {"type": "string", "description": "Supporting text as printed on that page"},
         },
@@ -192,9 +207,10 @@ def tool_specs(names: List[str]) -> List[ToolSpec]:
                                 "column": {"type": "string", "enum": list(names)},
                                 "value": {"type": "string"},
                                 "page": {"type": "integer"},
+                                "pages": {"type": "array", "items": {"type": "integer"}, "description": f"Instead of page: up to {MAX_CLAIM_PAGES} pages when the value combines numbers from several"},
                                 "evidence": {"type": "string"},
                             },
-                            "required": ["column", "value", "page"],
+                            "required": ["column", "value"],
                         },
                     }
                 },
@@ -309,7 +325,11 @@ class _ReconciliationSession:
         if record and not is_absence(value):
             quote = record.get("evidence") or record.get("claimed_evidence") or ""
             source = {"page": record["page"], "modality": record["modality"], "verbatim_quote": quote}
-            attribution = [{**source, "verified": verified, "verdict": record["verdict"]}]
+            attribution = [
+                {"page": page, "modality": record["modality"], **({"verbatim_quote": quote} if i == 0 else {}),
+                 "verified": verified, "verdict": record["verdict"]}
+                for i, page in enumerate(record.get("pages") or [record["page"]])
+            ]
         return {
             "value": value,
             "reasoning": reasoning,
@@ -368,10 +388,11 @@ class _ReconciliationSession:
             if isinstance(item, dict) and is_absence(item.get("value")):
                 problems.append(f"skipped {item.get('column')!r}: \"{item.get('value')}\" claims absence, which needs no verification; submit it as it is")
                 continue
-            if not isinstance(item, dict) or item.get("column") not in self.names or _page(item.get("page")) is None:
-                problems.append(f"skipped {item!r}: needs a column of this batch, a value and a page")
+            pages = _claim_pages(item) if isinstance(item, dict) else None
+            if not isinstance(item, dict) or item.get("column") not in self.names or pages is None:
+                problems.append(f"skipped {item!r}: needs a column of this batch, a value and a page (or pages)")
                 continue
-            claims.append(Claim(item["column"], str(item["value"]), _page(item["page"]), str(item.get("evidence") or "")))
+            claims.append(Claim(item["column"], str(item["value"]), pages, str(item.get("evidence") or "")))
         if len(raw) > VERIFY_MAX_CLAIMS:
             problems.append(f"only the first {VERIFY_MAX_CLAIMS} claims were checked")
         new = [claim for claim in claims if claim.key not in self.checks]
@@ -404,44 +425,54 @@ class _ReconciliationSession:
             review_reason = str(item.get("review_reason") or "").strip()
             if is_absence(value):  # "Not reported", or "No" in a yes/no column: nothing on a page to verify
                 supported = self.supported(name)
-                if supported and not review:
-                    best = supported[0]
-                    rejected.append({
-                        "column": name,
-                        "reason": f'"{best["value"]}" is verified on page {best["page"]} (the page shows "{best["page_value"]}"). '
-                        "Submit it, or set review=true with a review_reason if it answers a different question.",
-                    })
+                arm_values = [self.sources[o][name]["value"] for o in ("A", "B") if not is_absence(self.sources[o][name]["value"])]
+                if (supported or arm_values) and not review:
+                    reason = (
+                        f'"{supported[0]["value"]}" is verified on page(s) {supported[0]["pages"]} (they show "{supported[0]["page_value"]}"). '
+                        if supported else
+                        f"an extraction reported {arm_values[0]!r}. Verify it (or the right value) on its page and submit that; "
+                        "if it cannot be verified, submit it with review=true. "
+                    )
+                    rejected.append({"column": name, "reason": reason + f'Submit "{value or NOT_REPORTED}" only with review=true and a review_reason.'})
                     continue
-                reason = (review_reason or f"{value or NOT_REPORTED} although a value was verified") if review else ""
+                reason = (review_reason or f"{value or NOT_REPORTED} although a value was reported") if review else ""
                 self.submitted[name] = self.final(name, value, None, reasoning=reasoning, decided_by="agent", verification=label, review_reason=reason)
                 accepted.append(name)
                 continue
 
             source = item.get("source") if isinstance(item.get("source"), dict) else {}
-            page = _page(source.get("page"))
-            if page is None:
-                match = [r for r in self.supported(name) if _same(r["value"], value)]
-                page = match[0]["page"] if match else None
-            record = self.checks.get(Claim(name, value, page).key) if page else None
+            pages = _claim_pages(source)
+            same_value = [r for r in self.checks.values() if r["column"] == name and _same(r["value"], value)]
+            record = self.checks.get(Claim(name, value, pages).key) if pages else None
+            if record is None or record["verdict"] != "supported":  # a check of this value on pages including the cited one
+                covering = [r for r in same_value if r["verdict"] == "supported" and (pages is None or set(pages) <= set(r["pages"]))]
+                record = covering[0] if covering else record
+            if record is None and pages is None and same_value:
+                record = same_value[0]
             attempt = {"value": value, "reasoning": reasoning, "verification": label, "record": record}
             if record and record["verdict"] == "supported":
                 self.submitted[name] = self.final(name, value, record, reasoning=reasoning, decided_by="agent", verification=label)
                 accepted.append(name)
             elif record and review:
-                reason = review_reason or f"verifier: {record['verdict']} on page {record['page']}"
+                reason = review_reason or f"verifier: {record['verdict']} on page(s) {record['pages']}"
                 self.submitted[name] = self.final(name, value, record, reasoning=reasoning, decided_by="agent", verification=label, review_reason=reason)
                 accepted.append(name)
             elif record:
                 self.attempts[name] = attempt
                 rejected.append({
                     "column": name,
-                    "reason": f"the verifier did not support this value on page {page}",
+                    "reason": f"the verifier did not support this value on page(s) {record['pages']}",
                     "verifier": _compact(record),
-                    "next": "Correct the value or the page (page_value is what that page states), or resubmit with review=true and a review_reason.",
+                    "next": "Correct the value or the page (page_value is what the page states), verify it on the page(s) that show it "
+                    "(several pages together if it combines them), or resubmit with review=true and a review_reason.",
                 })
+            elif review and pages is None:  # no page found for it at all: flag without a check
+                self.submitted[name] = self.final(name, value, None, reasoning=reasoning, decided_by="agent", verification=label,
+                                                  review_reason=review_reason or "no page given and not verified")
+                accepted.append(name)
             else:
                 self.attempts[name] = attempt
-                where = f"on page {page}" if page else "with its page (source.page)"
+                where = f"on page(s) {list(pages)}" if pages else "with its page (source.page)"
                 rejected.append({"column": name, "reason": f"not verified: call verify_attribution for this value {where} first."})
         remaining = [name for name in self.names if name not in self.submitted]
         content: Dict[str, Any] = {"accepted": accepted, "rejected": rejected, "remaining": remaining}

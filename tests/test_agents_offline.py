@@ -344,7 +344,7 @@ class VerifyingChat(ScriptedChat):
         else:
             self.verifier_requests.append(messages)
             parts = messages[1].parts
-            page_text = parts[0].text.lower()
+            page_text = " ".join(p.text for p in parts if isinstance(p, TextPart) and "parsed text ===" in p.text).lower()
             payload = {"results": []}
             for claim_id, value in CLAIM_RE.findall(parts[-1].text):
                 found = value.lower() in page_text
@@ -467,6 +467,32 @@ def test_reconciliation_accepts_absence_answers_without_a_page_unless_a_value_is
     assert response["accepted"] == ["QoL reported"] and response["rejected"][0]["column"] == MEDIAN_OS
     qol = session.submitted["QoL reported"]
     assert qol["value"] == "No" and qol["attribution"] == [] and not qol["verified"] and not qol["needs_review"]
+
+
+def test_reconciliation_verifies_values_across_pages_and_never_blanks_an_extracted_value_silently(doc):
+    batch = [{"column_name": AE, "definition": "Grade 3 or higher adverse events"}, {"column_name": MEDIAN_OS, "definition": "Median OS"}]
+    source_a = {AE: _claim("47", 2), MEDIAN_OS: _claim("80.1", 2)}
+    chat = VerifyingChat([])
+    session = reconciliation._ReconciliationSession(chat, "doc-1", batch, {}, source_a, {}, 1.0)
+
+    checks = session.verify_attribution({"claims": [{"column": AE, "value": "47", "pages": [3, 2]}]}).content["checks"]
+    assert checks[0]["verdict"] == "supported" and checks[0]["pages"] == [2, 3]
+    request = chat.verifier_requests[0][1].parts
+    assert [p.text.split(":")[0] for p in request if isinstance(p, TextPart)][:4] == ["=== PAGE 2", "=== PAGE 2", "=== PAGE 3", "=== PAGE 3"]
+    assert sum(isinstance(p, ImagePart) for p in request) == 2  # both pages with their images, in one call
+
+    response = session.submit_verification({"results": [
+        {"column": AE, "value": "47", "reasoning": "p3", "verification": "A_correct_B_wrong", "source": {"page": 3}},
+        {"column": MEDIAN_OS, "value": "Not reported", "reasoning": "80.1 is not on p2", "verification": "B_correct_A_wrong"},
+    ]}).content
+    assert response["accepted"] == [AE]  # page 3 lies inside the verified page set [2, 3]
+    assert "'80.1'" in response["rejected"][0]["reason"] and "review=true" in response["rejected"][0]["reason"]
+    assert [a["page"] for a in session.submitted[AE]["attribution"]] == [2, 3] and session.submitted[AE]["verified"]
+
+    session.submit_verification({"results": [{"column": MEDIAN_OS, "value": "Not reported", "reasoning": "a hazard ratio, not a median",
+                                               "verification": "B_correct_A_wrong", "review": True, "review_reason": "answers another statistic"}]})
+    final = session.submitted[MEDIAN_OS]
+    assert final["value"] == "Not reported" and final["needs_review"] and final["review_reason"] == "answers another statistic"
 
 
 def test_reconciliation_search_returns_pages_with_their_relevant_lines(doc, monkeypatch):
