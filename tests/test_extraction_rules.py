@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import csv
+import re
 import importlib.util
 from pathlib import Path
 
@@ -24,12 +25,19 @@ def _runner():
     return runner
 
 
-def test_v1_rules_are_generic():
-    text = extraction_rules.RULES["v1"]
+@pytest.mark.parametrize("version", ["v1", "v2"])
+def test_rules_are_generic(version):
+    text = extraction_rules.RULES[version]
     with open(DEFINITIONS_CSV_PATH, newline="") as handle:
         columns = [row["Column Name"] for row in csv.DictReader(handle)]
     assert not [c for c in columns if c in text], "rules must not name benchmark columns"
     assert not [t for t in TRIALS if t.lower() in text.lower()], "rules must not name trials, papers or drugs"
+    assert not re.search(r"\d+\.\d", text), "rules must not contain values (decimals) that could come from a paper"
+
+
+def test_v2_adds_named_subtypes_to_v1():
+    assert extraction_rules.RULES["v2"].startswith(extraction_rules.RULES["v1"].split('answer "Not reported".')[0])
+    assert "biochemical" in extraction_rules.RULES["v2"] and "biochemical" not in extraction_rules.RULES["v1"]
 
 
 def test_none_reproduces_the_e0_prompts():

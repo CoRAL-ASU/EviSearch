@@ -2,7 +2,8 @@
 
 The same text goes to every system that extracts columns — Agent A, Agent B and the parsed-markdown baseline — so a
 comparison between systems measures the architecture, not the instructions. v1 comes from the error analysis of the
-first full run (E0) on the development papers, revised after a three-lens review: schema conventions only, with no
+first full run (E0) on the development papers, revised after a three-lens review; v2 adds named endpoint subtypes after
+v1 was measured on Agent A. Schema conventions only, with no
 paper, trial, drug or value names. `none` reproduces the E0 prompts.
 """
 from __future__ import annotations
@@ -39,6 +40,18 @@ COLUMN AND TRIAL CONVENTIONS (apply to every column):
 - The add-on treatment is the agent or agents added to the shared backbone in the experimental arm(s), not the
   backbone itself.""",
 }
+
+
+# v2 = v1 + named endpoint subtypes. Measured on Agent A (qwen_b2_v1): under v1 the "only a different kind of
+# statistic" clause made the model answer "Not reported" for PFS columns when the paper reports PFS only as labelled
+# subtypes (biochemical / radiographic PFS), which the E0 prompts had right (6 dev cells on one paper).
+RULES["v2"] = RULES["v1"].replace(
+    """  asked), answer "Not reported".""",
+    """  asked), answer "Not reported". A named subtype of the endpoint the column asks for (for example biochemical,
+  radiographic or clinical progression-free survival for a PFS column) is that endpoint, not a different statistic:
+  report each labelled subtype (for example "bPFS X months; rPFS Y months").""",
+)
+assert RULES["v2"] != RULES["v1"]
 
 
 def rules_version() -> str:
