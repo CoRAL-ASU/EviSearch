@@ -31,7 +31,7 @@ OPTIONS = {
     # Arm A input, identical for every provider (the PDF file itself is never sent to a model).
     "pdf_query_input": env("EVISEARCH_PDF_QUERY_INPUT", "markdown_images"),  # markdown_images | markdown
     "reconciliation_page_images": env("EVISEARCH_RECONCILIATION_PAGE_IMAGES", "auto"),  # auto | never
-    "extraction_rules": env("EVISEARCH_EXTRACTION_RULES", "v2"),  # v2 | v1 | none (the E0 prompts)
+    "extraction_rules": env("EVISEARCH_EXTRACTION_RULES", "v2"),  # v2 | v3 | v1 | none (the E0 prompts)
 }
 
 # Output token budget per role

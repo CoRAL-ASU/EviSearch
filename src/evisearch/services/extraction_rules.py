@@ -3,8 +3,9 @@
 The same text goes to every system that extracts columns — Agent A, Agent B and the parsed-markdown baseline — so a
 comparison between systems measures the architecture, not the instructions. v1 comes from the error analysis of the
 first full run (E0) on the development papers, revised after a three-lens review; v2 adds named endpoint subtypes after
-v1 was measured on Agent A. Schema conventions only, with no
-paper, trial, drug or value names. `none` reproduces the E0 prompts.
+v1 was measured on Agent A; v3 adds values stated for every patient and subgroup sizes, from the cells where the
+markdown baseline beat EviSearch. Schema conventions only, with no paper, trial, drug or value names. `none`
+reproduces the E0 prompts.
 """
 from __future__ import annotations
 
@@ -52,6 +53,26 @@ RULES["v2"] = RULES["v1"].replace(
   report each labelled subtype (for example "bPFS X months; rPFS Y months").""",
 )
 assert RULES["v2"] != RULES["v1"]
+
+# v3 = v2 + two conventions. From the development cells where the markdown baseline beat EviSearch in both E0 runs,
+# Agent A answered "Not reported" (identically across runs) when (a) the paper says every patient in an arm received a
+# treatment but prints no count, and (b) a characteristic is missing from the baseline table but a subgroup analysis
+# gives each subgroup's patients per arm ("events/N"), which Agent A read as event counts. The zero clause covers
+# treatments only: the benchmark leaves other categories of a characteristic empty rather than 0.
+RULES["v3"] = RULES["v2"].replace(
+    """  column.
+""",
+    """  column.
+- A value the paper states for every patient is reported even without a printed count: when the paper says that all
+  patients in an arm received a treatment or share a characteristic (by design, eligibility or allocation), give the
+  arm size with 100%. When an arm by design received no such treatment, give 0 (0%).
+- Counts of patients with a characteristic can come from a subgroup analysis: when the baseline table does not list
+  the characteristic but a subgroup forest plot or table gives each subgroup's patients per arm (for example the N in
+  "events/N"), that N is the number of patients with that characteristic in that arm; give it as the count.
+""",
+    1,
+)
+assert RULES["v3"] != RULES["v2"]
 
 
 def rules_version() -> str:

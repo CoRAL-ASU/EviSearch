@@ -25,7 +25,7 @@ def _runner():
     return runner
 
 
-@pytest.mark.parametrize("version", ["v1", "v2"])
+@pytest.mark.parametrize("version", ["v1", "v2", "v3"])
 def test_rules_are_generic(version):
     text = extraction_rules.RULES[version]
     with open(DEFINITIONS_CSV_PATH, newline="") as handle:
@@ -38,6 +38,17 @@ def test_rules_are_generic(version):
 def test_v2_adds_named_subtypes_to_v1():
     assert extraction_rules.RULES["v2"].startswith(extraction_rules.RULES["v1"].split('answer "Not reported".')[0])
     assert "biochemical" in extraction_rules.RULES["v2"] and "biochemical" not in extraction_rules.RULES["v1"]
+
+
+def test_v3_adds_two_bullets_after_the_per_arm_rule():
+    v2, v3 = extraction_rules.RULES["v2"], extraction_rules.RULES["v3"]
+    added = [line for line in v3.splitlines() if line not in v2.splitlines()]
+    assert sum(line.startswith("- ") for line in added) == 2
+    assert v3.replace("\n".join(added) + "\n", "") == v2  # nothing in v2 changed
+    per_arm, every_patient, subgroup = (v3.index(s) for s in ("- A per-arm column", "- A value the paper states", "- Counts of patients"))
+    assert per_arm < every_patient < subgroup < v3.index("- Total-participant")
+    # Zero is only for treatments an arm did not receive; other categories of a characteristic stay empty.
+    assert "no such treatment, give 0 (0%)" in v3 and v3.count("0 (0%)") == 1
 
 
 def test_none_reproduces_the_e0_prompts():
