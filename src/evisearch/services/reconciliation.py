@@ -33,6 +33,7 @@ from src.evisearch.services import document_reader
 from src.evisearch.services.evidence_check import MAX_CLAIM_PAGES, Claim, as_pages, normalize_value, verify_claims
 from src.evisearch.services.extraction_rules import shared_rules
 from src.evisearch.services.highlight import resolve_pdf_path
+from src.evisearch.tool_args import decode_items
 from src.inference import InferenceError, Tool, ToolOutput, ToolSpec, Usage, get_chat, run_tool_loop
 from src.retrieval import embedding_retriever as retriever
 
@@ -94,6 +95,16 @@ def _page(raw: Any) -> Optional[int]:
     except (TypeError, ValueError):
         return None
     return page if page >= 1 else None
+
+
+def _items(args: Dict[str, Any], key: str) -> Tuple[List[Dict[str, Any]], Optional[str]]:
+    """The list argument `key` as a list of dicts, also when the model sent it as a (possibly malformed) JSON string;
+    the note says what was recovered, for the tool response."""
+    decoded, note = decode_items(args.get(key))
+    if isinstance(decoded, dict):
+        decoded = decoded.get(key, [decoded])
+    items = [item for item in decoded if isinstance(item, dict)] if isinstance(decoded, list) else []
+    return items, note
 
 
 def _claim_pages(item: Dict[str, Any]) -> Optional[Tuple[int, ...]]:
@@ -356,12 +367,13 @@ class _ReconciliationSession:
 
     def ask_document(self, args: Dict[str, Any]) -> ToolOutput:
         questions = []
-        for item in args.get("questions") or []:
-            if isinstance(item, dict) and str(item.get("question", "")).strip():
+        items, note = _items(args, "questions")
+        for item in items:
+            if str(item.get("question", "")).strip():
                 column = item.get("column") if item.get("column") in self.names else ""
                 questions.append({"column": column, "question": str(item["question"]).strip()})
         if not questions:
-            return ToolOutput({"error": "questions is required: [{column, question}]"})
+            return ToolOutput({"error": "questions is required: [{column, question}]" + (f" ({note})" if note else "")})
         answers, usage, call = document_reader.answer_questions(self.chat, self.doc_id, questions, self.definitions)
         self.tool_usage.add(usage)
         self.reader_calls.append(call)
@@ -385,14 +397,14 @@ class _ReconciliationSession:
         })
 
     def verify_attribution(self, args: Dict[str, Any]) -> ToolOutput:
-        raw = args.get("claims") or []
-        claims, problems = [], []
+        raw, note = _items(args, "claims")
+        claims, problems = [], ([note] if note else [])
         for item in raw[:VERIFY_MAX_CLAIMS]:
-            if isinstance(item, dict) and is_absence(item.get("value")):
+            if is_absence(item.get("value")):
                 problems.append(f"skipped {item.get('column')!r}: \"{item.get('value')}\" claims absence, which needs no verification; submit it as it is")
                 continue
-            pages = _claim_pages(item) if isinstance(item, dict) else None
-            if not isinstance(item, dict) or item.get("column") not in self.names or pages is None:
+            pages = _claim_pages(item)
+            if item.get("column") not in self.names or pages is None:
                 problems.append(f"skipped {item!r}: needs a column of this batch, a value and a page (or pages)")
                 continue
             claims.append(Claim(item["column"], str(item["value"]), pages, str(item.get("evidence") or "")))
@@ -411,8 +423,7 @@ class _ReconciliationSession:
         return ToolOutput(content)
 
     def submit_verification(self, args: Dict[str, Any]) -> ToolOutput:
-        raw = args.get("results")
-        entries = [item for item in raw if isinstance(item, dict)] if isinstance(raw, list) else []
+        entries, note = _items(args, "results")
         accepted: List[str] = []
         rejected: List[Dict[str, Any]] = []
         ignored: List[str] = []
@@ -481,6 +492,8 @@ class _ReconciliationSession:
         content: Dict[str, Any] = {"accepted": accepted, "rejected": rejected, "remaining": remaining}
         if ignored:
             content["ignored"] = ignored
+        if note:
+            content["note"] = note + ("; submit the remaining columns again as a JSON array" if remaining else "")
         return ToolOutput(content)
 
     def done(self) -> bool:

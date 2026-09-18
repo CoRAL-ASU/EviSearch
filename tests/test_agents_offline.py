@@ -495,6 +495,16 @@ def test_reconciliation_verifies_values_across_pages_and_never_blanks_an_extract
     assert final["value"] == "Not reported" and final["needs_review"] and final["review_reason"] == "answers another statistic"
 
 
+def test_reconciliation_tools_read_list_arguments_sent_as_json_strings(doc):
+    session = reconciliation._ReconciliationSession(VerifyingChat([]), "doc-1", BATCH, {}, {}, {}, None)
+    checks = session.verify_attribution({"claims": json.dumps([{"column": MEDIAN_OS, "value": "76.6", "page": 2}])}).content
+    assert checks["checks"][0]["verdict"] == "supported" and "JSON string" in checks["problems"][0]
+    broken = '[{"column": "Trial", "value": "Not reported", "reasoning": "none", "verification": "both_correct"}, ' \
+             '"column": "' + MEDIAN_OS + '", "value": "76.6", "reasoning": "p2", "verification": "A_correct_B_wrong", "source": {"page": 2}}'
+    response = session.submit_verification({"results": broken}).content
+    assert sorted(response["accepted"]) == sorted([TRIAL, MEDIAN_OS]) and "recovered 2 item(s)" in response["note"]
+
+
 def test_reconciliation_search_returns_pages_with_their_relevant_lines(doc, monkeypatch):
     session = reconciliation._ReconciliationSession(VerifyingChat([]), "doc-1", BATCH, {}, {}, {}, None)
     matches = session.search_pages({"query": "median overall survival"}).content["matches"]
