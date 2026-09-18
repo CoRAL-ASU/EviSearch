@@ -36,7 +36,7 @@ from src.evisearch.services.highlight import resolve_pdf_path
 from src.inference import InferenceError, Tool, ToolOutput, ToolSpec, Usage, get_chat, run_tool_loop
 from src.retrieval import embedding_retriever as retriever
 
-RECONCILER_VERSION = "verified_tools_v2"  # part of the run settings: results of other versions are not resumed
+RECONCILER_VERSION = "verified_tools_v3"  # part of the run settings: results of other versions are not resumed
 VERIFICATIONS = ("A_correct_B_wrong", "B_correct_A_wrong", "both_correct", "both_wrong")
 VERIFY_MAX_CLAIMS = 30  # per verify_attribution call; split into one verifier call per page
 REASONING_CHARS = 2000  # of each arm's reasoning shown to the agent
@@ -55,8 +55,11 @@ You do not have the paper in front of you. Use your tools:
 
 Deciding a column:
 1. Read the definition first: population or subgroup, arm, timepoint, unit, and every part it asks for. The column's
-   statistic governs: a rate column takes a rate, an "N (%)" column a count with its percentage, a "(mo)" column a
-   duration. A statistic that compares arms (hazard ratio, p value) never goes into a per-arm column.
+   statistic governs: a rate column takes a rate the paper states, an "N (%)" column a count with its percentage, a
+   "(mo)" column a duration. A statistic that compares arms (hazard ratio, p value) never goes into a per-arm column.
+   A value the paper does not state (a rate computed from event counts, a number estimated from a curve, "Not
+   reached" the paper does not say) is not an answer: prefer "Not reported" (with review=true when an extraction
+   reported it).
 2. A and B agree: verify the value on its cited page and submit it.
 3. A and B differ: check scope first (right population, arm, timepoint), then completeness. Answers that are compatible
    at different levels of detail (a drug class and the drug, a count and the same count with its percentage) are

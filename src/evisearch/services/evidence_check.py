@@ -47,12 +47,20 @@ For each claim return:
       times 12 for months, within 0.1 after rounding);
     - the population, subgroup, arm or event named differently on the page (a synonym or abbreviation for the same
       thing);
-    - a value the pages imply directly: every patient enrolled in one country gives 100% for the region containing
-      it; deaths attributed to the treatment are treatment-related grade 5 events; an arm's randomised count is its N;
-    - a value the definition asks to derive (subgroups added up to the whole population, a percentage computed from a
-      printed count and denominator) when every number it uses is on these pages and the arithmetic is right. The
-      claimed evidence may spell out the derivation ("349 + 113 = 462; 462 / 654 = 70.6%"): find each of its numbers
-      on the pages, in the right rows and columns, and redo the arithmetic yourself before you decide.
+    - a value fixed by a fact the pages state for every patient: all enrolled in one country gives 100% for the region
+      containing it; all given the protocol treatment gives 100% for it; deaths attributed to the treatment are
+      treatment-related grade 5 events; an arm's randomised count is its N;
+    - a count made by adding printed counts of mutually exclusive subgroups into the population the column asks for,
+      and, for an "N (%)" column, its percentage computed from that count and the printed arm size. The claimed
+      evidence may spell out the sum ("349 + 113 = 462; 462 / 654 = 70.6%"): find each number on the pages, in the
+      right rows and columns, and redo the arithmetic yourself before you decide.
+  Never supported, whatever the arithmetic:
+    - a rate or percentage of patients (survival, progression, response or event rate) computed from event counts,
+      medians or curves: a rate column needs a percentage the paper states;
+    - a number estimated from a curve, or "Not reached" / "Not estimable" that the paper does not state for that
+      population;
+    - a subgroup value given for the whole population, or a whole-population value given for a subgroup;
+    - a statistic comparing arms (hazard ratio, odds ratio, difference, p value) given for one arm.
   "partial": the pages support only part of the value (for example the count but not the percentage, or one of two
     required items), or the value is right but the definition asks for more that the pages also state.
   "not_supported": the pages do not state this value for this column: a different number, a different population,
