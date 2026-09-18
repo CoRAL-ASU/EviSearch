@@ -115,7 +115,9 @@ def test_pdf_query_markdown_input_uses_structured_output(doc, monkeypatch):
     assert results[MEDIAN_OS]["found"] is False and results[MEDIAN_OS]["reasoning"] == "Not returned by the model"
     assert usage["api_calls"] == 2
     log = json.loads(raw_path.read_text())
-    assert log["response_text"] == reply and log["follow_up"]["columns"] == [MEDIAN_OS]
+    assert log["response_text"] == reply and log["follow_ups"][0]["columns"] == [MEDIAN_OS]
+    columns_schema = request["schema"]["properties"]["columns"]
+    assert columns_schema["minItems"] == columns_schema["maxItems"] == 2  # one entry per requested column
     assert log["started_at"] and log["duration_s"] == usage["model_seconds"]
 
 
@@ -145,23 +147,29 @@ def test_pdf_query_asks_again_only_for_the_columns_a_reply_left_out(doc, monkeyp
     columns_text = follow_up["messages"][1].parts[-1].text
     assert f"Column 1: {MEDIAN_OS}" in columns_text and f"Column 1: {TRIAL}" not in columns_text
     assert follow_up["schema"]["properties"]["columns"]["items"]["properties"]["column"]["enum"] == [MEDIAN_OS]
+    assert follow_up["schema"]["properties"]["columns"]["minItems"] == 1
     assert follow_up["messages"][1].parts[:-1] == chat.requests[0]["messages"][1].parts[:-1]  # same document prefix
-    assert follow_up["max_tokens"] == chat.requests[0]["max_tokens"]  # the first reply was not cut off
+    assert follow_up["max_tokens"] == chat.requests[0]["max_tokens"]
     assert results[TRIAL]["value"] == "STAMPEDE" and results[MEDIAN_OS]["value"] == "76.6"
     assert usage["api_calls"] == 2
     log = json.loads(raw_path.read_text())
-    assert log["follow_up"]["columns"] == [MEDIAN_OS] and log["usage"]["api_calls"] == 2
+    assert [f["columns"] for f in log["follow_ups"]] == [[MEDIAN_OS]] and log["usage"]["api_calls"] == 2
 
 
-def test_pdf_query_redoes_a_cut_off_reply_with_twice_the_budget(doc, monkeypatch):
+def test_pdf_query_asks_a_cut_off_batch_again_in_two_halves(doc, monkeypatch):
+    # The same prompt at temperature 0 replays the same loop, so the follow-up must be a different prompt.
     cut = json.dumps({"columns": [_column(TRIAL, "STAMPEDE")]})[:40] + "<cut>"  # unreadable JSON, as when the budget runs out
-    chat = CutOffChat([cut, json.dumps({"columns": [_column(TRIAL, "STAMPEDE"), _column(MEDIAN_OS, "76.6")]})])
+    chat = CutOffChat([cut, json.dumps({"columns": [_column(TRIAL, "STAMPEDE")]}), json.dumps({"columns": [_column(MEDIAN_OS, "76.6")]})])
     _use(pdf_query, chat, monkeypatch)
+    raw_path = doc["results"] / "raw.json"
 
-    results, usage = pdf_query.run_pdf_query("doc-1", BATCH, input_mode="markdown")
+    results, usage = pdf_query.run_pdf_query("doc-1", BATCH, input_mode="markdown", raw_response_path=raw_path)
 
-    assert chat.requests[1]["max_tokens"] == 2 * chat.requests[0]["max_tokens"]
-    assert results[TRIAL]["value"] == "STAMPEDE" and results[MEDIAN_OS]["value"] == "76.6" and usage["api_calls"] == 2
+    asked = [r["schema"]["properties"]["columns"]["items"]["properties"]["column"]["enum"] for r in chat.requests]
+    assert asked == [[TRIAL, MEDIAN_OS], [TRIAL], [MEDIAN_OS]]
+    assert results[TRIAL]["value"] == "STAMPEDE" and results[MEDIAN_OS]["value"] == "76.6" and usage["api_calls"] == 3
+    log = json.loads(raw_path.read_text())
+    assert log["finish_reason"] == "length" and [f["finish_reason"] for f in log["follow_ups"]] == [None, None]
 
 
 def test_pdf_query_makes_one_follow_up_at_most(doc, monkeypatch):

@@ -55,7 +55,6 @@ CHARS_PER_TEXT_TOKEN = 2  # benchmark papers measure 2.5-3.4 characters per Qwen
 
 # Steps tried in order until the document fits the token budget; None means every page went in with its image.
 FALLBACK_STEPS = (None, "figure_table_pages", "markdown_only")
-FOLLOW_UPS = 1  # extra calls per batch for columns the reply left out or lost (cut off, unreadable JSON)
 
 
 @dataclass
@@ -65,7 +64,10 @@ class DocumentInput:
 
 
 def extraction_schema(names: List[str]) -> Dict[str, Any]:
-    return {"type": "object", "properties": {"columns": extraction_items_schema(names)}, "required": ["columns"]}
+    """One entry per requested column. The exact count stops a constrained reply from closing the list early (seen:
+    1 of 12 columns returned, twice in a row); a reply that already covers every column is not changed by it."""
+    items = {**extraction_items_schema(names), "minItems": len(names), "maxItems": len(names)}
+    return {"type": "object", "properties": {"columns": items}, "required": ["columns"]}
 
 
 def build_columns_prompt(batch_columns: List[Dict[str, Any]], preferences: str) -> str:
@@ -199,38 +201,45 @@ def run_pdf_query(
     system = system_prompt_text(bool(document.info["image_pages"]))
     log: Dict[str, Any] = {"model": chat.key, "input_mode": input_mode, "document": document.info, "system": system, "prompt": columns_prompt}
     results: Dict[str, Dict[str, Any]] = {}
-    pending, prompt, max_tokens = list(batch_columns), columns_prompt, MAX_TOKENS["pdf_query"]
-    for attempt in range(1 + FOLLOW_UPS):
-        pending_names, reason = column_names(pending), "Not returned by the model"
+    reasons: Dict[str, str] = {}
+
+    def ask(columns: List[Dict[str, Any]], prompt: str, entry: Dict[str, Any]) -> None:
+        asked = column_names(columns)
         # Document first: every batch for the same paper shares this prefix, which prompt caching reuses.
         messages = [Message.system(system), Message.user(*document.parts, prompt)]
-        schema = extraction_schema(pending_names) if chat.capabilities.json_schema else None
-        entry = log if attempt == 0 else {"prompt": prompt, "columns": pending_names, "max_tokens": max_tokens}
+        schema = extraction_schema(asked) if chat.capabilities.json_schema else None
         try:
-            result = chat.chat(messages, response_schema=schema, max_tokens=max_tokens)
+            result = chat.chat(messages, response_schema=schema, max_tokens=MAX_TOKENS["pdf_query"])
         except InferenceError as exc:
             entry["error"] = str(exc)
-            reason = f"pdf_query failed: {exc}"
-        else:
-            usage.add(result.usage)
-            entry.update({"response_text": result.text, "finish_reason": result.finish_reason, "started_at": result.started_at,
-                          "duration_s": result.duration_s, "usage": result.usage.to_dict() if attempt else usage.to_dict()})
-            try:
-                results.update(parse_column_entries(result.json(), pending_names))
-            except ValueError as exc:
-                reason = f"JSON parse error: {exc}"
-        if attempt:
-            log["follow_up"] = entry
-            log["usage"] = usage.to_dict()
-        if raw_response_path:
-            write_json(raw_response_path, log)
-        pending = [col for col in batch_columns if col.get("column_name") not in results]
-        if not pending or "error" in entry:
-            break
-        # A reply that left columns out, or was cut off at the token limit (seen: a long deliberation on one column),
-        # gets one more call for just the missing columns; a cut-off reply gets twice the budget, within the context.
-        prompt = build_columns_prompt(pending, prefs)
-        if entry.get("finish_reason") == "length":
-            room = (chat.spec.context_tokens or 0) - result.usage.input_tokens - 512
-            max_tokens = max(max_tokens, min(2 * max_tokens, room)) if chat.spec.context_tokens else 2 * max_tokens
-    return fill_missing(results, names, reason), usage.to_dict()
+            reasons.update(dict.fromkeys(asked, f"pdf_query failed: {exc}"))
+            return
+        usage.add(result.usage)
+        entry.update({"response_text": result.text, "finish_reason": result.finish_reason, "started_at": result.started_at,
+                      "duration_s": result.duration_s, "usage": result.usage.to_dict()})
+        try:
+            results.update(parse_column_entries(result.json(), asked))
+        except ValueError as exc:
+            reasons.update(dict.fromkeys(asked, f"JSON parse error: {exc}"))
+
+    ask(batch_columns, columns_prompt, log)
+    pending = [col for col in batch_columns if col.get("column_name") not in results]
+    if pending and "error" not in log:
+        # Columns the reply left out or lost get one more call. A reply cut off at the token limit (seen: a long
+        # deliberation that ended in a loop) would replay identically at temperature 0 with the same prompt, so its
+        # columns are asked in two halves; each half is a different prompt and a smaller answer.
+        halves = 2 if log.get("finish_reason") == "length" and len(pending) > 1 else 1
+        size = -(-len(pending) // halves)
+        log["follow_ups"] = []
+        for start in range(0, len(pending), size):
+            part = pending[start : start + size]
+            entry: Dict[str, Any] = {"columns": column_names(part), "prompt": build_columns_prompt(part, prefs)}
+            ask(part, entry["prompt"], entry)
+            log["follow_ups"].append(entry)
+    log["usage"] = usage.to_dict()
+    if raw_response_path:
+        write_json(raw_response_path, log)
+    for name in names:
+        if name not in results:
+            results.update(fill_missing({}, [name], reasons.get(name, "Not returned by the model")))
+    return fill_missing(results, names, "Not returned by the model"), usage.to_dict()

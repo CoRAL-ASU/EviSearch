@@ -109,13 +109,14 @@ def check_agent_logs(report: Report, section: str, logs: List[Path]) -> None:
     for path in logs:
         log = json.loads(path.read_text(encoding="utf-8"))
         document = log.get("document") or {}
-        report.check(section, "error" not in log, f"{path.name}: model call failed: {str(log.get('error'))[:200]}")
-        final = log.get("follow_up") or log  # a follow-up call asked again for columns the first reply left out or lost
-        if "follow_up" in log:
-            report.check(section, False, f"{path.name}: follow-up for {len(final.get('columns') or [])} columns "
-                         f"(first reply finish_reason={log.get('finish_reason')})", warn=True)
-            report.check(section, "error" not in final, f"{path.name}: follow-up call failed: {str(final.get('error'))[:200]}")
-        report.check(section, str(final.get("finish_reason")).lower() == "stop", f"{path.name}: finish_reason={final.get('finish_reason')} (answer cut off?)")
+        follow_ups = log.get("follow_ups") or []  # calls that asked again for columns the first reply left out or lost
+        if follow_ups:
+            report.check(section, False, f"{path.name}: {len(follow_ups)} follow-up call(s) for "
+                         f"{sum(len(f.get('columns') or []) for f in follow_ups)} columns (first reply finish_reason={log.get('finish_reason')})", warn=True)
+        for reply in [log] + follow_ups:
+            report.check(section, "error" not in reply, f"{path.name}: model call failed: {str(reply.get('error'))[:200]}")
+        for reply in follow_ups or [log]:  # the first reply may be cut off when its follow-ups recovered the columns
+            report.check(section, str(reply.get("finish_reason")).lower() == "stop", f"{path.name}: finish_reason={reply.get('finish_reason')} (answer cut off?)")
         report.check(section, (log.get("usage") or {}).get("input_tokens", 0) > 0, f"{path.name}: no token usage recorded")
         report.check(section, document.get("fallback") is None, f"{path.name}: page images fell back to {document.get('fallback')}")
         report.check(section, not document.get("warnings"), f"{path.name}: {document.get('warnings')}")
@@ -185,7 +186,8 @@ def check_stage(report: Report, doc_id: str, method: str) -> Optional[Dict[str, 
     check_columns(report, section, method, columns, expected_columns(len(logs)))
     if method == "agent":
         check_agent_logs(report, section, logs)
-        report.check(section, (metadata.get("usage") or {}).get("api_calls") == len(logs), f"{len(logs)} batches but {metadata.get('usage', {}).get('api_calls')} API calls")
+        calls = sum(1 + len(json.loads(path.read_text(encoding="utf-8")).get("follow_ups") or []) for path in logs)
+        report.check(section, (metadata.get("usage") or {}).get("api_calls") == calls, f"{len(logs)} batches with {calls} calls but {metadata.get('usage', {}).get('api_calls')} API calls recorded")
     else:
         check_loop_logs(report, section, method, logs)
     return columns
