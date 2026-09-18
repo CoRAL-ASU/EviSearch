@@ -164,6 +164,9 @@ which system produced a prediction, and you must not look anything up: judge onl
 - C6. In the yes/no columns ("Quality of Life reported", "Reporting by prognostic groups - Y/N | ..."), "No"/"N" and an
   empty value mean the same thing (not reported): GT empty vs Pred "No" is 1/1; GT "No" vs Pred "Not reported" is 1/1;
   "Yes" vs "No" or vs empty is 0/0.
+- C7. When the Definition says "count and/or percentage", either the count or the percentage alone is complete (GT
+  "143 (36.4%)" vs Pred "143" is 1/1). When it says "count and percentage" or "N (%)" without "or", both are required.
+  A Definition that says "title or identifier" is satisfied by the identifier alone.
 
 Write a JSON file with exactly this shape, one entry per item id in the batch:
 
