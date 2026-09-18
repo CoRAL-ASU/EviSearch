@@ -103,6 +103,16 @@ def test_openai_cloud_model_does_not_send_vllm_extras():
     assert "chat_template_kwargs" not in requests[0]["body"]
 
 
+def test_local_mistral_sends_no_chat_template_kwargs():
+    # vLLM answers 400 "chat_template is not supported for Mistral tokenizers" to any chat_template_kwargs
+    requests = []
+    spec = CATALOG.models["mistral-small-3.2-24b"]
+    chat = OpenAICompatChat("mistral-small-3.2-24b", spec, _client(lambda r: _completion({"content": "hi"}), requests), local=True)
+    chat.chat([Message.user("hello")])
+    assert spec.thinking is None
+    assert "chat_template_kwargs" not in requests[0]["body"]
+
+
 def test_invalid_tool_arguments_are_flagged_not_raised():
     reply = {"content": None, "tool_calls": [{"id": "c", "type": "function", "function": {"name": "get_page", "arguments": "{not json"}}]}
     chat = OpenAICompatChat("qwen3.6-27b", CATALOG.models["qwen3.6-27b"], _client(lambda r: _completion(reply, "tool_calls"), []), local=True)

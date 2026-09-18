@@ -64,7 +64,8 @@ models:
     name: mistralai/Mistral-Small-3.2-24B-Instruct-2506
     capabilities: {tools: true, json_schema: true, images: true, pdf: false}
     context_tokens: 131072  # keep in step with max_model_len of the mistral_small_24b server
-    thinking: false
+    # No `thinking`: the model has no thinking mode, and vLLM rejects any chat_template_kwargs for Mistral tokenizers
+    # ("chat_template is not supported for Mistral tokenizers").
     # Pixtral encoder (params.json vision_encoder): 14 px patches merged 2x2, images scaled down to fit 1540 px, and
     # one [IMG_BREAK]/[IMG_END] token per row of patches. A 1224x1584 page (letter at scale 2) is 55 x (43 + 1) = 2,420.
     image_tokens: {pixels_per_token: 28, max_side: 1540, row_break: true}
