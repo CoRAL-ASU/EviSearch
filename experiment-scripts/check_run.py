@@ -105,11 +105,16 @@ def check_columns(report: Report, section: str, method: str, columns: Dict[str, 
             report.check(section, False, f"column '{name}' has a value but no attribution", warn=True)
 
 
+def agent_follow_ups(log: Dict[str, Any]) -> List[Dict[str, Any]]:
+    """Calls that asked again for columns the first reply left out or lost ("follow_up": one call, logs from 3569c69)."""
+    return log.get("follow_ups") or ([log["follow_up"]] if log.get("follow_up") else [])
+
+
 def check_agent_logs(report: Report, section: str, logs: List[Path]) -> None:
     for path in logs:
         log = json.loads(path.read_text(encoding="utf-8"))
         document = log.get("document") or {}
-        follow_ups = log.get("follow_ups") or []  # calls that asked again for columns the first reply left out or lost
+        follow_ups = agent_follow_ups(log)
         if follow_ups:
             report.check(section, False, f"{path.name}: {len(follow_ups)} follow-up call(s) for "
                          f"{sum(len(f.get('columns') or []) for f in follow_ups)} columns (first reply finish_reason={log.get('finish_reason')})", warn=True)
@@ -186,7 +191,7 @@ def check_stage(report: Report, doc_id: str, method: str) -> Optional[Dict[str, 
     check_columns(report, section, method, columns, expected_columns(len(logs)))
     if method == "agent":
         check_agent_logs(report, section, logs)
-        calls = sum(1 + len(json.loads(path.read_text(encoding="utf-8")).get("follow_ups") or []) for path in logs)
+        calls = sum(1 + len(agent_follow_ups(json.loads(path.read_text(encoding="utf-8")))) for path in logs)
         report.check(section, (metadata.get("usage") or {}).get("api_calls") == calls, f"{len(logs)} batches with {calls} calls but {metadata.get('usage', {}).get('api_calls')} API calls recorded")
     else:
         check_loop_logs(report, section, method, logs)
