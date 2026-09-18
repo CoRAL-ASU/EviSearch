@@ -156,14 +156,18 @@ def check_loop_logs(report: Report, section: str, method: str, logs: List[Path])
         failed_checks = [c for c in log.get("checks", []) if c.get("verdict") == "error"]
         report.check(section, not failed_checks, f"{path.name}: {len(failed_checks)} verifier checks without a verdict")
         called_here: Counter = Counter()
-        for turn in log.get("conversation", []):
-            if turn.get("role") != "tool":
-                continue
+        tool_turns = [turn for turn in log.get("conversation", []) if turn.get("role") == "tool"]
+        # A submission sent back (unreadable or partial, asking for the missing columns) is part of the protocol when a
+        # later submission of the same tool was accepted.
+        accepted = {turn.get("name") for turn in tool_turns if isinstance(turn.get("response"), dict) and "error" not in turn["response"]}
+        for turn in tool_turns:
             tool, response = turn.get("name"), turn.get("response") or {}
             called_here[tool] += 1
             report.check(section, tool in TOOLS[method], f"{path.name}: unknown tool '{tool}'")
             error = response.get("error") if isinstance(response, dict) else None
-            report.check(section, not error, f"{path.name}: {tool} returned an error: {str(error)[:200]}")
+            resubmitted = bool(error) and tool.startswith("submit_") and tool in accepted
+            report.check(section, not error, f"{path.name}: {tool} returned an error: {str(error)[:200]}"
+                         + (" (resubmitted and accepted)" if resubmitted else ""), warn=resubmitted)
             if tool == "search_chunks" and reranker and isinstance(response, dict) and response.get("matches"):
                 report.check(section, response.get("retrieval") == "rerank", f"{path.name}: search_chunks retrieval={response.get('retrieval')}")
         if method == "reconciliation" and called_here["get_page"] and images:
