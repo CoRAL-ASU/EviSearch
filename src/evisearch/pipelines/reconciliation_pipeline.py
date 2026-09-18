@@ -90,9 +90,10 @@ def run_reconciliation_pipeline(
         return {"columns": columns, "error": None, "usage": usage}
 
     logs = results_store.logs_dir(doc_id, "reconciliation")
+    first_log = results_store.next_log_number(logs, start=0)  # a resumed run keeps the logs of earlier batches
     for index, batch in enumerate(batches):
         results, batch_usage = run_reconciliation_agent(
-            doc_id, batch, definitions, source_a, source_b, log_path=logs / f"batch_{index}.txt", model=model
+            doc_id, batch, definitions, source_a, source_b, log_path=logs / f"batch_{first_log + index}.txt", model=model
         )
         columns.update({name: {**r, "tried": True} for name, r in results.items()})
         add_usage(usage, batch_usage)

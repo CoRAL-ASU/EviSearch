@@ -208,7 +208,9 @@ def _verify_pages(
     try:
         result = chat.chat(messages, response_schema=schema, max_tokens=MAX_TOKENS["verifier"])
         usage.add(result.usage)
-        call.update(result.call_record())
+        call.update(result.call_record(), finish_reason=result.finish_reason)
+        if str(result.finish_reason).lower() == "length":
+            raise ValueError("reply cut off at max_tokens")
         parsed = result.json()
     except (InferenceError, ValueError) as exc:
         call["error"] = str(exc)
@@ -224,6 +226,25 @@ def _verify_pages(
         found = {key: item.get(key) for key in ("page_value", "evidence", "modality")}
         records.append(_record(claim, verdict if verdict in VERDICTS else "error", str(item.get("reason", "")).strip(), pages_text, **found))
     return records, usage, call
+
+
+def _verify_or_split(
+    chat: ChatModel, pages: Pages, texts: Dict[int, str], images: Dict[int, bytes], claims: Sequence[Claim], definitions: Dict[str, str]
+) -> Tuple[List[Dict[str, Any]], Usage, List[Dict[str, Any]]]:
+    """_verify_pages; a failed call with several claims is retried as two halves. Structured output can loop inside a
+    string until max_tokens, and at temperature 0 an identical retry loops again, so the retry changes the prompt."""
+    records, usage, call = _verify_pages(chat, pages, texts, images, claims, definitions)
+    if "error" not in call or len(claims) < 2:
+        return records, usage, [call]
+    call["recovered_by_split"] = True
+    half = (len(claims) + 1) // 2
+    records, calls = [], [call]
+    for part in (claims[:half], claims[half:]):
+        part_records, part_usage, part_calls = _verify_or_split(chat, pages, texts, images, part, definitions)
+        records += part_records
+        usage.add(part_usage)
+        calls += part_calls
+    return records, usage, calls
 
 
 def verify_claims(
@@ -266,11 +287,11 @@ def verify_claims(
     usage = Usage()
     calls: List[Dict[str, Any]] = []
     with ThreadPoolExecutor(max_workers=min(MAX_WORKERS, len(jobs))) as pool:
-        futures = [pool.submit(_verify_pages, chat, pages, texts, images, group, definitions) for pages, group in jobs]
+        futures = [pool.submit(_verify_or_split, chat, pages, texts, images, group, definitions) for pages, group in jobs]
         for future in futures:
-            page_records, page_usage, call = future.result()
+            page_records, page_usage, page_calls = future.result()
             usage.add(page_usage)
-            calls.append(call)
+            calls += page_calls
             for record in page_records:
                 records[claim_key(record["column"], record["value"], record["pages"])] = record
     return records, usage, calls

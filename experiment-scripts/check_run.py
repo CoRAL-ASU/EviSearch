@@ -144,11 +144,13 @@ def check_loop_logs(report: Report, section: str, method: str, logs: List[Path])
         else:
             report.check(section, stopped in ("finish_tool", "done"), f"{path.name}: stopped_by={stopped}")
         for call in log.get("verifier_calls", []):
-            report.check(section, "error" not in call, f"{path.name}: verifier call on page {call.get('page')} failed: {str(call.get('error'))[:160]}")
+            report.check(section, "error" not in call or call.get("recovered_by_split"),
+                         f"{path.name}: verifier call on page {call.get('page')} failed: {str(call.get('error'))[:160]}")
             if images:
                 report.check(section, call.get("image") is True, f"{path.name}: verifier checked page {call.get('page')} without its image")
         for call in log.get("reader_calls", []):
-            report.check(section, "error" not in call, f"{path.name}: ask_document call failed: {str(call.get('error'))[:160]}")
+            report.check(section, "error" not in call or call.get("recovered_by_split"),
+                         f"{path.name}: ask_document call failed: {str(call.get('error'))[:160]}")
             fallback = (call.get("document") or {}).get("fallback")
             report.check(section, fallback is None, f"{path.name}: the reader saw page images only for {fallback}", warn=True)
         failed_checks = [c for c in log.get("checks", []) if c.get("verdict") == "error"]

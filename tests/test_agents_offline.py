@@ -495,6 +495,26 @@ def test_reconciliation_verifies_values_across_pages_and_never_blanks_an_extract
     assert final["value"] == "Not reported" and final["needs_review"] and final["review_reason"] == "answers another statistic"
 
 
+class LoopingVerifier(VerifyingChat):
+    """The first verifier call is cut off at max_tokens (as a structured-output loop would be); later calls answer."""
+
+    def _chat(self, messages, tools, tool_choice, response_schema, temperature, max_tokens):
+        result = super()._chat(messages, tools, tool_choice, response_schema, temperature, max_tokens)
+        if not tools and len(self.verifier_requests) == 1:
+            result.text, result.finish_reason = result.text[:40], "length"
+        return result
+
+
+def test_verifier_retries_a_cut_off_call_as_two_halves(doc):
+    chat = LoopingVerifier([])
+    claims = [evidence_check.Claim(MEDIAN_OS, "76.6", 2), evidence_check.Claim(MEDIAN_OS, "45.7", 2)]
+
+    records, usage, calls = evidence_check.verify_claims(chat, "doc-1", claims, {}, pdf_path=doc["pdf"], image_scale=None)
+
+    assert [c["claims"] for c in calls] == [2, 1, 1] and calls[0]["recovered_by_split"] and "cut off" in calls[0]["error"]
+    assert all(records[c.key]["verdict"] == "supported" for c in claims) and usage.api_calls == 3
+
+
 def test_reconciliation_tools_read_list_arguments_sent_as_json_strings(doc):
     session = reconciliation._ReconciliationSession(VerifyingChat([]), "doc-1", BATCH, {}, {}, {}, None)
     checks = session.verify_attribution({"claims": json.dumps([{"column": MEDIAN_OS, "value": "76.6", "page": 2}])}).content

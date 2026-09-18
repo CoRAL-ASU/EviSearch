@@ -77,10 +77,29 @@ def response_schema(ids: List[str]) -> Dict[str, Any]:
 
 def answer_questions(
     chat: ChatModel, doc_id: str, questions: List[Dict[str, str]], definitions: Optional[Dict[str, str]] = None
-) -> Tuple[List[Dict[str, Any]], Usage, Dict[str, Any]]:
-    """questions: [{question, column?}] (at most QUESTIONS_PER_CALL). Returns (answers in question order, usage, call
-    log). Never raises for model errors: every answer then carries the error."""
+) -> Tuple[List[Dict[str, Any]], Usage, List[Dict[str, Any]]]:
+    """questions: [{question, column?}] (the first QUESTIONS_PER_CALL are answered). Returns (answers in question
+    order, usage, call logs). Never raises for model errors: failed answers carry the error. A failed call with several
+    questions is retried as two halves: structured output can loop inside a string until max_tokens, and at
+    temperature 0 an identical retry loops again, so the retry changes the prompt."""
     questions = questions[:QUESTIONS_PER_CALL]
+    answers, usage, call = _answer_once(chat, doc_id, questions, definitions)
+    if "error" not in call or len(questions) < 2 or "document" not in call:
+        return answers, usage, [call]
+    call["recovered_by_split"] = True
+    half = (len(questions) + 1) // 2
+    answers, calls = [], [call]
+    for part in (questions[:half], questions[half:]):
+        part_answers, part_usage, part_calls = answer_questions(chat, doc_id, part, definitions)
+        answers += part_answers
+        usage.add(part_usage)
+        calls += part_calls
+    return answers, usage, calls
+
+
+def _answer_once(
+    chat: ChatModel, doc_id: str, questions: List[Dict[str, str]], definitions: Optional[Dict[str, str]]
+) -> Tuple[List[Dict[str, Any]], Usage, Dict[str, Any]]:
     ids = [f"q{i}" for i in range(1, len(questions) + 1)]
     usage = Usage()
     call: Dict[str, Any] = {"questions": len(questions)}
@@ -104,7 +123,9 @@ def answer_questions(
     try:
         result = chat.chat(messages, response_schema=schema, max_tokens=MAX_TOKENS["reader"])
         usage.add(result.usage)
-        call.update(result.call_record())
+        call.update(result.call_record(), finish_reason=result.finish_reason)
+        if str(result.finish_reason).lower() == "length":
+            raise ValueError("reply cut off at max_tokens")
         parsed = result.json()
     except (InferenceError, ValueError) as exc:
         call["error"] = str(exc)

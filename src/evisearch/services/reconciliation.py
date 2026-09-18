@@ -374,9 +374,9 @@ class _ReconciliationSession:
                 questions.append({"column": column, "question": str(item["question"]).strip()})
         if not questions:
             return ToolOutput({"error": "questions is required: [{column, question}]" + (f" ({note})" if note else "")})
-        answers, usage, call = document_reader.answer_questions(self.chat, self.doc_id, questions, self.definitions)
+        answers, usage, calls = document_reader.answer_questions(self.chat, self.doc_id, questions, self.definitions)
         self.tool_usage.add(usage)
-        self.reader_calls.append(call)
+        self.reader_calls += calls
         dropped = len(questions) - len(answers)
         content: Dict[str, Any] = {"answers": answers}
         if dropped:
