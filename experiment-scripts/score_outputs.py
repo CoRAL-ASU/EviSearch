@@ -41,8 +41,9 @@ which system produced a prediction, and you must not look anything up: judge onl
   (35 vs 35.1: match; 41 vs 41.9: no match).
 - C2. For completeness, a required GT number counts as present only if Pred has it within tolerance; a wrong number is
   not "present". A count that matches with a percentage outside tolerance is 0.5 / 0.5 when the Definition requires
-  both (see C7 for "count and/or percentage"). A GT total counts as present only if Pred states it: per-arm numbers
-  whose sum equals it do not make it present.
+  both (see C7 for "count and/or percentage"). When GT gives only a pooled total, per-arm numbers whose sum equals it do
+  not make it present; Pred must state the total. When GT lists each arm's number and also their total, and the
+  Definition asks for arms separately, the per-arm numbers are what is required and the total is optional.
 - C3. "Not reached", "NR (not reached)" and "not estimable" are substantive values, not empty-equivalent: GT empty and
   Pred "Not reached" is 0/0; GT "Not reached" and Pred "Not reached" is 1/1. A bare "NR" in a median-survival or
   time-to-event column means "not reached" (so GT "NR" vs Pred "Not reported" is a miss, 0/0).
