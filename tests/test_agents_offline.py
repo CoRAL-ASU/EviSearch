@@ -208,6 +208,37 @@ def test_search_agent_runs_real_tools_and_logs_the_conversation(doc, monkeypatch
     assert [c["name"] for c in log["tool_calls_sequence"]] == ["get_chunks_by_page", "search_chunks", "get_chunks_by_page", "submit_extraction"]
 
 
+def _entry(column, value):
+    return {"column": column, "value": value, "reasoning": "p1", "found": True, "attribution": [{"page": 1, "modality": "text"}]}
+
+
+def test_search_agent_asks_for_the_columns_a_submission_left_out(doc, monkeypatch):
+    chat = ScriptedChat([
+        [("submit_extraction", {"results": [_entry(TRIAL, "STAMPEDE")]})],
+        [("submit_extraction", {"results": [_entry(MEDIAN_OS, "76.6")]})],
+    ])
+    _use(search, chat, monkeypatch)
+
+    results, _ = search.run_search_agent("doc-1", BATCH, {})
+
+    assert f"still missing: {MEDIAN_OS}" in chat.requests[1]["messages"][3].tool_results[0].content["error"]
+    assert results[TRIAL]["value"] == "STAMPEDE" and results[MEDIAN_OS]["value"] == "76.6"
+
+
+def test_search_agent_keeps_received_columns_when_the_loop_ends_before_accepting(doc, monkeypatch):
+    monkeypatch.setattr(search, "AGENT_MAX_TURNS", 1)
+    chat = ScriptedChat([
+        [("submit_extraction", {"results": [_entry(TRIAL, "STAMPEDE")]})],  # partial: sent back, then turns run out
+        "No further columns.",  # the forced final turn without a tool call
+    ])
+    _use(search, chat, monkeypatch)
+
+    results, _ = search.run_search_agent("doc-1", BATCH, {})
+
+    assert results[TRIAL]["value"] == "STAMPEDE"
+    assert results[MEDIAN_OS]["found"] is False
+
+
 def test_search_agent_reports_retrieval_errors_to_the_model_instead_of_crashing(doc, monkeypatch):
     def unavailable():
         raise InferenceError("embedding server down")

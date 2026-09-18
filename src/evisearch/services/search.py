@@ -49,7 +49,7 @@ RULES:
 
 Attribution: For each column, list sources as [{"page": N, "modality": "text"|"table"|"figure", "evidence": "..."}]. Use "table" for table content, "figure" for figures, "text" for prose. Evidence is the text on that page that supports the value, copied as printed (the sentence; for a table, the row label, column header and cell). Every value is checked against the page and evidence you give, so cite the page that actually shows it. If not found: value="Not reported", found=false."""
 
-MAX_SUBMIT_RETRIES = 2  # unreadable submissions answered with an error (the model resubmits) before accepting nothing
+MAX_SUBMIT_RETRIES = 2  # unreadable or partial submissions sent back (the model resubmits) before accepting what arrived
 
 FOLLOW_UP = "Summarize what you learned. Then: search for more columns, load more pages, or call submit_extraction when you have enough information."
 
@@ -165,6 +165,14 @@ class _SearchSession:
             return ToolOutput({"error": f"Submission not fully read ({note or what}; {what}). Call submit_extraction again with "
                                "results as a JSON array (not a string) of objects, one per column: column, value, reasoning, "
                                "found, attribution. Include at least the missing columns."})
+        if missing and self.rejected_submits < MAX_SUBMIT_RETRIES:
+            # A readable submission that covers only part of the batch (seen: 1 of 15 columns, the rest of the values
+            # only in the model's own reasoning). Keep what arrived and ask for the rest by name.
+            self.rejected_submits += 1
+            return ToolOutput({"error": f"Received {len(self.recovered)} of {len(self.names)} columns; still missing: "
+                               f"{', '.join(missing)}. Call submit_extraction again with one entry for each missing "
+                               'column (value "Not reported" and found=false where the paper does not report it). '
+                               "The columns already received are kept."})
         self.submitted = dict(self.recovered)
         reply: Dict[str, Any] = {"submitted": sorted(self.submitted)}
         if note:
@@ -215,8 +223,9 @@ def run_search_agent(
     )
 
     if session.submitted is None:
+        # The loop can end on a submission that was sent back (turn or call limit); keep the columns already received.
         reason = f"Agent did not submit ({loop.stopped_by}{': ' + loop.error if loop.error else ''})"
-        results = fill_missing({}, names, reason)
+        results = fill_missing(dict(session.recovered), names, reason)
     else:
         results = fill_missing(dict(session.submitted), names, "Not extracted")
 

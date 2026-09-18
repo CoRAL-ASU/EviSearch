@@ -55,6 +55,23 @@ def test_submit_asks_again_for_missing_columns_then_merges():
     assert second.stop and set(s.submitted) == {"Control Arm", "Control Arm - N"}
 
 
+def test_submit_asks_by_name_for_columns_a_readable_submission_left_out():
+    s = _session()
+    first = s.submit_extraction({"results": [A]})  # seen in real runs: 1 of 15 columns, the rest only in the reasoning
+    assert not first.stop and "still missing: Control Arm - N" in first.content["error"]
+    assert "Control Arm" not in first.content["error"].split("still missing: ")[1].replace("Control Arm - N", "")
+    second = s.submit_extraction({"results": [B]})
+    assert second.stop and s.submitted["Control Arm"] == s.recovered["Control Arm"] and s.submitted["Control Arm - N"]["value"] == "193"
+
+
+def test_submit_accepts_a_partial_submission_once_the_retry_budget_is_spent():
+    s = _session()
+    for _ in range(MAX_SUBMIT_RETRIES):
+        assert not s.submit_extraction({"results": [A]}).stop
+    final = s.submit_extraction({"results": [A]})
+    assert final.stop and set(s.submitted) == {"Control Arm"}
+
+
 def test_submit_gives_up_after_the_retry_budget():
     s = _session()
     for _ in range(MAX_SUBMIT_RETRIES):
