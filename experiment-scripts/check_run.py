@@ -110,7 +110,12 @@ def check_agent_logs(report: Report, section: str, logs: List[Path]) -> None:
         log = json.loads(path.read_text(encoding="utf-8"))
         document = log.get("document") or {}
         report.check(section, "error" not in log, f"{path.name}: model call failed: {str(log.get('error'))[:200]}")
-        report.check(section, str(log.get("finish_reason")).lower() == "stop", f"{path.name}: finish_reason={log.get('finish_reason')} (answer cut off?)")
+        final = log.get("follow_up") or log  # a follow-up call asked again for columns the first reply left out or lost
+        if "follow_up" in log:
+            report.check(section, False, f"{path.name}: follow-up for {len(final.get('columns') or [])} columns "
+                         f"(first reply finish_reason={log.get('finish_reason')})", warn=True)
+            report.check(section, "error" not in final, f"{path.name}: follow-up call failed: {str(final.get('error'))[:200]}")
+        report.check(section, str(final.get("finish_reason")).lower() == "stop", f"{path.name}: finish_reason={final.get('finish_reason')} (answer cut off?)")
         report.check(section, (log.get("usage") or {}).get("input_tokens", 0) > 0, f"{path.name}: no token usage recorded")
         report.check(section, document.get("fallback") is None, f"{path.name}: page images fell back to {document.get('fallback')}")
         report.check(section, not document.get("warnings"), f"{path.name}: {document.get('warnings')}")

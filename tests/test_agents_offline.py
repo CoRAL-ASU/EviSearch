@@ -99,7 +99,7 @@ def _use(module, chat, monkeypatch):
 
 def test_pdf_query_markdown_input_uses_structured_output(doc, monkeypatch):
     reply = json.dumps({"columns": [{"column": TRIAL, "value": "STAMPEDE", "reasoning": "title", "found": True, "attribution": [{"page": 1, "modality": "text"}]}]})
-    chat = ScriptedChat([reply])
+    chat = ScriptedChat([reply, '{"columns": []}'])  # the follow-up for the column left out returns nothing
     _use(pdf_query, chat, monkeypatch)
     raw_path = doc["results"] / "raw.json"
 
@@ -112,11 +112,65 @@ def test_pdf_query_markdown_input_uses_structured_output(doc, monkeypatch):
     assert "trust the image" not in request["messages"][0].text
     assert request["schema"]["properties"]["columns"]["items"]["properties"]["column"]["enum"] == [TRIAL, MEDIAN_OS]
     assert results[TRIAL] == {"value": "STAMPEDE", "reasoning": "title", "found": True, "attribution": [{"page": 1, "modality": "text"}], "tried": True}
-    assert results[MEDIAN_OS]["found"] is False
-    assert usage["api_calls"] == 1
+    assert results[MEDIAN_OS]["found"] is False and results[MEDIAN_OS]["reasoning"] == "Not returned by the model"
+    assert usage["api_calls"] == 2
     log = json.loads(raw_path.read_text())
-    assert log["response_text"] == reply
+    assert log["response_text"] == reply and log["follow_up"]["columns"] == [MEDIAN_OS]
     assert log["started_at"] and log["duration_s"] == usage["model_seconds"]
+
+
+class CutOffChat(ScriptedChat):
+    """Replies ending in "<cut>" come back with finish_reason="length" and the marker removed; max_tokens is recorded."""
+
+    def _chat(self, messages, tools, tool_choice, response_schema, temperature, max_tokens):
+        result = super()._chat(messages, tools, tool_choice, response_schema, temperature, max_tokens)
+        self.requests[-1]["max_tokens"] = max_tokens
+        if result.text.endswith("<cut>"):
+            result.text, result.finish_reason = result.text[: -len("<cut>")], "length"
+        return result
+
+
+def _column(name, value):
+    return {"column": name, "value": value, "reasoning": "p2", "found": True, "attribution": [{"page": 2, "modality": "text"}]}
+
+
+def test_pdf_query_asks_again_only_for_the_columns_a_reply_left_out(doc, monkeypatch):
+    chat = CutOffChat([json.dumps({"columns": [_column(TRIAL, "STAMPEDE")]}), json.dumps({"columns": [_column(MEDIAN_OS, "76.6")]})])
+    _use(pdf_query, chat, monkeypatch)
+    raw_path = doc["results"] / "raw.json"
+
+    results, usage = pdf_query.run_pdf_query("doc-1", BATCH, input_mode="markdown", raw_response_path=raw_path)
+
+    follow_up = chat.requests[1]
+    columns_text = follow_up["messages"][1].parts[-1].text
+    assert f"Column 1: {MEDIAN_OS}" in columns_text and f"Column 1: {TRIAL}" not in columns_text
+    assert follow_up["schema"]["properties"]["columns"]["items"]["properties"]["column"]["enum"] == [MEDIAN_OS]
+    assert follow_up["messages"][1].parts[:-1] == chat.requests[0]["messages"][1].parts[:-1]  # same document prefix
+    assert follow_up["max_tokens"] == chat.requests[0]["max_tokens"]  # the first reply was not cut off
+    assert results[TRIAL]["value"] == "STAMPEDE" and results[MEDIAN_OS]["value"] == "76.6"
+    assert usage["api_calls"] == 2
+    log = json.loads(raw_path.read_text())
+    assert log["follow_up"]["columns"] == [MEDIAN_OS] and log["usage"]["api_calls"] == 2
+
+
+def test_pdf_query_redoes_a_cut_off_reply_with_twice_the_budget(doc, monkeypatch):
+    cut = json.dumps({"columns": [_column(TRIAL, "STAMPEDE")]})[:40] + "<cut>"  # unreadable JSON, as when the budget runs out
+    chat = CutOffChat([cut, json.dumps({"columns": [_column(TRIAL, "STAMPEDE"), _column(MEDIAN_OS, "76.6")]})])
+    _use(pdf_query, chat, monkeypatch)
+
+    results, usage = pdf_query.run_pdf_query("doc-1", BATCH, input_mode="markdown")
+
+    assert chat.requests[1]["max_tokens"] == 2 * chat.requests[0]["max_tokens"]
+    assert results[TRIAL]["value"] == "STAMPEDE" and results[MEDIAN_OS]["value"] == "76.6" and usage["api_calls"] == 2
+
+
+def test_pdf_query_makes_one_follow_up_at_most(doc, monkeypatch):
+    chat = CutOffChat(['{"columns": []}', '{"columns": []}'])
+    _use(pdf_query, chat, monkeypatch)
+
+    results, usage = pdf_query.run_pdf_query("doc-1", BATCH, input_mode="markdown")
+
+    assert usage["api_calls"] == 2 and results[TRIAL]["reasoning"] == "Not returned by the model"
 
 
 def test_pdf_query_sends_each_page_text_followed_by_its_image(doc, monkeypatch):
@@ -124,7 +178,7 @@ def test_pdf_query_sends_each_page_text_followed_by_its_image(doc, monkeypatch):
     results, _ = pdf_query.run_pdf_query("doc-1", BATCH, input_mode="markdown_images")
     assert "cannot read images" in results[TRIAL]["reasoning"]
 
-    reader = ScriptedChat(['{"columns": []}'], images=True)
+    reader = ScriptedChat(['{"columns": []}', '{"columns": []}'], images=True)
     _use(pdf_query, reader, monkeypatch)
     details = {}
     pdf_query.run_pdf_query("doc-1", BATCH, input_mode="markdown_images", details=details)
