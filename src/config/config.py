@@ -39,6 +39,8 @@ MAX_TOKENS = {
     "pdf_query": 8000,  # Arm A answers use ~3k tokens per batch
     "search_agent": 8192,
     "reconciliation": 8192,
+    "verifier": 4096,  # reconciler's verify_attribution tool (reconciliation role's model), <= 12 claims per call
+    "reader": 4096,  # reconciler's ask_document tool: whole paper in, <= 8 answers out
     "qa": 4096,
     "judge": 32000,
     "baseline": 16000,

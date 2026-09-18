@@ -35,7 +35,10 @@ EXECUTION_ERRORS = {
     "reconciliation": ("reconciliation not run", "Agent did not resolve before limits"),
 }
 OMITTED = {"agent": "Not returned by the model", "search": "Not extracted"}
-TOOLS = {"search": ("search_chunks", "get_chunks_by_page", "submit_extraction"), "reconciliation": ("get_page", "submit_verification")}
+TOOLS = {
+    "search": ("search_chunks", "get_chunks_by_page", "submit_extraction"),
+    "reconciliation": ("ask_document", "search_pages", "verify_attribution", "submit_verification"),
+}
 VERIFICATIONS = ("A_correct_B_wrong", "B_correct_A_wrong", "both_correct", "both_wrong")
 
 
@@ -84,6 +87,17 @@ def check_columns(report: Report, section: str, method: str, columns: Dict[str, 
             report.check(section, entry.get("verification") in VERIFICATIONS, f"column '{name}': verification={entry.get('verification')}")
             report.check(section, isinstance(entry.get("source"), dict), f"column '{name}': source missing")
             has_value = entry.get("value", "Not reported") not in ("Not reported", "")
+            if "verified" in entry:  # verified reconciler: every value is verified on its page or flagged for review
+                has_value = has_value and str(entry.get("value")).strip().lower() not in ("no", "n")  # absence answers
+                verified_attr = any(isinstance(a, dict) and a.get("verified") for a in attribution or [])
+                report.check(section, not has_value or entry.get("verified") or entry.get("needs_review"),
+                             f"column '{name}': value accepted without verification or review flag")
+                report.check(section, not entry.get("verified") or verified_attr, f"column '{name}': verified but no verified attribution")
+                if entry.get("needs_review"):
+                    report.check(section, False, f"column '{name}' flagged for review: {str(entry.get('review_reason'))[:120]}", warn=True)
+                if entry.get("decided_by") == "unsubmitted":
+                    report.check(section, False, f"column '{name}' was never accepted by submit_verification", warn=True)
+                continue
         else:
             report.check(section, isinstance(entry.get("found"), bool), f"column '{name}': found missing")
             has_value = entry.get("found") is True
@@ -118,6 +132,16 @@ def check_loop_logs(report: Report, section: str, method: str, logs: List[Path])
             report.check(section, False, f"{path.name}: submitted only when forced (tool budget or turns used up)", warn=True)
         else:
             report.check(section, stopped in ("finish_tool", "done"), f"{path.name}: stopped_by={stopped}")
+        for call in log.get("verifier_calls", []):
+            report.check(section, "error" not in call, f"{path.name}: verifier call on page {call.get('page')} failed: {str(call.get('error'))[:160]}")
+            if images:
+                report.check(section, call.get("image") is True, f"{path.name}: verifier checked page {call.get('page')} without its image")
+        for call in log.get("reader_calls", []):
+            report.check(section, "error" not in call, f"{path.name}: ask_document call failed: {str(call.get('error'))[:160]}")
+            fallback = (call.get("document") or {}).get("fallback")
+            report.check(section, fallback is None, f"{path.name}: the reader saw page images only for {fallback}", warn=True)
+        failed_checks = [c for c in log.get("checks", []) if c.get("verdict") == "error"]
+        report.check(section, not failed_checks, f"{path.name}: {len(failed_checks)} verifier checks without a verdict")
         called_here: Counter = Counter()
         for turn in log.get("conversation", []):
             if turn.get("role") != "tool":

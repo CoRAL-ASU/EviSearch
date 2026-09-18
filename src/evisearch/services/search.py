@@ -46,7 +46,7 @@ RULES:
 - For N (%) columns include both count and percentage.
 - Do NOT include "treatment" or "control" in your search queries as they are generic. Use specific terms (drug names, region names, arm labels, column-specific terms).
 
-Attribution: For each column, list sources as [{"page": N, "modality": "text"|"table"|"figure"}]. Use "table" for table content, "figure" for figures, "text" for prose. If not found: value="Not reported", found=false."""
+Attribution: For each column, list sources as [{"page": N, "modality": "text"|"table"|"figure", "evidence": "..."}]. Use "table" for table content, "figure" for figures, "text" for prose. Evidence is the text on that page that supports the value, copied as printed (the sentence; for a table, the row label, column header and cell). Every value is checked against the page and evidence you give, so cite the page that actually shows it. If not found: value="Not reported", found=false."""
 
 FOLLOW_UP = "Summarize what you learned. Then: search for more columns, load more pages, or call submit_extraction when you have enough information."
 

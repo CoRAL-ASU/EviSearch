@@ -25,7 +25,7 @@ PROJECT_ROOT = Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(PROJECT_ROOT))
 
 from src.config.config import PAGE_IMAGE_SCALE, SELECTION
-from src.evisearch.columns import count_found
+from src.evisearch.columns import EVIDENCE_FORMAT, count_found
 from src.evisearch.pipelines import results_store
 from src.evisearch.pipelines.batching import (
     add_usage,
@@ -43,8 +43,13 @@ def run_settings(model_key: str, input_mode: str) -> Dict[str, Any]:
     """Settings that must match for saved Arm A results to be resumed."""
     from src.evisearch.services.extraction_rules import rules_setting
 
-    return {"model": model_key, "input_mode": input_mode, "page_image_scale": PAGE_IMAGE_SCALE if input_mode == "markdown_images" else None,
-            **rules_setting()}
+    return {
+        "model": model_key,
+        "input_mode": input_mode,
+        "page_image_scale": PAGE_IMAGE_SCALE if input_mode == "markdown_images" else None,
+        "evidence_format": EVIDENCE_FORMAT,
+        **rules_setting(),
+    }
 
 
 def run_pdf_query_pipeline(

@@ -23,7 +23,7 @@ from typing import Any, Callable, Dict, List, Optional
 PROJECT_ROOT = Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(PROJECT_ROOT))
 
-from src.evisearch.columns import count_found
+from src.evisearch.columns import EVIDENCE_FORMAT, count_found
 from src.evisearch.pipelines import results_store
 from src.evisearch.services.extraction_rules import rules_setting
 from src.evisearch.pipelines.batching import (
@@ -37,6 +37,11 @@ from src.evisearch.pipelines.batching import (
     stage_timing,
     unknown_groups,
 )
+
+
+def run_settings(model_key: str) -> Dict[str, Any]:
+    """Settings that must match for saved Arm B results to be resumed."""
+    return {"model": model_key, "evidence_format": EVIDENCE_FORMAT, **rules_setting()}
 
 
 def run_search_agent_pipeline(
@@ -54,7 +59,7 @@ def run_search_agent_pipeline(
 
     emit = on_event or (lambda event: None)
     started = time.time()
-    settings = {"model": model_key_for("search_agent", model), **rules_setting()}
+    settings = run_settings(model_key_for("search_agent", model))
     if resume:
         results_store.check_resume(doc_id, "search", settings)
     groups = load_groups()
@@ -109,7 +114,7 @@ def main(argv: Optional[List[str]] = None) -> int:
         return 2
     if not args.no_resume:
         try:
-            results_store.check_resume(args.doc_id, "search", {"model": model_key_for("search_agent", args.model), **rules_setting()})
+            results_store.check_resume(args.doc_id, "search", run_settings(model_key_for("search_agent", args.model)))
         except results_store.ResumeError as exc:
             print(f"[search_agent] {exc}", file=sys.stderr)
             return 2

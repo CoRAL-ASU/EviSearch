@@ -114,9 +114,13 @@ def stage_settings(stage: str) -> Dict[str, Any]:
         from src.evisearch.pipelines.reconciliation_pipeline import run_settings
 
         return run_settings(model_key)
+    if stage == "search":
+        from src.evisearch.pipelines.search_pipeline import run_settings
+
+        return run_settings(model_key)
     from src.evisearch.services.extraction_rules import rules_setting
 
-    return {"model": model_key, **rules_setting()}  # search agent and the B1 baseline
+    return {"model": model_key, **rules_setting()}  # the B1 baseline
 
 
 def run_stage(stage: str, doc_id: str) -> Dict[str, Any]:

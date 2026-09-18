@@ -34,7 +34,10 @@ Rules:
 - Check table and figure captions for scope: use overall/all-patient values for overall columns, and the matching
   subgroup for subgroup columns. When only subgroups are reported and the column asks for the whole population,
   combine the subgroups that make up the whole population.
-- Attribution lists the 1-based page number(s) the value came from, with modality "table", "figure" or "text"."""
+- Attribution lists the 1-based page number(s) the value came from, with modality "table", "figure" or "text", and
+  evidence: the text on that page that supports the value, copied as printed (the sentence; for a table, the row
+  label, the column header and the cell; for a figure, its label and what you read from it). Every value is checked
+  against the page and evidence you give, so cite the page that actually shows it."""
 
 IMAGE_RULES = """
 - Pages come with their parsed text and, where included, their rendered image. Use the parsed text for exact wording
@@ -73,7 +76,7 @@ def build_columns_prompt(batch_columns: List[Dict[str, Any]], preferences: str) 
     return (
         f"{preference_block}\nCOLUMNS TO EXTRACT:\n" + "\n".join(blocks) + "\n\n"
         'Return JSON: {"columns": [{"column": <exact column name>, "value": ..., "reasoning": ..., '
-        '"found": true|false, "attribution": [{"page": N, "modality": "text"|"table"|"figure"}]}]}'
+        '"found": true|false, "attribution": [{"page": N, "modality": "text"|"table"|"figure", "evidence": ...}]}]}'
     )
 
 

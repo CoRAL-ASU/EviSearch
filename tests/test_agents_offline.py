@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import json
+import re
 
 import fitz
 import numpy as np
@@ -12,6 +13,7 @@ import src.evisearch.pipelines.reconciliation_pipeline as reconciliation_pipelin
 import src.evisearch.pipelines.results_store as store
 import src.evisearch.pipelines.search_pipeline as search_pipeline
 import src.evisearch.pipelines.unified_extraction as unified_extraction
+import src.evisearch.services.evidence_check as evidence_check
 import src.evisearch.services.pdf_query as pdf_query
 import src.evisearch.services.reconciliation as reconciliation
 import src.evisearch.services.search as search
@@ -225,42 +227,166 @@ def test_search_agent_reports_retrieval_errors_to_the_model_instead_of_crashing(
 
 # ---- Reconciliation ---------------------------------------------------------------------------------
 
-def test_reconciliation_reads_pages_with_images_until_every_column_is_submitted(doc, monkeypatch):
-    source_a = {
-        TRIAL: {"value": "STAMPEDE", "attribution": [{"page": 1, "modality": "text"}]},
-        MEDIAN_OS: {"value": "76.6", "reasoning": "Table 2", "attribution": [{"page": 2, "modality": "table"}]},
-    }
-    source_b = {TRIAL: {"value": "STAMPEDE"}, MEDIAN_OS: {"value": "Not reported"}}
-    chat = ScriptedChat(
-        [
-            [("submit_verification", {"results": [{"column": TRIAL, "value": "STAMPEDE", "reasoning": "match", "verification": "both_correct", "source": {"page": 1, "modality": "text", "verbatim_quote": "STAMPEDE"}}]})],
-            [("get_page", {"page_numbers": [2]})],
-            [("submit_verification", {"results": [{"column": MEDIAN_OS, "value": "76.6", "reasoning": "Table 2", "verification": "A_correct_B_wrong", "source": {"page": 2, "modality": "table"}}]})],
-        ],
-        images=True,
-    )
+AE = "Adverse Events | Grade >=3"
+CLAIM_RE = re.compile(r"id: (c\d+)\nColumn: [^\n]*\nDefinition: [^\n]*\nClaimed value: ([^\n]*)")
+
+
+class VerifyingChat(ScriptedChat):
+    """Agent turns come from the script. Tool-internal calls (structured output, no tools) are answered here: reader
+    calls (schema "answers") from `answers`, verifier calls (schema "results") from the page text, where a claim is
+    supported when its value appears in the page's parsed text."""
+
+    def __init__(self, turns, answers=None, images=True):
+        super().__init__(turns, images=images)
+        self.answers = list(answers or [])
+        self.reader_requests = []
+        self.verifier_requests = []
+
+    def _chat(self, messages, tools, tool_choice, response_schema, temperature, max_tokens):
+        if tools:
+            return super()._chat(messages, tools, tool_choice, response_schema, temperature, max_tokens)
+        if "answers" in (response_schema or {}).get("properties", {}):
+            self.reader_requests.append(messages)
+            payload = {"answers": [{"id": f"q{i}", **answer} for i, answer in enumerate(self.answers.pop(0), 1)]}
+        else:
+            self.verifier_requests.append(messages)
+            parts = messages[1].parts
+            page_text = parts[0].text.lower()
+            payload = {"results": []}
+            for claim_id, value in CLAIM_RE.findall(parts[-1].text):
+                found = value.lower() in page_text
+                payload["results"].append({
+                    "id": claim_id, "verdict": "supported" if found else "not_supported", "page_value": value if found else "",
+                    "evidence": f"... {value} ..." if found else "", "modality": "table", "reason": "on the page" if found else "not on this page",
+                })
+        text = json.dumps(payload)
+        return ChatResult(text=text, tool_calls=[], usage=Usage(50, 5, 1), message=Message(role="assistant", parts=[TextPart(text)]), model=self.key)
+
+
+def _claim(value, page, evidence=""):
+    return {"value": value, "reasoning": f"read {value}", "found": True, "attribution": [{"page": page, "modality": "table", "evidence": evidence}]}
+
+
+def _tool_response(chat, request_index):
+    return chat.requests[request_index]["messages"][-1].tool_results[0].content
+
+
+def test_verifier_checks_each_claim_on_its_page_with_the_page_image(doc):
+    chat = VerifyingChat([])
+    claims = [
+        evidence_check.Claim(MEDIAN_OS, "76.6", 2, "Median overall survival 76.6 months"),
+        evidence_check.Claim(MEDIAN_OS, "80.1", 2),
+        evidence_check.Claim(AE, "47", 9),
+    ]
+
+    records, usage, calls = evidence_check.verify_claims(chat, "doc-1", claims, {MEDIAN_OS: "Median OS"}, pdf_path=doc["pdf"], image_scale=1.0)
+
+    assert len(chat.verifier_requests) == 1 and usage.api_calls == 1  # both page-2 claims in one call; page 9 needs none
+    request = chat.verifier_requests[0][1].parts
+    assert request[0].text.startswith("=== PAGE 2: parsed text ===") and isinstance(request[2], ImagePart)
+    supported = records[claims[0].key]
+    assert supported["verdict"] == "supported" and supported["numbers_in_text"] is True and supported["evidence_in_text"] is True
+    assert records[claims[1].key]["verdict"] == "not_supported" and records[claims[1].key]["numbers_in_text"] is False
+    assert records[claims[2].key]["verdict"] == "not_supported" and "does not exist" in records[claims[2].key]["reason"]
+    assert calls[0]["page"] == 2 and calls[0]["image"] is True
+
+
+def test_reconciliation_keeps_the_paper_out_of_its_context_and_accepts_only_verified_values(doc, monkeypatch):
+    source_a = {TRIAL: _claim("STAMPEDE", 1), MEDIAN_OS: _claim("76.6", 2, "OS 76.6 mo")}
+    source_b = {TRIAL: _claim("STAMPEDE", 1), MEDIAN_OS: {"value": "Not reported", "reasoning": "no OS table", "found": False}}
+    chat = VerifyingChat([
+        [("submit_verification", {"results": [{"column": TRIAL, "value": "STAMPEDE", "reasoning": "agree", "verification": "both_correct", "source": {"page": 1}}]})],
+        [("verify_attribution", {"claims": [{"column": TRIAL, "value": "STAMPEDE", "page": 1}, {"column": MEDIAN_OS, "value": "76.6", "page": 2}]})],
+        [("submit_verification", {"results": [
+            {"column": TRIAL, "value": "STAMPEDE", "reasoning": "agree", "verification": "both_correct", "source": {"page": 1}},
+            {"column": MEDIAN_OS, "value": "Not reported", "reasoning": "B", "verification": "B_correct_A_wrong"},
+        ]})],
+        [("submit_verification", {"results": [{"column": MEDIAN_OS, "value": "76.6", "reasoning": "Table 2", "verification": "A_correct_B_wrong", "source": {"page": 2}}]})],
+    ])
     _use(reconciliation, chat, monkeypatch)
 
     results, usage = reconciliation.run_reconciliation_agent("doc-1", BATCH, {}, source_a, source_b)
 
     prompt = chat.requests[0]["messages"][1].text
-    assert 'A: value="76.6" | page=2 | modality=table' in prompt
-    assert 'B: value="Not reported" | page=None' in prompt
-    page_result = chat.requests[2]["messages"][5].tool_results[0]
-    assert page_result.content["pages_returned"] == [2]
-    assert "76.6 months" in page_result.content["formatted_chunks"]
-    assert isinstance(page_result.attachments[1], ImagePart) and page_result.attachments[1].data.startswith(b"\x89PNG")
-    assert results[TRIAL]["attribution"] == [{"page": 1, "modality": "text", "verbatim_quote": "STAMPEDE"}]
-    assert results[MEDIAN_OS]["verification"] == "A_correct_B_wrong"
-    assert len(chat.requests) == 3 and usage["api_calls"] == 3
+    assert 'A: "76.6"' in prompt and 'cites page 2 (table), evidence "OS 76.6 mo"' in prompt and "reasoning: no OS table" in prompt
+    assert "Median overall survival 76.6 months" not in prompt  # page text reaches the agent only through tools
+    assert chat.requests[0]["tools"] == ["ask_document", "search_pages", "verify_attribution", "submit_verification"]
+    assert "verify_attribution" in _tool_response(chat, 1)["rejected"][0]["reason"]  # submitted before verifying
+    second = _tool_response(chat, 3)
+    assert second["accepted"] == [TRIAL] and "76.6" in second["rejected"][0]["reason"]  # "Not reported" over a verified value
+    assert results[TRIAL]["verified"] and results[TRIAL]["verification"] == "both_correct" and results[TRIAL]["attribution"][0]["page"] == 1
+    final = results[MEDIAN_OS]
+    assert final["value"] == "76.6" and final["verified"] and not final["needs_review"] and final["decided_by"] == "agent"
+    assert final["source"]["page"] == 2 and final["attribution"][0]["verified"] is True
+    assert [c["verdict"] for c in final["checks"]] == ["supported"]
+    assert len(chat.verifier_requests) == 2 and usage["api_calls"] == 6  # 4 agent turns + one verifier call per page
+
+
+def test_reconciliation_reads_the_paper_through_the_reader_and_flags_what_it_cannot_verify(doc, monkeypatch):
+    batch = BATCH + [{"column_name": AE, "definition": "Grade 3 or higher adverse events"}]
+    source_a = {TRIAL: {"value": "Not reported"}, MEDIAN_OS: _claim("80.1", 2), AE: _claim("52", 3)}
+    source_b = {TRIAL: {"value": "Not reported"}, MEDIAN_OS: {"value": "Not reported"}, AE: {"value": "Not reported"}}
+    chat = VerifyingChat(
+        [
+            [("ask_document", {"questions": [{"column": TRIAL, "question": "What is the trial called?"}]})],
+            [("verify_attribution", {"claims": [
+                {"column": TRIAL, "value": "STAMPEDE", "page": 1}, {"column": MEDIAN_OS, "value": "80.1", "page": 2}, {"column": AE, "value": "52", "page": 3},
+            ]})],
+            [("submit_verification", {"results": [
+                {"column": TRIAL, "value": "STAMPEDE", "reasoning": "reader, page 1", "verification": "both_wrong", "source": {"page": 1}},
+                {"column": MEDIAN_OS, "value": "80.1", "reasoning": "A", "verification": "A_correct_B_wrong", "source": {"page": 2}, "review": True, "review_reason": "not on page 2"},
+                {"column": AE, "value": "52", "reasoning": "A", "verification": "A_correct_B_wrong", "source": {"page": 3}},
+            ]})],
+            "I am done.",
+            [("submit_verification", {"results": [{"column": AE, "value": "52", "reasoning": "A", "verification": "A_correct_B_wrong", "source": {"page": 3}}]})],
+        ],
+        answers=[[{"answer": "STAMPEDE", "pages": [1], "evidence": "STAMPEDE: abiraterone", "modality": "text"}]],
+    )
+    _use(reconciliation, chat, monkeypatch)
+
+    results, _ = reconciliation.run_reconciliation_agent("doc-1", batch, {TRIAL: "Trial name"}, source_a, source_b)
+
+    reader = chat.reader_requests[0][1].parts
+    assert reader[0].text.startswith("DOCUMENT: 3 pages") and any(isinstance(p, ImagePart) for p in reader)  # the whole paper
+    assert "Column: Trial\nDefinition: Trial name\nQuestion: What is the trial called?" in reader[-1].text
+    answer = _tool_response(chat, 1)["answers"][0]
+    assert answer["answer"] == "STAMPEDE" and answer["pages"] == [1]
+    submit = _tool_response(chat, 3)
+    assert sorted(submit["accepted"]) == sorted([TRIAL, MEDIAN_OS]) and submit["rejected"][0]["column"] == AE
+    assert submit["rejected"][0]["verifier"]["verdict"] == "not_supported"
+    assert results[TRIAL]["verified"] and results[TRIAL]["verification"] == "both_wrong"
+    assert results[MEDIAN_OS]["needs_review"] and not results[MEDIAN_OS]["verified"] and results[MEDIAN_OS]["value"] == "80.1"
+    ae = results[AE]  # rejected again in the forced final turn: the value is kept and flagged
+    assert ae["value"] == "52" and ae["needs_review"] and not ae["verified"] and ae["decided_by"] == "unsubmitted"
+    assert "forced_finish" in ae["review_reason"]
+
+
+def test_reconciliation_accepts_absence_answers_without_a_page_unless_a_value_is_verified(doc):
+    batch = [{"column_name": "QoL reported", "definition": "Yes/No"}, {"column_name": MEDIAN_OS, "definition": "Median OS"}]
+    session = reconciliation._ReconciliationSession(VerifyingChat([]), "doc-1", batch, {}, {}, {}, None)
+    skipped = session.verify_attribution({"claims": [{"column": "QoL reported", "value": "No", "page": 1}]}).content
+    assert skipped["checks"] == [] and "claims absence" in skipped["problems"][0]
+    session.verify_attribution({"claims": [{"column": MEDIAN_OS, "value": "76.6", "page": 2}]})
+    response = session.submit_verification({"results": [
+        {"column": "QoL reported", "value": "No", "reasoning": "none", "verification": "both_correct"},
+        {"column": MEDIAN_OS, "value": "No", "reasoning": "?", "verification": "both_correct"},
+    ]}).content
+    assert response["accepted"] == ["QoL reported"] and response["rejected"][0]["column"] == MEDIAN_OS
+    qol = session.submitted["QoL reported"]
+    assert qol["value"] == "No" and qol["attribution"] == [] and not qol["verified"] and not qol["needs_review"]
+
+
+def test_reconciliation_search_returns_pages_with_their_relevant_lines(doc, monkeypatch):
+    session = reconciliation._ReconciliationSession(VerifyingChat([]), "doc-1", BATCH, {}, {}, {}, None)
+    matches = session.search_pages({"query": "median overall survival"}).content["matches"]
+    assert matches[0]["page"] == 2 and "76.6 months" in matches[0]["lines"][0]
 
 
 def test_reconciliation_source_output_normalizes_invalid_attribution():
-    assert reconciliation._extract_source_output({"value": "67", "reasoning": "from table", "attribution": [{"page": "bad", "modality": "weird"}]}) == {
+    assert reconciliation._extract_source_output({"value": "67", "reasoning": "from table", "attribution": [{"page": "bad", "modality": "weird"}, {"page": 4, "modality": "weird", "evidence": "Age 67"}]}) == {
         "value": "67",
-        "page": None,
-        "modality": "text",
         "reasoning": "from table",
+        "pages": [{"page": 4, "modality": "text", "evidence": "Age 67"}],
     }
 
 

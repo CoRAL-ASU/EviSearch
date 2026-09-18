@@ -41,8 +41,16 @@ from src.evisearch.pipelines.batching import (
 
 def run_settings(model_key: str) -> Dict[str, Any]:
     """Settings that must match for saved reconciliation results to be resumed."""
+    from src.evisearch.services.extraction_rules import rules_setting
+    from src.evisearch.services.reconciliation import RECONCILER_VERSION
+
     images = SELECTION.option("reconciliation_page_images") == "auto" and SELECTION.catalog.models[model_key].capabilities.images
-    return {"model": model_key, "page_image_scale": PAGE_IMAGE_SCALE if images else None}
+    return {
+        "model": model_key,
+        "page_image_scale": PAGE_IMAGE_SCALE if images else None,
+        "reconciler": RECONCILER_VERSION,
+        **rules_setting(),
+    }
 
 
 def run_reconciliation_pipeline(
