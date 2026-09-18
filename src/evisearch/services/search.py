@@ -13,6 +13,7 @@ from src.config.catalog import ConfigError
 from src.config.config import AGENT_MAX_TOOL_CALLS, AGENT_MAX_TURNS, MAX_TOKENS
 from src.evisearch.columns import column_names, extraction_items_schema, fill_missing, parse_column_entries
 from src.evisearch.pipelines.results_store import write_json
+from src.evisearch.tool_args import decode_items
 from src.evisearch.services.extraction_rules import shared_rules
 from src.inference import InferenceError, Tool, ToolOutput, ToolSpec, Usage, get_chat, run_tool_loop
 from src.retrieval import embedding_retriever as retriever
@@ -47,6 +48,8 @@ RULES:
 - Do NOT include "treatment" or "control" in your search queries as they are generic. Use specific terms (drug names, region names, arm labels, column-specific terms).
 
 Attribution: For each column, list sources as [{"page": N, "modality": "text"|"table"|"figure", "evidence": "..."}]. Use "table" for table content, "figure" for figures, "text" for prose. Evidence is the text on that page that supports the value, copied as printed (the sentence; for a table, the row label, column header and cell). Every value is checked against the page and evidence you give, so cite the page that actually shows it. If not found: value="Not reported", found=false."""
+
+MAX_SUBMIT_RETRIES = 2  # unreadable submissions answered with an error (the model resubmits) before accepting nothing
 
 FOLLOW_UP = "Summarize what you learned. Then: search for more columns, load more pages, or call submit_extraction when you have enough information."
 
@@ -94,6 +97,9 @@ class _SearchSession:
         self.total_pages = total_pages
         self.pages_sent: Set[int] = set()
         self.submitted: Optional[Dict[str, Dict[str, Any]]] = None
+        self.rejected_submits = 0
+        self.submit_notes: List[str] = []
+        self.recovered: Dict[str, Dict[str, Any]] = {}  # entries read so far across (re)submissions
 
     def _forget(self, pages: List[int]):
         return lambda: self.pages_sent.difference_update(pages)
@@ -143,8 +149,27 @@ class _SearchSession:
         return ToolOutput({"formatted_chunks": "\n\n---\n\n".join(parts), "pages_returned": returned}, on_evict=self._forget(returned))
 
     def submit_extraction(self, args: Dict[str, Any]) -> ToolOutput:
-        self.submitted = parse_column_entries(args, self.names, list_key="results")
-        return ToolOutput({"submitted": sorted(self.submitted)}, stop=True)
+        payload, note = args, None
+        if isinstance(args, dict) and isinstance(args.get("results"), str):
+            decoded, note = decode_items(args["results"])
+            payload = {"results": decoded} if decoded is not None else {}
+        parsed = parse_column_entries(payload, self.names, list_key="results")
+        if note:
+            self.submit_notes.append(note)
+        self.recovered.update(parsed)
+        missing = [name for name in self.names if name not in self.recovered]
+        unreadable = not parsed or (note is not None and "malformed" in note and missing)
+        if unreadable and self.rejected_submits < MAX_SUBMIT_RETRIES:
+            self.rejected_submits += 1
+            what = f"columns still missing: {', '.join(missing)}" if parsed else "no entries for the requested columns"
+            return ToolOutput({"error": f"Submission not fully read ({note or what}; {what}). Call submit_extraction again with "
+                               "results as a JSON array (not a string) of objects, one per column: column, value, reasoning, "
+                               "found, attribution. Include at least the missing columns."})
+        self.submitted = dict(self.recovered)
+        reply: Dict[str, Any] = {"submitted": sorted(self.submitted)}
+        if note:
+            reply["note"] = note
+        return ToolOutput(reply, stop=True)
 
 
 def run_search_agent(
