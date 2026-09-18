@@ -53,7 +53,7 @@ def test_v3_adds_three_bullets_to_v1():
     # The variant rule is its own bullet, not part of the clause that ends in "Not reported" (the v2 sentence was).
     assert "A named subtype" not in v3
     # Zero is only for treatments an arm did not receive; other categories of a characteristic stay empty.
-    assert "no such treatment, give 0 (0%)" in v3 and v3.count("0 (0%)") == 1
+    assert "no such treatment, give 0 (0%)" in " ".join(v3.split()) and v3.count("0 (0%)") == 1
 
 
 def test_none_reproduces_the_e0_prompts():

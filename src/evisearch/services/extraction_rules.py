@@ -62,7 +62,9 @@ assert RULES["v2"] != RULES["v1"]
 #     "Not reported" when the paper says every patient in an arm received a treatment but prints no count, and when a
 #     characteristic is missing from the baseline table but a subgroup analysis gives each subgroup's patients per arm
 #     ("events/N"), which Agent A read as event counts. The zero clause covers treatments only: the benchmark leaves
-#     other categories of a characteristic empty rather than 0.
+#     other categories of a characteristic empty rather than 0. The one-country example was added after a single-paper
+#     check (run archived as qwen_b2_v3probe), where the model called a one-country trial's region "not explicitly
+#     reported".
 RULES["v3"] = RULES["v1"].replace(
     """  asked), answer "Not reported".
 """,
@@ -78,8 +80,9 @@ RULES["v3"] = RULES["v1"].replace(
 """,
     """  column.
 - A value the paper states for every patient is reported even without a printed count: when the paper says that all
-  patients in an arm received a treatment or share a characteristic (by design, eligibility or allocation), give the
-  arm size with 100%. When an arm by design received no such treatment, give 0 (0%).
+  patients in an arm received a treatment or share a characteristic (by design, eligibility or allocation, for example
+  a trial that enrolled patients in one country only), give the arm size with 100%. When an arm by design received no
+  such treatment, give 0 (0%).
 - Counts of patients with a characteristic can come from a subgroup analysis: when the baseline table does not list
   the characteristic but a subgroup forest plot or table gives each subgroup's patients per arm (for example the N in
   "events/N"), that N is the number of patients with that characteristic in that arm; give it as the count.
