@@ -11,7 +11,8 @@ structured_text). Here those prompts are the rubric and Claude does the judging,
 
 Only the rubric's empty/empty rule (gold empty and prediction empty-equivalent -> 1/1) is applied mechanically;
 every other cell is scored by the scorer. Unlike evaluator_v2, a column missing from a system's output counts as an
-empty prediction instead of being skipped, so a system cannot gain by dropping columns.
+empty prediction instead of being skipped, so a system cannot gain by dropping columns, and a failed model call
+("Extraction error") counts as an empty prediction too.
 """
 from __future__ import annotations
 
@@ -34,6 +35,8 @@ SCORES = (0.0, 0.5, 1.0)
 
 # Empty-equivalent values listed in the evaluator_v2 prompts, compared case-insensitively.
 EMPTY_VALUES = {"", "not reported", "not found", "not applicable", "n/a", "na", "nan", "not present"}
+# Markers a pipeline writes when a model call failed: no answer, scored like an empty prediction for every system.
+FAILED_VALUES = {"extraction error"}
 
 HELDOUT = (
     "NCT00268476_James_STAMPEDE_IJC'22",
@@ -74,6 +77,7 @@ class Cell:
     pred: str
     verification: Optional[str] = None  # reconciler label, EviSearch outputs only
     missing: bool = False  # column absent from the system's output
+    failed: bool = False  # the model call for this column failed (its value was a failure marker)
 
     @property
     def id(self) -> str:
@@ -163,15 +167,18 @@ def cells(system: System, docs: Sequence[str], results_root: Path = RESULTS_ROOT
         predicted = load_output(path)
         for name, column in columns.items():
             entry = predicted.get(name)
+            pred = normalize((entry or {}).get("value", ""))
+            failed = pred.lower() in FAILED_VALUES
             out.append(Cell(
                 doc=doc,
                 column=name,
                 category=column.category,
                 definition=column.definition,
                 gold=gold[doc].get(name, ""),
-                pred=normalize((entry or {}).get("value", "")),
+                pred="" if failed else pred,
                 verification=(entry or {}).get("verification"),
                 missing=entry is None,
+                failed=failed,
             ))
     return out
 
@@ -332,6 +339,7 @@ def report(system: System, docs: Sequence[str], labels: Dict[str, dict], results
         "system": system.name, "run": system.run, "stage": system.stage,
         "complete": not unscored, "unscored": len(unscored),
         "missing_columns": sum(c.missing for c in all_cells),
+        "failed_cells": sum(c.failed for c in all_cells),
         "overall": summarize(scored),
         "dev": summarize([r for r in scored if r.cell.doc not in HELDOUT]),
         "heldout": summarize([r for r in scored if r.cell.doc in HELDOUT]),

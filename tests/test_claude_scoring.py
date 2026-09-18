@@ -47,6 +47,13 @@ def test_cells_treat_missing_columns_as_empty_predictions(tmp_path):
     assert not by_col["NCT"].mechanical  # gold has a value -> must be scored (a miss)
 
 
+def test_failed_calls_count_as_empty_predictions(tmp_path):
+    _write_output(tmp_path, "r", "markdown_baseline", "docA", {"Control Arm - N": {"value": "Extraction error"}, "Region": {"value": "Extraction error"}, "NCT": {"value": "NCT1"}})
+    got = {c.column: c for c in cs.cells(cs.System("B1", "r", "markdown_baseline"), ["docA"], tmp_path, COLUMNS, GOLD)}
+    assert got["Control Arm - N"].failed and got["Control Arm - N"].pred == "" and not got["Control Arm - N"].mechanical
+    assert got["Region"].failed and got["Region"].mechanical  # gold empty + no answer -> 1/1, as for any empty answer
+
+
 def test_queue_is_blinded_deduplicated_and_skips_scored_and_mechanical(tmp_path):
     _write_output(tmp_path, "r1", "agent_extractor", "docA", {"Control Arm - N": {"value": "454"}, "Region": {"value": "Europe"}, "NCT": {"value": "NCT1"}})
     _write_output(tmp_path, "r2", "search_agent", "docA", {"Control Arm - N": {"value": "454"}, "Region": {"value": "Not reported"}, "NCT": {"value": "NCT2"}})
