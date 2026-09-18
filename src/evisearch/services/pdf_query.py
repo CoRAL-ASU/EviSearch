@@ -12,7 +12,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
-from src.config.catalog import ConfigError
+from src.config.catalog import ConfigError, ImageTokens
 from src.config.config import MAX_TOKENS, PAGE_IMAGE_SCALE, PDF_QUERY_MAX_PAGE_IMAGES, SELECTION
 from src.evisearch.columns import column_names, extraction_items_schema, fill_missing, parse_column_entries
 from src.evisearch.knowledge.preferences import load_extraction_preferences
@@ -42,7 +42,7 @@ IMAGE_RULES = """
 
 ANCHOR_RE = re.compile(r"<a\s+id=['\"][^'\"]*['\"][^>]*>\s*</a>\s*")
 FIGURE_RE = re.compile(r"<::(?!\s*logo)", re.IGNORECASE)  # LandingAI figure descriptions; logos are not evidence
-CHARS_PER_TEXT_TOKEN = 2  # benchmark papers measure 2.5-3.3 characters per Qwen token; 2 keeps estimates above the real count
+CHARS_PER_TEXT_TOKEN = 2  # benchmark papers measure 2.5-3.4 characters per Qwen or Mistral token; 2 keeps estimates above the real count
 
 # Steps tried in order until the document fits the token budget; None means every page went in with its image.
 FALLBACK_STEPS = (None, "figure_table_pages", "markdown_only")
@@ -91,9 +91,12 @@ def document_token_budget(context_tokens: Optional[int], prompt_text: str, max_o
     return context_tokens - max_output_tokens - len(prompt_text) // CHARS_PER_TEXT_TOKEN
 
 
-def build_document_input(doc_id: str, input_mode: str, token_budget: Optional[int] = None) -> DocumentInput:
+def build_document_input(
+    doc_id: str, input_mode: str, token_budget: Optional[int] = None, image_tokens: Optional[ImageTokens] = None
+) -> DocumentInput:
     """Document parts for one call. In markdown_images mode every page gets its image; when that would exceed
-    token_budget, images are limited to pages with figures or tables, then dropped (info["fallback"] says which)."""
+    token_budget, images are limited to pages with figures or tables, then dropped (info["fallback"] says which).
+    image_tokens is the model's image token cost (catalog.yaml models.<key>.image_tokens)."""
     pages = load_markdown_pages(doc_id)
     texts = {number: f"=== PAGE {number}: parsed text ===\n{text}" for number, text in enumerate(pages, 1)}
     text_tokens = sum(len(text) for text in texts.values()) // CHARS_PER_TEXT_TOKEN
@@ -128,7 +131,7 @@ def build_document_input(doc_id: str, input_mode: str, token_budget: Optional[in
     }
     for fallback in FALLBACK_STEPS:
         image_pages = candidates[fallback]
-        estimate = text_tokens + sum(images[number].estimated_tokens for number in image_pages)
+        estimate = text_tokens + sum(images[number].estimated_tokens(image_tokens) for number in image_pages)
         fits = token_budget is None or estimate <= token_budget
         if (fits and len(image_pages) <= PDF_QUERY_MAX_PAGE_IMAGES) or fallback == "markdown_only":
             break
@@ -177,7 +180,7 @@ def run_pdf_query(
         if input_mode == "markdown_images" and not chat.capabilities.images:
             raise ConfigError(f"model '{chat.key}' cannot read images; use pdf_query_input=markdown")
         budget = document_token_budget(chat.spec.context_tokens, SYSTEM_PROMPT + IMAGE_RULES + columns_prompt, MAX_TOKENS["pdf_query"])
-        document = build_document_input(doc_id, input_mode, budget)
+        document = build_document_input(doc_id, input_mode, budget, chat.spec.image_tokens)
     except (ConfigError, InferenceError, FileNotFoundError) as exc:
         return fill_missing({}, names, f"pdf_query not run: {exc}"), usage.to_dict()
     if details is not None:
@@ -198,7 +201,13 @@ def run_pdf_query(
         return fill_missing({}, names, f"pdf_query failed: {exc}"), usage.to_dict()
 
     usage.add(result.usage)
-    log.update({"response_text": result.text, "finish_reason": result.finish_reason, "usage": usage.to_dict()})
+    log.update({
+        "response_text": result.text,
+        "finish_reason": result.finish_reason,
+        "started_at": result.started_at,
+        "duration_s": result.duration_s,
+        "usage": usage.to_dict(),
+    })
     if raw_response_path:
         write_json(raw_response_path, log)
 

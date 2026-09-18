@@ -1,3 +1,9 @@
+"""
+Parsed-markdown baseline: the whole LandingAI markdown plus one definition group per call, JSON schema output.
+
+run_markdown_baseline is the CLI behind the baseline_landing_ai_w_* scripts (legacy output layout, LLM-judge
+evaluation); run_baseline_stage is benchmark system B1 (results in the agents' shape under runs/<run>/, no evaluation).
+"""
 from __future__ import annotations
 
 import argparse
@@ -7,13 +13,14 @@ import os
 import statistics
 import sys
 import threading
+import time
 from collections import OrderedDict, defaultdict
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
-from typing import Any, Callable, Dict, List, Tuple
+from typing import Any, Callable, Dict, List, Optional, Tuple
 
 from src.config.config import MAX_TOKENS
-from src.inference import Message, cost_usd, get_chat
+from src.inference import Message, Usage, cost_usd, get_chat
 
 PROJECT_ROOT = Path(__file__).resolve().parents[3]
 DEFINITIONS_PATH = "src/table_definitions/Definitions_with_eval_category.csv"
@@ -162,11 +169,15 @@ def build_prompt(label: str, items: List[Dict[str, str]]) -> str:
 
 
 class ChatMarkdownProvider:
-    """Parsed markdown + JSON schema through any catalog chat model (role "baseline"; --model picks it)."""
+    """Parsed markdown + JSON schema through any catalog chat model (role "baseline"; --model picks it).
+    Keeps the summed usage and a timing record per call (extract_once calls it from several threads)."""
 
-    def __init__(self, model: str):
-        self.model = model
+    def __init__(self, model: Optional[str] = None):
         self.chat = get_chat("baseline", model)
+        self.model = model or self.chat.key
+        self.usage = Usage()
+        self.calls: List[Dict[str, Any]] = []
+        self._lock = threading.Lock()
 
     def query_markdown_with_schema(
         self, prompt: str, markdown_text: str, json_schema: Dict[str, Any]
@@ -176,6 +187,9 @@ class ChatMarkdownProvider:
             response_schema=json_schema,
             max_tokens=MAX_TOKENS["baseline"],
         )
+        with self._lock:
+            self.usage.add(result.usage)
+            self.calls.append(result.call_record())
         return result.text, result.usage.input_tokens, result.usage.output_tokens
 
 
@@ -187,15 +201,11 @@ def safe_std(values: List[float]) -> float:
     return float(statistics.pstdev(values)) if values else 0.0
 
 
-def extract_once(
-    provider: Any,
-    markdown_text: str,
-    label_groups: OrderedDict,
-    definitions: Dict[str, Dict[str, Any]],
-    output_dir: Path,
-    workers: int,
-    source: str,
-) -> Tuple[Dict[str, Any], Dict[str, Any], int, int]:
+def query_label_groups(
+    provider: Any, markdown_text: str, label_groups: OrderedDict, workers: int
+) -> Tuple[OrderedDict, int, int]:
+    """One call per label group, `workers` at a time. Returns (parsed reply per label, input tokens, output tokens);
+    a failed call or unparseable reply is recorded as {"_error": ...} for its label."""
     lock = threading.Lock()
     total_in, total_out = 0, 0
     raw_parsed = OrderedDict()
@@ -235,6 +245,19 @@ def extract_once(
             except Exception as e:
                 raw_parsed[label] = {"_error": str(e)}
                 print(f"  {label}: ERROR {e}")
+    return raw_parsed, total_in, total_out
+
+
+def extract_once(
+    provider: Any,
+    markdown_text: str,
+    label_groups: OrderedDict,
+    definitions: Dict[str, Dict[str, Any]],
+    output_dir: Path,
+    workers: int,
+    source: str,
+) -> Tuple[Dict[str, Any], Dict[str, Any], int, int]:
+    raw_parsed, total_in, total_out = query_label_groups(provider, markdown_text, label_groups, workers)
 
     raw_file = output_dir / "raw_llm_responses.json"
     with open(raw_file, "w", encoding="utf-8") as f:
@@ -492,6 +515,7 @@ def run_markdown_baseline(
     if not markdown_text.strip():
         raise ValueError(f"Parsed markdown is empty: {parsed_md_path}")
 
+    started = time.time()
     provider = provider_factory(args.model)
 
     if args.reliability_runs > 1:
@@ -557,12 +581,108 @@ def run_markdown_baseline(
             "total": round(total_cost, 4),
         },
     }
+    if isinstance(getattr(provider, "usage", None), Usage):
+        from src.evisearch.pipelines.batching import stage_timing
+
+        cost_metrics["timing"] = stage_timing(started, provider.usage.to_dict())  # wall clock includes evaluation
     cost_file = output_dir / "cost_metrics.json"
     with open(cost_file, "w", encoding="utf-8") as f:
         json.dump(cost_metrics, f, indent=2, ensure_ascii=False)
 
     print(f"\nCost ({args.model}): input={total_in}, output={total_out}, total=${total_cost:.4f}")
     print(f"Done. Results: {output_dir}/")
+
+
+def baseline_columns(raw_parsed: Dict[str, Any], label_groups: OrderedDict) -> Dict[str, Dict[str, str]]:
+    """{column: {"value", "reasoning"}} from the per-group replies, with extract_once's value rules: "not found" when a
+    column is missing or empty, "Extraction error" (reasoning = the error) when its group's call failed."""
+    columns: Dict[str, Dict[str, str]] = {}
+    for label, items in label_groups.items():
+        parsed = raw_parsed.get(label)
+        if not isinstance(parsed, dict):
+            parsed = {"_error": "reply for this group is not a JSON object"}
+        for item in items:
+            name = item["column"]
+            if "_error" in parsed:
+                columns[name] = {"value": "Extraction error", "reasoning": str(parsed["_error"])}
+                continue
+            cell = parsed.get(name)
+            value = cell.get("value") if isinstance(cell, dict) else None
+            reasoning = cell.get("reasoning") if isinstance(cell, dict) else None
+            columns[name] = {
+                "value": str(value) if value is not None and str(value).strip() else "not found",
+                "reasoning": str(reasoning).strip() if reasoning is not None and str(reasoning).strip() else "not found",
+            }
+    return columns
+
+
+def run_baseline_stage(
+    doc_id: str,
+    model: Optional[str] = None,
+    workers: int = 10,
+    resume: bool = True,
+    parsed_markdown_root: Path = PARSED_MARKDOWN_ROOT,
+) -> Dict[str, Any]:
+    """Benchmark system B1 for one document with the `baseline` role model (or `model`), without evaluation.
+
+    Writes to results_store.method_dir(doc_id, "baseline") (runs/<run>/markdown_baseline/): extraction_results.json
+    ({"doc_id", "columns": {column: {"value", "reasoning"}}}), extraction_metadata.json (model, preset, timing, usage,
+    one record per call) and raw_llm_responses.json. Resuming redoes only groups with missing or failed columns and
+    raises results_store.ResumeError when the saved results were made with another model."""
+    from src.config.config import PROJECT_ROOT as ROOT, SELECTION
+    from src.evisearch.pipelines import results_store
+    from src.evisearch.pipelines.batching import stage_timing
+    from src.inference.factory import model_key_for
+
+    started = time.time()
+    trial = normalize_trial(doc_id)
+    model_key = model_key_for("baseline", model)
+    settings = {"model": model_key}
+    if resume:
+        results_store.check_resume(trial, "baseline", settings)
+    markdown_path = Path(parsed_markdown_root) / trial / "parsed_markdown.md"
+    if not markdown_path.exists():
+        raise FileNotFoundError(f"Parsed markdown not found: {markdown_path}")
+    markdown_text = markdown_path.read_text(encoding="utf-8")
+    if not markdown_text.strip():
+        raise ValueError(f"Parsed markdown is empty: {markdown_path}")
+
+    label_groups = build_label_groups(load_definitions_with_metadata(str(ROOT / DEFINITIONS_PATH)))
+    existing = results_store.load_columns(trial, "baseline") if resume else {}
+    done = {name for name, cell in existing.items() if isinstance(cell, dict) and cell.get("value") != "Extraction error"}
+    pending = OrderedDict((label, items) for label, items in label_groups.items() if any(it["column"] not in done for it in items))
+    columns = dict(existing)
+    if not pending:
+        return {"columns": columns, "usage": Usage().to_dict(), "failed_groups": []}
+
+    provider = ChatMarkdownProvider(model_key)
+    raw_parsed, _, _ = query_label_groups(provider, markdown_text, pending, workers)
+    columns.update(baseline_columns(raw_parsed, pending))
+    failed = sorted(label for label, parsed in raw_parsed.items() if isinstance(parsed, dict) and "_error" in parsed)
+
+    raw_path = results_store.method_dir(trial, "baseline") / "raw_llm_responses.json"
+    try:
+        previous_raw = json.loads(raw_path.read_text(encoding="utf-8")) if resume else {}
+    except (OSError, json.JSONDecodeError):
+        previous_raw = {}
+    results_store.write_json(raw_path, {**previous_raw, **raw_parsed})
+    results_store.save_columns(trial, "baseline", columns)
+    usage = provider.usage.to_dict()
+    results_store.save_metadata(trial, "baseline", {
+        "method": "markdown_baseline",
+        **settings,
+        "model_name": provider.chat.spec.name,
+        "preset": SELECTION.preset,
+        "run": results_store.current_run(),
+        "input": "parsed_markdown",
+        "parsed_markdown": str(markdown_path),
+        "groups": len(pending),
+        "failed_groups": failed,
+        "usage": usage,
+        "timing": stage_timing(started, usage, len(done)),
+        "calls": provider.calls,
+    })
+    return {"columns": columns, "usage": usage, "failed_groups": failed}
 
 
 def run_gemini_markdown_baseline(argv: List[str] | None = None) -> None:

@@ -6,17 +6,13 @@ and API models see identical inputs.
 """
 from __future__ import annotations
 
-import math
 from dataclasses import dataclass
 from functools import lru_cache
 from pathlib import Path
-from typing import List, Tuple
+from typing import List, Optional, Tuple
 
+from src.config.catalog import ImageTokens
 from src.config.config import PAGE_IMAGE_SCALE
-
-# Patch-based vision encoders spend one token per 32x32 pixels after merging (measured on Qwen3.6-27B:
-# a 1170x1566 page is ~1,815 tokens). Gemini and OpenAI tile images more cheaply, so this is an upper bound.
-PIXELS_PER_IMAGE_TOKEN_SIDE = 32
 
 
 @dataclass(frozen=True)
@@ -26,9 +22,10 @@ class PageImage:
     height: int
     png: bytes
 
-    @property
-    def estimated_tokens(self) -> int:
-        return math.ceil(self.width / PIXELS_PER_IMAGE_TOKEN_SIDE) * math.ceil(self.height / PIXELS_PER_IMAGE_TOKEN_SIDE)
+    def estimated_tokens(self, image_tokens: Optional[ImageTokens] = None) -> int:
+        """Prompt tokens this image costs a model with these image_tokens settings (catalog.yaml); by default one per
+        32x32 pixels, as measured on Qwen3.6-27B and an upper bound for Gemini and OpenAI."""
+        return (image_tokens or ImageTokens()).count(self.width, self.height)
 
 
 def pdf_page_count(pdf_path: Path) -> int:

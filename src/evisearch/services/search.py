@@ -204,6 +204,7 @@ def run_search_agent(
                 "error": loop.error,
                 "tool_calls_sequence": [{"name": e["name"], "args": e["args"]} for e in loop.transcript if e["role"] == "tool"],
                 "conversation": loop.transcript,
+                "calls": loop.calls,
                 "results": results,
             },
         )

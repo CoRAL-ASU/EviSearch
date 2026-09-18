@@ -20,6 +20,10 @@ endpoints:
     type: openai_compatible
     server: qwen3_8b
     base_url_env: EVISEARCH_VLLM_CHAT_SMALL_URL
+  vllm_chat_mistral:
+    type: openai_compatible
+    server: mistral_small_24b
+    base_url_env: EVISEARCH_VLLM_CHAT_MISTRAL_URL
   vllm_embed:
     type: openai_compatible
     server: qwen3_embed_8b
@@ -51,6 +55,19 @@ models:
     capabilities: {tools: true, json_schema: true, images: true, pdf: false}
     context_tokens: 131072  # keep in step with max_model_len of the qwen36_27b server
     thinking: false
+    # 16 px patches merged 2x2, no downscaling below 16.7M pixels (preprocessor_config.json); measured: a 1170x1566
+    # page is ~1,815 tokens.
+    image_tokens: {pixels_per_token: 32}
+  mistral-small-3.2-24b:
+    kind: chat
+    endpoint: vllm_chat_mistral
+    name: mistralai/Mistral-Small-3.2-24B-Instruct-2506
+    capabilities: {tools: true, json_schema: true, images: true, pdf: false}
+    context_tokens: 131072  # keep in step with max_model_len of the mistral_small_24b server
+    thinking: false
+    # Pixtral encoder (params.json vision_encoder): 14 px patches merged 2x2, images scaled down to fit 1540 px, and
+    # one [IMG_BREAK]/[IMG_END] token per row of patches. A 1224x1584 page (letter at scale 2) is 55 x (43 + 1) = 2,420.
+    image_tokens: {pixels_per_token: 28, max_side: 1540, row_break: true}
   qwen3-8b:
     kind: chat
     endpoint: vllm_chat_small
@@ -178,6 +195,23 @@ servers:
       # FlashInfer's sampler JIT-compiles CUDA kernels at startup, which needs a full CUDA toolkit matching PyTorch;
       # the pip CUDA wheels cannot link them. PyTorch's sampler needs no compilation.
       VLLM_USE_FLASHINFER_SAMPLER: "0"
+  mistral_small_24b:
+    # Mistral-format weights only (consolidated.safetensors, params.json, tekken.json), hence the three mistral flags.
+    model_path: /mnt/data1/nahuja11_home/models/Mistral-Small-3.2-24B-Instruct-2506
+    port: 8009
+    tensor_parallel: 1
+    # Same 0.60 slot as qwen36_27b, next to the embedding (0.16) and reranker (0.15) servers on one H200. Weights are
+    # ~44.7 GiB; at 160 KB/token (40 layers, 8 KV heads of 128, bf16) the remaining ~34 GiB hold ~220k tokens of
+    # cache, i.e. ~2 concurrent requests of the largest Arm A document.
+    gpu_memory_utilization: 0.60
+    max_model_len: 131072
+    max_num_seqs: 8
+    args: [--tokenizer-mode, mistral, --config-format, mistral, --load-format, mistral, --dtype, bfloat16, --enable-auto-tool-choice, --tool-call-parser, mistral, --limit-mm-per-prompt, '{"image": 32}', --enable-prompt-tokens-details]
+    env:
+      VLLM_USE_FLASHINFER_SAMPLER: "0"  # see qwen36_27b
+      # vLLM 0.29.0 cannot import its Pixtral model with transformers 5.17 (two removed names); the sitecustomize in
+      # this folder adds stand-ins in every server process. Relative paths are resolved against the repository root.
+      PYTHONPATH: src/inference/vllm_compat
   qwen3_8b:
     model_path: /mnt/shared/shared_hf_home/hub/models--Qwen--Qwen3-8B/snapshots/b968826d9c46dd6066d109eabc6255188de91218
     port: 8006
@@ -213,6 +247,17 @@ presets:
     judge: gemini-2.5-flash
     baseline: gemini-2.5-flash
     structurer: qwen3.6-27b
+    embedding: qwen3-embedding-8b
+    reranker: qwen3-reranker-8b
+  # `local` with Mistral Small 3.2 in every agent role (retrieval, judge and baselines unchanged).
+  local_mistral:
+    pdf_query: mistral-small-3.2-24b
+    search_agent: mistral-small-3.2-24b
+    reconciliation: mistral-small-3.2-24b
+    qa: mistral-small-3.2-24b
+    judge: gemini-2.5-flash
+    baseline: gemini-2.5-flash
+    structurer: mistral-small-3.2-24b
     embedding: qwen3-embedding-8b
     reranker: qwen3-reranker-8b
   # Everything on local GPUs; no cloud credentials needed.

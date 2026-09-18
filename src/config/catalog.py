@@ -7,6 +7,7 @@ against the catalog and returns the Selection the inference layer reads.
 """
 from __future__ import annotations
 
+import math
 import os
 from dataclasses import dataclass
 from functools import lru_cache
@@ -46,6 +47,24 @@ class Price(_Spec):
     output: float = 0.0
 
 
+class ImageTokens(_Spec):
+    """How many prompt tokens a model spends on an image: one per pixels_per_token square after scaling the image down
+    to fit max_side, plus one break token per row when row_break is set (Pixtral). The default (32 px squares, no
+    downscaling) is an upper bound for Gemini and OpenAI, which tile images more cheaply."""
+
+    pixels_per_token: int = Field(32, ge=1)
+    max_side: Optional[int] = Field(None, ge=1)
+    row_break: bool = False
+
+    def count(self, width: int, height: int) -> int:
+        ratio = max(width, height) / self.max_side if self.max_side else 1.0
+        if ratio > 1:
+            width, height = round(width / ratio), round(height / ratio)
+        columns = math.ceil(width / self.pixels_per_token)
+        rows = math.ceil(height / self.pixels_per_token)
+        return rows * (columns + (1 if self.row_break else 0))
+
+
 class EndpointSpec(_Spec):
     type: Literal["openai_compatible", "gemini", "vllm_rerank"]
     base_url: Optional[str] = None
@@ -67,6 +86,7 @@ class ModelSpec(_Spec):
     context_tokens: Optional[int] = None
     thinking: Optional[bool] = None
     query_instruction: Optional[str] = None
+    image_tokens: ImageTokens = ImageTokens()
     price_per_1k: Price = Price()
 
 

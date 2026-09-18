@@ -64,7 +64,12 @@ def test_vllm_tool_call_request_and_parsing():
     assert body["chat_template_kwargs"] == {"enable_thinking": False}
     assert result.text == "Loading page 1."
     assert result.tool_calls == [ToolCall(id="call_1", name="get_page", arguments={"page_numbers": [1]})]
-    assert result.usage.to_dict() == {"input_tokens": 120, "output_tokens": 30, "api_calls": 1, "total_tokens": 150, "cached_input_tokens": 0}
+    usage = result.usage.to_dict()
+    assert usage == {
+        "input_tokens": 120, "output_tokens": 30, "api_calls": 1, "total_tokens": 150, "cached_input_tokens": 0,
+        "input_images": 0, "model_seconds": result.duration_s,
+    }
+    assert result.duration_s >= 0 and result.started_at.endswith("+00:00")
     assert result.message.tool_calls == result.tool_calls
 
 

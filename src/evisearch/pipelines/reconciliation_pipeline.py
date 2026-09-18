@@ -17,6 +17,7 @@ from __future__ import annotations
 
 import argparse
 import sys
+import time
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
@@ -33,6 +34,7 @@ from src.evisearch.pipelines.batching import (
     empty_usage,
     load_groups,
     parse_group_names,
+    stage_timing,
     unknown_groups,
 )
 
@@ -55,6 +57,7 @@ def run_reconciliation_pipeline(
     from src.evisearch.services.reconciliation import run_reconciliation_agent
     from src.inference.factory import model_key_for
 
+    started = time.time()
     settings = run_settings(model_key_for("reconciliation", model))
     if resume:
         try:
@@ -86,7 +89,10 @@ def run_reconciliation_pipeline(
         columns.update({name: {**r, "tried": True} for name, r in results.items()})
         add_usage(usage, batch_usage)
         results_store.save_columns(doc_id, "reconciliation", columns)
-        results_store.save_metadata(doc_id, "reconciliation", {"method": "reconciliation_agent", **settings, "run": results_store.current_run(), "usage": usage})
+        results_store.save_metadata(doc_id, "reconciliation", {
+            "method": "reconciliation_agent", **settings, "run": results_store.current_run(), "usage": usage,
+            "timing": stage_timing(started, usage, len(existing)),
+        })
     return {"columns": columns, "error": None, "usage": usage}
 
 

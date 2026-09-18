@@ -50,6 +50,7 @@ Code never names a provider or model; it asks for a role (`get_chat("search_agen
 | Preset | Agents (A, B, reconciliation, QA) | Embeddings / reranker | Judge + baselines | Needs |
 |---|---|---|---|---|
 | `local` (default) | Qwen3.6-27B on vLLM | Qwen3-Embedding-8B / Qwen3-Reranker-8B on vLLM | Gemini 2.5 Flash (scores stay comparable) | vLLM servers + Vertex auth |
+| `local_mistral` | Mistral Small 3.2 24B on vLLM | Qwen3 embedding / reranker | Gemini 2.5 Flash | vLLM servers + Vertex auth |
 | `offline` | Qwen3.6-27B | Qwen3 embedding / reranker | Qwen3.6-27B | vLLM servers only |
 | `cloud` | Gemini 2.5 Flash | OpenAI text-embedding-3-large / none | Gemini 2.5 Flash | Vertex auth + `OPENAI_API_KEY` |
 
@@ -103,6 +104,7 @@ python -m src.inference.serve --only qwen36_27b
 | `qwen3_embed_8b` | Qwen/Qwen3-Embedding-8B | 8005 | 0.40 | `--runner pooling` (8003 is used by another group's server on this machine) |
 | `qwen3_rerank_8b` | Qwen/Qwen3-Reranker-8B | 8004 | 0.40 | pooling + `hf_overrides`, template in `src/config/templates/` |
 | `qwen3_8b` | Qwen/Qwen3-8B | 8006 | 0.40 | optional small chat model |
+| `mistral_small_24b` | mistralai/Mistral-Small-3.2-24B-Instruct-2506 | 8009 | 0.60 | `local_mistral`; mistral-format weights (`--tokenizer-mode/--config-format/--load-format mistral`), `--tool-call-parser mistral`, 131k context, 32 images per prompt; `src/inference/vllm_compat` works around vLLM 0.29 + transformers 5.17 failing to import Pixtral |
 
 **GPUs** are chosen in `config.py`: `GPU_POOL` lists the GPUs the project may use and `GPUS` pins a server
 to indices or `"auto"` (least-used pool GPUs). Before starting, the launcher reads `nvidia-smi` and refuses
@@ -129,6 +131,19 @@ python experiment-scripts/run_search_agent.py "<doc_id>"               # Arm B
 python experiment-scripts/run_reconciliation_agent.py "<doc_id>"       # needs both arms' results
 shell-scripts/run_benchmarks.sh full [--resume] [--max-batches 1]      # all benchmark trials
 ```
+
+**Benchmark systems** over the 10 gold papers (`--docs all|dev|heldout|<ids>`), with timings, `check_run.py` per paper
+and manifests (`results/<doc_id>/runs/<run>/benchmark_manifest.json`, `new_pipeline_outputs/benchmark_runs/<run>.json`):
+
+```bash
+python experiment-scripts/run_benchmark.py --system B1 --run gemini_b1                  # parsed-markdown baseline (`baseline` role)
+python experiment-scripts/run_benchmark.py --system B2 --run qwen_b2                    # Arm A alone, markdown_images
+python experiment-scripts/run_benchmark.py --system E --run qwen_e --reuse-a-from qwen_b2   # A (copied from B2) + B + reconciliation
+python experiment-scripts/run_benchmark.py --system E --run mistral_e --preset local_mistral --dry-run
+```
+
+Every stage's `extraction_metadata.json` has a `timing` block (start, end, duration, calls, input/cached/output tokens,
+images), and every model call's log records its start time and duration.
 
 Documents must be prepared first (LandingAI parse → `parsed_markdown.md`); the web app does this from
 the extract and QA pages, and the benchmark papers already have parsed markdown.

@@ -17,6 +17,7 @@ from __future__ import annotations
 
 import argparse
 import sys
+import time
 from pathlib import Path
 from typing import Any, Callable, Dict, List, Optional
 
@@ -33,6 +34,7 @@ from src.evisearch.pipelines.batching import (
     empty_usage,
     load_groups,
     parse_group_names,
+    stage_timing,
     unknown_groups,
 )
 
@@ -56,6 +58,7 @@ def run_pdf_query_pipeline(
     from src.inference.factory import model_key_for
 
     emit = on_event or (lambda event: None)
+    started = time.time()
     input_mode = input_mode or SELECTION.option("pdf_query_input")
     settings = run_settings(model_key_for("pdf_query", model), input_mode)
     if resume:
@@ -81,7 +84,10 @@ def run_pdf_query_pipeline(
         columns.update(results)
         add_usage(usage, batch_usage)
         results_store.save_columns(doc_id, "agent", columns)
-        results_store.save_metadata(doc_id, "agent", {**metadata, "document": details, "fallback_batches": fallback_batches, "usage": usage})
+        results_store.save_metadata(doc_id, "agent", {
+            **metadata, "document": details, "fallback_batches": fallback_batches, "usage": usage,
+            "timing": stage_timing(started, usage, len(existing)),
+        })
         emit({
             "type": "columns_written",
             "batch": index,
@@ -101,10 +107,10 @@ def describe_fit(doc_id: str, batches: List[List[Dict[str, Any]]], model_key: st
 
     prefs = load_extraction_preferences()
     longest = max((build_columns_prompt(batch, prefs) for batch in batches), key=len, default="")
-    context = SELECTION.catalog.models[model_key].context_tokens
-    budget = document_token_budget(context, SYSTEM_PROMPT + IMAGE_RULES + longest, MAX_TOKENS["pdf_query"])
+    spec = SELECTION.catalog.models[model_key]
+    budget = document_token_budget(spec.context_tokens, SYSTEM_PROMPT + IMAGE_RULES + longest, MAX_TOKENS["pdf_query"])
     try:
-        info = build_document_input(doc_id, input_mode, budget).info
+        info = build_document_input(doc_id, input_mode, budget, spec.image_tokens).info
     except FileNotFoundError as exc:
         return f"document not ready: {exc}"
     line = (

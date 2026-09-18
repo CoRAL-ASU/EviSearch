@@ -1,9 +1,9 @@
 from __future__ import annotations
 
-from src.config.catalog import Capabilities, ModelSpec
+from src.config.catalog import Capabilities, ModelSpec, load_catalog
 from src.inference.base import ChatModel
-from src.inference.tool_loop import EVICTED_CONTENT, Tool, ToolOutput, run_tool_loop
-from src.inference.types import ChatResult, InferenceError, Message, TextPart, ToolCall, ToolSpec, Usage
+from src.inference.tool_loop import EVICTED_CONTENT, IMAGE_TOKEN_ESTIMATE, Tool, ToolOutput, estimate_tokens, run_tool_loop
+from src.inference.types import ChatResult, ImagePart, InferenceError, Message, TextPart, ToolCall, ToolSpec, Usage
 
 
 def _spec(context_tokens=None):
@@ -146,3 +146,32 @@ def test_inference_error_and_is_done_stop_the_loop():
     chat = ScriptedChat([[("mark", {})], "unreachable"])
     result = run_tool_loop(chat, system="s", user="u", tools=[_tool("mark", mark)], max_turns=5, max_tool_calls=5, max_tokens=10, is_done=lambda: done["flag"])
     assert result.stopped_by == "done" and result.turns == 1
+
+
+def test_context_estimate_prices_page_images_for_the_model():
+    png = b"\x89PNG\r\n\x1a\n\x00\x00\x00\rIHDR" + (1224).to_bytes(4, "big") + (1584).to_bytes(4, "big") + b"\x08\x02\x00\x00\x00"
+    page = [Message.user(ImagePart(png))]
+    models = load_catalog().models
+    assert estimate_tokens(page, models["mistral-small-3.2-24b"].image_tokens) == 55 * (43 + 1)
+    assert estimate_tokens(page, models["qwen3.6-27b"].image_tokens) == 39 * 50
+    assert estimate_tokens(page) == estimate_tokens([Message.user(ImagePart(b"jpeg"))], models["qwen3.6-27b"].image_tokens) == IMAGE_TOKEN_ESTIMATE
+
+
+def test_every_model_call_is_timed_with_its_tokens_and_images():
+    class Reader(ScriptedChat):
+        def __init__(self, turns):
+            super().__init__(turns)
+            self.spec = ModelSpec(kind="chat", endpoint="fake", name="fake", capabilities=Capabilities(tools=True, images=True))
+
+    page = _tool("page", lambda args: ToolOutput({"page": 1}, attachments=[ImagePart(b"png")]))
+    submit = _tool("submit", lambda args: ToolOutput({"ok": True}, stop=True))
+    result = run_tool_loop(Reader([[("page", {})], "no tool", [("submit", {})]]), system="s", user="u", tools=[page, submit],
+                           max_turns=5, max_tool_calls=5, max_tokens=100, finish_tool="submit")
+
+    assert result.stopped_by == "forced_finish"
+    assert [call["turn"] for call in result.calls] == [1, 2, 3]  # the forced submit is recorded too
+    assert [call["input_images"] for call in result.calls] == [0, 1, 1]
+    assert all(call["started_at"] and call["duration_s"] >= 0 and call["input_tokens"] == 10 for call in result.calls)
+    usage = result.usage.to_dict()
+    assert usage["input_images"] == 2 and usage["api_calls"] == 3
+    assert usage["model_seconds"] == round(sum(call["duration_s"] for call in result.calls), 3)

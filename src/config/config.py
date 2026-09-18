@@ -18,7 +18,7 @@ load_dotenv()
 CATALOG = load_catalog()
 
 # ============== INFERENCE ==============
-PRESET = env("EVISEARCH_PRESET", "local")  # local | offline | cloud
+PRESET = env("EVISEARCH_PRESET", "local")  # local | local_mistral | offline | cloud
 
 # Per-role model overrides on top of the preset (role -> model key from the catalog).
 # Environment: EVISEARCH_ROLE_<ROLE>=<model key>, e.g. EVISEARCH_ROLE_JUDGE=gemini-2.5-pro
@@ -52,6 +52,7 @@ MAX_TOKENS = {
 GPU_POOL = env("EVISEARCH_GPU_POOL", [4, 5, 6, 7])  # GPUs 0-3 are reserved for other groups
 GPUS = env("EVISEARCH_GPUS", {
     "qwen36_27b": "auto",
+    "mistral_small_24b": "auto",
     "qwen3_embed_8b": "auto",
     "qwen3_rerank_8b": "auto",
 })

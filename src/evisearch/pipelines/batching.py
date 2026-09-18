@@ -1,9 +1,13 @@
 """Column batching shared by every pipeline: groups from the definitions CSV, at most BATCH_MAX_COLUMNS per call."""
 from __future__ import annotations
 
+import time
 from typing import Any, Dict, Iterable, List, Optional, Set
 
 from src.config.config import BATCH_MAX_COLUMNS
+from src.inference.types import utc_timestamp
+
+USAGE_COUNTS = ("input_tokens", "output_tokens", "api_calls", "cached_input_tokens", "input_images")
 
 
 def load_groups() -> Dict[str, List[Dict[str, Any]]]:
@@ -71,12 +75,34 @@ def build_batches(
     return batches
 
 
-def add_usage(total: Dict[str, int], usage: Dict[str, Any]) -> Dict[str, int]:
-    for key in ("input_tokens", "output_tokens", "api_calls", "cached_input_tokens"):
+def add_usage(total: Dict[str, Any], usage: Dict[str, Any]) -> Dict[str, Any]:
+    for key in USAGE_COUNTS:
         total[key] = total.get(key, 0) + int(usage.get(key, 0) or 0)
+    total["model_seconds"] = round(total.get("model_seconds", 0.0) + float(usage.get("model_seconds", 0) or 0), 3)
     total["total_tokens"] = total.get("input_tokens", 0) + total.get("output_tokens", 0)
     return total
 
 
-def empty_usage() -> Dict[str, int]:
-    return {"input_tokens": 0, "output_tokens": 0, "api_calls": 0, "total_tokens": 0, "cached_input_tokens": 0}
+def empty_usage() -> Dict[str, Any]:
+    return {
+        "input_tokens": 0, "output_tokens": 0, "api_calls": 0, "total_tokens": 0, "cached_input_tokens": 0,
+        "input_images": 0, "model_seconds": 0.0,
+    }
+
+
+def stage_timing(started: float, usage: Dict[str, Any], resumed_columns: int = 0) -> Dict[str, Any]:
+    """extraction_metadata.json["timing"] for a stage that began at `started` (time.time()) and has used `usage` so far.
+    It covers this invocation only: resumed_columns counts results kept from an earlier one."""
+    finished = time.time()
+    return {
+        "started_at": utc_timestamp(started),
+        "finished_at": utc_timestamp(finished),
+        "duration_s": round(finished - started, 3),
+        "n_calls": int(usage.get("api_calls", 0) or 0),
+        "input_tokens": int(usage.get("input_tokens", 0) or 0),
+        "cached_input_tokens": int(usage.get("cached_input_tokens", 0) or 0),
+        "output_tokens": int(usage.get("output_tokens", 0) or 0),
+        "input_images": int(usage.get("input_images", 0) or 0),
+        "model_seconds": round(float(usage.get("model_seconds", 0) or 0), 3),
+        "resumed_columns": resumed_columns,
+    }

@@ -1,4 +1,4 @@
-"""Every benchmark paper fits Arm A's markdown_images input on the local model, with every page image and no fallback."""
+"""Every benchmark paper fits Arm A's markdown_images input on each local model, with every page image and no fallback."""
 from __future__ import annotations
 
 import json
@@ -10,6 +10,8 @@ from src.config.config import CATALOG, GOLD_TABLE_JSON_PATH, MAX_TOKENS
 from src.evisearch.knowledge.preferences import load_extraction_preferences
 from src.evisearch.pipelines.batching import build_batches, load_groups
 
+LOCAL_PRESETS = ("local", "local_mistral")  # Qwen3.6-27B and Mistral Small 3.2, both with a 131072-token context
+
 
 def benchmark_doc_ids():
     if not GOLD_TABLE_JSON_PATH.exists():
@@ -18,16 +20,17 @@ def benchmark_doc_ids():
     return [row["Document Name"]["value"].removesuffix(".pdf") for row in rows]
 
 
+@pytest.mark.parametrize("preset", LOCAL_PRESETS)
 @pytest.mark.parametrize("doc_id", benchmark_doc_ids())
-def test_benchmark_document_fits_with_every_page_image(doc_id):
+def test_benchmark_document_fits_with_every_page_image(doc_id, preset):
     prefs = load_extraction_preferences()
     longest = max((pdf_query.build_columns_prompt(batch, prefs) for batch in build_batches(load_groups(), None, done=set())), key=len)
-    local_model = CATALOG.models[CATALOG.presets["local"]["pdf_query"]]  # the tightest context we run Arm A on
+    model = CATALOG.models[CATALOG.presets[preset]["pdf_query"]]
     budget = pdf_query.document_token_budget(
-        local_model.context_tokens, pdf_query.SYSTEM_PROMPT + pdf_query.IMAGE_RULES + longest, MAX_TOKENS["pdf_query"]
+        model.context_tokens, pdf_query.SYSTEM_PROMPT + pdf_query.IMAGE_RULES + longest, MAX_TOKENS["pdf_query"]
     )
 
-    info = pdf_query.build_document_input(doc_id, "markdown_images", budget).info
+    info = pdf_query.build_document_input(doc_id, "markdown_images", budget, model.image_tokens).info
 
     assert info["fallback"] is None and info["image_pages"] == list(range(1, info["pages"] + 1)), info
     assert not info["warnings"], info

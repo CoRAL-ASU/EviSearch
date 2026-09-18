@@ -16,7 +16,7 @@ import src.evisearch.services.pdf_query as pdf_query
 import src.evisearch.services.reconciliation as reconciliation
 import src.evisearch.services.search as search
 import src.retrieval.embedding_retriever as retriever
-from src.config.catalog import Capabilities, ModelSpec
+from src.config.catalog import Capabilities, ModelSpec, load_catalog
 from src.evisearch.columns import column_result
 from src.inference.base import ChatModel
 from src.inference.types import ChatResult, ImagePart, InferenceError, Message, TextPart, ToolCall, Usage
@@ -112,7 +112,9 @@ def test_pdf_query_markdown_input_uses_structured_output(doc, monkeypatch):
     assert results[TRIAL] == {"value": "STAMPEDE", "reasoning": "title", "found": True, "attribution": [{"page": 1, "modality": "text"}], "tried": True}
     assert results[MEDIAN_OS]["found"] is False
     assert usage["api_calls"] == 1
-    assert json.loads(raw_path.read_text())["response_text"] == reply
+    log = json.loads(raw_path.read_text())
+    assert log["response_text"] == reply
+    assert log["started_at"] and log["duration_s"] == usage["model_seconds"]
 
 
 def test_pdf_query_sends_each_page_text_followed_by_its_image(doc, monkeypatch):
@@ -153,6 +155,20 @@ def test_document_input_strips_anchors_and_falls_back_when_images_do_not_fit(doc
 
     monkeypatch.setattr(pdf_query, "PDF_QUERY_MAX_PAGE_IMAGES", 2)
     assert pdf_query.build_document_input("doc-1", "markdown_images").info["fallback"] == "figure_table_pages"
+
+
+def test_image_token_estimate_follows_the_model(doc):
+    catalog = load_catalog()
+    text_only = pdf_query.build_document_input("doc-1", "markdown").info["estimated_tokens"]
+
+    def image_tokens(model_key):
+        spec = catalog.models[model_key].image_tokens
+        return pdf_query.build_document_input("doc-1", "markdown_images", image_tokens=spec).info["estimated_tokens"] - text_only
+
+    # Three A4 pages at scale 2 (1190x1684 px). Qwen: 38 x 53 tokens of 32 px. Mistral (Pixtral): scaled to 1088x1540,
+    # 39 x 55 tokens of 28 px plus one break token per row.
+    assert image_tokens("qwen3.6-27b") == 3 * 38 * 53
+    assert image_tokens("mistral-small-3.2-24b") == 3 * 55 * (39 + 1)
 
 
 # ---- Arm B -----------------------------------------------------------------------------------------
@@ -297,6 +313,12 @@ def test_pipelines_write_results_resume_and_reconcile(doc, monkeypatch):
     assert result["error"] is None and reconciled == [([MEDIAN_OS, TRIAL], [MEDIAN_OS, TRIAL])]
     saved = store.load_columns("doc-1", "reconciliation")
     assert saved[TRIAL] == {"value": f"A-{TRIAL}", "verification": "both_correct", "tried": True}
+
+    for method in ("agent", "search", "reconciliation"):  # one batch each, one fake call per batch
+        timing = store.load_metadata("doc-1", method)["timing"]
+        assert timing["started_at"] <= timing["finished_at"] and timing["duration_s"] >= 0, method
+        assert (timing["n_calls"], timing["input_tokens"], timing["output_tokens"]) == (1, 5, 1), method
+        assert {"cached_input_tokens", "input_images", "model_seconds", "resumed_columns"} <= set(timing), method
 
 
 def test_named_runs_keep_results_apart_and_resume_refuses_other_settings(doc, monkeypatch):

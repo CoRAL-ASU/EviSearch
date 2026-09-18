@@ -165,12 +165,18 @@ def build_command(selection: Selection, server: str, vllm_bin: str) -> List[str]
         command += ["--max-model-len", str(spec.max_model_len)]
     if spec.max_num_seqs:
         command += ["--max-num-seqs", str(spec.max_num_seqs)]
-    for arg in spec.args:
-        candidate = PROJECT_ROOT / arg
-        if not arg.startswith(("-", "{", "/")) and candidate.exists():
-            arg = str(candidate)
-        command.append(arg)
-    return command
+    return command + [repo_path(arg) for arg in spec.args]
+
+
+def repo_path(value: str) -> str:
+    """A relative path that exists in the repository, made absolute; any other value unchanged."""
+    candidate = PROJECT_ROOT / value
+    return str(candidate) if not value.startswith(("-", "{", "/")) and candidate.exists() else value
+
+
+def catalog_env(selection: Selection, server: str) -> Dict[str, str]:
+    """The server's catalog `env`, with repository paths made absolute."""
+    return {key: repo_path(value) for key, value in selection.catalog.servers[server].env.items()}
 
 
 def resolve_vllm_bin(configured: str) -> str:
@@ -334,7 +340,7 @@ def main(argv: Optional[List[str]] = None) -> int:
     have_vllm = Path(vllm_bin).is_file()
     for server in pending:
         command = build_command(selection, server, vllm_bin)
-        overrides = {"CUDA_VISIBLE_DEVICES": ",".join(map(str, placement[server])), **selection.catalog.servers[server].env}
+        overrides = {"CUDA_VISIBLE_DEVICES": ",".join(map(str, placement[server])), **catalog_env(selection, server)}
         print(f"\n{server}: " + " ".join(f"{k}={v}" for k, v in overrides.items()))
         print("  " + shlex.join(command))
     if args.dry_run:
@@ -374,7 +380,7 @@ def main(argv: Optional[List[str]] = None) -> int:
                     build_command(selection, server, vllm_bin),
                     stdout=log,
                     stderr=subprocess.STDOUT,
-                    env=server_env(vllm_bin, placement[server], selection.catalog.servers[server].env),
+                    env=server_env(vllm_bin, placement[server], catalog_env(selection, server)),
                     cwd=PROJECT_ROOT,
                     start_new_session=True,
                 )

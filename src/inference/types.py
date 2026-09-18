@@ -3,7 +3,9 @@ from __future__ import annotations
 
 import json
 import re
+import time
 from dataclasses import dataclass, field
+from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional, Union
 
 
@@ -87,12 +89,28 @@ class Message:
         return "\n\n".join(part.text for part in self.parts if isinstance(part, TextPart))
 
 
+def utc_timestamp(epoch: Optional[float] = None) -> str:
+    """ISO 8601 UTC time with milliseconds (now, or the given time.time() value)."""
+    return datetime.fromtimestamp(time.time() if epoch is None else epoch, timezone.utc).isoformat(timespec="milliseconds")
+
+
+def count_images(messages: List[Message]) -> int:
+    """Images in a request, including page images attached to tool results."""
+    return sum(
+        isinstance(part, ImagePart)
+        for message in messages
+        for part in [*message.parts, *(p for result in message.tool_results for p in result.attachments)]
+    )
+
+
 @dataclass
 class Usage:
     input_tokens: int = 0
     output_tokens: int = 0
     api_calls: int = 0
     cached_input_tokens: int = 0  # part of input_tokens served from the provider's prompt cache
+    input_images: int = 0  # images sent, summed over calls like input_tokens (a tool loop resends earlier ones)
+    model_seconds: float = 0.0  # wall-clock time spent waiting for model calls
 
     @property
     def total_tokens(self) -> int:
@@ -103,15 +121,19 @@ class Usage:
         self.output_tokens += other.output_tokens
         self.api_calls += other.api_calls
         self.cached_input_tokens += other.cached_input_tokens
+        self.input_images += other.input_images
+        self.model_seconds += other.model_seconds
         return self
 
-    def to_dict(self) -> Dict[str, int]:
+    def to_dict(self) -> Dict[str, Any]:
         return {
             "input_tokens": self.input_tokens,
             "output_tokens": self.output_tokens,
             "api_calls": self.api_calls,
             "total_tokens": self.total_tokens,
             "cached_input_tokens": self.cached_input_tokens,
+            "input_images": self.input_images,
+            "model_seconds": round(self.model_seconds, 3),
         }
 
 
@@ -123,9 +145,23 @@ class ChatResult:
     message: Message  # assistant message to append to the conversation
     model: str  # catalog model key
     finish_reason: Optional[str] = None
+    started_at: Optional[str] = None  # set by ChatModel.chat: UTC start time of the call
+    duration_s: Optional[float] = None  # set by ChatModel.chat: wall-clock seconds the call took
 
     def json(self) -> Any:
         return parse_json_text(self.text)
+
+    def call_record(self) -> Dict[str, Any]:
+        """Timing and token counts of this call, for per-call logs."""
+        return {
+            "started_at": self.started_at,
+            "duration_s": self.duration_s,
+            "input_tokens": self.usage.input_tokens,
+            "cached_input_tokens": self.usage.cached_input_tokens,
+            "output_tokens": self.usage.output_tokens,
+            "input_images": self.usage.input_images,
+            "finish_reason": self.finish_reason,
+        }
 
 
 _THINK_RE = re.compile(r"<think>.*?</think>", flags=re.DOTALL | re.IGNORECASE)

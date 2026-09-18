@@ -22,6 +22,23 @@ def test_local_preset_needs_local_servers_and_cloud_needs_none(catalog):
     assert catalog.resolve("cloud", gpu_pool=[0]).servers_needed() == []
 
 
+def test_mistral_preset_swaps_only_the_qwen_chat_roles(catalog):
+    local, mistral = catalog.presets["local"], catalog.presets["local_mistral"]
+    assert set(local) == set(mistral)
+    for role, model in local.items():
+        assert mistral[role] == ("mistral-small-3.2-24b" if model == "qwen3.6-27b" else model), role
+
+
+def test_image_token_cost_per_model(catalog):
+    letter = (1224, 1584)  # US letter at PAGE_IMAGE_SCALE 2
+    assert catalog.models["qwen3.6-27b"].image_tokens.count(*letter) == 39 * 50
+    assert catalog.models["qwen3.6-27b"].image_tokens.count(1170, 1566) == 1813  # measured on the server: ~1,815
+    # Pixtral: scaled to 1190x1540, 43 x 55 patches of 28 px, plus [IMG_BREAK]/[IMG_END] per row (mistral_common)
+    assert catalog.models["mistral-small-3.2-24b"].image_tokens.count(*letter) == 55 * (43 + 1)
+    assert catalog.models["mistral-small-3.2-24b"].image_tokens.count(280, 56) == 2 * (10 + 1)
+    assert catalog.models["gemini-2.5-flash"].image_tokens.count(*letter) == 39 * 50  # default: 32 px upper bound
+
+
 def test_role_override_rejects_wrong_kind_and_names_valid_models(catalog):
     with pytest.raises(ConfigError) as exc:
         catalog.resolve("local", role_overrides={"search_agent": "qwen3-embedding-8b"}, gpu_pool=[0])

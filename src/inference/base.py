@@ -1,13 +1,14 @@
 """Abstract model interfaces. Adapters implement them; pipeline code depends only on these."""
 from __future__ import annotations
 
+import time
 from abc import ABC, abstractmethod
 from typing import Any, Dict, List, Optional, Sequence, Tuple
 
 import numpy as np
 
 from src.config.catalog import Capabilities, ModelSpec
-from src.inference.types import ChatResult, ImagePart, InferenceError, Message, PdfPart, ToolSpec
+from src.inference.types import ChatResult, ImagePart, InferenceError, Message, PdfPart, ToolSpec, count_images, utc_timestamp
 
 
 class ChatModel(ABC):
@@ -32,10 +33,16 @@ class ChatModel(ABC):
         """Run one model turn. Raises InferenceError when the call fails or the input is unsupported.
 
         response_schema is enforced when the model supports structured output; callers still parse
-        ChatResult.text (use ChatResult.json()).
+        ChatResult.text (use ChatResult.json()). The result records when the call started, how long it took and how
+        many images it sent (ChatResult.started_at / duration_s, usage.model_seconds / input_images).
         """
         self._check_inputs(messages, tools)
-        return self._chat(messages, list(tools or []), tool_choice, response_schema, temperature, max_tokens)
+        started_at, start = utc_timestamp(), time.perf_counter()
+        result = self._chat(messages, list(tools or []), tool_choice, response_schema, temperature, max_tokens)
+        result.started_at, result.duration_s = started_at, round(time.perf_counter() - start, 3)
+        result.usage.model_seconds = result.duration_s
+        result.usage.input_images = count_images(messages)
+        return result
 
     @abstractmethod
     def _chat(

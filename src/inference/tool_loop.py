@@ -5,12 +5,13 @@ import json
 from dataclasses import dataclass, field
 from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple
 
+from src.config.catalog import ImageTokens
 from src.inference.base import ChatModel
 from src.inference.openai_compat import INVALID_ARGUMENTS_KEY
 from src.inference.types import ImagePart, InferenceError, Message, Part, TextPart, ToolCall, ToolResult, ToolSpec, Usage
 
 CHARS_PER_TOKEN = 3.0  # conservative estimate for dense tables and numbers
-IMAGE_TOKEN_ESTIMATE = 2000
+IMAGE_TOKEN_ESTIMATE = 2000  # images whose size cannot be read
 CONTEXT_MARGIN_TOKENS = 1024
 EVICTED_CONTENT = {
     "evicted": True,
@@ -47,6 +48,7 @@ class LoopResult:
     stopped_by: str  # finish_tool | done | forced_finish | no_tool_call | max_turns | max_tool_calls | error
     error: Optional[str]
     transcript: List[Dict[str, Any]]
+    calls: List[Dict[str, Any]] = field(default_factory=list)  # per model call: turn, start time, duration, tokens
 
 
 def run_tool_loop(
@@ -78,6 +80,7 @@ def run_tool_loop(
     transcript: List[Dict[str, Any]] = [{"turn": 0, "role": "user", "content": user}]
     evictable: List[Tuple[ToolResult, Optional[Callable[[], None]]]] = []
     usage = Usage()
+    calls: List[Dict[str, Any]] = []
     turns = 0
     tool_calls = 0
     stopped_by = "max_turns"
@@ -97,6 +100,7 @@ def run_tool_loop(
             transcript.append({"turn": len(transcript), "role": "model", "content": "", "error": error})
             break
         usage.add(result.usage)
+        calls.append({"turn": turns, **result.call_record()})
         messages.append(result.message)
         if result.text:
             transcript.append({"turn": len(transcript), "role": "model", "content": result.text})
@@ -144,6 +148,7 @@ def run_tool_loop(
             transcript.append({"turn": len(transcript), "role": "model", "content": "", "error": error})
         else:
             usage.add(result.usage)
+            calls.append({"turn": turns, **result.call_record()})
             messages.append(result.message)
             if result.text:
                 transcript.append({"turn": len(transcript), "role": "model", "content": result.text})
@@ -168,6 +173,7 @@ def run_tool_loop(
         stopped_by=stopped_by,
         error=error,
         transcript=transcript,
+        calls=calls,
     )
 
 
@@ -184,15 +190,29 @@ def _execute(registry: Dict[str, Tool], call: ToolCall) -> ToolOutput:
     return output if isinstance(output, ToolOutput) else ToolOutput(dict(output))
 
 
-def estimate_tokens(messages: Sequence[Message]) -> int:
+def _png_size(data: bytes) -> Optional[Tuple[int, int]]:
+    """(width, height) from a PNG header; None for anything else."""
+    if data[:8] == b"\x89PNG\r\n\x1a\n" and len(data) >= 24:
+        return int.from_bytes(data[16:20], "big"), int.from_bytes(data[20:24], "big")
+    return None
+
+
+def estimate_tokens(messages: Sequence[Message], image_tokens: Optional[ImageTokens] = None) -> int:
+    """Upper estimate of a request's prompt tokens. PNG images cost what image_tokens (the model's catalog entry) says
+    for their size; other images IMAGE_TOKEN_ESTIMATE."""
     chars = 0
-    images = 0
+    image_total = 0
+
+    def add_image(part: ImagePart) -> int:
+        size = _png_size(part.data) if image_tokens else None
+        return image_tokens.count(*size) if size else IMAGE_TOKEN_ESTIMATE
+
     for message in messages:
         for part in message.parts:
             if isinstance(part, TextPart):
                 chars += len(part.text)
             elif isinstance(part, ImagePart):
-                images += 1
+                image_total += add_image(part)
         for call in message.tool_calls:
             chars += len(json.dumps(call.arguments, ensure_ascii=False, default=str))
         for result in message.tool_results:
@@ -201,8 +221,8 @@ def estimate_tokens(messages: Sequence[Message]) -> int:
                 if isinstance(part, TextPart):
                     chars += len(part.text)
                 elif isinstance(part, ImagePart):
-                    images += 1
-    return int(chars / CHARS_PER_TOKEN) + images * IMAGE_TOKEN_ESTIMATE
+                    image_total += add_image(part)
+    return int(chars / CHARS_PER_TOKEN) + image_total
 
 
 def _fit_context(
@@ -215,7 +235,7 @@ def _fit_context(
     if not limit:
         return
     budget = limit - max_tokens - CONTEXT_MARGIN_TOKENS
-    while evictable and estimate_tokens(messages) > budget:
+    while evictable and estimate_tokens(messages, chat.spec.image_tokens) > budget:
         tool_result, on_evict = evictable.pop(0)
         tool_result.content = dict(EVICTED_CONTENT)
         tool_result.attachments = []

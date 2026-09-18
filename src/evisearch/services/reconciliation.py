@@ -269,6 +269,7 @@ def run_reconciliation_agent(
                 "page_images": session.images_sent,
                 "tool_calls_sequence": [{"name": e["name"], "args": e["args"]} for e in loop.transcript if e["role"] == "tool"],
                 "conversation": loop.transcript,
+                "calls": loop.calls,
                 "results": results,
             },
         )

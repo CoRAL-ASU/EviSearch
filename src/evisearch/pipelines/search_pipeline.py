@@ -16,6 +16,7 @@ from __future__ import annotations
 
 import argparse
 import sys
+import time
 from pathlib import Path
 from typing import Any, Callable, Dict, List, Optional
 
@@ -32,6 +33,7 @@ from src.evisearch.pipelines.batching import (
     empty_usage,
     load_groups,
     parse_group_names,
+    stage_timing,
     unknown_groups,
 )
 
@@ -50,6 +52,7 @@ def run_search_agent_pipeline(
     from src.inference.factory import model_key_for
 
     emit = on_event or (lambda event: None)
+    started = time.time()
     settings = {"model": model_key_for("search_agent", model)}
     if resume:
         results_store.check_resume(doc_id, "search", settings)
@@ -72,7 +75,10 @@ def run_search_agent_pipeline(
         columns.update(results)
         add_usage(usage, batch_usage)
         results_store.save_columns(doc_id, "search", columns)
-        results_store.save_metadata(doc_id, "search", {"method": "search_agent", **settings, "run": results_store.current_run(), "usage": usage})
+        results_store.save_metadata(doc_id, "search", {
+            "method": "search_agent", **settings, "run": results_store.current_run(), "usage": usage,
+            "timing": stage_timing(started, usage, len(existing)),
+        })
         emit({"type": "search_columns_written", "columns": [{"column": name, "value": r["value"]} for name, r in results.items()]})
         emit({"type": "search_batch_done", "batch": index + 1, "total_batches": len(batches), "filled": count_found(columns), "total": len(columns)})
     emit({"type": "phase_done", "phase": "search_agent", "filled": count_found(columns), "total": len(columns)})

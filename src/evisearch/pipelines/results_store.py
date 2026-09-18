@@ -17,16 +17,19 @@ METHOD_DIRS = {
     "agent": "agent_extractor",
     "search": "search_agent",
     "reconciliation": "reconciliation_agent",
+    "baseline": "markdown_baseline",  # benchmark system B1 (markdown_baseline.run_baseline_stage)
 }
 RESULT_FILES = {
     "agent": "extraction_results.json",
     "search": "extraction_results.json",
     "reconciliation": "reconciled_results.json",
+    "baseline": "extraction_results.json",
 }
 LOG_DIRS = {
     "agent": "raw_llm_responses",
     "search": "verification_logs",
     "reconciliation": "verification_logs",
+    "baseline": "raw_llm_responses",
 }
 RUN_NAME_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]*$")
 
