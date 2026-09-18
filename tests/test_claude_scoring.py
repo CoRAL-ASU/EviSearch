@@ -82,6 +82,7 @@ def test_review_stats_compute_agreement_accuracy_and_flags():
             scored("both_wrong", 1, 1), scored("A_correct_B_wrong", 0, 0)]
     stats = cs.review_stats(rows)
     assert stats["agreed"]["accuracy"] == 75.0
+    assert stats["agreed_on_value"]["n"] == 2 and stats["agreed_not_reported"]["n"] == 0
     assert stats["flag_rate"] == 40.0
     assert stats["flag_precision"] == 50.0  # 1 of 2 flagged cells is wrong
     assert stats["flag_recall"] == pytest.approx(33.33)  # 1 of 3 imperfect cells was flagged

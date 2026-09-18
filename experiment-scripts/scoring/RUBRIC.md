@@ -143,6 +143,20 @@ You are scoring one queued batch. Every item is one column of one paper: its def
 predicted value (Pred). Apply the rules above for the batch's category to each item on its own. You do not know
 which system produced a prediction, and you must not look anything up: judge only GT vs Pred under the rules.
 
+## Conventions (fixed after the pilot; they resolve ambiguities in the rules above, for every system alike)
+
+- C1. Numbers (counts, percentages, medians) match when they agree within ±0.1 absolute OR ±2% relative, whichever
+  is more lenient, or when one is the other at a different rounding (4.3 vs 4.2: match; 77 vs 77.6: match; 22 vs 22.3:
+  match; 23 vs 22.3: no match). We are not looking for exact decimals.
+- C2. For completeness, a required GT number counts as present only if Pred has it within tolerance; a wrong number is
+  not "present". A count that matches with a percentage outside tolerance is 0.5 / 0.5.
+- C3. "Not reached", "NR (not reached)" and "not estimable" are substantive values, not empty-equivalent: GT empty and
+  Pred "Not reached" is 0/0; GT "Not reached" and Pred "Not reached" is 1/1.
+- C4. Structured text: a category label implied by the components Pred names counts as present (e.g. GT "Triplet:
+  ARPI + ADT + docetaxel" vs Pred "darolutamide plus ADT and docetaxel" is complete).
+- C5. Exact match: parenthetical context in GT is optional ("2 arms (A vs B)" vs "2" matches); "Surname et al" formats
+  match when the definition allows them.
+
 Write a JSON file with exactly this shape, one entry per item id in the batch:
 
     {"batch": "<batch name>",

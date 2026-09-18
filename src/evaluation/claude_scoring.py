@@ -301,6 +301,8 @@ def review_stats(rows: Sequence[Scored]) -> Optional[dict]:
     if not labelled:
         return None
     agreed = [r for r in labelled if r.cell.verification == "both_correct"]
+    agreed_value = [r for r in agreed if not is_empty(r.cell.pred)]
+    agreed_absent = [r for r in agreed if is_empty(r.cell.pred)]
     flagged = [r for r in labelled if r.cell.verification == "both_wrong"]
     errors = [r for r in labelled if r.score < 1]
     flagged_errors = [r for r in flagged if r.score < 1]
@@ -312,6 +314,8 @@ def review_stats(rows: Sequence[Scored]) -> Optional[dict]:
     return {
         "verification_counts": counts,
         "agreed": summarize(agreed),
+        "agreed_on_value": summarize(agreed_value),
+        "agreed_not_reported": summarize(agreed_absent),
         "flag_rate": round(100 * len(flagged) / len(labelled), 2),
         "flag_precision": round(100 * len(flagged_errors) / len(flagged), 2) if flagged else None,
         "flag_recall": round(100 * len(flagged_errors) / len(errors), 2) if errors else None,
