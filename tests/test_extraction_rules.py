@@ -25,7 +25,7 @@ def _runner():
     return runner
 
 
-@pytest.mark.parametrize("version", ["v1", "v2", "v3", "v4"])
+@pytest.mark.parametrize("version", ["v1", "v2", "v3", "v4", "v5"])
 def test_rules_are_generic(version):
     text = extraction_rules.RULES[version]
     with open(DEFINITIONS_CSV_PATH, newline="") as handle:
@@ -47,6 +47,19 @@ def test_v4_is_v3_without_the_every_patient_bullet_and_with_an_unquoted_example(
     assert removed[0].startswith("- A value the paper states for every patient") and len(removed) == 4
     assert [line for line in v3.splitlines() if line not in removed] == v4.splitlines()
     assert "0 (0%)" not in v4 and "An endpoint keeps its identity" in v4 and "events/N" in v4 and '"bPFS' not in v4
+
+
+def test_v5_adds_three_bullets_to_v4_before_the_arm_size_rule():
+    v4, v5 = extraction_rules.RULES["v4"], extraction_rules.RULES["v5"]
+    added = [line for line in v5.splitlines() if line not in v4.splitlines()]
+    assert sum(line.startswith("- ") for line in added) == 3
+    assert [line for line in v5.splitlines() if line not in added] == v4.splitlines()  # nothing in v4 changed
+    order = [v5.index(s) for s in ("- Counts of patients", "- Report a value in the column's unit", "- A subgroup column",
+                                   "- When the trial design gives a treatment", "- Total-participant")]
+    assert order == sorted(order)
+    new_text = "\n".join(added)
+    assert '"' not in new_text.replace('"Not reported"', "")  # no quoted examples (a quote copied into JSON looped Agent A)
+    assert "not patient characteristics or eligibility criteria" in " ".join(new_text.split())
 
 
 def test_v3_adds_three_bullets_to_v1():

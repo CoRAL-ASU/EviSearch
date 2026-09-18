@@ -106,6 +106,27 @@ RULES["v4"] = RULES["v3"].replace(_EVERY_PATIENT, "", 1).replace(_QUOTED_EXAMPLE
 assert RULES["v4"].count("\n- ") == RULES["v1"].count("\n- ") + 2 and "every patient" not in RULES["v4"]
 assert _QUOTED_EXAMPLE in RULES["v3"] and _QUOTED_EXAMPLE not in RULES["v4"]
 
+# v5 = v4 + three bullets against over-strictness. From the development cells where the markdown baseline beat E1
+# (reconciler v3 on the v4 agents): both agents answered "Not reported" because the paper gave a median in years where the
+# column asks for months, because the paper's subgroups carry other labels and criteria than the column's (10 cells on
+# one paper), and because the paper states that an arm's regimen includes a treatment but prints no count (4.5 cells on
+# four papers). The baseline reports all of these. The treatment bullet is limited to what the protocol gives an arm:
+# v3's broader every-patient bullet was applied to characteristics and eligibility, where the benchmark leaves cells empty.
+RULES["v5"] = RULES["v4"].replace(
+    """- Total-participant""",
+    """- Report a value in the column's unit, converting when the paper uses another unit (for example a median in years
+  for a column in months: give both, X years, Y months). A different unit is never a reason for "Not reported".
+- A subgroup column is answered from the paper's subgroup that corresponds to it, also when the paper names or defines
+  it differently (for example a split by extent of disease under other labels or criteria): give the value with the
+  paper's own label.
+- When the trial design gives a treatment to every patient in an arm (it defines the arm or is part of the arm's
+  protocol regimen), that arm's count for the treatment is the arm size with 100%; when the arm's regimen excludes it,
+  0 (0%). This covers treatments the protocol assigns, not patient characteristics or eligibility criteria.
+- Total-participant""",
+    1,
+)
+assert RULES["v5"].count("\n- ") == RULES["v4"].count("\n- ") + 3
+
 
 def rules_version() -> str:
     from src.config.config import SELECTION
