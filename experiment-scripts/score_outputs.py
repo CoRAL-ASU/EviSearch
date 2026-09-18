@@ -35,8 +35,8 @@ which system produced a prediction, and you must not look anything up: judge onl
 - C1. Tolerance, by kind of number. We are not looking for exact decimals, but counts are different populations when
   they differ:
   counts (N) must match exactly (654 vs 655: no match; 1305 vs 1306: no match);
-  percentages match within ±0.1 points, ±2% relative, or at a different rounding (4.3 vs 4.2: match; 77 vs 77.6:
-  match; 22 vs 22.3: match; 23 vs 22.3: no match);
+  percentages match within ±1 percentage point or ±2% relative, whichever is more lenient (4.3 vs 4.2: match;
+  23 vs 22.3: match; 19.3 vs 18.7: match; 63.5 vs 67.5: no match);
   other values (medians, durations, rates in the paper's units) match within ±0.1 or at a different rounding
   (35 vs 35.1: match; 41 vs 41.9: no match).
 - C2. For completeness, a required GT number counts as present only if Pred has it within tolerance; a wrong number is
