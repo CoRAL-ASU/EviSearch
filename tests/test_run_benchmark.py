@@ -137,14 +137,14 @@ def test_dry_run_calls_no_model_and_writes_nothing(results, monkeypatch, capsys)
     assert calls == [] and not (store.RESULTS_ROOT.parent / "benchmark_runs").exists() and not list(store.RESULTS_ROOT.iterdir())
     assert "agent: model=qwen3.6-27b batches=" in out and "document: 10 pages, images for 10" in out and "fallback=None" in out
     assert f"check_run.py \"{DOC}\" --run dry --stages agent" in out
-    assert "baseline: model=gemini-2.5-flash" in out and "parsed_markdown.md" in out
+    assert "baseline: model=qwen3.6-27b" in out and "parsed_markdown.md" in out
 
 
 class GroupChat(ChatModel):
     """Answers each definition group from `answers` (label -> reply dict); a missing label fails the call."""
 
     def __init__(self, answers):
-        super().__init__("gemini-2.5-flash", ModelSpec(kind="chat", endpoint="fake", name="fake", capabilities=Capabilities(json_schema=True)))
+        super().__init__("qwen3.6-27b", ModelSpec(kind="chat", endpoint="fake", name="fake", capabilities=Capabilities(json_schema=True)))
         self.answers = answers
         self.labels = []
 
@@ -178,7 +178,7 @@ def test_b1_writes_agent_shaped_results_timing_and_resumes_failed_groups(results
     assert saved["columns"]["Trial"] == {"value": "STAMPEDE", "reasoning": "title page"}
     assert saved["columns"]["Median OS"]["value"] == "Extraction error" and "server down" in saved["columns"]["Median OS"]["reasoning"]
     metadata = store.load_metadata(DOC, "baseline")
-    assert metadata["model"] == "gemini-2.5-flash" and metadata["preset"] == "local" and metadata["run"] == "b1"
+    assert metadata["model"] == "qwen3.6-27b" and metadata["preset"] == "local" and metadata["run"] == "b1"
     assert metadata["failed_groups"] == ["Outcomes"] and result["failed_groups"] == ["Outcomes"]
     assert (metadata["timing"]["n_calls"], metadata["timing"]["input_tokens"]) == (1, 1000)
     assert metadata["timing"]["started_at"] <= metadata["timing"]["finished_at"] and len(metadata["calls"]) == 1
@@ -195,7 +195,7 @@ def test_b1_writes_agent_shaped_results_timing_and_resumes_failed_groups(results
     raw = json.loads((store.method_dir(DOC, "baseline") / "raw_llm_responses.json").read_text())
     assert set(raw) == {"ID", "Outcomes"}
 
-    with pytest.raises(store.ResumeError, match="gemini-2.5-flash"):
+    with pytest.raises(store.ResumeError, match="qwen3.6-27b"):
         markdown_baseline.run_baseline_stage(DOC, model="gemini-2.5-pro", parsed_markdown_root=tmp_path / "md")
 
 
