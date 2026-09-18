@@ -25,6 +25,7 @@ sys.path.insert(0, str(PROJECT_ROOT))
 
 from src.evisearch.columns import count_found
 from src.evisearch.pipelines import results_store
+from src.evisearch.services.extraction_rules import rules_setting
 from src.evisearch.pipelines.batching import (
     add_usage,
     build_batches,
@@ -53,7 +54,7 @@ def run_search_agent_pipeline(
 
     emit = on_event or (lambda event: None)
     started = time.time()
-    settings = {"model": model_key_for("search_agent", model)}
+    settings = {"model": model_key_for("search_agent", model), **rules_setting()}
     if resume:
         results_store.check_resume(doc_id, "search", settings)
     groups = load_groups()
@@ -108,7 +109,7 @@ def main(argv: Optional[List[str]] = None) -> int:
         return 2
     if not args.no_resume:
         try:
-            results_store.check_resume(args.doc_id, "search", {"model": model_key_for("search_agent", args.model)})
+            results_store.check_resume(args.doc_id, "search", {"model": model_key_for("search_agent", args.model), **rules_setting()})
         except results_store.ResumeError as exc:
             print(f"[search_agent] {exc}", file=sys.stderr)
             return 2

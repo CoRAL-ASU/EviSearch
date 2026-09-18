@@ -13,6 +13,7 @@ from src.config.catalog import ConfigError
 from src.config.config import AGENT_MAX_TOOL_CALLS, AGENT_MAX_TURNS, MAX_TOKENS
 from src.evisearch.columns import column_names, extraction_items_schema, fill_missing, parse_column_entries
 from src.evisearch.pipelines.results_store import write_json
+from src.evisearch.services.extraction_rules import shared_rules
 from src.inference import InferenceError, Tool, ToolOutput, ToolSpec, Usage, get_chat, run_tool_loop
 from src.retrieval import embedding_retriever as retriever
 
@@ -174,7 +175,7 @@ def run_search_agent(
     specs = {spec.name: spec for spec in tool_specs(names)}
     loop = run_tool_loop(
         chat,
-        system=SYSTEM_PROMPT,
+        system=SYSTEM_PROMPT + shared_rules(),
         user=user_prompt,
         tools=[
             Tool(specs["search_chunks"], session.search_chunks),

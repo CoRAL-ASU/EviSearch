@@ -213,7 +213,7 @@ def probe(report: Report, doc_id: str) -> None:
         longest = max((pdf_query.build_columns_prompt(batch, "") for batch in batches), key=len)
         mode = SELECTION.option("pdf_query_input")
         model = SELECTION.model("pdf_query")
-        budget = pdf_query.document_token_budget(model.context_tokens, pdf_query.SYSTEM_PROMPT + pdf_query.IMAGE_RULES + longest, MAX_TOKENS["pdf_query"])
+        budget = pdf_query.document_token_budget(model.context_tokens, pdf_query.system_prompt_text() + longest, MAX_TOKENS["pdf_query"])
         info = pdf_query.build_document_input(doc_id, mode, budget, model.image_tokens).info
         return info["fallback"] is None and not info["warnings"], f"{mode}: {len(info['image_pages'])}/{info['pages']} page images, ~{info['estimated_tokens']} of {budget} tokens"
 

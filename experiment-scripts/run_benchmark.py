@@ -114,7 +114,9 @@ def stage_settings(stage: str) -> Dict[str, Any]:
         from src.evisearch.pipelines.reconciliation_pipeline import run_settings
 
         return run_settings(model_key)
-    return {"model": model_key}
+    from src.evisearch.services.extraction_rules import rules_setting
+
+    return {"model": model_key, **rules_setting()}  # search agent and the B1 baseline
 
 
 def run_stage(stage: str, doc_id: str) -> Dict[str, Any]:
@@ -295,6 +297,7 @@ def run_header(system: str, run: str, reuse_a_from: Optional[str], parallel: int
         "stage_models": {stage: SELECTION.roles.get(STAGE_ROLES[stage]) for stage in SYSTEMS[system]},
         "input_mode": "parsed_markdown" if system == "B1" else ARM_A_INPUT,
         "page_image_scale": None if system == "B1" else PAGE_IMAGE_SCALE,
+        "extraction_rules": SELECTION.option("extraction_rules"),
         "reuse_a_from": reuse_a_from,
         "parallel": parallel,
         "git": git_state(),
@@ -424,7 +427,8 @@ def main(argv: Optional[List[str]] = None) -> int:
     except (OSError, json.JSONDecodeError):
         saved = None
     if saved:
-        clash = [f"{key}: {saved.get(key)!r} there, {header[key]!r} now" for key in ("system", "preset", "stage_models", "reuse_a_from") if saved.get(key) != header[key]]
+        saved = {"extraction_rules": "none", **saved}  # manifests from before the option existed ran the E0 prompts
+        clash = [f"{key}: {saved.get(key)!r} there, {header[key]!r} now" for key in ("system", "preset", "stage_models", "reuse_a_from", "extraction_rules") if saved.get(key) != header[key]]
         if clash:
             print(f"[benchmark] run {args.run!r} was started with other settings ({'; '.join(clash)}); use another --run", file=sys.stderr)
             return 2

@@ -17,6 +17,7 @@ from src.config.config import MAX_TOKENS, PAGE_IMAGE_SCALE, PDF_QUERY_MAX_PAGE_I
 from src.evisearch.columns import column_names, extraction_items_schema, fill_missing, parse_column_entries
 from src.evisearch.knowledge.preferences import load_extraction_preferences
 from src.evisearch.pipelines.results_store import write_json
+from src.evisearch.services.extraction_rules import shared_rules
 from src.evisearch.services.highlight import resolve_pdf_path
 from src.evisearch.services.page_images import pdf_page_count, render_pages
 from src.inference import ImagePart, InferenceError, Message, TextPart, Usage, get_chat
@@ -39,6 +40,11 @@ IMAGE_RULES = """
 - Pages come with their parsed text and, where included, their rendered image. Use the parsed text for exact wording
   and numbers in text and tables; use the image for figures (Kaplan-Meier curves, forest plots, flow diagrams) and to
   check table layout. When the parsed text and the image disagree about a value, trust the image."""
+
+def system_prompt_text(images: bool = True) -> str:
+    """Agent A's system prompt: base rules, the page-image rules when images are sent, then the shared conventions."""
+    return SYSTEM_PROMPT + (IMAGE_RULES if images else "") + shared_rules()
+
 
 ANCHOR_RE = re.compile(r"<a\s+id=['\"][^'\"]*['\"][^>]*>\s*</a>\s*")
 FIGURE_RE = re.compile(r"<::(?!\s*logo)", re.IGNORECASE)  # LandingAI figure descriptions; logos are not evidence
@@ -179,14 +185,14 @@ def run_pdf_query(
         chat = get_chat("pdf_query", model)
         if input_mode == "markdown_images" and not chat.capabilities.images:
             raise ConfigError(f"model '{chat.key}' cannot read images; use pdf_query_input=markdown")
-        budget = document_token_budget(chat.spec.context_tokens, SYSTEM_PROMPT + IMAGE_RULES + columns_prompt, MAX_TOKENS["pdf_query"])
+        budget = document_token_budget(chat.spec.context_tokens, system_prompt_text() + columns_prompt, MAX_TOKENS["pdf_query"])
         document = build_document_input(doc_id, input_mode, budget, chat.spec.image_tokens)
     except (ConfigError, InferenceError, FileNotFoundError) as exc:
         return fill_missing({}, names, f"pdf_query not run: {exc}"), usage.to_dict()
     if details is not None:
         details.update(document.info)
 
-    system = SYSTEM_PROMPT + (IMAGE_RULES if document.info["image_pages"] else "")
+    system = system_prompt_text(bool(document.info["image_pages"]))
     # Document first: every batch for the same paper shares this prefix, which prompt caching reuses.
     messages = [Message.system(system), Message.user(*document.parts, columns_prompt)]
     schema = extraction_schema(names) if chat.capabilities.json_schema else None

@@ -41,7 +41,10 @@ from src.evisearch.pipelines.batching import (
 
 def run_settings(model_key: str, input_mode: str) -> Dict[str, Any]:
     """Settings that must match for saved Arm A results to be resumed."""
-    return {"model": model_key, "input_mode": input_mode, "page_image_scale": PAGE_IMAGE_SCALE if input_mode == "markdown_images" else None}
+    from src.evisearch.services.extraction_rules import rules_setting
+
+    return {"model": model_key, "input_mode": input_mode, "page_image_scale": PAGE_IMAGE_SCALE if input_mode == "markdown_images" else None,
+            **rules_setting()}
 
 
 def run_pdf_query_pipeline(
@@ -103,12 +106,12 @@ def describe_fit(doc_id: str, batches: List[List[Dict[str, Any]]], model_key: st
     """One line saying what Arm A would send for this document with its longest batch prompt."""
     from src.config.config import MAX_TOKENS
     from src.evisearch.knowledge.preferences import load_extraction_preferences
-    from src.evisearch.services.pdf_query import IMAGE_RULES, SYSTEM_PROMPT, build_columns_prompt, build_document_input, document_token_budget
+    from src.evisearch.services.pdf_query import build_columns_prompt, build_document_input, document_token_budget, system_prompt_text
 
     prefs = load_extraction_preferences()
     longest = max((build_columns_prompt(batch, prefs) for batch in batches), key=len, default="")
     spec = SELECTION.catalog.models[model_key]
-    budget = document_token_budget(spec.context_tokens, SYSTEM_PROMPT + IMAGE_RULES + longest, MAX_TOKENS["pdf_query"])
+    budget = document_token_budget(spec.context_tokens, system_prompt_text() + longest, MAX_TOKENS["pdf_query"])
     try:
         info = build_document_input(doc_id, input_mode, budget, spec.image_tokens).info
     except FileNotFoundError as exc:

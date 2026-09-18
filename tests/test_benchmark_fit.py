@@ -27,7 +27,7 @@ def test_benchmark_document_fits_with_every_page_image(doc_id, preset):
     longest = max((pdf_query.build_columns_prompt(batch, prefs) for batch in build_batches(load_groups(), None, done=set())), key=len)
     model = CATALOG.models[CATALOG.presets[preset]["pdf_query"]]
     budget = pdf_query.document_token_budget(
-        model.context_tokens, pdf_query.SYSTEM_PROMPT + pdf_query.IMAGE_RULES + longest, MAX_TOKENS["pdf_query"]
+        model.context_tokens, pdf_query.system_prompt_text() + longest, MAX_TOKENS["pdf_query"]
     )
 
     info = pdf_query.build_document_input(doc_id, "markdown_images", budget, model.image_tokens).info

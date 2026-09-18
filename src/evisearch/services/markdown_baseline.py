@@ -20,6 +20,7 @@ from pathlib import Path
 from typing import Any, Callable, Dict, List, Optional, Tuple
 
 from src.config.config import MAX_TOKENS
+from src.evisearch.services.extraction_rules import rules_setting, shared_rules
 from src.inference import Message, Usage, cost_usd, get_chat
 
 PROJECT_ROOT = Path(__file__).resolve().parents[3]
@@ -149,13 +150,15 @@ def build_json_schema_for_group(columns: List[str]) -> Dict[str, Any]:
     }
 
 
-def build_prompt(label: str, items: List[Dict[str, str]]) -> str:
+def build_prompt(label: str, items: List[Dict[str, str]], rules: str = "") -> str:
     lines = [f"Extract values for the following columns (Label: {label}):\n"]
     for i, item in enumerate(items, 1):
         lines.append(
             f"{i}. {item['column']}: {item['definition']}\n"
             "   If not present, use value: 'not found' and reasoning: 'not found'."
         )
+    if rules:
+        lines.append(rules)
     lines.append("\n" + "=" * 60)
     lines.append(
         "Pay special attention to table and figure captions to check if the results are reported for the whole population or sub-group wise. "
@@ -202,7 +205,7 @@ def safe_std(values: List[float]) -> float:
 
 
 def query_label_groups(
-    provider: Any, markdown_text: str, label_groups: OrderedDict, workers: int
+    provider: Any, markdown_text: str, label_groups: OrderedDict, workers: int, rules: str = ""
 ) -> Tuple[OrderedDict, int, int]:
     """One call per label group, `workers` at a time. Returns (parsed reply per label, input tokens, output tokens);
     a failed call or unparseable reply is recorded as {"_error": ...} for its label."""
@@ -212,7 +215,7 @@ def query_label_groups(
 
     def process(label: str, items: List[Dict[str, str]]) -> Tuple[str, Any, int, int]:
         columns = [it["column"] for it in items]
-        prompt = build_prompt(label, items)
+        prompt = build_prompt(label, items, rules)
         schema = build_json_schema_for_group(columns)
         text, in_tok, out_tok = provider.query_markdown_with_schema(
             prompt=prompt,
@@ -637,7 +640,7 @@ def run_baseline_stage(
     started = time.time()
     trial = normalize_trial(doc_id)
     model_key = model_key_for("baseline", model)
-    settings = {"model": model_key}
+    settings = {"model": model_key, **rules_setting()}
     if resume:
         results_store.check_resume(trial, "baseline", settings)
     markdown_path = Path(parsed_markdown_root) / trial / "parsed_markdown.md"
@@ -656,7 +659,7 @@ def run_baseline_stage(
         return {"columns": columns, "usage": Usage().to_dict(), "failed_groups": []}
 
     provider = ChatMarkdownProvider(model_key)
-    raw_parsed, _, _ = query_label_groups(provider, markdown_text, pending, workers)
+    raw_parsed, _, _ = query_label_groups(provider, markdown_text, pending, workers, shared_rules())
     columns.update(baseline_columns(raw_parsed, pending))
     failed = sorted(label for label, parsed in raw_parsed.items() if isinstance(parsed, dict) and "_error" in parsed)
 
