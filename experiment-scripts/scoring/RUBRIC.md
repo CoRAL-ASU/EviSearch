@@ -153,7 +153,9 @@ which system produced a prediction, and you must not look anything up: judge onl
   other values (medians, durations, rates in the paper's units) match within ±0.1 or at a different rounding
   (35 vs 35.1: match; 41 vs 41.9: no match).
 - C2. For completeness, a required GT number counts as present only if Pred has it within tolerance; a wrong number is
-  not "present". A count that matches with a percentage outside tolerance is 0.5 / 0.5.
+  not "present". A count that matches with a percentage outside tolerance is 0.5 / 0.5 when the Definition requires
+  both (see C7 for "count and/or percentage"). A GT total counts as present only if Pred states it: per-arm numbers
+  whose sum equals it do not make it present.
 - C3. "Not reached", "NR (not reached)" and "not estimable" are substantive values, not empty-equivalent: GT empty and
   Pred "Not reached" is 0/0; GT "Not reached" and Pred "Not reached" is 1/1. A bare "NR" in a median-survival or
   time-to-event column means "not reached" (so GT "NR" vs Pred "Not reported" is a miss, 0/0).
@@ -165,7 +167,9 @@ which system produced a prediction, and you must not look anything up: judge onl
   empty value mean the same thing (not reported): GT empty vs Pred "No" is 1/1; GT "No" vs Pred "Not reported" is 1/1;
   "Yes" vs "No" or vs empty is 0/0.
 - C7. When the Definition says "count and/or percentage", either the count or the percentage alone is complete (GT
-  "143 (36.4%)" vs Pred "143" is 1/1). When it says "count and percentage" or "N (%)" without "or", both are required.
+  "143 (36.4%)" vs Pred "143" is 1/1). If Pred gives both and only one is within tolerance, correctness is 0.5 and
+  completeness 1.0 (GT "397 (100%)" vs Pred "390 (98.2%)" is 0.5 / 1.0). When it says "count and percentage" or
+  "N (%)" without "or", both are required.
   A Definition that says "title or identifier" is satisfied by the identifier alone.
 
 Write a JSON file with exactly this shape, one entry per item id in the batch:
