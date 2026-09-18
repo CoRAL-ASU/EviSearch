@@ -155,11 +155,15 @@ which system produced a prediction, and you must not look anything up: judge onl
 - C2. For completeness, a required GT number counts as present only if Pred has it within tolerance; a wrong number is
   not "present". A count that matches with a percentage outside tolerance is 0.5 / 0.5.
 - C3. "Not reached", "NR (not reached)" and "not estimable" are substantive values, not empty-equivalent: GT empty and
-  Pred "Not reached" is 0/0; GT "Not reached" and Pred "Not reached" is 1/1.
+  Pred "Not reached" is 0/0; GT "Not reached" and Pred "Not reached" is 1/1. A bare "NR" in a median-survival or
+  time-to-event column means "not reached" (so GT "NR" vs Pred "Not reported" is a miss, 0/0).
 - C4. Structured text: a category label implied by the components Pred names counts as present (e.g. GT "Triplet:
   ARPI + ADT + docetaxel" vs Pred "darolutamide plus ADT and docetaxel" is complete).
 - C5. Exact match: parenthetical context in GT is optional ("2 arms (A vs B)" vs "2" matches); "Surname et al" formats
   match when the definition allows them.
+- C6. In the yes/no columns ("Quality of Life reported", "Reporting by prognostic groups - Y/N | ..."), "No"/"N" and an
+  empty value mean the same thing (not reported): GT empty vs Pred "No" is 1/1; GT "No" vs Pred "Not reported" is 1/1;
+  "Yes" vs "No" or vs empty is 0/0.
 
 Write a JSON file with exactly this shape, one entry per item id in the batch:
 
