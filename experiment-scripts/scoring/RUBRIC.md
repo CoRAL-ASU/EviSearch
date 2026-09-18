@@ -145,9 +145,13 @@ which system produced a prediction, and you must not look anything up: judge onl
 
 ## Conventions (fixed after the pilot; they resolve ambiguities in the rules above, for every system alike)
 
-- C1. Numbers (counts, percentages, medians) match when they agree within ±0.1 absolute OR ±2% relative, whichever
-  is more lenient, or when one is the other at a different rounding (4.3 vs 4.2: match; 77 vs 77.6: match; 22 vs 22.3:
-  match; 23 vs 22.3: no match). We are not looking for exact decimals.
+- C1. Tolerance, by kind of number. We are not looking for exact decimals, but counts are different populations when
+  they differ:
+  counts (N) must match exactly (654 vs 655: no match; 1305 vs 1306: no match);
+  percentages match within ±0.1 points, ±2% relative, or at a different rounding (4.3 vs 4.2: match; 77 vs 77.6:
+  match; 22 vs 22.3: match; 23 vs 22.3: no match);
+  other values (medians, durations, rates in the paper's units) match within ±0.1 or at a different rounding
+  (35 vs 35.1: match; 41 vs 41.9: no match).
 - C2. For completeness, a required GT number counts as present only if Pred has it within tolerance; a wrong number is
   not "present". A count that matches with a percentage outside tolerance is 0.5 / 0.5.
 - C3. "Not reached", "NR (not reached)" and "not estimable" are substantive values, not empty-equivalent: GT empty and
