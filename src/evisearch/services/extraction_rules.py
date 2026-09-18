@@ -4,8 +4,8 @@ The same text goes to every system that extracts columns — Agent A, Agent B an
 comparison between systems measures the architecture, not the instructions. v1 comes from the error analysis of the
 first full run (E0) on the development papers, revised after a three-lens review; v2 adds named endpoint subtypes after
 v1 was measured on Agent A; v3 adds values stated for every patient and subgroup sizes, from the cells where the
-markdown baseline beat EviSearch. Schema conventions only, with no paper, trial, drug or value names. `none`
-reproduces the E0 prompts.
+markdown baseline beat EviSearch; v4 drops v3's every-patient bullet after it was measured on Agent A and the baseline.
+Schema conventions only, with no paper, trial, drug or value names. `none` reproduces the E0 prompts.
 """
 from __future__ import annotations
 
@@ -90,6 +90,21 @@ RULES["v3"] = RULES["v1"].replace(
     1,
 )
 assert RULES["v3"].count("\n- ") == RULES["v1"].count("\n- ") + 3
+
+# v4 = v3 without the every-patient bullet. Measured on the development papers (Claude-scored against the gold): on
+# Agent A (6 papers) the bullet gained 3.5 cells and lost 14, on the markdown baseline (7 papers) it gained 4.5 and lost
+# 8. The losses are design-implied values the benchmark leaves empty (other regions "0 (0%)" in a one-country trial,
+# mode of metastases 100% / 0% in an all-synchronous trial, prior local therapy 0 (0%)); the model applied the zero
+# clause to characteristics although the bullet limits it to treatments. The gold is not consistent about such values
+# (it fills region and docetaxel ones), so the bullet is dropped rather than tuned to it.
+# Also unquoted: the endpoint-variant example. Agent A copied the quoted example into the reasoning string of its JSON
+# reply, where the raw quote ended the string and the constrained reply looped until the token limit (the same batch,
+# twice, at temperature 0).
+_EVERY_PATIENT = RULES["v3"][RULES["v3"].index("- A value the paper states for every patient"):RULES["v3"].index("- Counts of patients")]
+_QUOTED_EXAMPLE = '(for example "bPFS X months; rPFS Y months")'
+RULES["v4"] = RULES["v3"].replace(_EVERY_PATIENT, "", 1).replace(_QUOTED_EXAMPLE, "(for example: bPFS X months; rPFS Y months)", 1)
+assert RULES["v4"].count("\n- ") == RULES["v1"].count("\n- ") + 2 and "every patient" not in RULES["v4"]
+assert _QUOTED_EXAMPLE in RULES["v3"] and _QUOTED_EXAMPLE not in RULES["v4"]
 
 
 def rules_version() -> str:

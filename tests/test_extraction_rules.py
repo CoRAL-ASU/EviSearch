@@ -25,7 +25,7 @@ def _runner():
     return runner
 
 
-@pytest.mark.parametrize("version", ["v1", "v2", "v3"])
+@pytest.mark.parametrize("version", ["v1", "v2", "v3", "v4"])
 def test_rules_are_generic(version):
     text = extraction_rules.RULES[version]
     with open(DEFINITIONS_CSV_PATH, newline="") as handle:
@@ -38,6 +38,15 @@ def test_rules_are_generic(version):
 def test_v2_adds_named_subtypes_to_v1():
     assert extraction_rules.RULES["v2"].startswith(extraction_rules.RULES["v1"].split('answer "Not reported".')[0])
     assert "biochemical" in extraction_rules.RULES["v2"] and "biochemical" not in extraction_rules.RULES["v1"]
+
+
+def test_v4_is_v3_without_the_every_patient_bullet_and_with_an_unquoted_example():
+    v3 = extraction_rules.RULES["v3"].replace('(for example "bPFS X months; rPFS Y months")', "(for example: bPFS X months; rPFS Y months)")
+    v4 = extraction_rules.RULES["v4"]
+    removed = [line for line in v3.splitlines() if line not in v4.splitlines()]
+    assert removed[0].startswith("- A value the paper states for every patient") and len(removed) == 4
+    assert [line for line in v3.splitlines() if line not in removed] == v4.splitlines()
+    assert "0 (0%)" not in v4 and "An endpoint keeps its identity" in v4 and "events/N" in v4 and '"bPFS' not in v4
 
 
 def test_v3_adds_three_bullets_to_v1():
