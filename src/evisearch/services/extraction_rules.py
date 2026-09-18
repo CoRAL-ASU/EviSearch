@@ -54,12 +54,26 @@ RULES["v2"] = RULES["v1"].replace(
 )
 assert RULES["v2"] != RULES["v1"]
 
-# v3 = v2 + two conventions. From the development cells where the markdown baseline beat EviSearch in both E0 runs,
-# Agent A answered "Not reported" (identically across runs) when (a) the paper says every patient in an arm received a
-# treatment but prints no count, and (b) a characteristic is missing from the baseline table but a subgroup analysis
-# gives each subgroup's patients per arm ("events/N"), which Agent A read as event counts. The zero clause covers
-# treatments only: the benchmark leaves other categories of a characteristic empty rather than 0.
-RULES["v3"] = RULES["v2"].replace(
+# v3 = v1 + three bullets.
+# (1) Named endpoint variants as a bullet of their own. The v2 sentence did not work: on Agent A (qwen_b2_v2) the model
+#     still answered "Not reported" for all 6 PFS cells of the paper that reports only bPFS/rPFS ("PFS ... is distinct
+#     from bPFS or rPFS"), because the sentence sat inside the clause that ends in "answer Not reported".
+# (2), (3) From the development cells where the markdown baseline beat EviSearch in both E0 runs, Agent A answered
+#     "Not reported" when the paper says every patient in an arm received a treatment but prints no count, and when a
+#     characteristic is missing from the baseline table but a subgroup analysis gives each subgroup's patients per arm
+#     ("events/N"), which Agent A read as event counts. The zero clause covers treatments only: the benchmark leaves
+#     other categories of a characteristic empty rather than 0.
+RULES["v3"] = RULES["v1"].replace(
+    """  asked), answer "Not reported".
+""",
+    """  asked), answer "Not reported".
+- An endpoint keeps its identity when the paper names a variant of it: biochemical, radiographic, clinical or PSA
+  progression-free survival is progression-free survival, and a paper that reports only such variants reports that
+  endpoint. Give each variant with its label (for example "bPFS X months; rPFS Y months"). Never answer "Not
+  reported" because the paper's name for the endpoint adds a qualifier.
+""",
+    1,
+).replace(
     """  column.
 """,
     """  column.
@@ -72,7 +86,7 @@ RULES["v3"] = RULES["v2"].replace(
 """,
     1,
 )
-assert RULES["v3"] != RULES["v2"]
+assert RULES["v3"].count("\n- ") == RULES["v1"].count("\n- ") + 3
 
 
 def rules_version() -> str:

@@ -40,13 +40,18 @@ def test_v2_adds_named_subtypes_to_v1():
     assert "biochemical" in extraction_rules.RULES["v2"] and "biochemical" not in extraction_rules.RULES["v1"]
 
 
-def test_v3_adds_two_bullets_after_the_per_arm_rule():
-    v2, v3 = extraction_rules.RULES["v2"], extraction_rules.RULES["v3"]
-    added = [line for line in v3.splitlines() if line not in v2.splitlines()]
-    assert sum(line.startswith("- ") for line in added) == 2
-    assert v3.replace("\n".join(added) + "\n", "") == v2  # nothing in v2 changed
-    per_arm, every_patient, subgroup = (v3.index(s) for s in ("- A per-arm column", "- A value the paper states", "- Counts of patients"))
-    assert per_arm < every_patient < subgroup < v3.index("- Total-participant")
+def test_v3_adds_three_bullets_to_v1():
+    v1, v3 = extraction_rules.RULES["v1"], extraction_rules.RULES["v3"]
+    v1_lines = v1.splitlines()
+    added = [line for line in v3.splitlines() if line not in v1_lines]
+    assert sum(line.startswith("- ") for line in added) == 3
+    assert [line for line in v3.splitlines() if line in v1_lines] == v1_lines  # every v1 line kept, in order
+    order = [v3.index(s) for s in ("- The column name says", "- An endpoint keeps its identity", "- A median that",
+                                   "- A per-arm column", "- A value the paper states", "- Counts of patients",
+                                   "- Total-participant")]
+    assert order == sorted(order)
+    # The variant rule is its own bullet, not part of the clause that ends in "Not reported" (the v2 sentence was).
+    assert "A named subtype" not in v3
     # Zero is only for treatments an arm did not receive; other categories of a characteristic stay empty.
     assert "no such treatment, give 0 (0%)" in v3 and v3.count("0 (0%)") == 1
 
