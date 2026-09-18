@@ -540,6 +540,30 @@ def test_pipelines_write_results_resume_and_reconcile(doc, monkeypatch):
         assert {"cached_input_tokens", "input_images", "model_seconds", "resumed_columns"} <= set(timing), method
 
 
+def test_resumed_pipelines_keep_the_logs_of_earlier_batches(doc, monkeypatch):
+    def logging_arm(prefix, path_key):
+        def run(doc_id, batch, *args, **kwargs):
+            names = [c["column_name"] for c in batch]
+            path = kwargs[path_key]
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_text(json.dumps(names))
+            return {name: column_result(f"{prefix}-{name}") for name in names}, dict(USAGE)
+        return run
+
+    for module in (pdf_query_pipeline, search_pipeline):
+        monkeypatch.setattr(module, "load_groups", lambda: GROUPS)
+    monkeypatch.setattr(pdf_query, "run_pdf_query", logging_arm("A", "raw_response_path"))
+    monkeypatch.setattr(search, "run_search_agent", logging_arm("B", "log_path"))
+
+    for run_stage, method in ((pdf_query_pipeline.run_pdf_query_pipeline, "agent"), (search_pipeline.run_search_agent_pipeline, "search")):
+        run_stage("doc-1", group_names=["ID"])  # stopped after its first batch
+        run_stage("doc-1")  # resumed: the rest
+        logs = sorted(store.logs_dir("doc-1", method).glob("batch_*"))
+        assert [json.loads(p.read_text()) for p in logs] == [[TRIAL], [MEDIAN_OS]], method
+    assert [p.name for p in sorted(store.logs_dir("doc-1", "agent").glob("batch_*"))] == ["batch_001.json", "batch_002.json"]
+    assert [p.name for p in sorted(store.logs_dir("doc-1", "search").glob("batch_*"))] == ["batch_0.txt", "batch_1.txt"]
+
+
 def test_named_runs_keep_results_apart_and_resume_refuses_other_settings(doc, monkeypatch):
     monkeypatch.setattr(pdf_query_pipeline, "load_groups", lambda: GROUPS)
     monkeypatch.setattr(pdf_query, "run_pdf_query", _fake_arm("A", []))

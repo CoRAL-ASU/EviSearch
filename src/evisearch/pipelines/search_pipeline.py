@@ -75,9 +75,11 @@ def run_search_agent_pipeline(
 
     usage = empty_usage()
     logs = results_store.logs_dir(doc_id, "search")
+    first_log = results_store.next_log_number(logs, start=0)
     emit({"type": "phase_start", "phase": "search_agent", "batches": len(batches), "total": sum(len(b) for b in batches)})
     for index, batch in enumerate(batches):
-        results, batch_usage = run_search_agent(doc_id, batch, definitions, log_path=logs / f"batch_{index}.txt", model=model)
+        log_path = logs / f"batch_{first_log + index}.txt"
+        results, batch_usage = run_search_agent(doc_id, batch, definitions, log_path=log_path, model=model)
         columns.update(results)
         add_usage(usage, batch_usage)
         results_store.save_columns(doc_id, "search", columns)

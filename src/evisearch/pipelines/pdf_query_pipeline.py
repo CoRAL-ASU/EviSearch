@@ -82,11 +82,11 @@ def run_pdf_query_pipeline(
 
     emit({"type": "phase_start", "phase": "agent_extractor", "batches": len(batches), "total": sum(len(b) for b in batches)})
     raw_dir = results_store.logs_dir(doc_id, "agent") if batches else None
+    first_log = results_store.next_log_number(raw_dir) if raw_dir else 1
     for index, batch in enumerate(batches, 1):
         details: Dict[str, Any] = {}
-        results, batch_usage = run_pdf_query(
-            doc_id, batch, input_mode=input_mode, model=model, raw_response_path=raw_dir / f"batch_{index:03d}.json", details=details
-        )
+        log_path = raw_dir / f"batch_{first_log + index - 1:03d}.json"
+        results, batch_usage = run_pdf_query(doc_id, batch, input_mode=input_mode, model=model, raw_response_path=log_path, details=details)
         if details.get("fallback"):
             fallback_batches.append(index)
         columns.update(results)

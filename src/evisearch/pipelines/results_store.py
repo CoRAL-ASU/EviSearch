@@ -70,6 +70,13 @@ def logs_dir(doc_id: str, method: str) -> Path:
     return path
 
 
+def next_log_number(folder: Path, start: int = 1) -> int:
+    """First batch number after the logs already in folder, so a resumed run keeps the logs of its earlier batches
+    (numbering from `start` again overwrote them)."""
+    numbers = [int(match.group(1)) for path in folder.glob("batch_*") if (match := re.match(r"batch_(\d+)", path.name))]
+    return max(numbers, default=start - 1) + 1
+
+
 def load_columns(doc_id: str, method: str) -> Dict[str, Any]:
     path = results_path(doc_id, method)
     if not path.exists():
