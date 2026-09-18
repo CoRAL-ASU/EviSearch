@@ -45,9 +45,10 @@ MAX_TOKENS = {
 }
 
 # ============== GPUS (local vLLM servers) ==============
-# GPUs this project may use, and where each server runs: a list of GPU indices, or "auto" to pick the
-# least-used GPUs from the pool when the server starts. Environment: EVISEARCH_GPU_POOL="4,5,6,7",
-# EVISEARCH_GPUS="qwen36_27b=4;qwen3_embed_8b=5;qwen3_rerank_8b=5"
+# GPUs this project may use, and where each server runs: a list of GPU indices, or "auto" to place it when it
+# starts. "auto" keeps our servers together (the local preset's three servers fit on one H200) and otherwise picks
+# the least-used GPU in the pool. Environment: EVISEARCH_GPU_POOL="4,5,6,7",
+# EVISEARCH_GPUS="qwen36_27b=4;qwen3_embed_8b=4;qwen3_rerank_8b=4"
 GPU_POOL = env("EVISEARCH_GPU_POOL", [4, 5, 6, 7])  # GPUs 0-3 are reserved for other groups
 GPUS = env("EVISEARCH_GPUS", {
     "qwen36_27b": "auto",

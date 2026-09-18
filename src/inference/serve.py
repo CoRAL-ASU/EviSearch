@@ -67,9 +67,11 @@ def plan_placement(
     servers: Sequence[str],
     gpus: Sequence[GpuInfo],
     max_fraction: float,
+    ours: Sequence[int] = (),
 ) -> Dict[str, List[int]]:
-    """Choose GPUs for each server. Explicit assignments are checked first, then "auto" servers are packed
-    onto the least-used GPUs in the pool. Raises ConfigError explaining why a server does not fit."""
+    """Choose GPUs for each server. Explicit assignments are checked first, then "auto" servers, largest first, go
+    to a GPU that already holds one of our servers (`ours`, or one placed here) when they fit, else to the least-used
+    GPU in the pool. Raises ConfigError explaining why a server does not fit."""
     catalog = selection.catalog
     info = {gpu.index: gpu for gpu in gpus}
     committed = {gpu.index: gpu.used_fraction for gpu in gpus}
@@ -81,7 +83,11 @@ def plan_placement(
         return f"GPU {index}: {gpu.used_mib / MIB_PER_GIB:.1f}/{gpu.total_mib / MIB_PER_GIB:.1f} GiB in use"
 
     explicit = [s for s in servers if selection.gpus.get(s, "auto") != "auto"]
-    automatic = [s for s in servers if selection.gpus.get(s, "auto") == "auto"]
+    automatic = sorted(
+        (s for s in servers if selection.gpus.get(s, "auto") == "auto"),
+        key=lambda s: -catalog.servers[s].gpu_memory_utilization,
+    )
+    shared = set(ours)
 
     for server in explicit:
         spec = catalog.servers[server]
@@ -100,12 +106,13 @@ def plan_placement(
         for index in indices:
             committed[index] += spec.gpu_memory_utilization
         placement[server] = indices
+        shared.update(indices)
 
     for server in automatic:
         spec = catalog.servers[server]
         candidates = sorted(
             (index for index in selection.gpu_pool if index in info),
-            key=lambda index: (committed[index], index),
+            key=lambda index: (index not in shared, committed[index], index),
         )
         fitting = [index for index in candidates if committed[index] + spec.gpu_memory_utilization <= max_fraction]
         if len(fitting) < spec.tensor_parallel:
@@ -119,6 +126,7 @@ def plan_placement(
         for index in chosen:
             committed[index] += spec.gpu_memory_utilization
         placement[server] = chosen
+        shared.update(chosen)
 
     if errors:
         raise ConfigError("Cannot place local servers:\n  - " + "\n  - ".join(errors))
@@ -314,8 +322,10 @@ def main(argv: Optional[List[str]] = None) -> int:
     if not pending:
         return 0
 
+    running = [entry for entry in _read_state().values() if _alive(entry["pid"])]
+    ours = sorted({index for entry in running for index in entry["gpus"]})
     try:
-        placement = plan_placement(selection, pending, query_gpus(), config.GPU_MAX_MEMORY_FRACTION)
+        placement = plan_placement(selection, pending, query_gpus(), config.GPU_MAX_MEMORY_FRACTION, ours)
     except ConfigError as exc:
         print(exc, file=sys.stderr)
         return 2
@@ -342,8 +352,22 @@ def main(argv: Optional[List[str]] = None) -> int:
     STATE_DIR.mkdir(parents=True, exist_ok=True)
     state = _read_state()
     started: Dict[str, subprocess.Popen] = {}
+    ready: set = set()
+
+    def await_healthy(server: str) -> None:
+        print(f"Waiting for {server} to become healthy...")
+        _wait_healthy(_health_url(selection, server), started[server], STATE_DIR / f"{server}.log", HEALTH_TIMEOUT_S)
+        print(f"{server} is ready at {_health_url(selection, server).removesuffix('/health')}")
+        ready.add(server)
+
+    order = sorted(pending, key=lambda s: -selection.catalog.servers[s].gpu_memory_utilization)
     try:
-        for server in pending:
+        for server in order:
+            # vLLM sizes its cache from the GPU's free memory, so a server that starts while another one on the same
+            # GPU is still loading would miscount that server's memory: servers sharing a GPU start one at a time.
+            for other in list(started):
+                if other not in ready and set(placement[other]) & set(placement[server]):
+                    await_healthy(other)
             log_path = STATE_DIR / f"{server}.log"
             with open(log_path, "ab") as log:
                 process = subprocess.Popen(
@@ -358,10 +382,9 @@ def main(argv: Optional[List[str]] = None) -> int:
             state[server] = {"pid": process.pid, "gpus": placement[server], "log": str(log_path), "health": _health_url(selection, server)}
             _write_state(state)
             print(f"Started {server} (pid {process.pid}); log: {log_path}")
-        for server, process in started.items():
-            print(f"Waiting for {server} to become healthy...")
-            _wait_healthy(_health_url(selection, server), process, STATE_DIR / f"{server}.log", HEALTH_TIMEOUT_S)
-            print(f"{server} is ready at {_health_url(selection, server).removesuffix('/health')}")
+        for server in started:
+            if server not in ready:
+                await_healthy(server)
     except (RuntimeError, KeyboardInterrupt) as exc:
         if isinstance(exc, RuntimeError):
             print(f"Startup failed: {exc}", file=sys.stderr)

@@ -164,7 +164,10 @@ servers:
     model_path: /mnt/shared/shared_hf_home/hub/models--Qwen--Qwen3.6-27B/snapshots/6a9e13bd6fc8f0983b9b99948120bc37f49c13e9
     port: 8002
     tensor_parallel: 1
-    gpu_memory_utilization: 0.90
+    # 0.60 + 0.16 + 0.15 (embedding, reranker) = 0.91: all three servers share one 140 GiB H200. Measured: weights
+    # 51.1 GiB + ~3.2 GiB activations/graphs leave ~30 GiB of cache = ~470k tokens (~67 KB/token, only 16 of 64 layers
+    # use full attention), i.e. ~5 concurrent requests of the largest Arm A document (84k tokens).
+    gpu_memory_utilization: 0.60
     max_model_len: 131072
     max_num_seqs: 8
     # --mamba-cache-mode all: Qwen3.6 is a hybrid (linear attention) model; the default "align" mode keeps a reusable
@@ -189,14 +192,14 @@ servers:
     model_path: /mnt/shared/shared_hf_home/hub/models--Qwen--Qwen3-Embedding-8B/snapshots/1d8ad4ca9b3dd8059ad90a75d4983776a23d44af
     port: 8005  # 8003 is taken on this machine by another group's embedding server
     tensor_parallel: 1
-    gpu_memory_utilization: 0.40
+    gpu_memory_utilization: 0.16  # 14.1 GiB weights + ~1.7 GiB overhead leave ~48k tokens of cache (>= max_model_len)
     max_model_len: 32768
     args: [--runner, pooling, --dtype, bfloat16]
   qwen3_rerank_8b:
     model_path: /mnt/shared/shared_hf_home/hub/models--Qwen--Qwen3-Reranker-8B/snapshots/77d193c791ed757ca307ee72715aa132723da912
     port: 8004
     tensor_parallel: 1
-    gpu_memory_utilization: 0.40
+    gpu_memory_utilization: 0.15  # 14.1 GiB weights + ~1.7 GiB overhead leave ~38k tokens of cache (>= max_model_len)
     max_model_len: 16384
     args: [--runner, pooling, --dtype, bfloat16, --hf-overrides, '{"architectures": ["Qwen3ForSequenceClassification"], "classifier_from_token": ["no", "yes"], "is_original_qwen3_reranker": true}', --chat-template, src/config/templates/qwen3_reranker.jinja]
 

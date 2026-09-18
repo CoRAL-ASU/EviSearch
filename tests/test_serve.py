@@ -24,31 +24,41 @@ def test_query_gpus_parses_nvidia_smi():
     assert query_gpus(fake_run) == [GpuInfo(0, 0, 143771), GpuInfo(4, 22307, 143771)]
 
 
-def test_auto_placement_prefers_least_used_gpus_in_pool():
+def test_local_servers_fit_on_one_h200():
+    total = sum(CATALOG.servers[server].gpu_memory_utilization for server in SERVERS)
+    idle = 1 / 140  # an idle H200 reports ~0.5-1 GiB in use
+    assert total + idle <= 0.95
+
+
+def test_auto_placement_puts_all_local_servers_on_the_least_used_free_gpu():
     selection = CATALOG.resolve("local", gpu_pool=[0, 1, 2])
     placement = plan_placement(selection, SERVERS, _gpus(30, 0, 0), max_fraction=0.95)
-    assert placement == {"qwen36_27b": [1], "qwen3_embed_8b": [2], "qwen3_rerank_8b": [0]}
+    assert placement == {"qwen36_27b": [1], "qwen3_embed_8b": [1], "qwen3_rerank_8b": [1]}
 
 
-def test_auto_placement_packs_small_servers_onto_shared_gpu_when_pool_is_small():
+def test_auto_placement_spills_to_the_next_gpu_when_the_shared_one_is_full():
     selection = CATALOG.resolve("local", gpu_pool=[0, 1])
-    placement = plan_placement(selection, SERVERS, _gpus(0, 0), max_fraction=0.95)
-    assert placement["qwen36_27b"] == [0]
-    assert placement["qwen3_embed_8b"] == [1]
-    assert placement["qwen3_rerank_8b"] == [1]
+    placement = plan_placement(selection, SERVERS, _gpus(10, 30), max_fraction=0.95)
+    assert placement == {"qwen36_27b": [0], "qwen3_embed_8b": [0], "qwen3_rerank_8b": [1]}
+
+
+def test_auto_placement_joins_the_gpu_where_our_servers_already_run():
+    selection = CATALOG.resolve("local", gpu_pool=[0, 1])
+    placement = plan_placement(selection, ["qwen3_embed_8b"], _gpus(0, 85), max_fraction=0.95, ours=[1])
+    assert placement == {"qwen3_embed_8b": [1]}
 
 
 def test_explicit_busy_gpu_is_rejected_with_memory_details():
     selection = CATALOG.resolve("local", gpus={"qwen36_27b": [1]}, gpu_pool=[0, 1])
     with pytest.raises(ConfigError) as exc:
-        plan_placement(selection, ["qwen36_27b"], _gpus(0, 22), max_fraction=0.95)
-    assert "GPU 1: 22.0/140.0 GiB in use" in str(exc.value)
+        plan_placement(selection, ["qwen36_27b"], _gpus(0, 60), max_fraction=0.95)
+    assert "GPU 1: 60.0/140.0 GiB in use" in str(exc.value)
 
 
 def test_auto_placement_fails_when_pool_is_full():
     selection = CATALOG.resolve("local", gpu_pool=[0])
     with pytest.raises(ConfigError, match="qwen3_rerank_8b needs 1 GPU"):
-        plan_placement(selection, SERVERS, _gpus(0), max_fraction=0.95)
+        plan_placement(selection, SERVERS, _gpus(20), max_fraction=0.95)
 
 
 def test_vllm_bin_falls_back_to_the_active_python_environment(tmp_path, monkeypatch):
