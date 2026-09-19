@@ -135,3 +135,17 @@ def test_review_history_events_and_lock_export(paths):
     assert [h["action"] for h in year["history"]] == ["answer", "edit"] and year["review"]["state"] == "edited"
     events = [json.loads(line)["event"] for line in (paths / "feedback" / "feedback.jsonl").read_text().splitlines()]
     assert events == ["schema_draft", "definition_accept", "definition_answer", "definition_edit", "schema_lock"]
+
+
+def test_revision_only_takes_feedback_the_definition_does_not_reflect_yet():
+    def field(questions, history):
+        return {"name": "c", "description": "d", "x-evisearch": {"questions": questions, "history": history}}
+
+    answered = {"id": "q1", "question": "Sum PS 1 and 2?", "answer": "Yes", "answered_at": "2026-09-19T02:00:00+00:00"}
+    edit = {"at": "2026-09-19T02:00:05+00:00", "action": "edit", "note": "Report every arm separately."}
+    assert generator.pending_feedback(field([answered], [])) == (["- Sum PS 1 and 2? → Yes"], [])
+    # an edit already carries the answers given before it, and its own note explains the edit
+    assert generator.pending_feedback(field([answered], [edit])) == ([], [])
+    later = dict(answered, answered_at="2026-09-19T02:10:00+00:00")
+    accept = {"at": "2026-09-19T02:11:00+00:00", "action": "accept", "note": "Keep the paper's label."}
+    assert generator.pending_feedback(field([later], [edit, accept])) == (["- Sum PS 1 and 2? → Yes"], ["- Keep the paper's label."])

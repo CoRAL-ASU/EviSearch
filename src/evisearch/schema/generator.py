@@ -179,10 +179,21 @@ def draft_fields(
     return fields, logs
 
 
+def pending_feedback(field: Dict[str, Any]) -> Tuple[List[str], List[str]]:
+    """The reviewer's answers and notes that the current definition does not reflect yet: those given after the last
+    edit or revision. An edit is the reviewer's own wording (its note explains it), so it is never rewritten."""
+    x = field["x-evisearch"]
+    history = x.get("history", [])
+    last = max((h["at"] for h in history if h.get("action") in ("edit", "revise")), default="")
+    answers = [f'- {q["question"]} → {q["answer"]}' for q in x.get("questions", [])
+               if q.get("answer") and (q.get("answered_at") or "") > last]
+    notes = [f'- {h["note"]}' for h in history if h.get("note") and h.get("action") not in ("edit", "revise") and h["at"] > last]
+    return answers, notes
+
+
 def revise_fields(chat: Any, fields: Sequence[Dict[str, Any]], *, conventions: str = "") -> Tuple[Dict[str, Dict[str, Any]], List[Dict[str, Any]]]:
-    """Rewrite the definitions of fields that got answers or notes; returns ({column: {definition, change}}, logs)."""
-    todo = [f for f in fields if any(q.get("answer") for q in f["x-evisearch"].get("questions", [])) or
-            any(h.get("note") for h in f["x-evisearch"].get("history", []) if h.get("action") != "revise")]
+    """Rewrite the definitions of fields with pending answers or notes; returns ({column: {definition, change}}, logs)."""
+    todo = [f for f in fields if any(pending_feedback(f))]
     system = REVISE_PROMPT + (f"\n\nConventions the table's owner has given (apply them):\n{conventions}" if conventions else "")
     out: Dict[str, Dict[str, Any]] = {}
     logs: List[Dict[str, Any]] = []
@@ -191,8 +202,7 @@ def revise_fields(chat: Any, fields: Sequence[Dict[str, Any]], *, conventions: s
         blocks = []
         for j, f in enumerate(part, 1):
             x = f["x-evisearch"]
-            answers = [f'- {q["question"]} → {q["answer"]}' for q in x.get("questions", []) if q.get("answer")]
-            notes = [f'- {h["note"]}' for h in x.get("history", []) if h.get("note") and h.get("action") != "revise"]
+            answers, notes = pending_feedback(f)
             blocks.append("\n".join([f"---\nColumn {j}: {f['name']}", f"Current definition: {f['description']}",
                                      f'Example value: "{x["example"]["value"]}"', "Answers:", *(answers or ["- none"]),
                                      "Notes:", *(notes or ["- none"])]))
