@@ -128,3 +128,10 @@ def test_human_correction_keeps_the_reason_and_is_logged(api, isolated_app):
     assert cell["reason"] == "wrong endpoint" and cell["by"] == "human" and cell["edited_at"]
     event = api.get("/api/feedback/events?source=correction").get_json()["events"][0]
     assert event["event"] == "cell_correct" and event["after"] == "Not reported" and event["schema_id"] == "x"
+
+
+def test_schema_and_feedback_pages_render(client):
+    schema_page, feedback_page = client.get("/schema"), client.get("/feedback")
+    assert schema_page.status_code == 200 and b'id="fields"' in schema_page.data and b'href="/feedback"' in schema_page.data
+    assert feedback_page.status_code == 200 and b'id="kb-table"' in feedback_page.data and b'id="chart"' in feedback_page.data
+    assert b'href="/schema"' in client.get("/").data  # every page links the two new pages

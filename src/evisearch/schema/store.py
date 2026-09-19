@@ -41,7 +41,8 @@ def new_id(name: str) -> str:
 
 
 def record_event(event: str, schema_id: Optional[str] = None, **payload: Any) -> None:
-    record_feedback({"source": "schema", "event": event, "schema_id": schema_id, **payload})
+    payload.pop("source", None)  # never overwrite the event's own source
+    record_feedback({**payload, "source": "schema", "event": event, "schema_id": schema_id})
 
 
 def create(name: str, fields: List[Dict[str, Any]], *, source: Dict[str, Any], by: str = "", schema_id: Optional[str] = None) -> Dict[str, Any]:
@@ -57,7 +58,7 @@ def create(name: str, fields: List[Dict[str, Any]], *, source: Dict[str, Any], b
         "fields": fields,
     }
     save(schema)
-    record_event("schema_draft", schema["id"], by=by, fields=len(fields), source=source)
+    record_event("schema_draft", schema["id"], by=by, fields=len(fields), origin=source)  # "source" is the event's own field
     return schema
 
 

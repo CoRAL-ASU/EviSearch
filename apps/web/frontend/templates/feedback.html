@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EviSearch — Human feedback</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.14/dist/full.min.css" rel="stylesheet" />
+    <style>
+        .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+        #chart svg { width: 100%; height: auto; color: oklch(var(--bc)); }
+        #chart .grid { stroke: currentColor; stroke-opacity: .12; }
+        #chart .axis { fill: currentColor; fill-opacity: .6; font-size: 11px; }
+    </style>
+</head>
+<body class="min-h-screen bg-base-200">
+    <div class="navbar bg-base-300 shadow-lg">
+        <div class="flex-1 flex-wrap">
+            <a href="/" class="btn btn-ghost">Home</a>
+            <a href="/qa" class="btn btn-ghost">Ask a question</a>
+            <a href="/extract" class="btn btn-ghost">Extract full table</a>
+            <a href="/attribution" class="btn btn-ghost">Attribution</a>
+            <a href="/schema" class="btn btn-ghost">Schema</a>
+            <a href="/feedback" class="btn btn-ghost font-semibold">Feedback</a>
+            <a href="/comparison-report" class="btn btn-ghost" target="_blank">Report</a>
+        </div>
+    </div>
+
+    <main class="max-w-7xl mx-auto p-4 md:p-6 space-y-6">
+        <div>
+            <h1 class="text-2xl font-bold">Human feedback and what it taught the system</h1>
+            <p class="text-sm text-base-content/70">Every review action on schemas and extracted cells, and the conventions (reusable rules) they produced. Approved conventions are read by the schema agent, both extraction agents and the checker on every later paper.</p>
+        </div>
+
+        <div class="stats stats-vertical md:stats-horizontal shadow w-full" id="tiles"></div>
+
+        <div class="card bg-base-100 shadow">
+            <div class="card-body p-4">
+                <h2 class="card-title text-base">Feedback over time</h2>
+                <div id="chart"></div>
+                <p id="chart-cap" class="text-xs text-base-content/60"></p>
+            </div>
+        </div>
+
+        <div class="card bg-base-100 shadow">
+            <div class="card-body p-4 space-y-2">
+                <div class="flex flex-wrap items-center gap-2">
+                    <h2 class="card-title text-base flex-1">Knowledge base (conventions)</h2>
+                    <select id="kb-status" class="select select-sm select-bordered">
+                        <option value="">all</option><option>approved</option><option>proposed</option><option>retired</option><option>rejected</option>
+                    </select>
+                    <label class="text-sm"><input type="checkbox" id="kb-seeds" class="checkbox checkbox-xs"> show seed rules</label>
+                </div>
+                <div class="overflow-x-auto"><table class="table table-sm" id="kb-table"></table></div>
+            </div>
+        </div>
+
+        <div class="card bg-base-100 shadow">
+            <div class="card-body p-4 space-y-2">
+                <div class="flex flex-wrap items-center gap-2">
+                    <h2 class="card-title text-base flex-1">All feedback events</h2>
+                    <select id="ev-source" class="select select-sm select-bordered">
+                        <option value="">every source</option><option value="schema">schema review</option><option value="correction">cell corrections</option>
+                        <option value="attribution">attribution feedback</option><option value="chat">chat feedback</option>
+                    </select>
+                    <input id="ev-q" class="input input-sm input-bordered w-56" placeholder="filter (column, paper, text)" />
+                </div>
+                <div class="overflow-x-auto"><table class="table table-sm" id="ev-table"></table></div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const $ = (id) => document.getElementById(id);
+        const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'}[c]));
+        const get = (url) => fetch(url).then((r) => r.json());
+        const post = (url, body) => fetch(url, {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(body)}).then((r) => r.json());
+        let events = [], conventions = [];
+        const reviewer = () => { try { return localStorage.getItem('evisearch.reviewer') || 'anonymous'; } catch (e) { return 'anonymous'; } };
+        const KIND = (e) => e.source === 'correction' ? 'cell correction' : e.source === 'schema' ? (String(e.event || '').startsWith('convention') ? 'convention' : 'schema review') : (e.source || 'other');
+        const COLORS = {'schema review': 'oklch(var(--in))', 'cell correction': 'oklch(var(--wa))', 'convention': 'oklch(var(--su))', 'other': 'oklch(var(--bc) / .4)'};
+
+        function tiles() {
+            const by = (f) => events.filter(f).length;
+            const learned = conventions.filter((c) => (c.source || {}).kind !== 'seed');
+            const t = [
+                ['Feedback events', events.length, `${by((e) => e.source === 'schema')} schema · ${by((e) => e.source === 'correction')} cell corrections`],
+                ['Definitions reviewed', by((e) => /^definition_(accept|edit|answer)$/.test(e.event || '')), `${by((e) => e.event === 'definition_edit')} edited · ${by((e) => e.event === 'definition_answer')} answers`],
+                ['Conventions learned', learned.filter((c) => c.status === 'approved').length, `${learned.filter((c) => c.status === 'proposed').length} proposed · ${learned.filter((c) => c.status === 'retired').length} retired`],
+                ['Duplicates merged', by((e) => e.event === 'convention_merge'), 'kept out of the knowledge base by the gate'],
+                ['Schemas locked', by((e) => e.event === 'schema_lock'), `${by((e) => e.event === 'extraction_start')} extractions started`],
+            ];
+            $('tiles').innerHTML = t.map(([title, v, d]) => `<div class="stat"><div class="stat-title">${title}</div><div class="stat-value text-2xl">${v}</div><div class="stat-desc">${esc(d)}</div></div>`).join('');
+        }
+
+        function chart() {
+            const pts = events.map((e) => ({t: Date.parse(e.timestamp || e.at || ''), k: KIND(e)})).filter((p) => !isNaN(p.t)).sort((a, b) => a.t - b.t);
+            if (pts.length < 2) { $('chart').innerHTML = '<p class="text-sm text-base-content/60">Not enough feedback yet.</p>'; return; }
+            const t0 = pts[0].t, t1 = pts[pts.length - 1].t || t0 + 1, span = Math.max(1, t1 - t0);
+            const W = 900, H = 220, L = 40, R = 10, T = 10, B = 28;
+            const kinds = [...new Set(pts.map((p) => p.k))];
+            const series = {};
+            kinds.forEach((k) => { let n = 0; series[k] = pts.filter((p) => p.k === k).map((p) => [p.t, ++n]); });
+            const approved = conventions.filter((c) => (c.source || {}).kind !== 'seed').flatMap((c) => (c.history || []).filter((h) => h.op === 'approve').map((h) => Date.parse(h.at))).filter((t) => !isNaN(t)).sort();
+            series['conventions approved'] = approved.map((t, i) => [t, i + 1]);
+            const max = Math.max(...Object.values(series).map((s) => s.length ? s[s.length - 1][1] : 0), 1);
+            const x = (t) => L + (W - L - R) * (t - t0) / span, y = (v) => H - B - (H - T - B) * v / max;
+            const grid = [0, .5, 1].map((f) => `<line class="grid" x1="${L}" x2="${W - R}" y1="${y(max * f)}" y2="${y(max * f)}"/><text class="axis" x="${L - 6}" y="${y(max * f) + 4}" text-anchor="end">${Math.round(max * f)}</text>`).join('');
+            const lines = Object.entries(series).filter(([, s]) => s.length).map(([k, s]) => {
+                const color = k === 'conventions approved' ? 'oklch(var(--p))' : (COLORS[k] || COLORS.other);
+                const d = s.map(([t, v], i) => `${i ? 'L' : 'M'}${x(t).toFixed(1)},${y(v).toFixed(1)}`).join(' ') + ` L${x(t1).toFixed(1)},${y(s[s.length - 1][1]).toFixed(1)}`;
+                const [lt, lv] = s[s.length - 1];
+                return `<path d="${d}" fill="none" stroke="${color}" stroke-width="2"/><text x="${Math.min(x(lt) + 4, W - 150)}" y="${y(lv) - 4}" font-size="11" fill="${color}">${esc(k)} (${lv})</text>`;
+            }).join('');
+            const fmt = (t) => new Date(t).toLocaleString([], {month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'});
+            $('chart').innerHTML = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Cumulative feedback events by kind and approved conventions over time">${grid}${lines}
+                <text class="axis" x="${L}" y="${H - 8}">${fmt(t0)}</text><text class="axis" x="${W - R}" y="${H - 8}" text-anchor="end">${fmt(t1)}</text></svg>`;
+            $('chart-cap').textContent = 'Cumulative count of each kind of feedback, and of learned conventions approved into the knowledge base.';
+        }
+
+        function kbTable() {
+            const status = $('kb-status').value, seeds = $('kb-seeds').checked;
+            const rows = conventions.filter((c) => (!status || c.status === status) && (seeds || (c.source || {}).kind !== 'seed'));
+            $('kb-table').innerHTML = '<thead><tr><th>id</th><th>status</th><th>applies to</th><th>action</th><th>rule</th><th>support</th><th>from</th><th></th></tr></thead><tbody>' +
+                rows.map((c) => {
+                    const t = c.trigger || {}, src = c.source || {};
+                    const where = t.scope === 'global' ? 'every column' : t.scope === 'column' ? (t.columns || []).join(', ') : t.scope === 'family' ? `${t.family || (t.columns || []).join(', ')} columns` : 'this table';
+                    const badge = {approved: 'badge-success', proposed: 'badge-warning', retired: 'badge-ghost', rejected: 'badge-error'}[c.status] || '';
+                    const acts = c.status === 'proposed' ? `<button class="btn btn-xs btn-success" data-c="${esc(c.id)}" data-op="approve">approve</button> <button class="btn btn-xs" data-c="${esc(c.id)}" data-op="reject">reject</button>`
+                        : c.status === 'approved' && src.kind !== 'seed' ? `<button class="btn btn-xs" data-c="${esc(c.id)}" data-op="retire">retire</button>` : '';
+                    const ex = (c.examples || []).slice(0, 2).map((e) => `${esc(e.doc || '')} ${esc(e.column || '')}${e.after ? ': ' + esc(e.before) + ' → ' + esc(e.after) : ''}`).join('<br>');
+                    return `<tr><td class="mono">${esc(c.id)}</td><td><span class="badge badge-sm ${badge}">${esc(c.status)}</span></td>
+                        <td class="text-xs">${esc(where)}${t.condition ? `<div class="text-base-content/60">when: ${esc(t.condition)}</div>` : ''}</td>
+                        <td class="mono text-xs">${esc((c.action || {}).type)}</td><td class="text-sm">${esc(c.instruction)}${ex ? `<div class="text-xs text-base-content/60 mt-1">${ex}</div>` : ''}</td>
+                        <td>${c.support || 1}</td><td class="text-xs">${esc(src.kind || '')}<div class="text-base-content/60">${esc(src.by || '')}</div></td><td>${acts}</td></tr>`;
+                }).join('') + '</tbody>';
+            $('kb-table').querySelectorAll('button').forEach((b) => b.addEventListener('click', async () => {
+                await post(`/api/conventions/${b.dataset.c}/decide`, {op: b.dataset.op, by: reviewer()}); load();
+            }));
+        }
+
+        function evTable() {
+            const src = $('ev-source').value, q = $('ev-q').value.toLowerCase();
+            const rows = events.filter((e) => (!src || e.source === src) && (!q || JSON.stringify(e).toLowerCase().includes(q))).slice(0, 500);
+            $('ev-table').innerHTML = '<thead><tr><th>when</th><th>kind</th><th>event</th><th>who</th><th>paper / schema</th><th>column</th><th>change</th><th>reason / note</th></tr></thead><tbody>' +
+                rows.map((e) => {
+                    const hasChange = (e.before != null && e.before !== '') || (e.after != null && e.after !== '');
+                    const change = hasChange ? `<span class="line-through text-base-content/50">${esc(String(e.before ?? '').slice(0, 80))}</span> → ${esc(String(e.after ?? '').slice(0, 120))}`
+                        : e.answer ? `${esc(e.question || '')} → <b>${esc(e.answer)}</b>` : e.instruction ? esc(e.instruction) : e.convention ? esc(e.convention + (e.op ? ' ' + e.op : '')) : '';
+                    return `<tr><td class="text-xs whitespace-nowrap">${esc(String(e.timestamp || '').slice(0, 16).replace('T', ' '))}</td>
+                        <td><span class="badge badge-sm">${esc(KIND(e))}</span></td><td class="mono text-xs">${esc(e.event || e.source)}</td>
+                        <td class="text-xs">${esc(e.by || '')}</td><td class="text-xs">${esc(e.doc_id || e.schema_id || '')}</td>
+                        <td class="text-xs mono">${esc(e.column || '')}</td><td class="text-xs">${change}</td>
+                        <td class="text-xs">${esc(e.reason || '')}${e.note ? `<div class="text-base-content/60">${esc(e.note)}</div>` : ''}${e.comment ? esc(e.comment) : ''}</td></tr>`;
+                }).join('') + '</tbody>';
+        }
+
+        async function load() {
+            const [ev, kb] = await Promise.all([get('/api/feedback/events?limit=5000'), get('/api/conventions')]);
+            events = ev.events || []; conventions = kb.conventions || [];
+            tiles(); chart(); kbTable(); evTable();
+        }
+        ['kb-status', 'kb-seeds'].forEach((id) => $(id).addEventListener('change', kbTable));
+        $('ev-source').addEventListener('change', evTable);
+        $('ev-q').addEventListener('input', evTable);
+        load();
+    </script>
+</body>
+</html>
