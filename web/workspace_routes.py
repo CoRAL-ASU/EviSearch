@@ -26,13 +26,16 @@ from __future__ import annotations
 import csv
 import io
 import json
+import re
 import sys
 import time
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
-from flask import Blueprint, Response, jsonify, render_template, request
+import os
+
+from flask import Blueprint, Response, jsonify, redirect, render_template, request
 
 from src.config import runtime_paths
 from src.evisearch.schema import store
@@ -69,6 +72,16 @@ def table_page(table_id):
 @bp.route("/tables/<table_id>/review")
 def review_page(table_id):
     return render_template("review.html", table_id=table_id)
+
+
+@bp.route("/review")
+def review_redirect():
+    """The Review tab: the demo table's showcase run (or the table list when there is none yet)."""
+    table = demo_table_id()
+    if not table:
+        return redirect("/tables")
+    run = showcase_run(table)
+    return redirect(f"/tables/{table}/review" + (f"?run={run}" if run else ""))
 
 
 @bp.route("/knowledge")
@@ -192,7 +205,12 @@ def _machine(doc_id: str, run: str, cells: Optional[Dict[str, Any]] = None) -> D
     return {c: v["value"] for c, v in cells.items()}
 
 
-def run_summary(run: Dict[str, Any], with_reviews: bool = True) -> Dict[str, Any]:
+def active_runs() -> set:
+    """Run names with a job still going."""
+    return {j.get("run") for j in jobs.list_jobs(kind="extract") if j["status"] in ("queued", "running")}
+
+
+def run_summary(run: Dict[str, Any], with_reviews: bool = True, active: Optional[set] = None) -> Dict[str, Any]:
     """A run with each paper's progress, flags and reviews."""
     papers, flagged, reviewed, corrected = [], 0, 0, 0
     for doc in run["docs"]:
@@ -203,8 +221,27 @@ def run_summary(run: Dict[str, Any], with_reviews: bool = True) -> Dict[str, Any
         flagged, reviewed, corrected = flagged + n_flag, reviewed + counts["reviewed"], corrected + counts["corrected"]
         papers.append({**progress, "name": _doc_name(doc), "cells": len(cells), "flagged": n_flag, **counts})
     done = sum(1 for p in papers if p["status"] == "ok")
-    status = "ok" if papers and done == len(papers) else ("failed" if any(p["status"] not in ("ok", "running", "waiting") for p in papers) and not any(p["status"] == "running" for p in papers) else "running")
+    if papers and done == len(papers):
+        status = "ok"
+    elif any(p["status"] not in ("ok", "running", "waiting") for p in papers):
+        status = "failed"
+    elif run["run"] in (active if active is not None else active_runs()) or _recently_written(run["run"]):
+        status = "running"
+    else:  # nothing written for a while and no job: the run stopped before finishing (e.g. cancelled or interrupted)
+        status = "incomplete"
     return {**run, "papers": papers, "done": done, "flagged": flagged, "reviewed": reviewed, "corrected": corrected, "status": status}
+
+
+def _recently_written(run: str, minutes: int = 30) -> bool:
+    """Whether anything was written into the run lately (directory timestamps only, so this stays cheap)."""
+    newest = 0.0
+    for doc_dir in runtime_paths.RESULTS_ROOT.glob(f"*/runs/{run}"):
+        for path in [doc_dir, *doc_dir.iterdir()]:
+            try:
+                newest = max(newest, path.stat().st_mtime)
+            except OSError:
+                continue
+    return bool(newest) and (time.time() - newest) < minutes * 60
 
 
 def _steps(schema: Dict[str, Any], summaries: List[Dict[str, Any]], learned: int, table_id: str) -> Tuple[List[Dict[str, Any]], Dict[str, Any]]:
@@ -241,6 +278,54 @@ def _learned_count() -> int:
                if c["status"] == "approved" and (c.get("source") or {}).get("kind") in ("schema_review", "extraction_review"))
 
 
+def demo_table_id() -> Optional[str]:
+    """EVISEARCH_DEMO_TABLE, else the table with the most runs."""
+    wanted = os.getenv("EVISEARCH_DEMO_TABLE", "").strip()
+    tables = store.list_schemas()
+    if wanted and any(t["id"] == wanted for t in tables):
+        return wanted
+    if not tables:
+        return None
+    return max(tables, key=lambda t: (len(runs_service.list_runs(t["id"])), t.get("created_at") or ""))["id"]
+
+
+def showcase_run(table_id: str) -> Optional[str]:
+    """EVISEARCH_DEMO_RUN, else the table's latest main run (no variant suffix) whose papers all finished."""
+    wanted = os.getenv("EVISEARCH_DEMO_RUN", "").strip()
+    table_runs = runs_service.list_runs(table_id)
+    if wanted and any(r["run"] == wanted for r in table_runs):
+        return wanted
+    finished = [r for r in table_runs if all(runs_service.doc_progress(d, r["run"])["status"] == "ok" for d in r["docs"])]
+    main = [r for r in finished if not r.get("variant")] or finished
+    return main[-1]["run"] if main else (table_runs[-1]["run"] if table_runs else None)
+
+
+@bp.route("/api/stats")
+def api_stats():
+    """Live counts for the home page, computed from the stores."""
+    from src.evisearch.knowledge import conventions as kb
+
+    table = demo_table_id()
+    run = showcase_run(table) if table else None
+    cells = with_page = flagged = reviewed = 0
+    papers: List[str] = []
+    if run:
+        found = next(r for r in runs_service.list_runs(table) if r["run"] == run)
+        papers = found["docs"]
+        for doc in papers:
+            doc_cells = runs_service.final_cells(doc, run)
+            reported = [c for c in doc_cells.values() if not runs_service.is_not_reported(c["value"])]
+            cells += len(reported)
+            with_page += sum(1 for c in reported if c["evidence"])
+            flagged += sum(1 for c in doc_cells.values() if c["flagged"])
+            reviewed += reviews.counts(doc, run, _machine(doc, run, doc_cells))["reviewed"]
+    rules = kb.load_all().values()
+    return _ok(demo_table=table, showcase_run=run, papers=len(papers), reported_values=cells, with_page=with_page,
+               flagged=flagged, reviewed=reviewed, tables=len(store.list_schemas()),
+               rules_learned=sum(1 for c in rules if c["status"] == "approved" and (c.get("source") or {}).get("kind") in ("schema_review", "extraction_review")),
+               rules_total=sum(1 for c in rules if c["status"] == "approved"))
+
+
 @bp.route("/api/tables")
 def api_tables():
     out = []
@@ -258,13 +343,49 @@ def api_table(table_id):
     except FileNotFoundError as exc:
         return _err(str(exc), 404)
     table_runs = runs_service.list_runs(table_id)
-    summaries = [run_summary(r) for r in table_runs]
-    steps, next_action = _steps(schema, summaries, _learned_count(), table_id)
+    active = active_runs()
+    summaries = [run_summary(r, active=active) for r in table_runs]
+    main = showcase_run(table_id)  # the run the steps describe: the latest finished main run, not a partial variant
+    ordered = [s for s in summaries if s["run"] != main] + [s for s in summaries if s["run"] == main]
+    steps, next_action = _steps(schema, ordered, _learned_count(), table_id)
     info = {k: schema.get(k) for k in ("id", "name", "status", "version", "locked_versions", "created_at", "created_by", "locked_at")}
     info["description"] = (schema.get("source") or {}).get("description", "")
     info["example_doc"] = (schema.get("source") or {}).get("example_doc")
     info["fields"] = len(schema.get("fields", []))
-    return _ok(table=info, papers=table_papers(table_id, schema, table_runs), runs=summaries, steps=steps, next_action=next_action)
+    return _ok(table=info, papers=table_papers(table_id, schema, table_runs), runs=summaries, steps=steps, next_action=next_action,
+               showcase_run=main)
+
+
+@bp.route("/api/tables/<table_id>/versions/<int:version>.<fmt>")
+def api_version_download(table_id, version, fmt):
+    """A locked version's definitions: the CSV the pipelines read, or a spreadsheet with one row per column."""
+    try:
+        schema = store.load(table_id, version)
+    except FileNotFoundError as exc:
+        return _err(str(exc), 404)
+    fields = _schema_fields(schema)
+    if fmt == "csv":
+        path = store.schema_dir(table_id) / "versions" / f"v{version}.csv"
+        if not path.exists():
+            return _err("CSV not found", 404)
+        return Response(path.read_text(encoding="utf-8"), mimetype="text/csv",
+                        headers={"Content-Disposition": f'attachment; filename="{table_id}-v{version}.csv"'})
+    if fmt == "xlsx":
+        try:
+            from openpyxl import Workbook
+        except ImportError:
+            return _err("openpyxl is not installed; download CSV instead", 501)
+        wb = Workbook()
+        ws = wb.active
+        ws.title = f"v{version}"
+        ws.append(["Column", "Group", "Definition", "Scoring"])
+        for f in fields:
+            ws.append([f["name"], f["group"], f["description"], f["eval_category"]])
+        buf = io.BytesIO()
+        wb.save(buf)
+        return Response(buf.getvalue(), mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                        headers={"Content-Disposition": f'attachment; filename="{table_id}-v{version}.xlsx"'})
+    return _err("format must be csv or xlsx", 404)
 
 
 @bp.route("/api/tables/<table_id>/papers", methods=["POST"])
@@ -298,6 +419,120 @@ def api_add_paper(table_id):
     return _ok(paper={**paper, "name": _doc_name(doc_id), **state}, job=job)
 
 
+@bp.route("/api/documents/<path:doc_id>/page/<int:page>.png")
+def api_page_image(doc_id, page):
+    """One rendered page of the paper. The Review page shows this instead of a PDF viewer in the browser: it needs no
+    plugin, works for every paper, and reuses the renderer (and cache) the extraction agents already use."""
+    from src.evisearch.services.highlight import resolve_pdf_path
+    from src.evisearch.services.page_images import render_pages
+
+    try:
+        runs_service.check_doc(doc_id)
+    except ValueError as exc:
+        return _err(str(exc))
+    pdf = resolve_pdf_path(doc_id)
+    if not pdf or not Path(pdf).exists():
+        return _err(f"no PDF for {doc_id}", 404)
+    scale = min(max(request.args.get("scale", 1.6, type=float), 0.5), 3.0)
+    images = render_pages(Path(pdf), [page], scale=scale)
+    if not images:
+        return _err(f"page {page} is not in this paper", 404)
+    return Response(images[0].png, mimetype="image/png", headers={"Cache-Control": "private, max-age=86400"})
+
+
+@bp.route("/api/documents/<path:doc_id>/page/<int:page>/find")
+def api_page_find(doc_id, page):
+    """Where a quote sits on a page: {pages, width, height, rects:[[x0,y0,x1,y1]…]} in the rendered image's pixels, so
+    the page can be shown with the evidence highlighted. Falls back to the longest matching line when the whole quote
+    is not found (parsed text and the PDF's own text differ in spacing and hyphenation)."""
+    from src.evisearch.services.highlight import resolve_pdf_path
+
+    try:
+        runs_service.check_doc(doc_id)
+    except ValueError as exc:
+        return _err(str(exc))
+    pdf = resolve_pdf_path(doc_id)
+    if not pdf or not Path(pdf).exists():
+        return _err(f"no PDF for {doc_id}", 404)
+    quote = (request.args.get("q") or "").strip()
+    scale = min(max(request.args.get("scale", 1.6, type=float), 0.5), 3.0)
+    import fitz
+
+    with fitz.open(str(pdf)) as doc:
+        if not 1 <= page <= len(doc):
+            return _err(f"page {page} is not in this paper", 404)
+        target = doc[page - 1]
+        rects: List[List[float]] = []
+        if quote:
+            for probe in _probes(quote):
+                found = target.search_for(probe, quads=False)
+                if found:
+                    rects = [[r.x0 * scale, r.y0 * scale, r.x1 * scale, r.y1 * scale] for r in found]
+                    break
+            if not rects:  # the PDF's own text differs (tables, ligatures, line breaks): match word by word
+                rects = _best_word_span(target, quote, scale)
+        return _ok(page=page, pages=len(doc), width=target.rect.width * scale, height=target.rect.height * scale,
+                   rects=rects, found=bool(rects))
+
+
+def _best_word_span(page, quote: str, scale: float) -> List[List[float]]:
+    """The run of words on the page that shares most words with the quote (at least 60% of them), as line rectangles."""
+    words = page.get_text("words")  # (x0, y0, x1, y1, word, block, line, word_no)
+    if not words:
+        return []
+    clean = lambda s: re.sub(r"[^a-z0-9.%]+", "", s.lower())
+    wanted = [clean(w) for w in quote.split()]
+    wanted = [w for w in wanted if len(w) > 1]
+    if len(wanted) < 3:
+        return []
+    page_words = [clean(w[4]) for w in words]
+    size = min(len(wanted), 60)
+    target = set(wanted)
+    best, best_at = 0, -1
+    for start in range(0, max(1, len(page_words) - size + 1)):
+        score = sum(1 for w in page_words[start:start + size] if w in target)
+        if score > best:
+            best, best_at = score, start
+    if best_at < 0 or best < max(3, int(0.6 * min(size, len(wanted)))):
+        return []
+    chosen = words[best_at:best_at + size]
+    lines: Dict[Any, List[Any]] = {}
+    for w in chosen:
+        lines.setdefault((w[5], w[6]), []).append(w)
+    out = []
+    for group in lines.values():
+        x0 = min(w[0] for w in group) * scale
+        y0 = min(w[1] for w in group) * scale
+        x1 = max(w[2] for w in group) * scale
+        y1 = max(w[3] for w in group) * scale
+        out.append([x0, y0, x1, y1])
+    return out
+
+
+def _probes(quote: str) -> List[str]:
+    """The quote, then its longest lines and sentences: PDF text often differs from the parsed text in line breaks."""
+    text = " ".join(quote.split())
+    parts = [text]
+    for piece in sorted(re.split(r"(?<=[.;:])\s+|\n", quote), key=len, reverse=True):
+        piece = " ".join(piece.split())
+        if len(piece) >= 12:
+            parts.append(piece)
+    parts += [text[:120], text[:60], text[:30]]
+    return [p for p in dict.fromkeys(parts) if len(p) >= 8]
+
+
+@bp.route("/api/documents/prepare", methods=["POST"])
+def api_prepare_document():
+    """{doc_id, by}: parse + embed a paper as a job (the new-table wizard parses its example paper this way)."""
+    body = request.get_json(silent=True) or {}
+    doc_id = str(body.get("doc_id", "")).strip()
+    try:
+        runs_service.check_doc(doc_id)
+    except ValueError as exc:
+        return _err(str(exc))
+    return _ok(job=start_prepare(doc_id, by=str(body.get("by", ""))))
+
+
 def start_prepare(doc_id: str, by: str = "", table: Optional[str] = None) -> Dict[str, Any]:
     """Parse the PDF (LandingAI) and build page embeddings, as a job; the same steps as the Ask page's Prepare."""
     existing = [j for j in jobs.list_jobs(kind="prepare", doc_id=doc_id) if j["status"] in ("queued", "running")]
@@ -329,7 +564,8 @@ def start_prepare(doc_id: str, by: str = "", table: Optional[str] = None) -> Dic
 
 @bp.route("/api/tables/<table_id>/runs", methods=["GET"])
 def api_table_runs(table_id):
-    return _ok(runs=[run_summary(r) for r in runs_service.list_runs(table_id)],
+    active = active_runs()
+    return _ok(runs=[run_summary(r, active=active) for r in runs_service.list_runs(table_id)],
                jobs=jobs.list_jobs(table=table_id, kind="extract")[:20])
 
 

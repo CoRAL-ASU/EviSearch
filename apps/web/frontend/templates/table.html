@@ -1,0 +1,169 @@
+{% extends "base.html" %}
+{% set active = "tables" %}
+{% block title %}Table{% endblock %}
+{% block head %}
+<style>
+    .grid-wrap { max-height: 70vh; overflow: auto; }
+    .grid-wrap table { border-collapse: separate; border-spacing: 0; }
+    .grid-wrap th, .grid-wrap td { border-bottom: 1px solid hsl(var(--b3)); border-right: 1px solid hsl(var(--b3)); }
+    .grid-wrap thead th { position: sticky; top: 0; z-index: 2; background: hsl(var(--b2)); }
+    .grid-wrap thead tr.cols th { top: 1.9rem; }
+    .grid-wrap .sticky-col { position: sticky; left: 0; z-index: 1; background: hsl(var(--b1)); }
+    .grid-wrap thead .sticky-col { z-index: 3; }
+    .cellv { max-width: 14rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; cursor: pointer; }
+    .row-head { cursor: pointer; }
+    .def-1 { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    ins { background: rgba(34, 197, 94, .25); text-decoration: none; }
+    del { background: rgba(239, 68, 68, .25); }
+</style>
+{% endblock %}
+{% block content %}
+<main class="max-w-7xl mx-auto p-4 md:p-6 space-y-4" id="page" data-table="{{ table_id }}">
+    <div class="flex flex-wrap items-baseline gap-3">
+        <a href="/tables" class="link text-sm">Tables</a><span class="opacity-50">/</span>
+        <h1 id="t-name" class="text-2xl font-bold">…</h1>
+        <span id="t-status" class="badge"></span>
+        <span id="t-meta" class="text-sm text-base-content/60"></span>
+    </div>
+    <p id="t-desc" class="text-sm text-base-content/70 hidden"></p>
+
+    <div role="tablist" class="tabs tabs-boxed w-fit flex-wrap" id="tabs">
+        <a role="tab" class="tab" data-tab="overview">Overview</a>
+        <a role="tab" class="tab" data-tab="schema">Schema</a>
+        <a role="tab" class="tab" data-tab="papers">Papers</a>
+        <a role="tab" class="tab" data-tab="runs">Runs</a>
+        <a role="tab" class="tab" data-tab="table">Table</a>
+    </div>
+
+    <!-- Overview -->
+    <section id="p-overview" class="panel space-y-4 hidden">
+        <div class="card bg-base-100 shadow"><div class="card-body p-4 space-y-3">
+            <div class="overflow-x-auto"><ul id="o-steps" class="steps w-full min-w-[640px] text-xs"></ul></div>
+            <div class="flex flex-wrap items-center gap-3"><span class="text-sm">Next:</span><a id="o-next" class="btn btn-primary btn-sm" href="#">…</a></div>
+        </div></div>
+        <div class="grid gap-4 md:grid-cols-2">
+            <div class="card bg-base-100 shadow"><div class="card-body p-4 space-y-2" id="o-run"></div></div>
+            <div class="card bg-base-100 shadow"><div class="card-body p-4">
+                <h3 class="font-semibold">Recent activity</h3>
+                <ul id="o-activity" class="text-sm space-y-1"></ul>
+                <a href="/learning" class="link text-xs">All activity →</a>
+            </div></div>
+        </div>
+    </section>
+
+    <!-- Schema -->
+    <section id="p-schema" class="panel space-y-3 hidden">
+        <div class="card bg-base-100 shadow"><div class="card-body p-3 flex-row flex-wrap items-center gap-2">
+            <label class="text-sm" for="s-version">Showing</label>
+            <select id="s-version" class="select select-sm select-bordered"></select>
+            <div class="join" id="s-filter">
+                <button class="btn btn-sm join-item btn-active" data-f="all">All</button>
+                <button class="btn btn-sm join-item" data-f="todo">To review</button>
+                <button class="btn btn-sm join-item" data-f="questions">Open questions</button>
+                <button class="btn btn-sm join-item" data-f="changed">Edited</button>
+            </div>
+            <input id="s-search" class="input input-sm input-bordered w-56" placeholder="Filter columns" />
+            <span id="s-count" class="text-sm text-base-content/60"></span>
+            <div class="flex-1"></div>
+            <button id="s-revise" class="btn btn-sm" title="The agent rewrites definitions that got answers or notes since its last revision">Revise with agent</button>
+            <button id="s-lock" class="btn btn-sm btn-secondary">Lock version…</button>
+            <div class="dropdown dropdown-end">
+                <div tabindex="0" role="button" class="btn btn-sm btn-ghost">Download / compare ▾</div>
+                <div tabindex="0" class="dropdown-content z-20 card card-compact bg-base-100 shadow w-80 p-3 space-y-2 text-sm" id="s-dl"></div>
+            </div>
+        </div></div>
+        <div id="s-job" class="text-sm"></div>
+        <div id="s-pending" class="card bg-base-100 shadow hidden"><div class="card-body p-3">
+            <h3 class="font-semibold text-sm">Rules waiting for approval</h3><div id="s-pending-list" class="space-y-2 text-sm"></div></div></div>
+        <div id="s-diff" class="card bg-base-100 shadow hidden"><div class="card-body p-3 text-sm" id="s-diff-body"></div></div>
+        <div id="s-rows" class="card bg-base-100 shadow divide-y divide-base-300"></div>
+    </section>
+
+    <!-- Papers -->
+    <section id="p-papers" class="panel space-y-3 hidden">
+        <div class="card bg-base-100 shadow"><div class="card-body p-3 flex-row flex-wrap items-center gap-2">
+            <select id="pp-lib" class="select select-sm select-bordered max-w-md"></select>
+            <button id="pp-add" class="btn btn-sm">Add to this table</button>
+            <span class="opacity-50 text-sm">or</span>
+            <input id="pp-file" type="file" accept=".pdf" class="file-input file-input-sm file-input-bordered" />
+            <button id="pp-upload" class="btn btn-sm btn-primary">Upload</button>
+            <span class="text-xs text-base-content/60">New PDFs are parsed (LandingAI) and indexed before they can be extracted.</span>
+        </div></div>
+        <div class="overflow-x-auto card bg-base-100 shadow"><table class="table table-sm" id="pp-table"></table></div>
+    </section>
+
+    <!-- Runs -->
+    <section id="p-runs" class="panel space-y-3 hidden">
+        <div class="flex flex-wrap items-center gap-2">
+            <button id="r-new" class="btn btn-primary btn-sm">New run…</button>
+            <span class="text-xs text-base-content/60">A run extracts the chosen papers under one locked version. Each run gets its own name, so an earlier run is never overwritten.</span>
+        </div>
+        <div id="r-jobs" class="space-y-2"></div>
+        <div class="overflow-x-auto card bg-base-100 shadow"><table class="table table-sm" id="r-table"></table></div>
+        <div class="card bg-base-100 shadow"><div class="card-body p-3 space-y-2">
+            <h3 class="font-semibold">Compare two runs</h3>
+            <div class="flex flex-wrap gap-2 items-center text-sm">
+                <select id="c-a" class="select select-sm select-bordered"></select><span>→</span>
+                <select id="c-b" class="select select-sm select-bordered"></select>
+                <button id="c-go" class="btn btn-sm">Compare</button>
+            </div>
+            <div id="c-out" class="text-sm space-y-2"></div>
+        </div></div>
+    </section>
+
+    <!-- Table -->
+    <section id="p-table" class="panel space-y-3 hidden">
+        <div class="card bg-base-100 shadow"><div class="card-body p-3 flex-row flex-wrap items-center gap-2 text-sm">
+            <label for="g-run">Run</label>
+            <select id="g-run" class="select select-sm select-bordered max-w-xs"></select>
+            <select id="g-group" class="select select-sm select-bordered max-w-xs"><option value="">All column groups</option></select>
+            <input id="g-search" class="input input-sm input-bordered w-48" placeholder="Filter columns" />
+            <label class="label cursor-pointer gap-1"><input id="g-flagged" type="checkbox" class="checkbox checkbox-xs" /> <span>columns with flags or reviews only</span></label>
+            <div class="flex-1"></div>
+            <a id="g-csv" class="btn btn-sm">CSV</a><a id="g-xlsx" class="btn btn-sm">Excel</a>
+        </div></div>
+        <div id="g-legend" class="flex flex-wrap gap-3 text-xs"></div>
+        <div class="grid-wrap card bg-base-100 shadow" id="g-grid"><div class="p-6 text-sm opacity-60">Pick a run.</div></div>
+        <p class="text-xs text-base-content/60">Click a cell to review it with the page it came from. Reviewers' values replace the machine's here and in the export; the machine's value stays in the review history.</p>
+    </section>
+</main>
+
+<!-- lock -->
+<dialog id="lock-dlg" class="modal"><div class="modal-box space-y-3">
+    <h3 class="font-bold text-lg">Lock a new version</h3>
+    <div id="lock-body" class="text-sm space-y-2"></div>
+    <div class="modal-action"><button id="lock-go" class="btn btn-secondary btn-sm">Lock</button><form method="dialog"><button class="btn btn-sm">Cancel</button></form></div>
+</div></dialog>
+
+<!-- new run -->
+<dialog id="run-dlg" class="modal"><div class="modal-box max-w-2xl space-y-3">
+    <h3 class="font-bold text-lg">New run</h3>
+    <div class="grid grid-cols-2 gap-3 text-sm">
+        <label class="form-control"><span class="label-text">Schema version</span><select id="rd-version" class="select select-sm select-bordered"></select></label>
+        <label class="form-control"><span class="label-text">System</span><select id="rd-system" class="select select-sm select-bordered">
+            <option value="E">EviSearch: Agent A + Agent B + arbiter</option><option value="B1">Baseline: one call over the parsed text</option></select></label>
+        <label class="label cursor-pointer justify-start gap-2 col-span-2"><input id="rd-kb" type="checkbox" class="toggle toggle-sm" checked />
+            <span>Use the knowledge base (rules learned from reviews)</span></label>
+    </div>
+    <div class="text-sm font-semibold">Papers</div>
+    <div class="flex gap-2 text-xs"><button class="btn btn-xs" id="rd-all">All parsed</button><button class="btn btn-xs" id="rd-none">None</button></div>
+    <div id="rd-papers" class="max-h-64 overflow-auto space-y-1 text-sm"></div>
+    <p id="rd-est" class="text-xs text-base-content/60"></p>
+    <div class="modal-action"><button id="rd-go" class="btn btn-primary btn-sm">Start</button><form method="dialog"><button class="btn btn-sm">Cancel</button></form></div>
+</div></dialog>
+
+<!-- propose rule (schema review) -->
+<dialog id="rule-dlg" class="modal"><div class="modal-box max-w-3xl space-y-3">
+    <h3 class="font-bold text-lg">Propose a rule</h3>
+    <p class="text-sm text-base-content/70">A rule applies to <em>every</em> paper of this table, not only one. The agent turns your note into a structured rule; the gate checks it against the knowledge base for duplicates and conflicts. You can widen or narrow where it applies.</p>
+    <div class="mono text-xs" id="rule-col"></div>
+    <textarea id="rule-note" class="textarea textarea-bordered w-full" rows="3" placeholder="e.g. When a paper reports PFS only as bPFS and rPFS, give both with their labels"></textarea>
+    <button id="rule-draft" class="btn btn-sm">Draft the rule</button>
+    <div id="rule-out" class="text-sm space-y-2"></div>
+    <div class="modal-action"><button id="rule-add" class="btn btn-primary btn-sm" disabled>Add to the knowledge base</button><form method="dialog"><button class="btn btn-sm">Close</button></form></div>
+</div></dialog>
+{% endblock %}
+{% block scripts %}
+<script src="/static/js/rule_scope.js"></script>
+<script src="/static/js/table.js"></script>
+{% endblock %}

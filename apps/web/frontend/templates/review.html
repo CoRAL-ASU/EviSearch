@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% set active = "review" %}
+{% block title %}Review{% endblock %}
+{% block head %}
+<style>
+    .queue { max-height: calc(100vh - 16rem); overflow: auto; }
+    .qi.sel { background: hsl(var(--p) / .18); border-left: 3px solid hsl(var(--p)); }
+    .qi { border-left: 3px solid transparent; cursor: pointer; }
+    .pdfbox { height: calc(100vh - 12rem); overflow: auto; }
+    @media (max-width: 1279px) { .pdfbox { height: 70vh; } }
+</style>
+{% endblock %}
+{% block content %}
+<main class="max-w-[112rem] mx-auto p-3 md:p-4 space-y-3" id="page" data-table="{{ table_id }}">
+    <div class="flex flex-wrap items-center gap-2 text-sm">
+        <a href="/tables/{{ table_id }}" class="link">Table</a><span class="opacity-50">/</span><b>Review</b>
+        <select id="run" class="select select-sm select-bordered max-w-sm"></select>
+        <select id="doc" class="select select-sm select-bordered max-w-sm"></select>
+        <div class="join" id="kind">
+            <button class="btn btn-sm join-item btn-active" data-k="flagged">Flagged</button>
+            <button class="btn btn-sm join-item" data-k="disputed">A ≠ B</button>
+            <button class="btn btn-sm join-item" data-k="all">All cells</button>
+        </div>
+        <label class="label cursor-pointer gap-1 py-0"><input id="unrev" type="checkbox" class="checkbox checkbox-xs" checked /> <span>to review only</span></label>
+        <span id="progress" class="text-xs opacity-70"></span>
+        <div class="flex-1"></div>
+        <span class="text-xs opacity-60">j / k move · no gold values are shown here</span>
+    </div>
+
+    <div class="grid gap-3 xl:grid-cols-[22rem_minmax(0,1fr)_minmax(0,28rem)]">
+        <aside class="card bg-base-100 shadow"><div class="card-body p-0">
+            <div id="queue" class="queue divide-y divide-base-300 text-sm"></div>
+        </div></aside>
+
+        <section class="space-y-3" id="cell"><div class="card bg-base-100 shadow"><div class="card-body p-6 opacity-60">Pick a cell.</div></div></section>
+
+        <aside class="card bg-base-100 shadow"><div class="card-body p-0">
+            <div id="pdf" class="pdfbox"><div class="p-6 text-sm opacity-60">The paper appears here at the cited page.</div></div>
+        </div></aside>
+    </div>
+</main>
+
+<dialog id="rule-dlg" class="modal"><div class="modal-box max-w-3xl space-y-3">
+    <h3 class="font-bold text-lg">Propose a rule from this correction</h3>
+    <p class="text-sm text-base-content/70">A rule applies to every paper of this table. The agent drafts it from your correction; the gate checks it against the knowledge base and shows which columns it would affect.</p>
+    <div class="mono text-xs" id="rule-col"></div>
+    <textarea id="rule-note" class="textarea textarea-bordered w-full" rows="3" placeholder="What should the extractor do, in general?"></textarea>
+    <button id="rule-draft" class="btn btn-sm">Draft the rule</button>
+    <div id="rule-out" class="text-sm space-y-2"></div>
+    <div class="modal-action"><button id="rule-add" class="btn btn-primary btn-sm" disabled>Add to the knowledge base</button><form method="dialog"><button class="btn btn-sm">Close</button></form></div>
+</div></dialog>
+{% endblock %}
+{% block scripts %}
+<script src="/static/js/rule_scope.js"></script>
+<script src="/static/js/review.js"></script>
+{% endblock %}

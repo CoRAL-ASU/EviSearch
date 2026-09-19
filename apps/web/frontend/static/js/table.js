@@ -1,0 +1,532 @@
+// The table workspace: Overview, Schema, Papers, Runs, Table. One table = one schema.
+(function () {
+    const {$, esc, enc, get, post, toast, store, needReviewer, dirty, stateBadge, when, shortDoc} = EVS;
+    const TABLE = $('page').dataset.table;
+    const api = (p) => `/api/tables/${enc(TABLE)}${p || ''}`;
+    let T = null;            // /api/tables/<id>: table, papers, runs, steps, next_action
+    let schema = null;       // the schema being shown (current draft or a locked version)
+    let viewing = 'current'; // 'current' or a version number
+    let filter = 'all';
+    const open = new Set();  // expanded schema rows
+    const ruleState = {record: null};
+    let ruleContext = null;
+
+    // ---------- loading ----------
+    async function loadTable() {
+        const r = await get(api());
+        if (!r.success) { $('t-name').textContent = 'Table not found'; toast(r.error, 'error'); return false; }
+        T = r;
+        $('t-name').textContent = r.table.name;
+        document.title = `${r.table.name} · EviSearch`;
+        const locked = r.table.locked_versions || [];
+        $('t-status').textContent = r.table.status === 'locked' ? `locked v${Math.max(...locked)}` : (locked.length ? `draft (after v${Math.max(...locked)})` : 'draft');
+        $('t-status').className = 'badge ' + (r.table.status === 'locked' ? 'badge-success' : 'badge-warning');
+        $('t-meta').textContent = `${r.table.fields} columns · ${r.papers.length} papers · ${r.runs.length} runs · example paper ${shortDoc(r.table.example_doc)}`;
+        if (r.table.description) { $('t-desc').textContent = r.table.description; $('t-desc').classList.remove('hidden'); }
+        return true;
+    }
+
+    // ---------- tabs ----------
+    const TABS = ['overview', 'schema', 'papers', 'runs', 'table'];
+    const rendered = {};
+    function showTab(name) {
+        if (!TABS.includes(name)) name = 'overview';
+        document.querySelectorAll('#tabs .tab').forEach((t) => t.classList.toggle('tab-active', t.dataset.tab === name));
+        TABS.forEach((t) => $('p-' + t).classList.toggle('hidden', t !== name));
+        if (location.hash !== '#' + name) history.replaceState(null, '', location.pathname + location.search + '#' + name);
+        const fn = {overview: renderOverview, schema: renderSchemaTab, papers: renderPapers, runs: renderRuns, table: renderGridTab}[name];
+        if (!rendered[name]) { rendered[name] = true; fn(); }
+    }
+    document.querySelectorAll('#tabs .tab').forEach((t) => t.addEventListener('click', () => showTab(t.dataset.tab)));
+    window.addEventListener('hashchange', () => showTab(location.hash.slice(1)));
+
+    // ---------- Overview ----------
+    function latestRun() { return T.runs.find((r) => r.run === T.showcase_run) || (T.runs.length ? T.runs[T.runs.length - 1] : null); }
+    async function renderOverview() {
+        $('o-steps').innerHTML = T.steps.map((s) => `<li class="step ${s.done ? 'step-primary' : ''}" data-content="${s.done ? '✓' : '•'}">
+            <div class="text-left md:text-center"><div class="font-semibold">${esc(s.label)}</div><div class="opacity-60">${esc(s.detail)}</div></div></li>`).join('');
+        $('o-next').textContent = T.next_action.label;
+        $('o-next').href = T.next_action.href;
+        $('o-next').onclick = (e) => { if (T.next_action.href.startsWith(`/tables/${TABLE}#`)) { e.preventDefault(); showTab(T.next_action.href.split('#')[1]); } };
+        const run = latestRun();
+        $('o-run').innerHTML = run ? `<h3 class="font-semibold">Latest complete run</h3>
+            <div class="mono text-sm">${esc(run.run)}</div>
+            <div class="text-sm">${run.done}/${run.papers.length} papers finished · ${run.flagged} cells flagged · ${run.reviewed} reviewed (${run.corrected} corrected)</div>
+            <div class="flex gap-2"><a class="btn btn-sm btn-primary" href="/tables/${enc(TABLE)}/review?run=${enc(run.run)}">Review flagged cells</a>
+            <a class="btn btn-sm" href="#table" data-run="${esc(run.run)}" id="o-open-table">Open the table</a></div>`
+            : `<h3 class="font-semibold">No run yet</h3><p class="text-sm">Lock a version, then start a run on the Runs tab.</p>`;
+        const btn = $('o-open-table');
+        if (btn) btn.onclick = (e) => { e.preventDefault(); gridRun = btn.dataset.run; showTab('table'); };
+        const ev = await get(`/api/feedback/events?schema_id=${enc(TABLE)}&limit=10`);
+        $('o-activity').innerHTML = (ev.events || []).map((e) => `<li><span class="opacity-60">${esc(when(e.timestamp))}</span> ${e.by ? esc(e.by) + ' ' : ''}${esc(describeEvent(e))}</li>`).join('')
+            || '<li class="opacity-60">Nothing yet.</li>';
+    }
+    function describeEvent(e) {
+        const col = e.column ? ` “${e.column}”` : '';
+        switch (e.event) {
+            case 'definition_accept': return `accepted the definition of${col}`;
+            case 'definition_edit': return `edited${col}${e.reason ? ' (' + e.reason + ')' : ''}`;
+            case 'definition_answer': return `answered a question on${col}: ${e.answer}`;
+            case 'definition_revise': return `agent revised${col}`;
+            case 'schema_lock': return `locked v${e.version}`;
+            case 'cell_correct': return `${e.state === 'accepted' || e.before === e.after ? 'confirmed' : 'corrected'}${col} in ${shortDoc(e.doc_id)}${e.reason ? ' (' + e.reason + ')' : ''}`;
+            case 'cell_undo': return `undid a review of${col}`;
+            case 'convention_propose': return `proposed rule ${e.convention}`;
+            case 'convention_decide': return `${e.op}d rule ${e.convention}`;
+            case 'extraction_start': return `started run ${e.run}`;
+            case 'extraction_end': return `run ${e.run} ended (exit ${e.exit_code})`;
+            default: return e.event || e.source || 'event';
+        }
+    }
+
+    // ---------- Schema ----------
+    async function renderSchemaTab() {
+        const locked = T.table.locked_versions || [];
+        $('s-version').innerHTML = `<option value="current">Current (${T.table.status === 'locked' ? 'same as v' + Math.max(...locked) : 'draft'})</option>` +
+            locked.slice().reverse().map((v) => `<option value="${v}">v${v} (locked)</option>`).join('');
+        $('s-dl').innerHTML = locked.length ? `<div class="font-semibold">Download a locked version</div>
+            ${locked.slice().reverse().map((v) => `<div>v${v}: <a class="link" href="${api(`/versions/${v}.csv`)}">CSV</a> · <a class="link" href="${api(`/versions/${v}.xlsx`)}">Excel</a></div>`).join('')}
+            <div class="font-semibold pt-2">Compare versions</div>
+            <div class="flex gap-1 items-center"><select id="d-a" class="select select-xs select-bordered">${versionOptions(locked, locked.length > 1 ? locked[locked.length - 2] : locked[0])}</select> →
+            <select id="d-b" class="select select-xs select-bordered">${versionOptions(locked, 'current')}</select>
+            <button id="d-go" class="btn btn-xs">Show</button></div>` : '<div class="opacity-60">No locked version yet.</div>';
+        const go = $('d-go');
+        if (go) go.onclick = () => showDiff($('d-a').value, $('d-b').value);
+        await loadSchema('current');
+        renderPending();
+    }
+    function versionOptions(locked, selected) {
+        return ['current', ...locked.slice().reverse()].map((v) => `<option value="${v}" ${String(v) === String(selected) ? 'selected' : ''}>${v === 'current' ? 'current' : 'v' + v}</option>`).join('');
+    }
+    async function fetchSchema(v) {
+        const r = await get(`/api/schemas/${enc(TABLE)}${v === 'current' ? '' : '?version=' + v}`);
+        if (!r.success) throw new Error(r.error);
+        return r.schema;
+    }
+    async function loadSchema(v) {
+        viewing = v;
+        try { schema = await fetchSchema(v); } catch (e) { $('s-rows').innerHTML = `<div class="p-4 text-error">${esc(e.message)}</div>`; return; }
+        const ro = v !== 'current';
+        ['s-revise', 's-lock'].forEach((id) => $(id).disabled = ro);
+        renderRows();
+    }
+    $('s-version').addEventListener('change', () => loadSchema($('s-version').value));
+    document.querySelectorAll('#s-filter button').forEach((b) => b.addEventListener('click', () => {
+        document.querySelectorAll('#s-filter button').forEach((x) => x.classList.remove('btn-active'));
+        b.classList.add('btn-active'); filter = b.dataset.f; renderRows();
+    }));
+    $('s-search').addEventListener('input', () => schema && renderRows());
+
+    const draftKey = (col) => `draft.${TABLE}.${col}`;
+    function matches(f) {
+        const x = f['x-evisearch'], q = $('s-search').value.toLowerCase();
+        if (q && !f.name.toLowerCase().includes(q) && !f.description.toLowerCase().includes(q)) return false;
+        if (filter === 'todo') return x.review.state === 'proposed';
+        if (filter === 'questions') return (x.questions || []).some((qq) => !qq.answer);
+        if (filter === 'changed') return ['edited', 'revised'].includes(x.review.state);
+        return true;
+    }
+    function renderRows() {
+        const shown = schema.fields.filter(matches);
+        $('s-count').textContent = `${shown.length} of ${schema.fields.length}`;
+        $('s-rows').innerHTML = shown.map((f) => `<div class="srow" data-col="${esc(f.name)}"></div>`).join('') || '<div class="p-4 opacity-60">No column matches.</div>';
+        $('s-rows').querySelectorAll('.srow').forEach((row) => renderRow(row, schema.fields.find((f) => f.name === row.dataset.col)));
+    }
+    function stateBadgeField(state) {
+        const cls = {proposed: 'badge-warning', accepted: 'badge-success', edited: 'badge-info', revised: 'badge-info', answered: 'badge-ghost'}[state] || 'badge-ghost';
+        return `<span class="badge badge-sm ${cls}">${esc(state === 'proposed' ? 'to review' : state)}</span>`;
+    }
+    function grounding(g, value) {
+        if (!value) return '<span class="opacity-50">empty in the example row</span>';
+        g = g || {};
+        const label = {found: `found on page ${(g.pages || []).join(', ')}`, not_in_paper: 'not printed in the paper', short: 'short answer'}[g.status] || g.status || '';
+        const snip = (g.snippets || [])[0];
+        return `<span class="mono">${esc(value)}</span> ${label ? `<span class="badge badge-sm ${g.status === 'not_in_paper' ? 'badge-warning' : 'badge-ghost'}">${esc(label)}</span>` : ''}
+            ${snip ? `<div class="text-xs opacity-60 mt-1 whitespace-pre-wrap">p${snip.page}: ${esc(snip.text)}</div>` : ''}`;
+    }
+    function renderRow(row, f) {
+        const x = f['x-evisearch'], fx = x.facets || {}, ro = viewing !== 'current';
+        const draft = ro ? null : store.get(draftKey(f.name));
+        const isOpen = open.has(f.name);
+        const openQ = (x.questions || []).filter((q) => !q.answer).length;
+        row.innerHTML = `<div class="row-head flex items-center gap-2 px-3 py-2 hover:bg-base-200">
+                <span class="opacity-50 w-3">${isOpen ? '▾' : '▸'}</span>
+                <span class="mono text-sm font-semibold min-w-[14rem] max-w-[22rem] truncate" title="${esc(f.name)}">${esc(f.name)}</span>
+                ${stateBadgeField(x.review.state)}${openQ ? `<span class="badge badge-sm badge-warning">${openQ} question${openQ > 1 ? 's' : ''}</span>` : ''}
+                ${draft ? '<span class="badge badge-sm badge-accent">unsaved draft</span>' : ''}
+                <span class="def-1 text-sm opacity-70 flex-1">${esc(f.description)}</span></div>
+            ${isOpen ? `<div class="px-8 pb-4 space-y-2">
+                <div class="flex flex-wrap gap-1">${['characteristic', 'statistic', 'unit', 'subgroup', 'arm', 'category'].filter((k) => fx[k]).map((k) => `<span class="badge badge-sm badge-outline">${k}: ${esc(fx[k])}</span>`).join(' ')}
+                    ${fx.cryptic && fx.cryptic.length ? `<span class="badge badge-sm badge-warning">unclear header: ${esc(fx.cryptic.join(', '))}</span>` : ''}
+                    <span class="badge badge-sm badge-ghost">group: ${esc(x.group || '—')}</span></div>
+                <div class="text-sm"><span class="opacity-60">Example:</span> ${grounding((x.example || {}).grounding, (x.example || {}).value)}</div>
+                ${x.reading ? `<div class="text-xs opacity-60">Agent's reading: ${esc(x.reading)}</div>` : ''}
+                ${ro ? `<div class="text-sm whitespace-pre-wrap border border-base-300 rounded p-2">${esc(f.description)}</div>`
+                     : `<textarea class="textarea textarea-bordered w-full text-sm def" rows="3">${esc(draft ? draft.text : f.description)}</textarea>
+                        ${draft ? `<div class="text-xs text-accent">Restored your unsaved text from ${esc(when(draft.at))}. Save it or discard it.</div>` : ''}`}
+                <div class="text-xs opacity-60">Answer format: ${esc(x.answer_format || '—')} · scoring: ${esc(x.eval_category || '—')} · “Not reported” when: ${esc(x.nr_policy || '—')} · confidence ${esc(x.confidence || '—')}</div>
+                ${(x.questions || []).map((q) => `<div class="border border-base-300 rounded p-2 text-sm"><div>${esc(q.question)}</div>
+                    ${q.answer ? `<div class="mt-1">Answer: <b>${esc(q.answer)}</b> <span class="opacity-50 text-xs">${esc(q.answered_by || '')}</span></div>` : ro ? '<div class="opacity-60 mt-1">unanswered</div>' : `<div class="flex flex-wrap gap-1 mt-1">
+                        ${(q.options || []).map((o) => `<button class="btn btn-xs ans" data-q="${esc(q.id)}" data-a="${esc(o)}">${esc(o)}</button>`).join('')}
+                        <input class="input input-xs input-bordered ans-free w-64" data-q="${esc(q.id)}" placeholder="other answer, then Enter" /></div>`}</div>`).join('')}
+                ${ro ? '' : `<div class="flex flex-wrap gap-2 items-center">
+                    <button class="btn btn-xs btn-success acc" ${draft ? 'disabled title="Save or discard your edit first"' : ''}>Accept as is</button>
+                    <select class="select select-xs select-bordered why"><option value="">why you edit it (required)…</option>
+                        <option>wrong statistic</option><option>wrong population or subgroup</option><option>wrong arm</option>
+                        <option>missing convention</option><option>unit or format</option><option>wording</option></select>
+                    <input class="input input-xs input-bordered note w-64" placeholder="note (optional)" />
+                    <button class="btn btn-xs btn-primary sav" ${draft ? '' : 'disabled'}>Save edit</button>
+                    <button class="btn btn-xs dis" ${draft ? '' : 'disabled'}>Discard</button>
+                    <button class="btn btn-xs btn-outline rule">Propose rule…</button></div>`}
+                ${(x.history || []).length ? `<details class="text-xs opacity-70"><summary>History (${x.history.length})</summary>${x.history.slice(-8).reverse().map((h) =>
+                    `<div>${esc(when(h.at))} · ${esc(h.by || '—')} · ${esc(h.action)}${h.reason ? ' (' + esc(h.reason) + ')' : ''}${h.note ? ': ' + esc(h.note) : ''}${h.answer ? ' → ' + esc(h.answer) : ''}</div>`).join('')}</details>` : ''}
+            </div>` : ''}`;
+        row.querySelector('.row-head').onclick = () => { isOpen ? open.delete(f.name) : open.add(f.name); renderRow(row, f); };
+        if (!isOpen || ro) return;
+        const ta = row.querySelector('.def');
+        const setDirty = () => {
+            const changed = ta.value !== f.description;
+            if (changed) { store.set(draftKey(f.name), {text: ta.value, at: new Date().toISOString()}); dirty.add('schema:' + f.name); }
+            else { store.del(draftKey(f.name)); dirty.delete('schema:' + f.name); }
+            row.querySelector('.acc').disabled = changed;
+            row.querySelector('.acc').title = changed ? 'Save or discard your edit first' : '';
+            row.querySelector('.sav').disabled = !changed;
+            row.querySelector('.dis').disabled = !changed;
+        };
+        ta.addEventListener('input', setDirty);
+        const act = async (body, btn) => {
+            const by = needReviewer(); if (!by) return;
+            if (btn) btn.disabled = true;
+            const r = await post(`/api/schemas/${enc(TABLE)}/review`, {column: f.name, by, ...body});
+            if (!r.success) { toast(r.error, 'error'); if (btn) btn.disabled = false; return; }
+            const i = schema.fields.findIndex((ff) => ff.name === f.name);
+            schema.fields[i] = r.field;
+            if (body.action === 'edit') { store.del(draftKey(f.name)); dirty.delete('schema:' + f.name); }
+            renderRow(row, r.field);
+            toast(body.action === 'accept' ? 'Accepted' : body.action === 'edit' ? 'Definition saved' : 'Answer saved', 'success', 2000);
+            T.table.status = 'draft';
+        };
+        row.querySelector('.acc').onclick = (e) => act({action: 'accept'}, e.target);
+        row.querySelector('.sav').onclick = (e) => {
+            const reason = row.querySelector('.why').value;
+            if (!reason) return toast('Pick why you edited the definition', 'warning');
+            act({action: 'edit', definition: ta.value, reason, note: row.querySelector('.note').value}, e.target);
+        };
+        row.querySelector('.dis').onclick = () => { store.del(draftKey(f.name)); dirty.delete('schema:' + f.name); renderRow(row, f); };
+        row.querySelectorAll('.ans').forEach((b) => b.onclick = () => act({action: 'answer', question_id: b.dataset.q, answer: b.dataset.a}, b));
+        row.querySelectorAll('.ans-free').forEach((inp) => inp.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && inp.value.trim()) act({action: 'answer', question_id: inp.dataset.q, answer: inp.value.trim()});
+        }));
+        row.querySelector('.rule').onclick = () => {
+            ruleContext = {column: f.name, definition: ta.value, schema_id: TABLE, doc_id: T.table.example_doc, kind: 'schema_review'};
+            ruleState.record = null;
+            $('rule-col').textContent = f.name;
+            $('rule-note').value = row.querySelector('.note').value;
+            $('rule-out').innerHTML = '';
+            $('rule-add').disabled = true;
+            $('rule-dlg').showModal();
+        };
+    }
+
+    $('rule-draft').onclick = async () => {
+        const by = needReviewer(); if (!by) return;
+        if (!$('rule-note').value.trim()) return toast('Write what the rule should say', 'warning');
+        $('rule-out').textContent = 'Drafting the rule and checking it against the knowledge base…';
+        const r = await post('/api/conventions/propose', {...ruleContext, feedback: $('rule-note').value, by});
+        if (!r.success) { $('rule-out').textContent = r.error; return; }
+        if (!r.is_convention) { $('rule-out').innerHTML = `<div class="alert">Not a rule for every paper: ${esc(r.why_not)}. Edit the definition instead.</div>`; return; }
+        RuleScope.show($('rule-out'), r, ruleState, TABLE, (verdict) => { $('rule-add').disabled = verdict === 'blocked' || verdict === 'checking'; });
+    };
+    $('rule-add').onclick = async () => {
+        const r = await post('/api/conventions', {record: ruleState.record, by: needReviewer()});
+        $('rule-out').insertAdjacentHTML('beforeend', `<div class="alert mt-2">${r.success ? (r.merged_into ? 'Merged into ' + esc(r.merged_into) : 'Stored as ' + esc(r.convention.id) + ' (proposed; approve it below or on the Knowledge page to use it)') : esc(r.error)}</div>`);
+        $('rule-add').disabled = true;
+        renderPending();
+    };
+
+    async function renderPending() {
+        const r = await get('/api/conventions?status=proposed');
+        const pending = r.conventions || [];
+        $('s-pending').classList.toggle('hidden', pending.length === 0);
+        $('s-pending-list').innerHTML = pending.map((c) => `<div class="flex flex-wrap gap-2 items-start border-b border-base-300 pb-2">
+            <span class="mono text-xs">${esc(c.id)}</span><span class="flex-1">${esc(c.instruction)}</span>
+            <button class="btn btn-xs btn-success" data-c="${esc(c.id)}" data-op="approve">Approve</button>
+            <button class="btn btn-xs" data-c="${esc(c.id)}" data-op="reject">Reject</button></div>`).join('');
+        $('s-pending-list').querySelectorAll('button').forEach((b) => b.onclick = async () => {
+            const by = needReviewer(); if (!by) return;
+            if (!confirm(`${b.dataset.op === 'approve' ? 'Approve' : 'Reject'} rule ${b.dataset.c}? Approved rules go into every later run's prompts.`)) return;
+            const res = await post(`/api/conventions/${enc(b.dataset.c)}/decide`, {op: b.dataset.op, by});
+            toast(res.success ? `Rule ${b.dataset.c} ${b.dataset.op}d` : res.error, res.success ? 'success' : 'error');
+            renderPending();
+        });
+    }
+
+    $('s-revise').onclick = async () => {
+        const by = needReviewer(); if (!by) return;
+        if (!confirm('The agent rewrites every definition that received answers or notes since its last revision. Continue?')) return;
+        const r = await post(`/api/schemas/${enc(TABLE)}/revise`, {by});
+        if (!r.success) return toast(r.error, 'error');
+        const job = await waitJob(r.job_id, $('s-job'), 'Revising definitions');
+        if (job.status === 'done') { toast(`Revised ${job.result.revised.length} definitions — review them (filter “Edited”)`, 'success', 6000); await loadTable(); loadSchema('current'); }
+    };
+
+    $('s-lock').onclick = async () => {
+        const locked = T.table.locked_versions || [];
+        const fields = schema.fields;
+        const unreviewed = fields.filter((f) => f['x-evisearch'].review.state === 'proposed').length;
+        const openQ = fields.reduce((n, f) => n + (f['x-evisearch'].questions || []).filter((q) => !q.answer).length, 0);
+        let changed = fields.length;
+        if (locked.length) {
+            const last = await fetchSchema(Math.max(...locked));
+            const prev = Object.fromEntries(last.fields.map((f) => [f.name, f.description]));
+            changed = fields.filter((f) => prev[f.name] !== f.description).length + last.fields.filter((f) => !fields.some((g) => g.name === f.name)).length;
+        }
+        const next = T.table.version;
+        $('lock-body').innerHTML = `<p>Locking saves the current definitions as <b>v${next}</b>. Runs always extract under a locked version, so results stay traceable.</p>
+            <ul class="list-disc ml-5">
+                <li>${changed} definition${changed === 1 ? '' : 's'} ${locked.length ? `changed since v${Math.max(...locked)}` : 'in this first version'}</li>
+                <li class="${unreviewed ? 'text-warning' : ''}">${unreviewed} column${unreviewed === 1 ? '' : 's'} not reviewed yet</li>
+                <li class="${openQ ? 'text-warning' : ''}">${openQ} open question${openQ === 1 ? '' : 's'}</li>
+            </ul>${locked.length && !changed ? `<div class="alert alert-info text-sm">Nothing changed since v${Math.max(...locked)}; there is nothing to lock.</div>` : ''}`;
+        $('lock-go').disabled = locked.length > 0 && changed === 0;
+        $('lock-dlg').showModal();
+    };
+    $('lock-go').onclick = async () => {
+        const by = needReviewer(); if (!by) return;
+        const r = await post(`/api/schemas/${enc(TABLE)}/lock`, {by});
+        $('lock-dlg').close();
+        if (!r.success) return toast(r.error, 'error');
+        toast(`Locked v${r.version}. Runs under it are named ${r.run}.`, 'success', 6000);
+        await loadTable(); rendered.schema = false; renderSchemaTab();
+    };
+
+    async function showDiff(a, b) {
+        $('s-diff').classList.remove('hidden');
+        $('s-diff-body').textContent = 'Comparing…';
+        try {
+            const [sa, sb] = await Promise.all([fetchSchema(a), fetchSchema(b)]);
+            const A = Object.fromEntries(sa.fields.map((f) => [f.name, f.description]));
+            const B = Object.fromEntries(sb.fields.map((f) => [f.name, f.description]));
+            const names = [...new Set([...Object.keys(A), ...Object.keys(B)])];
+            const changes = names.filter((n) => A[n] !== B[n]);
+            const label = (v) => v === 'current' ? 'current' : 'v' + v;
+            $('s-diff-body').innerHTML = `<div class="flex justify-between"><b>${label(a)} → ${label(b)}: ${changes.length} of ${names.length} definitions differ</b>
+                <button class="btn btn-xs" id="diff-close">Close</button></div>` + changes.map((n) => `<div class="border-t border-base-300 pt-2 mt-2">
+                <div class="mono text-xs font-semibold">${esc(n)}</div>
+                <div class="text-sm">${A[n] === undefined ? '<i>added</i> ' + esc(B[n]) : B[n] === undefined ? '<i>removed</i>' : wordDiff(A[n], B[n])}</div></div>`).join('');
+            $('diff-close').onclick = () => $('s-diff').classList.add('hidden');
+        } catch (e) { $('s-diff-body').textContent = e.message; }
+    }
+    function wordDiff(a, b) {  // longest common subsequence over words
+        const x = a.split(/(\s+)/), y = b.split(/(\s+)/);
+        const n = x.length, m = y.length, L = Array.from({length: n + 1}, () => new Array(m + 1).fill(0));
+        for (let i = n - 1; i >= 0; i--) for (let j = m - 1; j >= 0; j--) L[i][j] = x[i] === y[j] ? L[i + 1][j + 1] + 1 : Math.max(L[i + 1][j], L[i][j + 1]);
+        let i = 0, j = 0, out = '';
+        while (i < n && j < m) {
+            if (x[i] === y[j]) { out += esc(x[i]); i++; j++; }
+            else if (L[i + 1][j] >= L[i][j + 1]) { out += `<del>${esc(x[i])}</del>`; i++; }
+            else { out += `<ins>${esc(y[j])}</ins>`; j++; }
+        }
+        while (i < n) out += `<del>${esc(x[i++])}</del>`;
+        while (j < m) out += `<ins>${esc(y[j++])}</ins>`;
+        return out;
+    }
+
+    async function waitJob(id, el, label) {
+        for (;;) {
+            const r = await get(`/api/jobs/${id}`);
+            const job = r.job || {status: 'error', error: r.error};
+            el.innerHTML = `${esc(label)}: <b>${esc(job.status)}</b>${job.error ? ' — ' + esc(job.error) : ''}`;
+            if (!['queued', 'running'].includes(job.status)) return job;
+            await new Promise((res) => setTimeout(res, 2500));
+        }
+    }
+
+    // ---------- Papers ----------
+    async function renderPapers() {
+        const latest = latestRun();
+        const statusIn = (doc) => { const p = latest && latest.papers.find((x) => x.doc_id === doc); return p ? p.status : null; };
+        $('pp-table').innerHTML = `<thead><tr><th>Paper</th><th>Role</th><th>PDF</th><th>Parsed</th><th>Latest run</th><th></th></tr></thead><tbody>` +
+            T.papers.map((p) => `<tr><td><div class="font-medium">${esc(shortDoc(p.name))}</div><div class="mono text-xs opacity-60">${esc(p.doc_id)}</div></td>
+                <td>${p.role === 'example' ? '<span class="badge badge-accent badge-sm">example row</span>' : 'paper'}${p.gold ? ' <span class="badge badge-outline badge-sm" title="Has expert gold values (benchmark)">gold</span>' : ''}</td>
+                <td>${p.pdf ? `<a class="link" target="_blank" href="/api/documents/${enc(p.doc_id)}/pdf">open</a>` : '<span class="text-error">missing</span>'}</td>
+                <td>${p.parsed ? '✓' : '<span class="badge badge-warning badge-sm">not yet</span>'}</td>
+                <td>${statusIn(p.doc_id) ? stateChip(statusIn(p.doc_id)) : '<span class="opacity-50">—</span>'}</td>
+                <td>${!p.parsed && p.pdf ? `<button class="btn btn-xs prep" data-doc="${esc(p.doc_id)}">Parse now</button>` : ''}</td></tr>`).join('') + '</tbody>';
+        $('pp-table').querySelectorAll('.prep').forEach((b) => b.onclick = async () => {
+            const r = await post('/api/documents/prepare', {doc_id: b.dataset.doc, by: needReviewer() || ''});
+            if (!r.success) return toast(r.error, 'error');
+            b.outerHTML = '<span class="text-xs">parsing…</span>';
+            pollJobs();
+        });
+        const lib = await get('/api/documents/selectable');
+        const have = new Set(T.papers.map((p) => p.doc_id));
+        $('pp-lib').innerHTML = '<option value="">Add a paper from the library…</option>' + (lib.documents || []).filter((d) => !have.has(d.id)).map((d) =>
+            `<option value="${esc(d.id)}">${esc(shortDoc(d.name))}${d.has_cached_parse ? '' : ' (not parsed)'}</option>`).join('');
+    }
+    function stateChip(s) {
+        const cls = {ok: 'badge-success', running: 'badge-info', waiting: 'badge-ghost', failed: 'badge-error', error: 'badge-error'}[s] || 'badge-warning';
+        return `<span class="badge badge-sm ${cls}">${esc(s === 'ok' ? 'done' : s)}</span>`;
+    }
+    async function addPaper(body) {
+        const r = body instanceof FormData ? await fetch(api('/papers'), {method: 'POST', body}).then((x) => x.json()) : await post(api('/papers'), body);
+        if (!r.success) return toast(r.error, 'error');
+        toast(r.job ? `Added ${shortDoc(r.paper.name)}; parsing it now` : `Added ${shortDoc(r.paper.name)}`, 'success');
+        await loadTable(); renderPapers(); if (r.job) pollJobs();
+    }
+    $('pp-add').onclick = () => { const d = $('pp-lib').value; if (!d) return toast('Pick a paper', 'warning'); addPaper({doc_id: d, by: needReviewer() || ''}); };
+    $('pp-upload').onclick = () => {
+        const f = $('pp-file').files[0]; if (!f) return toast('Choose a PDF', 'warning');
+        const fd = new FormData(); fd.append('file', f); fd.append('by', needReviewer() || ''); addPaper(fd);
+    };
+
+    // ---------- Runs ----------
+    let polling = null;
+    async function renderRuns() {
+        const r = await get(api('/runs'));
+        if (!r.success) return toast(r.error, 'error');
+        T.runs = r.runs;
+        const active = (r.jobs || []).filter((j) => ['queued', 'running'].includes(j.status));
+        const recent = (r.jobs || []).filter((j) => !['queued', 'running'].includes(j.status)).slice(0, 3);
+        $('r-jobs').innerHTML = [...active, ...recent].map((j) => `<div class="card bg-base-100 shadow"><div class="card-body p-3 text-sm space-y-1">
+            <div class="flex flex-wrap items-center gap-2"><b class="mono">${esc(j.run)}</b>${stateChip(j.status === 'done' ? 'ok' : j.status)}
+                <span class="opacity-60">${esc(j.docs.length)} papers · v${esc(j.version)} · ${esc(j.system)} · knowledge base ${esc(j.kb)} · started ${esc(when(j.started))} by ${esc(j.by || '—')}</span>
+                ${j.status === 'running' ? `<button class="btn btn-xs btn-error btn-outline cancel" data-id="${esc(j.id)}">Cancel</button>` : ''}
+                <button class="btn btn-xs logb" data-id="${esc(j.id)}">Log</button></div>
+            ${j.error ? `<div class="text-error">${esc(j.error)}</div>` : ''}
+            <pre class="text-xs bg-base-200 p-2 rounded max-h-48 overflow-auto hidden" id="log-${esc(j.id)}"></pre></div></div>`).join('');
+        $('r-jobs').querySelectorAll('.cancel').forEach((b) => b.onclick = async () => {
+            if (!confirm('Stop this run? Papers already finished keep their results.')) return;
+            const res = await post(`/api/jobs/${b.dataset.id}/cancel`, {by: needReviewer() || ''});
+            toast(res.success ? 'Run cancelled' : res.error, res.success ? 'success' : 'error'); renderRuns();
+        });
+        $('r-jobs').querySelectorAll('.logb').forEach((b) => b.onclick = async () => {
+            const pre = $('log-' + b.dataset.id);
+            const res = await get(`/api/jobs/${b.dataset.id}/log?lines=80`);
+            pre.textContent = res.log || '(empty)'; pre.classList.toggle('hidden');
+        });
+        $('r-table').innerHTML = `<thead><tr><th></th><th>Run</th><th>Version</th><th>Started</th><th>Papers</th><th>Flagged</th><th>Reviewed</th><th>Status</th><th></th></tr></thead><tbody>` +
+            T.runs.slice().reverse().map((run, i) => `<tr class="hover">
+                <td><button class="btn btn-xs btn-ghost exp" data-i="${i}">▸</button></td>
+                <td class="mono text-xs">${esc(run.run)}</td>
+                <td>v${esc(run.version)}${run.variant ? ` <span class="badge badge-ghost badge-sm">${esc(run.variant)}</span>` : ''}</td>
+                <td class="text-xs">${esc(when(run.started_at))}</td>
+                <td>${run.done}/${run.papers.length}</td><td>${run.flagged}</td><td>${run.reviewed}${run.corrected ? ` (${run.corrected} corrected)` : ''}</td>
+                <td>${stateChip(run.status)}</td>
+                <td class="whitespace-nowrap"><a class="btn btn-xs" href="#table" data-run="${esc(run.run)}">Table</a>
+                    <a class="btn btn-xs btn-primary" href="/tables/${enc(TABLE)}/review?run=${enc(run.run)}">Review</a></td></tr>
+                <tr class="hidden" id="exp-${i}"><td></td><td colspan="8">${run.papers.map((p) => `<div class="flex flex-wrap gap-2 items-center text-xs py-1">
+                    <span class="w-72 truncate" title="${esc(p.doc_id)}">${esc(shortDoc(p.name))}</span>${stateChip(p.status)}
+                    ${Object.entries(p.stages || {}).map(([k, s]) => `<span class="badge badge-sm badge-outline">${esc({agent: 'Agent A', search: 'Agent B', reconciliation: 'arbiter', baseline: 'baseline'}[k] || k)}: ${s.batches_done !== undefined ? `${s.batches_done}/${s.batches}` : esc(s.status)}${s.duration_s ? ' · ' + Math.round(s.duration_s / 60) + ' min' : ''}</span>`).join('')}
+                    ${p.flagged ? `<span class="badge badge-warning badge-sm">${p.flagged} flagged</span>` : ''}${p.reviewed ? `<span class="badge badge-info badge-sm">${p.reviewed} reviewed</span>` : ''}
+                    ${p.error ? `<span class="text-error">${esc(p.error)}</span>` : ''}</div>`).join('')}</td></tr>`).join('') + '</tbody>';
+        $('r-table').querySelectorAll('.exp').forEach((b) => b.onclick = () => { const row = $('exp-' + b.dataset.i); row.classList.toggle('hidden'); b.textContent = row.classList.contains('hidden') ? '▸' : '▾'; });
+        $('r-table').querySelectorAll('[data-run]').forEach((a) => a.onclick = (e) => { e.preventDefault(); gridRun = a.dataset.run; rendered.table = false; showTab('table'); });
+        const names = T.runs.map((x) => x.run);
+        const mains = T.runs.filter((x) => !x.variant).map((x) => x.run);
+        const pickA = mains.length > 1 ? mains[mains.length - 2] : names[0], pickB = mains.length ? mains[mains.length - 1] : names[names.length - 1];
+        $('c-a').innerHTML = names.map((n) => `<option ${n === pickA ? 'selected' : ''}>${esc(n)}</option>`).join('');
+        $('c-b').innerHTML = names.map((n) => `<option ${n === pickB ? 'selected' : ''}>${esc(n)}</option>`).join('');
+        if (active.length && !polling) polling = setInterval(() => { if (!document.hidden) renderRuns(); }, 8000);
+        if (!active.length && polling) { clearInterval(polling); polling = null; }
+    }
+    function pollJobs() { if (!polling) polling = setInterval(async () => { await loadTable(); rendered.papers = rendered.runs = false; const tab = location.hash.slice(1); if (tab === 'papers' || tab === 'runs') { rendered[tab] = true; tab === 'papers' ? renderPapers() : renderRuns(); } }, 8000); }
+
+    $('c-go').onclick = async () => {
+        const a = $('c-a').value, b = $('c-b').value;
+        if (a === b) return toast('Pick two different runs', 'warning');
+        $('c-out').textContent = 'Comparing…';
+        const r = await get(`/api/runs/compare?a=${enc(a)}&b=${enc(b)}`);
+        if (!r.success) { $('c-out').textContent = r.error; return; }
+        const t = r.totals;
+        $('c-out').innerHTML = `<div><b>${t.changed}</b> cells differ across ${t.papers} papers present in both runs (${t.same} identical).
+            ${t.fixed_by_review ? `<b>${t.fixed_by_review}</b> of the changes now match a reviewer's value from ${esc(a)}.` : ''}</div>` +
+            r.docs.filter((d) => d.changed.length).map((d) => `<details class="border border-base-300 rounded p-2"><summary>${esc(shortDoc(d.name))}: ${d.changed.length} changed</summary>
+            <table class="table table-xs mt-2"><thead><tr><th>Column</th><th>${esc(a)}</th><th>${esc(b)}</th><th></th></tr></thead><tbody>
+            ${d.changed.map((c) => `<tr><td class="mono">${esc(c.column)}</td><td>${esc(c.a)}${c.a_flagged ? ' ⚑' : ''}${c.reviewed_in_a !== null && c.reviewed_in_a !== undefined ? `<div class="text-info text-xs">reviewer: ${esc(c.reviewed_in_a)}</div>` : ''}</td>
+                <td>${esc(c.b)}${c.b_flagged ? ' ⚑' : ''}</td><td>${c.b_matches_review ? '<span class="badge badge-success badge-sm">matches review</span>' : ''}</td></tr>`).join('')}</tbody></table></details>`).join('');
+    };
+
+    $('r-new').onclick = () => {
+        const locked = T.table.locked_versions || [];
+        if (!locked.length) return toast('Lock a schema version first (Schema tab)', 'warning');
+        $('rd-version').innerHTML = locked.slice().reverse().map((v) => `<option value="${v}">v${v}</option>`).join('');
+        $('rd-papers').innerHTML = T.papers.map((p) => `<label class="flex items-center gap-2 ${p.parsed ? '' : 'opacity-50'}">
+            <input type="checkbox" class="checkbox checkbox-xs rd-p" value="${esc(p.doc_id)}" ${p.parsed ? '' : 'disabled'} />
+            <span>${esc(shortDoc(p.name))}</span>${p.gold ? '<span class="badge badge-outline badge-xs">gold</span>' : ''}${p.parsed ? '' : '<span class="text-xs">(parse it on the Papers tab first)</span>'}</label>`).join('');
+        const est = () => { const n = document.querySelectorAll('.rd-p:checked').length; const per = $('rd-system').value === 'E' ? 42 : 7;
+            $('rd-est').textContent = n ? `${n} paper${n > 1 ? 's' : ''}: about ${Math.round(n * per / 2)} min on the local GPU (2 papers at a time; ~${per} min each). Cloud models vary.` : 'Pick the papers to extract.'; };
+        document.querySelectorAll('.rd-p').forEach((c) => c.onchange = est);
+        $('rd-system').onchange = est;
+        $('rd-all').onclick = () => { document.querySelectorAll('.rd-p:not(:disabled)').forEach((c) => c.checked = true); est(); };
+        $('rd-none').onclick = () => { document.querySelectorAll('.rd-p').forEach((c) => c.checked = false); est(); };
+        est();
+        $('run-dlg').showModal();
+    };
+    $('rd-go').onclick = async () => {
+        const by = needReviewer(); if (!by) return;
+        const docs = [...document.querySelectorAll('.rd-p:checked')].map((c) => c.value);
+        if (!docs.length) return toast('Pick at least one paper', 'warning');
+        $('rd-go').disabled = true;
+        const r = await post(api('/runs'), {docs, version: Number($('rd-version').value), system: $('rd-system').value, kb: $('rd-kb').checked ? 'on' : 'off', by});
+        $('rd-go').disabled = false;
+        if (!r.success) return toast(r.error, 'error', 7000);
+        $('run-dlg').close();
+        toast(`Started run ${r.run}`, 'success');
+        await loadTable(); rendered.runs = true; renderRuns();
+    };
+
+    // ---------- Table ----------
+    let gridRun = new URLSearchParams(location.search).get('run');
+    let grid = null;
+    function renderGridTab() {
+        const runs = T.runs.slice().reverse();
+        if (!runs.length) { $('g-grid').innerHTML = '<div class="p-6 text-sm">No run yet: start one on the Runs tab.</div>'; return; }
+        if (!gridRun || !runs.some((r) => r.run === gridRun)) gridRun = (runs.find((r) => r.status === 'ok' && !r.variant) || runs[0]).run;
+        $('g-run').innerHTML = runs.map((r) => `<option value="${esc(r.run)}" ${r.run === gridRun ? 'selected' : ''}>${esc(r.run)} (${r.done}/${r.papers.length})</option>`).join('');
+        loadGrid();
+    }
+    $('g-run').onchange = () => { gridRun = $('g-run').value; loadGrid(); };
+    ['g-group', 'g-search', 'g-flagged'].forEach((id) => $(id).addEventListener('input', drawGrid));
+    async function loadGrid() {
+        const u = new URL(location.href); u.searchParams.set('run', gridRun); history.replaceState(null, '', u);
+        $('g-grid').innerHTML = '<div class="p-6 text-sm opacity-60">Loading…</div>';
+        const r = await get(`/api/runs/${enc(gridRun)}/table`);
+        if (!r.success) { $('g-grid').innerHTML = `<div class="p-6 text-error">${esc(r.error)}</div>`; return; }
+        grid = r;
+        $('g-csv').href = `/api/runs/${enc(gridRun)}/export.csv`;
+        $('g-xlsx').href = `/api/runs/${enc(gridRun)}/export.xlsx`;
+        const groups = [...new Set(r.columns.map((c) => c.group))];
+        $('g-group').innerHTML = '<option value="">All column groups</option>' + groups.map((g) => `<option>${esc(g)}</option>`).join('');
+        drawGrid();
+    }
+    function drawGrid() {
+        if (!grid) return;
+        const g = $('g-group').value, q = $('g-search').value.toLowerCase(), onlyFlag = $('g-flagged').checked;
+        const cols = grid.columns.filter((c) => (!g || c.group === g) && (!q || c.name.toLowerCase().includes(q))
+            && (!onlyFlag || grid.docs.some((d) => ['flagged', 'corrected', 'accepted'].includes((d.cells[c.name] || {}).s))));
+        const counts = {};
+        grid.docs.forEach((d) => cols.forEach((c) => { const s = (d.cells[c.name] || {}).s; if (s) counts[s] = (counts[s] || 0) + 1; }));
+        $('g-legend').innerHTML = Object.entries(EVS.STATE).map(([k, [label]]) => `<span class="flex items-center gap-1"><span class="dot s-${k} border border-base-content/30"></span>${esc(label)} <b>${counts[k] || 0}</b></span>`).join('')
+            + `<span class="opacity-60">definitions: ${esc(grid.definitions.source)}</span>`;
+        const groupsRow = []; cols.forEach((c) => { const last = groupsRow[groupsRow.length - 1]; if (last && last.g === c.group) last.n++; else groupsRow.push({g: c.group, n: 1}); });
+        $('g-grid').innerHTML = `<table class="text-xs"><thead>
+            <tr><th class="sticky-col px-2 py-1 text-left">Paper</th>${groupsRow.map((x) => `<th colspan="${x.n}" class="px-2 py-1 text-left font-semibold truncate">${esc(x.g)}</th>`).join('')}</tr>
+            <tr class="cols"><th class="sticky-col px-2 py-1"></th>${cols.map((c) => { const label = c.name.split(' | ').slice(1).join(' | ');
+                return `<th class="px-2 py-1 text-left font-normal min-w-[8rem] max-w-[14rem]" title="${esc(c.name + '\n\n' + c.definition)}"><div class="line-clamp-3">${esc(label || (c.name === c.group ? '' : c.name))}</div></th>`; }).join('')}</tr></thead>
+            <tbody>${grid.docs.map((d) => `<tr><td class="sticky-col px-2 py-1 font-medium whitespace-nowrap" title="${esc(d.doc_id)}">${esc(shortDoc(d.name))}</td>
+                ${cols.map((c) => { const cell = d.cells[c.name]; if (!cell) return '<td class="px-2 py-1 opacity-30">—</td>';
+                    const tip = `${c.name}\n${EVS.STATE[cell.s] ? EVS.STATE[cell.s][0] : cell.s}${cell.p ? ' · page ' + cell.p : ''}${cell.m !== null && cell.m !== undefined ? '\nmachine value: ' + cell.m : ''}${cell.q ? '\n“' + cell.q + '”' : ''}`;
+                    return `<td class="px-2 py-1 s-${cell.s}"><div class="cellv" data-doc="${esc(d.doc_id)}" data-col="${esc(c.name)}" title="${esc(tip)}">${esc(cell.v)}</div></td>`; }).join('')}</tr>`).join('')}</tbody></table>`;
+        $('g-grid').querySelectorAll('.cellv').forEach((el) => el.onclick = () => {
+            location.href = `/tables/${enc(TABLE)}/review?run=${enc(gridRun)}&doc=${enc(el.dataset.doc)}&column=${enc(el.dataset.col)}`;
+        });
+    }
+
+    // ---------- start ----------
+    (async function () {
+        if (!(await loadTable())) return;
+        showTab(location.hash.slice(1) || 'overview');
+        if ((T.runs || []).some((r) => r.status === 'running')) pollJobs();
+    })();
+})();

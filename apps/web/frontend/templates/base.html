@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}EviSearch{% endblock %} · EviSearch</title>
+    <script src="https://cdn.tailwindcss.com/3.4.16"></script>
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.14/dist/full.min.css" rel="stylesheet" />
+    <style>
+        .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+        .nav-link.active { background-color: hsl(var(--p) / .2); color: hsl(var(--bc)); }
+        .s-verified { background: rgba(34, 197, 94, .07); }
+        .s-flagged { background: rgba(245, 158, 11, .28); }
+        .s-corrected { background: rgba(59, 130, 246, .28); }
+        .s-accepted { background: rgba(34, 197, 94, .30); }
+        .s-not_reported { color: hsl(var(--bc) / .45); }
+        .s-unverified { background: transparent; }
+        .dot { display: inline-block; width: .6rem; height: .6rem; border-radius: 9999px; }
+        [x-cloak] { display: none; }
+    </style>
+    {% block head %}{% endblock %}
+</head>
+<body class="min-h-screen bg-base-200">
+    <header class="navbar bg-base-300 shadow-lg flex-wrap gap-y-1 px-2">
+        <div class="flex-1 flex flex-wrap items-center gap-1">
+            <a href="/" class="btn btn-ghost text-lg font-bold normal-case px-2">EviSearch</a>
+            {% set nav = [('/tables', 'Tables', 'tables'), ('/review', 'Review', 'review'), ('/knowledge', 'Knowledge', 'knowledge'),
+                          ('/learning', 'Learning', 'learning'), ('/benchmark', 'Benchmark', 'benchmark'), ('/qa', 'Ask', 'ask')] %}
+            {% for href, label, key in nav %}
+            <a href="{{ href }}" class="btn btn-ghost btn-sm nav-link {% if active == key %}active{% endif %}">{{ label }}</a>
+            {% endfor %}
+        </div>
+        <div class="flex-none flex items-center gap-2 px-1">
+            <label class="text-xs text-base-content/70" for="reviewer">Your name</label>
+            <input id="reviewer" class="input input-sm input-bordered w-36" placeholder="needed to save" autocomplete="name" />
+        </div>
+    </header>
+
+    {% block content %}{% endblock %}
+
+    <div id="toasts" class="toast toast-end z-50"></div>
+    <script src="/static/js/evs.js"></script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>

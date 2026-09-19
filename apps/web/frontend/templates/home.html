@@ -1,57 +1,69 @@
-<!DOCTYPE html>
-<html lang="en" data-theme="dark">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Evidence-based PDF Q&A</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.14/dist/full.min.css" rel="stylesheet" />
-</head>
-<body class="min-h-screen bg-base-200">
-    <div class="navbar bg-base-300 shadow-lg">
-        <div class="flex-1">
-            <a href="/" class="btn btn-ghost font-semibold">Home</a>
-            <a href="/qa" class="btn btn-ghost">Ask a question</a>
-            <a href="/extract" class="btn btn-ghost">Extract full table</a>
-            <a href="/attribution" class="btn btn-ghost">Attribution</a>
-            <a href="/schema" class="btn btn-ghost">Schema</a>
-            <a href="/feedback" class="btn btn-ghost">Feedback</a>
-            <a href="/comparison-report" class="btn btn-ghost" target="_blank">Report</a>
+{% extends "base.html" %}
+{% set active = "home" %}
+{% block title %}Home{% endblock %}
+{% block content %}
+<main class="max-w-6xl mx-auto p-4 md:p-8 space-y-8">
+    <section class="text-center space-y-3 pt-4">
+        <h1 class="text-3xl md:text-4xl font-bold">From a spreadsheet of headers to an evidence-linked table</h1>
+        <p class="text-base-content/70 max-w-3xl mx-auto">EviSearch reads your column headers (and one example row), writes a definition for every column,
+            extracts each value from clinical-trial papers with the page it came from, and flags the cells a person should check.
+            Every correction can become a rule the next paper benefits from.</p>
+        <div class="flex flex-wrap justify-center gap-3 pt-2">
+            <a id="open-demo" href="/tables" class="btn btn-primary">Open the demo table</a>
+            <a href="/tables#new" class="btn btn-outline">Start a table from your spreadsheet</a>
+            <a href="/benchmark" class="btn btn-ghost">See the benchmark</a>
         </div>
-        <div class="flex-none">
-            <h1 class="text-xl font-bold text-primary px-4">Evidence-based PDF Q&A</h1>
-        </div>
-    </div>
+    </section>
 
-    <main class="max-w-4xl mx-auto p-8">
-        <div class="text-center mb-12">
-            <h2 class="text-3xl font-bold text-base-content mb-2">Evidence-based PDF Q&A</h2>
-            <p class="text-base-content/70">Get attributed answers to queries over PDFs — single question or full table extraction</p>
-        </div>
+    <section>
+        <ol id="steps" class="grid grid-cols-1 sm:grid-cols-5 gap-3 text-sm"></ol>
+    </section>
 
-        <div class="grid gap-6 md:grid-cols-2">
-            <a href="/qa" class="card bg-base-100 shadow-xl hover:shadow-2xl transition-shadow hover:border-primary/50 border-2 border-transparent">
-                <div class="card-body">
-                    <div class="text-4xl mb-2">💬</div>
-                    <h3 class="card-title text-xl">Ask a question</h3>
-                    <p class="text-base-content/70 text-sm">Upload a PDF or select a document, type your question, and get answers with attribution from Direct PDF and Search-Based methods.</p>
-                    <div class="card-actions justify-end mt-4">
-                        <span class="btn btn-primary btn-sm">Go →</span>
-                    </div>
-                </div>
-            </a>
+    <section class="stats stats-vertical sm:stats-horizontal shadow w-full bg-base-100" id="stats">
+        <div class="stat"><div class="stat-title">Papers in the demo run</div><div class="stat-value text-2xl" id="st-papers">—</div><div class="stat-desc" id="st-run"></div></div>
+        <div class="stat"><div class="stat-title">Reported values</div><div class="stat-value text-2xl" id="st-cells">—</div><div class="stat-desc" id="st-page"></div></div>
+        <div class="stat"><div class="stat-title">Flagged for review</div><div class="stat-value text-2xl" id="st-flagged">—</div><div class="stat-desc" id="st-reviewed"></div></div>
+        <div class="stat"><div class="stat-title">Rules learned from reviews</div><div class="stat-value text-2xl" id="st-rules">—</div><div class="stat-desc" id="st-rules-total"></div></div>
+    </section>
 
-            <a href="/extract" class="card bg-base-100 shadow-xl hover:shadow-2xl transition-shadow hover:border-primary/50 border-2 border-transparent">
-                <div class="card-body">
-                    <div class="text-4xl mb-2">📋</div>
-                    <h3 class="card-title text-xl">Extract full table</h3>
-                    <p class="text-base-content/70 text-sm">Run full column extraction using Direct PDF and Search-Based methods, then view attribution and reconcile on the Attribution page.</p>
-                    <div class="card-actions justify-end mt-4">
-                        <span class="btn btn-primary btn-sm">Go →</span>
-                    </div>
-                </div>
-            </a>
+    <section class="card bg-base-100 shadow">
+        <div class="card-body">
+            <h2 class="card-title text-lg">Try it in three minutes</h2>
+            <ol class="list-decimal ml-5 space-y-1 text-sm">
+                <li><b>Open the demo table</b>: 133 columns for metastatic hormone-sensitive prostate cancer trials, drafted from the column headers and one example row, then reviewed and locked.</li>
+                <li><b>Review a flagged cell</b>: see what Agent A (reads the whole paper) and Agent B (searches it) answered, what the arbiter decided and the page it checked; confirm or correct it.</li>
+                <li><b>Turn a correction into a rule</b> and see which columns it would change; then open <a class="link" href="/learning">Learning</a> to see what changed between runs.</li>
+            </ol>
+            <p class="text-xs text-base-content/60">Everyone shares one workspace in this demo: reviews and rules you save are visible to the next visitor.</p>
         </div>
-    </main>
-</body>
-</html>
+    </section>
+</main>
+{% endblock %}
+{% block scripts %}
+<script>
+(async function () {
+    const {$, esc, get} = EVS;
+    const s = await get('/api/stats');
+    const table = s.demo_table;
+    const steps = [
+        ['1', 'Spreadsheet', 'Column headers + one example row', table ? `/tables/${table}#schema` : '/tables#new'],
+        ['2', 'Schema', 'A definition per column, reviewed by you', table ? `/tables/${table}#schema` : '/tables'],
+        ['3', 'Extract', 'Two agents + an arbiter that checks the page', table ? `/tables/${table}#runs` : '/tables'],
+        ['4', 'Review', 'Flagged cells first, with the page beside them', '/review'],
+        ['5', 'Learn', 'Corrections become rules for the next paper', '/learning'],
+    ];
+    $('steps').innerHTML = steps.map(([n, t, d, href]) => `<li><a href="${href}" class="card bg-base-100 shadow hover:shadow-lg transition h-full">
+        <div class="card-body p-4"><div class="text-xs opacity-60">Step ${n}</div><div class="font-semibold">${esc(t)}</div><div class="opacity-70">${esc(d)}</div></div></a></li>`).join('');
+    if (!s.success) return;
+    if (table) $('open-demo').href = `/tables/${encodeURIComponent(table)}`;
+    $('st-papers').textContent = s.papers;
+    $('st-run').textContent = s.showcase_run ? `run ${s.showcase_run}` : 'no run yet';
+    $('st-cells').textContent = s.reported_values;
+    $('st-page').textContent = s.reported_values ? `${Math.round(100 * s.with_page / s.reported_values)}% with the page they came from` : '';
+    $('st-flagged').textContent = s.flagged;
+    $('st-reviewed').textContent = `${s.reviewed} cells reviewed in this run`;
+    $('st-rules').textContent = s.rules_learned;
+    $('st-rules-total').textContent = `${s.rules_total} rules active in total`;
+})();
+</script>
+{% endblock %}
