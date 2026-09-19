@@ -2,11 +2,13 @@
 
 For a proposed convention:
 1. overlapping(): conventions whose triggers can apply to the same column (decided by code: scope and facets);
-2. relation(): each overlapping one is a duplicate, narrower, broader, conflict or independent of the proposal —
-   exact duplicates (same trigger, action and parameters) are decided by code, the rest by the model;
+2. relation(): each overlapping one is a duplicate, narrower, broader, exception, conflict or independent of the
+   proposal — exact duplicates (same trigger, action and parameters) are decided by code, the rest by the model; when the
+   two disagree but their scopes differ (e.g. a Region-family rule against a global rule), code makes it an exception:
+   the more specific one applies on its columns, as the rendered rules tell the extractor;
 3. check(): the verdict the reviewer sees. A duplicate is merged into the existing convention (support + 1); a conflict
-   blocks approval until the reviewer retires one, narrows a scope, or rejects the proposal; narrower/broader are kept
-   (the more specific applies where both fire; a broader one may replace narrower ones).
+   (disagreement at the same scope) blocks approval until the reviewer retires one, narrows a scope, or rejects the
+   proposal; narrower/broader/exception are kept (the more specific applies where both fire).
 impact(): the columns of a schema the trigger applies to, for the reviewer to judge (and for a regression replay).
 """
 from __future__ import annotations
@@ -17,7 +19,8 @@ from typing import Any, Dict, List, Optional, Sequence
 from src.evisearch.knowledge import conventions as kb
 from src.inference import InferenceError, Message
 
-RELATIONS = ("duplicate", "narrower", "broader", "conflict", "independent")
+RELATIONS = ("duplicate", "narrower", "broader", "exception", "conflict", "independent")
+MODEL_RELATIONS = ("duplicate", "narrower", "broader", "conflict", "independent")
 FACET_KEYS = ("characteristic", "statistic", "arm", "subgroup", "category")
 
 RELATION_PROMPT = """You maintain a knowledge base of conventions that tell an extraction system how to fill a
@@ -88,7 +91,7 @@ def relation(chat: Any, proposal: Dict[str, Any], other: Dict[str, Any]) -> Dict
     if _same(proposal, other):
         return {"relation": "duplicate", "reason": "same trigger, action and instruction"}
     show = lambda c: json.dumps({k: c.get(k) for k in ("trigger", "action", "instruction")}, ensure_ascii=False)  # noqa: E731
-    schema = {"type": "object", "properties": {"relation": {"type": "string", "enum": list(RELATIONS)}, "reason": {"type": "string"}},
+    schema = {"type": "object", "properties": {"relation": {"type": "string", "enum": list(MODEL_RELATIONS)}, "reason": {"type": "string"}},
               "required": ["relation", "reason"]}
     try:
         result = chat.chat([Message.system(RELATION_PROMPT), Message.user(f"PROPOSED: {show(proposal)}\nEXISTING ({other['id']}): {show(other)}")],
@@ -96,12 +99,17 @@ def relation(chat: Any, proposal: Dict[str, Any], other: Dict[str, Any]) -> Dict
         out = result.json() or {}
     except (InferenceError, ValueError) as exc:
         return {"relation": "conflict", "reason": f"could not be classified ({exc}); treated as a conflict for the reviewer"}
-    rel = out.get("relation") if out.get("relation") in RELATIONS else "conflict"
-    return {"relation": rel, "reason": str(out.get("reason", ""))}
+    rel = out.get("relation") if out.get("relation") in MODEL_RELATIONS else "conflict"
+    reason = str(out.get("reason", ""))
+    mine, theirs = kb.SCOPES.index(proposal["trigger"]["scope"]), kb.SCOPES.index(other["trigger"]["scope"])
+    if rel == "conflict" and mine != theirs:
+        specific = "the proposal" if mine < theirs else other["id"]
+        return {"relation": "exception", "reason": f"{reason} Their scopes differ, so {specific} (the more specific) applies where both fire."}
+    return {"relation": rel, "reason": reason}
 
 
 def check(chat: Any, proposal: Dict[str, Any], existing: Optional[Sequence[Dict[str, Any]]] = None) -> Dict[str, Any]:
-    """{verdict: new | duplicate | blocked, relations: [{id, relation, reason, instruction}], duplicate_of}."""
+    """{verdict: new | duplicate | blocked, relations: [{id, relation, reason, instruction}], duplicate_of, conflicts}."""
     relations = []
     for other in overlapping(proposal, existing):
         rel = relation(chat, proposal, other)

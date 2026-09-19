@@ -84,6 +84,17 @@ def test_gate_merges_exact_duplicates_without_the_model_and_blocks_conflicts():
     assert other["verdict"] == "new" and other["relations"] == []
 
 
+def test_a_more_specific_convention_that_disagrees_is_an_exception_not_a_conflict():
+    kb.decide(kb.create({**_variants(scope="global", instruction="- Give a subgroup value with the paper's own label."),
+                         "trigger": {"scope": "global", "facets": {}, "condition": ""}})["id"], "approve")
+    chat = ReplyChat([{"relation": "conflict", "reason": "Region columns would get different values"}])
+    region = {**_variants(instruction="- Write 'Included in \"<category>\"' for a region inside a broader category."),
+              "trigger": {"scope": "family", "family": "Region - N (%)", "columns": [], "facets": {}, "condition": ""}}
+    out = gate.check(chat, region)
+    assert out["verdict"] == "new" and out["relations"][0]["relation"] == "exception"
+    assert "the proposal (the more specific) applies" in out["relations"][0]["reason"]
+
+
 def test_proposer_generalises_or_declines_paper_specific_feedback():
     chat = ReplyChat([
         {"is_convention": True, "why_not": "", "scope": "family", "family": "Median PFS (mo)", "columns": [], "condition": "only variants",
