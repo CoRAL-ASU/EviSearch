@@ -9,6 +9,7 @@ Schema conventions only, with no paper, trial, drug or value names. `none` repro
 """
 from __future__ import annotations
 
+import os
 from typing import Dict, Optional
 
 RULES: Dict[str, str] = {
@@ -134,12 +135,26 @@ def rules_version() -> str:
     return SELECTION.option("extraction_rules")
 
 
+def knowledge_base_on() -> bool:
+    """EVISEARCH_KB=on: the prompts get the conventions knowledge base (KNOWLEDGE_DIR) instead of a fixed rules text."""
+    return os.getenv("EVISEARCH_KB", "").strip().lower() in {"1", "on", "true", "yes"}
+
+
 def shared_rules(version: Optional[str] = None) -> str:
+    if version is None and knowledge_base_on():
+        from src.evisearch.knowledge import conventions
+
+        return conventions.render()
     return RULES[version or rules_version()]
 
 
 def rules_setting(version: Optional[str] = None) -> Dict[str, Optional[str]]:
     """Run-settings entry for resume and reuse checks. `none` is recorded as None, which also matches results saved
-    before the option existed (no key), while v1 and none results can never be mixed in either direction."""
+    before the option existed (no key), while v1 and none results can never be mixed in either direction. With the
+    knowledge base on, its fingerprint is recorded instead, so results made with different conventions never mix."""
+    if version is None and knowledge_base_on():
+        from src.evisearch.knowledge import conventions
+
+        return {"extraction_rules": f"kb:{conventions.fingerprint()}"}
     version = version or rules_version()
     return {"extraction_rules": None if version == "none" else version}
