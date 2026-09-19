@@ -438,8 +438,10 @@
                                 } else if (v.applicable) {
                                     vBadge = v.verified ? ' <span class="badge badge-success badge-xs">✓</span>' : ' <span class="badge badge-error badge-xs">✗</span>';
                                 }
-                                return `<button type="button" class="btn btn-ghost btn-sm justify-start w-full text-left column-btn" data-index="${idx}">
-                                    ${escapeHtml(c.column_name)}${vBadge}
+                                if (c.needs_review) vBadge += ' <span class="badge badge-warning badge-xs" title="Flagged for review by the arbiter">flagged</span>';
+                                if (c.human_edited) vBadge += ' <span class="badge badge-accent badge-xs" title="Checked by a reviewer">reviewed</span>';
+                                return `<button type="button" class="btn btn-ghost btn-sm h-auto min-h-8 py-1 justify-start w-full text-left font-normal normal-case column-btn" data-index="${idx}">
+                                    <span class="whitespace-normal break-words">${escapeHtml(c.column_name)}${vBadge}</span>
                                 </button>`;
                             }).join('')}
                         </div>
