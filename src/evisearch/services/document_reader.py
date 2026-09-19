@@ -117,7 +117,8 @@ def _answer_once(
         about = f"\nColumn: {column}" + (f"\nDefinition: {definition}" if definition else "") if column else ""
         lines.append(f"\n---\nid: {question_id}{about}\nQuestion: {question.get('question', '')}")
     lines.append('\nReturn JSON: {"answers": [{"id": ..., "answer": ..., "pages": [...], "evidence": ..., "modality": ...}]}')
-    system = SYSTEM_PROMPT + (pdf_query.IMAGE_RULES if document.info["image_pages"] else "") + shared_rules()
+    columns = [q["column"] for q in questions if q.get("column")] or None
+    system = SYSTEM_PROMPT + (pdf_query.IMAGE_RULES if document.info["image_pages"] else "") + shared_rules(columns=columns)
     messages = [Message.system(system), Message.user(*document.parts, TextPart("\n".join(lines)))]
     schema = response_schema(ids) if chat.capabilities.json_schema else None
     try:

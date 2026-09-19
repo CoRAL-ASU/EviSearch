@@ -10,7 +10,7 @@ from __future__ import annotations
 import re
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, Iterable, List, Optional, Tuple
 
 from src.config.catalog import ConfigError, ImageTokens
 from src.config.config import MAX_TOKENS, PAGE_IMAGE_SCALE, PDF_QUERY_MAX_PAGE_IMAGES, SELECTION
@@ -44,9 +44,10 @@ IMAGE_RULES = """
   and numbers in text and tables; use the image for figures (Kaplan-Meier curves, forest plots, flow diagrams) and to
   check table layout. When the parsed text and the image disagree about a value, trust the image."""
 
-def system_prompt_text(images: bool = True) -> str:
-    """Agent A's system prompt: base rules, the page-image rules when images are sent, then the shared conventions."""
-    return SYSTEM_PROMPT + (IMAGE_RULES if images else "") + shared_rules()
+def system_prompt_text(images: bool = True, columns: Optional[Iterable[str]] = None) -> str:
+    """Agent A's system prompt: base rules, the page-image rules when images are sent, then the shared conventions
+    (those for `columns` under scoped delivery)."""
+    return SYSTEM_PROMPT + (IMAGE_RULES if images else "") + shared_rules(columns=columns)
 
 
 ANCHOR_RE = re.compile(r"<a\s+id=['\"][^'\"]*['\"][^>]*>\s*</a>\s*")
@@ -198,7 +199,7 @@ def run_pdf_query(
     if details is not None:
         details.update(document.info)
 
-    system = system_prompt_text(bool(document.info["image_pages"]))
+    system = system_prompt_text(bool(document.info["image_pages"]), names)
     log: Dict[str, Any] = {"model": chat.key, "input_mode": input_mode, "document": document.info, "system": system, "prompt": columns_prompt}
     results: Dict[str, Dict[str, Any]] = {}
     reasons: Dict[str, str] = {}

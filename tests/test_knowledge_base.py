@@ -133,3 +133,28 @@ def test_shared_rules_reads_the_knowledge_base_when_it_is_on(monkeypatch):
     assert extraction_rules.shared_rules("v1") == extraction_rules.RULES["v1"]  # an explicit version is never replaced
     monkeypatch.setenv("EVISEARCH_KB", "off")
     assert extraction_rules.rules_setting()["extraction_rules"] != f"kb:{kb.fingerprint()}"
+
+
+def test_scoped_delivery_sends_a_column_or_family_convention_only_to_batches_that_hold_its_columns(monkeypatch):
+    kb.seed_from_rules("v5")
+    docetaxel = "Docetaxel administration - N (%) | Treatment"
+    region = ["Region - N (%) | Europe | Treatment"]
+    for record in (_variants(),  # family: Median PFS (mo)
+                   {**_variants(instruction="- Answer 0 (0%) when the arm excludes docetaxel."),
+                    "trigger": {"scope": "column", "family": None, "columns": [docetaxel], "facets": {}, "condition": ""}},
+                   {**_variants(instruction="- Label every value with its population."),
+                    "trigger": {"scope": "global", "facets": {}, "condition": ""}}):
+        kb.decide(kb.create(record)["id"], "approve")
+    monkeypatch.setenv("EVISEARCH_KB", "on")
+    everything = extraction_rules.shared_rules()
+    assert extraction_rules.shared_rules(columns=region) == everything  # default delivery: every convention in every prompt
+    assert extraction_rules.rules_setting() == {"extraction_rules": f"kb:{kb.fingerprint()}"}
+    monkeypatch.setenv("EVISEARCH_KB_DELIVERY", "scoped")
+    text = extraction_rules.shared_rules(columns=region)
+    assert text.startswith(extraction_rules.RULES["v5"]) and "Label every value with its population." in text
+    assert "PFS variant" not in text and "excludes docetaxel" not in text
+    pfs = extraction_rules.shared_rules(columns=PFS)
+    assert "- [Median PFS (mo) columns] Give each PFS variant" in pfs and "excludes docetaxel" not in pfs
+    assert "excludes docetaxel" in extraction_rules.shared_rules(columns=[docetaxel, *region])
+    assert extraction_rules.shared_rules() == everything  # a prompt without columns still gets every convention
+    assert extraction_rules.rules_setting() == {"extraction_rules": f"kb:{kb.fingerprint()}:scoped"}  # never mixed on resume

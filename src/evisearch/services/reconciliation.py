@@ -591,7 +591,7 @@ def run_reconciliation_agent(
     specs = {spec.name: spec for spec in tool_specs(names)}
     loop = run_tool_loop(
         chat,
-        system=SYSTEM_PROMPT + shared_rules(),
+        system=SYSTEM_PROMPT + shared_rules(columns=names),
         user=session.user_prompt(),
         tools=[
             Tool(specs["ask_document"], session.ask_document),

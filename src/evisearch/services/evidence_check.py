@@ -205,7 +205,7 @@ def _verify_pages(
         if images.get(page):
             parts += [TextPart(f"=== PAGE {page}: image ==="), ImagePart(images[page])]
     parts.append(TextPart(_claims_block(claims, definitions)))
-    messages = [Message.system(SYSTEM_PROMPT + shared_rules()), Message.user(*parts)]
+    messages = [Message.system(SYSTEM_PROMPT + shared_rules(columns=[claim.column for claim in claims])), Message.user(*parts)]
     schema = response_schema(ids) if chat.capabilities.json_schema else None
     pages_text = "\n".join(texts.get(page, "") for page in pages)
     usage = Usage()

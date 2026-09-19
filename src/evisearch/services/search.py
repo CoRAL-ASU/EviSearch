@@ -208,7 +208,7 @@ def run_search_agent(
     specs = {spec.name: spec for spec in tool_specs(names)}
     loop = run_tool_loop(
         chat,
-        system=SYSTEM_PROMPT + shared_rules(),
+        system=SYSTEM_PROMPT + shared_rules(columns=names),
         user=user_prompt,
         tools=[
             Tool(specs["search_chunks"], session.search_chunks),

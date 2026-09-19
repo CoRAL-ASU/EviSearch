@@ -186,6 +186,25 @@ def render(conventions: Optional[List[Dict[str, Any]]] = None) -> str:
     return body
 
 
+def select_for(conventions: List[Dict[str, Any]], columns: Iterable[str]) -> List[Dict[str, Any]]:
+    """The conventions a batch of columns gets under scoped delivery: seeds and global or table conventions always, a
+    column or family convention only when the batch holds one of its columns (a family's columns start with the family
+    header, as in gate.matches_column). Keeps a narrow rule out of prompts for other columns, where the model generalised
+    it (Q10: an eligibility rule for the docetaxel columns was applied to previous local therapy)."""
+    names = set(columns)
+
+    def applies(c: Dict[str, Any]) -> bool:
+        t = c.get("trigger") or {}
+        if c.get("source", {}).get("kind") == "seed" or t.get("scope", "global") in ("global", "table"):
+            return True
+        if names & set(t.get("columns") or []):
+            return True
+        family = t.get("family")
+        return t.get("scope") == "family" and bool(family) and any(n.startswith(family) for n in names)
+
+    return [c for c in conventions if applies(c)]
+
+
 def snapshot() -> Path:
     """Freeze the active conventions for a run, content-addressed: KNOWLEDGE_DIR/snapshots/<fingerprint>.json. A run reads
     its snapshot (EVISEARCH_KB_SNAPSHOT), so approving or retiring a convention mid-run never changes its prompts."""

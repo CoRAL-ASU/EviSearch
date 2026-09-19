@@ -119,7 +119,7 @@ def test_rules_reach_every_extraction_prompt():
     assert text.index("Pages come with") < text.index("COLUMN AND TRIAL CONVENTIONS")  # image rules stay under "Rules:"
     source = {name: (ROOT / "src" / "evisearch" / "services" / f"{name}.py").read_text() for name in ("pdf_query", "search", "markdown_baseline")}
     assert "system = system_prompt_text(" in source["pdf_query"]
-    assert "SYSTEM_PROMPT + shared_rules()" in source["search"]
+    assert "SYSTEM_PROMPT + shared_rules(columns=names)" in source["search"]  # the batch's columns (scoped delivery)
     assert "query_label_groups(provider, markdown_text, pending, workers, shared_rules())" in source["markdown_baseline"]
     prompt = markdown_baseline.build_prompt("ID", [{"column": "c", "definition": "d"}], extraction_rules.RULES["v1"])
     assert prompt.index("COLUMN AND TRIAL CONVENTIONS") < prompt.index("Pay special attention")

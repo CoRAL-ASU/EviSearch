@@ -10,7 +10,7 @@ Schema conventions only, with no paper, trial, drug or value names. `none` repro
 from __future__ import annotations
 
 import os
-from typing import Dict, Optional
+from typing import Dict, Iterable, Optional
 
 RULES: Dict[str, str] = {
     "none": "",
@@ -148,11 +148,22 @@ def _kb_conventions():
     return conventions.load_snapshot(path) if path else conventions.active()
 
 
-def shared_rules(version: Optional[str] = None) -> str:
+def kb_delivery() -> str:
+    """EVISEARCH_KB_DELIVERY=scoped: a column or family convention reaches only the prompts whose batch holds its columns.
+    Default `all`: every convention in every prompt, as in every run before scoped delivery."""
+    return "scoped" if os.getenv("EVISEARCH_KB_DELIVERY", "").strip().lower() == "scoped" else "all"
+
+
+def shared_rules(version: Optional[str] = None, columns: Optional[Iterable[str]] = None) -> str:
+    """The conventions text for a prompt; `columns` (the batch's column names) selects the scoped conventions when the
+    knowledge base is on with scoped delivery. Without columns every convention is included."""
     if version is None and knowledge_base_on():
         from src.evisearch.knowledge import conventions
 
-        return conventions.render(_kb_conventions())
+        selected = _kb_conventions()
+        if columns is not None and kb_delivery() == "scoped":
+            selected = conventions.select_for(selected, columns)
+        return conventions.render(selected)
     return RULES[version or rules_version()]
 
 
@@ -163,6 +174,7 @@ def rules_setting(version: Optional[str] = None) -> Dict[str, Optional[str]]:
     if version is None and knowledge_base_on():
         from src.evisearch.knowledge import conventions
 
-        return {"extraction_rules": f"kb:{conventions.fingerprint(_kb_conventions())}"}
+        scoped = ":scoped" if kb_delivery() == "scoped" else ""
+        return {"extraction_rules": f"kb:{conventions.fingerprint(_kb_conventions())}{scoped}"}
     version = version or rules_version()
     return {"extraction_rules": None if version == "none" else version}
