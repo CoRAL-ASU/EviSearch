@@ -39,9 +39,19 @@ FEEDBACK_DIR = _resolve_runtime_path(
     "feedback",
     PROJECT_ROOT / "new_pipeline_outputs" / "feedback",
 )
+SCHEMAS_DIR = _resolve_runtime_path(
+    "EVISEARCH_SCHEMAS_DIR",
+    "schemas",
+    PROJECT_ROOT / "new_pipeline_outputs" / "schemas",
+)
+KNOWLEDGE_DIR = _resolve_runtime_path(
+    "EVISEARCH_KNOWLEDGE_DIR",
+    "knowledge",
+    PROJECT_ROOT / "new_pipeline_outputs" / "knowledge",
+)
 DATASET_DIR = Path(os.getenv("EVISEARCH_DATASET_DIR", str(PROJECT_ROOT / "dataset")))
 
 
 def ensure_runtime_dirs() -> None:
-    for path in (UPLOADS_DIR, RESULTS_ROOT, CHUNK_EMBEDDINGS_DIR, FEEDBACK_DIR):
+    for path in (UPLOADS_DIR, RESULTS_ROOT, CHUNK_EMBEDDINGS_DIR, FEEDBACK_DIR, SCHEMAS_DIR, KNOWLEDGE_DIR):
         path.mkdir(parents=True, exist_ok=True)
