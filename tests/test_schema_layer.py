@@ -137,6 +137,53 @@ def test_review_history_events_and_lock_export(paths):
     assert events == ["schema_draft", "definition_accept", "definition_answer", "definition_edit", "schema_lock"]
 
 
+def test_a_revision_that_returns_the_same_text_is_recorded_as_no_change(paths):
+    fields = [{"name": "NCT", "title": "NCT", "description": "What is the NCT id?", "type": "string", "x-evisearch": {
+        "group": "NCT", "eval_category": "exact_match", "example": {"doc": "d", "value": "", "grounding": {}},
+        "questions": [{"id": "q1", "question": "Which arm?", "options": ["A", "B"], "answer": None}],
+        "review": {"state": "proposed", "by": None, "at": None}, "history": []}}]
+    schema = store.create("T", fields, source={}, by="h")
+    store.review_field(schema["id"], "NCT", "accept", by="h")
+    store.review_field(schema["id"], "NCT", "answer", by="h", question_id="q1", answer="A")
+    same = store.review_field(schema["id"], "NCT", "revise", by="agent", definition="What is the NCT id?  ",
+                              note="No change; the answer confirms the definition.")
+    x = same["x-evisearch"]
+    assert x["review"]["state"] == "accepted"  # the owner's accept stands; a no-op revision does not overwrite it
+    entry = x["history"][-1]
+    assert entry["action"] == "revise" and entry["unchanged"] is True and "before" not in entry and "after" not in entry
+    assert generator.pending_feedback(same) == ([], [])  # the entry's time still clears the answer, so no revise loop
+    events = [json.loads(line) for line in (paths / "feedback" / "feedback.jsonl").read_text().splitlines()]
+    revise = next(e for e in events if e["event"] == "definition_revise")
+    assert revise["unchanged"] is True and revise["before"] is None and revise["after"] is None
+
+    changed = store.review_field(schema["id"], "NCT", "revise", by="agent", definition="What is the trial's NCT id?")
+    entry = changed["x-evisearch"]["history"][-1]
+    assert entry["before"] == "What is the NCT id?" and entry["after"] == "What is the trial's NCT id?"
+    assert changed["x-evisearch"]["review"]["state"] == "revised" and "unchanged" not in entry
+    assert "unchanged" not in [json.loads(line) for line in (paths / "feedback" / "feedback.jsonl").read_text().splitlines()][-1]
+
+
+def test_the_agents_revised_flag_is_kept_when_it_disagrees_with_the_text(paths):
+    """The text decides whether a change is recorded; the agent's own flag is kept where the two disagree."""
+    fields = [{"name": n, "title": n, "description": "What is the NCT id?", "type": "string", "x-evisearch": {
+        "group": n, "eval_category": "exact_match", "example": {"doc": "d", "value": "", "grounding": {}},
+        "questions": [], "review": {"state": "accepted", "by": "h", "at": "t"}, "history": []}} for n in ("A", "B", "C")]
+    schema = store.create("T", fields, source={}, by="h")
+    # claims a revision but returns the same words: no change is recorded, and the empty claim is kept
+    a = store.review_field(schema["id"], "A", "revise", by="agent", definition="What is the NCT id?", claimed_revised=True)
+    entry = a["x-evisearch"]["history"][-1]
+    assert entry["unchanged"] is True and entry["claimed"] == "revised" and a["x-evisearch"]["review"]["state"] == "accepted"
+    # claims nothing changed but rewrote the definition: the change is recorded and flagged for the reviewer
+    b = store.review_field(schema["id"], "B", "revise", by="agent", definition="What is the trial id?", claimed_revised=False)
+    entry = b["x-evisearch"]["history"][-1]
+    assert entry["after"] == "What is the trial id?" and entry["claimed"] == "unchanged"
+    assert b["x-evisearch"]["review"]["state"] == "revised"
+    # whitespace only: not a change, and the tidied text is what gets stored
+    c = store.review_field(schema["id"], "C", "revise", by="agent", definition="What  is the\nNCT id?", claimed_revised=False)
+    assert c["description"] == "What  is the\nNCT id?" and c["x-evisearch"]["history"][-1]["unchanged"] is True
+    assert "claimed" not in c["x-evisearch"]["history"][-1]
+
+
 def test_revision_only_takes_feedback_the_definition_does_not_reflect_yet():
     def field(questions, history):
         return {"name": "c", "description": "d", "x-evisearch": {"questions": questions, "history": history}}

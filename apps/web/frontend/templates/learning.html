@@ -125,10 +125,14 @@
             // a review that kept the run's value is a confirmation, not a change (the old table showed "115 → 115")
             parts.push(e.changed === false ? 'confirmed “' + esc(e.after) + '”'
                 : `“${esc(e.before ?? '')}” → “${esc(e.after ?? '')}”`);
+        } else if (e.unchanged) {
+            // the revise step returned the definition unchanged: recorded with no before/after since 2026-09-19
+            parts.push('no change' + (e.claimed === 'revised' ? ' (the agent reported one)' : ''));
         } else if (e.before !== undefined && e.before !== null && e.after && e.before !== e.after) {
-            parts.push(wordDiff(String(e.before), String(e.after)));
+            parts.push(wordDiff(String(e.before), String(e.after))
+                + (e.claimed === 'unchanged' ? ' <span class="badge badge-warning badge-sm">agent said no change</span>' : ''));
         } else if (e.after && e.before === e.after) {
-            parts.push('no change');
+            parts.push('no change');  // older events recorded before/after even when the text was identical
         }
         [e.reason, e.answer, e.note, e.convention, e.run].forEach((x) => { if (x) parts.push(esc(String(x))); });
         return parts.join(' · ');

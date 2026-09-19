@@ -94,6 +94,12 @@ def list_schemas() -> List[Dict[str, Any]]:
     return out
 
 
+def _same_text(a: str, b: str) -> bool:
+    """Whether two definitions say the same thing as stored: equal once every run of whitespace is one space. A line
+    break or a double space is not a change worth showing a reviewer; anything else is."""
+    return " ".join((a or "").split()) == " ".join((b or "").split())
+
+
 def get_field(schema: Dict[str, Any], column: str) -> Dict[str, Any]:
     for field in schema["fields"]:
         if field["name"] == column:
@@ -104,9 +110,12 @@ def get_field(schema: Dict[str, Any], column: str) -> Dict[str, Any]:
 def review_field(
     schema_id: str, column: str, action: str, *, by: str = "", definition: Optional[str] = None,
     question_id: Optional[str] = None, answer: Optional[str] = None, reason: str = "", note: str = "",
+    claimed_revised: Optional[bool] = None,
 ) -> Dict[str, Any]:
     """A reviewer action on one field: accept it, edit its definition, or answer one of its questions.
-    ("revise" is the agent rewriting a definition after answers; it is recorded the same way.)"""
+    ("revise" is the agent rewriting a definition after answers; it is recorded the same way.)
+    `claimed_revised` is what the revise agent said it did (its own `revised` flag); the text decides what is recorded,
+    and a disagreement between the two is kept on the entry as `claimed`."""
     if action not in REVIEW_ACTIONS:
         raise ValueError(f"action must be one of {REVIEW_ACTIONS}")
     with _LOCK:
@@ -121,8 +130,20 @@ def review_field(
             if not definition or not definition.strip():
                 raise ValueError("an edit needs the new definition")
             field["description"] = definition.strip()
-            entry.update(before=before, after=field["description"])
-            x["review"] = {"state": "edited" if action == "edit" else "revised", "by": by, "at": entry["at"]}
+            # Two signals for "did the definition change": what the writer says (`claimed_revised`, the revise agent's
+            # own flag) and what the text shows, compared with whitespace normalised. The text decides, because it
+            # cannot be wrong; the claim is kept when the two disagree, which is how a reviewer sees that the agent
+            # rewrote wording it said it would leave alone. Recording every revision as a change made 22 of the first
+            # schema's 63 revisions look like edits and overwrote the review state of fields the owner had accepted.
+            if _same_text(field["description"], before):
+                entry["unchanged"] = True  # keep the entry: its action and time stop pending_feedback revising again
+                if claimed_revised:
+                    entry["claimed"] = "revised"  # the agent said it changed the definition, but the text is the same
+            else:
+                entry.update(before=before, after=field["description"])
+                if claimed_revised is False:
+                    entry["claimed"] = "unchanged"  # the agent said it changed nothing, yet the definition differs
+                x["review"] = {"state": "edited" if action == "edit" else "revised", "by": by, "at": entry["at"]}
         elif action == "answer":
             q = next((q for q in x.get("questions", []) if q["id"] == question_id), None)
             if q is None:
@@ -135,8 +156,11 @@ def review_field(
             x["review"] = {"state": "accepted", "by": by, "at": entry["at"]}
         x.setdefault("history", []).append(entry)
         save(schema)
-    record_event(f"definition_{action}", schema_id, column=column, by=by, reason=reason, note=note,
-                 before=entry.get("before"), after=entry.get("after"), question=entry.get("question"), answer=answer)
+    payload: Dict[str, Any] = {"column": column, "by": by, "reason": reason, "note": note, "before": entry.get("before"),
+                               "after": entry.get("after"), "question": entry.get("question"), "answer": answer}
+    if entry.get("unchanged"):
+        payload["unchanged"] = True  # so a page never renders it as a change
+    record_event(f"definition_{action}", schema_id, **payload)
     return field
 
 

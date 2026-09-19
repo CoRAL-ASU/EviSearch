@@ -53,13 +53,17 @@ REVISE_PROMPT = """You revise column definitions of a clinical-trial evidence ta
 For each column you get the current definition, the example value, the reviewer's answers to your questions and the
 reviewer's notes. Rewrite the definition so it follows the feedback exactly, in the same style (question; what to
 include; absence rule), still general for any paper. Keep everything the feedback does not change. Return JSON with one
-entry per column: column, definition, change (one sentence: what changed and why)."""
+entry per column: column, definition, revised, change (one sentence: what changed and why).
+Set revised to false when the feedback needs no change to the definition — for example when an answer only confirms what
+the definition already says — and then return the current definition word for word. Set it to true only when you changed
+the definition. Never rewrite wording the feedback does not ask you to change."""
 
 
 def _schema(names: Sequence[str], revise: bool = False) -> Dict[str, Any]:
     if revise:
-        props = {"column": {"type": "string", "enum": list(names)}, "definition": {"type": "string"}, "change": {"type": "string"}}
-        required = ["column", "definition", "change"]
+        props = {"column": {"type": "string", "enum": list(names)}, "definition": {"type": "string"},
+                 "revised": {"type": "boolean"}, "change": {"type": "string"}}
+        required = ["column", "definition", "revised", "change"]
     else:
         props = {
             "column": {"type": "string", "enum": list(names)},
