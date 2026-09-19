@@ -1,0 +1,130 @@
+"""The schema + feedback loop through the web API: draft a schema from a spreadsheet (fake model), review, revise, lock,
+propose a convention through the gate, store and approve it, and see every step in the feedback log."""
+from __future__ import annotations
+
+import json
+import time
+
+import pytest
+
+from src.config import runtime_paths
+from src.config.catalog import Capabilities, ModelSpec
+from src.evisearch.schema import generator
+from src.evisearch.schema.ingest import write_sheet
+from src.evisearch.services import feedback
+from src.inference.base import ChatModel
+from src.inference.types import ChatResult, Message, TextPart, Usage
+
+HEADERS = ["Document Name", "Median PFS (mo) | Overall | Treatment", "Type of Therapy"]
+PAGES = {1: "ARASENS: darolutamide plus ADT and docetaxel", 2: "Time to castration resistance 16.4 months"}
+
+
+class RoutedChat(ChatModel):
+    """Answers by the shape of the requested JSON schema: drafts, revisions, proposals, gate relations."""
+
+    def __init__(self):
+        super().__init__("fake", ModelSpec(kind="chat", endpoint="fake", name="fake", capabilities=Capabilities(json_schema=True)))
+
+    def _chat(self, messages, tools, tool_choice, response_schema, temperature, max_tokens):
+        props = response_schema.get("properties", {})
+        if "is_convention" in props:
+            payload = {"is_convention": True, "why_not": "", "scope": "family", "family": "Median PFS (mo)", "columns": [],
+                       "condition": "only a different endpoint is reported", "action_type": "statistic_rule",
+                       "instruction": "Time to castration resistance is not progression-free survival: answer Not reported."}
+        elif "columns" in props:
+            item = props["columns"]["items"]["properties"]
+            names = item["column"]["enum"]
+            if "answer_format" in item:
+                cols = [{"column": n, "definition": f"What is {n}? Use 'Not reported' if missing.", "answer_format": "text",
+                         "eval_category": "structured_text", "not_reported_policy": "not stated", "reading": "p1",
+                         "questions": [{"question": "Which label?", "options": ["Triplet therapy", "Combination"]}] if n == "Type of Therapy" else [],
+                         "confidence": "medium"} for n in names]
+            else:
+                cols = [{"column": n, "definition": f"What type of therapy is given ({n}), as the table's label (e.g. 'Triplet therapy')?",
+                         "change": "uses the owner's label"} for n in names]
+            payload = {"columns": cols}
+        else:
+            payload = {"relation": "independent", "reason": "different subject"}
+        text = json.dumps(payload)
+        return ChatResult(text=text, tool_calls=[], usage=Usage(1, 1, 1), message=Message(role="assistant", parts=[TextPart(text)]), model=self.key)
+
+
+@pytest.fixture
+def api(isolated_app, client, tmp_path, monkeypatch):
+    import web.schema_routes as routes
+
+    monkeypatch.setattr(runtime_paths, "SCHEMAS_DIR", tmp_path / "schemas")
+    monkeypatch.setattr(runtime_paths, "KNOWLEDGE_DIR", tmp_path / "kb")
+    monkeypatch.setattr(feedback, "FEEDBACK_FILE", tmp_path / "feedback" / "feedback.jsonl")
+    monkeypatch.setattr(feedback, "FEEDBACK_DIR", tmp_path / "feedback")
+    monkeypatch.setattr(isolated_app, "record_feedback", feedback.record_feedback)
+    monkeypatch.setattr(routes, "_chat", lambda: RoutedChat())
+    monkeypatch.setattr(generator.retriever, "get_total_pages", lambda doc_id: 2)
+    monkeypatch.setattr(generator.retriever, "get_page_content", lambda doc_id, wanted: {p: PAGES[p] for p in wanted})
+    return client
+
+
+def _wait(client, job_id):
+    for _ in range(200):
+        job = client.get(f"/api/jobs/{job_id}").get_json()["job"]
+        if job["status"] != "running":
+            return job
+        time.sleep(0.02)
+    raise AssertionError("job did not finish")
+
+
+def test_schema_loop_through_the_api(api, tmp_path):
+    sheet = write_sheet(tmp_path / "t.xlsx", HEADERS, [{"Document Name": "Smith_ARASENS.pdf", "Median PFS (mo) | Overall | Treatment": "",
+                                                        "Type of Therapy": "Triplet therapy (ADT + docetaxel + AR inhibitor)"}])
+    job = _wait(api, api.post("/api/schemas", json={"sheet_path": str(sheet), "doc_id": "doc-1", "name": "mHSPC", "by": "human"}).get_json()["job_id"])
+    assert job["status"] == "done", job
+    sid = job["result"]["schema_id"]
+    schema = api.get(f"/api/schemas/{sid}").get_json()["schema"]
+    assert [f["name"] for f in schema["fields"]] == HEADERS[1:]
+    therapy = schema["fields"][1]["x-evisearch"]
+    assert therapy["example"]["grounding"]["status"] == "not_in_paper" and therapy["questions"][0]["options"][0] == "Triplet therapy"
+
+    r = api.post(f"/api/schemas/{sid}/review", json={"column": "Type of Therapy", "action": "answer", "question_id": "q1",
+                                                     "answer": "Triplet therapy", "by": "human"})
+    assert r.get_json()["success"]
+    assert api.post(f"/api/schemas/{sid}/review", json={"column": "Median PFS (mo) | Overall | Treatment", "action": "accept", "by": "human"}).get_json()["success"]
+    assert api.post(f"/api/schemas/{sid}/review", json={"column": "Nope", "action": "accept"}).status_code == 400
+
+    job = _wait(api, api.post(f"/api/schemas/{sid}/revise", json={}).get_json()["job_id"])
+    assert job["status"] == "done" and job["result"]["revised"] == ["Type of Therapy"]
+    field = api.get(f"/api/schemas/{sid}").get_json()["schema"]["fields"][1]
+    assert "Triplet therapy" in field["description"] and field["x-evisearch"]["review"]["state"] == "revised"
+
+    locked = api.post(f"/api/schemas/{sid}/lock", json={"by": "human"}).get_json()
+    assert locked["version"] == 1 and locked["run"] == f"schema-{sid}-v1"
+    assert api.get("/api/schemas").get_json()["schemas"][0]["locked_versions"] == [1]
+
+    proposal = api.post("/api/conventions/propose", json={"column": "Median PFS (mo) | Overall | Treatment", "definition": "Median PFS",
+                                                            "feedback": "16.4 months is time to castration resistance, not PFS",
+                                                            "before": "16.4", "after": "Not reported", "reason": "wrong endpoint",
+                                                            "schema_id": sid, "doc_id": "doc-1", "by": "human"}).get_json()
+    assert proposal["is_convention"] and proposal["gate"]["verdict"] == "new"
+    assert proposal["impact"] == ["Median PFS (mo) | Overall | Treatment"]
+    created = api.post("/api/conventions", json={"record": proposal["record"], "by": "human"}).get_json()
+    cid = created["convention"]["id"]
+    again = api.post("/api/conventions", json={"record": proposal["record"], "by": "human"}).get_json()
+    assert again["merged_into"] == cid and again["convention"]["support"] == 2  # a duplicate is merged, not added
+    assert api.post(f"/api/conventions/{cid}/decide", json={"op": "approve", "by": "human"}).get_json()["convention"]["status"] == "approved"
+    kbase = api.get("/api/conventions").get_json()
+    assert kbase["active"] == 1 and kbase["conventions"][0]["instruction"].startswith("- ")
+
+    events = [e["event"] for e in api.get(f"/api/feedback/events?schema_id={sid}").get_json()["events"]]
+    for expected in ("schema_draft", "definition_answer", "definition_accept", "definition_revise", "schema_lock",
+                     "convention_propose", "convention_merge", "convention_decide"):
+        assert expected in events, (expected, events)
+
+
+def test_human_correction_keeps_the_reason_and_is_logged(api, isolated_app):
+    body = {"columns": {"Median PFS (mo) | Overall | Treatment": {"value": "Not reported", "reason": "wrong endpoint", "note": "16.4 is TTCR"}},
+            "by": "human", "run": "schema-x-v1", "schema_id": "x"}
+    assert api.post("/api/documents/doc-1/human-edited", json=body).get_json()["success"]
+    saved = json.loads((isolated_app.RESULTS_ROOT / "doc-1" / "human-edited" / "human_edited_results.json").read_text())
+    cell = saved["columns"]["Median PFS (mo) | Overall | Treatment"]
+    assert cell["reason"] == "wrong endpoint" and cell["by"] == "human" and cell["edited_at"]
+    event = api.get("/api/feedback/events?source=correction").get_json()["events"][0]
+    assert event["event"] == "cell_correct" and event["after"] == "Not reported" and event["schema_id"] == "x"

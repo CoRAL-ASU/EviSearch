@@ -12,6 +12,7 @@ import json
 import os
 import sys
 import uuid
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Dict, Any
 from urllib.parse import unquote
@@ -77,6 +78,10 @@ ensure_runtime_dirs()
 app.config['UPLOAD_FOLDER'] = UPLOADS_DIR
 app.config['UPLOAD_FOLDER'].mkdir(parents=True, exist_ok=True)
 app.config['BOOT_ID'] = str(uuid.uuid4())  # Changes on each app restart; used to invalidate browser session
+
+from web.schema_routes import bp as schema_layer_bp  # noqa: E402  (schema generation, conventions, feedback log)
+
+app.register_blueprint(schema_layer_bp)
 
 def _canonical_doc_id(doc_id: str) -> str:
     return resolve_canonical_doc_id(
@@ -942,11 +947,20 @@ def api_save_human_edited(doc_id):
     if not isinstance(existing_cols, dict):
         existing_cols = {}
 
+    by = str(body.get("by") or "")
     for cn, v in columns.items():
         if not cn or not isinstance(v, dict):
             continue
         val = v.get("value")
-        existing_cols[str(cn)] = {"value": str(val) if val is not None else "", "human_edited": True}
+        previous = existing_cols.get(str(cn), {}).get("value", v.get("previous_value"))
+        entry = {"value": str(val) if val is not None else "", "human_edited": True, "reason": str(v.get("reason") or ""),
+                 "note": str(v.get("note") or ""), "previous_value": previous, "by": by,
+                 "edited_at": datetime.now(timezone.utc).isoformat(timespec="seconds")}
+        existing_cols[str(cn)] = entry
+        # every correction is also an append-only feedback event (shown on /feedback; source of proposed conventions)
+        record_feedback({"source": "correction", "event": "cell_correct", "doc_id": doc_id, "column": str(cn),
+                         "run": body.get("run"), "schema_id": body.get("schema_id"), "by": by, "before": previous,
+                         "after": entry["value"], "reason": entry["reason"], "note": entry["note"]})
 
     data = {"doc_id": doc_id, "columns": existing_cols}
     path.write_text(json.dumps(data, indent=2, ensure_ascii=False), encoding="utf-8")
