@@ -19,6 +19,10 @@ def isolated_app(tmp_path, monkeypatch):
 
     monkeypatch.setattr(main_app, "RESULTS_ROOT", results_root)
     monkeypatch.setattr(main_app, "DATASET_DIR", dataset_dir)
+    from src.config import runtime_paths  # services read paths from here (runs, jobs, reviews)
+
+    monkeypatch.setattr(runtime_paths, "RESULTS_ROOT", results_root)
+    monkeypatch.setattr(runtime_paths, "JOBS_DIR", tmp_path / "jobs")
     main_app.app.config.update(
         TESTING=True,
         UPLOAD_FOLDER=upload_dir,

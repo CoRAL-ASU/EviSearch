@@ -80,8 +80,10 @@ app.config['UPLOAD_FOLDER'].mkdir(parents=True, exist_ok=True)
 app.config['BOOT_ID'] = str(uuid.uuid4())  # Changes on each app restart; used to invalidate browser session
 
 from web.schema_routes import bp as schema_layer_bp  # noqa: E402  (schema generation, conventions, feedback log)
+from web.workspace_routes import bp as workspace_bp  # noqa: E402  (table workspace, runs, reviews per run, jobs)
 
 app.register_blueprint(schema_layer_bp)
+app.register_blueprint(workspace_bp)
 
 def _canonical_doc_id(doc_id: str) -> str:
     return resolve_canonical_doc_id(
@@ -911,14 +913,21 @@ def api_document_reconciled(doc_id):
 
         columns = data.get("columns") or []
 
-        human_edited_path = RESULTS_ROOT / doc_id / "human-edited" / "human_edited_results.json"
         human_edited = {}
-        if human_edited_path.exists():
-            try:
-                he_data = json.loads(human_edited_path.read_text(encoding="utf-8"))
-                human_edited = (he_data.get("columns") or {}) if isinstance(he_data, dict) else {}
-            except Exception:
-                pass
+        if run:
+            # a run's view shows only that run's reviews (stored per run in the feedback log), never another run's
+            from src.evisearch.services import reviews as reviews_service
+            for cn, rv in reviews_service.cell_reviews(doc_id, run).items():
+                if rv.get("value") is not None:
+                    human_edited[cn] = {"value": rv["value"], "reason": rv.get("reason"), "event_id": rv.get("event_id")}
+        else:
+            human_edited_path = RESULTS_ROOT / doc_id / "human-edited" / "human_edited_results.json"
+            if human_edited_path.exists():
+                try:
+                    he_data = json.loads(human_edited_path.read_text(encoding="utf-8"))
+                    human_edited = (he_data.get("columns") or {}) if isinstance(he_data, dict) else {}
+                except Exception:
+                    pass
         for col in columns:
             cn = col.get("column_name", "")
             he_col = human_edited.get(cn)
@@ -973,6 +982,14 @@ def api_save_human_edited(doc_id):
         existing_cols = {}
 
     by = str(body.get("by") or "")
+    run = str(body.get("run") or "").strip() or None
+    machine: Dict[str, str] = {}
+    if run:
+        from src.evisearch.services import runs as runs_service
+        try:
+            machine = {c: cell["value"] for c, cell in runs_service.final_cells(doc_id, run).items()}
+        except ValueError as exc:
+            return jsonify({"success": False, "error": str(exc)}), 400
     for cn, v in columns.items():
         if not cn or not isinstance(v, dict):
             continue
@@ -982,10 +999,15 @@ def api_save_human_edited(doc_id):
                  "note": str(v.get("note") or ""), "previous_value": previous, "by": by,
                  "edited_at": datetime.now(timezone.utc).isoformat(timespec="seconds")}
         existing_cols[str(cn)] = entry
-        # every correction is also an append-only feedback event (shown on /feedback; source of proposed conventions)
-        record_feedback({"source": "correction", "event": "cell_correct", "doc_id": doc_id, "column": str(cn),
-                         "run": body.get("run"), "schema_id": body.get("schema_id"), "by": by, "before": previous,
-                         "after": entry["value"], "reason": entry["reason"], "note": entry["note"]})
+        # every correction is also an append-only feedback event (shown on /feedback; source of proposed conventions);
+        # with a run it also carries that run's own machine value, which is what per-run review views compare against
+        event = {"source": "correction", "event": "cell_correct", "doc_id": doc_id, "column": str(cn),
+                 "run": run, "schema_id": body.get("schema_id"), "by": by, "before": previous,
+                 "after": entry["value"], "reason": entry["reason"], "note": entry["note"]}
+        if run and str(cn) in machine:
+            from src.evisearch.services.reviews import state_of
+            event.update(machine_value=machine[str(cn)], state=state_of(entry["value"], machine[str(cn)]))
+        record_feedback(event)
 
     data = {"doc_id": doc_id, "columns": existing_cols}
     path.write_text(json.dumps(data, indent=2, ensure_ascii=False), encoding="utf-8")

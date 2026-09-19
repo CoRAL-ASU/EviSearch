@@ -73,8 +73,17 @@ def gold_doc_ids(path: Optional[Path] = None) -> List[str]:
     return [row["Document Name"]["value"].removesuffix(".pdf") for row in rows]
 
 
-def select_docs(spec: str, gold: List[str]) -> List[str]:
-    """all | dev | heldout (in gold-table order) or comma-separated gold doc ids (in the order given)."""
+def has_parse(doc_id: str) -> bool:
+    """A paper outside the gold table can run once it has a parsed markdown (uploaded through the web app); it is
+    extracted like any other, just never scored."""
+    from src.retrieval.embedding_retriever import parsed_markdown_path
+
+    return parsed_markdown_path(doc_id).exists()
+
+
+def select_docs(spec: str, gold: List[str], known=None) -> List[str]:
+    """all | dev | heldout (in gold-table order) or comma-separated doc ids (in the order given): gold doc ids, plus any
+    doc for which `known(doc_id)` is true (e.g. `has_parse`)."""
     missing = [doc for doc in HELDOUT if doc not in gold]
     if missing:
         raise ValueError(f"held-out documents missing from the gold table: {missing}")
@@ -86,9 +95,9 @@ def select_docs(spec: str, gold: List[str]) -> List[str]:
     if spec == "dev":
         return [doc for doc in gold if doc not in HELDOUT]
     docs = list(dict.fromkeys(doc.strip().removesuffix(".pdf") for doc in spec.split(",") if doc.strip()))
-    unknown = [doc for doc in docs if doc not in gold]
+    unknown = [doc for doc in docs if doc not in gold and not (known and known(doc))]
     if unknown or not docs:
-        raise ValueError(f"unknown doc id(s) {unknown or [spec]}; use all, dev, heldout or gold doc ids: {', '.join(gold)}")
+        raise ValueError(f"unknown doc id(s) {unknown or [spec]}; use all, dev, heldout, gold doc ids or parsed uploads: {', '.join(gold)}")
     return docs
 
 
@@ -418,7 +427,7 @@ def main(argv: Optional[List[str]] = None) -> int:
             raise ValueError(f"--reuse-a-from {args.reuse_a_from!r}: use letters, digits, '.', '_' and '-'")
         results_store.use_run(args.run)
         gold = gold_doc_ids()
-        docs = select_docs(args.docs, gold)
+        docs = select_docs(args.docs, gold, known=has_parse)
         if args.system != "B1" and not config.SELECTION.model("pdf_query").capabilities.images:
             raise ConfigError(f"{args.system} needs page images, but pdf_query model '{config.SELECTION.model_key('pdf_query')}' cannot read them")
     except (ConfigError, ValueError) as exc:

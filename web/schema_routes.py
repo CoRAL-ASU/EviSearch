@@ -21,9 +21,6 @@ Pages: /schema, /feedback. APIs (JSON, {"success": ...} envelope like the rest o
 from __future__ import annotations
 
 import json
-import subprocess
-import sys
-import threading
 import time
 import uuid
 from pathlib import Path
@@ -39,8 +36,6 @@ from src.evisearch.services import feedback
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 bp = Blueprint("schema_layer", __name__)
-JOBS: Dict[str, Dict[str, Any]] = {}
-_JOBS_LOCK = threading.Lock()
 
 
 def _chat():
@@ -58,21 +53,11 @@ def _err(message: str, status: int = 400, **payload: Any):
 
 
 def _start_job(kind: str, fn: Callable[[], Any], **meta: Any) -> str:
-    job_id = uuid.uuid4().hex[:12]
-    job = {"id": job_id, "kind": kind, "status": "running", "started": time.time(), **meta}
-    with _JOBS_LOCK:
-        JOBS[job_id] = job
+    """Run `fn` as a job kept on disk (services/jobs.py): its status survives reloads, and a restart reports it as
+    interrupted instead of losing it."""
+    from src.evisearch.services import jobs
 
-    def run():
-        try:
-            job["result"] = fn()
-            job["status"] = "done"
-        except Exception as exc:  # reported to the page; the job never kills the server
-            job["status"], job["error"] = "error", f"{type(exc).__name__}: {exc}"
-        job["ended"] = time.time()
-
-    threading.Thread(target=run, daemon=True).start()
-    return job_id
+    return jobs.run_thread(kind, fn, **meta)["id"]
 
 
 # ---- pages -------------------------------------------------------------------------------------------------------
@@ -88,7 +73,14 @@ def feedback_page():
 
 @bp.route("/api/jobs/<job_id>")
 def api_job(job_id):
-    job = JOBS.get(job_id)
+    from src.evisearch.services import jobs
+
+    try:
+        job = jobs.get(job_id)
+    except ValueError as exc:
+        return _err(str(exc))
+    if job and job.get("status") == "queued":
+        job = dict(job, status="running")  # the old Schema page polls until the status leaves "running"
     return _ok(job=job) if job else _err("unknown job", 404)
 
 
@@ -187,37 +179,37 @@ def api_lock(schema_id):
 def api_extract(schema_id):
     body = request.get_json() or {}
     docs = body.get("docs")
-    docs = ",".join(docs) if isinstance(docs, list) else str(docs or "")
+    docs = [d.strip() for d in docs] if isinstance(docs, list) else [d.strip() for d in str(docs or "").split(",")]
+    docs = [d for d in docs if d]
     if not docs:
         return _err("docs required")
-    schema = store.load(schema_id)
-    if not schema.get("locked_versions"):
-        return _err("lock the schema before extracting")
-    version = int(body.get("version") or max(schema["locked_versions"]))
-    system, use_kb = str(body.get("system", "E")), str(body.get("kb", "on"))
-    run = store.run_name(schema_id, version) + ("" if use_kb == "on" else "-kboff") + ("" if system == "E" else f"-{system.lower()}")
-    log = runtime_paths.RESULTS_ROOT.parent / "benchmark_runs" / f"{run}.driver.log"
-    log.parent.mkdir(parents=True, exist_ok=True)
-    cmd = [sys.executable, str(PROJECT_ROOT / "experiment-scripts" / "run_schema.py"), "--schema", schema_id, "--version", str(version),
-           "--system", system, "--docs", docs, "--kb", use_kb, "--run", run]
-    with log.open("a", encoding="utf-8") as handle:
-        proc = subprocess.Popen(cmd, cwd=PROJECT_ROOT, stdout=handle, stderr=subprocess.STDOUT, start_new_session=True)
-    return _ok(run=run, pid=proc.pid, log=str(log))
+    from web.workspace_routes import start_extraction  # one launcher: job registry, unique run names, one run at a time
+
+    try:
+        job = start_extraction(schema_id, docs, version=body.get("version"), system=str(body.get("system", "E")),
+                               kb=str(body.get("kb", "on")), by=str(body.get("by", "")))
+    except FileNotFoundError as exc:
+        return _err(str(exc), 404)
+    except RuntimeError as exc:
+        return _err(str(exc), 409)
+    except ValueError as exc:
+        return _err(str(exc))
+    return _ok(run=job["run"], job_id=job["id"], pid=job.get("pid"))
 
 
 @bp.route("/api/schemas/<schema_id>/extractions", methods=["GET"])
 def api_extractions(schema_id):
-    prefix = f"schema-{schema_id}-v"
-    runs: Dict[str, Dict[str, Any]] = {}
-    root = runtime_paths.RESULTS_ROOT
-    for run_dir in root.glob(f"*/runs/{prefix}*") if root.exists() else []:
-        doc = run_dir.parent.parent.name
-        manifest = run_dir / "benchmark_manifest.json"
-        status = json.loads(manifest.read_text(encoding="utf-8")).get("status") if manifest.exists() else "running"
-        entry = runs.setdefault(run_dir.name, {"run": run_dir.name, "papers": []})
-        entry["papers"].append({"doc_id": doc, "status": status,
-                                "reconciled": (run_dir / "reconciliation_agent" / "reconciled_results.json").exists()})
-    return _ok(runs=sorted(runs.values(), key=lambda r: r["run"]))
+    from src.evisearch.services import runs as runs_service
+
+    out = []
+    for run in runs_service.list_runs(schema_id):
+        papers = []
+        for doc in run["docs"]:
+            progress = runs_service.doc_progress(doc, run["run"])
+            papers.append({"doc_id": doc, "status": progress["status"],
+                           "reconciled": runs_service.stage_of(doc, run["run"]) == "reconciliation_agent"})
+        out.append({"run": run["run"], "papers": papers})
+    return _ok(runs=out)
 
 
 # ---- conventions (knowledge base) ---------------------------------------------------------------------------------
