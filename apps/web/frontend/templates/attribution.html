@@ -82,9 +82,24 @@
                                     Reconciliation output
                                 </div>
                                 <textarea id="reconciliation-value" class="textarea textarea-bordered text-sm w-full min-h-[4rem] font-medium" placeholder="Type your own value for verification…" rows="3"></textarea>
-                                <div class="flex gap-2 mt-2">
+                                <div id="review-flag" class="text-xs text-warning mt-1 hidden"></div>
+                                <div class="flex flex-wrap gap-2 mt-2 items-center">
+                                    <select id="edit-reason" class="select select-xs select-bordered" title="Why this value is right or wrong: kept with the correction">
+                                        <option value="">reason…</option><option>confirmed correct</option><option>value not on the page</option>
+                                        <option>missed value on the page</option><option>wrong statistic</option><option>wrong population or subgroup</option>
+                                        <option>wrong arm</option><option>missing convention</option><option>unit or format</option><option>should be Not reported</option></select>
+                                    <input id="edit-note" class="input input-xs input-bordered flex-1 min-w-[10rem]" placeholder="note: what is right and why (optional)" />
+                                </div>
+                                <div class="flex flex-wrap gap-2 mt-2">
                                     <button id="save-human-edit-btn" type="button" class="btn btn-sm btn-primary" disabled>Save</button>
+                                    <button id="confirm-btn" type="button" class="btn btn-sm btn-success btn-outline" disabled title="The value is right as it is">Confirm</button>
+                                    <button id="propose-rule-btn" type="button" class="btn btn-sm btn-outline" disabled title="Turn this correction into a convention reused on every later paper">Propose rule</button>
                                     <span id="save-edit-status" class="text-xs text-base-content/60 self-center"></span>
+                                </div>
+                                <div id="rule-out" class="text-sm mt-2 space-y-1"></div>
+                                <div class="flex gap-2 mt-1">
+                                    <button id="rule-add-btn" type="button" class="btn btn-xs btn-primary hidden">Add to knowledge base</button>
+                                    <button id="rule-approve-btn" type="button" class="btn btn-xs btn-success hidden">Approve</button>
                                 </div>
                             </div>
                         </div>
@@ -216,12 +231,21 @@
     </div>
 
     <script>
+        // ?run=<run> shows one extraction run (e.g. schema-<id>-v1 from the Schema page); corrections are kept per paper
+        const RUN = new URLSearchParams(window.location.search).get('run') || '';
+        const RUN_Q = RUN ? `?run=${encodeURIComponent(RUN)}` : '';
+        const SCHEMA_ID = (RUN.match(/^schema-(.+)-v\d+/) || [])[1] || null;
+        const reviewer = () => { try { return localStorage.getItem('evisearch.reviewer') || 'anonymous'; } catch (e) { return 'anonymous'; } };
+        const postJson = (url, body) => fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) }).then(r => r.json());
         const API = {
-            reconciled: (docId) => fetch(`/api/documents/${encodeURIComponent(docId)}/reconciled`).then(r => r.json()),
+            reconciled: (docId) => fetch(`/api/documents/${encodeURIComponent(docId)}/reconciled${RUN_Q}`).then(r => r.json()),
             columnGroups: () => fetch('/api/column-groups').then(r => r.json()),
-            refreshAttribution: (docId) => fetch(`/api/documents/${encodeURIComponent(docId)}/attribution/refresh`, { method: 'POST' }).then(r => r.json()),
+            refreshAttribution: (docId) => fetch(`/api/documents/${encodeURIComponent(docId)}/attribution/refresh${RUN_Q}`, { method: 'POST' }).then(r => r.json()),
             runReconciliation: (docId, groupNames) => fetch(`/api/documents/${encodeURIComponent(docId)}/run-reconciliation`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(groupNames ? { group_names: groupNames } : {}) }).then(r => r.json()),
-            saveHumanEdited: (docId, columns) => fetch(`/api/documents/${encodeURIComponent(docId)}/human-edited`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ columns }) }).then(r => r.json()),
+            saveHumanEdited: (docId, columns) => postJson(`/api/documents/${encodeURIComponent(docId)}/human-edited`, { columns, run: RUN || null, schema_id: SCHEMA_ID, by: reviewer() }),
+            propose: (body) => postJson('/api/conventions/propose', body),
+            addConvention: (record) => postJson('/api/conventions', { record, by: reviewer() }),
+            decide: (cid, op) => postJson(`/api/conventions/${cid}/decide`, { op, by: reviewer() }),
             highlights: (docId, chunkIds) => {
                 const q = chunkIds.join(',');
                 return fetch(`/api/documents/${encodeURIComponent(docId)}/highlights?chunk_ids=${encodeURIComponent(q)}`).then(r => r.json());
@@ -292,7 +316,7 @@
 
         async function loadDocsWithReconciliation() {
             try {
-                const res = await fetch('/api/documents/reconciled').then(r => r.json());
+                const res = await fetch(`/api/documents/reconciled${RUN_Q}`).then(r => r.json());
                 const docIds = res.documents || [];
                 docList = docIds;
                 const sel = document.getElementById('doc-select');
@@ -531,7 +555,8 @@
             status.textContent = 'Saving…';
             try {
                 const res = await API.saveHumanEdited(reconciledData.doc_id, {
-                    [selectedColumn.column_name]: { value: val },
+                    [selectedColumn.column_name]: { value: val, previous_value: selectedColumn.machine_value ?? selectedColumn.final_value,
+                                                    reason: document.getElementById('edit-reason').value, note: document.getElementById('edit-note').value },
                 });
                 if (res.success) {
                     status.textContent = 'Saved';
@@ -545,6 +570,53 @@
                 status.textContent = 'Failed';
                 btn.disabled = false;
             }
+        });
+
+        document.getElementById('confirm-btn').addEventListener('click', async () => {
+            if (!selectedColumn || !reconciledData?.doc_id) return;
+            document.getElementById('reconciliation-value').value = selectedColumn.final_value || '';
+            if (!document.getElementById('edit-reason').value) document.getElementById('edit-reason').value = 'confirmed correct';
+            document.getElementById('save-human-edit-btn').click();
+        });
+
+        let ruleRecord = null;
+        document.getElementById('propose-rule-btn').addEventListener('click', async () => {
+            if (!selectedColumn || !reconciledData?.doc_id) return;
+            const out = document.getElementById('rule-out');
+            const note = document.getElementById('edit-note').value.trim();
+            if (!note) { out.innerHTML = '<div class="alert">Write in the note what should happen in cases like this one, then propose.</div>'; return; }
+            out.textContent = 'Drafting a rule…';
+            const r = await API.propose({ column: selectedColumn.column_name, definition: selectedColumn.definition || '', feedback: note,
+                before: selectedColumn.machine_value ?? selectedColumn.final_value, after: document.getElementById('reconciliation-value').value,
+                reason: document.getElementById('edit-reason').value, doc_id: reconciledData.doc_id, schema_id: SCHEMA_ID,
+                kind: 'extraction_review', by: reviewer() });
+            if (!r.success) { out.textContent = r.error || 'failed'; return; }
+            if (!r.is_convention) { out.innerHTML = `<div class="alert">Not a convention: ${escapeHtml(r.why_not)}. Keep it as a correction.</div>`; return; }
+            ruleRecord = r.record;
+            const g = r.gate;
+            const rel = (g.relations || []).filter(x => x.relation !== 'independent').map(x => `<li><span class="badge badge-sm">${escapeHtml(x.relation)}</span> ${escapeHtml(x.id)}: ${escapeHtml(x.instruction.slice(0, 140))} (<span class="text-base-content/60">${escapeHtml(x.reason)}</span>)</li>`).join('');
+            out.innerHTML = `<div><b>Rule:</b> ${escapeHtml(r.record.instruction)}</div>
+                <div class="text-xs">Scope: ${escapeHtml(r.record.trigger.scope)} ${escapeHtml(r.record.trigger.family || (r.record.trigger.columns || []).join(', '))} · action ${escapeHtml(r.record.action.type)}</div>
+                <div><b>Gate:</b> <span class="badge ${g.verdict === 'blocked' ? 'badge-error' : g.verdict === 'duplicate' ? 'badge-info' : 'badge-success'}">${escapeHtml(g.verdict)}</span></div>
+                ${rel ? `<ul class="list-disc ml-5 text-xs">${rel}</ul>` : ''}
+                <div class="text-xs">Applies to ${(r.impact || []).length} column(s)</div>`;
+            document.getElementById('rule-add-btn').classList.toggle('hidden', g.verdict === 'blocked');
+        });
+        document.getElementById('rule-add-btn').addEventListener('click', async () => {
+            const r = await API.addConvention(ruleRecord);
+            const out = document.getElementById('rule-out');
+            document.getElementById('rule-add-btn').classList.add('hidden');
+            if (!r.success) { out.innerHTML += `<div class="alert">${escapeHtml(r.error)}</div>`; return; }
+            if (r.merged_into) { out.innerHTML += `<div class="alert">Same as ${escapeHtml(r.merged_into)}: merged (support ${r.convention.support}).</div>`; return; }
+            out.innerHTML += `<div class="alert">Stored as ${escapeHtml(r.convention.id)} (proposed).</div>`;
+            const approve = document.getElementById('rule-approve-btn');
+            approve.dataset.cid = r.convention.id;
+            approve.classList.remove('hidden');
+        });
+        document.getElementById('rule-approve-btn').addEventListener('click', async (e) => {
+            const r = await API.decide(e.target.dataset.cid, 'approve');
+            e.target.classList.add('hidden');
+            document.getElementById('rule-out').innerHTML += `<div class="alert alert-success">${r.success ? escapeHtml(e.target.dataset.cid) + ' approved: later extractions use it.' : escapeHtml(r.error)}</div>`;
         });
 
         document.getElementById('refresh-attribution').addEventListener('click', async () => {
@@ -595,7 +667,17 @@
             recValEl.placeholder = col.human_edited ? 'Human-edited value' : 'Type your own value for verification…';
             document.getElementById('reconciliation-reasoning').textContent = col.reconciliation_reasoning || '';
             document.getElementById('save-human-edit-btn').disabled = false;
-            document.getElementById('save-edit-status').textContent = col.human_edited ? '(saved)' : '';
+            document.getElementById('confirm-btn').disabled = false;
+            document.getElementById('propose-rule-btn').disabled = false;
+            document.getElementById('save-edit-status').textContent = col.human_edited ? `(saved${col.human_reason ? ': ' + col.human_reason : ''})` : '';
+            document.getElementById('edit-reason').value = '';
+            document.getElementById('edit-note').value = '';
+            document.getElementById('rule-out').innerHTML = '';
+            document.getElementById('rule-add-btn').classList.add('hidden');
+            document.getElementById('rule-approve-btn').classList.add('hidden');
+            const flag = document.getElementById('review-flag');
+            flag.textContent = col.needs_review ? `Flagged for review by the arbiter${col.review_reason ? ': ' + col.review_reason : ''}` : '';
+            flag.classList.toggle('hidden', !col.needs_review);
 
             // Verdict badge
             const verdictBadge = document.getElementById('verdict-badge');

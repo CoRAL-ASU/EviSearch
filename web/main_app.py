@@ -590,7 +590,7 @@ def api_agent_extraction(doc_id):
         agent_columns = data.get("columns", {})
 
         search_columns = {}
-        search_path = RESULTS_ROOT / doc_id / "search_agent" / "extraction_results.json"
+        search_path = base / "search_agent" / "extraction_results.json"
         if search_path.exists():
             try:
                 search_data = json.loads(search_path.read_text(encoding="utf-8"))
@@ -685,16 +685,20 @@ def attribution_index():
 
 @app.route('/api/documents/reconciled', methods=['GET'])
 def api_list_reconciled_documents():
-    """List document IDs that have reconciled results or agent extraction (for attribution)."""
+    """List document IDs that have reconciled results or agent extraction (for attribution); ?run= lists the documents
+    that run extracted."""
     if not RESULTS_ROOT.exists():
         return jsonify({"success": True, "documents": []}), 200
     docs = set()
     for d in RESULTS_ROOT.iterdir():
-        if d.is_dir():
-            if (d / "reconciliation_agent" / "reconciled_results.json").exists():
-                docs.add(d.name)
-            elif (d / "agent_extractor" / "extraction_results.json").exists():
-                docs.add(d.name)
+        if not d.is_dir():
+            continue
+        try:
+            base = _results_base(d.name)
+        except ValueError as exc:
+            return jsonify({"success": False, "error": str(exc)}), 400
+        if (base / "reconciliation_agent" / "reconciled_results.json").exists() or (base / "agent_extractor" / "extraction_results.json").exists():
+            docs.add(d.name)
     return jsonify({"success": True, "documents": sorted(docs)}), 200
 
 
@@ -780,12 +784,24 @@ def api_list_selectable_documents():
     return jsonify({"success": True, "documents": out}), 200
 
 
+def _results_base(doc_id: str) -> Path:
+    """Where a document's stage outputs live: runs/<run> for ?run=<run> (the runs a schema's extractions write), else the
+    document's top-level stage folders."""
+    run = (request.args.get("run") or "").strip()
+    if not run:
+        return RESULTS_ROOT / doc_id
+    if "/" in run or "\\" in run or run.startswith("."):
+        raise ValueError(f"bad run name {run!r}")
+    return RESULTS_ROOT / doc_id / "runs" / run
+
+
 @app.route('/api/documents/<path:doc_id>/attribution/refresh', methods=['POST'])
 def api_refresh_attribution(doc_id):
-    """Re-run attribution and save. Uses reconciliation_agent if present, else agent-only."""
+    """Re-run attribution and save. Uses reconciliation_agent if present, else agent-only (?run= for a named run)."""
     doc_id = unquote(doc_id)
-    rec_path = RESULTS_ROOT / doc_id / "reconciliation_agent" / "reconciled_results.json"
-    agent_path = RESULTS_ROOT / doc_id / "agent_extractor" / "extraction_results.json"
+    base = _results_base(doc_id)
+    rec_path = base / "reconciliation_agent" / "reconciled_results.json"
+    agent_path = base / "agent_extractor" / "extraction_results.json"
     try:
         from src.evisearch.services.reports import load_comparison_data
         from src.evisearch.services.attribution import enrich_reconciled_with_attribution
@@ -812,7 +828,7 @@ def api_refresh_attribution(doc_id):
                     "contributing_methods": ["agent"],
                     "agent_reasoning": reasoning if reasoning else None,
                 })
-            out_path = RESULTS_ROOT / doc_id / "agent_extractor" / "attribution_results.json"
+            out_path = base / "agent_extractor" / "attribution_results.json"
             out_path.parent.mkdir(parents=True, exist_ok=True)
         else:
             return jsonify({"success": False, "error": f"No reconciled or agent results for {doc_id}"}), 404
@@ -828,12 +844,18 @@ def api_refresh_attribution(doc_id):
 
 @app.route('/api/documents/<path:doc_id>/reconciled', methods=['GET'])
 def api_document_reconciled(doc_id):
-    """Get reconciled results with attributed chunks. Uses reconciliation_agent, falls back to agent-only."""
+    """Get reconciled results with attributed chunks. Uses reconciliation_agent, falls back to agent-only.
+    ?run=<run> reads that run's outputs (runs/<run>/...) instead of the document's top-level ones."""
     doc_id = unquote(doc_id)
-    rec_path = RESULTS_ROOT / doc_id / RECON_AGENT_DIR / "reconciled_results.json"
-    recon_attr_path = RESULTS_ROOT / doc_id / RECON_AGENT_DIR / "attribution_results.json"
-    agent_path = RESULTS_ROOT / doc_id / "agent_extractor" / "extraction_results.json"
-    agent_attr_path = RESULTS_ROOT / doc_id / "agent_extractor" / "attribution_results.json"
+    try:
+        base = _results_base(doc_id)
+    except ValueError as exc:
+        return jsonify({"success": False, "error": str(exc)}), 400
+    run = request.args.get("run") or None
+    rec_path = base / RECON_AGENT_DIR / "reconciled_results.json"
+    recon_attr_path = base / RECON_AGENT_DIR / "attribution_results.json"
+    agent_path = base / "agent_extractor" / "extraction_results.json"
+    agent_attr_path = base / "agent_extractor" / "attribution_results.json"
 
     try:
         # Serve cached attribution only if reconciled_results hasn't been updated since
@@ -853,12 +875,12 @@ def api_document_reconciled(doc_id):
             data["columns"] = enriched
         elif agent_attr_path.exists():
             data = json.loads(agent_attr_path.read_text(encoding="utf-8"))
-        elif agent_path.exists():
+        elif agent_path.exists() and not run:
             data = _build_agent_attribution(doc_id)
             if not data:
                 return jsonify({"success": False, "error": "Could not build agent attribution"}), 500
         else:
-            return jsonify({"success": False, "error": f"No reconciled or agent results for {doc_id}"}), 404
+            return jsonify({"success": False, "error": f"No reconciled or agent results for {doc_id}" + (f" in run {run}" if run else "")}), 404
 
         comparison = load_comparison_data(doc_id)
         col_to_row = {r.get("column_name"): r for r in (comparison.get("comparison") or [])}
@@ -876,7 +898,7 @@ def api_document_reconciled(doc_id):
                         agent_chunk_ids[k] = _resolve_candidate_chunk_ids(doc_id, k, v)
             except Exception:
                 pass
-        search_path = RESULTS_ROOT / doc_id / "search_agent" / "extraction_results.json"
+        search_path = base / "search_agent" / "extraction_results.json"
         if search_path.exists():
             try:
                 sd = json.loads(search_path.read_text(encoding="utf-8"))
@@ -900,9 +922,11 @@ def api_document_reconciled(doc_id):
         for col in columns:
             cn = col.get("column_name", "")
             he_col = human_edited.get(cn)
+            col["machine_value"] = col.get("final_value", "")
             if he_col and isinstance(he_col, dict) and he_col.get("value") is not None:
                 col["final_value"] = str(he_col.get("value", ""))
                 col["human_edited"] = True
+                col["human_reason"] = str(he_col.get("reason") or "")
             cn = col.get("column_name", "")
             col["candidate_a"] = agent_cols.get(cn, "")
             col["candidate_b"] = search_cols.get(cn, "")
@@ -918,6 +942,7 @@ def api_document_reconciled(doc_id):
 
         data["columns"] = columns
         data["verification_stats"] = {}
+        data["run"] = run
 
         return jsonify({"success": True, **data}), 200
     except Exception as e:

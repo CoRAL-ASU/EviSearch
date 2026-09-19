@@ -20,5 +20,8 @@ def reconciliation_agent_to_columns(cols_dict: Dict[str, Any]) -> list:
             "verbatim_quote": src.get("verbatim_quote", "") if isinstance(src, dict) else "",
             "agent_reasoning": str(r.get("reasoning", "") or "").strip() or None,
             "verification_label": str(r.get("verification", "") or "").strip() or None,
+            "needs_review": bool(r.get("needs_review")),
+            "review_reason": str(r.get("review_reason", "") or ""),
+            "decided_by": r.get("decided_by"),
         })
     return out

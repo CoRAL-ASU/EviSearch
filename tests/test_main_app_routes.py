@@ -263,3 +263,26 @@ def test_api_reconciled_resolves_agent_and_search_page_attribution_to_chunks(
     assert column["chunk_ids"] == ["table-chunk-1"]
     assert "page_5" not in column["chunk_ids_a"]
     assert "page_5" not in column["chunk_ids_b"]
+
+
+def test_api_reconciled_reads_a_named_run_and_carries_the_review_flag(client, isolated_app):
+    run_dir = isolated_app.RESULTS_ROOT / "doc-1" / "runs" / "schema-s1-v1"
+    for stage, payload in (
+        ("reconciliation_agent", {"Median PFS (mo)": {"value": "Not reported", "needs_review": True, "decided_by": "agent",
+                                                      "review_reason": "every extracted value failed the page check ('20.2')"}}),
+        ("agent_extractor", {"Median PFS (mo)": {"value": "Not reported"}}),
+        ("search_agent", {"Median PFS (mo)": {"value": "20.2", "attribution": [{"page": 8, "modality": "table"}]}}),
+    ):
+        (run_dir / stage).mkdir(parents=True)
+        name = "reconciled_results.json" if stage == "reconciliation_agent" else "extraction_results.json"
+        (run_dir / stage / name).write_text(json.dumps({"columns": payload}), encoding="utf-8")
+
+    payload = client.get("/api/documents/doc-1/reconciled?run=schema-s1-v1").get_json()
+    col = payload["columns"][0]
+    assert payload["success"] and payload["run"] == "schema-s1-v1"
+    assert col["final_value"] == "Not reported" and col["candidate_b"] == "20.2" and col["needs_review"] is True
+    assert "failed the page check" in col["review_reason"]
+    assert client.get("/api/documents/reconciled?run=schema-s1-v1").get_json()["documents"] == ["doc-1"]
+    assert client.get("/api/documents/reconciled").get_json()["documents"] == []
+    assert client.get("/api/documents/doc-1/reconciled").status_code == 404  # no top-level outputs for this document
+    assert client.get("/api/documents/doc-1/reconciled?run=..x").status_code == 400
