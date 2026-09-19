@@ -152,11 +152,15 @@ def api_revise(schema_id):
 
     def revise():
         revised, logs = generator.revise_fields(_chat(), schema["fields"], conventions=kb.render() if kb.active() else "")
+        changed = []
         for column, item in revised.items():
-            store.review_field(schema_id, column, "revise", by=by, definition=item.get("definition", ""),
-                               note=item.get("change", ""), claimed_revised=item.get("revised"))
+            field = store.review_field(schema_id, column, "revise", by=by, definition=item.get("definition", ""),
+                                       note=item.get("change", ""), claimed_revised=item.get("revised"))
+            # the agent returns every column it looked at; only the ones whose text moved are worth reviewing
+            if not (field["x-evisearch"].get("history") or [{}])[-1].get("unchanged"):
+                changed.append(column)
         (store.schema_dir(schema_id) / f"revise_calls_{int(time.time())}.json").write_text(json.dumps(logs, ensure_ascii=False, indent=1), encoding="utf-8")
-        return {"revised": sorted(revised)}
+        return {"revised": sorted(revised), "changed": sorted(changed)}
 
     return _ok(job_id=_start_job("revise_schema", revise, schema_id=schema_id))
 

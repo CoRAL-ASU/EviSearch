@@ -118,12 +118,19 @@
     $('s-search').addEventListener('input', () => schema && renderRows());
 
     const draftKey = (col) => `draft.${TABLE}.${col}`;
+    const normDef = (t) => String(t == null ? '' : t).split(/\s+/).join(' ').trim();
+    // "Changed" means the definition no longer reads as the agent's draft — not the review state, which an
+    // owner's later "accept" overwrites. The first history entry that recorded a `before` holds the draft text.
+    function changedFromDraft(f) {
+        const first = (f['x-evisearch'].history || []).find((e) => e.before !== undefined);
+        return !!first && normDef(first.before) !== normDef(f.description);
+    }
     function matches(f) {
         const x = f['x-evisearch'], q = $('s-search').value.toLowerCase();
         if (q && !f.name.toLowerCase().includes(q) && !f.description.toLowerCase().includes(q)) return false;
         if (filter === 'todo') return x.review.state === 'proposed';
         if (filter === 'questions') return (x.questions || []).some((qq) => !qq.answer);
-        if (filter === 'changed') return ['edited', 'revised'].includes(x.review.state);
+        if (filter === 'changed') return changedFromDraft(f);
         return true;
     }
     function renderRows() {
@@ -153,6 +160,8 @@
                 <span class="opacity-50 w-3">${isOpen ? '▾' : '▸'}</span>
                 <span class="mono text-sm font-semibold min-w-[14rem] max-w-[22rem] truncate" title="${esc(f.name)}">${esc(f.name)}</span>
                 ${stateBadgeField(x.review.state)}${openQ ? `<span class="badge badge-sm badge-warning">${openQ} question${openQ > 1 ? 's' : ''}</span>` : ''}
+                ${changedFromDraft(f) && !['edited', 'revised'].includes(x.review.state)
+                    ? '<span class="badge badge-sm badge-info" title="the definition differs from the agent&#39;s draft; you accepted it afterwards">definition changed</span>' : ''}
                 ${draft ? '<span class="badge badge-sm badge-accent">unsaved draft</span>' : ''}
                 <span class="def-1 text-sm opacity-70 flex-1">${esc(f.description)}</span></div>
             ${isOpen ? `<div class="px-8 pb-4 space-y-2">
@@ -267,7 +276,12 @@
         const r = await post(`/api/schemas/${enc(TABLE)}/revise`, {by});
         if (!r.success) return toast(r.error, 'error');
         const job = await waitJob(r.job_id, $('s-job'), 'Revising definitions');
-        if (job.status === 'done') { toast(`Revised ${job.result.revised.length} definitions — review them (filter “Edited”)`, 'success', 6000); await loadTable(); loadSchema('current'); }
+        if (job.status === 'done') {
+            const n = (job.result.changed || job.result.revised).length, looked = job.result.revised.length;
+            toast(n ? `Rewrote ${n} of ${looked} definitions — review them (filter “Changed”)`
+                    : `Read ${looked} definitions and left every one as it was`, n ? 'success' : 'info', 6000);
+            await loadTable(); loadSchema('current');
+        }
     };
 
     $('s-lock').onclick = async () => {

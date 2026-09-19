@@ -92,6 +92,7 @@ def test_schema_loop_through_the_api(api, tmp_path):
 
     job = _wait(api, api.post(f"/api/schemas/{sid}/revise", json={}).get_json()["job_id"])
     assert job["status"] == "done" and job["result"]["revised"] == ["Type of Therapy"]
+    assert job["result"]["changed"] == ["Type of Therapy"]  # it looked at one column and its text moved
     field = api.get(f"/api/schemas/{sid}").get_json()["schema"]["fields"][1]
     assert "Triplet therapy" in field["description"] and field["x-evisearch"]["review"]["state"] == "revised"
 
@@ -159,3 +160,21 @@ def test_reviewer_widens_a_drafted_rules_scope_and_the_gate_rechecks_it(api):
     assert api.post("/api/conventions/check", json={"record": {**record, "trigger": {"scope": "column", "columns": []}}}).status_code == 400
     assert api.post("/api/conventions/check", json={"record": {**record, "trigger": {"scope": "everywhere"}}}).status_code == 400
     assert api.get("/static/js/rule_scope.js").status_code == 200
+
+
+def test_a_revise_that_rewrites_nothing_is_reported_as_no_change(api, monkeypatch):
+    """The agent returns every column it read; only the ones whose text moved are worth reviewing."""
+    import web.schema_routes as routes
+
+    fields = [{"name": "NCT", "title": "NCT", "description": "What is the NCT id?", "type": "string", "x-evisearch": {
+        "group": "Trial", "facets": {}, "eval_category": "structured_text", "example": {"doc": "d", "value": "", "grounding": {}},
+        "questions": [], "review": {"state": "proposed", "by": None, "at": None}, "history": []}}]
+    sid = store.create("T", fields, source={}, by="h")["id"]
+    monkeypatch.setattr(routes.generator, "revise_fields",
+                        lambda *a, **k: ({"NCT": {"definition": "What  is the NCT id?", "change": "none", "revised": True}}, []))
+    job = _wait(api, api.post(f"/api/schemas/{sid}/revise", json={}).get_json()["job_id"])
+    assert job["status"] == "done"
+    assert job["result"]["revised"] == ["NCT"] and job["result"]["changed"] == []
+    field = api.get(f"/api/schemas/{sid}").get_json()["schema"]["fields"][0]
+    assert field["x-evisearch"]["review"]["state"] == "proposed"  # a no-op leaves the review state alone
+    assert field["x-evisearch"]["history"][-1]["unchanged"] is True
