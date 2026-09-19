@@ -79,6 +79,9 @@ SEARCH_PAGE_MAX_CHARS = 15000  # page text returned per hit
 
 # ============== PATHS ==============
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
-DEFINITIONS_CSV_PATH = PROJECT_ROOT / "src" / "table_definitions" / "Definitions_with_eval_category.csv"
-DEFINITIONS_EVAL_CATEGORY_PATH = DEFINITIONS_CSV_PATH
+HUMAN_DEFINITIONS_CSV_PATH = PROJECT_ROOT / "src" / "table_definitions" / "Definitions_with_eval_category.csv"
+# Definitions the extraction stages use: the hand-written ones, or a locked schema exported to the same CSV format.
+DEFINITIONS_CSV_PATH = Path(env("EVISEARCH_DEFINITIONS_CSV", str(HUMAN_DEFINITIONS_CSV_PATH)))
+# Scoring always uses the hand-written definitions, whatever the extraction stages were given.
+DEFINITIONS_EVAL_CATEGORY_PATH = HUMAN_DEFINITIONS_CSV_PATH
 GOLD_TABLE_JSON_PATH = PROJECT_ROOT / "dataset" / "Manual_Benchmark_GoldTable_cleaned.json"

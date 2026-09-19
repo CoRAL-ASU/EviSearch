@@ -9,14 +9,18 @@ itself stays out of it. It reads the paper through tools:
   relevant lines.
 - verify_attribution: a separate model call checks claimed values against one page, text and image
   (services/evidence_check.py): supported / partial / not_supported, with what the page states.
-- submit_verification: final values. A value is accepted only when verify_attribution found it supported on the page
-  given as its source; "Not reported" is refused while a value for the column is verified as supported. A value the
-  verifier does not support is accepted only with review=true and is flagged for a human reviewer.
-Columns left unsubmitted keep the agent's last rejected value (or "Not reported") and are flagged for review.
+- submit_verification: final values, under a decision policy enforced here rather than left to the prompt:
+  - a value is accepted when verify_attribution found it supported on its source page; a partial one only with
+    review=true; a value the verifier rejected (not_supported) is never accepted, even with review=true;
+  - "Not reported" is refused while a value for the column is supported or partial on the pages, and while an extracted
+    value has not been checked (unless review=true); once every extracted value failed the check it is accepted and
+    flagged for a human reviewer.
+Columns left unsubmitted get their verified value if one exists (decided_by auto_submit); otherwise the last attempt,
+flagged, or "Not reported" (flagged) when that attempt failed the check.
 
 Per column output: value, reasoning, verification (both_correct | A_correct_B_wrong | B_correct_A_wrong | both_wrong:
 which source had the final value), source {page, modality, verbatim_quote}, attribution (checked entries), verified,
-needs_review, review_reason, decided_by (agent | unsubmitted), checks (verifier records for the column).
+needs_review, review_reason, decided_by (agent | auto_submit | unsubmitted), checks (verifier records for the column).
 The model comes from the "reconciliation" role in src/config/config.py; the reader and verifier use the same model.
 """
 from __future__ import annotations
@@ -37,11 +41,12 @@ from src.evisearch.tool_args import decode_items
 from src.inference import InferenceError, Tool, ToolOutput, ToolSpec, Usage, get_chat, run_tool_loop
 from src.retrieval import embedding_retriever as retriever
 
-RECONCILER_VERSION = "verified_tools_v3"  # part of the run settings: results of other versions are not resumed
+RECONCILER_VERSION = "verified_tools_v4"  # part of the run settings: results of other versions are not resumed
 VERIFICATIONS = ("A_correct_B_wrong", "B_correct_A_wrong", "both_correct", "both_wrong")
 VERIFY_MAX_CLAIMS = 30  # per verify_attribution call; split into one verifier call per page
 REASONING_CHARS = 2000  # of each arm's reasoning shown to the agent
 SEARCH_LINES_PER_PAGE = 4
+CONTINUED_RE = re.compile(r"\bcontinue[sd]?\b.{0,20}\b(next|following) page|\(\s*continued\s*\)|\bcont(?:inued|'d)\.?\s*\)|table \d+[^.\n]{0,20}\bcontinued", re.I)
 
 SYSTEM_PROMPT = """You decide the final value of clinical trial columns. For each column you get its definition and two
 independent extractions of the same paper (A and B): the value, the reasoning, and the pages and evidence they cite.
@@ -49,37 +54,37 @@ You do not have the paper in front of you. Use your tools:
 - ask_document: a reader that has the whole paper (every page's text and image) answers your questions with the
   answer, the pages and the evidence. Ask about several columns in one call.
 - search_pages: semantic search over the paper; returns the best matching pages with their most relevant lines.
-- verify_attribution: a checker looks at one page (text and image) and says whether it supports a value for a column
-  (supported / partial / not_supported) and what the page states. Send many claims in one call.
+- verify_attribution: a checker reads the page(s) (text and image), writes the column's answer itself, and says whether
+  the claimed value IS that answer (supported / partial / not_supported), with what the pages state and a reason tag.
+  Send many claims in one call.
 - submit_verification: final values. A value is accepted only after verify_attribution found it supported on the page
-  given as its source.
+  given as its source. A value the checker rejected is never accepted.
 
 Deciding a column:
 1. Read the definition first: population or subgroup, arm, timepoint, unit, and every part it asks for. The column's
    statistic governs: a rate column takes a rate the paper states, an "N (%)" column a count with its percentage, a
    "(mo)" column a duration. A statistic that compares arms (hazard ratio, p value) never goes into a per-arm column.
    A value the paper does not state (a rate computed from event counts, a number estimated from a curve, "Not
-   reached" the paper does not say) is not an answer: prefer "Not reported" (with review=true when an extraction
-   reported it).
+   reached" the paper does not say) is not an answer.
 2. A and B agree: verify the value on its cited page and submit it.
 3. A and B differ: check scope first (right population, arm, timepoint), then completeness. Answers that are compatible
    at different levels of detail (a drug class and the drug, a count and the same count with its percentage) are
    merged into the complete value the definition asks for. A different label for the same quantity, or a named subtype
-   of the requested measure, is not absence.
-4. When the verifier does not support a value, find out why before dropping it: it may be on another page (ask the
-   reader where the paper reports it), or combine numbers from several pages (verify it with pages=[...] together).
-   For a value derived from printed numbers (subgroups added up, a percentage from a count and the arm size), put
-   the derivation in the claim's evidence, e.g. "349 + 113 = 462; 462 / 654 = 70.6%", taken from the reasoning.
-   Never replace an extracted value with "Not reported" because it failed verification: submit the value with
-   review=true and a review_reason instead, so a human checks it. "Not reported" over an extracted value is only for
-   a value that answers a different question (another statistic, population or timepoint), and it too needs
-   review=true. "Not reported", and "No" in a yes/no column, claim absence: they need no verification.
+   of the requested measure, is not absence. When the column asks for an endpoint and the paper reports it only under
+   named variants (for example biochemical and radiographic PFS), submit every variant with its label, together.
+4. When the verifier does not support a value, read its reason tag and page_value. If the value may be right, find the
+   page(s) that show it (ask the reader where the paper reports it; several pages together if it combines them, or a
+   table that continues on the next page) and verify it there. For a value derived from printed numbers (subgroups
+   added up, a percentage from a count and the arm size), put the derivation in the claim's evidence, e.g.
+   "349 + 113 = 462; 462 / 654 = 70.6%". If it answers a different question ([statistic], [endpoint], [population],
+   [arm], [timepoint]), drop it. A partial value may be completed from page_value (verify the completed value).
 5. Both say "Not reported": accept it, unless either reasoning mentions a candidate (a number with %, months or n/N;
    "not reached"; "all patients" or a value fixed by the design; enrolment in one country or region). Then ask the
    reader and verify what it finds.
-6. Verify the value you choose on the page(s) that show it, then submit it with those pages. If the verifier supports
-   none of the values you can find, submit your best value with review=true and a review_reason: a human reviewer
-   checks it.
+6. Verify the value you choose on the page(s) that show it, then submit it with those pages. When every extracted
+   value fails the check and the reader finds no other value the verifier supports, submit "Not reported": it is
+   flagged for a human reviewer automatically. "Not reported", and "No" in a yes/no column, claim absence: they need
+   no verification, but they are refused while a value for the column is supported on the pages.
 
 verification says which source had the final value: both_correct (A and B both), A_correct_B_wrong,
 B_correct_A_wrong, both_wrong (neither). Work in few calls: verify the cited values of all columns together, ask the
@@ -233,7 +238,7 @@ def tool_specs(names: List[str]) -> List[ToolSpec]:
         ),
         ToolSpec(
             name="submit_verification",
-            description="Submit final values for one or more columns. A value is accepted only when verify_attribution found it supported on its source page; the response lists accepted and rejected columns.",
+            description="Submit final values for one or more columns. A value is accepted only when verify_attribution found it supported on its source page; a rejected value is never accepted; \"Not reported\" is accepted when every extracted value failed the check. The response lists accepted and rejected columns.",
             parameters={
                 "type": "object",
                 "properties": {
@@ -247,7 +252,7 @@ def tool_specs(names: List[str]) -> List[ToolSpec]:
                                 "reasoning": {"type": "string"},
                                 "verification": {"type": "string", "enum": list(VERIFICATIONS)},
                                 "source": source,
-                                "review": {"type": "boolean", "description": "true: the verifier did not support this value; send it to a human reviewer"},
+                                "review": {"type": "boolean", "description": "true: send this value to a human reviewer (a partial value, or a value no page shows); a value the verifier rejected is not accepted even with review"},
                                 "review_reason": {"type": "string"},
                             },
                             "required": ["column", "value", "reasoning", "verification"],
@@ -323,6 +328,20 @@ class _ReconciliationSession:
     def supported(self, name: str) -> List[Dict[str, Any]]:
         return [r for key, r in self.checks.items() if key[0] == name and r["verdict"] == "supported"]
 
+    def standing(self, name: str) -> List[Dict[str, Any]]:
+        """Checks that found a value for the column on the pages: supported first, then partial; A's value first."""
+        records = [r for key, r in self.checks.items() if key[0] == name and r["verdict"] in ("supported", "partial")]
+        a_value = self.sources["A"][name]["value"]
+        return sorted(records, key=lambda r: (r["verdict"] != "supported", not _same(r["value"], a_value)))
+
+    def arm_values(self, name: str) -> List[str]:
+        return [self.sources[o][name]["value"] for o in ("A", "B") if not is_absence(self.sources[o][name]["value"])]
+
+    def unchecked_values(self, name: str) -> List[str]:
+        """Extracted values of the column that no verifier check has looked at."""
+        checked = [r["value"] for key, r in self.checks.items() if key[0] == name]
+        return [v for v in self.arm_values(name) if not any(_same(v, c) for c in checked)]
+
     def label(self, name: str, value: str) -> str:
         a_ok = _same(value, self.sources["A"][name]["value"])
         b_ok = _same(value, self.sources["B"][name]["value"])
@@ -357,11 +376,19 @@ class _ReconciliationSession:
         }
 
     def unsubmitted(self, name: str, reason: str) -> Dict[str, Any]:
+        """A column the agent never got accepted: a verified value is submitted for it; a value the verifier rejected is
+        not kept ("Not reported", flagged); anything else keeps the last attempt, flagged."""
+        supported = [r for r in self.standing(name) if r["verdict"] == "supported"]
+        if supported:
+            best = supported[0]
+            return self.final(name, best["value"], best, reasoning=f"{reason}; submitted the verified value", decided_by="auto_submit")
         attempt = self.attempts.get(name)
-        if attempt:
-            return self.final(name, attempt["value"], attempt.get("record"), reasoning=attempt["reasoning"], decided_by="unsubmitted",
+        record = (attempt or {}).get("record")
+        if attempt and not (record and record["verdict"] == "not_supported"):
+            return self.final(name, attempt["value"], record, reasoning=attempt["reasoning"], decided_by="unsubmitted",
                               verification=attempt.get("verification"), review_reason=f"{reason}; last value was not verified")
-        return self.final(name, NOT_REPORTED, None, reasoning=reason, decided_by="unsubmitted", review_reason=reason)
+        why = f"{reason}; last value failed the page check" if attempt else reason
+        return self.final(name, NOT_REPORTED, None, reasoning=why, decided_by="unsubmitted", review_reason=why)
 
     # ---- tools -------------------------------------------------------------------------------------------------
 
@@ -396,6 +423,29 @@ class _ReconciliationSession:
             "retrieval": hits[0].get("retrieval") if hits else None,
         })
 
+    def _verify(self, claims: List[Claim]) -> None:
+        if not claims:
+            return
+        pdf_path = Path(self.pdf_path) if self.pdf_path else None
+        records, usage, calls = verify_claims(self.chat, self.doc_id, claims, self.definitions, pdf_path=pdf_path, image_scale=self.image_scale)
+        self.checks.update(records)
+        self.tool_usage.add(usage)
+        self.verifier_calls += calls
+
+    def _continued(self, claim: Claim) -> Optional[Claim]:
+        """The same claim on its page and the next one, when it was rejected on a single page whose text says the table
+        continues; None otherwise."""
+        record = self.checks.get(claim.key)
+        if not record or record["verdict"] != "not_supported" or len(claim.pages) != 1:
+            return None
+        page = claim.pages[0]
+        if page >= self.total_pages:
+            return None
+        text = retriever.get_page_content(self.doc_id, [page]).get(page, "")
+        if not CONTINUED_RE.search(text):
+            return None
+        return Claim(claim.column, claim.value, (page, page + 1), claim.evidence)
+
     def verify_attribution(self, args: Dict[str, Any]) -> ToolOutput:
         raw, note = _items(args, "claims")
         claims, problems = [], ([note] if note else [])
@@ -410,14 +460,12 @@ class _ReconciliationSession:
             claims.append(Claim(item["column"], str(item["value"]), pages, str(item.get("evidence") or "")))
         if len(raw) > VERIFY_MAX_CLAIMS:
             problems.append(f"only the first {VERIFY_MAX_CLAIMS} claims were checked")
-        new = [claim for claim in claims if claim.key not in self.checks]
-        if new:
-            pdf_path = Path(self.pdf_path) if self.pdf_path else None
-            records, usage, calls = verify_claims(self.chat, self.doc_id, new, self.definitions, pdf_path=pdf_path, image_scale=self.image_scale)
-            self.checks.update(records)
-            self.tool_usage.add(usage)
-            self.verifier_calls += calls
-        content: Dict[str, Any] = {"checks": [_compact(self.checks[claim.key]) for claim in claims]}
+        self._verify([claim for claim in claims if claim.key not in self.checks])
+        # a table that continues on the next page: a value rejected on the cited page is checked on both pages
+        continued = [self._continued(claim) for claim in claims]
+        continued = [c for c in continued if c is not None and c.key not in self.checks]
+        self._verify(continued)
+        content: Dict[str, Any] = {"checks": [_compact(self.checks[claim.key]) for claim in claims + continued]}
         if problems:
             content["problems"] = problems
         return ToolOutput(content)
@@ -438,18 +486,23 @@ class _ReconciliationSession:
             review = bool(item.get("review"))
             review_reason = str(item.get("review_reason") or "").strip()
             if is_absence(value):  # "Not reported", or "No" in a yes/no column: nothing on a page to verify
-                supported = self.supported(name)
-                arm_values = [self.sources[o][name]["value"] for o in ("A", "B") if not is_absence(self.sources[o][name]["value"])]
-                if (supported or arm_values) and not review:
-                    reason = (
-                        f'"{supported[0]["value"]}" is verified on page(s) {supported[0]["pages"]} (they show "{supported[0]["page_value"]}"). '
-                        if supported else
-                        f"an extraction reported {arm_values[0]!r}. Verify it (or the right value) on its page and submit that; "
-                        "if it cannot be verified, submit it with review=true. "
-                    )
-                    rejected.append({"column": name, "reason": reason + f'Submit "{value or NOT_REPORTED}" only with review=true and a review_reason.'})
+                standing = self.standing(name)  # supported or partial checks: a value for the column exists on the pages
+                unchecked = self.unchecked_values(name)
+                if standing:
+                    best = standing[0]
+                    rejected.append({"column": name, "reason": (
+                        f'the verifier found "{best["value"]}" {best["verdict"]} on page(s) {best["pages"]} (they show '
+                        f'"{best["page_value"]}"). Submit that value (complete it if partial) instead of "{value or NOT_REPORTED}".')})
                     continue
-                reason = (review_reason or f"{value or NOT_REPORTED} although a value was reported") if review else ""
+                if unchecked and not review:
+                    rejected.append({"column": name, "reason": (
+                        f"an extraction reported {unchecked[0]!r}, which has not been checked. Check it (or the right value) with "
+                        f'verify_attribution: if every extracted value fails the check, "{value or NOT_REPORTED}" is accepted.')})
+                    continue
+                failed = self.arm_values(name)
+                reason = review_reason if review else ""
+                if failed and not reason:
+                    reason = f"every extracted value failed the page check ({', '.join(repr(v) for v in failed[:2])})"
                 self.submitted[name] = self.final(name, value, None, reasoning=reasoning, decided_by="agent", verification=label, review_reason=reason)
                 accepted.append(name)
                 continue
@@ -467,18 +520,27 @@ class _ReconciliationSession:
             if record and record["verdict"] == "supported":
                 self.submitted[name] = self.final(name, value, record, reasoning=reasoning, decided_by="agent", verification=label)
                 accepted.append(name)
-            elif record and review:
+            elif record and review and record["verdict"] in ("partial", "error"):  # right but incomplete, or the check failed to run
                 reason = review_reason or f"verifier: {record['verdict']} on page(s) {record['pages']}"
                 self.submitted[name] = self.final(name, value, record, reasoning=reasoning, decided_by="agent", verification=label, review_reason=reason)
                 accepted.append(name)
+            elif record and record["verdict"] == "partial":
+                self.attempts[name] = attempt
+                rejected.append({
+                    "column": name,
+                    "reason": f"the verifier found this value incomplete on page(s) {record['pages']}: the pages state \"{record['page_value']}\"",
+                    "verifier": _compact(record),
+                    "next": "Submit the complete value the pages state (verify it), or resubmit this one with review=true and a review_reason.",
+                })
             elif record:
                 self.attempts[name] = attempt
                 rejected.append({
                     "column": name,
-                    "reason": f"the verifier did not support this value on page(s) {record['pages']}",
+                    "reason": f"the verifier did not support this value on page(s) {record['pages']}; a rejected value is never accepted",
                     "verifier": _compact(record),
-                    "next": "Correct the value or the page (page_value is what the page states), verify it on the page(s) that show it "
-                    "(several pages together if it combines them), or resubmit with review=true and a review_reason.",
+                    "next": "If the value is right, find the page(s) that show it (ask the reader; several pages together if it combines "
+                    "them) and verify it there. If it answers a different question (statistic, endpoint, population, arm, timepoint), "
+                    'drop it: submit another value the verifier supports, or "Not reported" when every extracted value fails.',
                 })
             elif review and pages is None:  # no page found for it at all: flag without a check
                 self.submitted[name] = self.final(name, value, None, reasoning=reasoning, decided_by="agent", verification=label,

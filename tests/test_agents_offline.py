@@ -445,13 +445,14 @@ def test_reconciliation_reads_the_paper_through_the_reader_and_flags_what_it_can
     answer = _tool_response(chat, 1)["answers"][0]
     assert answer["answer"] == "STAMPEDE" and answer["pages"] == [1]
     submit = _tool_response(chat, 3)
-    assert sorted(submit["accepted"]) == sorted([TRIAL, MEDIAN_OS]) and submit["rejected"][0]["column"] == AE
-    assert submit["rejected"][0]["verifier"]["verdict"] == "not_supported"
+    assert submit["accepted"] == [TRIAL]  # a value the verifier rejected is refused, even with review=true
+    assert sorted(r["column"] for r in submit["rejected"]) == sorted([MEDIAN_OS, AE])
+    assert all(r["verifier"]["verdict"] == "not_supported" and "never accepted" in r["reason"] for r in submit["rejected"])
     assert results[TRIAL]["verified"] and results[TRIAL]["verification"] == "both_wrong"
-    assert results[MEDIAN_OS]["needs_review"] and not results[MEDIAN_OS]["verified"] and results[MEDIAN_OS]["value"] == "80.1"
-    ae = results[AE]  # rejected again in the forced final turn: the value is kept and flagged
-    assert ae["value"] == "52" and ae["needs_review"] and not ae["verified"] and ae["decided_by"] == "unsubmitted"
-    assert "forced_finish" in ae["review_reason"]
+    for name in (MEDIAN_OS, AE):  # never accepted: the rejected value is not kept, "Not reported" is flagged instead
+        final = results[name]
+        assert final["value"] == "Not reported" and final["needs_review"] and not final["verified"] and final["decided_by"] == "unsubmitted"
+        assert "forced_finish" in final["review_reason"] and "failed the page check" in final["review_reason"]
 
 
 def test_reconciliation_accepts_absence_answers_without_a_page_unless_a_value_is_verified(doc):
@@ -469,7 +470,7 @@ def test_reconciliation_accepts_absence_answers_without_a_page_unless_a_value_is
     assert qol["value"] == "No" and qol["attribution"] == [] and not qol["verified"] and not qol["needs_review"]
 
 
-def test_reconciliation_verifies_values_across_pages_and_never_blanks_an_extracted_value_silently(doc):
+def test_reconciliation_verifies_values_across_pages_and_blanks_a_value_only_after_it_fails_the_check(doc):
     batch = [{"column_name": AE, "definition": "Grade 3 or higher adverse events"}, {"column_name": MEDIAN_OS, "definition": "Median OS"}]
     source_a = {AE: _claim("47", 2), MEDIAN_OS: _claim("80.1", 2)}
     chat = VerifyingChat([])
@@ -486,13 +487,57 @@ def test_reconciliation_verifies_values_across_pages_and_never_blanks_an_extract
         {"column": MEDIAN_OS, "value": "Not reported", "reasoning": "80.1 is not on p2", "verification": "B_correct_A_wrong"},
     ]}).content
     assert response["accepted"] == [AE]  # page 3 lies inside the verified page set [2, 3]
-    assert "'80.1'" in response["rejected"][0]["reason"] and "review=true" in response["rejected"][0]["reason"]
+    assert "'80.1'" in response["rejected"][0]["reason"] and "not been checked" in response["rejected"][0]["reason"]
     assert [a["page"] for a in session.submitted[AE]["attribution"]] == [2, 3] and session.submitted[AE]["verified"]
 
-    session.submit_verification({"results": [{"column": MEDIAN_OS, "value": "Not reported", "reasoning": "a hazard ratio, not a median",
-                                               "verification": "B_correct_A_wrong", "review": True, "review_reason": "answers another statistic"}]})
+    assert session.verify_attribution({"claims": [{"column": MEDIAN_OS, "value": "80.1", "page": 2}]}).content["checks"][0]["verdict"] == "not_supported"
+    response = session.submit_verification({"results": [{"column": MEDIAN_OS, "value": "Not reported", "reasoning": "80.1 is not a median OS",
+                                                          "verification": "B_correct_A_wrong"}]}).content
+    assert response["accepted"] == [MEDIAN_OS]  # every extracted value failed the check: "Not reported" stands, flagged
     final = session.submitted[MEDIAN_OS]
-    assert final["value"] == "Not reported" and final["needs_review"] and final["review_reason"] == "answers another statistic"
+    assert final["value"] == "Not reported" and final["needs_review"] and "failed the page check" in final["review_reason"]
+
+
+def test_reconciliation_policy_refuses_rejected_values_and_absence_over_a_value_on_the_page(doc):
+    batch = [{"column_name": MEDIAN_OS, "definition": "Median OS"}, {"column_name": AE, "definition": "Grade 3 or higher adverse events"}]
+    source_a = {MEDIAN_OS: _claim("76.6", 2), AE: _claim("52", 3)}
+    session = reconciliation._ReconciliationSession(VerifyingChat([]), "doc-1", batch, {}, source_a, {}, None)
+    session.verify_attribution({"claims": [{"column": MEDIAN_OS, "value": "76.6", "page": 2}, {"column": AE, "value": "52", "page": 3}]})
+    session.checks[(AE, "47", (3,))] = {**session.checks[(AE, "52", (3,))], "value": "47", "verdict": "partial", "page_value": "47 percent"}
+
+    response = session.submit_verification({"results": [
+        {"column": AE, "value": "52", "reasoning": "A", "verification": "A_correct_B_wrong", "source": {"page": 3}, "review": True},
+        {"column": MEDIAN_OS, "value": "Not reported", "reasoning": "?", "verification": "B_correct_A_wrong", "review": True, "review_reason": "unsure"},
+    ]}).content
+    assert response["accepted"] == []
+    reasons = {r["column"]: r["reason"] for r in response["rejected"]}
+    assert "never accepted" in reasons[AE]  # rejected value: refused even with review=true
+    assert '"76.6" supported' in reasons[MEDIAN_OS]  # absence refused while a value is supported, even with review=true
+
+    response = session.submit_verification({"results": [{"column": AE, "value": "Not reported", "reasoning": "?", "verification": "both_wrong", "review": True}]}).content
+    assert response["accepted"] == [] and '"47" partial' in response["rejected"][0]["reason"]  # a partial value stands too
+    response = session.submit_verification({"results": [{"column": AE, "value": "47", "reasoning": "p3", "verification": "both_wrong", "source": {"page": 3}}]}).content
+    assert response["accepted"] == [] and "incomplete" in response["rejected"][0]["reason"]
+    response = session.submit_verification({"results": [{"column": AE, "value": "47", "reasoning": "p3", "verification": "both_wrong", "source": {"page": 3}, "review": True}]}).content
+    assert response["accepted"] == [AE] and session.submitted[AE]["needs_review"]
+
+    final = session.unsubmitted(MEDIAN_OS, "reconciler did not submit (forced_finish)")
+    assert final["value"] == "76.6" and final["verified"] and final["decided_by"] == "auto_submit" and not final["needs_review"]
+
+
+def test_reconciliation_rechecks_a_rejected_value_on_the_next_page_when_the_table_continues(doc, monkeypatch):
+    pages = {1: "Table 1. Baseline characteristics (Table 1 continues on next page)", 2: "Gleason score 8-10: 320 (57%)"}
+    monkeypatch.setattr(reconciliation.retriever, "get_page_content", lambda doc_id, wanted: {p: pages.get(p, "") for p in wanted})
+    batch = [{"column_name": "Gleason >= 8", "definition": "Gleason 8-10 count"}]
+    chat = VerifyingChat([])
+    session = reconciliation._ReconciliationSession(chat, "doc-1", batch, {}, {"Gleason >= 8": _claim("320 (57%)", 1)}, {}, None)
+
+    checks = session.verify_attribution({"claims": [{"column": "Gleason >= 8", "value": "320 (57%)", "page": 1}]}).content["checks"]
+    assert [(c["pages"], c["verdict"]) for c in checks] == [([1], "not_supported"), ([1, 2], "supported")]
+    response = session.submit_verification({"results": [
+        {"column": "Gleason >= 8", "value": "320 (57%)", "reasoning": "Table 1", "verification": "A_correct_B_wrong", "source": {"page": 1}},
+    ]}).content
+    assert response["accepted"] == ["Gleason >= 8"] and session.submitted["Gleason >= 8"]["verified"]
 
 
 class LoopingVerifier(VerifyingChat):
