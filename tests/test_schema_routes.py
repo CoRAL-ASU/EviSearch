@@ -29,7 +29,7 @@ class RoutedChat(ChatModel):
         props = response_schema.get("properties", {})
         if "is_convention" in props:
             payload = {"is_convention": True, "why_not": "", "scope": "family", "family": "Median PFS (mo)", "columns": [],
-                       "condition": "only a different endpoint is reported", "action_type": "statistic_rule",
+                       "condition": "only a different endpoint is reported", "action_type": "statistic",
                        "instruction": "Time to castration resistance is not progression-free survival: answer Not reported."}
         elif "columns" in props:
             item = props["columns"]["items"]["properties"]

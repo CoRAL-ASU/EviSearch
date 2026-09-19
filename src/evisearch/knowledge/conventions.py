@@ -21,18 +21,19 @@ from typing import Any, Dict, Iterable, List, Optional
 
 from src.config import runtime_paths
 
-ACTION_TYPES = {
-    "statistic_rule": "which statistic goes in the column and what is never used for it (e.g. a rate must be stated, never computed)",
-    "include_variants": "report every named variant of an endpoint together, each with its label",
-    "label_vocabulary": "use the table owner's label for a category (e.g. 'Triplet therapy' for ADT + docetaxel + an AR inhibitor)",
-    "synonym": "treat the paper's term as the column's term (same population, arm, subgroup or event under another name)",
-    "population_scope": "which population, cohort or subgroup table answers the column (and which does not)",
-    "design_implied": "a value fixed by the trial design (e.g. every patient of an arm receives the protocol treatment)",
-    "counting_rule": "how to count or add (arms of a platform trial, grade thresholds, events vs patients)",
-    "answer_format": "the form of the cell value (count with percent, value with timepoint, list per arm or trial)",
-    "unit_rule": "units and conversions",
-    "not_reported_policy": "when the cell is 'Not reported' (and when it is not)",
-    "classification": "how to classify the paper or trial (follow-up vs original, add-on vs backbone, randomised)",
+ACTION_TYPES = {  # closed list, derived from the error evidence (EviSearch-paper/notes/CONVENTIONS_VOCAB.md §1)
+    "statistic": "what kind of number or answer the cell holds; other kinds are not answers",
+    "stated_only": "the value must be printed for this scope; named derivations are forbidden",
+    "derive": "a permitted computation from printed numbers, with its arithmetic shown",
+    "equivalent": "paper terms that count as the column's term (keep the paper's label)",
+    "not_equivalent": "paper terms that do not count, even though they look close",
+    "scope": "which population, arm, analysis set, trial or timepoint the value must describe; excluded sources",
+    "enumerate": "list every labelled part (endpoint variants, trials, populations, arms)",
+    "design_implied": "a value fixed by the trial design, and where that inference must not be applied",
+    "format": "how to write the value (vocabulary, labels, pattern)",
+    "classify": "decision criteria for a judgement or label column",
+    "override": "replace or narrow the hand-written definition (needs a named approver)",
+    "source": "where the value may be printed, and where the checker must also look",
 }
 SCOPES = ("column", "family", "table", "global")  # most specific first
 STATUSES = ("proposed", "approved", "rejected", "retired")
@@ -146,7 +147,7 @@ def seed_from_rules(version: str = "v5", by: str = "seed") -> List[Dict[str, Any
             continue
         out.append(create({
             "trigger": {"scope": "global", "facets": {}, "condition": ""},
-            "action": {"type": "statistic_rule", "params": {"seed_rule": i}},
+            "action": {"type": "statistic", "params": {"seed_rule": i}},
             "instruction": bullet,
             "source": {"kind": "seed", "rules": version, "bullet": i},
         }, by=by, status="approved"))

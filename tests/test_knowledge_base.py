@@ -34,7 +34,7 @@ def kb_dir(tmp_path, monkeypatch):
 
 def _variants(scope="family", columns=None, instruction="- Give each PFS variant with its label."):
     return {"trigger": {"scope": scope, "family": "Median PFS (mo)", "columns": columns or [], "facets": {}, "condition": "only variants reported"},
-            "action": {"type": "include_variants", "params": {}}, "instruction": instruction,
+            "action": {"type": "enumerate", "params": {}}, "instruction": instruction,
             "source": {"kind": "extraction_review", "by": "reviewer"}}
 
 
@@ -87,13 +87,13 @@ def test_gate_merges_exact_duplicates_without_the_model_and_blocks_conflicts():
 def test_proposer_generalises_or_declines_paper_specific_feedback():
     chat = ReplyChat([
         {"is_convention": True, "why_not": "", "scope": "family", "family": "Median PFS (mo)", "columns": [], "condition": "only variants",
-         "action_type": "include_variants", "instruction": "Give each PFS variant with its label."},
+         "action_type": "enumerate", "instruction": "Give each PFS variant with its label."},
         {"is_convention": False, "why_not": "a misread number on one page", "scope": "column", "family": "", "columns": [],
          "condition": "", "action_type": "answer_format", "instruction": ""},
     ])
     out = proposer.propose(chat, column=PFS[0], definition="Median PFS", feedback="PFS here is reported as bPFS and rPFS; use both",
                            before="Not reported", after="bPFS 22.9; rPFS 23.5", reason="convention", columns=PFS, paper="p1")
-    assert out["is_convention"] and out["record"]["instruction"].startswith("- ") and out["record"]["action"]["type"] == "include_variants"
+    assert out["is_convention"] and out["record"]["instruction"].startswith("- ") and out["record"]["action"]["type"] == "enumerate"
     assert out["record"]["trigger"]["columns"] == [PFS[0]] and out["record"]["examples"][0]["after"] == "bPFS 22.9; rPFS 23.5"
     assert not proposer.propose(chat, column=PFS[0], definition="", feedback="16.4 is 16.2", columns=PFS)["is_convention"]
 

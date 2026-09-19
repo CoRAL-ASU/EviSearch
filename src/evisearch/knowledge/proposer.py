@@ -61,7 +61,7 @@ def propose(chat: Any, *, column: str, definition: str, feedback: str, before: s
         "trigger": {"scope": out.get("scope") if out.get("scope") in SCOPES else "column", "family": out.get("family", ""),
                     "columns": [c for c in out.get("columns", []) if c in columns or c == column] or [column],
                     "facets": {}, "condition": out.get("condition", "")},
-        "action": {"type": out.get("action_type") if out.get("action_type") in ACTION_TYPES else "answer_format", "params": {}},
+        "action": {"type": out.get("action_type") if out.get("action_type") in ACTION_TYPES else "format", "params": {}},
         "instruction": instruction if instruction.startswith("- ") else "- " + instruction,
         "examples": [{"doc": paper, "column": column, "before": before, "after": after}],
         "source": {**(source or {}), "feedback": feedback, "reason": reason},
