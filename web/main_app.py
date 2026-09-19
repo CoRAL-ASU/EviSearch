@@ -79,6 +79,8 @@ app.config['UPLOAD_FOLDER'] = UPLOADS_DIR
 app.config['UPLOAD_FOLDER'].mkdir(parents=True, exist_ok=True)
 app.config['BOOT_ID'] = str(uuid.uuid4())  # Changes on each app restart; used to invalidate browser session
 
+# the pages these blueprints serve: workspace_routes owns /tables, /review, /knowledge, /learning, /benchmark and the
+# redirects from the old page URLs (/schema, /attribution, /extract, /comparison-report, /feedback)
 from web.schema_routes import bp as schema_layer_bp  # noqa: E402  (schema generation, conventions, feedback log)
 from web.workspace_routes import bp as workspace_bp  # noqa: E402  (table workspace, runs, reviews per run, jobs)
 
@@ -212,24 +214,6 @@ def index():
 def qa_page():
     """Serve the Ask a question page (single-query QA chatbot). Placeholder for now."""
     return render_template('qa.html')
-
-
-@app.route('/comparison')
-def comparison():
-    """Redirect to attribution (unified view)."""
-    return redirect('/attribution')
-
-
-@app.route('/comparison-report')
-def comparison_report():
-    """Serve the tables report (reconciled data pivot view). Replaces old static comparison report."""
-    return render_template('tables_report.html')
-
-
-@app.route('/method-comparison-report')
-def method_comparison_report():
-    """Serve method-level comparison across agent/search/reconciliation/baselines."""
-    return render_template('method_comparison_report.html')
 
 
 @app.route('/api/report/method-comparison', methods=['GET'])
@@ -430,18 +414,6 @@ def _ensure_pdf_for_extraction(doc_id: str) -> str | None:
             import shutil
             shutil.copy2(str(upload_path), str(dest_path))
     return None
-
-
-@app.route('/extract')
-def extract_page():
-    """Serve the agentic extraction page (same as home, for direct links)."""
-    return render_template('extract.html')
-
-
-@app.route('/verify')
-def verify_page():
-    """Redirect to Attribution (verify page removed). Preserve ?doc= query."""
-    return redirect(request.url.replace(request.path, '/attribution', 1))
 
 
 @app.route('/api/documents/<path:doc_id>/verification-data', methods=['GET'])
@@ -677,12 +649,6 @@ def api_extract_unified_stream():
         mimetype="text/event-stream",
         headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"},
     )
-
-
-@app.route('/attribution')
-def attribution_index():
-    """Serve attribution viewer — select doc and column, see highlighted chunks on PDF."""
-    return render_template('attribution.html')
 
 
 @app.route('/api/documents/reconciled', methods=['GET'])

@@ -31,6 +31,7 @@ import sys
 import time
 from datetime import datetime, timezone
 from pathlib import Path
+from urllib.parse import urlencode
 from typing import Any, Dict, List, Optional, Tuple
 
 import os
@@ -82,6 +83,57 @@ def review_redirect():
         return redirect("/tables")
     run = showcase_run(table)
     return redirect(f"/tables/{table}/review" + (f"?run={run}" if run else ""))
+
+
+def _demo_link(suffix: str = "") -> str:
+    table = demo_table_id()
+    return f"/tables/{table}{suffix}" if table else "/tables"
+
+
+@bp.route("/schema")
+def schema_redirect():
+    """The Schema page is now a tab of the table workspace."""
+    return redirect(_demo_link("#schema"))
+
+
+@bp.route("/attribution")
+@bp.route("/verify")
+@bp.route("/comparison")
+def attribution_redirect():
+    """The old Verify page: same job, now per run, with a queue and the page beside the cell."""
+    table, run = demo_table_id(), (request.args.get("run") or "").strip()
+    if not table:
+        return redirect("/tables")
+    if run:
+        info = runs_service.parse_run_name(run)
+        table = info.get("schema_id") or table
+    else:
+        run = showcase_run(table) or ""
+    args = {k: v for k, v in (("run", run), ("doc", request.args.get("doc")), ("column", request.args.get("column"))) if v}
+    return redirect(f"/tables/{table}/review" + ("?" + urlencode(args) if args else ""))
+
+
+@bp.route("/comparison-report")
+def report_redirect():
+    """The old Report page: now the Table tab of a run."""
+    return redirect(_demo_link("#table"))
+
+
+@bp.route("/extract")
+def extract_redirect():
+    """Extraction now runs from a table's Runs tab, under a locked schema version."""
+    return redirect(_demo_link("#runs"))
+
+
+@bp.route("/method-comparison-report")
+def method_report_redirect():
+    return redirect("/benchmark")
+
+
+@bp.route("/feedback")
+def feedback_redirect():
+    """The old Feedback page: the activity log and the rules now live on Learning and Knowledge."""
+    return redirect("/learning")
 
 
 @bp.route("/knowledge")
@@ -853,6 +905,216 @@ def api_undo_review(run, doc_id):
     review = reviews.cell_reviews(doc_id, run, _machine(doc_id, run, cells)).get(column)
     cell = cells.get(column)
     return _ok(event=event, review=review, state=cell_state(cell, review) if cell else None)
+
+
+# ---- knowledge, learning, benchmark ---------------------------------------------------------------------------------
+def run_kb_fingerprint(run: str, docs: List[str]) -> Optional[str]:
+    """The knowledge-base snapshot a run used, as recorded in its stage metadata ("kb:<fingerprint>")."""
+    for doc in docs:
+        for folder in ("reconciliation_agent", "agent_extractor", "markdown_baseline"):
+            meta = runs_service._read_json(runs_service.base_dir(doc, run) / folder / "extraction_metadata.json")
+            rules = (meta or {}).get("extraction_rules") if isinstance(meta, dict) else None
+            if isinstance(rules, str) and rules.startswith("kb:"):
+                return rules[3:]
+    return None
+
+
+def _snapshot_ids(fingerprint: str) -> List[str]:
+    data = runs_service._read_json(runtime_paths.KNOWLEDGE_DIR / "snapshots" / f"{fingerprint}.json")
+    return [c["id"] for c in data] if isinstance(data, list) else []
+
+
+@bp.route("/api/knowledge")
+def api_knowledge():
+    """Every rule with where it came from and which runs used it."""
+    from src.evisearch.knowledge import conventions as kb
+    from src.evisearch.services import feedback
+
+    rules = list(kb.load_all().values())
+    events = {e["event_id"]: e for e in feedback.all_events()}
+    used: Dict[str, List[str]] = {}
+    for run in runs_service.list_runs():
+        fp = run_kb_fingerprint(run["run"], run["docs"])
+        if not fp:
+            continue
+        for cid in _snapshot_ids(fp):
+            used.setdefault(cid, []).append(run["run"])
+    out = []
+    for rule in rules:
+        source = rule.get("source") or {}
+        event = events.get(str(source.get("event_id") or source.get("feedback") or ""))
+        out.append({**rule, "used_in_runs": sorted(used.get(rule["id"], [])),
+                    "learned": source.get("kind") != "seed",
+                    "source_event": {"doc_id": event.get("doc_id"), "column": event.get("column"), "run": event.get("run"),
+                                     "before": event.get("before"), "after": event.get("after"),
+                                     "reason": event.get("reason")} if event else None})
+    return _ok(conventions=out, fingerprint=kb.fingerprint(), action_types=sorted(kb.ACTION_TYPES), scopes=list(kb.SCOPES))
+
+
+@bp.route("/api/learning")
+def api_learning():
+    """What the table has learned and whether later runs changed: rules and reviews over time, and per-run counts."""
+    from src.evisearch.knowledge import conventions as kb
+    from src.evisearch.services import feedback
+
+    table = request.args.get("table") or demo_table_id()
+    if not table:
+        return _ok(table=None, runs=[], series=[], effort={}, events=[])
+    table_runs = runs_service.list_runs(table)
+    active = active_runs()
+    rows = []
+    for run in table_runs:
+        s = run_summary(run, active=active)
+        fp = run_kb_fingerprint(run["run"], run["docs"])
+        ids = _snapshot_ids(fp) if fp else []
+        rows.append({"run": run["run"], "version": run.get("version"), "variant": run.get("variant"), "started_at": run.get("started_at"),
+                     "papers": len(s["papers"]), "done": s["done"], "flagged": s["flagged"], "reviewed": s["reviewed"],
+                     "corrected": s["corrected"], "status": s["status"], "kb": len(ids),
+                     "kb_learned": sum(1 for cid in ids if cid not in _SEED_IDS()), "cells": sum(p["cells"] for p in s["papers"])})
+    # cumulative series over time: rules approved, and cells reviewed
+    rules_at = [c["history"][-1]["at"] for c in kb.load_all().values()
+                if c["status"] == "approved" and (c.get("source") or {}).get("kind") != "seed" and c.get("history")]
+    reviews_at = [e["timestamp"] for e in feedback.all_events()
+                  if e.get("event") == "cell_correct" and (not table or e.get("schema_id") in (None, table))]
+    # by the hour: this work happens over days, and a per-day line would be a single point
+    bucket = lambda t: t[:13] + ":00Z"
+    stamps = sorted({bucket(t) for t in rules_at} | {bucket(t) for t in reviews_at})
+    series, rules_n, reviews_n = [], 0, 0
+    for at in stamps:
+        rules_n += sum(1 for t in rules_at if bucket(t) == at)
+        reviews_n += sum(1 for t in reviews_at if bucket(t) == at)
+        series.append({"at": at, "rules": rules_n, "reviews": reviews_n})
+    counts: Dict[str, int] = {}
+    for e in feedback.all_events():
+        if e.get("schema_id") in (None, table):
+            counts[str(e.get("event"))] = counts.get(str(e.get("event")), 0) + 1
+    effort = {"definitions_accepted": counts.get("definition_accept", 0), "definitions_edited": counts.get("definition_edit", 0),
+              "questions_answered": counts.get("definition_answer", 0), "cells_reviewed": counts.get("cell_correct", 0),
+              "rules_proposed": counts.get("convention_propose", 0), "rules_decided": counts.get("convention_decide", 0)}
+    return _ok(table=table, runs=rows, series=series, effort=effort)
+
+
+def _SEED_IDS() -> set:
+    from src.evisearch.knowledge import conventions as kb
+
+    return {c["id"] for c in kb.load_all().values() if (c.get("source") or {}).get("kind") == "seed"}
+
+
+@bp.route("/api/benchmark")
+def api_benchmark():
+    """The expert gold table released with the paper: its papers (with DOIs), its values, and how it was made."""
+    from src.config.config import GOLD_TABLE_JSON_PATH
+
+    data = runs_service._read_json(Path(GOLD_TABLE_JSON_PATH))
+    rows = (data or {}).get("data") or []
+    papers, values = [], []
+    dois = _doi_index([r["Document Name"]["value"].removesuffix(".pdf") for r in rows])
+    for row in rows:
+        doc = row["Document Name"]["value"].removesuffix(".pdf")
+        get = lambda key: str((row.get(key) or {}).get("value") or "")
+        papers.append({"doc_id": doc, "name": _doc_name(doc), "nct": get("NCT"), "trial": get("Trial Name"), "author": get("Author"),
+                       "year": get("Year"), "pmid": get("PubMed ID"), "doi": dois.get(doc, ""), **_prepared(doc)})
+        values.append({"doc_id": doc, "cells": {k: {"v": str((v or {}).get("value") or ""), "loc": str((v or {}).get("location") or "")}
+                                                for k, v in row.items() if k != "Document Name"}})
+    columns = [c for c in (rows[0].keys() if rows else []) if c != "Document Name"]
+    # "values" = cells the experts filled with a real value; "Not reported" and blanks are not values
+    filled = sum(1 for row in values for c in row["cells"].values() if not runs_service.is_not_reported(c["v"]))
+    return _ok(papers=papers, columns=columns, rows=values, filled=filled, cells=len(papers) * len(columns),
+               license="Released for academic, non-commercial use with the paper.",
+               protocol="Built by the study's authors: domain experts annotated every trial by hand, one row per paper. "
+                        "Gold values are authoritative; cells the team disputes are listed in the paper's appendix.")
+
+
+@bp.route("/api/benchmark/download.<fmt>")
+def api_benchmark_download(fmt):
+    """The gold table as released: CSV (one row per paper) or the annotated JSON with each value's location."""
+    from src.config.config import GOLD_TABLE_JSON_PATH
+
+    raw = Path(GOLD_TABLE_JSON_PATH).read_text(encoding="utf-8")
+    if fmt == "json":
+        return Response(raw, mimetype="application/json",
+                        headers={"Content-Disposition": 'attachment; filename="evisearch-gold-table.json"'})
+    if fmt == "csv":
+        rows = json.loads(raw)["data"]
+        columns = list(rows[0].keys()) if rows else []
+        buf = io.StringIO()
+        writer = csv.writer(buf)
+        writer.writerow(columns)
+        for row in rows:
+            writer.writerow([str((row.get(c) or {}).get("value") or "") for c in columns])
+        return Response(buf.getvalue(), mimetype="text/csv",
+                        headers={"Content-Disposition": 'attachment; filename="evisearch-gold-table.csv"'})
+    return _err("format must be csv or json", 404)
+
+
+_DOI_RE = re.compile(r"10\.\d{4,9}/[A-Za-z0-9._;:()/+-]*[A-Za-z0-9)]")
+# "…2119115Copyright©2022" and "…75.3657DOI:" -> cut where the DOI runs into the words printed after it
+_RUNS_INTO_TEXT = re.compile(r"(?<=[a-z0-9])(?=[A-Z][a-z]{2,})|(?<=[0-9])(?=[A-Z]{2,})")
+
+
+def _clean_doi(candidate: str) -> str:
+    """Trim a DOI that ran into the words printed after it, and balance trailing brackets."""
+    doi = _RUNS_INTO_TEXT.split(candidate, maxsplit=1)[0]
+    while doi and doi.count("(") < doi.count(")"):
+        doi = doi[:-1]
+    return doi.rstrip(".,;:")
+
+
+def _doi_from_pdf(pdf: Optional[Path]) -> str:
+    """The paper's DOI, from a doi.org link or a printed DOI on its first pages. Journals break DOIs across lines and
+    add trailing punctuation, so the text is joined up before matching."""
+    if not pdf or not Path(pdf).exists():
+        return ""
+    import fitz
+
+    try:
+        with fitz.open(str(pdf)) as handle:
+            pages = [handle[p].get_text() for p in range(min(3, len(handle)))]
+            links = [l.get("uri", "") for p in range(min(3, len(handle))) for l in handle[p].get_links() if l.get("uri")]
+    except Exception:
+        return ""
+    text = "\n".join(pages)
+    candidates: List[Tuple[int, str]] = []
+    for start in (m.start() for m in re.finditer(r"10\.\d{4,9}/", text)):
+        tail = text[start:start + 160]
+        line = tail.split("\n", 1)[0]  # a DOI is printed on one line; the next line is other text (ISSN, copyright…)
+        m = _DOI_RE.match(line)
+        doi = _clean_doi(m.group(0)) if m else ""
+        # broken across lines: unbalanced bracket, a trailing hyphen, or the line ending in the DOI's own dot
+        # ("DOI: 10.1200/JCO.2017." then "77.4315"). A line that simply ends (ISSN printed underneath) is left alone.
+        if doi and (doi.count("(") > doi.count(")") or doi.endswith("-") or line[m.end():].strip() == "."):
+            joined = _DOI_RE.match(re.sub(r"-?\n\s*", "", tail))
+            doi = _clean_doi(joined.group(0)) if joined else doi
+        if len(doi) <= 12:  # "10.1200/JCO" alone is a prefix, not a DOI
+            continue
+        # the paper's own DOI is printed on a "DOI:" line of its front matter; DOIs inside sentences cite other papers
+        before = text[max(0, start - 40):start]
+        labelled = re.search(r"(?im)^\s*(?:article\s+)?doi:?\s*(?:https?://(?:dx\.)?doi\.org/)?$", before)
+        candidates.append((0 if labelled else (2 if re.search(r"doi\.org/$", before, re.I) else 3), doi))
+    for uri in links:  # a first-page link is usually the paper's own, but a reference list also links out
+        m = _DOI_RE.search(uri.replace("%2F", "/"))
+        if m:
+            candidates.append((1, _clean_doi(m.group(0))))
+    return min(candidates, key=lambda c: c[0])[1] if candidates else ""
+
+
+def _doi_index(doc_ids: List[str]) -> Dict[str, str]:
+    """DOIs read off the papers' own first pages (the gold sheet has none), cached next to the results."""
+    cache_path = runtime_paths.RESULTS_ROOT / "_registry" / "dois.json"
+    cache = runs_service._read_json(cache_path) or {}
+    missing = [d for d in doc_ids if d not in cache]
+    if missing:
+        from src.evisearch.services.highlight import resolve_pdf_path
+        import fitz
+
+        for doc in missing:
+            cache[doc] = _doi_from_pdf(resolve_pdf_path(doc))
+        try:
+            cache_path.parent.mkdir(parents=True, exist_ok=True)
+            cache_path.write_text(json.dumps(cache, indent=1), encoding="utf-8")
+        except OSError:
+            pass
+    return cache
 
 
 @bp.route("/api/runs/compare")

@@ -85,6 +85,7 @@ class ModelSpec(_Spec):
     capabilities: Capabilities = Capabilities()
     context_tokens: Optional[int] = None
     thinking: Optional[bool] = None
+    reasoning_effort: Optional[str] = None  # OpenAI reasoning models: sent as reasoning_effort, and temperature is left out
     query_instruction: Optional[str] = None
     image_tokens: ImageTokens = ImageTokens()
     price_per_1k: Price = Price()

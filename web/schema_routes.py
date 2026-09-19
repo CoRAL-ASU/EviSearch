@@ -26,7 +26,7 @@ import uuid
 from pathlib import Path
 from typing import Any, Callable, Dict
 
-from flask import Blueprint, jsonify, render_template, request
+from flask import Blueprint, jsonify, request
 
 from src.config import runtime_paths
 from src.evisearch.knowledge import conventions as kb
@@ -61,14 +61,8 @@ def _start_job(kind: str, fn: Callable[[], Any], **meta: Any) -> str:
 
 
 # ---- pages -------------------------------------------------------------------------------------------------------
-@bp.route("/schema")
-def schema_page():
-    return render_template("schema.html")
-
-
-@bp.route("/feedback")
-def feedback_page():
-    return render_template("feedback.html")
+# /schema and /feedback now redirect into the table workspace and Learning (web/workspace_routes.py); this file keeps
+# the APIs those pages used, which the workspace still calls.
 
 
 @bp.route("/api/jobs/<job_id>")

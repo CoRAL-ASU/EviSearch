@@ -130,11 +130,16 @@ def test_human_correction_keeps_the_reason_and_is_logged(api, isolated_app):
     assert event["event"] == "cell_correct" and event["after"] == "Not reported" and event["schema_id"] == "x"
 
 
-def test_schema_and_feedback_pages_render(client):
-    schema_page, feedback_page = client.get("/schema"), client.get("/feedback")
-    assert schema_page.status_code == 200 and b'id="fields"' in schema_page.data and b'href="/feedback"' in schema_page.data
-    assert feedback_page.status_code == 200 and b'id="kb-table"' in feedback_page.data and b'id="chart"' in feedback_page.data
-    assert b'href="/schema"' in client.get("/").data  # every page links the two new pages
+def test_the_old_page_urls_redirect_into_the_workspace(client):
+    """/schema, /feedback and the other old pages are now tabs of the table workspace (or Learning)."""
+    # with no table yet they land on the table list; with one they land on its matching tab
+    for path, target in [("/schema", "/tables"), ("/extract", "/tables"), ("/comparison-report", "/tables"),
+                         ("/attribution", "/tables"), ("/feedback", "/learning"), ("/method-comparison-report", "/benchmark")]:
+        response = client.get(path)
+        assert response.status_code == 302, path
+        assert response.headers["Location"].startswith(target), (path, response.headers["Location"])
+    home = client.get("/").data
+    assert b'href="/tables"' in home and b'href="/learning"' in home  # the home page leads into the new pages
 
 
 def test_reviewer_widens_a_drafted_rules_scope_and_the_gate_rechecks_it(api):

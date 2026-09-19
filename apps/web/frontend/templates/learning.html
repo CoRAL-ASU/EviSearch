@@ -1,0 +1,139 @@
+{% extends "base.html" %}
+{% set active = "learning" %}
+{% block title %}Learning{% endblock %}
+{% block head %}
+<style>
+    /* the charts sit on the surface the palette was validated against */
+    .chart-card { background: #1a1a19; }
+    .chart svg { display: block; width: 100%; height: auto; }
+    .chart .grid { stroke: rgba(255,255,255,.10); stroke-width: 1; }
+    .chart .axis-label { fill: rgba(255,255,255,.55); font-size: 10px; }
+    .chart .line { fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+    .chart .dot { r: 4; }
+    .chart .end-label { fill: #e8e8e6; font-size: 11px; font-weight: 600; }
+    .tip { position: absolute; pointer-events: none; background: #26262a; color: #e8e8e6; border: 1px solid rgba(255,255,255,.15);
+           border-radius: 6px; padding: 4px 8px; font-size: 11px; white-space: nowrap; transform: translate(-50%, -130%); }
+</style>
+{% endblock %}
+{% block content %}
+<main class="max-w-6xl mx-auto p-4 md:p-6 space-y-4">
+    <div class="flex flex-wrap items-baseline gap-3">
+        <h1 class="text-2xl font-bold">Learning</h1>
+        <select id="l-table" class="select select-sm select-bordered"></select>
+        <span class="text-sm text-base-content/70">What the table learned from reviews, and what changed between runs.</span>
+    </div>
+
+    <div class="grid gap-4 md:grid-cols-2">
+        <div class="card chart-card shadow"><div class="card-body p-4">
+            <h2 class="font-semibold text-sm" style="color:#e8e8e6">Rules learned (cumulative)</h2>
+            <p class="text-xs" style="color:rgba(255,255,255,.55)">Approved rules that came from a review, not the seed set.</p>
+            <div class="chart relative" id="c-rules"></div>
+        </div></div>
+        <div class="card chart-card shadow"><div class="card-body p-4">
+            <h2 class="font-semibold text-sm" style="color:#e8e8e6">Cells reviewed (cumulative)</h2>
+            <p class="text-xs" style="color:rgba(255,255,255,.55)">Every confirmation or correction a reviewer saved.</p>
+            <div class="chart relative" id="c-reviews"></div>
+        </div></div>
+    </div>
+
+    <div class="stats stats-vertical sm:stats-horizontal shadow w-full bg-base-100" id="l-effort"></div>
+
+    <section class="card bg-base-100 shadow"><div class="card-body p-4 space-y-2">
+        <h2 class="card-title text-base">Runs in order</h2>
+        <p class="text-sm text-base-content/70">Each run records the schema version and the rules it froze at launch, so a later run's numbers can be read against what it knew.</p>
+        <div class="overflow-x-auto"><table class="table table-sm" id="l-runs"></table></div>
+    </section>
+
+    <section class="card bg-base-100 shadow"><div class="card-body p-4 space-y-2">
+        <h2 class="card-title text-base">What changed between two runs</h2>
+        <div class="flex flex-wrap gap-2 items-center text-sm">
+            <select id="l-a" class="select select-sm select-bordered"></select><span>→</span>
+            <select id="l-b" class="select select-sm select-bordered"></select>
+            <button id="l-go" class="btn btn-sm">Compare</button>
+        </div>
+        <div id="l-diff" class="text-sm space-y-2"></div>
+    </section>
+
+    <section class="card bg-base-100 shadow"><div class="card-body p-4 space-y-2">
+        <h2 class="card-title text-base">Activity</h2>
+        <div class="flex flex-wrap gap-2 items-center text-sm">
+            <select id="l-kind" class="select select-sm select-bordered">
+                <option value="">Everything</option><option value="correction">Cell reviews</option>
+                <option value="schema">Schema review</option><option value="chat">Questions</option></select>
+            <input id="l-who" class="input input-sm input-bordered w-40" placeholder="reviewer" />
+            <input id="l-find" class="input input-sm input-bordered w-56" placeholder="column or paper" />
+            <span id="l-n" class="opacity-60"></span>
+        </div>
+        <div class="overflow-x-auto max-h-[28rem]"><table class="table table-xs" id="l-events"></table></div>
+    </section>
+</main>
+{% endblock %}
+{% block scripts %}
+<script src="/static/js/chart.js"></script>
+<script>
+(function () {
+    const {$, esc, enc, get, when, shortDoc} = EVS;
+    let table = new URLSearchParams(location.search).get('table') || '';
+    let events = [];
+
+    async function load() {
+        const t = await get('/api/tables');
+        if (t.success && t.tables.length) {
+            if (!table || !t.tables.some((x) => x.id === table)) table = t.tables[0].id;
+            $('l-table').innerHTML = t.tables.map((x) => `<option value="${esc(x.id)}" ${x.id === table ? 'selected' : ''}>${esc(x.name)}</option>`).join('');
+        }
+        const r = await get(`/api/learning?table=${enc(table)}`);
+        if (!r.success) return;
+        EVSChart.line($('c-rules'), r.series, 'rules', '#3987e5', 'rules');
+        EVSChart.line($('c-reviews'), r.series, 'reviews', '#d95926', 'cells');
+        $('l-effort').innerHTML = [['Definitions accepted', r.effort.definitions_accepted], ['Definitions edited', r.effort.definitions_edited],
+            ['Questions answered', r.effort.questions_answered], ['Cells reviewed', r.effort.cells_reviewed],
+            ['Rules proposed', r.effort.rules_proposed]].map(([k, v]) =>
+            `<div class="stat"><div class="stat-title">${esc(k)}</div><div class="stat-value text-2xl">${v}</div></div>`).join('');
+        $('l-runs').innerHTML = `<thead><tr><th>Run</th><th>Version</th><th>Started</th><th>Papers</th><th>Cells</th><th>Rules used</th><th>Flagged</th><th>Reviewed</th><th>Status</th></tr></thead><tbody>` +
+            r.runs.slice().reverse().map((x) => `<tr><td class="mono text-xs">${esc(x.run)}</td><td>v${esc(x.version)}${x.variant ? ' <span class="badge badge-xs">' + esc(x.variant) + '</span>' : ''}</td>
+                <td class="text-xs">${esc(when(x.started_at))}</td><td>${x.done}/${x.papers}</td><td>${x.cells}</td>
+                <td title="rules frozen when the run started">${x.kb}${x.kb_learned ? ` <span class="opacity-60">(${x.kb_learned} learned)</span>` : ''}</td>
+                <td>${x.flagged}</td><td>${x.reviewed}${x.corrected ? ` (${x.corrected} corrected)` : ''}</td><td>${esc(x.status)}</td></tr>`).join('') + '</tbody>';
+        const names = r.runs.map((x) => x.run), mains = r.runs.filter((x) => !x.variant).map((x) => x.run);
+        const a = mains.length > 1 ? mains[mains.length - 2] : names[0], b = mains.length ? mains[mains.length - 1] : names[names.length - 1];
+        $('l-a').innerHTML = names.map((n) => `<option ${n === a ? 'selected' : ''}>${esc(n)}</option>`).join('');
+        $('l-b').innerHTML = names.map((n) => `<option ${n === b ? 'selected' : ''}>${esc(n)}</option>`).join('');
+        const ev = await get(`/api/feedback/events?schema_id=${enc(table)}&limit=2000`);
+        events = ev.events || [];
+        drawEvents();
+    }
+
+    function drawEvents() {
+        const kind = $('l-kind').value, who = $('l-who').value.toLowerCase(), find = $('l-find').value.toLowerCase();
+        const rows = events.filter((e) => (!kind || e.source === kind) && (!who || String(e.by || '').toLowerCase().includes(who))
+            && (!find || `${e.column || ''} ${e.doc_id || ''}`.toLowerCase().includes(find)));
+        $('l-n').textContent = `${rows.length} of ${events.length}`;
+        $('l-events').innerHTML = '<thead><tr><th>When</th><th>Who</th><th>What</th><th>Paper</th><th>Column</th><th>Detail</th></tr></thead><tbody>' +
+            rows.slice(0, 500).map((e) => `<tr><td class="whitespace-nowrap">${esc(when(e.timestamp))}</td><td>${esc(e.by || '—')}</td>
+                <td>${esc((e.event || e.source || '').replace(/_/g, ' '))}</td><td>${esc(shortDoc(e.doc_id || ''))}</td>
+                <td class="mono text-xs">${esc(e.column || '')}</td>
+                <td>${esc([e.before !== undefined && e.before !== null && e.after ? `“${e.before}” → “${e.after}”` : '', e.reason, e.answer, e.note, e.convention, e.run].filter(Boolean).join(' · ').slice(0, 160))}</td></tr>`).join('')
+            + '</tbody>';
+    }
+
+    $('l-go').onclick = async () => {
+        const a = $('l-a').value, b = $('l-b').value;
+        if (a === b) return;
+        $('l-diff').textContent = 'Comparing…';
+        const r = await get(`/api/runs/compare?a=${enc(a)}&b=${enc(b)}`);
+        if (!r.success) { $('l-diff').textContent = r.error; return; }
+        const t = r.totals;
+        $('l-diff').innerHTML = `<div><b>${t.changed}</b> cells differ over ${t.papers} papers (${t.same} identical).
+            ${t.fixed_by_review ? `<b>${t.fixed_by_review}</b> of them now match a value a reviewer saved on ${esc(a)} — feedback carried into the later run.` : 'None of them matches a value a reviewer saved on the earlier run.'}</div>` +
+            r.docs.filter((d) => d.changed.length).map((d) => `<details class="border border-base-300 rounded p-2"><summary>${esc(shortDoc(d.name))}: ${d.changed.length} changed</summary>
+                <table class="table table-xs mt-1"><thead><tr><th>Column</th><th>${esc(a)}</th><th>${esc(b)}</th><th></th></tr></thead><tbody>
+                ${d.changed.map((c) => `<tr><td class="mono">${esc(c.column)}</td><td>${esc(c.a)}</td><td>${esc(c.b)}</td>
+                    <td>${c.b_matches_review ? '<span class="badge badge-success badge-sm">matches the review</span>' : ''}</td></tr>`).join('')}</tbody></table></details>`).join('');
+    };
+    $('l-table').onchange = () => { table = $('l-table').value; load(); };
+    ['l-kind', 'l-who', 'l-find'].forEach((id) => $(id).addEventListener('input', drawEvents));
+    load();
+})();
+</script>
+{% endblock %}

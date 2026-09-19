@@ -113,6 +113,17 @@ models:
     price_per_1k: {input: 0.00015, output: 0.0006}
 
   # ---- OpenAI ----
+  gpt-5.6-luna:
+    kind: chat
+    endpoint: openai
+    name: gpt-5.6-luna
+    capabilities: {tools: true, json_schema: true, images: true, pdf: true}
+    context_tokens: 272000        # the model takes more, but above 272k input is billed at a higher rate
+    # Chat Completions rejects function tools on this family unless reasoning is off, so the client sends
+    # reasoning_effort: none and no temperature (the reasoning models reject temperature != 1).
+    reasoning_effort: none
+    image_tokens: {pixels_per_token: 29}   # 32px patches x 1.2
+    price_per_1k: {input: 0.0002, output: 0.0012}
   gpt-4.1:
     kind: chat
     endpoint: openai
@@ -282,6 +293,18 @@ presets:
     judge: gemini-2.5-flash
     baseline: gemini-2.5-flash
     structurer: gemini-2.5-flash
+    embedding: text-embedding-3-large
+    reranker: null
+  # The public demo (Fly has no GPU): one OPENAI_API_KEY covers chat and embeddings. Gemini 2.5 retires 2026-10-16,
+  # which falls inside the review period, so the demo does not use it.
+  cloud_openai:
+    pdf_query: gpt-5.6-luna
+    search_agent: gpt-5.6-luna
+    reconciliation: gpt-5.6-luna
+    qa: gpt-5.6-luna
+    judge: gpt-5.6-luna
+    baseline: gpt-5.6-luna
+    structurer: gpt-5.6-luna
     embedding: text-embedding-3-large
     reranker: null
 

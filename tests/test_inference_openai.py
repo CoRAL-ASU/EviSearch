@@ -155,3 +155,23 @@ def test_embedder_adds_query_instruction_and_keeps_input_order():
 
     embedder.embed(["page text"], kind="document")
     assert requests[1]["body"]["input"] == ["page text"]
+
+
+def test_reasoning_model_sends_effort_and_no_temperature():
+    """The demo's cloud model (gpt-5.6-luna): Chat Completions refuses function tools unless reasoning is off, and the
+    reasoning models refuse temperature, so the catalog's reasoning_effort replaces it."""
+    requests = []
+    client = _client(lambda request: _completion({"content": "ok"}), requests)
+    spec = CATALOG.models["gpt-5.6-luna"]
+    assert spec.reasoning_effort == "none"
+
+    chat = OpenAICompatChat("cloud", spec, client, local=False)
+    chat.chat([Message.user("hello")], tools=[GET_PAGE], max_tokens=64)
+
+    body = requests[-1]["body"]
+    assert body["reasoning_effort"] == "none" and "temperature" not in body
+    assert body["tools"][0]["function"]["name"] == "get_page"
+
+    local = CATALOG.models["qwen3.6-27b"]
+    OpenAICompatChat("local", local, client, local=True).chat([Message.user("hello")], max_tokens=64)
+    assert requests[-1]["body"]["temperature"] == 0.0 and "reasoning_effort" not in requests[-1]["body"]

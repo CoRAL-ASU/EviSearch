@@ -45,9 +45,14 @@ class OpenAICompatChat(ChatModel):
         kwargs: Dict[str, Any] = {
             "model": self.spec.name,
             "messages": to_openai_messages(messages),
-            "temperature": temperature,
             "max_completion_tokens": max_tokens,
         }
+        if self.spec.reasoning_effort:
+            # reasoning models reject temperature != 1, and on Chat Completions they reject function tools unless
+            # reasoning is off, so the effort comes from the catalog and no temperature is sent
+            kwargs["reasoning_effort"] = self.spec.reasoning_effort
+        else:
+            kwargs["temperature"] = temperature
         if tools:
             kwargs["tools"] = [
                 {"type": "function", "function": {"name": t.name, "description": t.description, "parameters": t.parameters}}
