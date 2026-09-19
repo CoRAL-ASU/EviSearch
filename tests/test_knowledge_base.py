@@ -57,6 +57,9 @@ def test_lifecycle_is_rebuilt_from_the_log_and_learned_conventions_render_after_
     assert text.startswith(extraction_rules.RULES["v5"]) and "- [Median PFS (mo) columns] Give each PFS variant with its label." in text
     assert text.endswith("the specific one applies to those columns.")
     before = kb.fingerprint()
+    relabelled = kb.annotate_source(c["id"], by="reviewer", note="came from the schema review", kind="schema_review")
+    assert relabelled["source"] == {**c["source"], "kind": "schema_review"} and relabelled["history"][-1]["op"] == "update"
+    assert kb.fingerprint() == before and kb.render() == text  # provenance only: the prompt text is unchanged
     kb.decide(c["id"], "retire", by="reviewer")
     assert kb.render() == extraction_rules.RULES["v5"] and kb.fingerprint() != before
     with pytest.raises(ValueError):

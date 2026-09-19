@@ -262,7 +262,7 @@
 
         $('rule-draft').addEventListener('click', async () => {
             $('rule-out').textContent = 'Drafting…';
-            const r = await API.propose({...ruleContext, feedback: $('rule-note').value, by: reviewer()});
+            const r = await API.propose({...ruleContext, kind: 'schema_review', feedback: $('rule-note').value, by: reviewer()});
             if (!r.success) { $('rule-out').textContent = r.error; return; }
             if (!r.is_convention) { $('rule-out').innerHTML = `<div class="alert">Not a convention: ${esc(r.why_not)} — save it as a correction instead.</div>`; return; }
             ruleRecord = r.record;

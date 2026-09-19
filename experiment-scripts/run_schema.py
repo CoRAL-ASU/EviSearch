@@ -54,6 +54,8 @@ def main() -> int:
     if args.dry_run:
         cmd.append("--dry-run")
     print(f"[run_schema] schema {args.schema} v{version} ({csv_path}) kb={args.kb} -> run {run}", flush=True)
+    if args.dry_run:  # nothing runs, so nothing goes into the feedback log
+        return subprocess.call(cmd, cwd=ROOT, env=env)
     store.record_event("extraction_start", args.schema, version=version, run=run, system=args.system, docs=args.docs, kb=args.kb)
     code = subprocess.call(cmd, cwd=ROOT, env=env)
     store.record_event("extraction_end", args.schema, version=version, run=run, exit_code=code)

@@ -124,6 +124,17 @@ def decide(cid: str, op: str, by: str = "", note: str = "") -> Dict[str, Any]:
     return load_all()[cid]
 
 
+def annotate_source(cid: str, by: str = "", note: str = "", **source: Any) -> Dict[str, Any]:
+    """Correct where a convention came from (e.g. kind="schema_review"). Only the source changes: a trigger, action or
+    instruction changes only through a new proposal and the gate."""
+    with _LOCK:
+        state = load_all()
+        if cid not in state:
+            raise KeyError(cid)
+        _append("update", cid, by, changes={"source": {**state[cid].get("source", {}), **source}}, note=note)
+    return load_all()[cid]
+
+
 def merge_into(cid: str, examples: Iterable[Dict[str, Any]], by: str = "", note: str = "") -> Dict[str, Any]:
     with _LOCK:
         if cid not in load_all():
