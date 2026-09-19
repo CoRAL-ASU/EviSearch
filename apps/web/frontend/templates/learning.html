@@ -3,6 +3,8 @@
 {% block title %}Learning{% endblock %}
 {% block head %}
 <style>
+    ins { background: rgba(34, 197, 94, .25); text-decoration: none; }
+    del { background: rgba(239, 68, 68, .25); }
     /* the charts sit on the surface the palette was validated against */
     .chart-card { background: #1a1a19; }
     .chart svg { display: block; width: 100%; height: auto; }
@@ -99,7 +101,7 @@
         const a = mains.length > 1 ? mains[mains.length - 2] : names[0], b = mains.length ? mains[mains.length - 1] : names[names.length - 1];
         $('l-a').innerHTML = names.map((n) => `<option ${n === a ? 'selected' : ''}>${esc(n)}</option>`).join('');
         $('l-b').innerHTML = names.map((n) => `<option ${n === b ? 'selected' : ''}>${esc(n)}</option>`).join('');
-        const ev = await get(`/api/feedback/events?schema_id=${enc(table)}&limit=2000`);
+        const ev = await get(`/api/activity?table=${enc(table)}&limit=2000`);
         events = ev.events || [];
         drawEvents();
     }
@@ -113,8 +115,37 @@
             rows.slice(0, 500).map((e) => `<tr><td class="whitespace-nowrap">${esc(when(e.timestamp))}</td><td>${esc(e.by || '—')}</td>
                 <td>${esc((e.event || e.source || '').replace(/_/g, ' '))}</td><td>${esc(shortDoc(e.doc_id || ''))}</td>
                 <td class="mono text-xs">${esc(e.column || '')}</td>
-                <td>${esc([e.before !== undefined && e.before !== null && e.after ? `“${e.before}” → “${e.after}”` : '', e.reason, e.answer, e.note, e.convention, e.run].filter(Boolean).join(' · ').slice(0, 160))}</td></tr>`).join('')
+                <td>${detail(e)}</td></tr>`).join('')
             + '</tbody>';
+    }
+
+    function detail(e) {
+        const parts = [];
+        if (e.event === 'cell_correct') {
+            // a review that kept the run's value is a confirmation, not a change (the old table showed "115 → 115")
+            parts.push(e.changed === false ? 'confirmed “' + esc(e.after) + '”'
+                : `“${esc(e.before ?? '')}” → “${esc(e.after ?? '')}”`);
+        } else if (e.before !== undefined && e.before !== null && e.after && e.before !== e.after) {
+            parts.push(wordDiff(String(e.before), String(e.after)));
+        } else if (e.after && e.before === e.after) {
+            parts.push('no change');
+        }
+        [e.reason, e.answer, e.note, e.convention, e.run].forEach((x) => { if (x) parts.push(esc(String(x))); });
+        return parts.join(' · ');
+    }
+    function wordDiff(a, b) {  // show where two definitions differ, wherever in the text that is
+        const x = a.split(/(\s+)/), y = b.split(/(\s+)/);
+        const n = x.length, m = y.length, L = Array.from({length: n + 1}, () => new Array(m + 1).fill(0));
+        for (let i = n - 1; i >= 0; i--) for (let j = m - 1; j >= 0; j--) L[i][j] = x[i] === y[j] ? L[i + 1][j + 1] + 1 : Math.max(L[i + 1][j], L[i][j + 1]);
+        let i = 0, j = 0, out = '';
+        while (i < n && j < m) {
+            if (x[i] === y[j]) { out += esc(x[i]); i++; j++; }
+            else if (L[i + 1][j] >= L[i][j + 1]) { out += `<del>${esc(x[i])}</del>`; i++; }
+            else { out += `<ins>${esc(y[j])}</ins>`; j++; }
+        }
+        while (i < n) out += `<del>${esc(x[i++])}</del>`;
+        while (j < m) out += `<ins>${esc(y[j++])}</ins>`;
+        return out;
     }
 
     $('l-go').onclick = async () => {

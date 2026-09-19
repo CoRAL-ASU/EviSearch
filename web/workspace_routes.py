@@ -951,6 +951,39 @@ def api_knowledge():
     return _ok(conventions=out, fingerprint=kb.fingerprint(), action_types=sorted(kb.ACTION_TYPES), scopes=list(kb.SCOPES))
 
 
+@bp.route("/api/activity")
+def api_activity():
+    """The feedback log for a table, with each cell review's own run value filled in.
+
+    Older events recorded `before` from the per-paper file, so a real correction could read "115 → 115" and a
+    confirmation could read as a change. Here `before` is the run's own value for that cell, and `changed` says whether
+    the reviewer altered it."""
+    from src.evisearch.services import feedback
+
+    table = request.args.get("table") or None
+    limit = min(max(request.args.get("limit", 1000, type=int), 1), 5000)
+    events = [e for e in feedback.all_events() if not table or e.get("schema_id") in (None, table)]
+    machine_cache: Dict[Tuple[str, str], Dict[str, str]] = {}
+    out = []
+    for e in reversed(events[-limit:]):
+        item = dict(e)
+        if e.get("event") in ("cell_correct", "cell_undo") and e.get("doc_id") and e.get("column"):
+            before = e.get("machine_value")
+            if before is None and e.get("run"):
+                key = (e["doc_id"], e["run"])
+                if key not in machine_cache:
+                    try:
+                        machine_cache[key] = {c: v["value"] for c, v in runs_service.final_cells(*key).items()}
+                    except ValueError:
+                        machine_cache[key] = {}
+                before = machine_cache[key].get(e["column"])
+            if before is not None:
+                item["before"] = before
+            item["changed"] = reviews.state_of(e.get("after", ""), item.get("before", "")) != "accepted" if e.get("event") == "cell_correct" else True
+        out.append(item)
+    return _ok(events=out, total=len(events))
+
+
 @bp.route("/api/learning")
 def api_learning():
     """What the table has learned and whether later runs changed: rules and reviews over time, and per-run counts."""
