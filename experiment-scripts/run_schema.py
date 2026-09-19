@@ -47,6 +47,13 @@ def main() -> int:
 
     env = dict(os.environ, EVISEARCH_DEFINITIONS_CSV=str(csv_path), EVISEARCH_KB="on" if args.kb == "on" else "off")
     env.setdefault("EVISEARCH_EXTRACTION_RULES", "v5")  # used only when the knowledge base is off
+    snapshot = None
+    if args.kb == "on":  # the run reads the conventions as they are now, whatever reviewers approve while it runs
+        from src.evisearch.knowledge import conventions
+
+        snapshot = conventions.snapshot()
+        env["EVISEARCH_KB_SNAPSHOT"] = str(snapshot)
+        print(f"[run_schema] knowledge base frozen for this run: {snapshot}", flush=True)
     cmd = [sys.executable, str(ROOT / "experiment-scripts" / "run_benchmark.py"), "--system", args.system, "--docs", args.docs,
            "--run", run, "--parallel", str(args.parallel)]
     if args.reuse_a_from:
@@ -56,7 +63,8 @@ def main() -> int:
     print(f"[run_schema] schema {args.schema} v{version} ({csv_path}) kb={args.kb} -> run {run}", flush=True)
     if args.dry_run:  # nothing runs, so nothing goes into the feedback log
         return subprocess.call(cmd, cwd=ROOT, env=env)
-    store.record_event("extraction_start", args.schema, version=version, run=run, system=args.system, docs=args.docs, kb=args.kb)
+    store.record_event("extraction_start", args.schema, version=version, run=run, system=args.system, docs=args.docs, kb=args.kb,
+                       kb_snapshot=snapshot.name if snapshot else None)
     code = subprocess.call(cmd, cwd=ROOT, env=env)
     store.record_event("extraction_end", args.schema, version=version, run=run, exit_code=code)
     return code

@@ -140,11 +140,19 @@ def knowledge_base_on() -> bool:
     return os.getenv("EVISEARCH_KB", "").strip().lower() in {"1", "on", "true", "yes"}
 
 
+def _kb_conventions():
+    """The run's frozen conventions (EVISEARCH_KB_SNAPSHOT, written at launch) or, without one, the live knowledge base."""
+    from src.evisearch.knowledge import conventions
+
+    path = os.getenv("EVISEARCH_KB_SNAPSHOT", "").strip()
+    return conventions.load_snapshot(path) if path else conventions.active()
+
+
 def shared_rules(version: Optional[str] = None) -> str:
     if version is None and knowledge_base_on():
         from src.evisearch.knowledge import conventions
 
-        return conventions.render()
+        return conventions.render(_kb_conventions())
     return RULES[version or rules_version()]
 
 
@@ -155,6 +163,6 @@ def rules_setting(version: Optional[str] = None) -> Dict[str, Optional[str]]:
     if version is None and knowledge_base_on():
         from src.evisearch.knowledge import conventions
 
-        return {"extraction_rules": f"kb:{conventions.fingerprint()}"}
+        return {"extraction_rules": f"kb:{conventions.fingerprint(_kb_conventions())}"}
     version = version or rules_version()
     return {"extraction_rules": None if version == "none" else version}

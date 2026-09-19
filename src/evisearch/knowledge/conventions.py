@@ -17,7 +17,7 @@ import json
 import threading
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Dict, Iterable, List, Optional
+from typing import Any, Dict, Iterable, List, Optional, Union
 
 from src.config import runtime_paths
 
@@ -184,6 +184,21 @@ def render(conventions: Optional[List[Dict[str, Any]]] = None) -> str:
     if learned:
         body += "\n- When a convention for specific columns differs from a general one, the specific one applies to those columns."
     return body
+
+
+def snapshot() -> Path:
+    """Freeze the active conventions for a run, content-addressed: KNOWLEDGE_DIR/snapshots/<fingerprint>.json. A run reads
+    its snapshot (EVISEARCH_KB_SNAPSHOT), so approving or retiring a convention mid-run never changes its prompts."""
+    conventions = active()
+    path = kb_dir() / "snapshots" / f"{fingerprint(conventions)}.json"
+    if not path.exists():
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(json.dumps(conventions, ensure_ascii=False, indent=1), encoding="utf-8")
+    return path
+
+
+def load_snapshot(path: Union[str, Path]) -> List[Dict[str, Any]]:
+    return json.loads(Path(path).read_text(encoding="utf-8"))
 
 
 def fingerprint(conventions: Optional[List[Dict[str, Any]]] = None) -> str:

@@ -98,6 +98,19 @@ def test_a_more_specific_convention_that_disagrees_is_an_exception_not_a_conflic
     assert "the proposal (the more specific) applies" in out["relations"][0]["reason"]
 
 
+def test_a_run_reads_its_frozen_snapshot_not_later_approvals(monkeypatch):
+    kb.seed_from_rules("v5")
+    snap = kb.snapshot()
+    assert snap.name == f"{kb.fingerprint()}.json" and kb.snapshot() == snap  # content-addressed, written once
+    monkeypatch.setenv("EVISEARCH_KB", "on")
+    monkeypatch.setenv("EVISEARCH_KB_SNAPSHOT", str(snap))
+    before_text, before_setting = extraction_rules.shared_rules(), extraction_rules.rules_setting()
+    kb.decide(kb.create(_variants())["id"], "approve")  # a reviewer approves a rule while the run is going
+    assert extraction_rules.shared_rules() == before_text and extraction_rules.rules_setting() == before_setting
+    monkeypatch.delenv("EVISEARCH_KB_SNAPSHOT")
+    assert "Give each PFS variant with its label." in extraction_rules.shared_rules()  # live readers see it
+
+
 def test_proposer_generalises_or_declines_paper_specific_feedback():
     chat = ReplyChat([
         {"is_convention": True, "why_not": "", "scope": "family", "family": "Median PFS (mo)", "columns": [], "condition": "only variants",
