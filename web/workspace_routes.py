@@ -121,8 +121,8 @@ def report_redirect():
 
 @bp.route("/extract")
 def extract_redirect():
-    """Extraction now runs from a table's Runs tab, under a locked schema version."""
-    return redirect(_demo_link("#runs"))
+    """Extraction now starts from a table's Papers tab, under a locked schema version."""
+    return redirect(_demo_link("#papers"))
 
 
 @bp.route("/method-comparison-report")
@@ -309,17 +309,17 @@ def _steps(schema: Dict[str, Any], summaries: List[Dict[str, Any]], learned: int
         {"key": "lock", "label": "Version locked", "done": bool(locked),
          "detail": f"v{max(locked)}" + (" · draft has unsaved changes" if schema.get("status") == "draft" and locked else "") if locked else "not locked"},
         {"key": "extract", "label": "Papers extracted", "done": bool(latest) and latest["status"] == "ok",
-         "detail": f"{latest['run']}: {latest['done']}/{len(latest['papers'])} papers" if latest else "no run yet"},
+         "detail": f"{latest['done']}/{len(latest['papers'])} papers" if latest else "not extracted yet"},
         {"key": "cells", "label": "Flagged cells reviewed", "done": bool(latest) and latest["status"] == "ok" and latest["reviewed"] >= latest["flagged"],
          "detail": f"{latest['reviewed']} reviewed · {latest['flagged']} flagged" if latest else "—"},
         {"key": "learn", "label": "Rules learned", "done": learned > 0, "detail": f"{learned} approved from reviews"},
     ]
     targets = {"draft": ("Create the schema", f"/tables/{table_id}#schema"), "review": ("Review the schema", f"/tables/{table_id}#schema"),
-               "lock": ("Lock a version", f"/tables/{table_id}#schema"), "extract": ("Start or follow a run", f"/tables/{table_id}#runs"),
+               "lock": ("Lock a version", f"/tables/{table_id}#schema"), "extract": ("Extract the papers", f"/tables/{table_id}#papers"),
                "cells": ("Review flagged cells", f"/tables/{table_id}/review" + (f"?run={latest['run']}" if latest else "")),
                "learn": ("See the knowledge base", "/knowledge")}
     first = next((s for s in steps if not s["done"]), None)
-    label, href = targets[first["key"]] if first else ("Compare runs", "/learning")
+    label, href = targets[first["key"]] if first else ("See what changed", "/learning")
     return steps, {"label": label, "href": href, "step": first["key"] if first else None}
 
 

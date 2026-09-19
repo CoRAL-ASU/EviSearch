@@ -138,3 +138,19 @@ def test_unique_run_names_never_resume_an_existing_run(ws):
 
     assert unique_run_name("r1") == "r1-r2"
     assert unique_run_name("fresh") == "fresh"
+
+
+def test_the_pages_never_put_a_run_in_front_of_the_reviewer(ws):
+    """Runs are how results are stored, not something a reviewer picks: no tab, no picker, no run names on the pages."""
+    workspace = ws.get("/tables/any-table").get_data(as_text=True)
+    assert 'data-tab="runs"' not in workspace and ">Runs<" not in workspace
+    assert 'id="g-run"' not in workspace                      # the table shows the latest results, not a chosen run
+    assert 'id="x-new"' in workspace and "Extract papers" in workspace  # extraction starts from the Papers tab
+
+    review = ws.get("/tables/any-table/review").get_data(as_text=True)
+    assert 'id="run"' not in review                            # no run picker
+    # the paper sits between what the agents answered and the reviewer's own answer
+    assert review.index('id="cell-top"') < review.index('id="pdf"') < review.index('id="cell-review"')
+
+    learning = ws.get("/learning").get_data(as_text=True)
+    assert 'id="l-runs"' not in learning and 'id="l-go"' not in learning  # no run list, no pick-two-runs form

@@ -79,7 +79,7 @@ window.EVS = (function () {
         this.pages = null;
         this.quote = '';
         this.token = 0;
-        this.scale = 1.6;
+        this.scale = 2.2;  // the page is shown full width now, so it is rendered at a higher resolution
     }
     PdfViewer.prototype.open = async function (docId, page, quote) {
         this.docId = docId;
@@ -105,8 +105,9 @@ window.EVS = (function () {
             ${(r.rects || []).map((b) => `<div class="evs-hl absolute" style="left:${pct(b[0], r.width)};top:${pct(b[1], r.height)};width:${pct(b[2] - b[0], r.width)};height:${pct(b[3] - b[1], r.height)};
                 background:rgba(250,204,21,.32);outline:1px solid rgba(250,204,21,.9);pointer-events:none"></div>`).join('')}</div>`;
         this.el.querySelectorAll('[data-go]').forEach((b) => b.onclick = () => { this.page += Number(b.dataset.go); this.render(); });
+        // scroll the panel to the quote, never the window: the page sits in the middle of a column now
         const mark = this.el.querySelector('.evs-hl');
-        if (mark) mark.scrollIntoView({block: 'center'});
+        if (mark) this.el.scrollTop = Math.max(0, mark.offsetTop - this.el.clientHeight / 3);
     };
 
     return {$, esc, enc, get, post, toast, store, reviewer, needReviewer, dirty, STATE, stateBadge, when, shortDoc, PdfViewer};

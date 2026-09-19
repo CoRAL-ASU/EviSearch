@@ -6,7 +6,7 @@
     <div>
         <h1 class="text-2xl font-bold">Knowledge base</h1>
         <p class="text-sm text-base-content/70 max-w-4xl">Rules for reading papers, learned from reviews. Every approved rule goes into the prompts of Agent A, Agent B and the
-            arbiter on later runs; each run freezes the set it used, so approving a rule never changes a finished run.</p>
+            arbiter the next time papers are extracted; each extraction freezes the set it used, so approving a rule never changes finished results.</p>
     </div>
     <div class="card bg-base-100 shadow"><div class="card-body p-3 flex-row flex-wrap items-center gap-2 text-sm">
         <div class="join" id="k-status">
@@ -48,7 +48,7 @@
         $('k-list').querySelectorAll('button[data-op]').forEach((b) => b.onclick = async () => {
             const by = needReviewer(); if (!by) return;
             const what = {approve: 'Approve', reject: 'Reject', retire: 'Retire'}[b.dataset.op];
-            if (!confirm(`${what} ${b.dataset.id}? Approved rules are used by every later run.`)) return;
+            if (!confirm(`${what} ${b.dataset.id}? Approved rules are used by every later extraction.`)) return;
             const res = await post(`/api/conventions/${encodeURIComponent(b.dataset.id)}/decide`, {op: b.dataset.op, by});
             toast(res.success ? `${b.dataset.id} ${b.dataset.op}d` : res.error, res.success ? 'success' : 'error');
             load();
@@ -79,8 +79,8 @@
                 ${c.source_event ? ` · ${esc(c.source_event.column || '')} in ${esc(EVS.shortDoc(c.source_event.doc_id))}: “${esc(c.source_event.before)}” → “${esc(c.source_event.after)}”` : ''}</div>
             ${(c.examples || []).length ? `<details class="text-xs opacity-70"><summary>Examples (${c.examples.length})</summary>
                 ${c.examples.slice(0, 4).map((e) => `<div>${esc(EVS.shortDoc(e.doc || e.doc_id || ''))} · ${esc(e.column || '')}${e.before || e.after ? `: “${esc(e.before || '')}” → “${esc(e.after || e.value || '')}”` : ''}</div>`).join('')}</details>` : ''}
-            ${(c.used_in_runs || []).length ? `<details class="text-xs opacity-70"><summary>Used in ${c.used_in_runs.length} run(s)</summary>
-                <div class="mono">${esc(c.used_in_runs.slice(0, 12).join(' · '))}</div></details>` : '<div class="text-xs opacity-50">not used in a run yet</div>'}
+            ${(c.used_in_runs || []).length ? `<div class="text-xs opacity-70">Used in ${c.used_in_runs.length} extraction${c.used_in_runs.length > 1 ? 's' : ''}</div>`
+                : '<div class="text-xs opacity-50">not used in an extraction yet</div>'}
         </div></div>`;
     }
     document.querySelectorAll('#k-status button').forEach((b) => b.onclick = () => {

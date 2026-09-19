@@ -31,7 +31,6 @@
         <a role="tab" class="tab" data-tab="overview">Overview</a>
         <a role="tab" class="tab" data-tab="schema">Schema</a>
         <a role="tab" class="tab" data-tab="papers">Papers</a>
-        <a role="tab" class="tab" data-tab="runs">Runs</a>
         <a role="tab" class="tab" data-tab="table">Table</a>
     </div>
 
@@ -90,32 +89,17 @@
             <span class="text-xs text-base-content/60">New PDFs are parsed (LandingAI) and indexed before they can be extracted.</span>
         </div></div>
         <div class="overflow-x-auto card bg-base-100 shadow"><table class="table table-sm" id="pp-table"></table></div>
-    </section>
-
-    <!-- Runs -->
-    <section id="p-runs" class="panel space-y-3 hidden">
         <div class="flex flex-wrap items-center gap-2">
-            <button id="r-new" class="btn btn-primary btn-sm">New run…</button>
-            <span class="text-xs text-base-content/60">A run extracts the chosen papers under one locked version. Each run gets its own name, so an earlier run is never overwritten.</span>
+            <button id="x-new" class="btn btn-primary btn-sm">Extract papers…</button>
+            <span class="text-xs text-base-content/60">Extraction reads the chosen papers under the locked definitions and fills the table. Earlier results are kept.</span>
         </div>
-        <div id="r-jobs" class="space-y-2"></div>
-        <div class="overflow-x-auto card bg-base-100 shadow"><table class="table table-sm" id="r-table"></table></div>
-        <div class="card bg-base-100 shadow"><div class="card-body p-3 space-y-2">
-            <h3 class="font-semibold">Compare two runs</h3>
-            <div class="flex flex-wrap gap-2 items-center text-sm">
-                <select id="c-a" class="select select-sm select-bordered"></select><span>→</span>
-                <select id="c-b" class="select select-sm select-bordered"></select>
-                <button id="c-go" class="btn btn-sm">Compare</button>
-            </div>
-            <div id="c-out" class="text-sm space-y-2"></div>
-        </div></div>
+        <div id="x-jobs" class="space-y-2"></div>
     </section>
 
     <!-- Table -->
     <section id="p-table" class="panel space-y-3 hidden">
         <div class="card bg-base-100 shadow"><div class="card-body p-3 flex-row flex-wrap items-center gap-2 text-sm">
-            <label for="g-run">Run</label>
-            <select id="g-run" class="select select-sm select-bordered max-w-xs"></select>
+            <span id="g-what" class="text-xs opacity-60"></span>
             <select id="g-group" class="select select-sm select-bordered max-w-xs"><option value="">All column groups</option></select>
             <input id="g-search" class="input input-sm input-bordered w-48" placeholder="Filter columns" />
             <label class="label cursor-pointer gap-1"><input id="g-flagged" type="checkbox" class="checkbox checkbox-xs" /> <span>columns with flags or reviews only</span></label>
@@ -123,7 +107,7 @@
             <a id="g-csv" class="btn btn-sm">CSV</a><a id="g-xlsx" class="btn btn-sm">Excel</a>
         </div></div>
         <div id="g-legend" class="flex flex-wrap gap-3 text-xs"></div>
-        <div class="grid-wrap card bg-base-100 shadow" id="g-grid"><div class="p-6 text-sm opacity-60">Pick a run.</div></div>
+        <div class="grid-wrap card bg-base-100 shadow" id="g-grid"><div class="p-6 text-sm opacity-60">Loading…</div></div>
         <p class="text-xs text-base-content/60">Click a cell to review it with the page it came from. Reviewers' values replace the machine's here and in the export; the machine's value stays in the review history.</p>
     </section>
 </main>
@@ -135,9 +119,9 @@
     <div class="modal-action"><button id="lock-go" class="btn btn-secondary btn-sm">Lock</button><form method="dialog"><button class="btn btn-sm">Cancel</button></form></div>
 </div></dialog>
 
-<!-- new run -->
+<!-- extract papers -->
 <dialog id="run-dlg" class="modal"><div class="modal-box max-w-2xl space-y-3">
-    <h3 class="font-bold text-lg">New run</h3>
+    <h3 class="font-bold text-lg">Extract papers</h3>
     <div class="grid grid-cols-2 gap-3 text-sm">
         <label class="form-control"><span class="label-text">Schema version</span><select id="rd-version" class="select select-sm select-bordered"></select></label>
         <label class="form-control"><span class="label-text">System</span><select id="rd-system" class="select select-sm select-bordered">

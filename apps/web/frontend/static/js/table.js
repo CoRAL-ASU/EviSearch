@@ -1,4 +1,5 @@
-// The table workspace: Overview, Schema, Papers, Runs, Table. One table = one schema.
+// The table workspace: Overview, Schema, Papers, Table. One table = one schema.
+// Extractions are jobs the reviewer starts and watches; they are never named or listed as "runs" in the UI.
 (function () {
     const {$, esc, enc, get, post, toast, store, needReviewer, dirty, stateBadge, when, shortDoc} = EVS;
     const TABLE = $('page').dataset.table;
@@ -21,20 +22,20 @@
         const locked = r.table.locked_versions || [];
         $('t-status').textContent = r.table.status === 'locked' ? `locked v${Math.max(...locked)}` : (locked.length ? `draft (after v${Math.max(...locked)})` : 'draft');
         $('t-status').className = 'badge ' + (r.table.status === 'locked' ? 'badge-success' : 'badge-warning');
-        $('t-meta').textContent = `${r.table.fields} columns · ${r.papers.length} papers · ${r.runs.length} runs · example paper ${shortDoc(r.table.example_doc)}`;
+        $('t-meta').textContent = `${r.table.fields} columns · ${r.papers.length} papers · example paper ${shortDoc(r.table.example_doc)}`;
         if (r.table.description) { $('t-desc').textContent = r.table.description; $('t-desc').classList.remove('hidden'); }
         return true;
     }
 
     // ---------- tabs ----------
-    const TABS = ['overview', 'schema', 'papers', 'runs', 'table'];
+    const TABS = ['overview', 'schema', 'papers', 'table'];
     const rendered = {};
     function showTab(name) {
         if (!TABS.includes(name)) name = 'overview';
         document.querySelectorAll('#tabs .tab').forEach((t) => t.classList.toggle('tab-active', t.dataset.tab === name));
         TABS.forEach((t) => $('p-' + t).classList.toggle('hidden', t !== name));
         if (location.hash !== '#' + name) history.replaceState(null, '', location.pathname + location.search + '#' + name);
-        const fn = {overview: renderOverview, schema: renderSchemaTab, papers: renderPapers, runs: renderRuns, table: renderGridTab}[name];
+        const fn = {overview: renderOverview, schema: renderSchemaTab, papers: renderPapers, table: renderGridTab}[name];
         if (!rendered[name]) { rendered[name] = true; fn(); }
     }
     document.querySelectorAll('#tabs .tab').forEach((t) => t.addEventListener('click', () => showTab(t.dataset.tab)));
@@ -49,12 +50,11 @@
         $('o-next').href = T.next_action.href;
         $('o-next').onclick = (e) => { if (T.next_action.href.startsWith(`/tables/${TABLE}#`)) { e.preventDefault(); showTab(T.next_action.href.split('#')[1]); } };
         const run = latestRun();
-        $('o-run').innerHTML = run ? `<h3 class="font-semibold">Latest complete run</h3>
-            <div class="mono text-sm">${esc(run.run)}</div>
-            <div class="text-sm">${run.done}/${run.papers.length} papers finished · ${run.flagged} cells flagged · ${run.reviewed} reviewed (${run.corrected} corrected)</div>
-            <div class="flex gap-2"><a class="btn btn-sm btn-primary" href="/tables/${enc(TABLE)}/review?run=${enc(run.run)}">Review flagged cells</a>
+        $('o-run').innerHTML = run ? `<h3 class="font-semibold">Latest results</h3>
+            <div class="text-sm">${run.done} of ${run.papers.length} papers extracted · ${run.flagged} cells flagged for review · ${run.reviewed} reviewed (${run.corrected} corrected)</div>
+            <div class="flex gap-2"><a class="btn btn-sm btn-primary" href="/tables/${enc(TABLE)}/review">Review flagged cells</a>
             <a class="btn btn-sm" href="#table" data-run="${esc(run.run)}" id="o-open-table">Open the table</a></div>`
-            : `<h3 class="font-semibold">No run yet</h3><p class="text-sm">Lock a version, then start a run on the Runs tab.</p>`;
+            : `<h3 class="font-semibold">Nothing extracted yet</h3><p class="text-sm">Lock a version on the Schema tab, then extract your papers from the Papers tab.</p>`;
         const btn = $('o-open-table');
         if (btn) btn.onclick = (e) => { e.preventDefault(); gridRun = btn.dataset.run; showTab('table'); };
         const ev = await get(`/api/feedback/events?schema_id=${enc(TABLE)}&limit=10`);
@@ -73,8 +73,8 @@
             case 'cell_undo': return `undid a review of${col}`;
             case 'convention_propose': return `proposed rule ${e.convention}`;
             case 'convention_decide': return `${e.op}d rule ${e.convention}`;
-            case 'extraction_start': return `started run ${e.run}`;
-            case 'extraction_end': return `run ${e.run} ended (exit ${e.exit_code})`;
+            case 'extraction_start': return 'started an extraction';
+            case 'extraction_end': return `an extraction ${e.exit_code === 0 ? 'finished' : 'stopped (exit ' + e.exit_code + ')'}`;
             default: return e.event || e.source || 'event';
         }
     }
@@ -263,7 +263,7 @@
             <button class="btn btn-xs" data-c="${esc(c.id)}" data-op="reject">Reject</button></div>`).join('');
         $('s-pending-list').querySelectorAll('button').forEach((b) => b.onclick = async () => {
             const by = needReviewer(); if (!by) return;
-            if (!confirm(`${b.dataset.op === 'approve' ? 'Approve' : 'Reject'} rule ${b.dataset.c}? Approved rules go into every later run's prompts.`)) return;
+            if (!confirm(`${b.dataset.op === 'approve' ? 'Approve' : 'Reject'} rule ${b.dataset.c}? Approved rules go into every later extraction's prompts.`)) return;
             const res = await post(`/api/conventions/${enc(b.dataset.c)}/decide`, {op: b.dataset.op, by});
             toast(res.success ? `Rule ${b.dataset.c} ${b.dataset.op}d` : res.error, res.success ? 'success' : 'error');
             renderPending();
@@ -296,7 +296,7 @@
             changed = fields.filter((f) => prev[f.name] !== f.description).length + last.fields.filter((f) => !fields.some((g) => g.name === f.name)).length;
         }
         const next = T.table.version;
-        $('lock-body').innerHTML = `<p>Locking saves the current definitions as <b>v${next}</b>. Runs always extract under a locked version, so results stay traceable.</p>
+        $('lock-body').innerHTML = `<p>Locking saves the current definitions as <b>v${next}</b>. Papers are always extracted under a locked version, so results stay traceable.</p>
             <ul class="list-disc ml-5">
                 <li>${changed} definition${changed === 1 ? '' : 's'} ${locked.length ? `changed since v${Math.max(...locked)}` : 'in this first version'}</li>
                 <li class="${unreviewed ? 'text-warning' : ''}">${unreviewed} column${unreviewed === 1 ? '' : 's'} not reviewed yet</li>
@@ -310,7 +310,7 @@
         const r = await post(`/api/schemas/${enc(TABLE)}/lock`, {by});
         $('lock-dlg').close();
         if (!r.success) return toast(r.error, 'error');
-        toast(`Locked v${r.version}. Runs under it are named ${r.run}.`, 'success', 6000);
+        toast(`Locked v${r.version} — papers can be extracted under it now.`, 'success', 6000);
         await loadTable(); rendered.schema = false; renderSchemaTab();
     };
 
@@ -360,7 +360,7 @@
     async function renderPapers() {
         const latest = latestRun();
         const statusIn = (doc) => { const p = latest && latest.papers.find((x) => x.doc_id === doc); return p ? p.status : null; };
-        $('pp-table').innerHTML = `<thead><tr><th>Paper</th><th>Role</th><th>PDF</th><th>Parsed</th><th>Latest run</th><th></th></tr></thead><tbody>` +
+        $('pp-table').innerHTML = `<thead><tr><th>Paper</th><th>Role</th><th>PDF</th><th>Parsed</th><th>Extracted</th><th></th></tr></thead><tbody>` +
             T.papers.map((p) => `<tr><td><div class="font-medium">${esc(shortDoc(p.name))}</div><div class="mono text-xs opacity-60">${esc(p.doc_id)}</div></td>
                 <td>${p.role === 'example' ? '<span class="badge badge-accent badge-sm">example row</span>' : 'paper'}${p.gold ? ' <span class="badge badge-outline badge-sm" title="Has expert gold values (benchmark)">gold</span>' : ''}</td>
                 <td>${p.pdf ? `<a class="link" target="_blank" href="/api/documents/${enc(p.doc_id)}/pdf">open</a>` : '<span class="text-error">missing</span>'}</td>
@@ -373,6 +373,7 @@
             b.outerHTML = '<span class="text-xs">parsing…</span>';
             pollJobs();
         });
+        renderJobs();
         const lib = await get('/api/documents/selectable');
         const have = new Set(T.papers.map((p) => p.doc_id));
         $('pp-lib').innerHTML = '<option value="">Add a paper from the library…</option>' + (lib.documents || []).filter((d) => !have.has(d.id)).map((d) =>
@@ -394,80 +395,56 @@
         const fd = new FormData(); fd.append('file', f); fd.append('by', needReviewer() || ''); addPaper(fd);
     };
 
-    // ---------- Runs ----------
+    // ---------- Extraction (jobs only: the reviewer never picks or names one) ----------
     let polling = null;
-    async function renderRuns() {
+    async function renderJobs() {
         const r = await get(api('/runs'));
         if (!r.success) return toast(r.error, 'error');
         T.runs = r.runs;
         const active = (r.jobs || []).filter((j) => ['queued', 'running'].includes(j.status));
-        const recent = (r.jobs || []).filter((j) => !['queued', 'running'].includes(j.status)).slice(0, 3);
-        $('r-jobs').innerHTML = [...active, ...recent].map((j) => `<div class="card bg-base-100 shadow"><div class="card-body p-3 text-sm space-y-1">
-            <div class="flex flex-wrap items-center gap-2"><b class="mono">${esc(j.run)}</b>${stateChip(j.status === 'done' ? 'ok' : j.status)}
-                <span class="opacity-60">${esc(j.docs.length)} papers · v${esc(j.version)} · ${esc(j.system)} · knowledge base ${esc(j.kb)} · started ${esc(when(j.started))} by ${esc(j.by || '—')}</span>
-                ${j.status === 'running' ? `<button class="btn btn-xs btn-error btn-outline cancel" data-id="${esc(j.id)}">Cancel</button>` : ''}
+        const recent = (r.jobs || []).filter((j) => !['queued', 'running'].includes(j.status)).slice(0, 2);
+        const paper = (j) => `${j.docs.length} paper${j.docs.length > 1 ? 's' : ''}`;
+        $('x-jobs').innerHTML = [...active, ...recent].map((j) => `<div class="card bg-base-100 shadow"><div class="card-body p-3 text-sm space-y-1">
+            <div class="flex flex-wrap items-center gap-2"><b>${j.status === 'running' || j.status === 'queued' ? 'Extracting' : 'Extraction'}</b>${stateChip(j.status === 'done' ? 'ok' : j.status)}
+                <span class="opacity-60">${esc(paper(j))} · definitions v${esc(j.version)} · ${esc(j.system === 'B1' ? 'baseline' : 'EviSearch')} · knowledge base ${esc(j.kb)} · started ${esc(when(j.started))} by ${esc(j.by || '—')}</span>
+                ${j.status === 'running' ? `<button class="btn btn-xs btn-error btn-outline cancel" data-id="${esc(j.id)}">Stop</button>` : ''}
                 <button class="btn btn-xs logb" data-id="${esc(j.id)}">Log</button></div>
             ${j.error ? `<div class="text-error">${esc(j.error)}</div>` : ''}
-            <pre class="text-xs bg-base-200 p-2 rounded max-h-48 overflow-auto hidden" id="log-${esc(j.id)}"></pre></div></div>`).join('');
-        $('r-jobs').querySelectorAll('.cancel').forEach((b) => b.onclick = async () => {
-            if (!confirm('Stop this run? Papers already finished keep their results.')) return;
+            ${progressOf(j)}
+            <pre class="text-xs bg-base-200 p-2 rounded max-h-48 overflow-auto hidden" id="log-${esc(j.id)}"></pre></div></div>`).join('')
+            || '<div class="text-sm opacity-60">Nothing is extracting right now.</div>';
+        $('x-jobs').querySelectorAll('.cancel').forEach((b) => b.onclick = async () => {
+            if (!confirm('Stop the extraction? Papers already finished keep their results.')) return;
             const res = await post(`/api/jobs/${b.dataset.id}/cancel`, {by: needReviewer() || ''});
-            toast(res.success ? 'Run cancelled' : res.error, res.success ? 'success' : 'error'); renderRuns();
+            toast(res.success ? 'Extraction stopped' : res.error, res.success ? 'success' : 'error'); renderJobs();
         });
-        $('r-jobs').querySelectorAll('.logb').forEach((b) => b.onclick = async () => {
+        $('x-jobs').querySelectorAll('.logb').forEach((b) => b.onclick = async () => {
             const pre = $('log-' + b.dataset.id);
             const res = await get(`/api/jobs/${b.dataset.id}/log?lines=80`);
             pre.textContent = res.log || '(empty)'; pre.classList.toggle('hidden');
         });
-        $('r-table').innerHTML = `<thead><tr><th></th><th>Run</th><th>Version</th><th>Started</th><th>Papers</th><th>Flagged</th><th>Reviewed</th><th>Status</th><th></th></tr></thead><tbody>` +
-            T.runs.slice().reverse().map((run, i) => `<tr class="hover">
-                <td><button class="btn btn-xs btn-ghost exp" data-i="${i}">▸</button></td>
-                <td class="mono text-xs">${esc(run.run)}</td>
-                <td>v${esc(run.version)}${run.variant ? ` <span class="badge badge-ghost badge-sm">${esc(run.variant)}</span>` : ''}</td>
-                <td class="text-xs">${esc(when(run.started_at))}</td>
-                <td>${run.done}/${run.papers.length}</td><td>${run.flagged}</td><td>${run.reviewed}${run.corrected ? ` (${run.corrected} corrected)` : ''}</td>
-                <td>${stateChip(run.status)}</td>
-                <td class="whitespace-nowrap"><a class="btn btn-xs" href="#table" data-run="${esc(run.run)}">Table</a>
-                    <a class="btn btn-xs btn-primary" href="/tables/${enc(TABLE)}/review?run=${enc(run.run)}">Review</a></td></tr>
-                <tr class="hidden" id="exp-${i}"><td></td><td colspan="8">${run.papers.map((p) => `<div class="flex flex-wrap gap-2 items-center text-xs py-1">
-                    <span class="w-72 truncate" title="${esc(p.doc_id)}">${esc(shortDoc(p.name))}</span>${stateChip(p.status)}
-                    ${Object.entries(p.stages || {}).map(([k, s]) => `<span class="badge badge-sm badge-outline">${esc({agent: 'Agent A', search: 'Agent B', reconciliation: 'arbiter', baseline: 'baseline'}[k] || k)}: ${s.batches_done !== undefined ? `${s.batches_done}/${s.batches}` : esc(s.status)}${s.duration_s ? ' · ' + Math.round(s.duration_s / 60) + ' min' : ''}</span>`).join('')}
-                    ${p.flagged ? `<span class="badge badge-warning badge-sm">${p.flagged} flagged</span>` : ''}${p.reviewed ? `<span class="badge badge-info badge-sm">${p.reviewed} reviewed</span>` : ''}
-                    ${p.error ? `<span class="text-error">${esc(p.error)}</span>` : ''}</div>`).join('')}</td></tr>`).join('') + '</tbody>';
-        $('r-table').querySelectorAll('.exp').forEach((b) => b.onclick = () => { const row = $('exp-' + b.dataset.i); row.classList.toggle('hidden'); b.textContent = row.classList.contains('hidden') ? '▸' : '▾'; });
-        $('r-table').querySelectorAll('[data-run]').forEach((a) => a.onclick = (e) => { e.preventDefault(); gridRun = a.dataset.run; rendered.table = false; showTab('table'); });
-        const names = T.runs.map((x) => x.run);
-        const mains = T.runs.filter((x) => !x.variant).map((x) => x.run);
-        const pickA = mains.length > 1 ? mains[mains.length - 2] : names[0], pickB = mains.length ? mains[mains.length - 1] : names[names.length - 1];
-        $('c-a').innerHTML = names.map((n) => `<option ${n === pickA ? 'selected' : ''}>${esc(n)}</option>`).join('');
-        $('c-b').innerHTML = names.map((n) => `<option ${n === pickB ? 'selected' : ''}>${esc(n)}</option>`).join('');
-        if (active.length && !polling) polling = setInterval(() => { if (!document.hidden) renderRuns(); }, 8000);
+        if (active.length && !polling) polling = setInterval(() => { if (!document.hidden) renderJobs(); }, 8000);
         if (!active.length && polling) { clearInterval(polling); polling = null; }
     }
-    function pollJobs() { if (!polling) polling = setInterval(async () => { await loadTable(); rendered.papers = rendered.runs = false; const tab = location.hash.slice(1); if (tab === 'papers' || tab === 'runs') { rendered[tab] = true; tab === 'papers' ? renderPapers() : renderRuns(); } }, 8000); }
+    // per-paper progress of the extraction this job started
+    function progressOf(job) {
+        const rec = (T.runs || []).find((x) => x.run === job.run);
+        if (!rec) return '';
+        return `<div class="space-y-1">${rec.papers.map((p) => `<div class="flex flex-wrap gap-2 items-center text-xs">
+            <span class="w-72 truncate" title="${esc(p.doc_id)}">${esc(shortDoc(p.name))}</span>${stateChip(p.status)}
+            ${Object.entries(p.stages || {}).map(([k, st]) => `<span class="badge badge-sm badge-outline">${esc({agent: 'Agent A', search: 'Agent B', reconciliation: 'arbiter', baseline: 'baseline'}[k] || k)}: ${st.batches_done !== undefined ? `${st.batches_done}/${st.batches}` : esc(st.status)}${st.duration_s ? ' · ' + Math.round(st.duration_s / 60) + ' min' : ''}</span>`).join('')}
+            ${p.flagged ? `<span class="badge badge-warning badge-sm">${p.flagged} flagged</span>` : ''}${p.reviewed ? `<span class="badge badge-info badge-sm">${p.reviewed} reviewed</span>` : ''}
+            ${p.error ? `<span class="text-error">${esc(p.error)}</span>` : ''}</div>`).join('')}</div>`;
+    }
+    function pollJobs() { if (!polling) polling = setInterval(async () => { await loadTable(); if (location.hash.slice(1) === 'papers') { renderPapers(); } }, 8000); }
 
-    $('c-go').onclick = async () => {
-        const a = $('c-a').value, b = $('c-b').value;
-        if (a === b) return toast('Pick two different runs', 'warning');
-        $('c-out').textContent = 'Comparing…';
-        const r = await get(`/api/runs/compare?a=${enc(a)}&b=${enc(b)}`);
-        if (!r.success) { $('c-out').textContent = r.error; return; }
-        const t = r.totals;
-        $('c-out').innerHTML = `<div><b>${t.changed}</b> cells differ across ${t.papers} papers present in both runs (${t.same} identical).
-            ${t.fixed_by_review ? `<b>${t.fixed_by_review}</b> of the changes now match a reviewer's value from ${esc(a)}.` : ''}</div>` +
-            r.docs.filter((d) => d.changed.length).map((d) => `<details class="border border-base-300 rounded p-2"><summary>${esc(shortDoc(d.name))}: ${d.changed.length} changed</summary>
-            <table class="table table-xs mt-2"><thead><tr><th>Column</th><th>${esc(a)}</th><th>${esc(b)}</th><th></th></tr></thead><tbody>
-            ${d.changed.map((c) => `<tr><td class="mono">${esc(c.column)}</td><td>${esc(c.a)}${c.a_flagged ? ' ⚑' : ''}${c.reviewed_in_a !== null && c.reviewed_in_a !== undefined ? `<div class="text-info text-xs">reviewer: ${esc(c.reviewed_in_a)}</div>` : ''}</td>
-                <td>${esc(c.b)}${c.b_flagged ? ' ⚑' : ''}</td><td>${c.b_matches_review ? '<span class="badge badge-success badge-sm">matches review</span>' : ''}</td></tr>`).join('')}</tbody></table></details>`).join('');
-    };
-
-    $('r-new').onclick = () => {
+    $('x-new').onclick = () => {
         const locked = T.table.locked_versions || [];
         if (!locked.length) return toast('Lock a schema version first (Schema tab)', 'warning');
         $('rd-version').innerHTML = locked.slice().reverse().map((v) => `<option value="${v}">v${v}</option>`).join('');
         $('rd-papers').innerHTML = T.papers.map((p) => `<label class="flex items-center gap-2 ${p.parsed ? '' : 'opacity-50'}">
             <input type="checkbox" class="checkbox checkbox-xs rd-p" value="${esc(p.doc_id)}" ${p.parsed ? '' : 'disabled'} />
-            <span>${esc(shortDoc(p.name))}</span>${p.gold ? '<span class="badge badge-outline badge-xs">gold</span>' : ''}${p.parsed ? '' : '<span class="text-xs">(parse it on the Papers tab first)</span>'}</label>`).join('');
+            <span>${esc(shortDoc(p.name))}</span>${p.gold ? '<span class="badge badge-outline badge-xs">gold</span>' : ''}${p.parsed ? '' : '<span class="text-xs">(parse it above first)</span>'}</label>`).join('');
         const est = () => { const n = document.querySelectorAll('.rd-p:checked').length; const per = $('rd-system').value === 'E' ? 42 : 7;
             $('rd-est').textContent = n ? `${n} paper${n > 1 ? 's' : ''}: about ${Math.round(n * per / 2)} min on the local GPU (2 papers at a time; ~${per} min each). Cloud models vary.` : 'Pick the papers to extract.'; };
         document.querySelectorAll('.rd-p').forEach((c) => c.onchange = est);
@@ -486,8 +463,8 @@
         $('rd-go').disabled = false;
         if (!r.success) return toast(r.error, 'error', 7000);
         $('run-dlg').close();
-        toast(`Started run ${r.run}`, 'success');
-        await loadTable(); rendered.runs = true; renderRuns();
+        toast(`Extracting ${docs.length} paper${docs.length > 1 ? 's' : ''} — progress appears below`, 'success');
+        await loadTable(); renderJobs(); pollJobs();
     };
 
     // ---------- Table ----------
@@ -495,15 +472,14 @@
     let grid = null;
     function renderGridTab() {
         const runs = T.runs.slice().reverse();
-        if (!runs.length) { $('g-grid').innerHTML = '<div class="p-6 text-sm">No run yet: start one on the Runs tab.</div>'; return; }
-        if (!gridRun || !runs.some((r) => r.run === gridRun)) gridRun = (runs.find((r) => r.status === 'ok' && !r.variant) || runs[0]).run;
-        $('g-run').innerHTML = runs.map((r) => `<option value="${esc(r.run)}" ${r.run === gridRun ? 'selected' : ''}>${esc(r.run)} (${r.done}/${r.papers.length})</option>`).join('');
+        if (!runs.length) { $('g-grid').innerHTML = '<div class="p-6 text-sm">Nothing extracted yet — start it on the Papers tab.</div>'; return; }
+        if (!gridRun || !runs.some((r) => r.run === gridRun)) gridRun = (T.showcase_run && runs.some((r) => r.run === T.showcase_run) ? T.showcase_run : (runs.find((r) => r.status === 'ok' && !r.variant) || runs[0]).run);
+        const rec = runs.find((r) => r.run === gridRun);
+        $('g-what').textContent = rec ? `latest results · ${rec.done} of ${rec.papers.length} papers · ${esc(when(rec.started_at))}` : '';
         loadGrid();
     }
-    $('g-run').onchange = () => { gridRun = $('g-run').value; loadGrid(); };
     ['g-group', 'g-search', 'g-flagged'].forEach((id) => $(id).addEventListener('input', drawGrid));
     async function loadGrid() {
-        const u = new URL(location.href); u.searchParams.set('run', gridRun); history.replaceState(null, '', u);
         $('g-grid').innerHTML = '<div class="p-6 text-sm opacity-60">Loading…</div>';
         const r = await get(`/api/runs/${enc(gridRun)}/table`);
         if (!r.success) { $('g-grid').innerHTML = `<div class="p-6 text-error">${esc(r.error)}</div>`; return; }
@@ -533,7 +509,7 @@
                     const tip = `${c.name}\n${EVS.STATE[cell.s] ? EVS.STATE[cell.s][0] : cell.s}${cell.p ? ' · page ' + cell.p : ''}${cell.m !== null && cell.m !== undefined ? '\nmachine value: ' + cell.m : ''}${cell.q ? '\n“' + cell.q + '”' : ''}`;
                     return `<td class="px-2 py-1 s-${cell.s}"><div class="cellv" data-doc="${esc(d.doc_id)}" data-col="${esc(c.name)}" title="${esc(tip)}">${esc(cell.v)}</div></td>`; }).join('')}</tr>`).join('')}</tbody></table>`;
         $('g-grid').querySelectorAll('.cellv').forEach((el) => el.onclick = () => {
-            location.href = `/tables/${enc(TABLE)}/review?run=${enc(gridRun)}&doc=${enc(el.dataset.doc)}&column=${enc(el.dataset.col)}`;
+            location.href = `/tables/${enc(TABLE)}/review?run=${enc(gridRun)}&doc=${enc(el.dataset.doc)}&column=${enc(el.dataset.col)}`;  // run is carried silently
         });
     }
 

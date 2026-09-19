@@ -45,7 +45,7 @@
                 <div class="flex flex-wrap items-center gap-2"><h2 class="text-lg font-semibold">${esc(t.name)}</h2>
                     <span class="badge ${t.status === 'locked' ? 'badge-success' : 'badge-warning'}">${t.status === 'locked' ? 'locked' : 'draft'}</span>
                     ${t.locked_versions.length ? `<span class="badge badge-outline">v${t.locked_versions.join(', v')}</span>` : ''}</div>
-                <div class="text-sm text-base-content/70">${t.fields} columns · ${t.reviewed}/${t.fields} reviewed · ${t.open_questions} open questions · ${t.papers} papers · ${t.runs} runs${t.last_run ? ` · last run <span class="mono">${esc(t.last_run)}</span>` : ''}</div>
+                <div class="text-sm text-base-content/70">${t.fields} columns · ${t.reviewed}/${t.fields} reviewed · ${t.open_questions} open questions · ${t.papers} papers</div>
                 <div class="text-xs text-base-content/50">created ${esc(when(t.created_at))}</div>
             </div></a>`).join('');
     }

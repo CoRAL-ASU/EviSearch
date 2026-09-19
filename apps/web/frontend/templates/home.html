@@ -20,7 +20,7 @@
     </section>
 
     <section class="stats stats-vertical sm:stats-horizontal shadow w-full bg-base-100" id="stats">
-        <div class="stat"><div class="stat-title">Papers in the demo run</div><div class="stat-value text-2xl" id="st-papers">—</div><div class="stat-desc" id="st-run"></div></div>
+        <div class="stat"><div class="stat-title">Papers in the demo table</div><div class="stat-value text-2xl" id="st-papers">—</div><div class="stat-desc" id="st-run"></div></div>
         <div class="stat"><div class="stat-title">Reported values</div><div class="stat-value text-2xl" id="st-cells">—</div><div class="stat-desc" id="st-page"></div></div>
         <div class="stat"><div class="stat-title">Flagged for review</div><div class="stat-value text-2xl" id="st-flagged">—</div><div class="stat-desc" id="st-reviewed"></div></div>
         <div class="stat"><div class="stat-title">Rules learned from reviews</div><div class="stat-value text-2xl" id="st-rules">—</div><div class="stat-desc" id="st-rules-total"></div></div>
@@ -32,7 +32,7 @@
             <ol class="list-decimal ml-5 space-y-1 text-sm">
                 <li><b>Open the demo table</b>: 133 columns for metastatic hormone-sensitive prostate cancer trials, drafted from the column headers and one example row, then reviewed and locked.</li>
                 <li><b>Review a flagged cell</b>: see what Agent A (reads the whole paper) and Agent B (searches it) answered, what the arbiter decided and the page it checked; confirm or correct it.</li>
-                <li><b>Turn a correction into a rule</b> and see which columns it would change; then open <a class="link" href="/learning">Learning</a> to see what changed between runs.</li>
+                <li><b>Turn a correction into a rule</b> and see which columns it would change; then open <a class="link" href="/learning">Learning</a> to see what your reviews changed.</li>
             </ol>
             <p class="text-xs text-base-content/60">Everyone shares one workspace in this demo: reviews and rules you save are visible to the next visitor.</p>
         </div>
@@ -48,7 +48,7 @@
     const steps = [
         ['1', 'Spreadsheet', 'Column headers + one example row', table ? `/tables/${table}#schema` : '/tables#new'],
         ['2', 'Schema', 'A definition per column, reviewed by you', table ? `/tables/${table}#schema` : '/tables'],
-        ['3', 'Extract', 'Two agents + an arbiter that checks the page', table ? `/tables/${table}#runs` : '/tables'],
+        ['3', 'Extract', 'Two agents + an arbiter that checks the page', table ? `/tables/${table}#papers` : '/tables'],
         ['4', 'Review', 'Flagged cells first, with the page beside them', '/review'],
         ['5', 'Learn', 'Corrections become rules for the next paper', '/learning'],
     ];
@@ -57,11 +57,11 @@
     if (!s.success) return;
     if (table) $('open-demo').href = `/tables/${encodeURIComponent(table)}`;
     $('st-papers').textContent = s.papers;
-    $('st-run').textContent = s.showcase_run ? `run ${s.showcase_run}` : 'no run yet';
+    $('st-run').textContent = s.papers ? 'extracted and reviewable' : 'nothing extracted yet';
     $('st-cells').textContent = s.reported_values;
     $('st-page').textContent = s.reported_values ? `${Math.round(100 * s.with_page / s.reported_values)}% with the page they came from` : '';
     $('st-flagged').textContent = s.flagged;
-    $('st-reviewed').textContent = `${s.reviewed} cells reviewed in this run`;
+    $('st-reviewed').textContent = `${s.reviewed} cells reviewed so far`;
     $('st-rules').textContent = s.rules_learned;
     $('st-rules-total').textContent = `${s.rules_total} rules active in total`;
 })();

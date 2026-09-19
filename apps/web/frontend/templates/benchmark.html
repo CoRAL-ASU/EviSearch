@@ -44,10 +44,10 @@
             <label class="label cursor-pointer gap-1 py-0"><input id="b-filled" type="checkbox" class="checkbox checkbox-xs" checked /> <span>columns with values only</span></label>
             <span id="b-count" class="opacity-60"></span>
             <div class="flex-1"></div>
-            <select id="b-run" class="select select-sm select-bordered max-w-xs"><option value="">Compare with a run…</option></select>
+            <label class="label cursor-pointer gap-1 py-0"><input id="b-mine" type="checkbox" class="checkbox checkbox-xs" /> <span>show the system's answers beside gold</span></label>
         </div></div>
         <div class="gwrap card bg-base-100 shadow" id="b-grid"><div class="p-6 text-sm opacity-60">Loading…</div></div>
-        <p class="text-xs text-base-content/60" id="b-note">Comparing a run here is a plain text comparison, to see where a run differs from the experts. The accuracy reported in
+        <p class="text-xs text-base-content/60" id="b-note">The comparison here is plain text, to show where the system's latest answers differ from the experts'. The accuracy reported in
             the paper comes from the scoring rubric, which accepts different wording and rounding — it is not computed on this page.</p>
     </section>
 </main>
@@ -56,7 +56,7 @@
 <script>
 (function () {
     const {$, esc, enc, get, shortDoc} = EVS;
-    let data = null, runCells = null;
+    let data = null, runCells = null, latest = '';
 
     async function load() {
         const r = await get('/api/benchmark');
@@ -73,20 +73,22 @@
                 <td>${esc(p.year)}</td>
                 <td class="text-xs">${p.doi ? `<a class="link" target="_blank" rel="noopener" href="https://doi.org/${esc(p.doi)}">${esc(p.doi)}</a>` : '—'}</td>
                 <td>${p.pdf ? `<a class="link" target="_blank" href="/api/documents/${enc(p.doc_id)}/pdf">open</a>` : '—'}</td></tr>`).join('') + '</tbody>';
-        const runs = await get('/api/tables');
-        const table = (runs.tables || [])[0];
+        // the system's side is whatever was extracted last; the reviewer never picks it
+        const t = await get('/api/tables');
+        const table = (t.tables || [])[0];
         if (table) {
-            const rr = await get(`/api/tables/${enc(table.id)}/runs`);
-            $('b-run').innerHTML = '<option value="">Compare with a run…</option>' + (rr.runs || []).slice().reverse().map((x) =>
-                `<option value="${esc(x.run)}">${esc(x.run)}</option>`).join('');
+            const tt = await get(`/api/tables/${enc(table.id)}`);
+            const mains = (tt.runs || []).filter((x) => !x.variant);
+            latest = tt.showcase_run || (mains.length ? mains[mains.length - 1].run : ((tt.runs || []).slice(-1)[0] || {}).run) || '';
         }
+        $('b-mine').disabled = !latest;
         draw();
     }
 
-    async function pickRun(run) {
+    async function showMine(on) {
         runCells = null;
-        if (run) {
-            const r = await get(`/api/runs/${enc(run)}/table`);
+        if (on && latest) {
+            const r = await get(`/api/runs/${enc(latest)}/table`);
             if (r.success) runCells = Object.fromEntries(r.docs.map((d) => [d.doc_id, d.cells]));
         }
         draw();
@@ -108,16 +110,16 @@
                         const cell = row.cells[c] || {v: '', loc: ''};
                         const mine = runCells && (runCells[row.doc_id] || {})[c];
                         const differs = mine && norm(mine.v) !== norm(cell.v);
-                        const tip = `${c}\ngold: ${cell.v || '(empty)'}${cell.loc ? '\n' + cell.loc : ''}${mine ? '\nrun: ' + mine.v : ''}`;
+                        const tip = `${c}\ngold: ${cell.v || '(empty)'}${cell.loc ? '\n' + cell.loc : ''}${mine ? '\nsystem: ' + mine.v : ''}`;
                         return `<td class="${differs ? 'bg-warning/20' : ''}"><div class="gv" title="${esc(tip)}">${esc(cell.v)}</div>
-                            ${differs ? `<div class="gv opacity-70" title="${esc(tip)}">run: ${esc(mine.v)}</div>` : ''}</td>`;
+                            ${differs ? `<div class="gv opacity-70" title="${esc(tip)}">system: ${esc(mine.v)}</div>` : ''}</td>`;
                     }).join('')}</tr>`;
             }).join('')}</tbody></table>`;
     }
 
     $('b-search').addEventListener('input', draw);
     $('b-filled').addEventListener('change', draw);
-    $('b-run').addEventListener('change', () => pickRun($('b-run').value));
+    $('b-mine').addEventListener('change', () => showMine($('b-mine').checked));
     load();
 })();
 </script>

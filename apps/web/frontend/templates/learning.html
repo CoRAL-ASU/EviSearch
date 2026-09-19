@@ -22,7 +22,7 @@
     <div class="flex flex-wrap items-baseline gap-3">
         <h1 class="text-2xl font-bold">Learning</h1>
         <select id="l-table" class="select select-sm select-bordered"></select>
-        <span class="text-sm text-base-content/70">What the table learned from reviews, and what changed between runs.</span>
+        <span class="text-sm text-base-content/70">What the table learned from your reviews, and what changed because of them.</span>
     </div>
 
     <div class="grid gap-4 md:grid-cols-2">
@@ -41,19 +41,9 @@
     <div class="stats stats-vertical sm:stats-horizontal shadow w-full bg-base-100" id="l-effort"></div>
 
     <section class="card bg-base-100 shadow"><div class="card-body p-4 space-y-2">
-        <h2 class="card-title text-base">Runs in order</h2>
-        <p class="text-sm text-base-content/70">Each run records the schema version and the rules it froze at launch, so a later run's numbers can be read against what it knew.</p>
-        <div class="overflow-x-auto"><table class="table table-sm" id="l-runs"></table></div>
-    </section>
-
-    <section class="card bg-base-100 shadow"><div class="card-body p-4 space-y-2">
-        <h2 class="card-title text-base">What changed between two runs</h2>
-        <div class="flex flex-wrap gap-2 items-center text-sm">
-            <select id="l-a" class="select select-sm select-bordered"></select><span>→</span>
-            <select id="l-b" class="select select-sm select-bordered"></select>
-            <button id="l-go" class="btn btn-sm">Compare</button>
-        </div>
-        <div id="l-diff" class="text-sm space-y-2"></div>
+        <h2 class="card-title text-base">What the latest extraction changed</h2>
+        <p class="text-sm text-base-content/70">The newest results against the ones before them, cell by cell — and how many of the changes land on a value a reviewer had saved.</p>
+        <div id="l-diff" class="text-sm space-y-2">Loading…</div>
     </section>
 
     <section class="card bg-base-100 shadow"><div class="card-body p-4 space-y-2">
@@ -92,15 +82,7 @@
             ['Questions answered', r.effort.questions_answered], ['Cells reviewed', r.effort.cells_reviewed],
             ['Rules proposed', r.effort.rules_proposed]].map(([k, v]) =>
             `<div class="stat"><div class="stat-title">${esc(k)}</div><div class="stat-value text-2xl">${v}</div></div>`).join('');
-        $('l-runs').innerHTML = `<thead><tr><th>Run</th><th>Version</th><th>Started</th><th>Papers</th><th>Cells</th><th>Rules used</th><th>Flagged</th><th>Reviewed</th><th>Status</th></tr></thead><tbody>` +
-            r.runs.slice().reverse().map((x) => `<tr><td class="mono text-xs">${esc(x.run)}</td><td>v${esc(x.version)}${x.variant ? ' <span class="badge badge-xs">' + esc(x.variant) + '</span>' : ''}</td>
-                <td class="text-xs">${esc(when(x.started_at))}</td><td>${x.done}/${x.papers}</td><td>${x.cells}</td>
-                <td title="rules frozen when the run started">${x.kb}${x.kb_learned ? ` <span class="opacity-60">(${x.kb_learned} learned)</span>` : ''}</td>
-                <td>${x.flagged}</td><td>${x.reviewed}${x.corrected ? ` (${x.corrected} corrected)` : ''}</td><td>${esc(x.status)}</td></tr>`).join('') + '</tbody>';
-        const names = r.runs.map((x) => x.run), mains = r.runs.filter((x) => !x.variant).map((x) => x.run);
-        const a = mains.length > 1 ? mains[mains.length - 2] : names[0], b = mains.length ? mains[mains.length - 1] : names[names.length - 1];
-        $('l-a').innerHTML = names.map((n) => `<option ${n === a ? 'selected' : ''}>${esc(n)}</option>`).join('');
-        $('l-b').innerHTML = names.map((n) => `<option ${n === b ? 'selected' : ''}>${esc(n)}</option>`).join('');
+        compare(r.runs);
         const ev = await get(`/api/activity?table=${enc(table)}&limit=2000`);
         events = ev.events || [];
         drawEvents();
@@ -134,7 +116,7 @@
         } else if (e.after && e.before === e.after) {
             parts.push('no change');  // older events recorded before/after even when the text was identical
         }
-        [e.reason, e.answer, e.note, e.convention, e.run].forEach((x) => { if (x) parts.push(esc(String(x))); });
+        [e.reason, e.answer, e.note, e.convention].forEach((x) => { if (x) parts.push(esc(String(x))); });
         return parts.join(' · ');
     }
     function wordDiff(a, b) {  // show where two definitions differ, wherever in the text that is
@@ -152,20 +134,25 @@
         return out;
     }
 
-    $('l-go').onclick = async () => {
-        const a = $('l-a').value, b = $('l-b').value;
-        if (a === b) return;
+    // no pickers: the two most recent full extractions, named nowhere on the page
+    async function compare(runs) {
+        // the two most recent finished extractions under different locked versions (the API returns them oldest first);
+        // ablation and replicate rungs are left out, so this reads as "before your last round of feedback" → "now"
+        const full = (runs || []).filter((x) => !x.variant && x.status === 'ok' && /^\d+$/.test(String(x.version)));
+        const list = (full.length > 1 ? full : (runs || []).filter((x) => x.status === 'ok')).map((x) => x.run);
+        if (list.length < 2) { $('l-diff').textContent = 'There is only one set of results so far, so there is nothing to compare yet.'; return; }
+        const a = list[list.length - 2], b = list[list.length - 1];
         $('l-diff').textContent = 'Comparing…';
         const r = await get(`/api/runs/compare?a=${enc(a)}&b=${enc(b)}`);
         if (!r.success) { $('l-diff').textContent = r.error; return; }
         const t = r.totals;
         $('l-diff').innerHTML = `<div><b>${t.changed}</b> cells differ over ${t.papers} papers (${t.same} identical).
-            ${t.fixed_by_review ? `<b>${t.fixed_by_review}</b> of them now match a value a reviewer saved on ${esc(a)} — feedback carried into the later run.` : 'None of them matches a value a reviewer saved on the earlier run.'}</div>` +
+            ${t.fixed_by_review ? `<b>${t.fixed_by_review}</b> of them now match a value a reviewer had saved earlier — the feedback carried over.` : 'None of them matches a value a reviewer saved earlier.'}</div>` +
             r.docs.filter((d) => d.changed.length).map((d) => `<details class="border border-base-300 rounded p-2"><summary>${esc(shortDoc(d.name))}: ${d.changed.length} changed</summary>
-                <table class="table table-xs mt-1"><thead><tr><th>Column</th><th>${esc(a)}</th><th>${esc(b)}</th><th></th></tr></thead><tbody>
+                <table class="table table-xs mt-1"><thead><tr><th>Column</th><th>before</th><th>now</th><th></th></tr></thead><tbody>
                 ${d.changed.map((c) => `<tr><td class="mono">${esc(c.column)}</td><td>${esc(c.a)}</td><td>${esc(c.b)}</td>
                     <td>${c.b_matches_review ? '<span class="badge badge-success badge-sm">matches the review</span>' : ''}</td></tr>`).join('')}</tbody></table></details>`).join('');
-    };
+    }
     $('l-table').onchange = () => { table = $('l-table').value; load(); };
     ['l-kind', 'l-who', 'l-find'].forEach((id) => $(id).addEventListener('input', drawEvents));
     load();
