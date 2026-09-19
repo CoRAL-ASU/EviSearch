@@ -9,7 +9,7 @@ import pytest
 
 from src.config import runtime_paths
 from src.config.catalog import Capabilities, ModelSpec
-from src.evisearch.schema import generator
+from src.evisearch.schema import generator, store
 from src.evisearch.schema.ingest import write_sheet
 from src.evisearch.services import feedback
 from src.inference.base import ChatModel
@@ -135,3 +135,22 @@ def test_schema_and_feedback_pages_render(client):
     assert schema_page.status_code == 200 and b'id="fields"' in schema_page.data and b'href="/feedback"' in schema_page.data
     assert feedback_page.status_code == 200 and b'id="kb-table"' in feedback_page.data and b'id="chart"' in feedback_page.data
     assert b'href="/schema"' in client.get("/").data  # every page links the two new pages
+
+
+def test_reviewer_widens_a_drafted_rules_scope_and_the_gate_rechecks_it(api):
+    names = ["Mode of metastases - N (%) | Synchronous | Treatment", "Mode of metastases - N (%) | Metachronous | Treatment",
+             "OS Rate (%) | Metachronous | Treatment"]
+    fields = [{"name": n, "title": n, "description": "d", "type": "string", "x-evisearch": {
+        "group": n.split(" |")[0], "facets": {}, "eval_category": "numeric_tolerance", "example": {"doc": "d", "value": "", "grounding": {}},
+        "questions": [], "review": {"state": "proposed", "by": None, "at": None}, "history": []}} for n in names]
+    sid = store.create("T", fields, source={}, by="h")["id"]
+    record = {"trigger": {"scope": "column", "columns": [names[1]], "facets": {}, "condition": ""},
+              "action": {"type": "equivalent", "params": {}}, "instruction": "- Prior local therapy means metachronous.",
+              "source": {"kind": "extraction_review"}}
+    narrow = api.post("/api/conventions/check", json={"record": record, "schema_id": sid}).get_json()
+    assert narrow["gate"]["verdict"] == "new" and narrow["impact"] == [names[1]]
+    wide = {**record, "trigger": {**record["trigger"], "scope": "family", "family": "Mode of metastases", "columns": [names[2]]}}
+    assert sorted(api.post("/api/conventions/check", json={"record": wide, "schema_id": sid}).get_json()["impact"]) == sorted(names)
+    assert api.post("/api/conventions/check", json={"record": {**record, "trigger": {"scope": "column", "columns": []}}}).status_code == 400
+    assert api.post("/api/conventions/check", json={"record": {**record, "trigger": {"scope": "everywhere"}}}).status_code == 400
+    assert api.get("/static/js/rule_scope.js").status_code == 200

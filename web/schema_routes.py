@@ -12,6 +12,7 @@ Pages: /schema, /feedback. APIs (JSON, {"success": ...} envelope like the rest o
   GET  /api/schemas/<id>/extractions        runs under the schema's versions and their papers
   GET  /api/conventions                     the knowledge base (?status=)
   POST /api/conventions/propose             {column, definition, feedback, before?, after?, reason?, doc_id?, schema_id?}: proposer + gate + impact, stores nothing
+  POST /api/conventions/check               {record, schema_id?}: gate + impact for a reviewer-edited record (e.g. wider scope)
   POST /api/conventions                     {record, by}: gate again; duplicate -> merged, conflict -> 409, else stored as proposed
   POST /api/conventions/<cid>/decide        {op: approve|reject|retire, by, note?}
   GET  /api/feedback/events                 feedback log (?source=&schema_id=&doc_id=&event=&limit=)
@@ -254,6 +255,22 @@ def api_propose():
     record = out["record"]
     return _ok(is_convention=True, record=record, gate=gate.check(chat, record),
                impact=gate.impact(record["trigger"], fields, body.get("schema_id")))
+
+
+@bp.route("/api/conventions/check", methods=["POST"])
+def api_check_convention():
+    """Gate + impact for a record the reviewer edited (e.g. widened its scope); stores nothing."""
+    body = request.get_json() or {}
+    record = body.get("record") or {}
+    trigger = record.get("trigger") or {}
+    if trigger.get("scope") not in kb.SCOPES or (record.get("action") or {}).get("type") not in kb.ACTION_TYPES:
+        return _err(f"record needs a scope in {kb.SCOPES} and a known action type")
+    if trigger["scope"] == "column" and not trigger.get("columns"):
+        return _err("a column-scoped rule needs its columns")
+    if trigger["scope"] == "family" and not (trigger.get("family") or trigger.get("columns")):
+        return _err("a family-scoped rule needs a header family")
+    fields = _schema_fields(body.get("schema_id"))
+    return _ok(gate=gate.check(_chat(), record), impact=gate.impact(trigger, fields, body.get("schema_id")))
 
 
 @bp.route("/api/conventions", methods=["POST"])

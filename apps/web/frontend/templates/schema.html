@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>EviSearch — Table schemas</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="/static/js/rule_scope.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.14/dist/full.min.css" rel="stylesheet" />
     <style>
         .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
@@ -135,7 +136,8 @@
             decide: (cid, op) => post(`/api/conventions/${cid}/decide`, {op, by: reviewer()}),
             selectable: () => get('/api/documents/selectable'),
         };
-        let current = null, filter = 'all', ruleContext = null, ruleRecord = null;
+        let current = null, filter = 'all', ruleContext = null;
+        const ruleState = {record: null};
 
         function reviewer() { return $('reviewer').value.trim() || 'anonymous'; }
         try { $('reviewer').value = localStorage.getItem('evisearch.reviewer') || ''; } catch (e) {}
@@ -251,7 +253,7 @@
             card.querySelector('.rule').addEventListener('click', () => {
                 const f = current.fields.find((ff) => ff.name === col);
                 ruleContext = {column: col, definition: f.description, schema_id: id, doc_id: current.source.example_doc, kind: 'schema_review'};
-                ruleRecord = null;
+                ruleState.record = null;
                 $('rule-col').textContent = col;
                 $('rule-note').value = card.querySelector('.note').value;
                 $('rule-out').innerHTML = '';
@@ -265,18 +267,10 @@
             const r = await API.propose({...ruleContext, kind: 'schema_review', feedback: $('rule-note').value, by: reviewer()});
             if (!r.success) { $('rule-out').textContent = r.error; return; }
             if (!r.is_convention) { $('rule-out').innerHTML = `<div class="alert">Not a convention: ${esc(r.why_not)} — save it as a correction instead.</div>`; return; }
-            ruleRecord = r.record;
-            const g = r.gate;
-            const rel = g.relations.map((x) => `<li><span class="badge badge-sm">${esc(x.relation)}</span> ${esc(x.id)}: ${esc(x.instruction.slice(0, 160))} — <span class="text-base-content/60">${esc(x.reason)}</span></li>`).join('');
-            $('rule-out').innerHTML = `<div><b>Rule:</b> ${esc(r.record.instruction)}</div>
-                <div class="text-xs">Scope: ${esc(r.record.trigger.scope)} ${esc(r.record.trigger.family || r.record.trigger.columns.join(', '))} · action ${esc(r.record.action.type)} · condition: ${esc(r.record.trigger.condition)}</div>
-                <div><b>Gate:</b> <span class="badge ${g.verdict === 'blocked' ? 'badge-error' : g.verdict === 'duplicate' ? 'badge-info' : 'badge-success'}">${esc(g.verdict)}</span></div>
-                ${rel ? `<ul class="list-disc ml-5 text-xs">${rel}</ul>` : ''}
-                <div class="text-xs"><b>Applies to ${r.impact.length} column(s):</b> ${esc(r.impact.slice(0, 12).join(' · '))}${r.impact.length > 12 ? ' …' : ''}</div>`;
-            $('rule-add').disabled = g.verdict === 'blocked';
+            RuleScope.show($('rule-out'), r, ruleState, ruleContext.schema_id, (verdict) => { $('rule-add').disabled = verdict === 'blocked' || verdict === 'checking'; });
         });
         $('rule-add').addEventListener('click', async () => {
-            const r = await API.addConvention(ruleRecord);
+            const r = await API.addConvention(ruleState.record);
             $('rule-out').innerHTML += `<div class="alert mt-2">${r.success ? (r.merged_into ? 'Merged into ' + esc(r.merged_into) : 'Stored as ' + esc(r.convention.id) + ' (proposed — approve it to use it)') : esc(r.error)}</div>`;
             $('rule-add').disabled = true;
             renderPending();

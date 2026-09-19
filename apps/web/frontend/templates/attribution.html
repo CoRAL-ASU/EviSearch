@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Evidence-based PDF Q&A — Attribution</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="/static/js/rule_scope.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.14/dist/full.min.css" rel="stylesheet" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 </head>
@@ -579,7 +580,7 @@
             document.getElementById('save-human-edit-btn').click();
         });
 
-        let ruleRecord = null;
+        const ruleState = {record: null};
         document.getElementById('propose-rule-btn').addEventListener('click', async () => {
             if (!selectedColumn || !reconciledData?.doc_id) return;
             const out = document.getElementById('rule-out');
@@ -592,18 +593,12 @@
                 kind: 'extraction_review', by: reviewer() });
             if (!r.success) { out.textContent = r.error || 'failed'; return; }
             if (!r.is_convention) { out.innerHTML = `<div class="alert">Not a convention: ${escapeHtml(r.why_not)}. Keep it as a correction.</div>`; return; }
-            ruleRecord = r.record;
-            const g = r.gate;
-            const rel = (g.relations || []).filter(x => x.relation !== 'independent').map(x => `<li><span class="badge badge-sm">${escapeHtml(x.relation)}</span> ${escapeHtml(x.id)}: ${escapeHtml(x.instruction.slice(0, 140))} (<span class="text-base-content/60">${escapeHtml(x.reason)}</span>)</li>`).join('');
-            out.innerHTML = `<div><b>Rule:</b> ${escapeHtml(r.record.instruction)}</div>
-                <div class="text-xs">Scope: ${escapeHtml(r.record.trigger.scope)} ${escapeHtml(r.record.trigger.family || (r.record.trigger.columns || []).join(', '))} · action ${escapeHtml(r.record.action.type)}</div>
-                <div><b>Gate:</b> <span class="badge ${g.verdict === 'blocked' ? 'badge-error' : g.verdict === 'duplicate' ? 'badge-info' : 'badge-success'}">${escapeHtml(g.verdict)}</span></div>
-                ${rel ? `<ul class="list-disc ml-5 text-xs">${rel}</ul>` : ''}
-                <div class="text-xs">Applies to ${(r.impact || []).length} column(s)</div>`;
-            document.getElementById('rule-add-btn').classList.toggle('hidden', g.verdict === 'blocked');
+            RuleScope.show(out, r, ruleState, SCHEMA_ID, (verdict) => {
+                document.getElementById('rule-add-btn').classList.toggle('hidden', verdict === 'blocked' || verdict === 'checking');
+            });
         });
         document.getElementById('rule-add-btn').addEventListener('click', async () => {
-            const r = await API.addConvention(ruleRecord);
+            const r = await API.addConvention(ruleState.record);
             const out = document.getElementById('rule-out');
             document.getElementById('rule-add-btn').classList.add('hidden');
             if (!r.success) { out.innerHTML += `<div class="alert">${escapeHtml(r.error)}</div>`; return; }
