@@ -1,0 +1,176 @@
+[
+ {
+  "id": "endpoints",
+  "role": "definitions",
+  "scope": "global",
+  "family": null,
+  "also_families": [],
+  "columns": [],
+  "supersedes": [
+   "cv-0002",
+   "cv-0003"
+  ],
+  "changed": "cv-0003 narrowed to the column's own population and arm (7 cells per run wrote \"Not reached\" from a secondary-population subgroup table where the owner's table leaves the cell empty); an explicit time-to-PSA-progression alias added (4 cells per run answered \"Not reported\" because the paper names the endpoint \"time to CRPC\").",
+  "body": "# Endpoint identity\n\n- An endpoint keeps its identity when the paper names a variant of it: biochemical, radiographic, clinical or PSA\n  progression-free survival is progression-free survival, and a paper that reports only such variants reports that\n  endpoint. Give each variant with its label (for example: bPFS X months; rPFS Y months). Never answer \"Not\n  reported\" because the paper's name for the endpoint adds a qualifier.\n- Time to PSA progression is the endpoint a TTPSA column asks for. When the paper reports time to castration-resistant\n  prostate cancer and defines that event by a PSA rise (alone or together with clinical or radiographic progression),\n  that is this endpoint: give the value with the paper's own label (for example: 22.0 months (time to CRPC, PSA rise\n  or clinical progression)). Only a time to an event the paper defines without any PSA criterion is a different\n  endpoint.\n\n# A median that was not reached\n\n- A median the paper reports as not reached or not estimable **for the column's own population and arm** is a value:\n  write \"Not reached\" or \"Not estimable\", never \"Not reported\".\n- A not-reached median printed for a different population, analysis set, subgroup or timepoint than the column asks\n  for is not this cell's value. When that is the only place the paper shows it, the cell is \"Not reported\". In\n  particular, do not carry a not-reached median out of a subgroup or secondary-population table into a column that\n  names no subgroup.",
+  "path": "definitions/endpoints.md"
+ },
+ {
+  "id": "figures-and-panels",
+  "role": "extraction",
+  "scope": "global",
+  "family": null,
+  "also_families": [],
+  "columns": [],
+  "supersedes": [],
+  "changed": "new note. 6 cells per run were printed inside a figure panel (ENZAMET five-year overall survival, figure 4C) and present in the pipeline's own page images, and both agents still answered \"Not reported\" - the largest single block of genuine reading failures in the audit of cells both agents got wrong.",
+  "body": "# Values printed inside figures\n\n- A number printed inside a figure is reported by the paper. Read figure panels, forest plots, Kaplan-Meier plots and\n  the tables embedded in or beside them exactly as you read a table, and cite the figure and panel as the source.\n- Look in figures when a table does not answer the column, in particular for: survival or event-free rates at a stated\n  timepoint annotated on a Kaplan-Meier curve or printed in its panel; per-subgroup counts and events in a forest\n  plot (\"events/N\"); and regional, country or subgroup breakdowns given only as a figure.\n- Read a rate or count that the panel prints as a number. Do not estimate a value by reading a position off a curve or\n  a bar - that is not a printed value, and it is not an answer.\n- When the parsed page text and the page image disagree about what a figure prints, trust the image.",
+  "path": "extraction/figures-and-panels.md"
+ },
+ {
+  "id": "populations-and-subgroups",
+  "role": "definitions",
+  "scope": "global",
+  "family": null,
+  "also_families": [],
+  "columns": [],
+  "supersedes": [
+   "cv-0007",
+   "cv-0020"
+  ],
+  "changed": "a completeness rule added - when the paper reports the column's value for more than one population, trial or analysis set that the definition covers, every part must be given with its label (19 cells per run scored partial credit for giving only the headline population, most of them PEACE1's dual-population Table 1).",
+  "body": "# Answering a subgroup column\n\n- A subgroup column is answered from the paper's subgroup that corresponds to it, also when the paper names or defines\n  it differently (for example a split by extent of disease under other labels or criteria): give the value with the\n  paper's own label.\n- When the paper splits patients by disease burden under a scheme other than the one specified in the column definition\n  (for example LATITUDE high-risk/low-risk or extensive/minimal disease), accept that split as equivalent to the\n  requested volume category and append the paper's specific label and criteria to the value (for example: 241 (48%)\n  (high-risk, LATITUDE criteria)).\n\n# Give every part the column covers\n\n- When the paper reports the column's value for more than one population, trial or analysis set that the column's\n  definition covers, the cell holds **all** of them, each with the paper's own label, joined with \"; \". Giving only\n  the headline population is an incomplete answer.\n- This applies when a paper analyses a nested population alongside the overall one (for example an overall population\n  and the subset that also received a backbone chemotherapy, both printed in the same baseline table), when a report\n  covers more than one randomised comparison or sub-trial, and when the paper reports both a planned and an actual\n  figure for the same characteristic.\n- It does not license reporting a population the definition excludes, and it does not license combining the parts into\n  one number: keep them separate and labelled.",
+  "path": "definitions/populations-and-subgroups.md"
+ },
+ {
+  "id": "statistics-and-units",
+  "role": "definitions",
+  "scope": "global",
+  "family": null,
+  "also_families": [],
+  "columns": [],
+  "supersedes": [
+   "cv-0001",
+   "cv-0004",
+   "cv-0006",
+   "cv-0009"
+  ],
+  "changed": "none - wording carried over verbatim from the seed conventions",
+  "body": "# Which statistic a cell holds, and in which unit\n\n- The column name says which statistic goes in the cell: \"Rate (%)\" is a percentage of patients that the paper\n  states (give its timepoint; do not compute a rate from counts or medians), \"N (%)\" is a count and/or its percentage\n  (give whichever the paper reports if it gives only one), \"(mo)\" is a duration in months, \"N\" is a count. When the\n  definition text asks for a different statistic than the column name, follow the column name. If the paper reports\n  only a different kind of statistic for the column (for example only a hazard ratio or a median where a Rate (%) is\n  asked), answer \"Not reported\".\n- A per-arm column (its name contains \"| Treatment\" or \"| Control\") holds each arm's own value; when several arms fit,\n  list each one. Never put a between-arm statistic (hazard ratio, odds ratio, difference, p-value) in a per-arm\n  column.\n- Report a value in the column's unit, converting when the paper uses another unit (for example a median in years\n  for a column in months: give both, X years, Y months). A different unit is never a reason for \"Not reported\".\n- Total-participant and arm-size counts are the numbers randomised into the population this paper reports on (for\n  example only the metastatic patients when the paper analyses that cohort of a larger trial), not a safety,\n  per-protocol or evaluable subset of it, unless the column asks for analysed patients.",
+  "path": "definitions/statistics-and-units.md"
+ },
+ {
+  "id": "study-and-treatment-labels",
+  "role": "definitions",
+  "scope": "global",
+  "family": null,
+  "also_families": [],
+  "columns": [],
+  "supersedes": [
+   "cv-0012",
+   "cv-0013",
+   "cv-0017"
+  ],
+  "changed": "none to cv-0012 and cv-0013. cv-0017's worked example removed from the instruction: three separate agents returned the example string \"Androgen-receptor pathway inhibitor\" character-for-character on three different abiraterone papers, so the example was being copied as the answer.",
+  "body": "# Is this report a follow-up?\n\n- A paper is a follow-up when it reports further, updated, long-term, post hoc or secondary analyses of a trial whose\n  primary results were published earlier (for example \"as previously reported\"), whatever its article type. A post\n  hoc table inside the trial's primary report does not make that report a follow-up.\n\n# What is the add-on treatment?\n\n- The add-on treatment is the agent or agents added to the shared backbone in the experimental arm(s), not the\n  backbone itself. When both arms receive a chemotherapy or hormonal backbone and only the experimental arm receives a\n  further agent, that further agent is the add-on.\n\n# Doublet and triplet labels\n\n- Label the regimen \"Doublet therapy (ADT + <added agent class>)\" when it is ADT plus one additional agent class, and\n  \"Triplet therapy (ADT + docetaxel + AR inhibitor)\" when it is ADT, docetaxel and an androgen-receptor inhibitor,\n  even if the paper does not use these terms.\n- Name the agent class from the agent the paper actually reports. Do not reuse a class name from this note or from a\n  column definition as the answer.",
+  "path": "definitions/study-and-treatment-labels.md"
+ },
+ {
+  "id": "tables-and-subgroups",
+  "role": "extraction",
+  "scope": "global",
+  "family": null,
+  "also_families": [],
+  "columns": [],
+  "supersedes": [
+   "cv-0005",
+   "cv-0008"
+  ],
+  "changed": "none - wording carried over verbatim from the seed conventions",
+  "body": "# Reading counts out of tables and subgroup analyses\n\n- Counts of patients with a characteristic can come from a subgroup analysis: when the baseline table does not list\n  the characteristic but a subgroup forest plot or table gives each subgroup's patients per arm (for example the N in\n  \"events/N\"), that N is the number of patients with that characteristic in that arm; give it as the count.\n- When the trial design gives a treatment to every patient in an arm (it defines the arm or is part of the arm's\n  protocol regimen), that arm's count for the treatment is the arm size with 100%; when the arm's regimen excludes it,\n  0 (0%). This covers treatments the protocol assigns, not patient characteristics or eligibility criteria.",
+  "path": "extraction/tables-and-subgroups.md"
+ },
+ {
+  "id": "thresholds-and-arithmetic",
+  "role": "extraction",
+  "scope": "global",
+  "family": null,
+  "also_families": [],
+  "columns": [],
+  "supersedes": [
+   "cv-0010",
+   "cv-0011"
+  ],
+  "changed": "none - wording carried over verbatim from the seed conventions",
+  "body": "# Thresholds\n\n- Thresholds (\"grade 3 or higher\", \">=X\"): use a total the paper prints for that threshold (a \"grade >=3\", \"grade 3\n  or worse\" or \"grade 3-5\" row or sentence) as it is. When one table gives mutually exclusive worst-grade rows, add the\n  rows at or above the threshold, grade 5 included. Never add a separately reported fatal or grade 5 count to a\n  printed total.\n\n# What may be added\n\n- Add counts only. Never add rows for different event types, and never add or average rates, medians or durations.\n- Show the arithmetic whenever a value is assembled from printed numbers, naming the row and column each number came\n  from. A derived value whose ingredients cannot be pointed at on the page is not an answer.",
+  "path": "extraction/thresholds-and-arithmetic.md"
+ },
+ {
+  "id": "metastasis-and-presentation",
+  "role": "definitions",
+  "scope": "family",
+  "family": "Mode of metastases",
+  "also_families": [
+   "Metastases - N (%)"
+  ],
+  "columns": [],
+  "supersedes": [
+   "cv-0015",
+   "cv-0019",
+   "cv-0021"
+  ],
+  "changed": "cv-0019 rewritten. Its prior-local-therapy equivalence was the single worst-scoring rule in the knowledge base - 4 cells per run, identically in both runs: the arbiter summed \"primary radiation\" and \"prostatectomy\" rows into a metachronous count, showed correct arithmetic, cited the rule, and scored zero every time. Prior local therapy is not a statement about how the disease presented. Its \"sum the counts from those subgroups\" clause is also removed: it manufactured arm totals the papers never print. cv-0021's M1/M0 mapping is kept but limited to the count and rate columns, so it no longer collides with the yes/no reporting columns.",
+  "body": "# Synchronous and metachronous presentation\n\n- Synchronous means the patient had metastatic disease at initial diagnosis (de novo). Metachronous means the\n  metastases appeared later, after non-metastatic disease.\n- Answer these columns **only** from the paper's own reporting of how the disease presented: the words de novo,\n  synchronous or metachronous, or the stage at initial diagnosis (see the M1/M0 mapping below).\n- Prior local therapy is **not** evidence of presentation, and the absence of prior local therapy is not evidence of\n  de novo disease. A patient may receive prostatectomy or radiotherapy and still have presented with metastases, and\n  many patients who presented de novo receive local therapy afterwards. Never derive a synchronous or metachronous\n  count from prostatectomy, primary radiation or \"no local therapy\" rows.\n- When the paper reports only prior local therapy, or reports presentation for no population the column covers, the\n  cell is \"Not reported\". Do not add up subgroup rows to manufacture an arm total the paper does not print.\n\n# Stage at initial diagnosis (count and rate columns only)\n\n- In the count and rate columns for presentation, map \"M1\" or \"distant metastasis at initial diagnosis\" to the\n  Synchronous columns and \"M0\" (with later metastasis) to the Metachronous columns; exclude \"MX\" or \"not assessed\"\n  rows from the count and percentage, and keep the paper's original label in parentheses.\n- This mapping does not apply to the yes/no reporting columns, which ask whether the paper reports outcomes for the\n  subgroup - see the prognostic-group-reporting note.\n\n# Metastatic sites\n\n- Map M1 substages to specific site columns: assign M1a (non-regional lymph nodes only) to Nodal, M1b (bone, with or\n  without nodes) to Bone, and M1c (visceral) to Liver. Set Lungs to \"Not reported\" if only M1 substages are provided.",
+  "path": "definitions/metastasis-and-presentation.md"
+ },
+ {
+  "id": "prognostic-group-reporting",
+  "role": "definitions",
+  "scope": "family",
+  "family": "Reporting by prognostic groups - Y/N",
+  "also_families": [],
+  "columns": [],
+  "supersedes": [
+   "cv-0016"
+  ],
+  "changed": "scoped explicitly to this family and separated from cv-0021's M1/M0 count mapping, which named some of these same columns and pulled them toward counts and percentages. The question these columns ask is only whether the paper reports outcomes for the subgroup.",
+  "body": "# Reporting by prognostic groups (yes/no)\n\n- These columns ask one question: **does this paper report outcomes for the named subgroup?** Answer \"Yes\" when the\n  paper gives outcomes for that subgroup in a table, a forest plot or the text; otherwise answer \"No\". Never answer\n  \"Not reported\" - the absence of such reporting is itself the answer, and it is \"No\".\n- Judge it on outcomes, not on baseline characteristics. A paper that merely counts how many patients fall in the\n  subgroup, without reporting any outcome for them, is \"No\".\n- Do not put a count, a percentage or a stage mapping in these cells. The M1/M0 mapping and the subgroup-equivalence\n  rules apply to the count and rate columns, not here.\n- A subgroup the paper reports under its own equivalent scheme counts as reported: if outcomes are given for\n  high-risk/low-risk or extensive/minimal disease where the column asks for high/low volume, the answer is \"Yes\",\n  and the paper's label may be added in parentheses.",
+  "path": "definitions/prognostic-group-reporting.md"
+ },
+ {
+  "id": "regions",
+  "role": "definitions",
+  "scope": "family",
+  "family": "Region - N (%)",
+  "also_families": [],
+  "columns": [],
+  "supersedes": [
+   "cv-0014"
+  ],
+  "changed": "rewritten on the owner's decision (2026-09-19): a continent column is the sum of the paper's own regional or country groups that belong to that continent, and whatever cannot be attributed to a continent belongs to the paper's own other/rest-of-world category. Adds the one-region trial case (6 cells per run answered \"Not reported\" for a trial whose sites are all in one country). Kept deliberately narrow to this family: a general design-implied rule for characteristics was measured and dropped (it lost 14 cells to gain 3.5).",
+  "body": "# Region columns\n\n- A continent column holds the **sum of the paper's own regional or country groups that belong to that continent**.\n  When the paper reports countries or multi-country regions, add the ones that fall in the continent and give the\n  total with its percentage of that arm (for example a paper reporting Canada 107 and USA 22 gives North America\n  129). Name the groups you added in parentheses.\n- Whatever the paper reports in a group that cannot be attributed to a single continent belongs to the paper's own\n  other or rest-of-world category, under that category's exact label. Do not split such a group across continents and\n  do not invent a share for it.\n- When the paper reports a continent only inside a broader category of its own and gives no separable figure for it,\n  write \"Included in [Category Name]\" using the paper's exact label.\n- When every site of the trial lies in one country or one continent (stated in the methods, the site list or the\n  affiliations), that continent holds the whole arm: give the arm size with 100%. The other continents are then that\n  paper's unreported regions, not zeros - answer \"Not reported\" for them unless the paper prints a figure.\n- When the region is not mentioned anywhere in the paper, write \"Not reported\".",
+  "path": "definitions/regions.md"
+ },
+ {
+  "id": "arm-level-values",
+  "role": "extraction",
+  "scope": "column",
+  "family": null,
+  "also_families": [],
+  "columns": [
+   "Median On-Treatment Duration (mo) | Treatment",
+   "Median On-Treatment Duration (mo) | Control",
+   "Median Age (years) | Treatment",
+   "Median Age (years) | Control",
+   "Median OS (mo) | Overall | Treatment",
+   "Median OS (mo) | Overall | Control",
+   "Median PFS (mo) | Overall | Treatment",
+   "Median PFS (mo) | Overall | Control"
+  ],
+  "supersedes": [
+   "cv-0022"
+  ],
+  "changed": "narrowed. The prohibition on combining subgroup medians is kept, but cv-0022 was also refusing medians the paper does print for the arm somewhere other than the main results table - 4 cells per run, and it collided with the rules that license assembling subgroup counts. It no longer overrides a printed arm-level value, and the search now explicitly includes the discussion.",
+  "body": "# Arm-level medians\n\n- Do not combine subgroup medians, and do not copy a subgroup median or a pooled across-arms median into an arm's\n  cell. Medians cannot be added or averaged.\n- But a median the paper states for this arm **anywhere** is a printed arm-level value and belongs in the cell,\n  including when it appears in the text, the abstract, a supplementary table, a figure caption, or a discussion\n  sentence comparing this trial with another. Look there before answering \"Not reported\".\n- Only when the paper gives this arm's median nowhere - so that the sole route to it would be combining or borrowing\n  from subgroups or from the other arm - is the cell \"Not reported\".\n- This note governs medians only. It does not restrict counts and percentages, which may be assembled from printed\n  mutually exclusive rows under the threshold and subgroup rules.",
+  "path": "extraction/arm-level-values.md"
+ }
+]

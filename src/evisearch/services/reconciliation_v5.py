@@ -362,7 +362,29 @@ class _ReconcileSession(_ReconciliationSession):
         own = self.own.get(name) or {}
         result["own_finding"] = {k: own.get(k) for k in ("value", "pages", "evidence", "looked_at", "unread")}
         result.update(self.verdicts.get(name) or {})
+        self._flag_for_review(name, result)
         return result
+
+    def _flag_for_review(self, name: str, result: Dict[str, Any]) -> None:
+        """Send a cell to the reviewer when the two extractions disagreed.
+
+        Measured on R4: the cells where A and B differ are 20.7 per paper (16% of the table) and hold 38% of the
+        table's errors, at 25% precision - one in four cells the reviewer opens is genuinely wrong, the best of any
+        policy tried. The arbiter's own `needs_review` reached 2.9 cells per paper but only 9% of the errors, so a
+        reviewer working it fixed almost nothing.
+
+        Cells where both agents left the column empty are deliberately NOT flagged. They hold real errors - 26% of
+        them - but they are 63.9 cells per paper at 5.6% precision, so nineteen of every twenty the reviewer opens
+        are correctly empty. That is worse per cell read than reading the whole 133-column table, which at least
+        catches everything else too. Those errors need better retrieval, not more human reading.
+        """
+        a, b = self.sources["A"][name]["value"], self.sources["B"][name]["value"]
+        if _squash(a) == _squash(b):
+            return
+        note = f'the two extractions disagreed (A: "{a[:60]}" / B: "{b[:60]}")'
+        existing = str(result.get("review_reason") or "").strip()
+        result["needs_review"] = True
+        result["review_reason"] = f"{existing}; {note}" if existing else note
 
     # ---- submission ------------------------------------------------------------------------------------------
 

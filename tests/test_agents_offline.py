@@ -820,6 +820,29 @@ def test_arbiter_v5_pushes_back_once_when_it_discards_its_own_finding(doc):
     assert cell["value"] == "Not reported" and cell["own_verdict"] == "wrong" and cell["needs_review"]
 
 
+def test_arbiter_v5_flags_disagreements_for_review_but_not_cells_both_agents_left_empty(doc):
+    """Review time is the scarce resource. Cells where the agents differ are 20.7 per paper and hold 38% of the errors
+    at 25% precision; cells both agents left empty are 63.9 per paper at 5.6%, worse per cell read than reviewing the
+    whole table. So the first are flagged and the second are not."""
+    chat = VerifyingChat([])
+    batch = [{"column_name": TRIAL, "definition": "Trial name"}, {"column_name": MEDIAN_OS, "definition": "Median OS"}]
+    own = {MEDIAN_OS: {"value": "", "pages": [], "evidence": "", "looked_at": [2], "reasoning": "none"}}
+    session = _v5_session(
+        chat, own, batch=batch,
+        source_a={TRIAL: _claim("STAMPEDE", 1), MEDIAN_OS: {"value": "Not reported"}},
+        source_b={TRIAL: _claim("STAMPEDE trial", 1), MEDIAN_OS: {"value": "Not reported"}},
+    )
+    session.verify_attribution({"claims": [{"column": TRIAL, "value": "STAMPEDE", "page": 1}]})
+    session.submit_verification({"results": [
+        {"column": TRIAL, "value": "STAMPEDE", "reasoning": "A", "source": {"page": 1}},
+        {"column": MEDIAN_OS, "value": "Not reported", "reasoning": "nobody found one"},
+    ]})
+    disagreed = session.submitted[TRIAL]
+    assert disagreed["needs_review"] and "disagreed" in disagreed["review_reason"]
+    both_empty = session.submitted[MEDIAN_OS]
+    assert not both_empty["needs_review"]  # real errors hide here, but too diluted to be worth a reviewer's time
+
+
 def test_arbiter_v5_defaults_the_three_verdicts_from_the_values_when_the_model_omits_them(doc):
     chat = VerifyingChat([])
     own = {TRIAL: {"value": "STAMPEDE", "pages": [1], "evidence": "", "looked_at": [1], "reasoning": ""}}
