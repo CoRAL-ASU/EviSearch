@@ -74,9 +74,20 @@ def build(overlay: bool):
 
 
 def main() -> int:
-    args = [a for a in sys.argv[1:] if not a.startswith("--")]
-    overlay = "--raw" not in sys.argv
-    baseline = next((sys.argv[i + 1] for i, a in enumerate(sys.argv) if a == "--baseline"), "qwen_final_b1")
+    argv = sys.argv[1:]
+    overlay = "--raw" not in argv
+    baseline = "qwen_final_b1"
+    args = []
+    skip = False
+    for i, a in enumerate(argv):  # --baseline takes a value, which is not itself a run to table
+        if skip:
+            skip = False
+            continue
+        if a == "--baseline":
+            baseline = argv[i + 1] if i + 1 < len(argv) else baseline
+            skip = True
+        elif not a.startswith("--"):
+            args.append(a)
     if not args:
         print(__doc__)
         return 2
