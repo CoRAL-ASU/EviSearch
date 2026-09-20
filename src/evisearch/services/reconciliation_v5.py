@@ -54,7 +54,16 @@ from src.inference import InferenceError, Tool, ToolOutput, ToolSpec, Usage, get
 from src.retrieval import embedding_retriever as retriever
 
 def own_reading_scope() -> str:
-    """EVISEARCH_OWN_READING=all | contested: which columns phase 1 answers for itself.
+    """EVISEARCH_OWN_READING=all | contested | both_silent: which columns phase 1 answers for itself.
+
+    `both_silent` is the narrowest and the one the R4 measurements point at. Reading contested columns turned out to
+    cost more than it earned: across two runs it scored 92.07 and 91.97 against the v4 arbiter's 91.97 and 92.48 on the
+    same agent outputs, and on cells where only Agent B was right it fell to 51% (v4: 76%). The stage's own retrieval
+    is simply weaker than Agent B's, so letting its reading weigh against a stated value displaces correct answers.
+    What the reading is good for is the case where there is no stated value to displace: on cells where both agents
+    abstained it answered 11, of which 6 were right and 3 wrong, a net +0.23% of the table, where v4 answered 1 and
+    got it wrong. 639 of 1330 cells are both-silent and gold has a value on 31 of the ones left empty, so that is
+    where the headroom is.
 
     `all` (the default) reads every column. `contested` reads only the columns where the two agents disagree or both
     abstain, and lets the agreed ones go straight to phase 2.
@@ -68,16 +77,22 @@ def own_reading_scope() -> str:
     and the higher variance. Which one ships is an experiment, not a preference.
     """
     value = os.getenv("EVISEARCH_OWN_READING", "").strip().lower()
-    return "contested" if value == "contested" else "all"
+    return value if value in {"contested", "both_silent"} else "all"
+
+
+def needs_own_reading(name: str, source_a: Dict[str, Any], source_b: Dict[str, Any], scope: str) -> bool:
+    """Whether phase 1 answers this column for itself, under the run's scope."""
+    a = _value_of(source_a.get(name))
+    b = _value_of(source_b.get(name))
+    both_silent = is_absence(a) and is_absence(b)
+    if scope == "both_silent":
+        return both_silent
+    return both_silent or _squash(a) != _squash(b)  # contested
 
 
 def contested(name: str, source_a: Dict[str, Any], source_b: Dict[str, Any]) -> bool:
     """Whether a column needs the stage's own reading: the agents differ, or neither of them answered."""
-    a = _value_of(source_a.get(name))
-    b = _value_of(source_b.get(name))
-    if is_absence(a) and is_absence(b):
-        return True
-    return _squash(a) != _squash(b)
+    return needs_own_reading(name, source_a, source_b, "contested")
 
 
 def _value_of(col: Any) -> str:
@@ -90,7 +105,8 @@ def _squash(value: str) -> str:
 
 # Part of the run settings, so results made with a different reading scope are never resumed into each other. Computed
 # at import because the scope comes from the environment the run was launched with.
-RECONCILER_VERSION = "own_reading_v5" + ("_contested" if own_reading_scope() == "contested" else "")
+_SCOPE = own_reading_scope()
+RECONCILER_VERSION = "own_reading_v5" + ("" if _SCOPE == "all" else f"_{_SCOPE}")
 
 # what phase 2 says about each of the three answers it now holds
 VERDICTS = ("correct", "incomplete", "wrong", "no_answer")
@@ -457,8 +473,9 @@ def run_reconciliation_agent(
     scope = own_reading_scope()
     to_read = batch_columns
     skipped: List[str] = []
-    if scope == "contested":
-        to_read = [c for c in batch_columns if contested(c.get("column_name", ""), source_a_data, source_b_data)]
+    if scope != "all":
+        to_read = [c for c in batch_columns
+                   if needs_own_reading(c.get("column_name", ""), source_a_data, source_b_data, scope)]
         skipped = [c.get("column_name", "") for c in batch_columns if c not in to_read]
     not_read = {
         name: {"value": "", "pages": [], "evidence": "", "looked_at": [],
