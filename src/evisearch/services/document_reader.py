@@ -8,6 +8,7 @@ first in the request, so repeated questions about one paper reuse the cached pre
 """
 from __future__ import annotations
 
+import threading
 from typing import Any, Dict, List, Optional, Tuple
 
 from src.config.config import MAX_TOKENS, SELECTION
@@ -32,6 +33,7 @@ For each question return:
 - modality: "table", "figure" or "text"."""
 
 _documents: Dict[Tuple[str, str, str], pdf_query.DocumentInput] = {}
+_documents_lock = threading.Lock()
 
 
 def input_mode(chat: ChatModel) -> str:
@@ -40,16 +42,24 @@ def input_mode(chat: ChatModel) -> str:
 
 
 def document_for(chat: ChatModel, doc_id: str) -> pdf_query.DocumentInput:
-    """The document parts for this model, built once per process (page rendering is the slow part)."""
+    """The document parts for this model, built once per process (page rendering is the slow part).
+
+    Locked, because batches of a stage may run at the same time. Unsynchronised, the `clear()` below could evict what
+    another thread had just stored and the read-back raised KeyError - which `tool_loop` catches and hands the agent as
+    `{"error": ...}`, so a lost paper looked like a quiet absence of answers rather than a failure. Concurrent callers
+    also each rebuilt the document, defeating the cache and holding several multi-MB page-image sets at once.
+    """
     mode = input_mode(chat)
     key = (doc_id, chat.key, mode)
-    if key not in _documents:
-        budget = pdf_query.document_token_budget(
-            chat.spec.context_tokens, SYSTEM_PROMPT + pdf_query.IMAGE_RULES + "x" * QUESTION_RESERVE_CHARS, MAX_TOKENS["reader"]
-        )
-        _documents.clear()  # one paper at a time is enough; page images are several MB
-        _documents[key] = pdf_query.build_document_input(doc_id, mode, budget, chat.spec.image_tokens)
-    return _documents[key]
+    with _documents_lock:
+        if key not in _documents:
+            budget = pdf_query.document_token_budget(
+                chat.spec.context_tokens, SYSTEM_PROMPT + pdf_query.IMAGE_RULES + "x" * QUESTION_RESERVE_CHARS, MAX_TOKENS["reader"]
+            )
+            document = pdf_query.build_document_input(doc_id, mode, budget, chat.spec.image_tokens)
+            _documents.clear()  # one paper at a time is enough; page images are several MB
+            _documents[key] = document
+        return _documents[key]
 
 
 def response_schema(ids: List[str]) -> Dict[str, Any]:
