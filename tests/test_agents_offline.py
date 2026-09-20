@@ -720,9 +720,9 @@ def test_unified_extraction_requires_prepared_document(doc, monkeypatch):
 
 # ---- Arbiter v5: read the paper first, then reconcile -----------------------------------------------
 
-def _v5_session(chat, own, source_a=None, source_b=None, batch=None):
+def _v5_session(chat, own, source_a=None, source_b=None, batch=None, scale=None):
     return reconciliation_v5._ReconcileSession(
-        chat, "doc-1", batch or BATCH, {}, source_a or {}, source_b or {}, None, own=own
+        chat, "doc-1", batch or BATCH, {}, source_a or {}, source_b or {}, scale, own=own
     )
 
 
@@ -730,6 +730,7 @@ def test_arbiter_v5_answers_every_column_before_it_is_shown_the_agents(doc, monk
     source_a = {TRIAL: _claim("STAMPEDE", 1), MEDIAN_OS: _claim("45.7", 2, "ADT 45.7 mo")}
     source_b = {TRIAL: _claim("STAMPEDE", 1), MEDIAN_OS: {"value": "Not reported"}}
     chat = VerifyingChat([
+        [("get_pages", {"page_numbers": [1, 2]})],
         [("submit_findings", {"findings": [
             {"column": TRIAL, "value": "STAMPEDE", "pages": [1], "evidence": "STAMPEDE", "reasoning": "title"},
             {"column": MEDIAN_OS, "value": "76.6", "pages": [2], "evidence": "76.6 months", "reasoning": "Table 2"},
@@ -748,10 +749,15 @@ def test_arbiter_v5_answers_every_column_before_it_is_shown_the_agents(doc, monk
     results, _ = reconciliation_v5.run_reconciliation_agent("doc-1", BATCH, {}, source_a, source_b)
 
     phase1 = chat.requests[0]
-    assert phase1["tools"] == ["ask_document", "search_pages", "submit_findings"]  # no checker in phase 1
+    # It reads the paper itself with Agent B's search and get_pages, and may confirm a value it has located. No
+    # reader standing in for Agent A: asking that reader was asking the very agent this stage is judging.
+    assert phase1["tools"] == ["search_chunks", "get_pages", "verify_attribution", "submit_findings"]
     assert "45.7" not in phase1["messages"][1].text and "A:" not in phase1["messages"][1].text  # no agent answers
-    phase2 = chat.requests[1]
-    assert phase2["tools"] == ["ask_document", "search_pages", "verify_attribution", "submit_verification"]
+    attached = [part for message in chat.requests[1]["messages"] for result in message.tool_results
+                for part in result.attachments]
+    assert [type(part) for part in attached] == [ImagePart, ImagePart]  # the pages it opened came with their images
+    phase2 = chat.requests[2]
+    assert phase2["tools"] == ["search_chunks", "get_pages", "verify_attribution", "submit_verification"]
     prompt2 = phase2["messages"][1].text
     assert 'YOURS: "76.6"' in prompt2 and 'A: "45.7"' in prompt2  # its own answer is committed before A and B appear
     os_cell = results[MEDIAN_OS]
@@ -760,48 +766,57 @@ def test_arbiter_v5_answers_every_column_before_it_is_shown_the_agents(doc, monk
     assert (os_cell["final_source"], os_cell["a_verdict"], os_cell["b_verdict"]) == ("own", "wrong", "no_answer")
 
 
-def test_arbiter_v5_lets_a_correct_absence_beat_a_value_standing_on_a_page(doc):
-    """v4 refused "Not reported" whenever any value was supported on a page; it adopted a correct abstention 0 of 22
-    times across the two R3 runs. Here the stage's own reading decides, and the conflict is flagged, not overruled."""
+def test_arbiter_v5_ships_an_absence_over_a_standing_value_once_it_says_what_it_read(doc):
+    """v4 refused "Not reported" whenever any value stood supported on a page, and adopted a correct abstention 0 of
+    22 times across the two R3 runs. Here a reading carries it: the stage says which pages it read and what they say
+    for this column instead, and the conflict is flagged rather than overruled."""
     chat = VerifyingChat([])
     own = {MEDIAN_OS: {"value": "", "pages": [], "evidence": "", "looked_at": [1, 2, 3], "reasoning": "no OS for this arm"}}
     session = _v5_session(chat, own, source_a={MEDIAN_OS: _claim("76.6", 2)})
     session.verify_attribution({"claims": [{"column": MEDIAN_OS, "value": "76.6", "page": 2}]})
     assert session.standing(MEDIAN_OS)  # a value for the column does stand supported on a page
 
+    bare = session.submit_verification({"results": [
+        {"column": MEDIAN_OS, "value": "Not reported", "reasoning": "my reading found none"},
+    ]}).content
+    assert bare["accepted"] == [] and "absence_basis" in bare["rejected"][0]["reason"]
+
     out = session.submit_verification({"results": [
         {"column": MEDIAN_OS, "value": "Not reported", "reasoning": "my reading found none",
+         "absence_basis": {"pages": [2], "page_says": "page 2 gives OS for the control arm only"},
          "final_source": "own", "own_verdict": "correct", "a_verdict": "wrong", "b_verdict": "no_answer"},
     ]}).content
 
     assert out["accepted"] == [MEDIAN_OS] and not out["rejected"]
     cell = session.submitted[MEDIAN_OS]
     assert cell["value"] == "Not reported" and cell["decided_by"] == "own_reading"
-    assert cell["needs_review"] and "own reading" in cell["review_reason"] and "76.6" in cell["review_reason"]
+    assert cell["needs_review"] and "76.6" in cell["review_reason"] and "control arm only" in cell["review_reason"]
     assert cell["own_finding"]["looked_at"] == [1, 2, 3]
 
 
-def test_arbiter_v5_will_not_blank_a_cell_whose_only_stated_value_was_never_checked(doc):
-    """Its own reading finding nothing is evidence, not proof: Agent B's retrieval reaches pages this stage's does not.
-    In the first contested run, 5 of the 12 cells it wrongly blanked had an agent value nobody had looked at."""
+def test_arbiter_v5_will_not_blank_a_cell_because_the_second_reading_disliked_the_value(doc):
+    """The hole the old guard left. It refused an absence only while a stated value stood *unchecked*, so checking a
+    correct value and having the check go against it was the cheapest route to an empty cell - six of the nine cells
+    the checker broke across two R4 runs went out that way. The condition is now unexplained, not unchecked."""
     chat = VerifyingChat([])
     own = {MEDIAN_OS: {"value": "", "pages": [], "evidence": "", "looked_at": [1, 3], "reasoning": "found nothing"}}
-    session = _v5_session(chat, own, source_a={MEDIAN_OS: _claim("76.6", 2)})
+    session = _v5_session(chat, own, source_a={MEDIAN_OS: _claim("99.9", 2)})
+    session.verify_attribution({"claims": [{"column": MEDIAN_OS, "value": "99.9", "page": 2}]})
+    assert session.checks and next(iter(session.checks.values()))["verdict"] == "not_supported"
 
-    first = session.submit_verification({"results": [
-        {"column": MEDIAN_OS, "value": "Not reported", "reasoning": "my reading found none"},
+    refused = session.submit_verification({"results": [
+        {"column": MEDIAN_OS, "value": "Not reported", "reasoning": "the check rejected A's value"},
     ]}).content
-    assert first["accepted"] == [] and "no check has looked at it" in first["rejected"][0]["reason"]
+    assert refused["accepted"] == [] and "absence_basis" in refused["rejected"][0]["reason"]
 
-    session.verify_attribution({"claims": [{"column": MEDIAN_OS, "value": "76.6", "page": 2}]})
     after = session.submit_verification({"results": [
-        {"column": MEDIAN_OS, "value": "Not reported", "reasoning": "checked; the page does not answer this column"},
+        {"column": MEDIAN_OS, "value": "Not reported", "reasoning": "read page 2 myself",
+         "absence_basis": {"pages": [2], "page_says": "no overall survival for this arm"}},
     ]}).content
-    assert after["accepted"] == [MEDIAN_OS]  # once the value has been tested, the absence may still win
-    assert session.submitted[MEDIAN_OS]["needs_review"]  # and is flagged, because an extraction disagreed
+    assert after["accepted"] == [MEDIAN_OS] and session.submitted[MEDIAN_OS]["needs_review"]
 
 
-def test_arbiter_v5_pushes_back_once_when_it_discards_its_own_finding(doc):
+def test_arbiter_v5_asks_for_a_reading_before_it_discards_its_own_finding(doc):
     chat = VerifyingChat([])
     own = {MEDIAN_OS: {"value": "76.6", "pages": [2], "evidence": "76.6 months", "looked_at": [2], "reasoning": "Table 2"}}
     session = _v5_session(chat, own, source_b={MEDIAN_OS: {"value": "Not reported"}})
@@ -809,15 +824,58 @@ def test_arbiter_v5_pushes_back_once_when_it_discards_its_own_finding(doc):
     first = session.submit_verification({"results": [
         {"column": MEDIAN_OS, "value": "Not reported", "reasoning": "B says none"},
     ]}).content
-    assert first["accepted"] == [] and "your own reading found" in first["rejected"][0]["reason"]
+    assert first["accepted"] == [] and "76.6" in first["rejected"][0]["reason"]
 
     second = session.submit_verification({"results": [
         {"column": MEDIAN_OS, "value": "Not reported", "reasoning": "my page 2 read the control arm",
-         "review": True, "review_reason": "my own reading took the wrong arm", "own_verdict": "wrong"},
+         "absence_basis": {"pages": [2], "page_says": "76.6 months is the control arm"}, "own_verdict": "wrong"},
     ]}).content
     assert second["accepted"] == [MEDIAN_OS]
     cell = session.submitted[MEDIAN_OS]
     assert cell["value"] == "Not reported" and cell["own_verdict"] == "wrong" and cell["needs_review"]
+
+
+def test_arbiter_v5_will_not_ship_a_value_that_carries_no_citation(doc):
+    """The submission gate is provenance, not correctness. A cell whose value never went through verify_attribution
+    reaches the viewer with no page and no quote to click - 21 of 695 shipped values in R4 were in that state."""
+    chat = VerifyingChat([])
+    own = {MEDIAN_OS: {"value": "76.6", "pages": [2], "evidence": "76.6 months", "looked_at": [2], "reasoning": "Table 2"}}
+    session = _v5_session(chat, own)
+
+    bare = session.submit_verification({"results": [
+        {"column": MEDIAN_OS, "value": "76.6", "reasoning": "my own reading", "source": {"page": 2}},
+    ]}).content
+    assert bare["accepted"] == [] and "verify_attribution" in bare["rejected"][0]["reason"]
+
+    session.verify_attribution({"claims": [{"column": MEDIAN_OS, "value": "76.6", "page": 2}]})
+    out = session.submit_verification({"results": [
+        {"column": MEDIAN_OS, "value": "76.6", "reasoning": "my own reading", "source": {"page": 2}},
+    ]}).content
+    assert out["accepted"] == [MEDIAN_OS]
+    cell = session.submitted[MEDIAN_OS]
+    assert cell["verified"] and cell["source"]["page"] == 2 and cell["attribution"][0]["verified"]
+
+
+def test_arbiter_v5_ships_over_a_disagreeing_second_reading_and_cites_the_extraction(doc):
+    """A value the second reading did not arrive at still ships, flagged - refusing those cost 25 correct values
+    across two R4 runs to save 22 wrong ones. What must not follow it is the second reader's own quote: that quote
+    supports a different value, and it is the text the viewer would highlight on the page."""
+    chat = VerifyingChat([])
+    session = _v5_session(chat, {}, source_a={MEDIAN_OS: _claim("99.9", 2)})
+    session.verify_attribution({"claims": [
+        {"column": MEDIAN_OS, "value": "99.9", "page": 2, "evidence": "Table 2 row 3: 99.9 months"}]})
+
+    out = session.submit_verification({"results": [
+        {"column": MEDIAN_OS, "value": "99.9", "reasoning": "A read the table; the second reading missed the row",
+         "source": {"page": 2}, "final_source": "A"},
+    ]}).content
+
+    assert out["accepted"] == [MEDIAN_OS]
+    cell = session.submitted[MEDIAN_OS]
+    assert cell["value"] == "99.9" and not cell["verified"]          # honest: a second reader did not corroborate it
+    assert cell["source"]["page"] == 2                               # but the cell still has somewhere to point
+    assert cell["source"]["verbatim_quote"] == "Table 2 row 3: 99.9 months"   # the extraction's quote, not the reader's
+    assert cell["needs_review"] and "second reading" in cell["review_reason"]
 
 
 def test_arbiter_v5_flags_disagreements_for_review_but_not_cells_both_agents_left_empty(doc):
@@ -852,6 +910,100 @@ def test_arbiter_v5_defaults_the_three_verdicts_from_the_values_when_the_model_o
     cell = session.submitted[TRIAL]
     assert cell["final_source"] == "own" and cell["own_verdict"] == "correct"
     assert cell["a_verdict"] == "correct" and cell["b_verdict"] == "no_answer"
+
+
+def test_arbiter_v5_searches_the_paper_exactly_like_agent_b(doc):
+    """Measured on the first R4 runs: phase 1 answered 25% of the columns it read and leaned toward Agent A, the weaker
+    agent. Its search_pages returned at most SEARCH_LINES_PER_PAGE lines per page, cut at 300 characters and only lines
+    sharing a word with the query, where Agent B's search_chunks returns the page. An arbiter that reads less than the
+    agent it is overruling cannot correct it, so the tool is now Agent B's - and this test is what keeps it that way."""
+    arbiter = _v5_session(VerifyingChat([]), {})
+    agent_b = search._SearchSession("doc-1", [TRIAL, MEDIAN_OS], 3)
+    query = {"query": "median overall survival"}
+
+    mine = arbiter.search_chunks(query)
+    assert mine.content == agent_b.search_chunks(query).content
+    assert mine.content["formatted_chunks"].startswith("[Page 2, score=")
+    assert "76.6 months with abiraterone versus 45.7 months" in mine.content["formatted_chunks"]  # the page, not 4 lines
+    assert mine.content["pages_returned"][0] == 2 and arbiter.pages_sent == agent_b.pages_sent == {1, 2, 3}
+
+    again = arbiter.search_chunks(query)
+    assert again.content["pages_returned"] == [] and "already been provided" in again.content["formatted_chunks"]
+    mine.on_evict()  # the loop dropped those pages to fit the context: they may be fetched again
+    assert arbiter.pages_sent == set() and arbiter.search_chunks(query).content["pages_returned"][0] == 2
+
+
+def test_arbiter_v5_get_pages_returns_each_page_with_its_image(doc):
+    """The tool Agent B does not have. A value printed inside a figure, or inside a table the parser captured as a
+    picture, is unreachable from the page text alone; the arbiter had no way to look at a page at all."""
+    session = _v5_session(VerifyingChat([]), {}, scale=1.0)
+
+    out = session.get_pages({"page_numbers": [2, 4]})
+
+    assert out.content["pages_returned"] == [2] and out.content["page_images"] == [2]
+    assert out.content["formatted_chunks"].startswith("[Page 2]") and "76.6 months" in out.content["formatted_chunks"]
+    assert "Page 4 does not exist" in out.content["formatted_chunks"]  # a 3-page paper
+    assert [type(part) for part in out.attachments] == [ImagePart]
+    assert out.attachments[0].mime_type == "image/png" and out.attachments[0].data[:4] == b"\x89PNG"
+    assert "images_note" not in out.content
+
+    again = session.get_pages({"page_numbers": [2]})
+    assert again.content["pages_returned"] == [] and not again.attachments
+    assert "already provided" in again.content["formatted_chunks"]
+
+
+def test_arbiter_v5_caps_the_page_images_in_one_call_but_still_returns_the_text(doc, monkeypatch):
+    monkeypatch.setattr(reconciliation_v5, "RECONCILIATION_MAX_PAGE_IMAGES", 2)
+    session = _v5_session(VerifyingChat([]), {}, scale=1.0)
+
+    out = session.get_pages({"page_numbers": [1, 2, 3]})
+
+    assert out.content["pages_returned"] == [1, 2, 3] and out.content["page_images"] == [1, 2]
+    assert len(out.attachments) == 2
+    assert "grade 3 or higher" in out.content["formatted_chunks"]  # page 3 came back without its image, not without text
+    assert "[3]" in out.content["images_note"] and "at most 2 page images" in out.content["images_note"]
+
+
+def test_arbiter_v5_spends_the_page_image_budget_once_per_batch(doc, monkeypatch):
+    """The cap is per session, not per call: the images stay in the context for the rest of the batch. A page the loop
+    had to evict gives its share of the budget back, because its image is no longer in the context either."""
+    monkeypatch.setattr(reconciliation_v5, "RECONCILIATION_MAX_PAGE_IMAGES", 1)
+    session = _v5_session(VerifyingChat([]), {}, scale=1.0)
+
+    first = session.get_pages({"page_numbers": [1]})
+    assert len(first.attachments) == 1 and session.images_attached == [1]
+
+    second = session.get_pages({"page_numbers": [2]})
+    assert not second.attachments and second.content["page_images"] == []
+    assert "budget for this batch is spent" in second.content["images_note"]
+    assert "76.6 months" in second.content["formatted_chunks"]  # the text is never withheld
+
+    first.on_evict()
+    assert session.images_attached == [] and session.pages_sent == {2}
+    assert len(session.get_pages({"page_numbers": [1]}).attachments) == 1
+
+
+def test_arbiter_v5_says_so_when_the_run_has_no_page_images(doc):
+    """A model without image support, or EVISEARCH_RECONCILIATION_PAGE_IMAGES=never: get_pages is still the only way to
+    open a page by number, so it returns the text and says the image is missing rather than failing."""
+    session = _v5_session(VerifyingChat([]), {}, scale=None)
+
+    out = session.get_pages({"page_numbers": [2]})
+
+    assert not out.attachments and out.content["page_images"] == []
+    assert "page images are not available" in out.content["images_note"]
+    assert "76.6 months" in out.content["formatted_chunks"]
+
+
+def test_arbiter_v5_has_no_reader_to_ask_in_either_phase(doc):
+    """ask_document built its input with Arm A's own input mode and model, so the reader *was* Agent A: asking it could
+    never break a tie with A. It is gone from v5; v4 keeps it, and keeps its published numbers."""
+    assert [spec.name for spec in reconciliation_v5.paper_tool_specs()] == ["search_chunks", "get_pages"]
+    assert "ask_document" not in reconciliation_v5.FINDINGS_PROMPT + reconciliation_v5.RECONCILE_PROMPT
+    assert "search_pages" not in reconciliation_v5.FINDINGS_PROMPT + reconciliation_v5.RECONCILE_PROMPT
+    assert "ask_document" in reconciliation.SYSTEM_PROMPT  # the published v4 arbiter is untouched
+    assert [spec.name for spec in reconciliation.tool_specs([TRIAL])] == [
+        "ask_document", "search_pages", "verify_attribution", "submit_verification"]
 
 
 def test_batch_concurrency_changes_the_schedule_and_nothing_else(monkeypatch):

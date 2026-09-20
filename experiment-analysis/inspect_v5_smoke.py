@@ -44,4 +44,4 @@ for doc in docs:
         seq2 = [t["name"] for t in (d.get("tool_calls_sequence") or [])]
         print(f"  batch 0 phase 1 tools: {seq1}")
         print(f"  batch 0 phase 2 tools: {seq2}")
-        print(f"  batch 0 candidate pages sample: {dict(list((p1.get('candidate_pages') or {}).items())[:2])}")
+

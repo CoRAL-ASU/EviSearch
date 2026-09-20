@@ -1,30 +1,28 @@
-"""Arbiter v5: read the paper first, then reconcile — the reconciliation stage answers every column itself before it
-is shown what Agent A and Agent B said.
+"""The reconciliation stage, in two phases: a third extraction, then an adjudication over three answers.
 
-Why the stage was rebuilt. Measured on R3 (two runs, 1283 scored cells each), arbiter v4:
+  phase 1  Agent C. The columns are answered from the paper with A's and B's answers hidden, so what this stage
+           brings to the decision is a reading of its own rather than a preference between two it has already seen.
+  phase 2  A's and B's answers are revealed alongside it. The stage decides each column and reports a verdict on
+           all three answers, its own included.
 
-* adopted a correct answer **0 of 22 times** when the agent that was right had answered "Not reported". On all cells
-  where exactly one agent abstained it emitted a value 55 of 55 times in run 1. The failure was structural, not a
-  judgement: `submit_verification` refused an absence whenever any value was supported on a page, and a printed number
-  always is, so a correct "this cell is empty" could never win.
-* leaned on Agent B: right 5 of 11 when Agent A was the one with the right answer, 62 of 70 when it was Agent B. That
-  lean put the shipped table *below* Agent B alone in one of the two runs (91.41 vs 92.09).
-* never formed an opinion of its own. Its prompt said it had no paper; its checker was handed the claimed value and
-  the claimant's page and agreed with the claim 93% of the time, so nothing in the pipeline ever answered a column
-  independently. 40% of batches never opened the paper at all, and the median batch of 15 columns was decided in
-  3 tool calls.
+What it reads with. The stage reads with Agent B's search - `search_chunks`, whole pages, the same `pages_sent`
+bookkeeping - plus one tool Agent B does not have: `get_pages`, which returns a page's text *and* its rendered
+image, the only way to read a value printed inside a figure or a table captured as a picture. The first R4 runs gave
+this stage a search returning four query-matching lines per page, no way to open a page by number, and an
+`ask_document` that was Arm A under another name: 664 of phase 1's 1700 calls went to the very agent it was judging,
+and it answered a quarter of the columns it read. Both of those tools are gone.
 
-The fix is ordering, enforced in code rather than asked for in a prompt — v4's checker prompt already said "find the
-correct answer on the pages YOURSELF, before you look at the claimed value" and was ignored:
+What verify_attribution is for. A second reader opens the pages a value cites, writes the column's answer itself,
+and returns that answer with the page, the quote and the modality. Those three fields are what the viewer highlights
+on the PDF - 674 of 695 shipped values in R4 carried a citation, and every one of them came from a check. So the
+stage's submission gate is provenance, not correctness: a value ships once it has been read on its page, whether or
+not that second reading agreed, and a disagreement sends the cell to a reviewer instead of blocking it. The earlier
+gate, which accepted only values the second reading endorsed, dropped 25 correct values across two runs to save 22
+wrong ones, and its refusals were the route by which six cells were silently blanked.
 
-  phase 1  the columns, their definitions and pages retrieved from the definition text. No A, no B, and
-           verify_attribution is not in the tool set. The stage answers each column, or records that the paper states
-           no answer, and its findings are persisted before phase 2 starts.
-  phase 2  A's and B's answers are revealed alongside its own. verify_attribution becomes available, for checking
-           *their* claims. The stage reports a verdict on each of the three answers, its own included.
-
-An absence is a finding here, not an exemption: phase 1 records the pages it looked at, and phase 2 may ship "Not
-reported" whenever its own reading found nothing — flagged, when an agent had a value, but never refused.
+An absence is an answer, and needs a reason: "Not reported" ships when the stage says which pages it read and what
+they state instead. The earlier condition - that no extraction's value stand unchecked - made *checking* a correct
+value the cheapest way to blank its cell.
 
 v4 stays in `reconciliation.py`, unchanged and selectable, so R3 remains reproducible and the knowledge-notes change
 can be measured against the old arbiter before this one is added.
@@ -33,13 +31,16 @@ from __future__ import annotations
 
 import os
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Callable, Dict, List, Optional, Set, Tuple
 
 from src.config.catalog import ConfigError
-from src.config.config import AGENT_MAX_TOOL_CALLS, AGENT_MAX_TURNS, MAX_TOKENS, PAGE_IMAGE_SCALE, SELECTION
+from src.config.config import (AGENT_MAX_TOOL_CALLS, AGENT_MAX_TURNS, MAX_TOKENS, PAGE_IMAGE_SCALE,
+                               RECONCILIATION_MAX_PAGE_IMAGES, SELECTION)
 from src.evisearch.columns import NOT_REPORTED, column_names, is_no_value
 from src.evisearch.pipelines.results_store import write_json
+from src.evisearch.services import page_images
 from src.evisearch.services.extraction_rules import shared_rules
+from src.evisearch.services.evidence_check import Claim
 from src.evisearch.services.reconciliation import (
     REASONING_CHARS,
     _ReconciliationSession,
@@ -50,7 +51,7 @@ from src.evisearch.services.reconciliation import (
     is_absence,
     tool_specs,
 )
-from src.inference import InferenceError, Tool, ToolOutput, ToolSpec, Usage, get_chat, run_tool_loop
+from src.inference import ImagePart, InferenceError, Tool, ToolOutput, ToolSpec, Usage, get_chat, run_tool_loop
 from src.retrieval import embedding_retriever as retriever
 
 def own_reading_scope() -> str:
@@ -67,10 +68,12 @@ def own_reading_scope() -> str:
     under this scope the stage reads only columns where nobody stated anything. Verified in the transcripts - 0 of 110
     batches in each run, against 4 and 1 under `contested`.
 
-    Why reading more than the contested set hurts: `all` scored 91.80 and 90.56 at twice the GPU. The stage's search
-    tool returns at most SEARCH_LINES_PER_PAGE lines per page where Agent B's returns the whole page, and it has no
-    equivalent of Agent B's get_chunks_by_page, so its reading is thinner than Agent B's on the same retrieval. Every
-    column it forms an opinion about therefore risks displacing a better answer.
+    Why reading more than the contested set hurt: `all` scored 91.80 and 90.56 at twice the GPU. Every column the
+    stage forms an opinion about risks displacing a better answer, and at the time those runs were made its reading was
+    thinner than Agent B's on the same retrieval - its search returned at most SEARCH_LINES_PER_PAGE lines per page
+    where Agent B's returned the whole page, and it could not open a page by number at all. That gap is now closed
+    (see the tool note in the module docstring), so every number in this docstring predates the change and the scope
+    has to be measured again before any of it is trusted.
 
     `all` (the default) reads every column. `contested` reads only the columns where the two agents disagree or both
     abstain, and lets the agreed ones go straight to phase 2.
@@ -118,69 +121,91 @@ RECONCILER_VERSION = "own_reading_v5" + ("" if _SCOPE == "all" else f"_{_SCOPE}"
 # what phase 2 says about each of the three answers it now holds
 VERDICTS = ("correct", "incomplete", "wrong", "no_answer")
 SOURCES = ("own", "A", "B", "merged")
-DEFINITION_PAGES = 3  # candidate pages retrieved per column from its definition, before any agent is consulted
 
-FINDINGS_PROMPT = """You answer clinical trial table columns from the paper itself.
+FINDINGS_PROMPT = f"""You extract clinical trial values from a research paper.
 
-For each column you get its definition and the pages a search of that definition found. Nobody else's answer is shown
-to you: this is your own reading, and it is the only independent reading the pipeline makes.
+You are given columns, each with a definition. Fill every column.
 
-Your tools:
-- search_pages: semantic search over the paper; returns the best matching pages with their most relevant lines.
-- ask_document: a reader that has the whole paper (every page's text and image) answers your questions with the answer,
-  the pages and the evidence. Ask about several columns in one call.
-- submit_findings: your answers.
+WORKFLOW
+1. get_pages([1, 2]) first, and fill what those pages answer.
+2. search_chunks with terms from a column's definition for the columns still open. Do not search for what you
+   already have.
+3. get_pages to read a page in full with its image. Use it for values printed in a figure, a Kaplan-Meier panel, or
+   a table captured as a picture: the parsed text often loses those. At most {RECONCILIATION_MAX_PAGE_IMAGES} page
+   images per batch, after which get_pages still returns the text.
+4. verify_attribution on the values you found, to confirm the page and capture the quote the value will be cited
+   with. It reads the page you name and writes the column's answer itself. Use it on values you have already
+   located - it is not a way to find them.
+5. submit_findings when every column has a value or has been established as not reported.
 
-For every column:
-1. Read the definition and name exactly what it asks for: the statistic, the endpoint or characteristic, the population
-   or subgroup, the arm, the timepoint and the unit.
-2. Find that answer on the pages and copy it as the paper prints it. Quote the text or table cell you took it from and
-   give the page(s) it is on.
-3. When the paper states no answer for this column, submit an empty value (""). That is a finding, not a failure: it is
-   how this pipeline learns that a cell belongs empty, and it is worth as much as a value. Say which pages you looked
-   at before concluding it.
-4. Never write a value the paper does not state. Do not read a number off a curve, and do not compute one unless the
-   knowledge notes license that computation - when they do, show the arithmetic and name the row and column of every
-   number in it.
+RULES
+- Copy the value as the paper prints it.
+- Every column gets either a value with the page it is on, or the list of pages you opened looking for it. Do not
+  leave a column unattempted.
+- Never write a value the paper does not state. Do not read a number off a curve. Do not compute one unless the
+  knowledge notes license that computation; when they do, show the arithmetic and name the row and column of every
+  number in it.
+- Give the page(s) each value is on and the text or table cell you took it from, copied as printed.
+- When the parsed text and the page image disagree, trust the image.
+- Search where the answer would be, not only where a word matches: baseline tables for characteristics, results
+  tables and figure panels for outcomes, the methods for design, the discussion for durations."""
 
-Search where the answer would be, not only where a word matches: baseline tables for characteristics, results tables
-and figure panels for outcomes, the methods for design, the discussion for durations and cross-trial comparisons.
-Answer every column in the batch. Submit them together."""
+RECONCILE_PROMPT = f"""You review two independent extractions of the same paper and decide each column's final value.
 
-RECONCILE_PROMPT = """You decide the final value of clinical trial columns.
+You have already extracted these columns yourself. For each column you now see your answer and two candidates, A and
+B (anonymous), with their reasoning and the pages and evidence they cite.
 
-You have already read the paper and answered these columns yourself. Now two independent extractions of the same paper
-are shown to you (A and B, anonymous). For each column you hold three answers: YOURS, A's and B's.
+WORKFLOW
+1. Where all three agree, submit that value.
+2. Where they differ, read the pages the differing values cite - with get_pages, or with verify_attribution, which
+   gives you a second reader's answer for that column from those pages. You have a fresh budget of
+   {RECONCILIATION_MAX_PAGE_IMAGES} page images here; the pages you opened earlier are not in this context.
+3. Every value you submit must have been through verify_attribution, so the cell ships with the page and the quote a
+   reader can check it against.
+4. submit_verification with, per column: the final value, which answer it came from, and a verdict on each of the
+   three answers.
 
-Your tools:
-- verify_attribution: a checker reads the page(s) (text and image), writes the column's answer itself, and says whether
-  a claimed value IS that answer (supported / partial / not_supported), with what the pages state and a reason tag.
-  Use it on A's and B's values, and on your own when you want a second look. Send many claims in one call.
-- ask_document, search_pages: as before, when you need to look again.
-- submit_verification: the final values.
-
-Deciding a column:
-1. All three agree: submit that value.
-2. They differ: your own reading is evidence, not the answer. Check the values that differ from yours on the pages
-   that are supposed to show them. A value one of them found on a page you did not look at may well be right - adopt
-   it. A value no page supports is not an answer, whoever produced it.
-3. Your own reading can be the wrong one. Say so in own_verdict when it is.
-4. When your reading found no answer and neither extraction has one the checker supports, submit "Not reported". This
-   is accepted: an empty cell is a real answer. Submit it even when a number for something else is printed on the page.
-5. When your reading found no answer but an extraction has a value the checker supports on its page, adopt that value.
-6. A value is accepted only after verify_attribution found it supported on the page given as its source. A value the
-   checker rejected is never accepted.
-7. Answers that are compatible at different levels of detail (a drug class and the drug, a count and the same count
-   with its percentage) are merged into the complete value the definition asks for; set final_source to "merged".
-
-For every column report, besides the value: final_source (own, A, B or merged) and a verdict on each of the three
-answers - own_verdict, a_verdict, b_verdict - each one of correct, incomplete, wrong or no_answer. These verdicts are
-the record of what this stage decided and why; fill them honestly, including when your own answer was the wrong one.
-
-Take the calls you need. Reading the paper again is cheaper than shipping a value nobody checked."""
+RULES
+- verify_attribution is a second reader confined to the pages you name. Where its answer differs from a claim, that
+  is a disagreement for you to settle by looking - not a ruling. Its failure to find a value is not evidence the
+  paper omits one.
+- Answers compatible at different levels of detail (a drug class and the drug, one endpoint variant and both, a
+  count and the same count with its percentage) are merged into the complete value the definition asks for; set
+  final_source to "merged".
+- "Not reported" is a valid final value when you have read the pages a candidate cites and they do not state one.
+  Give absence_basis: the pages you read and what they say instead.
+- Judge each of the three answers on its merits - own_verdict, a_verdict, b_verdict, each one of correct,
+  incomplete, wrong or no_answer. Your own answer gets the same treatment as the other two."""
 
 FINDINGS_FOLLOW_UP = "Continue. Answer the remaining columns and submit them with submit_findings."
 RECONCILE_FOLLOW_UP = "Continue. Fix rejected columns, verify what you still need, and submit every remaining column."
+
+
+def submit_spec_v5(names: List[str]) -> ToolSpec:
+    """v4's submit_verification with two changes: the description no longer says a value needs a supporting verdict
+    (the second reading informs the decision, it does not rule on it), and an absence carries the reading that
+    justifies it."""
+    spec = next(s for s in tool_specs(names) if s.name == "submit_verification")
+    item = spec.parameters["properties"]["results"]["items"]
+    item["properties"]["absence_basis"] = {
+        "type": "object",
+        "description": 'Required with "Not reported" when another answer stated a value: the reading that rules it out.',
+        "properties": {
+            "pages": {"type": "array", "items": {"type": "integer"}, "description": "pages you read"},
+            "page_says": {"type": "string", "description": "what those pages state for this column instead"},
+        },
+    }
+    item["properties"]["final_source"] = {"type": "string", "enum": list(SOURCES)}
+    for key in ("own_verdict", "a_verdict", "b_verdict"):
+        item["properties"][key] = {"type": "string", "enum": list(VERDICTS)}
+    return ToolSpec(
+        name=spec.name,
+        description=("Submit final values for one or more columns. Every value must have been through "
+                     "verify_attribution, so the cell ships with the page and quote a reader can check it against. "
+                     '"Not reported" needs absence_basis when another answer stated a value. The response lists '
+                     "accepted and rejected columns."),
+        parameters=spec.parameters,
+    )
 
 
 def findings_spec(names: List[str]) -> ToolSpec:
@@ -211,38 +236,164 @@ def findings_spec(names: List[str]) -> ToolSpec:
     )
 
 
-class _FindingsSession(_ReconciliationSession):
-    """Phase 1. The v4 session without its sources: the reader and search tools are reused, the checker is withheld."""
+def paper_tool_specs() -> List[ToolSpec]:
+    """The two tools v5 reads the paper with, in both phases. search_chunks is Agent B's, verbatim, so the arbiter sees
+    exactly what the agent it is judging saw; get_pages is Agent B's get_chunks_by_page with the page image added."""
+    return [
+        ToolSpec(
+            name="search_chunks",
+            description="Semantic search over the paper's pages. Returns the best matching pages with full content. "
+                        "Pages you already have show 'already provided; check your context'.",
+            parameters={
+                "type": "object",
+                "properties": {
+                    "query": {"type": "string", "description": "Search query, e.g. 'median overall survival abiraterone months'"},
+                },
+                "required": ["query"],
+            },
+        ),
+        ToolSpec(
+            name="get_pages",
+            description=f"Open pages by number: each page's full content and its rendered image. The image is the only "
+                        f"way to read a value printed inside a figure or a table captured as a picture. At most "
+                        f"{RECONCILIATION_MAX_PAGE_IMAGES} page images per batch; past that the text still comes back.",
+            parameters={
+                "type": "object",
+                "properties": {
+                    "page_numbers": {"type": "array", "items": {"type": "integer"}, "description": "1-based page numbers, e.g. [1, 2, 3]"},
+                },
+                "required": ["page_numbers"],
+            },
+        ),
+    ]
+
+
+class _PaperSession(_ReconciliationSession):
+    """v4's session with Agent B's reading tools bolted on, shared by both v5 phases.
+
+    v4's own tools stay on the class (v4 uses them and is frozen), but v5 hands the model only these two plus its
+    submission tool. What changed and why is in the module docstring: search_pages showed at most four query-matching
+    lines per page, there was no way to open a page by number, and ask_document was Arm A under another name.
+
+    search_chunks below is Agent B's `_SearchSession.search_chunks` (services/search.py) line for line - the same
+    whole-page text, the same "[Page N, score=...]" framing, the same pages_sent set so a page is never sent twice, and
+    the same on_evict callback so a page the loop drops to fit the context can be fetched again. Duplicated rather than
+    imported because Agent B's session is built around its own submission state; tests assert the two payloads match.
+    """
+
+    def __init__(self, *args: Any, **kwargs: Any):
+        super().__init__(*args, **kwargs)
+        self.pages_sent: Set[int] = set()
+        self.images_attached: List[int] = []  # pages whose image was sent, in order, across the whole batch
+
+    def _forget(self, pages: List[int]) -> Callable[[], None]:
+        """Undo the bookkeeping of a tool output the loop had to drop to fit the context: the pages may be fetched
+        again, and the page images that went with them no longer count against the batch's budget."""
+        def undo() -> None:
+            self.pages_sent.difference_update(pages)
+            for page in pages:
+                if page in self.images_attached:
+                    self.images_attached.remove(page)
+        return undo
+
+    # ---- search_chunks: Agent B's tool, unchanged ---------------------------------------------------------------
+
+    def search_chunks(self, args: Dict[str, Any]) -> ToolOutput:
+        query = str(args.get("query", "")).strip()
+        if not query:
+            return ToolOutput({"error": "query is required"})
+        hits = retriever.search_chunks(self.doc_id, query)
+        if not hits:
+            return ToolOutput({"matches": [], "formatted_chunks": "No matching chunks found. Try different search terms.", "pages_returned": []})
+        parts, returned = [], []
+        for hit in hits:
+            page = hit["page"]
+            if page in self.pages_sent:
+                parts.append(f"[Page {page}, score={hit['score']:.2f}] already provided; check your context.")
+            else:
+                parts.append(f"[Page {page}, score={hit['score']:.2f}]\n{hit['text']}")
+                returned.append(page)
+        self.pages_sent.update(returned)
+        formatted = (
+            "\n\n---\n\n".join(parts)
+            if returned
+            else "All retrieved pages have already been provided. Try a different query or submit with what you have."
+        )
+        content = {
+            "matches": [{"page": h["page"], "score": h["score"]} for h in hits],
+            "retrieval": hits[0]["retrieval"],  # "rerank", or "embedding (reranker unavailable: ...)"
+            "formatted_chunks": formatted,
+            "pages_returned": returned,
+        }
+        return ToolOutput(content, on_evict=self._forget(returned))
+
+    # ---- get_pages: Agent B's get_chunks_by_page, plus the page image -------------------------------------------
+
+    def _images_for(self, pages: List[int]) -> Tuple[List[ImagePart], List[int], Optional[str]]:
+        """Rendered images for the pages just returned, within the batch's budget: (attachments, pages shown, note).
+
+        The budget is per session, not per call, because the images stay in that session's context for the rest of it.
+        The two phases are separate conversations, so each gets its own budget. Whatever is left out still had its text
+        returned, and the note says so - a silent drop would leave the model believing it had looked at a figure it
+        never saw.
+        """
+        if not pages:
+            return [], [], None
+        if not self.pdf_path or not self.image_scale:
+            return [], [], "page images are not available in this run; the text above is all this tool can show."
+        room = RECONCILIATION_MAX_PAGE_IMAGES - len(self.images_attached)
+        if room <= 0:
+            return [], [], (f"the page-image budget for this batch is spent ({RECONCILIATION_MAX_PAGE_IMAGES} images), "
+                            f"so page(s) {pages} came back as text only.")
+        try:
+            rendered = page_images.render_pdf_pages_to_png(Path(self.pdf_path), pages[:room], self.image_scale)
+        except Exception as exc:  # a page that will not render must not lose the model the page's text
+            return [], [], f"the page images could not be rendered ({exc}); the text above is all this tool can show."
+        shown = [page for page, _ in rendered]
+        self.images_attached += shown
+        left_out = [page for page in pages if page not in shown]
+        note = None
+        if left_out:
+            note = (f"page image(s) for {left_out} not attached: at most {RECONCILIATION_MAX_PAGE_IMAGES} page images "
+                    f"per batch. Their text is above.")
+        return [ImagePart(png) for _, png in rendered], shown, note
+
+    def get_pages(self, args: Dict[str, Any]) -> ToolOutput:
+        pages = sorted({int(p) for p in args.get("page_numbers") or [] if isinstance(p, (int, float))})
+        content_map = retriever.get_page_content(self.doc_id, pages)
+        parts, returned = [], []
+        for page in pages:
+            if page < 1 or page > self.total_pages:
+                parts.append(content_map.get(page, f"Page {page} does not exist. Document has {self.total_pages} pages."))
+            elif page in self.pages_sent:
+                parts.append(f"[Page {page}] already provided; check your context.")
+            else:
+                parts.append(f"[Page {page}]\n{content_map.get(page, '')}")
+                returned.append(page)
+        self.pages_sent.update(returned)
+        attachments, shown, note = self._images_for(returned)
+        content: Dict[str, Any] = {
+            "formatted_chunks": "\n\n---\n\n".join(parts),
+            "pages_returned": returned,
+            "page_images": shown,
+        }
+        if note:
+            content["images_note"] = note
+        return ToolOutput(content, attachments=attachments, on_evict=self._forget(returned))
+
+
+class _FindingsSession(_PaperSession):
+    """Phase 1. The paper-reading session without its sources: it searches and opens pages, and the checker is
+    withheld - that ordering is the whole point of the design."""
 
     def __init__(self, chat: Any, doc_id: str, batch_columns: List[Dict[str, Any]], definitions_map: Dict[str, str],
                  image_scale: Optional[float]):
         super().__init__(chat, doc_id, batch_columns, definitions_map, {}, {}, image_scale)
         self.found: Dict[str, Dict[str, Any]] = {}
-        self.candidates = {name: self._candidate_pages(name) for name in self.names}
-
-    def _candidate_pages(self, name: str) -> List[int]:
-        """Pages a search of the column's own definition finds. The definition, never an agent's citation: v4 checked
-        only the pages a claiming agent pointed at, so a value neither agent found was unreachable by construction."""
-        query = f"{name}. {self.definitions.get(name, '')}".strip()
-        try:
-            hits = retriever.search_chunks(self.doc_id, query)
-        except Exception:  # retrieval is a convenience here; the model can still search and ask
-            return []
-        pages: List[int] = []
-        for hit in hits:
-            page = hit.get("page")
-            if page and page not in pages:
-                pages.append(int(page))
-            if len(pages) >= DEFINITION_PAGES:
-                break
-        return pages
 
     def user_prompt(self) -> str:
-        blocks = []
-        for i, name in enumerate(self.names, 1):
-            pages = self.candidates.get(name) or []
-            where = f"\nPages a search of this definition found: {pages}" if pages else "\nNo page matched this definition strongly."
-            blocks.append(f"\n---\nColumn {i}: {name}\nDefinition: {self.definitions.get(name, '')}{where}")
+        blocks = [f"\n---\nColumn {i}: {name}\nDefinition: {self.definitions.get(name, '')}"
+                  for i, name in enumerate(self.names, 1)]
         return (
             f"Answer the following columns from the paper. It has {self.total_pages} pages.\n"
             f"\nCOLUMNS:{''.join(blocks)}\n\nAnswer every column, then submit them with submit_findings."
@@ -263,7 +414,7 @@ class _FindingsSession(_ReconciliationSession):
                 "value": "" if is_no_value(value) else value,
                 "pages": list(pages) if pages else [],
                 "evidence": str(item.get("evidence") or "").strip(),
-                "looked_at": looked or (list(pages) if pages else self.candidates.get(name) or []),
+                "looked_at": looked or (list(pages) if pages else []),
                 "reasoning": str(item.get("reasoning") or "").strip(),
             }
             accepted.append(name)
@@ -287,8 +438,9 @@ class _FindingsSession(_ReconciliationSession):
         }
 
 
-class _ReconcileSession(_ReconciliationSession):
-    """Phase 2. v4's session, plus the stage's own findings, three-way verdicts, and absence treated as an answer."""
+class _ReconcileSession(_PaperSession):
+    """Phase 2. The same reading session, plus the stage's own findings, three-way verdicts, and absence treated as
+    an answer."""
 
     def __init__(self, *args: Any, own: Dict[str, Dict[str, Any]], **kwargs: Any):
         super().__init__(*args, **kwargs)
@@ -331,17 +483,6 @@ class _ReconcileSession(_ReconciliationSession):
     def own_value(self, name: str) -> str:
         return (self.own.get(name) or {}).get("value") or ""
 
-    def own_found_nothing(self, name: str) -> bool:
-        """Only true when this stage actually looked and the paper had no answer.
-
-        A column it never read - because phase 1 failed on it, or because the scope left agreed columns alone - is not
-        evidence of absence, and must not let an absence through on the strength of a reading that never happened.
-        """
-        own = self.own.get(name) or {}
-        if own.get("unread") or own.get("skipped"):
-            return False
-        return is_no_value(own.get("value"))
-
     def _verdict_block(self, name: str, item: Dict[str, Any], value: str) -> Dict[str, Any]:
         """The submitted verdicts, defaulted from the values themselves when the model left one out."""
         def clean(key: str, answer: str) -> str:
@@ -364,8 +505,38 @@ class _ReconcileSession(_ReconciliationSession):
             "b_verdict": clean("b_verdict", self.sources["B"][name]["value"]),
         }
 
+    def citation_for(self, name: str, value: str, item: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+        """The verify_attribution record this value will be cited with, or None if it has never been read.
+
+        A record exists for exactly this value on the pages it names, or on pages covering them. The verdict does not
+        enter here: what the record supplies is the page, the quote and the modality the cell ships with, and a
+        second reader's own answer next to it. Whether that reader agreed is recorded, not enforced.
+        """
+        source = item.get("source") if isinstance(item.get("source"), dict) else {}
+        pages = _claim_pages(source)
+        if pages:
+            exact = self.checks.get(Claim(name, value, pages).key)
+            if exact:
+                return exact
+        same = [r for r in self.checks.values() if r["column"] == name and _same(r["value"], value)]
+        if pages:
+            covering = [r for r in same if set(pages) <= set(r["pages"])]
+            if covering:
+                return covering[0]
+        return same[0] if same else None
+
     def final(self, name: str, value: str, record: Optional[Dict[str, Any]], **kwargs: Any) -> Dict[str, Any]:
         result = super().final(name, value, record, **kwargs)
+        # The record's `evidence` is the second reader's quote for its OWN answer. When we ship a value that reader
+        # did not arrive at, that quote does not support this cell - cite the extraction's own quote instead.
+        if record and not is_absence(value) and not (_same(record.get("value", ""), value)
+                                                     and record.get("verdict") == "supported"):
+            quote = str(record.get("claimed_evidence") or record.get("evidence") or "")
+            if isinstance(result.get("source"), dict) and result["source"].get("page"):
+                result["source"]["verbatim_quote"] = quote
+            for i, entry in enumerate(result.get("attribution") or []):
+                if i == 0:
+                    entry["verbatim_quote"] = quote
         own = self.own.get(name) or {}
         result["own_finding"] = {k: own.get(k) for k in ("value", "pages", "evidence", "looked_at", "unread")}
         result.update(self.verdicts.get(name) or {})
@@ -396,71 +567,75 @@ class _ReconcileSession(_ReconciliationSession):
     # ---- submission ------------------------------------------------------------------------------------------
 
     def submit_verification(self, args: Dict[str, Any]) -> ToolOutput:
-        """v4's submission, with the absence asymmetry removed.
+        """Two gates, neither of them about who is right.
 
-        v4 refused "Not reported" whenever any value stood supported on a page, and had no symmetric rule refusing a
-        value. Here the stage's own reading decides: it may ship an absence its own reading supports (flagged when an
-        extraction had a value), and it is pushed back once when it tries to drop a value it found itself.
+        A value ships once it has been through verify_attribution - not once that reading agreed with it. The gate is
+        provenance: the record supplies the page, the quote and the modality the cell is cited with, and without one
+        the cell reaches the viewer with nothing to click. Measured on R4, 674 of 695 shipped values carried a
+        citation and every one of them came from a check; the 21 without one had no page and no quote at all. Where
+        the second reading disagreed and we ship anyway, the cell goes to the reviewer rather than being refused -
+        those refusals cost 25 correct values across two runs and saved 22 wrong ones.
+
+        An absence ships once the stage says what it read instead. v4 refused an absence while a stated value stood
+        unchecked, which let a *checked* value be blanked for free - six of the nine cells the checker broke went out
+        that way. The condition is now unexplained rather than unchecked, and only a reading satisfies it.
         """
         entries, note = _items(args, "results")
         handled: List[Dict[str, Any]] = []
-        passthrough: List[Dict[str, Any]] = []
         for item in entries:
             name = item.get("column")
             value = str(item.get("value") or "").strip()
             if name not in self.names or name in self.submitted:
-                passthrough.append(item)
+                handled.append({"column": str(name), "accepted": False, "reason": "not a column of this batch, or already submitted"})
                 continue
             self.verdicts[name] = self._verdict_block(name, item, value)
-            if not is_absence(value):
-                own = self.own_value(name)
-                if own and not _same(value, own) and not item.get("review") and name not in self.attempts:
-                    # shipping something other than its own reading is allowed, but not on the first pass without a check
-                    pass
-                passthrough.append(item)
-                continue
-            if self.own_found_nothing(name):
-                # An absence may win, but not before the other readings have actually been tested. v4 refused an
-                # absence while an extraction's value stood unchecked; dropping that guard let this stage blank a
-                # cell whose only stated value nobody had looked at - 5 of the 12 cells it wrongly blanked in the
-                # first contested run. Its own reading finding nothing is evidence, not proof: Agent B's retrieval
-                # reaches pages this stage's does not.
-                unchecked = self.unchecked_values(name)
-                if unchecked and not item.get("review"):
+            reasoning = str(item.get("reasoning") or "")
+            review_reason = str(item.get("review_reason") or "").strip()
+
+            if is_absence(value):
+                stated = [v for v in (self.sources["A"][name]["value"], self.sources["B"][name]["value"],
+                                      self.own_value(name)) if v and not is_absence(v)]
+                basis = item.get("absence_basis") if isinstance(item.get("absence_basis"), dict) else {}
+                pages = [p for p in (basis.get("pages") or []) if isinstance(p, int)]
+                says = str(basis.get("page_says") or "").strip()
+                if stated and not (pages and says) and not item.get("review"):
                     handled.append({"column": name, "accepted": False, "reason": (
-                        f'an extraction reported "{unchecked[0]}" for this column and no check has looked at it. '
-                        f"Your own reading found nothing, which is not the same as the paper stating nothing: verify "
-                        f"that value with verify_attribution first. If it fails the check, "
-                        f'"{value or NOT_REPORTED}" is accepted.')})
+                        f'"{stated[0][:80]}" was reported for this column. Give absence_basis - the page(s) you read '
+                        f'and what they say for this column instead - or submit a value.')})
                     continue
-                standing = self.standing(name)
-                flag = ""
-                if standing:
-                    best = standing[0]
-                    flag = (f'an extraction reported "{best["value"]}" and the checker found it {best["verdict"]} on '
-                            f'page(s) {best["pages"]}, but this stage\'s own reading of page(s) '
-                            f'{(self.own.get(name) or {}).get("looked_at")} found no answer for this column')
+                if stated and not review_reason:
+                    review_reason = (f'shipped empty over "{stated[0][:60]}"'
+                                     + (f"; read page(s) {pages}: {says[:120]}" if pages and says else ""))
                 self.submitted[name] = self.final(
-                    name, value, None, reasoning=str(item.get("reasoning") or ""), decided_by="own_reading",
-                    verification=None, review_reason=str(item.get("review_reason") or "") or flag,
+                    name, value, None, reasoning=reasoning, decided_by="own_reading",
+                    verification=item.get("verification"), review_reason=review_reason,
                 )
                 handled.append({"column": name, "accepted": True})
                 continue
-            if self.own_value(name) and not item.get("review"):
+
+            record = self.citation_for(name, value, item)
+            if record is None:
                 handled.append({"column": name, "accepted": False, "reason": (
-                    f'your own reading found "{self.own_value(name)}" on page(s) {(self.own.get(name) or {}).get("pages")} '
-                    f'for this column. Submitting "{value or NOT_REPORTED}" discards it: verify your own value and submit '
-                    f"it, or resubmit with review=true and a review_reason saying why your reading was wrong.")})
+                    f'"{value[:80]}" has not been through verify_attribution. Every value ships with the page and '
+                    f"the quote a reader can check it against: verify it on the page it is printed on, then submit "
+                    f"it again.")})
+                self.attempts[name] = {"value": value, "reasoning": reasoning,
+                                       "verification": item.get("verification"), "record": None}
                 continue
-            passthrough.append(item)
-        out = super().submit_verification({"results": passthrough}) if passthrough else ToolOutput({"accepted": [], "rejected": []})
-        content = dict(out.content if isinstance(out.content, dict) else {})
-        accepted = list(content.get("accepted") or []) + [h["column"] for h in handled if h.get("accepted")]
-        rejected = list(content.get("rejected") or []) + [
-            {"column": h["column"], "reason": h["reason"]} for h in handled if not h.get("accepted")
-        ]
-        content.update({"accepted": accepted, "rejected": rejected,
-                        "remaining": [n for n in self.names if n not in self.submitted]})
+            if record["verdict"] != "supported" and not review_reason:
+                review_reason = (f'the second reading of page(s) {record["pages"]} gave '
+                                 f'"{str(record.get("page_value") or "")[:60]}" ({record["verdict"]})')
+            self.submitted[name] = self.final(
+                name, value, record, reasoning=reasoning, decided_by="agent",
+                verification=item.get("verification"), review_reason=review_reason,
+            )
+            handled.append({"column": name, "accepted": True})
+
+        content: Dict[str, Any] = {
+            "accepted": [h["column"] for h in handled if h.get("accepted")],
+            "rejected": [{"column": h["column"], "reason": h["reason"]} for h in handled if not h.get("accepted")],
+            "remaining": [n for n in self.names if n not in self.submitted],
+        }
         if note:
             content["note"] = note
         return ToolOutput(content)
@@ -492,7 +667,7 @@ def run_reconciliation_agent(
 
     use_images = SELECTION.option("reconciliation_page_images") == "auto" and chat.capabilities.images
     scale = PAGE_IMAGE_SCALE if use_images else None
-    specs = {spec.name: spec for spec in tool_specs(names)}
+    specs = {spec.name: spec for spec in list(tool_specs(names)) + paper_tool_specs()}
     usage = Usage()
 
     # ---- phase 1: the stage's own reading, with no access to A or B ------------------------------------------
@@ -520,8 +695,9 @@ def run_reconciliation_agent(
             system=FINDINGS_PROMPT + shared_rules(columns=read_names, role="auditor"),
             user=reading.user_prompt(),
             tools=[
-                Tool(specs["ask_document"], reading.ask_document),
-                Tool(specs["search_pages"], reading.search_pages),
+                Tool(specs["search_chunks"], reading.search_chunks),
+                Tool(specs["get_pages"], reading.get_pages),
+                Tool(specs["verify_attribution"], reading.verify_attribution),
                 Tool(findings_spec(read_names), reading.submit_findings),
             ],
             max_turns=AGENT_MAX_TURNS,
@@ -533,22 +709,25 @@ def run_reconciliation_agent(
         )
         own = {**not_read, **reading.findings()}
         usage.add(phase1.usage).add(reading.tool_usage)
-        candidates = reading.candidates
     else:  # every column in this batch was agreed: there is no reading pass to make
         own = not_read
-        candidates = {}
 
     # ---- phase 2: A and B revealed, its own answer already committed -----------------------------------------
     session = _ReconcileSession(chat, doc_id, batch_columns, definitions_map, source_a_data, source_b_data, scale, own=own)
+    if phase1 is not None:
+        # a page phase 1 already had read carries its record forward: the citation is paid for once, and phase 2 sees
+        # what that reading said rather than calling for it again
+        session.checks.update(reading.checks)
+        session.verifier_calls.extend(reading.verifier_calls)
     phase2 = run_tool_loop(
         chat,
         system=RECONCILE_PROMPT + shared_rules(columns=names, role="agent"),
         user=session.user_prompt(),
         tools=[
-            Tool(specs["ask_document"], session.ask_document),
-            Tool(specs["search_pages"], session.search_pages),
+            Tool(specs["search_chunks"], session.search_chunks),
+            Tool(specs["get_pages"], session.get_pages),
             Tool(specs["verify_attribution"], session.verify_attribution),
-            Tool(specs["submit_verification"], session.submit_verification),
+            Tool(submit_spec_v5(names), session.submit_verification),
         ],
         max_turns=AGENT_MAX_TURNS,
         max_tool_calls=AGENT_MAX_TOOL_CALLS,
@@ -577,16 +756,17 @@ def run_reconciliation_agent(
                     "not_read_because_agreed": skipped,
                     "stopped_by": phase1.stopped_by if phase1 else "not run",
                     "error": phase1.error if phase1 else None,
-                    "candidate_pages": candidates,
                     "findings": own,
-                    "reader_calls": reading.reader_calls if phase1 else [],
+                    "page_images": len(reading.images_attached) if phase1 else 0,
+                    "pages_with_images": reading.images_attached if phase1 else [],
                     "tool_calls_sequence": [{"name": e["name"], "args": e["args"]}
                                             for e in (phase1.transcript if phase1 else []) if e["role"] == "tool"],
                     "conversation": phase1.transcript if phase1 else [],
                 },
                 "stopped_by": phase2.stopped_by,
                 "error": phase2.error,
-                "reader_calls": session.reader_calls,
+                "page_images": len(session.images_attached),
+                "pages_with_images": session.images_attached,
                 "verifier_calls": session.verifier_calls,
                 "checks": list(session.checks.values()),
                 "tool_calls_sequence": [{"name": e["name"], "args": e["args"]} for e in phase2.transcript if e["role"] == "tool"],
