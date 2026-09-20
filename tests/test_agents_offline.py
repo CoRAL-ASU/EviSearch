@@ -16,6 +16,7 @@ import src.evisearch.pipelines.unified_extraction as unified_extraction
 import src.evisearch.services.evidence_check as evidence_check
 import src.evisearch.services.pdf_query as pdf_query
 import src.evisearch.services.reconciliation as reconciliation
+import src.evisearch.services.reconciliation_v5 as reconciliation_v5
 import src.evisearch.services.search as search
 import src.retrieval.embedding_retriever as retriever
 from src.config.catalog import Capabilities, ModelSpec, load_catalog
@@ -715,3 +716,113 @@ def test_unified_extraction_requires_prepared_document(doc, monkeypatch):
     result = unified_extraction.run_unified_extraction("doc-1", on_event=events.append)
     assert "prepare the document" in result["error"]
     assert events == [{"type": "error", "error": result["error"]}]
+
+
+# ---- Arbiter v5: read the paper first, then reconcile -----------------------------------------------
+
+def _v5_session(chat, own, source_a=None, source_b=None, batch=None):
+    return reconciliation_v5._ReconcileSession(
+        chat, "doc-1", batch or BATCH, {}, source_a or {}, source_b or {}, None, own=own
+    )
+
+
+def test_arbiter_v5_answers_every_column_before_it_is_shown_the_agents(doc, monkeypatch):
+    source_a = {TRIAL: _claim("STAMPEDE", 1), MEDIAN_OS: _claim("45.7", 2, "ADT 45.7 mo")}
+    source_b = {TRIAL: _claim("STAMPEDE", 1), MEDIAN_OS: {"value": "Not reported"}}
+    chat = VerifyingChat([
+        [("submit_findings", {"findings": [
+            {"column": TRIAL, "value": "STAMPEDE", "pages": [1], "evidence": "STAMPEDE", "reasoning": "title"},
+            {"column": MEDIAN_OS, "value": "76.6", "pages": [2], "evidence": "76.6 months", "reasoning": "Table 2"},
+        ]})],
+        [("verify_attribution", {"claims": [
+            {"column": TRIAL, "value": "STAMPEDE", "page": 1}, {"column": MEDIAN_OS, "value": "76.6", "page": 2}]})],
+        [("submit_verification", {"results": [
+            {"column": TRIAL, "value": "STAMPEDE", "reasoning": "all three agree", "source": {"page": 1},
+             "final_source": "own", "own_verdict": "correct", "a_verdict": "correct", "b_verdict": "correct"},
+            {"column": MEDIAN_OS, "value": "76.6", "reasoning": "my reading, verified", "source": {"page": 2},
+             "final_source": "own", "own_verdict": "correct", "a_verdict": "wrong", "b_verdict": "no_answer"},
+        ]})],
+    ])
+    _use(reconciliation_v5, chat, monkeypatch)
+
+    results, _ = reconciliation_v5.run_reconciliation_agent("doc-1", BATCH, {}, source_a, source_b)
+
+    phase1 = chat.requests[0]
+    assert phase1["tools"] == ["ask_document", "search_pages", "submit_findings"]  # no checker in phase 1
+    assert "45.7" not in phase1["messages"][1].text and "A:" not in phase1["messages"][1].text  # no agent answers
+    phase2 = chat.requests[1]
+    assert phase2["tools"] == ["ask_document", "search_pages", "verify_attribution", "submit_verification"]
+    prompt2 = phase2["messages"][1].text
+    assert 'YOURS: "76.6"' in prompt2 and 'A: "45.7"' in prompt2  # its own answer is committed before A and B appear
+    os_cell = results[MEDIAN_OS]
+    assert os_cell["value"] == "76.6" and os_cell["verified"]
+    assert os_cell["own_finding"]["value"] == "76.6" and os_cell["own_finding"]["pages"] == [2]
+    assert (os_cell["final_source"], os_cell["a_verdict"], os_cell["b_verdict"]) == ("own", "wrong", "no_answer")
+
+
+def test_arbiter_v5_lets_a_correct_absence_beat_a_value_standing_on_a_page(doc):
+    """v4 refused "Not reported" whenever any value was supported on a page; it adopted a correct abstention 0 of 22
+    times across the two R3 runs. Here the stage's own reading decides, and the conflict is flagged, not overruled."""
+    chat = VerifyingChat([])
+    own = {MEDIAN_OS: {"value": "", "pages": [], "evidence": "", "looked_at": [1, 2, 3], "reasoning": "no OS for this arm"}}
+    session = _v5_session(chat, own, source_a={MEDIAN_OS: _claim("76.6", 2)})
+    session.verify_attribution({"claims": [{"column": MEDIAN_OS, "value": "76.6", "page": 2}]})
+    assert session.standing(MEDIAN_OS)  # a value for the column does stand supported on a page
+
+    out = session.submit_verification({"results": [
+        {"column": MEDIAN_OS, "value": "Not reported", "reasoning": "my reading found none",
+         "final_source": "own", "own_verdict": "correct", "a_verdict": "wrong", "b_verdict": "no_answer"},
+    ]}).content
+
+    assert out["accepted"] == [MEDIAN_OS] and not out["rejected"]
+    cell = session.submitted[MEDIAN_OS]
+    assert cell["value"] == "Not reported" and cell["decided_by"] == "own_reading"
+    assert cell["needs_review"] and "own reading" in cell["review_reason"] and "76.6" in cell["review_reason"]
+    assert cell["own_finding"]["looked_at"] == [1, 2, 3]
+
+
+def test_arbiter_v5_pushes_back_once_when_it_discards_its_own_finding(doc):
+    chat = VerifyingChat([])
+    own = {MEDIAN_OS: {"value": "76.6", "pages": [2], "evidence": "76.6 months", "looked_at": [2], "reasoning": "Table 2"}}
+    session = _v5_session(chat, own, source_b={MEDIAN_OS: {"value": "Not reported"}})
+
+    first = session.submit_verification({"results": [
+        {"column": MEDIAN_OS, "value": "Not reported", "reasoning": "B says none"},
+    ]}).content
+    assert first["accepted"] == [] and "your own reading found" in first["rejected"][0]["reason"]
+
+    second = session.submit_verification({"results": [
+        {"column": MEDIAN_OS, "value": "Not reported", "reasoning": "my page 2 read the control arm",
+         "review": True, "review_reason": "my own reading took the wrong arm", "own_verdict": "wrong"},
+    ]}).content
+    assert second["accepted"] == [MEDIAN_OS]
+    cell = session.submitted[MEDIAN_OS]
+    assert cell["value"] == "Not reported" and cell["own_verdict"] == "wrong" and cell["needs_review"]
+
+
+def test_arbiter_v5_defaults_the_three_verdicts_from_the_values_when_the_model_omits_them(doc):
+    chat = VerifyingChat([])
+    own = {TRIAL: {"value": "STAMPEDE", "pages": [1], "evidence": "", "looked_at": [1], "reasoning": ""}}
+    session = _v5_session(chat, own, source_a={TRIAL: _claim("STAMPEDE", 1)}, source_b={TRIAL: {"value": "Not reported"}})
+    session.verify_attribution({"claims": [{"column": TRIAL, "value": "STAMPEDE", "page": 1}]})
+    session.submit_verification({"results": [{"column": TRIAL, "value": "STAMPEDE", "reasoning": "agree", "source": {"page": 1}}]})
+    cell = session.submitted[TRIAL]
+    assert cell["final_source"] == "own" and cell["own_verdict"] == "correct"
+    assert cell["a_verdict"] == "correct" and cell["b_verdict"] == "no_answer"
+
+
+def test_arbiter_v5_withholds_the_extraction_notes_from_its_own_reading_pass(monkeypatch):
+    """The auditor inherits what the columns mean, not how the agents look things up: every wrong rule in the previous
+    knowledge base was confirmed unanimously because one text went to all six prompts, the checker included."""
+    from src.evisearch.knowledge import notes
+    from src.evisearch.services import extraction_rules
+
+    monkeypatch.setenv("EVISEARCH_KB", "notes")
+    if not notes.load_notes("all"):
+        pytest.skip("no knowledge notes in this checkout")
+    agent_text = extraction_rules.shared_rules(role="agent")
+    auditor_text = extraction_rules.shared_rules(role="auditor")
+    assert len(auditor_text) < len(agent_text)
+    assert "### statistics-and-units" in auditor_text  # what a column means: both roles
+    assert "### figures-and-panels" in agent_text and "### figures-and-panels" not in auditor_text  # method: agents only
+    assert extraction_rules.rules_setting()["extraction_rules"].startswith("notes:")

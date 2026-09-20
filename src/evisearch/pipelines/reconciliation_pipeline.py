@@ -39,16 +39,33 @@ from src.evisearch.pipelines.batching import (
 )
 
 
+def arbiter_module():
+    """The reconciliation implementation this run uses.
+
+    EVISEARCH_ARBITER=v5 selects the two-phase arbiter (it reads the paper and answers every column before it is shown
+    A's and B's answers). Default v4 is the arbiter every run up to R3 used, kept so those runs stay reproducible and
+    so a knowledge-base change can be measured against the old arbiter before the new one is added.
+    """
+    import os
+
+    if os.getenv("EVISEARCH_ARBITER", "").strip().lower() in {"v5", "own_reading_v5"}:
+        from src.evisearch.services import reconciliation_v5
+
+        return reconciliation_v5
+    from src.evisearch.services import reconciliation
+
+    return reconciliation
+
+
 def run_settings(model_key: str) -> Dict[str, Any]:
     """Settings that must match for saved reconciliation results to be resumed."""
     from src.evisearch.services.extraction_rules import rules_setting
-    from src.evisearch.services.reconciliation import RECONCILER_VERSION
 
     images = SELECTION.option("reconciliation_page_images") == "auto" and SELECTION.catalog.models[model_key].capabilities.images
     return {
         "model": model_key,
         "page_image_scale": PAGE_IMAGE_SCALE if images else None,
-        "reconciler": RECONCILER_VERSION,
+        "reconciler": arbiter_module().RECONCILER_VERSION,
         **rules_setting(),
     }
 
@@ -62,7 +79,7 @@ def run_reconciliation_pipeline(
     max_per_batch: int = BATCH_MAX_COLUMNS,
 ) -> Dict[str, Any]:
     """Returns {"columns": {...}, "error": str | None, "usage": {...}}."""
-    from src.evisearch.services.reconciliation import run_reconciliation_agent
+    run_reconciliation_agent = arbiter_module().run_reconciliation_agent
     from src.inference.factory import model_key_for
 
     started = time.time()

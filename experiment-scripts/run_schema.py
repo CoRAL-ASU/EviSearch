@@ -30,7 +30,10 @@ def main() -> int:
     parser.add_argument("--version", type=int, help="locked version (default: the latest locked one)")
     parser.add_argument("--system", default="E", choices=["B1", "B2", "E"])
     parser.add_argument("--docs", required=True)
-    parser.add_argument("--kb", default="on", choices=["on", "off"], help="conventions knowledge base in the prompts")
+    parser.add_argument("--kb", default="on", choices=["on", "off", "notes"],
+                        help="knowledge base in the prompts: on = the one-line conventions (every run up to R3), "
+                             "notes = the markdown notes tree, role-gated so the arbiter's own reading pass gets the "
+                             "definition notes only, off = the fixed rules text")
     parser.add_argument("--run", help="run name (default: schema-<id>-v<N>, with -kboff / -b1 suffixes when they apply)")
     parser.add_argument("--parallel", type=int, default=2)
     parser.add_argument("--reuse-a-from")
@@ -43,12 +46,20 @@ def main() -> int:
     if version is None or version not in versions:
         parser.error(f"schema {args.schema} has no locked version {args.version or ''} (locked: {versions})")
     csv_path = store.schema_dir(args.schema) / "versions" / f"v{version}.csv"
-    run = args.run or store.run_name(args.schema, version) + ("" if args.kb == "on" else "-kboff") + ("" if args.system == "E" else f"-{args.system.lower()}")
+    kb_suffix = {"on": "", "notes": "-notes", "off": "-kboff"}[args.kb]
+    run = args.run or store.run_name(args.schema, version) + kb_suffix + ("" if args.system == "E" else f"-{args.system.lower()}")
 
-    env = dict(os.environ, EVISEARCH_DEFINITIONS_CSV=str(csv_path), EVISEARCH_KB="on" if args.kb == "on" else "off")
+    env = dict(os.environ, EVISEARCH_DEFINITIONS_CSV=str(csv_path),
+               EVISEARCH_KB={"on": "on", "notes": "notes", "off": "off"}[args.kb])
     env.setdefault("EVISEARCH_EXTRACTION_RULES", "v5")  # used only when the knowledge base is off
     snapshot = None
-    if args.kb == "on":  # the run reads the conventions as they are now, whatever reviewers approve while it runs
+    if args.kb == "notes":  # the run reads the notes as they are now, whatever anyone edits while it runs
+        from src.evisearch.knowledge import notes as kb_notes
+
+        snapshot = kb_notes.snapshot()
+        env["EVISEARCH_KB_NOTES_SNAPSHOT"] = str(snapshot)
+        print(f"[run_schema] knowledge notes frozen for this run: {snapshot}", flush=True)
+    elif args.kb == "on":  # the run reads the conventions as they are now, whatever reviewers approve while it runs
         from src.evisearch.knowledge import conventions
 
         snapshot = conventions.snapshot()

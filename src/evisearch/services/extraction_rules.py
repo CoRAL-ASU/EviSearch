@@ -136,8 +136,9 @@ def rules_version() -> str:
 
 
 def knowledge_base_on() -> bool:
-    """EVISEARCH_KB=on: the prompts get the conventions knowledge base (KNOWLEDGE_DIR) instead of a fixed rules text."""
-    return os.getenv("EVISEARCH_KB", "").strip().lower() in {"1", "on", "true", "yes"}
+    """EVISEARCH_KB=on|notes: the prompts get the knowledge base (KNOWLEDGE_DIR) instead of a fixed rules text.
+    `on` renders the one-line conventions (every run up to R3); `notes` renders the markdown notes tree."""
+    return os.getenv("EVISEARCH_KB", "").strip().lower() in {"1", "on", "true", "yes", "notes"}
 
 
 def _kb_conventions():
@@ -154,10 +155,36 @@ def kb_delivery() -> str:
     return "scoped" if os.getenv("EVISEARCH_KB_DELIVERY", "").strip().lower() == "scoped" else "all"
 
 
-def shared_rules(version: Optional[str] = None, columns: Optional[Iterable[str]] = None) -> str:
-    """The conventions text for a prompt; `columns` (the batch's column names) selects the scoped conventions when the
-    knowledge base is on with scoped delivery. Without columns every convention is included."""
+def kb_format() -> str:
+    """EVISEARCH_KB=notes: the prompts get the markdown knowledge notes (KNOWLEDGE_DIR/notes) instead of the one-line
+    conventions. `on` keeps the conventions rendering used by every run up to R3."""
+    return "notes" if os.getenv("EVISEARCH_KB", "").strip().lower() == "notes" else "conventions"
+
+
+def _kb_notes():
+    """The run's frozen notes (EVISEARCH_KB_NOTES_SNAPSHOT, written at launch) or, without one, the live notes tree."""
+    from src.evisearch.knowledge import notes
+
+    path = os.getenv("EVISEARCH_KB_NOTES_SNAPSHOT", "").strip()
+    return notes.load_snapshot(path) if path else notes.load_notes("all")
+
+
+def shared_rules(version: Optional[str] = None, columns: Optional[Iterable[str]] = None, role: str = "agent") -> str:
+    """The knowledge text for a prompt.
+
+    `columns` (the batch's column names) selects the scoped knowledge; without columns everything is included.
+    `role` decides which notes the caller may read: `agent` gets the definition and extraction notes, `auditor` gets
+    the definition notes only, so the reconciliation stage's own reading pass does not inherit the agents' method and
+    can disagree with them. The role is ignored in `conventions` format, where one text went to every prompt.
+    """
     if version is None and knowledge_base_on():
+        if kb_format() == "notes":
+            from src.evisearch.knowledge import notes
+
+            selected = notes.for_role(_kb_notes(), role)
+            if columns is not None and kb_delivery() == "scoped":
+                selected = notes.select_for(selected, columns)
+            return notes.render(selected)
         from src.evisearch.knowledge import conventions
 
         selected = _kb_conventions()
@@ -172,9 +199,13 @@ def rules_setting(version: Optional[str] = None) -> Dict[str, Optional[str]]:
     before the option existed (no key), while v1 and none results can never be mixed in either direction. With the
     knowledge base on, its fingerprint is recorded instead, so results made with different conventions never mix."""
     if version is None and knowledge_base_on():
+        scoped = ":scoped" if kb_delivery() == "scoped" else ""
+        if kb_format() == "notes":
+            from src.evisearch.knowledge import notes
+
+            return {"extraction_rules": f"notes:{notes.fingerprint(_kb_notes())}{scoped}"}
         from src.evisearch.knowledge import conventions
 
-        scoped = ":scoped" if kb_delivery() == "scoped" else ""
         return {"extraction_rules": f"kb:{conventions.fingerprint(_kb_conventions())}{scoped}"}
     version = version or rules_version()
     return {"extraction_rules": None if version == "none" else version}
