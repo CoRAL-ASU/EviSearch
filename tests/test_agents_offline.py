@@ -781,6 +781,26 @@ def test_arbiter_v5_lets_a_correct_absence_beat_a_value_standing_on_a_page(doc):
     assert cell["own_finding"]["looked_at"] == [1, 2, 3]
 
 
+def test_arbiter_v5_will_not_blank_a_cell_whose_only_stated_value_was_never_checked(doc):
+    """Its own reading finding nothing is evidence, not proof: Agent B's retrieval reaches pages this stage's does not.
+    In the first contested run, 5 of the 12 cells it wrongly blanked had an agent value nobody had looked at."""
+    chat = VerifyingChat([])
+    own = {MEDIAN_OS: {"value": "", "pages": [], "evidence": "", "looked_at": [1, 3], "reasoning": "found nothing"}}
+    session = _v5_session(chat, own, source_a={MEDIAN_OS: _claim("76.6", 2)})
+
+    first = session.submit_verification({"results": [
+        {"column": MEDIAN_OS, "value": "Not reported", "reasoning": "my reading found none"},
+    ]}).content
+    assert first["accepted"] == [] and "no check has looked at it" in first["rejected"][0]["reason"]
+
+    session.verify_attribution({"claims": [{"column": MEDIAN_OS, "value": "76.6", "page": 2}]})
+    after = session.submit_verification({"results": [
+        {"column": MEDIAN_OS, "value": "Not reported", "reasoning": "checked; the page does not answer this column"},
+    ]}).content
+    assert after["accepted"] == [MEDIAN_OS]  # once the value has been tested, the absence may still win
+    assert session.submitted[MEDIAN_OS]["needs_review"]  # and is flagged, because an extraction disagreed
+
+
 def test_arbiter_v5_pushes_back_once_when_it_discards_its_own_finding(doc):
     chat = VerifyingChat([])
     own = {MEDIAN_OS: {"value": "76.6", "pages": [2], "evidence": "76.6 months", "looked_at": [2], "reasoning": "Table 2"}}

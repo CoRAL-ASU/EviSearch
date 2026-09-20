@@ -375,6 +375,19 @@ class _ReconcileSession(_ReconciliationSession):
                 passthrough.append(item)
                 continue
             if self.own_found_nothing(name):
+                # An absence may win, but not before the other readings have actually been tested. v4 refused an
+                # absence while an extraction's value stood unchecked; dropping that guard let this stage blank a
+                # cell whose only stated value nobody had looked at - 5 of the 12 cells it wrongly blanked in the
+                # first contested run. Its own reading finding nothing is evidence, not proof: Agent B's retrieval
+                # reaches pages this stage's does not.
+                unchecked = self.unchecked_values(name)
+                if unchecked and not item.get("review"):
+                    handled.append({"column": name, "accepted": False, "reason": (
+                        f'an extraction reported "{unchecked[0]}" for this column and no check has looked at it. '
+                        f"Your own reading found nothing, which is not the same as the paper stating nothing: verify "
+                        f"that value with verify_attribution first. If it fails the check, "
+                        f'"{value or NOT_REPORTED}" is accepted.')})
+                    continue
                 standing = self.standing(name)
                 flag = ""
                 if standing:

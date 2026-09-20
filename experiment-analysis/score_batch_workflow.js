@@ -65,27 +65,47 @@ Judge every item in ${FILE} whose "doc" equals exactly that string. Report how m
   { label: `judge:${String(doc).slice(0, 26)}`, phase: 'Judge', schema: SCHEMA, effort: 'high' })))
 
 phase('Adjudicate')
-const all = judged.filter(Boolean).flatMap(r => (r.results || []).map(x => ({ ...x, doc: r.doc })))
+const raw = judged.filter(Boolean).flatMap(r => (r.results || []).map(x => ({ ...x, doc: r.doc })))
+
+// One id must come from one judge. If two judges claim the same cell, the file was split wrongly or an agent judged a
+// document that was not its own, and quietly keeping either one would hide it.
+const seen = new Map()
+const collisions = []
+for (const x of raw) {
+  if (seen.has(x.id)) collisions.push(`${x.id} judged by both ${seen.get(x.id).doc} and ${x.doc}`)
+  else seen.set(x.id, x)
+}
+if (collisions.length) log(`WARNING ${collisions.length} id collisions: ${collisions.slice(0, 5).join('; ')}`)
+const all = [...seen.values()]
 const shaky = all.filter(x => x.uncertain)
 
+// Each adjudication is tied to the one id it was asked about. An earlier version trusted every id an adjudicator
+// returned, and because the schema takes a results array the agents returned their whole document - so one document was
+// re-judged five times and whichever finished last overwrote the rest. Judgements decide every number in the ladder;
+// they do not get to be last-writer-wins.
 let settled = []
 if (shaky.length) {
   settled = await parallel(shaky.map(x => () => agent(`${BASE}
 
-One item was flagged as not settled by the rubric. Judge it independently, from the rubric alone. Do not defer to the
-earlier judgement; reach your own and say which rule decides it.
+EXACTLY ONE item is in question. Judge that one item and return a results array containing that ONE entry and nothing
+else - do not judge the other items of this document, and do not return their ids.
 
   id:         ${x.id}
   document:   ${x.doc}
   column:     ${x.column || '(see the file)'}
-  The item's definition, category, gold and pred are in ${FILE} - find it by id and read them there.
+  The item's definition, category, gold and pred are in ${FILE} - find it by that id and read them there.
 
-Earlier judgement was correctness=${x.correctness}, completeness=${x.completeness} ("${x.reason}"). It may be wrong.`,
-    { label: `adjudicate:${String(x.id).slice(0, 10)}`, phase: 'Adjudicate', schema: SCHEMA, effort: 'high' })))
+An earlier pass said correctness=${x.correctness}, completeness=${x.completeness} ("${x.reason}"). It may be wrong.
+Reach your own verdict from the rubric and name the rule that decides it.`,
+    { label: `adjudicate:${String(x.id).slice(0, 10)}`, phase: 'Adjudicate', schema: SCHEMA, effort: 'high' })
+    .then(r => ({ askedAbout: x.id, result: r }))))
 }
 
 const revised = new Map()
-for (const r of settled.filter(Boolean)) for (const x of (r.results || [])) revised.set(x.id, x)
+for (const s of settled.filter(Boolean)) {
+  const match = ((s.result || {}).results || []).find(r => r.id === s.askedAbout)
+  if (match) revised.set(s.askedAbout, match)   // only the id this adjudicator was asked about
+}
 
 const final = all.map(x => {
   const r = revised.get(x.id)
