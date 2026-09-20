@@ -3,9 +3,11 @@
 #
 #   run_frozen.sh <run-name> [docs]
 #
-# Knowledge notes, delivered whole and role-gated; arbiter v5 reading only the columns both agents left empty; the
-# absence guard on. Measured 92.46 and 92.50 over two runs against the v4 arbiter's 91.97 and 92.48 on identical agent
-# outputs, with EviSearch - B1 at +3.55 / +3.57 when B1 is given the same knowledge. See notes/R4_ARCHITECTURE.md.
+# Knowledge notes, delivered whole and role-gated; arbiter v5 reading the columns the two agents disagree on (and the
+# ones both left empty); the absence guard on, so it cannot ship "Not reported" while an agent's stated value has never
+# been checked. Measured 92.31 and 92.73 over two runs - the best mean of the round - against the v4 arbiter's 91.97
+# and 92.48 on identical agent outputs. Cells the agents disagree on are flagged for review: 20.7 per paper holding
+# 38% of the errors at 25% precision. See notes/R4_ARCHITECTURE.md.
 #
 # The global defaults are deliberately NOT changed by this file. EVISEARCH_ARBITER still defaults to v4 and
 # EVISEARCH_OWN_READING to `all`, so the web app on :8111 and every earlier run keep behaving as they did and stay
@@ -33,7 +35,7 @@ export EVISEARCH_ROLE_RERANKER="${EVISEARCH_ROLE_RERANKER:-none}"
 
 # the frozen choices
 export EVISEARCH_ARBITER=v5
-export EVISEARCH_OWN_READING=both_silent
+export EVISEARCH_OWN_READING=contested
 export EVISEARCH_STAGE_CONCURRENCY="${EVISEARCH_STAGE_CONCURRENCY:-3}"
 
 cd "$WT"

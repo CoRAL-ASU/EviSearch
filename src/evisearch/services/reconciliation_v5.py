@@ -56,14 +56,21 @@ from src.retrieval import embedding_retriever as retriever
 def own_reading_scope() -> str:
     """EVISEARCH_OWN_READING=all | contested | both_silent: which columns phase 1 answers for itself.
 
-    `both_silent` is the narrowest and the one the R4 measurements point at. Reading contested columns turned out to
-    cost more than it earned: across two runs it scored 92.07 and 91.97 against the v4 arbiter's 91.97 and 92.48 on the
-    same agent outputs, and on cells where only Agent B was right it fell to 51% (v4: 76%). The stage's own retrieval
-    is simply weaker than Agent B's, so letting its reading weigh against a stated value displaces correct answers.
-    What the reading is good for is the case where there is no stated value to displace: on cells where both agents
-    abstained it answered 11, of which 6 were right and 3 wrong, a net +0.23% of the table, where v4 answered 1 and
-    got it wrong. 639 of 1330 cells are both-silent and gold has a value on 31 of the ones left empty, so that is
-    where the headroom is.
+    `contested` is the frozen choice: the columns the two agents disagree on, plus the ones both left empty. Over two
+    runs with the absence guard it scored 92.31 and 92.73, the best mean of R4, against the v4 arbiter's 91.97 and
+    92.48 on identical agent outputs. Without the guard the same scope scored 92.07 and 91.97 - so the guard is worth
+    about +0.50 here, and it is the guard rather than the scope that carries the gain.
+
+    `both_silent` reads only the columns both agents left empty and scored 92.46 and 92.50, statistically level with
+    `contested` (0.04 apart against a 0.42 within-configuration spread) and steadier. Note the absence guard is inert
+    under it: the guard fires only when phase 1 read a column and found nothing while an agent had stated a value, and
+    under this scope the stage reads only columns where nobody stated anything. Verified in the transcripts - 0 of 110
+    batches in each run, against 4 and 1 under `contested`.
+
+    Why reading more than the contested set hurts: `all` scored 91.80 and 90.56 at twice the GPU. The stage's search
+    tool returns at most SEARCH_LINES_PER_PAGE lines per page where Agent B's returns the whole page, and it has no
+    equivalent of Agent B's get_chunks_by_page, so its reading is thinner than Agent B's on the same retrieval. Every
+    column it forms an opinion about therefore risks displacing a better answer.
 
     `all` (the default) reads every column. `contested` reads only the columns where the two agents disagree or both
     abstain, and lets the agreed ones go straight to phase 2.
