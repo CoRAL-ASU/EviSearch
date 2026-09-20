@@ -27,6 +27,7 @@ sys.path.insert(0, str(PROJECT_ROOT))
 from src.config.config import PAGE_IMAGE_SCALE, SELECTION
 from src.evisearch.columns import EVIDENCE_FORMAT, count_found
 from src.evisearch.pipelines import results_store
+from src.evisearch.pipelines.batch_runner import numbered, run_batches
 from src.evisearch.pipelines.batching import (
     add_usage,
     build_batches,
@@ -83,10 +84,14 @@ def run_pdf_query_pipeline(
     emit({"type": "phase_start", "phase": "agent_extractor", "batches": len(batches), "total": sum(len(b) for b in batches)})
     raw_dir = results_store.logs_dir(doc_id, "agent") if batches else None
     first_log = results_store.next_log_number(raw_dir) if raw_dir else 1
-    for index, batch in enumerate(batches, 1):
+    def work(index: int, batch: Any) -> Any:
         details: Dict[str, Any] = {}
         log_path = raw_dir / f"batch_{first_log + index - 1:03d}.json"
         results, batch_usage = run_pdf_query(doc_id, batch, input_mode=input_mode, model=model, raw_response_path=log_path, details=details)
+        return results, batch_usage, details
+
+    def accumulate(index: int, batch: Any, payload: Any) -> None:
+        results, batch_usage, details = payload
         if details.get("fallback"):
             fallback_batches.append(index)
         columns.update(results)
@@ -103,6 +108,8 @@ def run_pdf_query_pipeline(
             "fallback": details.get("fallback"),
             "columns": [{"column": name, "value": r["value"]} for name, r in results.items()],
         })
+
+    run_batches(numbered(batches, 1), work, accumulate)
     emit({"type": "phase_done", "phase": "agent_extractor", "filled": count_found(columns), "total": len(columns)})
     return {"columns": columns, "filled": count_found(columns), "total": len(columns), "usage": usage, "fallback_batches": fallback_batches}
 

@@ -129,6 +129,33 @@ def test_manifests_record_git_models_timings_and_failures_across_invocations(res
     assert run_benchmark.main(["--system", "E", "--docs", DOC, "--run", "b2"]) == 2  # a run name keeps one system
 
 
+def test_stage_parallel_overlaps_only_the_stages_that_read_nothing_from_each_other(results, monkeypatch):
+    """The dependency rule comes from the pipelines: reconciliation names the arms it loads, the arms name nothing. Both
+    manifests must stay complete, and the run header must say which schedule produced the timings."""
+    assert run_benchmark.stage_inputs("reconciliation") == ("agent", "search")
+    assert (run_benchmark.stage_inputs("agent"), run_benchmark.stage_inputs("search"), run_benchmark.stage_inputs("baseline")) == ((), (), ())
+    assert run_benchmark.stage_waves("E", parallel=False) == [["agent"], ["search"], ["reconciliation"]]
+    assert run_benchmark.stage_waves("E", parallel=True) == [["agent", "search"], ["reconciliation"]]
+    assert run_benchmark.stage_waves("B1", parallel=True) == [["baseline"]]  # one stage: SYSTEMS order still holds
+
+    calls = fake_stages(monkeypatch)
+    monkeypatch.setenv("EVISEARCH_STAGE_PARALLEL", "on")
+    assert run_benchmark.main(["--system", "E", "--docs", DOC, "--run", "e_par"]) == 0
+
+    assert calls[-1] == ("reconciliation", DOC) and sorted(calls[:2]) == [("agent", DOC), ("search", DOC)]
+    top = manifest("e_par")
+    assert top["stage_parallel"] is True and top["stage_concurrency"] == 1 and top["failures"] == []
+    assert set(top["timings"][DOC]) == {"duration_s", "agent", "search", "reconciliation"}
+    record = json.loads((store.RESULTS_ROOT / DOC / "runs" / "e_par" / "benchmark_manifest.json").read_text())
+    assert list(record["stages"]) == ["agent", "search", "reconciliation"]  # SYSTEMS order, whatever finished first
+    assert all(stage["status"] == "ok" and stage["timing"]["n_calls"] == 1 for stage in record["stages"].values())
+    assert record["status"] == "ok" and record["check"]["result"] == "PASS"
+
+    monkeypatch.delenv("EVISEARCH_STAGE_PARALLEL")
+    assert run_benchmark.stage_waves("E") == [["agent"], ["search"], ["reconciliation"]]  # off by default
+    assert run_benchmark.run_header("E", "e_serial", None, 1)["stage_parallel"] is False
+
+
 def test_dry_run_calls_no_model_and_writes_nothing(results, monkeypatch, capsys):
     calls = fake_stages(monkeypatch)
     assert run_benchmark.main(["--system", "B2", "--docs", DOC, "--run", "dry", "--dry-run"]) == 0

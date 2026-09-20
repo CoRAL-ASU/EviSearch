@@ -31,6 +31,7 @@ can be measured against the old arbiter before this one is added.
 """
 from __future__ import annotations
 
+import os
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
@@ -52,7 +53,44 @@ from src.evisearch.services.reconciliation import (
 from src.inference import InferenceError, Tool, ToolOutput, ToolSpec, Usage, get_chat, run_tool_loop
 from src.retrieval import embedding_retriever as retriever
 
-RECONCILER_VERSION = "own_reading_v5"  # part of the run settings: results of other versions are not resumed
+def own_reading_scope() -> str:
+    """EVISEARCH_OWN_READING=all | contested: which columns phase 1 answers for itself.
+
+    `all` (the default) reads every column. `contested` reads only the columns where the two agents disagree or both
+    abstain, and lets the agreed ones go straight to phase 2.
+
+    The case for `contested` is in the R3 numbers: where both agents agree and are right the v4 arbiter already scores
+    99.9%, so there is nothing to win there and something to lose (it replaced one unanimous correct value with
+    "Not reported"). The cells that decide the arbiter's fate are the 12% where the agents disagree, plus the ones
+    where both abstain. Reading only those costs roughly an eighth of the phase-1 tokens.
+    The case for `all` is the other pot: cells where the agents agree and are both wrong, which only an independent
+    reading can reach. The PDF audit put 23% of that pot within reach of a re-read, so `all` has the higher ceiling
+    and the higher variance. Which one ships is an experiment, not a preference.
+    """
+    value = os.getenv("EVISEARCH_OWN_READING", "").strip().lower()
+    return "contested" if value == "contested" else "all"
+
+
+def contested(name: str, source_a: Dict[str, Any], source_b: Dict[str, Any]) -> bool:
+    """Whether a column needs the stage's own reading: the agents differ, or neither of them answered."""
+    a = _value_of(source_a.get(name))
+    b = _value_of(source_b.get(name))
+    if is_absence(a) and is_absence(b):
+        return True
+    return _squash(a) != _squash(b)
+
+
+def _value_of(col: Any) -> str:
+    return str((col or {}).get("value") or "") if isinstance(col, dict) else ""
+
+
+def _squash(value: str) -> str:
+    return " ".join(str(value or "").split()).strip().lower().rstrip(".").replace("%", "")
+
+
+# Part of the run settings, so results made with a different reading scope are never resumed into each other. Computed
+# at import because the scope comes from the environment the run was launched with.
+RECONCILER_VERSION = "own_reading_v5" + ("_contested" if own_reading_scope() == "contested" else "")
 
 # what phase 2 says about each of the three answers it now holds
 VERDICTS = ("correct", "incomplete", "wrong", "no_answer")
@@ -238,6 +276,8 @@ class _ReconcileSession(_ReconciliationSession):
 
     def describe_own(self, name: str) -> str:
         own = self.own.get(name) or {}
+        if own.get("skipped"):
+            return "  YOURS: (not read - the two extractions already agreed on this column)"
         if own.get("unread"):
             return "  YOURS: (you did not answer this column)"
         value = own.get("value") or ""
@@ -269,8 +309,15 @@ class _ReconcileSession(_ReconciliationSession):
         return (self.own.get(name) or {}).get("value") or ""
 
     def own_found_nothing(self, name: str) -> bool:
+        """Only true when this stage actually looked and the paper had no answer.
+
+        A column it never read - because phase 1 failed on it, or because the scope left agreed columns alone - is not
+        evidence of absence, and must not let an absence through on the strength of a reading that never happened.
+        """
         own = self.own.get(name) or {}
-        return not own.get("unread") and is_no_value(own.get("value"))
+        if own.get("unread") or own.get("skipped"):
+            return False
+        return is_no_value(own.get("value"))
 
     def _verdict_block(self, name: str, item: Dict[str, Any], value: str) -> Dict[str, Any]:
         """The submitted verdicts, defaulted from the values themselves when the model left one out."""
@@ -391,25 +438,46 @@ def run_reconciliation_agent(
     usage = Usage()
 
     # ---- phase 1: the stage's own reading, with no access to A or B ------------------------------------------
-    reading = _FindingsSession(chat, doc_id, batch_columns, definitions_map, scale)
-    phase1 = run_tool_loop(
-        chat,
-        system=FINDINGS_PROMPT + shared_rules(columns=names, role="auditor"),
-        user=reading.user_prompt(),
-        tools=[
-            Tool(specs["ask_document"], reading.ask_document),
-            Tool(specs["search_pages"], reading.search_pages),
-            Tool(findings_spec(names), reading.submit_findings),
-        ],
-        max_turns=AGENT_MAX_TURNS,
-        max_tool_calls=AGENT_MAX_TOOL_CALLS,
-        max_tokens=MAX_TOKENS["reconciliation"],
-        follow_up=FINDINGS_FOLLOW_UP,
-        is_done=reading.done,
-        finish_tool="submit_findings",
-    )
-    own = reading.findings()
-    usage.add(phase1.usage).add(reading.tool_usage)
+    # Which columns it reads for itself. Under `contested` the agreed ones are left to phase 2, where the agents'
+    # matching answer stands: the R3 numbers say the arbiter is already at 99.9% on cells the agents agree and are
+    # right about, so reading those again risks more than it can win.
+    scope = own_reading_scope()
+    to_read = batch_columns
+    skipped: List[str] = []
+    if scope == "contested":
+        to_read = [c for c in batch_columns if contested(c.get("column_name", ""), source_a_data, source_b_data)]
+        skipped = [c.get("column_name", "") for c in batch_columns if c not in to_read]
+    not_read = {
+        name: {"value": "", "pages": [], "evidence": "", "looked_at": [],
+               "reasoning": "the two extractions agreed; this stage did not read it", "skipped": True}
+        for name in skipped
+    }
+    phase1 = None
+    if to_read:
+        read_names = column_names(to_read)
+        reading = _FindingsSession(chat, doc_id, to_read, definitions_map, scale)
+        phase1 = run_tool_loop(
+            chat,
+            system=FINDINGS_PROMPT + shared_rules(columns=read_names, role="auditor"),
+            user=reading.user_prompt(),
+            tools=[
+                Tool(specs["ask_document"], reading.ask_document),
+                Tool(specs["search_pages"], reading.search_pages),
+                Tool(findings_spec(read_names), reading.submit_findings),
+            ],
+            max_turns=AGENT_MAX_TURNS,
+            max_tool_calls=AGENT_MAX_TOOL_CALLS,
+            max_tokens=MAX_TOKENS["reconciliation"],
+            follow_up=FINDINGS_FOLLOW_UP,
+            is_done=reading.done,
+            finish_tool="submit_findings",
+        )
+        own = {**not_read, **reading.findings()}
+        usage.add(phase1.usage).add(reading.tool_usage)
+        candidates = reading.candidates
+    else:  # every column in this batch was agreed: there is no reading pass to make
+        own = not_read
+        candidates = {}
 
     # ---- phase 2: A and B revealed, its own answer already committed -----------------------------------------
     session = _ReconcileSession(chat, doc_id, batch_columns, definitions_map, source_a_data, source_b_data, scale, own=own)
@@ -445,12 +513,17 @@ def run_reconciliation_agent(
                 "model": chat.key,
                 "reconciler": RECONCILER_VERSION,
                 "phase1": {
-                    "stopped_by": phase1.stopped_by, "error": phase1.error,
-                    "candidate_pages": reading.candidates,
+                    "scope": scope,
+                    "read": column_names(to_read),
+                    "not_read_because_agreed": skipped,
+                    "stopped_by": phase1.stopped_by if phase1 else "not run",
+                    "error": phase1.error if phase1 else None,
+                    "candidate_pages": candidates,
                     "findings": own,
-                    "reader_calls": reading.reader_calls,
-                    "tool_calls_sequence": [{"name": e["name"], "args": e["args"]} for e in phase1.transcript if e["role"] == "tool"],
-                    "conversation": phase1.transcript,
+                    "reader_calls": reading.reader_calls if phase1 else [],
+                    "tool_calls_sequence": [{"name": e["name"], "args": e["args"]}
+                                            for e in (phase1.transcript if phase1 else []) if e["role"] == "tool"],
+                    "conversation": phase1.transcript if phase1 else [],
                 },
                 "stopped_by": phase2.stopped_by,
                 "error": phase2.error,

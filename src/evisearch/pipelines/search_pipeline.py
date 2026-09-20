@@ -25,6 +25,7 @@ sys.path.insert(0, str(PROJECT_ROOT))
 
 from src.evisearch.columns import EVIDENCE_FORMAT, count_found
 from src.evisearch.pipelines import results_store
+from src.evisearch.pipelines.batch_runner import numbered, run_batches
 from src.evisearch.services.extraction_rules import rules_setting
 from src.evisearch.pipelines.batching import (
     add_usage,
@@ -77,9 +78,12 @@ def run_search_agent_pipeline(
     logs = results_store.logs_dir(doc_id, "search")
     first_log = results_store.next_log_number(logs, start=0)
     emit({"type": "phase_start", "phase": "search_agent", "batches": len(batches), "total": sum(len(b) for b in batches)})
-    for index, batch in enumerate(batches):
+    def work(index, batch):
         log_path = logs / f"batch_{first_log + index}.txt"
-        results, batch_usage = run_search_agent(doc_id, batch, definitions, log_path=log_path, model=model)
+        return run_search_agent(doc_id, batch, definitions, log_path=log_path, model=model)
+
+    def accumulate(index, batch, payload):
+        results, batch_usage = payload
         columns.update(results)
         add_usage(usage, batch_usage)
         results_store.save_columns(doc_id, "search", columns)
@@ -89,6 +93,8 @@ def run_search_agent_pipeline(
         })
         emit({"type": "search_columns_written", "columns": [{"column": name, "value": r["value"]} for name, r in results.items()]})
         emit({"type": "search_batch_done", "batch": index + 1, "total_batches": len(batches), "filled": count_found(columns), "total": len(columns)})
+
+    run_batches(numbered(batches), work, accumulate)
     emit({"type": "phase_done", "phase": "search_agent", "filled": count_found(columns), "total": len(columns)})
     return {"columns": columns, "filled": count_found(columns), "total": len(columns), "usage": usage}
 

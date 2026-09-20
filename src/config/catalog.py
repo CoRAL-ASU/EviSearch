@@ -15,7 +15,7 @@ from pathlib import Path
 from typing import Any, Dict, Iterable, List, Literal, Mapping, Optional, Union
 
 import yaml
-from pydantic import BaseModel, ConfigDict, Field, ValidationError
+from pydantic import BaseModel, ConfigDict, Field, ValidationError, model_validator
 
 CATALOG_PATH = Path(__file__).with_name("catalog.yaml")
 
@@ -81,7 +81,12 @@ class EndpointSpec(_Spec):
 class ModelSpec(_Spec):
     kind: ModelKind
     endpoint: str
-    name: str
+    # The id sent as "model" in every request. Either written here, or read from name_env at load time for providers
+    # whose catalog we do not control (serverless open-model hosts rename and retire ids). An entry with name_env and
+    # an unset variable keeps name empty: the catalog still loads, and the model fails loudly when a role asks for it
+    # (src/inference/factory.py) instead of sending an id nobody verified.
+    name: str = ""
+    name_env: Optional[str] = None
     capabilities: Capabilities = Capabilities()
     context_tokens: Optional[int] = None
     thinking: Optional[bool] = None
@@ -89,6 +94,14 @@ class ModelSpec(_Spec):
     query_instruction: Optional[str] = None
     image_tokens: ImageTokens = ImageTokens()
     price_per_1k: Price = Price()
+
+    @model_validator(mode="before")
+    @classmethod
+    def _name_from_env(cls, data: Any) -> Any:
+        """Fill an empty name from name_env. Read once, when the catalog is loaded (see _load_catalog_cached)."""
+        if isinstance(data, dict) and not data.get("name") and data.get("name_env"):
+            return {**data, "name": os.getenv(str(data["name_env"]), "").strip()}
+        return data
 
 
 class RoleSpec(_Spec):
@@ -184,6 +197,8 @@ class Catalog(_Spec):
                 continue
             if (model.kind == "reranker") != (endpoint.type == "vllm_rerank"):
                 errors.append(f"models.{key}: reranker models need a vllm_rerank endpoint and vice versa")
+            if not model.name and not model.name_env:
+                errors.append(f"models.{key}: needs a served model id (name), or name_env to read one from the environment")
             if model.kind == "embedding" and endpoint.type != "openai_compatible":
                 errors.append(f"models.{key}: embedding models need an openai_compatible endpoint")
         if errors:
@@ -323,6 +338,8 @@ def _format_errors(title: str, errors: List[str]) -> str:
 
 @lru_cache(maxsize=None)
 def _load_catalog_cached(path: str) -> Catalog:
+    """Load and validate the catalog once per path. Any name_env is read here, so a test that changes one must call
+    _load_catalog_cached.cache_clear() (and src.inference.factory.reset_cache()) to see the new value."""
     try:
         raw = yaml.safe_load(Path(path).read_text(encoding="utf-8")) or {}
     except (OSError, yaml.YAMLError) as exc:

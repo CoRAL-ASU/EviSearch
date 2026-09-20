@@ -7,7 +7,7 @@ from typing import Any, Dict, List, Optional
 
 import httpx
 
-from src.config.catalog import ConfigError, EndpointSpec, Selection
+from src.config.catalog import ConfigError, EndpointSpec, ModelSpec, Selection
 from src.inference.base import ChatModel, Embedder, Reranker
 from src.inference.types import InferenceError
 
@@ -50,6 +50,16 @@ def endpoint_base_url(endpoint_key: str, selection: Optional[Selection] = None) 
         base = f"http://{host}:{server.port}"
         return f"{base}/v1" if endpoint.type == "openai_compatible" else base
     raise ConfigError(f"Endpoint '{endpoint_key}' has no base URL")
+
+
+def _served_id(model_key: str, spec: ModelSpec) -> ModelSpec:
+    """The spec, once it has an id to send as "model". Raises when a name_env entry has no value in the environment."""
+    if not spec.name:
+        raise ConfigError(
+            f"Model '{model_key}' has no served model id: set {spec.name_env or 'its name in the catalog'} to an id "
+            f"taken from the provider's own model list (see the comment next to '{model_key}' in src/config/catalog.yaml)"
+        )
+    return spec
 
 
 def _api_key(endpoint_key: str, endpoint: EndpointSpec) -> str:
@@ -105,7 +115,7 @@ def get_chat(role: str, model: Optional[str] = None) -> ChatModel:
         if cache_key in _models:
             return _models[cache_key]
     catalog = _selection().catalog
-    spec = catalog.models[key]
+    spec = _served_id(key, catalog.models[key])
     endpoint = catalog.endpoints[spec.endpoint]
     if endpoint.type == "gemini":
         from src.inference.gemini import GeminiChat
@@ -131,7 +141,7 @@ def get_embedder(model: Optional[str] = None) -> Embedder:
             return _models[cache_key]
     from src.inference.openai_compat import OpenAICompatEmbedder
 
-    spec = _selection().catalog.models[key]
+    spec = _served_id(key, _selection().catalog.models[key])
     embedder = OpenAICompatEmbedder(key, spec, _client(spec.endpoint))
     with _lock:
         return _models.setdefault(cache_key, embedder)
@@ -183,6 +193,13 @@ def check_selection(selection: Optional[Selection] = None) -> List[str]:
             roles_by_endpoint.setdefault(catalog.models[key].endpoint, []).append(role)
 
     problems: List[str] = []
+    for role, key in sorted(selection.roles.items()):
+        spec = catalog.models[key] if key else None
+        if spec is not None and not spec.name:
+            problems.append(
+                f"{key} (used by {role}): {spec.name_env} is not set; it must hold a model id from the provider's "
+                f"own model list"
+            )
     for endpoint_key, roles in roles_by_endpoint.items():
         endpoint = catalog.endpoints[endpoint_key]
         used_by = f"(used by {', '.join(roles)})"

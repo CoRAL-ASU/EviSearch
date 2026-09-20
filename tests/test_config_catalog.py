@@ -39,6 +39,70 @@ def test_image_token_cost_per_model(catalog):
     assert catalog.models["gemini-2.5-flash"].image_tokens.count(*letter) == 39 * 50  # default: 32 px upper bound
 
 
+def test_serverless_presets_move_only_the_agent_roles_off_the_gpu(catalog):
+    for preset, provider_model in (("novita", "novita-vlm"), ("together", "together-vlm")):
+        assignment = catalog.presets[preset]
+        assert set(assignment) == set(catalog.presets["local"])
+        for role, local_model in catalog.presets["local"].items():
+            expected = provider_model if local_model == "qwen3.6-27b" else local_model
+            assert assignment[role] == expected, (preset, role)
+        # retrieval still runs on the local GPU, so page sets and ranking match a `local` run
+        assert catalog.resolve(preset, gpu_pool=[0]).servers_needed() == ["qwen3_embed_8b", "qwen3_rerank_8b"]
+        # and the served id is never hardcoded: it comes from the environment
+        assert catalog.models[provider_model].name_env
+        assert catalog.models[provider_model].price_per_1k.input == 0.0  # no invented provider prices
+
+
+def test_name_env_fills_the_served_id_from_the_environment(monkeypatch):
+    from src.config import catalog as catalog_module
+
+    monkeypatch.setenv("EVISEARCH_NOVITA_MODEL", "vendor/some-open-model")
+    catalog_module._load_catalog_cached.cache_clear()
+    try:
+        fresh = load_catalog()
+        assert fresh.models["novita-vlm"].name == "vendor/some-open-model"
+        assert fresh.models["together-vlm"].name == ""  # its own variable is unset
+    finally:
+        catalog_module._load_catalog_cached.cache_clear()
+
+
+def _served_model_catalog() -> Catalog:
+    return Catalog.model_validate({
+        "endpoints": {"host": {"type": "openai_compatible", "base_url": "https://host.test/v1", "api_key_env": "HOST_KEY"}},
+        "models": {"served": {"kind": "chat", "endpoint": "host", "name_env": "HOST_MODEL", "capabilities": {"tools": True}}},
+        "roles": {"qa": {"kind": "chat", "requires": ["tools"]}},
+        "presets": {"host": {"qa": "served"}},
+    })
+
+
+def test_model_without_a_served_id_is_rejected():
+    raw = {
+        "endpoints": {"host": {"type": "openai_compatible", "base_url": "https://host.test/v1"}},
+        "models": {"m": {"kind": "chat", "endpoint": "host"}},
+        "roles": {"qa": {"kind": "chat"}},
+        "presets": {"p": {"qa": "m"}},
+    }
+    with pytest.raises(ConfigError, match="needs a served model id"):
+        Catalog.model_validate(raw).validate_references()
+
+
+def test_unset_served_id_is_reported_and_refuses_to_build_a_model(monkeypatch):
+    from src.inference import factory
+
+    catalog = _served_model_catalog()  # HOST_MODEL is not set, so the catalog still loads with an empty name
+    assert catalog.models["served"].name == ""
+    catalog.validate_references()
+    selection = catalog.resolve("host")
+    monkeypatch.setattr(factory, "_selection", lambda: selection)
+    factory.reset_cache()
+    try:
+        assert any("HOST_MODEL is not set" in problem for problem in factory.check_selection(selection))
+        with pytest.raises(ConfigError, match="HOST_MODEL"):
+            factory.get_chat("qa")
+    finally:
+        factory.reset_cache()
+
+
 def test_role_override_rejects_wrong_kind_and_names_valid_models(catalog):
     with pytest.raises(ConfigError) as exc:
         catalog.resolve("local", role_overrides={"search_agent": "qwen3-embedding-8b"}, gpu_pool=[0])

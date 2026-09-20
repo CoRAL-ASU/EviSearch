@@ -38,6 +38,25 @@ endpoints:
     type: openai_compatible
     base_url: https://api.openai.com/v1
     api_key_env: OPENAI_API_KEY
+  # Serverless open-weight hosts (OpenAI-compatible HTTP). They exist for one reason: many requests in flight at once,
+  # which one shared vLLM instance (--max-num-seqs 8, other tenants on the same GPU) cannot give. Nothing below has
+  # been verified against a provider account: check the base URL against the provider's current API docs, and read the
+  # comments on the model entries before the first run. Neither endpoint declares base_url_env on purpose - setting one
+  # makes check_selection() probe GET <base>/health, which is a local-vLLM route, so `--check` would report a public
+  # provider as "not reachable".
+  novita:
+    type: openai_compatible
+    base_url: https://api.novita.ai/v3/openai   # UNVERIFIED: take the current OpenAI-compatible base URL from Novita's docs
+    api_key_env: NOVITA_API_KEY
+    timeout_s: 900      # a queued request on shared capacity can be slow to start decoding; Arm A decodes ~2k tokens
+    max_retries: 4      # shared capacity answers 429/5xx under load; the OpenAI SDK retries those with backoff
+  together:
+    type: openai_compatible
+    base_url: https://api.together.xyz/v1       # UNVERIFIED: take the current OpenAI-compatible base URL from Together's docs
+    api_key_env: TOGETHER_API_KEY
+    timeout_s: 900
+    max_retries: 4
+
   vertex:
     type: gemini
     api_key_env: VERTEX_API_KEY          # local development
@@ -87,6 +106,52 @@ models:
     kind: reranker
     endpoint: vllm_rerank
     name: Qwen/Qwen3-Reranker-8B
+
+  # ---- Serverless open-weight models (Novita / Together) ----
+  # No served id is written here on purpose. These providers' catalogs are theirs, not ours: ids are added, renamed and
+  # retired, and a guessed id fails at request time with a 404 that reads like an outage. Copy the id from the
+  # provider's own model list into EVISEARCH_NOVITA_MODEL / EVISEARCH_TOGETHER_MODEL (.env) and confirm it with
+  # `python -m src.config --check` before a run; until then these models refuse to be built.
+  #
+  # `capabilities` below is what the pipeline REQUIRES of the id you choose, not something the catalog knows about it:
+  #   tools        - Arm B and the reconciler are tool loops; a served id without tool calling cannot run them
+  #   json_schema  - Arm A and the structurer ask for response_format json_schema
+  #   images       - Arm A sends ~12 page images per call as base64 data URLs (see `-text` below if yours is text-only)
+  # There is also no way here to turn thinking off: openai_compat.py sends chat_template_kwargs only to local servers,
+  # so if the provider serves a thinking-mode id, its reasoning tokens are billed and decoded and nothing in this file
+  # stops that. Pick a non-thinking id, or an id the provider serves with thinking disabled.
+  novita-vlm:
+    kind: chat
+    endpoint: novita
+    name_env: EVISEARCH_NOVITA_MODEL
+    capabilities: {tools: true, json_schema: true, images: true, pdf: false}
+    # A claim about the id you choose, and the only guard against a request that is too long: the tool loop evicts old
+    # tool outputs against this number (tool_loop._fit_context). Providers often serve a shorter window than the 131072
+    # of the local server - if yours does, lower this or long papers will fail mid-run.
+    context_tokens: 131072
+    # No image_tokens: the default (32 px squares) is the local Qwen3.6 accounting and is only used for that eviction
+    # estimate. No price_per_1k: cost_usd() reports $0.00 for this model until the provider's prices are filled in,
+    # and there is no field for a cached-input rate.
+  novita-text:
+    # Same provider and env variable, for an id served WITHOUT image input: reconciliation drops page images on its own
+    # (capabilities.images is false), but Arm A needs EVISEARCH_PDF_QUERY_INPUT=markdown or the selection is rejected.
+    kind: chat
+    endpoint: novita
+    name_env: EVISEARCH_NOVITA_MODEL
+    capabilities: {tools: true, json_schema: true, images: false, pdf: false}
+    context_tokens: 131072
+  together-vlm:
+    kind: chat
+    endpoint: together
+    name_env: EVISEARCH_TOGETHER_MODEL
+    capabilities: {tools: true, json_schema: true, images: true, pdf: false}
+    context_tokens: 131072
+  together-text:
+    kind: chat
+    endpoint: together
+    name_env: EVISEARCH_TOGETHER_MODEL
+    capabilities: {tools: true, json_schema: true, images: false, pdf: false}
+    context_tokens: 131072
 
   # ---- Gemini (Vertex AI) ----
   gemini-2.5-flash:
@@ -271,6 +336,33 @@ presets:
     judge: gemini-2.5-flash
     baseline: mistral-small-3.2-24b
     structurer: mistral-small-3.2-24b
+    embedding: qwen3-embedding-8b
+    reranker: qwen3-reranker-8b
+  # `local` with the three agent stages moved to a serverless open-weight host, for concurrency the shared local GPU
+  # cannot give. Retrieval stays on the local GPU (same pages, same ranking as `local`, so a comparison changes one
+  # thing), and the judge stays where `local` has it. Before using either preset: set the API key and the model id
+  # (EVISEARCH_NOVITA_MODEL / EVISEARCH_TOGETHER_MODEL) from the provider's own catalog, then `python -m src.config
+  # --check`. Outputs will NOT reproduce local runs cell for cell even at temperature 0 (different hardware, kernels
+  # and possibly quantisation), so numbers from these presets are a separate arm, not a continuation of R1-R4.
+  # For a text-only served id, override the roles with the -text models and set EVISEARCH_PDF_QUERY_INPUT=markdown.
+  novita:
+    pdf_query: novita-vlm
+    search_agent: novita-vlm
+    reconciliation: novita-vlm
+    qa: novita-vlm
+    judge: gemini-2.5-flash
+    baseline: novita-vlm
+    structurer: novita-vlm
+    embedding: qwen3-embedding-8b
+    reranker: qwen3-reranker-8b
+  together:
+    pdf_query: together-vlm
+    search_agent: together-vlm
+    reconciliation: together-vlm
+    qa: together-vlm
+    judge: gemini-2.5-flash
+    baseline: together-vlm
+    structurer: together-vlm
     embedding: qwen3-embedding-8b
     reranker: qwen3-reranker-8b
   # Everything on local GPUs; no cloud credentials needed.

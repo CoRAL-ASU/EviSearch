@@ -811,6 +811,57 @@ def test_arbiter_v5_defaults_the_three_verdicts_from_the_values_when_the_model_o
     assert cell["a_verdict"] == "correct" and cell["b_verdict"] == "no_answer"
 
 
+def test_batch_concurrency_changes_the_schedule_and_nothing_else(monkeypatch):
+    """Batches are independent sessions over disjoint columns at temperature 0, so running them at the same time must
+    produce byte-identical results. That is what makes concurrency free, unlike shortening what the model generates."""
+    from src.evisearch.pipelines import batch_runner
+
+    items = batch_runner.numbered([f"batch-{i}" for i in range(12)], 1)
+
+    def run(concurrency):
+        seen, order = {}, []
+
+        def work(index, batch):
+            return {"index": index, "batch": batch, "columns": [f"{batch}-col{j}" for j in range(3)]}
+
+        def accumulate(index, batch, payload):
+            order.append(index)
+            seen.update({c: payload["index"] for c in payload["columns"]})
+
+        monkeypatch.setenv("EVISEARCH_STAGE_CONCURRENCY", str(concurrency))
+        batch_runner.run_batches(items, work, accumulate)
+        return seen, order
+
+    serial, serial_order = run(1)
+    parallel, parallel_order = run(4)
+    assert serial == parallel and len(serial) == 36  # same columns, same owning batch
+    assert serial_order == sorted(serial_order)  # serial accumulates in batch order
+    assert sorted(parallel_order) == serial_order  # concurrent covers every batch exactly once
+
+    monkeypatch.setenv("EVISEARCH_STAGE_CONCURRENCY", "4")
+    assert batch_runner.stage_concurrency() == 4
+    monkeypatch.setenv("EVISEARCH_STAGE_CONCURRENCY", "nonsense")
+    assert batch_runner.stage_concurrency() == 1  # a bad value falls back to serial, never crashes a run
+    monkeypatch.delenv("EVISEARCH_STAGE_CONCURRENCY")
+    assert batch_runner.stage_concurrency() == 1  # off by default: every run up to R4 reproduces
+
+
+def test_batch_concurrency_reports_a_failed_batch_after_the_others_finish(monkeypatch):
+    from src.evisearch.pipelines import batch_runner
+
+    monkeypatch.setenv("EVISEARCH_STAGE_CONCURRENCY", "4")
+    done = []
+
+    def work(index, batch):
+        if index == 2:
+            raise RuntimeError("model refused")
+        return index
+
+    with pytest.raises(RuntimeError, match="model refused"):
+        batch_runner.run_batches(batch_runner.numbered(range(6), 1), work, lambda i, b, p: done.append(i))
+    assert sorted(done) == [1, 3, 4, 5, 6]  # the other batches' results survive the failure
+
+
 def test_arbiter_v5_withholds_the_extraction_notes_from_its_own_reading_pass(monkeypatch):
     """The auditor inherits what the columns mean, not how the agents look things up: every wrong rule in the previous
     knowledge base was confirmed unanimously because one text went to all six prompts, the checker included."""
@@ -826,3 +877,135 @@ def test_arbiter_v5_withholds_the_extraction_notes_from_its_own_reading_pass(mon
     assert "### statistics-and-units" in auditor_text  # what a column means: both roles
     assert "### figures-and-panels" in agent_text and "### figures-and-panels" not in auditor_text  # method: agents only
     assert extraction_rules.rules_setting()["extraction_rules"].startswith("notes:")
+
+
+# ---- Stages at the same time -------------------------------------------------------------------------
+
+def _run_benchmark_module():
+    """experiment-scripts/run_benchmark.py, the benchmark runner, loaded by path as in tests/test_run_benchmark.py."""
+    import importlib.util
+    from pathlib import Path
+
+    path = Path(__file__).resolve().parents[1] / "experiment-scripts" / "run_benchmark.py"
+    spec = importlib.util.spec_from_file_location("run_benchmark", path)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+def _script_system_e(monkeypatch):
+    """One scripted model per stage of system E: Arm A answers both columns in a single structured reply, Arm B submits
+    both in one turn, and the arbiter verifies both values on their page before submitting them."""
+    arm_a = json.dumps({"columns": [
+        {"column": TRIAL, "value": "STAMPEDE", "reasoning": "title", "found": True, "attribution": [{"page": 1, "modality": "text"}]},
+        {"column": MEDIAN_OS, "value": "76.6", "reasoning": "Table 2", "found": True, "attribution": [{"page": 2, "modality": "table"}]},
+    ]})
+    _use(pdf_query, ScriptedChat([arm_a], images=True), monkeypatch)
+    _use(search, ScriptedChat([[("submit_extraction", {"results": [
+        {"column": TRIAL, "value": "STAMPEDE", "reasoning": "page 1", "found": True, "attribution": [{"page": 1, "modality": "text"}]},
+        {"column": MEDIAN_OS, "value": "76.6", "reasoning": "Table 2", "found": True, "attribution": [{"page": 2, "modality": "table"}]},
+    ]})]]), monkeypatch)
+    _use(reconciliation, VerifyingChat([
+        [("verify_attribution", {"claims": [{"column": TRIAL, "value": "STAMPEDE", "page": 1}, {"column": MEDIAN_OS, "value": "76.6", "page": 2}]})],
+        [("submit_verification", {"results": [
+            {"column": TRIAL, "value": "STAMPEDE", "reasoning": "both agree", "verification": "both_correct", "source": {"page": 1}},
+            {"column": MEDIAN_OS, "value": "76.6", "reasoning": "Table 2", "verification": "both_correct", "source": {"page": 2}},
+        ]})],
+    ]), monkeypatch)
+
+
+def _stage_shape(record):
+    """A document's record without what a clock makes different: stage order, statuses, counts and token usage."""
+    def stage(info):
+        kept = {key: value for key, value in info.items() if key not in ("duration_s", "timing")}
+        if "usage" in kept:
+            kept["usage"] = {key: value for key, value in kept["usage"].items() if key != "model_seconds"}
+        return kept
+
+    return {
+        "stages": [(name, stage(info)) for name, info in record["stages"].items()],
+        "status": record["status"], "error": record["error"], "check": record["check"],
+    }
+
+
+def test_stages_in_parallel_produce_the_same_records_and_results_as_serial(doc, monkeypatch):
+    """Arm A reads the paper and Arm B queries the embeddings; neither reads the other, so running them at the same time
+    changes the schedule only. The arbiter reads both arms' saved results, so it still waits for them, and the check
+    still runs after every stage."""
+    import threading
+
+    run_benchmark = _run_benchmark_module()
+    for module in (pdf_query_pipeline, search_pipeline, reconciliation_pipeline):
+        monkeypatch.setattr(module, "load_groups", lambda: GROUPS)
+    monkeypatch.setattr(store, "_run", "")
+    checks = []
+
+    def run_check(doc_id, system, run):
+        checks.append({"run": run, "results": [s for s in ("agent", "search", "reconciliation") if store.results_path(doc_id, s).exists()]})
+        return {"result": "PASS", "summary": "[check_run] PASS"}
+
+    monkeypatch.setattr(run_benchmark, "run_check", run_check)
+    gate = {"barrier": None}
+    real_run_stage = run_benchmark.run_stage
+
+    def run_stage(stage, doc_id):
+        outcome = real_run_stage(stage, doc_id)
+        if gate["barrier"] is not None and stage in ("agent", "search"):
+            gate["barrier"].wait()  # both arms must be in flight at once; a serialized stage breaks the barrier
+        return outcome
+
+    monkeypatch.setattr(run_benchmark, "run_stage", run_stage)
+
+    assert run_benchmark.stage_waves("E") == [["agent"], ["search"], ["reconciliation"]]  # off by default
+    _script_system_e(monkeypatch)
+    store.use_run("serial")
+    serial = run_benchmark.run_doc("doc-1", "E", "serial")
+    serial_columns = {stage: store.load_columns("doc-1", stage) for stage in ("agent", "search", "reconciliation")}
+
+    monkeypatch.setenv("EVISEARCH_STAGE_PARALLEL", "1")
+    assert run_benchmark.stage_waves("E") == [["agent", "search"], ["reconciliation"]]
+    assert run_benchmark.stage_waves("B2") == [["agent"]] and run_benchmark.stage_waves("B1") == [["baseline"]]
+    gate["barrier"] = threading.Barrier(2, timeout=15)
+    _script_system_e(monkeypatch)
+    store.use_run("overlapped")
+    overlapped = run_benchmark.run_doc("doc-1", "E", "overlapped")
+
+    assert overlapped["status"] == "ok" and _stage_shape(overlapped) == _stage_shape(serial)
+    assert [name for name, _ in _stage_shape(overlapped)["stages"]] == ["agent", "search", "reconciliation"]
+    assert {stage: store.load_columns("doc-1", stage) for stage in serial_columns} == serial_columns
+    assert serial_columns["reconciliation"][MEDIAN_OS]["value"] == "76.6"  # the arbiter did see both arms
+    every_stage = ["agent", "search", "reconciliation"]
+    assert checks == [{"run": "serial", "results": every_stage}, {"run": "overlapped", "results": every_stage}]
+    for stage in every_stage:
+        assert store.load_metadata("doc-1", stage)["run"] == "overlapped"
+
+
+def test_a_failed_stage_keeps_the_other_arm_and_skips_what_would_have_read_it(doc, monkeypatch):
+    """A failure is reported as it is today ("<stage>: <error>", check skipped), and the arm that ran beside it keeps its
+    results instead of being discarded with it."""
+    run_benchmark = _run_benchmark_module()
+    monkeypatch.setattr(store, "_run", "")
+    monkeypatch.setenv("EVISEARCH_STAGE_PARALLEL", "1")
+    started = []
+
+    def run_stage(stage, doc_id):
+        started.append(stage)
+        if stage == "search":
+            raise store.ResumeError("search refused for doc-1")
+        store.save_columns(doc_id, stage, {TRIAL: column_result(f"{stage}-{TRIAL}")})
+        store.save_metadata(doc_id, stage, {"method": stage, "run": store.current_run(), "timing": {"duration_s": 0.1}})
+        return {"filled": 1, "total": 1, "usage": dict(USAGE)}
+
+    monkeypatch.setattr(run_benchmark, "run_stage", run_stage)
+    monkeypatch.setattr(run_benchmark, "run_check", lambda doc_id, system, run: {"result": "PASS", "summary": "never reached"})
+    store.use_run("half")
+
+    record = run_benchmark.run_doc("doc-1", "E", "half")
+
+    assert sorted(started) == ["agent", "search"]  # reconciliation reads what Arm B did not write, so it never started
+    assert record["status"] == "failed" and record["error"] == "search: ResumeError: search refused for doc-1"
+    assert record["stages"]["agent"]["status"] == "ok" and record["stages"]["search"]["status"] == "failed"
+    assert list(record["stages"]) == ["agent", "search"] and record["check"] == {"result": "skipped"}
+    assert store.load_columns("doc-1", "agent")[TRIAL]["value"] == f"agent-{TRIAL}"  # Arm A's results survived
+    saved = json.loads((store.RESULTS_ROOT / "doc-1" / "runs" / "half" / "benchmark_manifest.json").read_text())
+    assert saved["error"] == record["error"] and saved["stages"]["search"]["error"].endswith("search refused for doc-1")

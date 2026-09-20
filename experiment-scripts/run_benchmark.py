@@ -13,6 +13,14 @@ Usage:
   python experiment-scripts/run_benchmark.py --system E --docs dev --run mistral_e --preset local_mistral --dry-run
   python experiment-scripts/run_benchmark.py --system B1 --docs "NCT00309985_Sweeney_CHAARTED_NEJM'15" --run smoke_b1
 
+Environment (schedule only; both off by default, so every run up to R4 reproduces exactly):
+  EVISEARCH_STAGE_PARALLEL=1     a document's independent stages run at the same time (E: Arm A with Arm B, then the
+                                 arbiter, which reads both arms' saved results). Stage records, timings and the manifest
+                                 stay as they are; only the wall clock changes.
+  EVISEARCH_STAGE_CONCURRENCY=N  a stage's column batches run N at a time (src/evisearch/pipelines/batch_runner.py).
+Requests in flight on the server are --parallel x stages x batches, and one vLLM instance with --max-num-seqs 8 is the
+ceiling; raising all three at once only lengthens its queue.
+
 --docs: all | dev | heldout | comma-separated doc ids from the gold table. heldout is James STAMPEDE IJC'22, Sweeney
 CHAARTED NEJM'15 and Smith ARASENS NEJM'22; dev is the other 7. Running a run name again resumes it (only missing
 columns are extracted); results made with other settings are refused, as in the single-stage CLIs. --reuse-a-from
@@ -36,12 +44,13 @@ import threading
 import time
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Tuple
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(PROJECT_ROOT))
 
 from src.config.catalog import ConfigError, load_catalog  # noqa: E402  (src.config.config is imported after --preset)
+from src.evisearch.pipelines.batch_runner import stage_concurrency, stage_parallel  # noqa: E402  (imports no configuration)
 
 SYSTEMS = {"B1": ("baseline",), "B2": ("agent",), "E": ("agent", "search", "reconciliation")}
 DESCRIPTIONS = {
@@ -161,6 +170,44 @@ def run_stage(stage: str, doc_id: str) -> Dict[str, Any]:
     raise ValueError(f"unknown stage {stage!r}")
 
 
+def stage_inputs(stage: str) -> Tuple[str, ...]:
+    """Which other stages' saved results this stage reads, asked of the pipeline that runs it.
+
+    Reconciliation answers with `reconciliation_pipeline.SOURCE_METHODS`, the tuple it loops over before it builds any
+    batch: it refuses to start until both arms' extraction_results.json exist. Arm A reads the parsed markdown and the
+    page images, Arm B the embedded chunks, and the B1 baseline the parsed markdown - a document, never another stage -
+    so they read nothing here. That is the whole dependency rule; the overlap follows from it.
+    """
+    if stage == "reconciliation":
+        from src.evisearch.pipelines.reconciliation_pipeline import SOURCE_METHODS
+
+        return tuple(SOURCE_METHODS)
+    return ()
+
+
+def stage_waves(system: str, parallel: Optional[bool] = None) -> List[List[str]]:
+    """The system's stages in groups that may run at the same time, each group after the one before it.
+
+    Serial (the default) is one stage per group, exactly the order of SYSTEMS[system]. With EVISEARCH_STAGE_PARALLEL on,
+    a stage joins the current group when none of the stages it reads is still waiting, so E becomes [agent, search] then
+    [reconciliation], and B1/B2 stay a single stage in a single group. Stage order inside and across groups stays the
+    SYSTEMS order, so records and manifests read the same either way. A stage whose input is not part of this system
+    (E's Arm A with --reuse-a-from, say) waits for nothing here, as today.
+    """
+    stages = list(SYSTEMS[system])
+    if not (stage_parallel() if parallel is None else parallel):
+        return [[stage] for stage in stages]
+    waves: List[List[str]] = []
+    waiting = list(stages)
+    while waiting:
+        ready = [stage for stage in waiting if not set(stage_inputs(stage)) & set(waiting)]
+        if not ready:  # a stage waiting for itself: fall back to serial rather than hang
+            ready = waiting[:1]
+        waves.append(ready)
+        waiting = [stage for stage in waiting if stage not in ready]
+    return waves
+
+
 def source_arm_a_dir(doc_id: str, source_run: str) -> Path:
     from src.evisearch.pipelines import results_store
 
@@ -236,30 +283,59 @@ def run_check(doc_id: str, system: str, run: str) -> Dict[str, Any]:
 
 # ---- one document ---------------------------------------------------------------------------------
 
+def run_one_stage(stage: str, doc_id: str, reuse_a_from: Optional[str] = None) -> Tuple[Dict[str, Any], Optional[str]]:
+    """Run (or copy) one stage for one document and return its record plus its error, if it failed.
+
+    Nothing outside this document and stage is touched, so it is safe to call for two stages at the same time: each
+    writes its own results, metadata and logs under its own method directory.
+    """
+    from src.evisearch.pipelines import results_store
+
+    stage_start = time.time()
+    try:
+        outcome = reuse_arm_a(doc_id, reuse_a_from) if stage == "agent" and reuse_a_from else run_stage(stage, doc_id)
+    except Exception as exc:  # a failed document must not stop the others
+        error = f"{type(exc).__name__}: {exc}"
+        print(f"[benchmark] {doc_id}: {stage} failed: {error}", file=sys.stderr, flush=True)
+        return {"status": "failed", "duration_s": round(time.time() - stage_start, 3), "error": error}, error
+    return {
+        "status": "reused" if stage == "agent" and reuse_a_from else "ok",
+        "duration_s": round(time.time() - stage_start, 3),
+        **{key: outcome[key] for key in SUMMARY_KEYS if key in (outcome or {})},
+        "timing": results_store.load_metadata(doc_id, stage).get("timing"),  # this stage's extraction_metadata.json
+    }, None
+
+
 def run_doc(doc_id: str, system: str, run: str, reuse_a_from: Optional[str] = None) -> Dict[str, Any]:
-    """Every stage of `system` for one document, then its check; writes runs/<run>/benchmark_manifest.json."""
+    """Every stage of `system` for one document, then its check; writes runs/<run>/benchmark_manifest.json.
+
+    Stages run one after another unless EVISEARCH_STAGE_PARALLEL is on, in which case the stages of a wave (the ones
+    that read none of the stages still waiting) run at the same time and the next wave starts once they are all done.
+    Either way every stage that ran keeps its own record, a failure stops the waves that would have read it, and the
+    check runs only after the last stage.
+    """
     from src.evisearch.pipelines import results_store
     from src.inference.types import utc_timestamp
 
     started = time.time()
     record: Dict[str, Any] = {"doc_id": doc_id, "system": system, "run": run, "status": "ok", "error": None, "stages": {}, "check": None}
-    print(f"[benchmark] {doc_id}: start {system} ({', '.join(SYSTEMS[system])})", flush=True)
-    for stage in SYSTEMS[system]:
-        stage_start = time.time()
-        try:
-            outcome = reuse_arm_a(doc_id, reuse_a_from) if stage == "agent" and reuse_a_from else run_stage(stage, doc_id)
-        except Exception as exc:  # a failed document must not stop the others
-            error = f"{type(exc).__name__}: {exc}"
-            record.update(status="failed", error=f"{stage}: {error}")
-            record["stages"][stage] = {"status": "failed", "duration_s": round(time.time() - stage_start, 3), "error": error}
-            print(f"[benchmark] {doc_id}: {stage} failed: {error}", file=sys.stderr, flush=True)
+    waves = stage_waves(system)
+    plan = ", ".join(SYSTEMS[system]) if all(len(wave) == 1 for wave in waves) else " then ".join(" + ".join(wave) for wave in waves)
+    print(f"[benchmark] {doc_id}: start {system} ({plan})", flush=True)
+    for wave in waves:
+        if len(wave) == 1:
+            outcomes = [run_one_stage(wave[0], doc_id, reuse_a_from)]
+        else:  # one thread per stage; the work is inside the model calls, so the GIL is not in the way
+            with ThreadPoolExecutor(max_workers=len(wave), thread_name_prefix="stage") as pool:
+                outcomes = list(pool.map(lambda stage: run_one_stage(stage, doc_id, reuse_a_from), wave))
+        first_error = None
+        for stage, (stage_record, error) in zip(wave, outcomes):  # in SYSTEMS order, whatever finished first
+            record["stages"][stage] = stage_record
+            if error and first_error is None:
+                first_error = f"{stage}: {error}"
+        if first_error:  # what the later waves would read was not produced
+            record.update(status="failed", error=first_error)
             break
-        record["stages"][stage] = {
-            "status": "reused" if stage == "agent" and reuse_a_from else "ok",
-            "duration_s": round(time.time() - stage_start, 3),
-            **{key: outcome[key] for key in SUMMARY_KEYS if key in (outcome or {})},
-            "timing": results_store.load_metadata(doc_id, stage).get("timing"),  # this stage's extraction_metadata.json
-        }
     record["check"] = {"result": "skipped"}
     if record["status"] == "ok":
         try:
@@ -313,6 +389,8 @@ def run_header(system: str, run: str, reuse_a_from: Optional[str], parallel: int
         "extraction_rules": SELECTION.option("extraction_rules"),
         "reuse_a_from": reuse_a_from,
         "parallel": parallel,
+        "stage_parallel": stage_parallel(),  # schedule only: which stages overlapped, never what was sent or written
+        "stage_concurrency": stage_concurrency(),
         "git": git_state(),
     }
 
@@ -446,7 +524,9 @@ def main(argv: Optional[List[str]] = None) -> int:
             print(f"[benchmark] run {args.run!r} was started with other settings ({'; '.join(clash)}); use another --run", file=sys.stderr)
             return 2
 
-    print(f"[benchmark] {args.system} ({DESCRIPTIONS[args.system]}) run={args.run} preset={header['preset']} docs={len(docs)} parallel={args.parallel}")
+    print(f"[benchmark] {args.system} ({DESCRIPTIONS[args.system]}) run={args.run} preset={header['preset']} docs={len(docs)} parallel={args.parallel}"
+          + (f" stages={' then '.join(' + '.join(wave) for wave in stage_waves(args.system))}" if header["stage_parallel"] else "")
+          + (f" batches={header['stage_concurrency']}" if header["stage_concurrency"] > 1 else ""))
     print(f"[benchmark] models: " + ", ".join(f"{stage}={model}" for stage, model in header["stage_models"].items())
           + f"; input={header['input_mode']}; git {(header['git'].get('commit') or '?')[:12]}{' (dirty)' if header['git'].get('dirty') else ''}")
     if args.dry_run:

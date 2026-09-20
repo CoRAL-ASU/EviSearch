@@ -18,7 +18,8 @@ load_dotenv()
 CATALOG = load_catalog()
 
 # ============== INFERENCE ==============
-PRESET = env("EVISEARCH_PRESET", "local")  # local | local_mistral | offline | cloud
+# novita | together move the agent stages to a serverless open-weight host and need a model id set in .env first.
+PRESET = env("EVISEARCH_PRESET", "local")  # local | local_mistral | offline | cloud | cloud_openai | novita | together
 
 # Per-role model overrides on top of the preset (role -> model key from the catalog).
 # Environment: EVISEARCH_ROLE_<ROLE>=<model key>, e.g. EVISEARCH_ROLE_JUDGE=gemini-2.5-pro

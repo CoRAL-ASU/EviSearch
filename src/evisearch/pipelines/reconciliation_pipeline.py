@@ -26,6 +26,7 @@ sys.path.insert(0, str(PROJECT_ROOT))
 
 from src.config.config import BATCH_MAX_COLUMNS, PAGE_IMAGE_SCALE, SELECTION
 from src.evisearch.pipelines import results_store
+from src.evisearch.pipelines.batch_runner import numbered, run_batches
 from src.evisearch.pipelines.batching import (
     add_usage,
     build_batches,
@@ -37,6 +38,14 @@ from src.evisearch.pipelines.batching import (
     stage_timing,
     unknown_groups,
 )
+
+
+SOURCE_METHODS = ("agent", "search")
+"""The saved results this stage reads before it can run: Arm A (agent_extractor) and Arm B (search_agent).
+
+It is declared here, next to the loads below, so a runner can ask what this stage depends on instead of assuming a pair.
+Arm A and Arm B declare nothing: they read the document (parsed markdown, page images, embeddings), not each other.
+"""
 
 
 def arbiter_module():
@@ -89,7 +98,7 @@ def run_reconciliation_pipeline(
             results_store.check_resume(doc_id, "reconciliation", settings)
         except results_store.ResumeError as exc:
             return {"columns": {}, "error": str(exc), "usage": empty_usage()}
-    for method in ("agent", "search"):
+    for method in SOURCE_METHODS:
         if not results_store.results_path(doc_id, method).exists():
             return {"columns": {}, "error": f"{results_store.METHOD_DIRS[method]} results not found: {results_store.results_path(doc_id, method)}", "usage": empty_usage()}
     source_a = results_store.load_columns(doc_id, "agent")
@@ -108,10 +117,13 @@ def run_reconciliation_pipeline(
 
     logs = results_store.logs_dir(doc_id, "reconciliation")
     first_log = results_store.next_log_number(logs, start=0)  # a resumed run keeps the logs of earlier batches
-    for index, batch in enumerate(batches):
-        results, batch_usage = run_reconciliation_agent(
+    def work(index, batch):
+        return run_reconciliation_agent(
             doc_id, batch, definitions, source_a, source_b, log_path=logs / f"batch_{first_log + index}.txt", model=model
         )
+
+    def accumulate(index, batch, payload):
+        results, batch_usage = payload
         columns.update({name: {**r, "tried": True} for name, r in results.items()})
         add_usage(usage, batch_usage)
         results_store.save_columns(doc_id, "reconciliation", columns)
@@ -119,6 +131,8 @@ def run_reconciliation_pipeline(
             "method": "reconciliation_agent", **settings, "run": results_store.current_run(), "usage": usage,
             "timing": stage_timing(started, usage, len(existing)),
         })
+
+    run_batches(numbered(batches), work, accumulate)
     return {"columns": columns, "error": None, "usage": usage}
 
 
@@ -138,7 +152,7 @@ def main(argv: Optional[List[str]] = None) -> int:
 
     if args.run is not None:
         results_store.use_run(args.run)
-    for method in ("agent", "search"):
+    for method in SOURCE_METHODS:
         if not results_store.results_path(args.doc_id, method).exists():
             print(f"[reconciliation] missing {results_store.results_path(args.doc_id, method)}; run that arm first", file=sys.stderr)
             return 1
