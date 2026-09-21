@@ -4,6 +4,9 @@
 
 Table 1   extraction accuracy and traceability: the single-pass baseline, each extraction agent alone, the oracle
           selection over the two agents, and EviSearch. Means over two independent runs.
+Table 2   extraction-agent accuracy as the schema and the curation knowledge base are aligned: auto-drafted schema,
+          schema after two and after three review rounds (all with the fixed extraction guidelines), and the final
+          schema with the knowledge base. Reconciled accuracy for the first two rows, whose reconciliation is fixed.
 Figure 2  accuracy after human review against the fraction of cells reviewed, for review ordered by the disagreement
           signal and for review in random order. A reviewer is assumed to correct every cell they open (an upper
           bound: no user study). Random review of a fraction f lifts accuracy by f times the error mass in
@@ -112,6 +115,22 @@ out["queue_random_b"] = auto_b + q / 100 * (100 - auto_b)
 out["tier2_frac"], out["tier2_acc"] = triage[2]
 out["queue_cells"] = mean([len(flags[r]) for r in SYSTEM_RUNS]) / len(docs)
 
+# ---- Table 2 -----------------------------------------------------------------------------------------------------
+S = "schema-mhspc-trials-20260919020503"
+LADDER = [("draft", (f"{S}-v0draft", f"{S}-v0draft-r2")), ("rev", (f"{S}-v3-kboff", f"{S}-v3-kboff-r2")),
+          ("revfour", (f"{S}-v4-kboff", f"{S}-v4-kboff-r2")), ("kb", ("r4-notes-r1", "r4-notes-r2"))]
+ladder = {}
+print("\nTABLE 2")
+for key, runs in LADDER:
+    a = mean([acc(scored(r, "agent_extractor")) for r in runs])
+    b = mean([acc(scored(r, "search_agent")) for r in runs])
+    ladder[key] = (a, b)
+    line = f"  {key:8} Agent A {a:6.2f}   Agent B {b:6.2f}"
+    if key in ("draft", "rev"):
+        e = mean([acc(scored(r, "reconciliation_agent")) for r in runs]); ladder[key + "Sys"] = e
+        line += f"   reconciled {e:6.2f}"
+    print(line)
+
 # ---- emit --------------------------------------------------------------------------------------------------------
 macro = {
     "accBaseline": out["acc_baseline"], "accAgentA": out["acc_agentA"], "accAgentB": out["acc_agentB"],
@@ -120,6 +139,9 @@ macro = {
     "queueFrac": out["queue_frac"], "queueAcc": out["queue_acc"], "queueCells": out["queue_cells"],
     "queueRandomSys": out["queue_random_sys"], "queueRandomB": out["queue_random_b"],
     "tierTwoFrac": out["tier2_frac"], "tierTwoAcc": out["tier2_acc"],
+    "draftA": ladder["draft"][0], "draftB": ladder["draft"][1], "revA": ladder["rev"][0], "revB": ladder["rev"][1],
+    "revfourA": ladder["revfour"][0], "revfourB": ladder["revfour"][1], "kbA": ladder["kb"][0], "kbB": ladder["kb"][1],
+    "draftSys": ladder["draftSys"], "revSys": ladder["revSys"],
 }
 print("\nMACROS")
 for k, v in macro.items():
