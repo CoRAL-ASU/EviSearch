@@ -324,10 +324,10 @@ def _steps(schema: Dict[str, Any], summaries: List[Dict[str, Any]], learned: int
 
 
 def _learned_count() -> int:
-    from src.evisearch.knowledge import conventions as kb
+    """How many note edits came from a reviewer rather than from the tree's initial authoring."""
+    from src.evisearch.knowledge import notes as notes_kb
 
-    return sum(1 for c in kb.load_all().values()
-               if c["status"] == "approved" and (c.get("source") or {}).get("kind") in ("schema_review", "extraction_review"))
+    return len({e.get("note") for e in notes_kb.log_entries() if e.get("by")})
 
 
 def demo_table_id() -> Optional[str]:
@@ -355,7 +355,6 @@ def showcase_run(table_id: str) -> Optional[str]:
 @bp.route("/api/stats")
 def api_stats():
     """Live counts for the home page, computed from the stores."""
-    from src.evisearch.knowledge import conventions as kb
 
     table = demo_table_id()
     run = showcase_run(table) if table else None
@@ -926,29 +925,32 @@ def _snapshot_ids(fingerprint: str) -> List[str]:
 
 @bp.route("/api/knowledge")
 def api_knowledge():
-    """Every rule with where it came from and which runs used it."""
-    from src.evisearch.knowledge import conventions as kb
+    """The knowledge notes, with where each edit came from and which runs read them.
+
+    One format now: markdown notes. `edits` is notes_log.jsonl, the append-only record that replaced the conventions
+    log - each entry names the note, the text, who asked and why, and the tree fingerprint that resulted, which is the
+    same fingerprint a run records. That is the whole audit chain from a reviewer's correction to a cell.
+    """
+    from src.evisearch.knowledge import notes as notes_kb
     from src.evisearch.services import feedback
 
-    rules = list(kb.load_all().values())
     events = {e["event_id"]: e for e in feedback.all_events()}
     used: Dict[str, List[str]] = {}
     for run in runs_service.list_runs():
         fp = run_kb_fingerprint(run["run"], run["docs"])
-        if not fp:
-            continue
-        for cid in _snapshot_ids(fp):
-            used.setdefault(cid, []).append(run["run"])
-    out = []
-    for rule in rules:
-        source = rule.get("source") or {}
-        event = events.get(str(source.get("event_id") or source.get("feedback") or ""))
-        out.append({**rule, "used_in_runs": sorted(used.get(rule["id"], [])),
-                    "learned": source.get("kind") != "seed",
-                    "source_event": {"doc_id": event.get("doc_id"), "column": event.get("column"), "run": event.get("run"),
-                                     "before": event.get("before"), "after": event.get("after"),
-                                     "reason": event.get("reason")} if event else None})
-    return _ok(conventions=out, fingerprint=kb.fingerprint(), action_types=sorted(kb.ACTION_TYPES), scopes=list(kb.SCOPES))
+        if fp:
+            used.setdefault(str(fp), []).append(run["run"])
+    edits = []
+    for entry in notes_kb.log_entries():
+        event = events.get(str(entry.get("event") or ""))
+        edits.append({**entry, "used_in_runs": sorted(used.get(str(entry.get("fingerprint")), [])),
+                      "source_event": {"doc_id": event.get("doc_id"), "column": event.get("column"),
+                                       "run": event.get("run"), "before": event.get("before"),
+                                       "after": event.get("after"), "reason": event.get("reason")} if event else None})
+    notes_out = [{"id": n.id, "role": n.role, "scope": n.scope, "family": n.family, "columns": list(n.columns),
+                  "supersedes": list(n.supersedes), "body": n.body} for n in notes_kb.load_notes("all")]
+    return _ok(notes=notes_out, edits=edits, fingerprint=notes_kb.fingerprint(),
+               roles=["definitions", "extraction"], scopes=list(notes_kb.SCOPES))
 
 
 @bp.route("/api/activity")
@@ -986,8 +988,7 @@ def api_activity():
 
 @bp.route("/api/learning")
 def api_learning():
-    """What the table has learned and whether later runs changed: rules and reviews over time, and per-run counts."""
-    from src.evisearch.knowledge import conventions as kb
+    """What the table has learned and whether later runs changed: note edits and reviews over time, per-run counts."""
     from src.evisearch.services import feedback
 
     table = request.args.get("table") or demo_table_id()
@@ -1023,14 +1024,16 @@ def api_learning():
             counts[str(e.get("event"))] = counts.get(str(e.get("event")), 0) + 1
     effort = {"definitions_accepted": counts.get("definition_accept", 0), "definitions_edited": counts.get("definition_edit", 0),
               "questions_answered": counts.get("definition_answer", 0), "cells_reviewed": counts.get("cell_correct", 0),
-              "rules_proposed": counts.get("convention_propose", 0), "rules_decided": counts.get("convention_decide", 0)}
+              "notes_edited": counts.get("note_edit", 0)}
     return _ok(table=table, runs=rows, series=series, effort=effort)
 
 
 def _SEED_IDS() -> set:
-    from src.evisearch.knowledge import conventions as kb
+    """Notes never edited by a reviewer: the tree as it was first authored."""
+    from src.evisearch.knowledge import notes as notes_kb
 
-    return {c["id"] for c in kb.load_all().values() if (c.get("source") or {}).get("kind") == "seed"}
+    edited = {e.get("note") for e in notes_kb.log_entries() if e.get("by")}
+    return {n.id for n in notes_kb.load_notes("all") if n.id not in edited}
 
 
 @bp.route("/api/benchmark")

@@ -27,10 +27,10 @@ class RoutedChat(ChatModel):
 
     def _chat(self, messages, tools, tool_choice, response_schema, temperature, max_tokens):
         props = response_schema.get("properties", {})
-        if "is_convention" in props:
-            payload = {"is_convention": True, "why_not": "", "scope": "family", "family": "Median PFS (mo)", "columns": [],
-                       "condition": "only a different endpoint is reported", "action_type": "statistic",
-                       "instruction": "Time to castration resistance is not progression-free survival: answer Not reported."}
+        if "is_knowledge" in props:
+            payload = {"is_knowledge": True, "note": "endpoints", "heading": "Progression-free survival",
+                       "text": "- Time to castration resistance is not progression-free survival: answer Not reported.",
+                       "why": "the definition did not exclude the other endpoint", "new_note": False, "role": "definitions"}
         elif "columns" in props:
             item = props["columns"]["items"]["properties"]
             names = item["column"]["enum"]
@@ -100,23 +100,26 @@ def test_schema_loop_through_the_api(api, tmp_path):
     assert locked["version"] == 1 and locked["run"] == f"schema-{sid}-v1"
     assert api.get("/api/schemas").get_json()["schemas"][0]["locked_versions"] == [1]
 
-    proposal = api.post("/api/conventions/propose", json={"column": "Median PFS (mo) | Overall | Treatment", "definition": "Median PFS",
-                                                            "feedback": "16.4 months is time to castration resistance, not PFS",
-                                                            "before": "16.4", "after": "Not reported", "reason": "wrong endpoint",
-                                                            "schema_id": sid, "doc_id": "doc-1", "by": "human"}).get_json()
-    assert proposal["is_convention"] and proposal["gate"]["verdict"] == "new"
-    assert proposal["impact"] == ["Median PFS (mo) | Overall | Treatment"]
-    created = api.post("/api/conventions", json={"record": proposal["record"], "by": "human"}).get_json()
-    cid = created["convention"]["id"]
-    again = api.post("/api/conventions", json={"record": proposal["record"], "by": "human"}).get_json()
-    assert again["merged_into"] == cid and again["convention"]["support"] == 2  # a duplicate is merged, not added
-    assert api.post(f"/api/conventions/{cid}/decide", json={"op": "approve", "by": "human"}).get_json()["convention"]["status"] == "approved"
-    kbase = api.get("/api/conventions").get_json()
-    assert kbase["active"] == 1 and kbase["conventions"][0]["instruction"].startswith("- ")
+    # a reviewer's correction becomes an edit to the note that already governs the column, not a rule beside it
+    proposal = api.post("/api/notes/propose", json={"column": "Median PFS (mo) | Overall | Treatment",
+                                                   "definition": "Median PFS",
+                                                   "feedback": "16.4 months is time to castration resistance, not PFS",
+                                                   "before": "16.4", "after": "Not reported", "reason": "wrong endpoint",
+                                                   "schema_id": sid, "doc_id": "doc-1", "by": "human"}).get_json()
+    assert proposal["is_knowledge"] and proposal["proposal"]["note"] == "endpoints"
+    applied = api.post("/api/notes/apply", json={"note": proposal["proposal"]["note"], "text": proposal["proposal"]["text"],
+                                                "heading": proposal["proposal"]["heading"], "role": "definitions",
+                                                "by": "human", "why": proposal["proposal"]["why"],
+                                                "schema_id": sid}).get_json()
+    assert applied["success"] and applied["fingerprint"]
+    tree = api.get("/api/notes").get_json()
+    assert any("castration resistance" in n["body"] for n in tree["notes"])
+    log = api.get("/api/notes/log").get_json()["log"]
+    assert log[-1]["note"] == "endpoints" and log[-1]["by"] == "human" and log[-1]["fingerprint"] == tree["fingerprint"]
 
     events = [e["event"] for e in api.get(f"/api/feedback/events?schema_id={sid}").get_json()["events"]]
     for expected in ("schema_draft", "definition_answer", "definition_accept", "definition_revise", "schema_lock",
-                     "convention_propose", "convention_merge", "convention_decide"):
+                     "note_edit"):
         assert expected in events, (expected, events)
 
 
@@ -143,22 +146,27 @@ def test_the_old_page_urls_redirect_into_the_workspace(client):
     assert b'href="/tables"' in home and b'href="/learning"' in home  # the home page leads into the new pages
 
 
-def test_reviewer_widens_a_drafted_rules_scope_and_the_gate_rechecks_it(api):
+def test_a_note_edit_reaches_only_the_columns_its_note_governs(api, tmp_path, monkeypatch):
+    """What the old integrity gate was for. A one-line rule had to have its scope negotiated because it arrived with
+    no context; a note carries its own scope in frontmatter, so the check is which prompts receive it."""
+    from src.config import runtime_paths
+    from src.evisearch.knowledge import notes as notes_kb
+
+    kb = tmp_path / "kb"
+    monkeypatch.setattr(runtime_paths, "KNOWLEDGE_DIR", kb)
     names = ["Mode of metastases - N (%) | Synchronous | Treatment", "Mode of metastases - N (%) | Metachronous | Treatment",
              "OS Rate (%) | Metachronous | Treatment"]
-    fields = [{"name": n, "title": n, "description": "d", "type": "string", "x-evisearch": {
-        "group": n.split(" |")[0], "facets": {}, "eval_category": "numeric_tolerance", "example": {"doc": "d", "value": "", "grounding": {}},
-        "questions": [], "review": {"state": "proposed", "by": None, "at": None}, "history": []}} for n in names]
-    sid = store.create("T", fields, source={}, by="h")["id"]
-    record = {"trigger": {"scope": "column", "columns": [names[1]], "facets": {}, "condition": ""},
-              "action": {"type": "equivalent", "params": {}}, "instruction": "- Prior local therapy means metachronous.",
-              "source": {"kind": "extraction_review"}}
-    narrow = api.post("/api/conventions/check", json={"record": record, "schema_id": sid}).get_json()
-    assert narrow["gate"]["verdict"] == "new" and narrow["impact"] == [names[1]]
-    wide = {**record, "trigger": {**record["trigger"], "scope": "family", "family": "Mode of metastases", "columns": [names[2]]}}
-    assert sorted(api.post("/api/conventions/check", json={"record": wide, "schema_id": sid}).get_json()["impact"]) == sorted(names)
-    assert api.post("/api/conventions/check", json={"record": {**record, "trigger": {"scope": "column", "columns": []}}}).status_code == 400
-    assert api.post("/api/conventions/check", json={"record": {**record, "trigger": {"scope": "everywhere"}}}).status_code == 400
+    path = kb / "notes" / "definitions" / "presentation.md"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text("---\nid: presentation\nrole: definitions\nscope: family\nfamily: Mode of metastases\n---\n\n"
+                    "# Presentation\n\n- Use the paper's own words.\n", encoding="utf-8")
+
+    notes_kb.apply_edit("presentation", "- Prior local therapy is not evidence of presentation.",
+                        heading="Presentation", by="reviewer")
+    governed = {n.id for n in notes_kb.governing(names[:2])}
+    assert "presentation" in governed
+    assert "presentation" not in {n.id for n in notes_kb.governing([names[2]])}  # a different family
+    assert "not evidence of presentation" in (kb / "notes" / "definitions" / "presentation.md").read_text()
     assert api.get("/static/js/rule_scope.js").status_code == 200
 
 

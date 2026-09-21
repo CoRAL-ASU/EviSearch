@@ -39,6 +39,16 @@ TOOLS = {
     "search": ("search_chunks", "get_chunks_by_page", "submit_extraction"),
     "reconciliation": ("ask_document", "search_pages", "verify_attribution", "submit_verification"),
 }
+# Arbiter v5 reads the paper itself: Agent B's search plus get_pages, which adds the page image. No reader to ask.
+V5_RECONCILIATION_TOOLS = ("search_chunks", "get_pages", "verify_attribution", "submit_verification")
+
+
+def loop_tools(method: str, log: Dict[str, Any]) -> Tuple[str, ...]:
+    """The tools this batch was supposed to have. The reconciliation stage has two versions with different tool sets;
+    the v5 log names itself, v4's does not."""
+    if method == "reconciliation" and str(log.get("reconciler", "")).startswith("own_reading_v5"):
+        return V5_RECONCILIATION_TOOLS
+    return TOOLS[method]
 VERIFICATIONS = ("A_correct_B_wrong", "B_correct_A_wrong", "both_correct", "both_wrong")
 
 
@@ -135,8 +145,10 @@ def check_loop_logs(report: Report, section: str, method: str, logs: List[Path])
     reranker = SELECTION.model_key("reranker") is not None
     images = SELECTION.option("reconciliation_page_images") == "auto" and SELECTION.model("reconciliation").capabilities.images
     used: Counter = Counter()
+    expected: Tuple[str, ...] = TOOLS[method]
     for path in logs:
         log = json.loads(path.read_text(encoding="utf-8"))
+        expected = loop_tools(method, log)
         report.check(section, log.get("error") is None, f"{path.name}: model call failed: {str(log.get('error'))[:200]}")
         stopped = log.get("stopped_by")
         if stopped == "forced_finish":
@@ -163,17 +175,17 @@ def check_loop_logs(report: Report, section: str, method: str, logs: List[Path])
         for turn in tool_turns:
             tool, response = turn.get("name"), turn.get("response") or {}
             called_here[tool] += 1
-            report.check(section, tool in TOOLS[method], f"{path.name}: unknown tool '{tool}'")
+            report.check(section, tool in expected, f"{path.name}: unknown tool '{tool}'")
             error = response.get("error") if isinstance(response, dict) else None
             resubmitted = bool(error) and tool.startswith("submit_") and tool in accepted
             report.check(section, not error, f"{path.name}: {tool} returned an error: {str(error)[:200]}"
                          + (" (resubmitted and accepted)" if resubmitted else ""), warn=resubmitted)
             if tool == "search_chunks" and reranker and isinstance(response, dict) and response.get("matches"):
                 report.check(section, response.get("retrieval") == "rerank", f"{path.name}: search_chunks retrieval={response.get('retrieval')}")
-        if method == "reconciliation" and called_here["get_page"] and images:
-            report.check(section, log.get("page_images", 0) > 0, f"{path.name}: get_page was called but no page images were attached")
+        if method == "reconciliation" and called_here["get_pages"] and images:
+            report.check(section, log.get("page_images", 0) > 0, f"{path.name}: get_pages was called but no page images were attached")
         used.update(called_here)
-    for tool in TOOLS[method]:
+    for tool in expected:
         report.check(section, used[tool] > 0, f"{tool} was never called, so this run did not exercise it", warn=True)
 
 

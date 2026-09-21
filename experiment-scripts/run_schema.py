@@ -31,8 +31,8 @@ def main() -> int:
     parser.add_argument("--system", default="E", choices=["B1", "B2", "E"])
     parser.add_argument("--docs", required=True)
     parser.add_argument("--kb", default="on", choices=["on", "off", "notes"],
-                        help="knowledge base in the prompts: on = the one-line conventions (every run up to R3), "
-                             "notes = the markdown notes tree, role-gated so the arbiter's own reading pass gets the "
+                        help="knowledge base in the prompts: notes = the markdown notes tree (on is a synonym), "
+                             "role-gated so the arbiter's own reading pass gets the "
                              "definition notes only, off = the fixed rules text")
     parser.add_argument("--run", help="run name (default: schema-<id>-v<N>, with -kboff / -b1 suffixes when they apply)")
     parser.add_argument("--parallel", type=int, default=2)
@@ -59,8 +59,11 @@ def main() -> int:
         snapshot = kb_notes.snapshot()
         env["EVISEARCH_KB_NOTES_SNAPSHOT"] = str(snapshot)
         print(f"[run_schema] knowledge notes frozen for this run: {snapshot}", flush=True)
-    elif args.kb == "on":  # the run reads the conventions as they are now, whatever reviewers approve while it runs
-        from src.evisearch.knowledge import conventions
+    elif args.kb == "on":  # a synonym for notes, kept so older launch commands keep working
+        from src.evisearch.knowledge import notes
+
+        snapshot = notes.snapshot()
+        env["EVISEARCH_KB_NOTES_SNAPSHOT"] = str(snapshot)
 
         snapshot = conventions.snapshot()
         env["EVISEARCH_KB_SNAPSHOT"] = str(snapshot)

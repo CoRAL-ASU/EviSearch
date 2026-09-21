@@ -1,20 +1,19 @@
 """Schema and human-feedback routes: generate a schema from a spreadsheet, review and lock it, extract under it, and
-turn reviewers' feedback into conventions through the knowledge base's integrity gate.
+turn reviewers' feedback into edits to the knowledge notes.
 
 Pages: /schema, /feedback. APIs (JSON, {"success": ...} envelope like the rest of the app):
   GET  /api/schemas                         list
   POST /api/schemas                         create a draft (multipart sheet + pdf, or JSON {sheet_path, doc_id}); returns a job
   GET  /api/schemas/<id>                    the schema (current state; ?version=N for a locked snapshot)
   POST /api/schemas/<id>/review             {column, action: accept|edit|answer, definition?, question_id?, answer?, reason?, note?, by}
+  GET  /api/notes                           the notes tree and its fingerprint
+  GET  /api/notes/log                       every edit ever made to the notes
+  POST /api/notes/propose                   {column, definition, feedback, before?, after?, reason?}: a proposed edit, stores nothing
+  POST /api/notes/apply                     {note, text, heading?, by, why?, role?}: write it and record it
   POST /api/schemas/<id>/revise             the agent rewrites the definitions that got answers or notes; returns a job
   POST /api/schemas/<id>/lock               snapshot as the next version
   POST /api/schemas/<id>/extract            {docs, system?, kb?} runs experiment-scripts/run_schema.py in a child process
   GET  /api/schemas/<id>/extractions        runs under the schema's versions and their papers
-  GET  /api/conventions                     the knowledge base (?status=)
-  POST /api/conventions/propose             {column, definition, feedback, before?, after?, reason?, doc_id?, schema_id?}: proposer + gate + impact, stores nothing
-  POST /api/conventions/check               {record, schema_id?}: gate + impact for a reviewer-edited record (e.g. wider scope)
-  POST /api/conventions                     {record, by}: gate again; duplicate -> merged, conflict -> 409, else stored as proposed
-  POST /api/conventions/<cid>/decide        {op: approve|reject|retire, by, note?}
   GET  /api/feedback/events                 feedback log (?source=&schema_id=&doc_id=&event=&limit=)
   GET  /api/jobs/<job_id>                   status of a long-running job
 """
@@ -29,8 +28,8 @@ from typing import Any, Callable, Dict
 from flask import Blueprint, jsonify, request
 
 from src.config import runtime_paths
-from src.evisearch.knowledge import conventions as kb
-from src.evisearch.knowledge import gate, proposer
+from src.evisearch.knowledge import notes as notes_kb
+from src.evisearch.knowledge import proposer
 from src.evisearch.schema import generator, store
 from src.evisearch.services import feedback
 
@@ -115,7 +114,7 @@ def api_create_schema():
 
     def draft():
         schema = generator.draft_schema_from_sheet(_chat(), str(sheet_path), doc_id, name, row_hint=hint, by=by,
-                                                   conventions=kb.render() if kb.active() else "", description=description)
+                                                   conventions=notes_kb.render(notes_kb.load_notes('all')), description=description)
         return {"schema_id": schema["id"]}
 
     return _ok(job_id=_start_job("draft_schema", draft, name=name, doc_id=doc_id))
@@ -151,7 +150,7 @@ def api_revise(schema_id):
     schema = store.load(schema_id)
 
     def revise():
-        revised, logs = generator.revise_fields(_chat(), schema["fields"], conventions=kb.render() if kb.active() else "")
+        revised, logs = generator.revise_fields(_chat(), schema["fields"], conventions=notes_kb.render(notes_kb.load_notes('all')))
         changed = []
         for column, item in revised.items():
             field = store.review_field(schema_id, column, "revise", by=by, definition=item.get("definition", ""),
@@ -211,12 +210,21 @@ def api_extractions(schema_id):
     return _ok(runs=out)
 
 
-# ---- conventions (knowledge base) ---------------------------------------------------------------------------------
-@bp.route("/api/conventions", methods=["GET"])
-def api_conventions():
-    status = request.args.get("status")
-    items = [c for c in kb.load_all().values() if not status or c["status"] == status]
-    return _ok(conventions=items, fingerprint=kb.fingerprint(), active=sum(c["status"] == "approved" for c in items))
+# ---- knowledge notes ------------------------------------------------------------------------------------------------
+# One knowledge format: markdown notes. There is no proposed/approved lifecycle and no integrity gate, because both
+# existed to manage one-line rules that arrived without context. A note is a document about one topic, so a reviewer
+# edits the text that is already there and can see what they are contradicting.
+@bp.route("/api/notes", methods=["GET"])
+def api_notes():
+    items = [{"id": n.id, "role": n.role, "scope": n.scope, "family": n.family, "columns": list(n.columns),
+              "supersedes": list(n.supersedes), "body": n.body, "path": n.path} for n in notes_kb.load_notes("all")]
+    return _ok(notes=items, fingerprint=notes_kb.fingerprint(), count=len(items))
+
+
+@bp.route("/api/notes/log", methods=["GET"])
+def api_notes_log():
+    """Every edit ever made to the notes, newest last: what changed, who asked, why, and the resulting fingerprint."""
+    return _ok(log=notes_kb.log_entries())
 
 
 def _schema_fields(schema_id: str | None):
@@ -228,74 +236,42 @@ def _schema_fields(schema_id: str | None):
         return []
 
 
-@bp.route("/api/conventions/propose", methods=["POST"])
+@bp.route("/api/notes/propose", methods=["POST"])
 def api_propose():
+    """A reviewer's correction -> a proposed edit to a named note. Stores nothing; the reviewer applies it."""
     body = request.get_json() or {}
     column = str(body.get("column", ""))
     if not column or not str(body.get("feedback", "")).strip():
         return _err("column and feedback required")
-    fields = _schema_fields(body.get("schema_id"))
-    chat = _chat()
-    out = proposer.propose(chat, column=column, definition=str(body.get("definition", "")), feedback=str(body["feedback"]),
-                           before=str(body.get("before", "")), after=str(body.get("after", "")), reason=str(body.get("reason", "")),
-                           columns=[f["name"] for f in fields] or [column], paper=str(body.get("doc_id", "")),
-                           source={"kind": str(body.get("kind", "extraction_review")), "by": str(body.get("by", "")),
-                                   "schema_id": body.get("schema_id"), "doc_id": body.get("doc_id")})
-    if not out["is_convention"]:
-        return _ok(is_convention=False, why_not=out["why_not"])
-    record = out["record"]
-    return _ok(is_convention=True, record=record, gate=gate.check(chat, record),
-               impact=gate.impact(record["trigger"], fields, body.get("schema_id")))
+    governing = notes_kb.governing([column])
+    out = proposer.propose(_chat(), column=column, definition=str(body.get("definition", "")),
+                           feedback=str(body["feedback"]), before=str(body.get("before", "")),
+                           after=str(body.get("after", "")), reason=str(body.get("reason", "")),
+                           governing=governing)
+    if not out.get("is_knowledge"):
+        return _ok(is_knowledge=False, why=out.get("why", ""), governing=[n.id for n in governing])
+    return _ok(is_knowledge=True, proposal=out,
+               governing=[{"id": n.id, "role": n.role, "scope": n.scope, "body": n.body} for n in governing])
 
 
-@bp.route("/api/conventions/check", methods=["POST"])
-def api_check_convention():
-    """Gate + impact for a record the reviewer edited (e.g. widened its scope); stores nothing."""
+@bp.route("/api/notes/apply", methods=["POST"])
+def api_apply_note():
+    """Write an edit into a note and record it. The reviewer may have rewritten the proposed text first."""
     body = request.get_json() or {}
-    record = body.get("record") or {}
-    trigger = record.get("trigger") or {}
-    if trigger.get("scope") not in kb.SCOPES or (record.get("action") or {}).get("type") not in kb.ACTION_TYPES:
-        return _err(f"record needs a scope in {kb.SCOPES} and a known action type")
-    if trigger["scope"] == "column" and not trigger.get("columns"):
-        return _err("a column-scoped rule needs its columns")
-    if trigger["scope"] == "family" and not (trigger.get("family") or trigger.get("columns")):
-        return _err("a family-scoped rule needs a header family")
-    fields = _schema_fields(body.get("schema_id"))
-    return _ok(gate=gate.check(_chat(), record), impact=gate.impact(trigger, fields, body.get("schema_id")))
-
-
-@bp.route("/api/conventions", methods=["POST"])
-def api_add_convention():
-    body = request.get_json() or {}
-    record, by = body.get("record") or {}, str(body.get("by", ""))
+    note_id, text = str(body.get("note", "")).strip(), str(body.get("text", "")).strip()
+    if not note_id or not text:
+        return _err("note and text required")
     try:
-        verdict = gate.check(_chat(), record)
-        if verdict["verdict"] == "duplicate":
-            merged = kb.merge_into(verdict["duplicate_of"], record.get("examples", []), by=by, note="duplicate proposal merged")
-            store.record_event("convention_merge", record.get("source", {}).get("schema_id"), by=by, convention=merged["id"])
-            return _ok(merged_into=merged["id"], convention=merged, gate=verdict)
-        if verdict["verdict"] == "blocked":
-            return _err("conflicts with existing conventions", 409, gate=verdict)
-        created = kb.create(record, by=by)
-        store.record_event("convention_propose", record.get("source", {}).get("schema_id"), by=by, convention=created["id"],
-                           instruction=created["instruction"], relations=verdict["relations"])
-        return _ok(convention=created, gate=verdict)
+        result = notes_kb.apply_edit(note_id, text, heading=str(body.get("heading", "")) or None,
+                                    by=str(body.get("by", "")), why=str(body.get("why", "")),
+                                    event=str(body.get("event", "")),
+                                    role=str(body.get("role", "extraction")))
     except ValueError as exc:
         return _err(str(exc))
+    store.record_event("note_edit", body.get("schema_id"), by=str(body.get("by", "")), note=result["note"],
+                       created=result["created"], fingerprint=result["fingerprint"])
+    return _ok(**result)
 
-
-@bp.route("/api/conventions/<cid>/decide", methods=["POST"])
-def api_decide(cid):
-    body = request.get_json() or {}
-    try:
-        rec = kb.decide(cid, str(body.get("op", "")), by=str(body.get("by", "")), note=str(body.get("note", "")))
-    except KeyError:
-        return _err("unknown convention", 404)
-    except ValueError as exc:
-        return _err(str(exc))
-    store.record_event("convention_decide", rec.get("source", {}).get("schema_id"), by=str(body.get("by", "")), convention=cid,
-                       op=str(body.get("op")), note=str(body.get("note", "")))
-    return _ok(convention=rec)
 
 
 # ---- feedback log ------------------------------------------------------------------------------------------------
