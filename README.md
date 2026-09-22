@@ -43,7 +43,7 @@ Three files, three jobs:
 | `src/config/catalog.yaml` | **Every option that exists**: endpoints, models and their capabilities (`tools`, `json_schema`, `images`, `pdf`, context size, price), pipeline roles and what they require, local vLLM server specs, presets, enumerated options | you add a model or server |
 | `src/config/config.py` | **What this run uses**: preset, per-role overrides, options, GPU pool and placement, token budgets. Validated against the catalog on import | per run / experiment |
 | `src/config/runtime_paths.py` | Where results, embeddings, uploads and feedback live | rarely |
-| `.env` | Secrets only: `VERTEX_API_KEY` (or `GOOGLE_CLOUD_PROJECT` + ADC), `OPENAI_API_KEY`, `VISION_AGENT_API_KEY` | rarely |
+| `.env` | Secrets only: `OPEN_ROUTER_API_KEY`, `VISION_AGENT_API_KEY` (Landing AI parsing), `OPENAI_API_KEY`, `VERTEX_API_KEY` | rarely |
 
 Code never names a provider or model; it asks for a role (`get_chat("search_agent")`, `get_embedder()`,
 `get_reranker()`). Roles: `pdf_query`, `search_agent`, `reconciliation`, `qa`, `judge`, `baseline`,
@@ -53,12 +53,14 @@ Code never names a provider or model; it asks for a role (`get_chat("search_agen
 
 | Preset | Agents (A, B, reconciliation, QA) | Embeddings | Needs |
 |---|---|---|---|
-| `local` (default) | Qwen3.6-27B on vLLM | Qwen3-Embedding-8B on vLLM | vLLM servers |
+| `openrouter` (default) | Qwen3.6-27B hosted on OpenRouter (thinking off) | Qwen3-Embedding-8B on OpenRouter | `OPEN_ROUTER_API_KEY` |
+| `local` | Qwen3.6-27B on vLLM | Qwen3-Embedding-8B on vLLM | vLLM servers |
 | `offline` | Qwen3.6-27B | Qwen3-Embedding-8B | vLLM servers only |
 | `novita`, `together` | the provider's served open-weight model | Qwen3-Embedding-8B on vLLM | the provider's API key and model id |
 | `cloud_openai` | an OpenAI chat model | OpenAI text-embedding-3-large | `OPENAI_API_KEY` |
 
 Retrieval is by embedding alone in every preset.
+`openrouter` and `local` run the same models; select the GPUs with `EVISEARCH_PRESET=local`.
 
 ### Switching without editing files
 

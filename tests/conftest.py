@@ -1,6 +1,11 @@
 from __future__ import annotations
 
+import os
 from pathlib import Path
+
+# The offline tests script their models; they are written against the local preset's model names, whatever preset
+# this machine defaults to (src/config/config.py reads EVISEARCH_PRESET when it is first imported).
+os.environ.setdefault("EVISEARCH_PRESET", "local")
 
 import pytest
 

@@ -64,8 +64,11 @@ class OpenAICompatChat(ChatModel):
                 "type": "json_schema",
                 "json_schema": {"name": "response", "schema": response_schema, "strict": False},
             }
+        extra: Dict[str, Any] = dict(self.spec.extra_body or {})
         if self.local and self.spec.thinking is not None:
-            kwargs["extra_body"] = {"chat_template_kwargs": {"enable_thinking": self.spec.thinking}}
+            extra["chat_template_kwargs"] = {"enable_thinking": self.spec.thinking}
+        if extra:
+            kwargs["extra_body"] = extra
 
         try:
             response = self.client.chat.completions.create(**kwargs)
@@ -125,7 +128,8 @@ class OpenAICompatEmbedder(Embedder):
         for start in range(0, len(inputs), self.batch_size):
             batch = inputs[start : start + self.batch_size]
             try:
-                response = self.client.embeddings.create(model=self.spec.name, input=batch)
+                response = self.client.embeddings.create(model=self.spec.name, input=batch,
+                                                         **({"extra_body": dict(self.spec.extra_body)} if self.spec.extra_body else {}))
             except Exception as exc:
                 raise InferenceError(f"{self.key} ({self.spec.name}) embedding request failed: {exc}") from exc
             data = sorted(response.data, key=lambda item: item.index)

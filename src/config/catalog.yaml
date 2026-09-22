@@ -57,6 +57,15 @@ endpoints:
     timeout_s: 900
     max_retries: 4
 
+  # OpenRouter: one key for the hosted open-weight models the pipeline uses, so the same three agents and the same
+  # embedding model run without a GPU. The routing rules sit on each model entry (extra_body).
+  openrouter:
+    type: openai_compatible
+    base_url: https://openrouter.ai/api/v1
+    api_key_env: OPEN_ROUTER_API_KEY
+    timeout_s: 900      # a long Arm A call over a whole paper with page images can take minutes on shared capacity
+    max_retries: 4      # 429/5xx from a busy provider are retried with backoff by the OpenAI SDK
+
   vertex:
     type: gemini
     api_key_env: VERTEX_API_KEY          # local development
@@ -152,6 +161,29 @@ models:
     name_env: EVISEARCH_TOGETHER_MODEL
     capabilities: {tools: true, json_schema: true, images: false, pdf: false}
     context_tokens: 131072
+
+  # ---- OpenRouter: the same open-weight models, hosted ----
+  # Qwen3.6-27B as served by OpenRouter's providers (fp8 on most). `reasoning: {enabled: false}` is the hosted form of
+  # thinking: false - without it the model reasons before every answer, which the pipeline neither expects nor pays for.
+  # require_parameters routes only to providers that honour every parameter sent (tools, response_format);
+  # data_collection: deny excludes providers that retain or train on prompts. context_tokens matches the local server,
+  # so the tool loops evict old pages at the same point they do locally (providers serve 262k).
+  qwen3.6-27b-openrouter:
+    kind: chat
+    endpoint: openrouter
+    name: qwen/qwen3.6-27b
+    capabilities: {tools: true, json_schema: true, images: true, pdf: false}
+    context_tokens: 131072
+    image_tokens: {pixels_per_token: 32}
+    price_per_1k: {input: 0.0003, output: 0.002}
+    extra_body: {reasoning: {enabled: false}, provider: {require_parameters: true, data_collection: deny}}
+  qwen3-embedding-8b-openrouter:
+    kind: embedding
+    endpoint: openrouter
+    name: qwen/qwen3-embedding-8b
+    query_instruction: "Instruct: Given a question about a clinical trial publication, retrieve the document page that answers it\nQuery:"
+    price_per_1k: {input: 0.00001, output: 0.0}
+    extra_body: {provider: {data_collection: deny}}
 
   # ---- Gemini (Vertex AI) ----
   gemini-2.5-flash:
@@ -353,6 +385,18 @@ presets:
     baseline: together-vlm
     structurer: together-vlm
     embedding: qwen3-embedding-8b
+    reranker: null
+  # The same models as `local`, hosted by OpenRouter: no GPU needed, one key (OPEN_ROUTER_API_KEY). Page embeddings are
+  # cached under the hosted model's name, so they are computed once through the API and never mixed with local ones.
+  openrouter:
+    pdf_query: qwen3.6-27b-openrouter
+    search_agent: qwen3.6-27b-openrouter
+    reconciliation: qwen3.6-27b-openrouter
+    qa: qwen3.6-27b-openrouter
+    judge: qwen3.6-27b-openrouter
+    baseline: qwen3.6-27b-openrouter
+    structurer: qwen3.6-27b-openrouter
+    embedding: qwen3-embedding-8b-openrouter
     reranker: null
   # Everything on local GPUs; no cloud credentials needed.
   offline:

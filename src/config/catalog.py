@@ -94,6 +94,9 @@ class ModelSpec(_Spec):
     query_instruction: Optional[str] = None
     image_tokens: ImageTokens = ImageTokens()
     price_per_1k: Price = Price()
+    # Sent as-is in the body of every request to this model: provider options such as OpenRouter's `reasoning` switch
+    # (the hosted counterpart of `thinking`, which only reaches local vLLM servers) and its `provider` routing rules.
+    extra_body: Optional[Dict[str, Any]] = None
 
     @model_validator(mode="before")
     @classmethod
