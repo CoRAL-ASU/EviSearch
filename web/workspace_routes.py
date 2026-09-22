@@ -493,10 +493,16 @@ def api_page_image(doc_id, page):
 
 @bp.route("/api/documents/<path:doc_id>/page/<int:page>/find")
 def api_page_find(doc_id, page):
-    """Where a quote sits on a page: {pages, width, height, rects:[[x0,y0,x1,y1]…]} in the rendered image's pixels, so
-    the page can be shown with the evidence highlighted. Falls back to the longest matching line when the whole quote
-    is not found (parsed text and the PDF's own text differ in spacing and hyphenation)."""
-    from src.evisearch.services.highlight import resolve_pdf_path
+    """Where the evidence for a value sits on a page: {pages, width, height, rects:[[x0,y0,x1,y1]...], found, kind,
+    status, evidence_pages} in the rendered image's pixels.
+
+    With ?run=&c=<column>, the stored locations of that reconciled cell are used (evidence_locations.json, written
+    after reconciliation). With ?v=<value> and ?q=<quote> - an agent's candidate, or a run without stored locations -
+    the value is located on this page on the fly. Either way the order is the same (services/evidence_locator.py):
+    the value as printed, its printed parts, the numbers it was computed from, then the supporting quotation.
+    `kind` says which of those the boxes are, so the viewer can say what it is showing."""
+    from src.evisearch.services import evidence_locator as locator
+    from src.evisearch.services.highlight import load_landing_ai_parse, resolve_pdf_path
 
     try:
         runs_service.check_doc(doc_id)
@@ -506,70 +512,31 @@ def api_page_find(doc_id, page):
     if not pdf or not Path(pdf).exists():
         return _err(f"no PDF for {doc_id}", 404)
     quote = (request.args.get("q") or "").strip()
+    value = (request.args.get("v") or "").strip()
+    column = (request.args.get("c") or "").strip()
+    run = (request.args.get("run") or "").strip() or None
     scale = min(max(request.args.get("scale", 1.6, type=float), 0.5), 3.0)
     import fitz
 
+    norm = lambda t: " ".join(str(t or "").split()).lower()
     with fitz.open(str(pdf)) as doc:
         if not 1 <= page <= len(doc):
             return _err(f"page {page} is not in this paper", 404)
         target = doc[page - 1]
-        rects: List[List[float]] = []
-        if quote:
-            for probe in _probes(quote):
-                found = target.search_for(probe, quads=False)
-                if found:
-                    rects = [[r.x0 * scale, r.y0 * scale, r.x1 * scale, r.y1 * scale] for r in found]
-                    break
-            if not rects:  # the PDF's own text differs (tables, ligatures, line breaks): match word by word
-                rects = _best_word_span(target, quote, scale)
+        cell = None
+        if column:
+            cell = locator.load_locations(doc_id, run, runtime_paths.RESULTS_ROOT).get(column)
+            if cell and value and norm(value) != norm(cell.get("value")):
+                cell = None  # another answer (an agent's) is on screen: locate that one, not the reconciled value
+        if cell is None and (value or quote):
+            cell = locator.locate(doc, load_landing_ai_parse(doc_id), value, column,
+                                  [{"pages": [page], "quote": quote, "origin": "view"}])
+        rects = locator.regions_on(cell, page, scale) if cell else []
+        kinds = [r["kind"] for r in (cell or {}).get("regions") or [] if r.get("page") == page]
         return _ok(page=page, pages=len(doc), width=target.rect.width * scale, height=target.rect.height * scale,
-                   rects=rects, found=bool(rects))
-
-
-def _best_word_span(page, quote: str, scale: float) -> List[List[float]]:
-    """The run of words on the page that shares most words with the quote (at least 60% of them), as line rectangles."""
-    words = page.get_text("words")  # (x0, y0, x1, y1, word, block, line, word_no)
-    if not words:
-        return []
-    clean = lambda s: re.sub(r"[^a-z0-9.%]+", "", s.lower())
-    wanted = [clean(w) for w in quote.split()]
-    wanted = [w for w in wanted if len(w) > 1]
-    if len(wanted) < 3:
-        return []
-    page_words = [clean(w[4]) for w in words]
-    size = min(len(wanted), 60)
-    target = set(wanted)
-    best, best_at = 0, -1
-    for start in range(0, max(1, len(page_words) - size + 1)):
-        score = sum(1 for w in page_words[start:start + size] if w in target)
-        if score > best:
-            best, best_at = score, start
-    if best_at < 0 or best < max(3, int(0.6 * min(size, len(wanted)))):
-        return []
-    chosen = words[best_at:best_at + size]
-    lines: Dict[Any, List[Any]] = {}
-    for w in chosen:
-        lines.setdefault((w[5], w[6]), []).append(w)
-    out = []
-    for group in lines.values():
-        x0 = min(w[0] for w in group) * scale
-        y0 = min(w[1] for w in group) * scale
-        x1 = max(w[2] for w in group) * scale
-        y1 = max(w[3] for w in group) * scale
-        out.append([x0, y0, x1, y1])
-    return out
-
-
-def _probes(quote: str) -> List[str]:
-    """The quote, then its longest lines and sentences: PDF text often differs from the parsed text in line breaks."""
-    text = " ".join(quote.split())
-    parts = [text]
-    for piece in sorted(re.split(r"(?<=[.;:])\s+|\n", quote), key=len, reverse=True):
-        piece = " ".join(piece.split())
-        if len(piece) >= 12:
-            parts.append(piece)
-    parts += [text[:120], text[:60], text[:30]]
-    return [p for p in dict.fromkeys(parts) if len(p) >= 8]
+                   rects=rects, found=bool(rects), kind=kinds[0] if kinds else "",
+                   status=(cell or {}).get("status", ""),
+                   evidence_pages=sorted({r["page"] for r in (cell or {}).get("regions") or []}))
 
 
 @bp.route("/api/documents/prepare", methods=["POST"])

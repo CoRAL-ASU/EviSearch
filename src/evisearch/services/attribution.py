@@ -32,17 +32,33 @@ def _chunk_text_clean(chunk: Dict) -> str:
     return re.sub(r"<::[^>]*::>", "", text).strip()[:4000]
 
 
+MAX_CHUNKS = 2  # boxes shown for one value: the best, and at most one runner-up
+
+
+def _rank_by_value(chunks: List[Dict[str, Any]], value: Optional[str]) -> List[Dict[str, Any]]:
+    """Chunks that print the value first (by how many of its numbers they hold), then the rest, in page order."""
+    from src.evisearch.services.evidence_locator import numbers
+
+    wanted = set(numbers(value or ""))
+    if not wanted:
+        return chunks
+    held = lambda c: len(wanted & set(numbers(c.get("text") or "")))
+    return sorted(chunks, key=lambda c: -held(c))
+
+
 def resolve_chunks_from_reconciled_source(
     doc_id: str,
     page: int,
     modality: str,
     verbatim_quote: Optional[str] = None,
+    value: Optional[str] = None,
 ) -> List[Dict[str, Any]]:
     """
     Resolve Landing AI chunks from reconciled source (page, modality, verbatim_quote).
-    - table/figure: all chunks of that type on the page
-    - text: if verbatim_quote present, relaxed match; else returns []
-    Returns list of {chunk_id, page, source_type, snippet, score}.
+    - table/figure: the chunk of that type on the page that holds the value, ranked by how many of its numbers it
+      prints (not every chunk of the type: a page can carry several tables and figures)
+    - text: chunks containing the quotation (relaxed match); else returns []
+    At most MAX_CHUNKS are returned. Returns list of {chunk_id, page, source_type, snippet, score}.
     """
     if not page or page < 1:
         return []
@@ -51,7 +67,7 @@ def resolve_chunks_from_reconciled_source(
         mod = "text"
 
     if mod in ("table", "figure"):
-        raw = get_chunks_by_page_type(doc_id, page, mod)
+        raw = _rank_by_value(get_chunks_by_page_type(doc_id, page, mod), value)[:MAX_CHUNKS]
         return [
             {
                 "chunk_id": c["chunk_id"],
@@ -67,7 +83,7 @@ def resolve_chunks_from_reconciled_source(
         verbatim = (verbatim_quote or "").strip()
         if not verbatim or len(verbatim) < 5:
             return []
-        raw = get_chunks_by_page_and_verbatim(doc_id, page, verbatim)
+        raw = _rank_by_value(get_chunks_by_page_and_verbatim(doc_id, page, verbatim), value)[:MAX_CHUNKS]
         return [
             {
                 "chunk_id": c["chunk_id"],

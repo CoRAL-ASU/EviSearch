@@ -81,23 +81,36 @@ window.EVS = (function () {
         this.token = 0;
         this.scale = 2.2;  // the page is shown full width now, so it is rendered at a higher resolution
     }
-    PdfViewer.prototype.open = async function (docId, page, quote) {
+    // opts: {value, column, run} - the value being checked, so the server can box the value itself rather than only
+    // the quotation (see services/evidence_locator.py)
+    PdfViewer.prototype.open = async function (docId, page, quote, opts) {
         this.docId = docId;
         this.page = Math.max(1, page || 1);
         this.quote = quote || '';
+        this.opts = opts || {};
         await this.render();
+    };
+    const EVIDENCE_LABEL = {
+        value: 'value highlighted', value_parts: 'printed parts of the value highlighted',
+        operand: 'numbers it was computed from highlighted', quote: 'supporting passage highlighted',
+        chunk: 'table or figure highlighted',
     };
     PdfViewer.prototype.render = async function () {
         const token = ++this.token;
         const docId = this.docId, page = this.page;
         this.el.innerHTML = '<div class="p-6 text-sm opacity-60">Loading the page…</div>';
-        const r = await get(`/api/documents/${enc(docId)}/page/${page}/find?q=${enc(this.quote.slice(0, 400))}&scale=${this.scale}`);
+        const o = this.opts || {};
+        const extra = (o.value ? `&v=${enc(String(o.value).slice(0, 300))}` : '') + (o.column ? `&c=${enc(o.column)}` : '')
+            + (o.run ? `&run=${enc(o.run)}` : '');
+        const r = await get(`/api/documents/${enc(docId)}/page/${page}/find?q=${enc(this.quote.slice(0, 400))}&scale=${this.scale}${extra}`);
         if (token !== this.token) return;
         if (!r.success) { this.el.innerHTML = `<div class="p-6 text-sm text-error">${esc(r.error)}</div>`; return; }
         this.pages = r.pages;
         const bar = `<div class="flex items-center justify-between gap-2 px-2 py-1 text-xs sticky top-0 bg-base-300 z-10">
             <button class="btn btn-xs" data-go="-1" ${page <= 1 ? 'disabled' : ''}>‹ Prev</button>
-            <span>Page ${page} of ${r.pages}${this.quote ? (r.found ? ' · quote highlighted' : ' · quote not found in the page text (a table or figure image?)') : ''}</span>
+            <span>Page ${page} of ${r.pages}${r.found ? ' · ' + (EVIDENCE_LABEL[r.kind] || 'evidence highlighted')
+                : ((this.quote || o.value) ? ' · not in the page text (read from a figure, or computed)' : '')}${
+                (r.evidence_pages || []).filter((p) => p !== page).map((p) => ` <button class="btn btn-xs btn-ghost" data-page="${p}">also p${p}</button>`).join('')}</span>
             <button class="btn btn-xs" data-go="1" ${page >= r.pages ? 'disabled' : ''}>Next ›</button></div>`;
         const pct = (v, whole) => (100 * v / whole).toFixed(3) + '%';  // percentages so the page scales to the panel
         this.el.innerHTML = bar + `<div class="relative w-full" id="evs-page">
@@ -105,9 +118,18 @@ window.EVS = (function () {
             ${(r.rects || []).map((b) => `<div class="evs-hl absolute" style="left:${pct(b[0], r.width)};top:${pct(b[1], r.height)};width:${pct(b[2] - b[0], r.width)};height:${pct(b[3] - b[1], r.height)};
                 background:rgba(250,204,21,.32);outline:1px solid rgba(250,204,21,.9);pointer-events:none"></div>`).join('')}</div>`;
         this.el.querySelectorAll('[data-go]').forEach((b) => b.onclick = () => { this.page += Number(b.dataset.go); this.render(); });
+        this.el.querySelectorAll('[data-page]').forEach((b) => b.onclick = () => { this.page = Number(b.dataset.page); this.render(); });
         // scroll the panel to the quote, never the window: the page sits in the middle of a column now
         const mark = this.el.querySelector('.evs-hl');
         if (mark) this.el.scrollTop = Math.max(0, mark.offsetTop - this.el.clientHeight / 3);
+        // when the box still sits below the fold, offer to bring it into view rather than moving the page unasked
+        if (mark && mark.getBoundingClientRect().top > window.innerHeight) {
+            const span = this.el.querySelector('.sticky span');
+            if (span) {
+                span.insertAdjacentHTML('beforeend', ' <button class="btn btn-xs btn-warning evs-show">↓ show highlight</button>');
+                span.querySelector('.evs-show').onclick = () => mark.scrollIntoView({behavior: 'smooth', block: 'center'});
+            }
+        }
     };
 
     return {$, esc, enc, get, post, toast, store, reviewer, needReviewer, dirty, STATE, stateBadge, when, shortDoc, PdfViewer};

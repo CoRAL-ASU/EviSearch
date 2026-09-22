@@ -106,7 +106,7 @@
         return `<div class="border border-base-300 rounded p-2 space-y-1">
             <div class="flex items-center justify-between gap-2"><span class="text-xs uppercase tracking-wide opacity-60">${esc(label)}</span>${extra || ''}</div>
             <div class="font-medium break-words">${value === null || value === undefined ? '<span class="opacity-50">did not answer</span>' : esc(value) || '<span class="opacity-50">empty</span>'}</div>
-            ${(evidence || []).map((e) => `<button class="btn btn-xs btn-outline ev" data-page="${e.page}" data-quote="${esc(e.quote)}">p${e.page} · ${esc(e.modality)}${e.verdict ? ' · ' + esc(e.verdict) : ''}</button>`).join(' ')}
+            ${(evidence || []).map((e) => `<button class="btn btn-xs btn-outline ev" data-page="${e.page}" data-quote="${esc(e.quote)}" data-value="${esc(value || '')}">p${e.page} · ${esc(e.modality)}${e.verdict ? ' · ' + esc(e.verdict) : ''}</button>`).join(' ')}
             ${reasoning ? `<details class="text-xs opacity-70"><summary>why</summary><div class="whitespace-pre-wrap">${esc(reasoning)}</div></details>` : ''}</div>`;
     }
 
@@ -163,7 +163,8 @@
             if (ta.value === saved) { store.del(draftKey(current.doc_id, current.column)); dirty.delete('cell'); }
             else { store.set(draftKey(current.doc_id, current.column), {text: ta.value, at: new Date().toISOString()}); dirty.add('cell'); }
         });
-        document.querySelectorAll('#cell-top .ev').forEach((b) => b.onclick = () => viewer.open(current.doc_id, Number(b.dataset.page), b.dataset.quote));
+        const opts = (v) => ({value: v, column: current.column, run});
+        document.querySelectorAll('#cell-top .ev').forEach((b) => b.onclick = () => viewer.open(current.doc_id, Number(b.dataset.page), b.dataset.quote, opts(b.dataset.value)));
         document.querySelector('#cell-review .conf').onclick = () => save(cell.value, '', document.querySelector('#cell-review .note').value);
         document.querySelector('#cell-review .save').onclick = () => {
             const reason = document.querySelector('#cell-review .why').value;
@@ -184,7 +185,7 @@
             await refreshCell();
         };
         const first = (cell.evidence || [])[0] || (cell.a_evidence || [])[0] || (cell.b_evidence || [])[0];
-        if (first) viewer.open(current.doc_id, first.page, first.quote);
+        if (first) viewer.open(current.doc_id, first.page, first.quote, opts(cell.value));
         else viewer.open(current.doc_id, 1, '');
     }
 

@@ -113,6 +113,7 @@ def run_reconciliation_pipeline(
     columns: Dict[str, Any] = dict(existing)
     usage = empty_usage()
     if not batches:
+        _locate_evidence(doc_id)
         return {"columns": columns, "error": None, "usage": usage}
 
     logs = results_store.logs_dir(doc_id, "reconciliation")
@@ -133,7 +134,20 @@ def run_reconciliation_pipeline(
         })
 
     run_batches(numbered(batches), work, accumulate)
+    _locate_evidence(doc_id)
     return {"columns": columns, "error": None, "usage": usage}
+
+
+def _locate_evidence(doc_id: str) -> None:
+    """Write where each admitted value sits on its pages (services/evidence_locator.py), next to the reconciled
+    results, so the viewer can box the value itself. Locating evidence reads only the PDF and the stored outputs,
+    and a failure here must never fail the extraction it follows."""
+    try:
+        from src.evisearch.services import evidence_locator
+
+        evidence_locator.build_stage(doc_id, results_store.method_dir(doc_id, "reconciliation"))
+    except Exception as exc:  # noqa: BLE001 - the extraction is done; only the highlight file is missing
+        print(f"[reconciliation] {doc_id}: evidence locations not written ({exc})", file=sys.stderr)
 
 
 def main(argv: Optional[List[str]] = None) -> int:

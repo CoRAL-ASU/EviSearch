@@ -179,7 +179,7 @@ def _resolve_candidate_chunk_ids(doc_id: str, column_name: str, col_data: Any) -
             pipeline_source_type=first.get("source_type"),
             evidence_text=reasoning,
             attribution=attribution,
-            top_k=3,
+            top_k=2,
         )
     except Exception:
         return []
@@ -1315,6 +1315,7 @@ def _api_qa_ask_full(doc_id: str, question: str, history: list):
                 page=rec_source.get("page"),
                 modality=rec_source.get("modality", "text"),
                 verbatim_quote=verbatim,
+                value=rec_val,
             )
             chunk_ids = [c.get("chunk_id") for c in raw if c.get("chunk_id")]
 
@@ -1338,7 +1339,7 @@ def _api_qa_ask_full(doc_id: str, question: str, history: list):
                     fallback_type = attr_list[0].get("source_type") or "text"
             raw = retrieve_chunks_for_evidence(
                 doc_id,
-                top_k=5,
+                top_k=2,
                 column_name=col_name,
                 final_value=rec_val,
                 pipeline_page=fallback_page,
