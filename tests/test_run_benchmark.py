@@ -152,7 +152,9 @@ def test_stage_parallel_overlaps_only_the_stages_that_read_nothing_from_each_oth
     assert record["status"] == "ok" and record["check"]["result"] == "PASS"
 
     monkeypatch.delenv("EVISEARCH_STAGE_PARALLEL")
-    assert run_benchmark.stage_waves("E") == [["agent"], ["search"], ["reconciliation"]]  # off by default
+    assert run_benchmark.stage_waves("E") == [["agent", "search"], ["reconciliation"]]  # on by default
+    monkeypatch.setenv("EVISEARCH_STAGE_PARALLEL", "0")
+    assert run_benchmark.stage_waves("E") == [["agent"], ["search"], ["reconciliation"]]
     assert run_benchmark.run_header("E", "e_serial", None, 1)["stage_parallel"] is False
 
 

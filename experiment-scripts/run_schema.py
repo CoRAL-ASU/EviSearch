@@ -37,7 +37,7 @@ def main() -> int:
     parser.add_argument("--kb", default="on", choices=["on", "off"],
                         help="on (default): the knowledge notes, frozen for the run; off: the fixed extraction guidelines")
     parser.add_argument("--run", help="run name (default: schema-<id>-v<N>, with -kboff / -b1 suffixes when they apply)")
-    parser.add_argument("--parallel", type=int, default=2)
+    parser.add_argument("--parallel", type=int, default=0, help="papers at once (default: run_benchmark's)")
     parser.add_argument("--dry-run", action="store_true")
     args = parser.parse_args()
 
@@ -60,7 +60,7 @@ def main() -> int:
         env["EVISEARCH_KB_NOTES_SNAPSHOT"] = str(snapshot)
         print(f"[run_schema] knowledge notes frozen for this run: {snapshot}", flush=True)
     cmd = [sys.executable, str(ROOT / "experiment-scripts" / "run_benchmark.py"), "--system", args.system, "--docs", args.docs,
-           "--run", run, "--parallel", str(args.parallel)]
+           "--run", run] + (["--parallel", str(args.parallel)] if args.parallel else [])
     if args.dry_run:
         cmd.append("--dry-run")
     print(f"[run_schema] schema {args.schema} v{version} ({csv_path}) kb={args.kb} -> run {run}", flush=True)

@@ -32,7 +32,7 @@ from src.retrieval import embedding_retriever as retriever
 VERDICTS = ("supported", "partial", "not_supported")
 CLAIMS_PER_CALL = 12
 MAX_CLAIM_PAGES = 3
-MAX_WORKERS = 4  # concurrent verifier calls; vLLM batches them
+MAX_WORKERS = 4  # concurrent verifier calls on a local server; hosted models take limits.verifier_workers()
 
 SYSTEM_PROMPT = """You judge whether values extracted from a clinical trial paper are the CORRECT ANSWER for a table column, using
 the page or pages they were taken from.
@@ -291,7 +291,9 @@ def verify_claims(
     ]
     usage = Usage()
     calls: List[Dict[str, Any]] = []
-    with ThreadPoolExecutor(max_workers=min(MAX_WORKERS, len(jobs))) as pool:
+    from src.inference import limits
+
+    with ThreadPoolExecutor(max_workers=max(1, min(limits.verifier_workers(), len(jobs)))) as pool:
         futures = [pool.submit(_verify_or_split, chat, pages, texts, images, group, definitions) for pages, group in jobs]
         for future in futures:
             page_records, page_usage, page_calls = future.result()

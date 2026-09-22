@@ -36,10 +36,13 @@ class ChatModel(ABC):
         ChatResult.text (use ChatResult.json()). The result records when the call started, how long it took and how
         many images it sent (ChatResult.started_at / duration_s, usage.model_seconds / input_images).
         """
+        from src.inference import limits
+
         self._check_inputs(messages, tools)
-        started_at, start = utc_timestamp(), time.perf_counter()
-        result = self._chat(messages, list(tools or []), tool_choice, response_schema, temperature, max_tokens)
-        result.started_at, result.duration_s = started_at, round(time.perf_counter() - start, 3)
+        with limits.inflight():  # waiting for a slot is not model time, so the clock starts inside
+            started_at, start = utc_timestamp(), time.perf_counter()
+            result = self._chat(messages, list(tools or []), tool_choice, response_schema, temperature, max_tokens)
+            result.started_at, result.duration_s = started_at, round(time.perf_counter() - start, 3)
         result.usage.model_seconds = result.duration_s
         result.usage.input_images = count_images(messages)
         return result

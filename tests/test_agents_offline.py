@@ -960,12 +960,17 @@ def test_batch_concurrency_changes_the_schedule_and_nothing_else(monkeypatch):
     assert serial_order == sorted(serial_order)  # serial accumulates in batch order
     assert sorted(parallel_order) == serial_order  # concurrent covers every batch exactly once
 
+    from src.inference import limits
+
     monkeypatch.setenv("EVISEARCH_STAGE_CONCURRENCY", "4")
     assert batch_runner.stage_concurrency() == 4
     monkeypatch.setenv("EVISEARCH_STAGE_CONCURRENCY", "nonsense")
-    assert batch_runner.stage_concurrency() == 1  # a bad value falls back to serial, never crashes a run
+    assert batch_runner.stage_concurrency() == 3  # a bad value falls back to the default, never crashes a run
     monkeypatch.delenv("EVISEARCH_STAGE_CONCURRENCY")
-    assert batch_runner.stage_concurrency() == 1  # off by default: every run up to R4 reproduces
+    monkeypatch.setattr(limits, "hosted", lambda: False)
+    assert batch_runner.stage_concurrency() == 3  # a local vLLM server: what the published runs used
+    monkeypatch.setattr(limits, "hosted", lambda: True)
+    assert batch_runner.stage_concurrency() >= 11  # hosted models: every batch of a stage at once
 
 
 def test_batch_concurrency_reports_a_failed_batch_after_the_others_finish(monkeypatch):
@@ -1132,3 +1137,65 @@ def test_a_failed_stage_keeps_the_other_arm_and_skips_what_would_have_read_it(do
     assert store.load_columns("doc-1", "agent")[TRIAL]["value"] == f"agent-{TRIAL}"  # Arm A's results survived
     saved = json.loads((store.RESULTS_ROOT / "doc-1" / "runs" / "half" / "benchmark_manifest.json").read_text())
     assert saved["error"] == record["error"] and saved["stages"]["search"]["error"].endswith("search refused for doc-1")
+
+
+def test_the_inflight_cap_bounds_concurrent_model_calls_and_is_not_counted_as_model_time(monkeypatch):
+    """Batches, stages and papers fan out; one cap per process bounds the calls actually in flight, and the time a call
+    waits for a slot is not part of its duration."""
+    import threading
+    import time
+
+    from src.inference import limits
+
+    monkeypatch.setenv("EVISEARCH_MAX_INFLIGHT", "2")
+    limits.reset()
+    state = {"now": 0, "peak": 0}
+    lock = threading.Lock()
+
+    class SlowChat(ChatModel):
+        def _chat(self, messages, tools, tool_choice, response_schema, temperature, max_tokens):
+            with lock:
+                state["now"] += 1
+                state["peak"] = max(state["peak"], state["now"])
+            time.sleep(0.05)
+            with lock:
+                state["now"] -= 1
+            return ChatResult(text="ok", tool_calls=[], usage=Usage(api_calls=1), message=Message(role="assistant", parts=[]),
+                              model=self.key, finish_reason="stop")
+
+    chat = SlowChat("slow", ModelSpec(kind="chat", endpoint="e", name="slow"))
+    results = []
+    threads = [threading.Thread(target=lambda: results.append(chat.chat([Message.user("hi")]))) for _ in range(8)]
+    for t in threads:
+        t.start()
+    for t in threads:
+        t.join()
+    limits.reset()
+    assert state["peak"] == 2 and len(results) == 8
+    assert all(r.duration_s < 0.2 for r in results)  # 8 calls queued behind 2 slots, but each measures only itself
+
+
+def test_page_embeddings_are_computed_once_when_batches_ask_at_the_same_time(doc, monkeypatch):
+    """Eleven Search Agent batches start together on a paper whose pages are not embedded yet: one computes, the rest
+    wait and reuse it, and the cache file is written whole."""
+    import threading
+
+    calls = {"n": 0}
+    real = retriever.get_embedder()
+
+    class CountingEmbedder:
+        def embed(self, texts, kind="document"):
+            if kind == "document":
+                calls["n"] += 1
+            return real.embed(texts, kind=kind)
+
+    monkeypatch.setattr(retriever, "get_embedder", lambda: CountingEmbedder())
+    out = []
+    threads = [threading.Thread(target=lambda: out.append(retriever.search_chunks("doc-1", "median overall survival")))
+               for _ in range(11)]
+    for t in threads:
+        t.start()
+    for t in threads:
+        t.join()
+    assert calls["n"] == 1 and len(out) == 11 and all(out)
+    assert retriever.has_embedding_cache("doc-1")

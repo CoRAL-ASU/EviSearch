@@ -425,8 +425,14 @@
         $('rd-papers').innerHTML = T.papers.map((p) => `<label class="flex items-center gap-2 ${p.parsed ? '' : 'opacity-50'}">
             <input type="checkbox" class="checkbox checkbox-xs rd-p" value="${esc(p.doc_id)}" ${p.parsed ? '' : 'disabled'} />
             <span>${esc(shortDoc(p.name))}</span>${p.gold ? '<span class="badge badge-outline badge-xs">gold</span>' : ''}${p.parsed ? '' : '<span class="text-xs">(parse it above first)</span>'}</label>`).join('');
-        const est = () => { const n = document.querySelectorAll('.rd-p:checked').length; const per = 28;
-            $('rd-est').textContent = n ? `${n} paper${n > 1 ? 's' : ''}: about ${Math.round(n * per / 2)} min on the local GPU (2 papers at a time; ~${per} min each). Cloud models vary.` : 'Pick the papers to extract.'; };
+        const est = () => {
+            const n = document.querySelectorAll('.rd-p:checked').length, x = T.extraction || {minutes_per_paper: 20, papers_at_once: 2};
+            if (!n) { $('rd-est').textContent = 'Pick the papers to extract.'; return; }
+            const waves = Math.ceil(n / x.papers_at_once), mins = Math.round(x.minutes_per_paper * waves * (x.hosted && n > 1 ? 1.5 : 1));
+            const where = x.hosted ? `${x.model} via ${x.preset}, every batch and paper in parallel` : `the local GPU, ${x.papers_at_once} papers at a time`;
+            const cost = x.usd_per_paper ? `, about $${(x.usd_per_paper * n).toFixed(2)}` : '';
+            $('rd-est').textContent = `${n} paper${n > 1 ? 's' : ''}: about ${mins} min on ${where}${cost}.`;
+        };
         document.querySelectorAll('.rd-p').forEach((c) => c.onchange = est);
         $('rd-all').onclick = () => { document.querySelectorAll('.rd-p:not(:disabled)').forEach((c) => c.checked = true); est(); };
         $('rd-none').onclick = () => { document.querySelectorAll('.rd-p').forEach((c) => c.checked = false); est(); };

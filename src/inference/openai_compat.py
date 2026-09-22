@@ -9,6 +9,7 @@ from typing import Any, Dict, List, Optional, Sequence
 import numpy as np
 
 from src.config.catalog import ModelSpec
+from src.inference import limits
 from src.inference.base import ChatModel, Embedder
 from src.inference.types import (
     ChatResult,
@@ -128,8 +129,9 @@ class OpenAICompatEmbedder(Embedder):
         for start in range(0, len(inputs), self.batch_size):
             batch = inputs[start : start + self.batch_size]
             try:
-                response = self.client.embeddings.create(model=self.spec.name, input=batch,
-                                                         **({"extra_body": dict(self.spec.extra_body)} if self.spec.extra_body else {}))
+                with limits.inflight():
+                    response = self.client.embeddings.create(model=self.spec.name, input=batch,
+                                                             **({"extra_body": dict(self.spec.extra_body)} if self.spec.extra_body else {}))
             except Exception as exc:
                 raise InferenceError(f"{self.key} ({self.spec.name}) embedding request failed: {exc}") from exc
             data = sorted(response.data, key=lambda item: item.index)

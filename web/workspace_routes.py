@@ -404,7 +404,42 @@ def api_table(table_id):
     info["example_doc"] = (schema.get("source") or {}).get("example_doc")
     info["fields"] = len(schema.get("fields", []))
     return _ok(table=info, papers=table_papers(table_id, schema, table_runs), runs=summaries, steps=steps, next_action=next_action,
-               showcase_run=main)
+               showcase_run=main, extraction=extraction_profile(main, table_runs))
+
+
+_TOKENS_PER_PAPER: Dict[str, Tuple[float, float]] = {}
+
+
+def _tokens_per_paper(run: str, docs: List[str]) -> Tuple[float, float]:
+    """Mean (input, output) tokens one paper took across the three stages of a finished run."""
+    if run not in _TOKENS_PER_PAPER:
+        totals = []
+        for doc in docs:
+            tin = tout = 0
+            for folder in ("agent_extractor", "search_agent", "reconciliation_agent"):
+                usage = (runs_service._read_json(runs_service.base_dir(doc, run) / folder / "extraction_metadata.json") or {}).get("usage") or {}
+                tin, tout = tin + (usage.get("input_tokens") or 0), tout + (usage.get("output_tokens") or 0)
+            if tin:
+                totals.append((tin, tout))
+        _TOKENS_PER_PAPER[run] = (sum(t[0] for t in totals) / len(totals), sum(t[1] for t in totals) / len(totals)) if totals else (0.0, 0.0)
+    return _TOKENS_PER_PAPER[run]
+
+
+def extraction_profile(run: Optional[str], table_runs: List[Dict[str, Any]]) -> Dict[str, Any]:
+    """What an extraction started from this page runs on, for the Extract dialog: hosted models run every batch and
+    every paper at once (src/inference/limits.py); a local GPU runs within its server's slots."""
+    from src.config.config import SELECTION
+    from src.inference import limits
+
+    hosted = limits.hosted()
+    model = SELECTION.model("pdf_query")
+    docs = next((r["docs"] for r in table_runs if r["run"] == run), [])
+    tin, tout = _tokens_per_paper(run, docs) if run else (0.0, 0.0)
+    price = model.price_per_1k
+    usd = (tin * price.input + tout * price.output) / 1000 if hosted and (price.input or price.output) else None
+    return {"hosted": hosted, "preset": SELECTION.preset, "model": model.name,
+            "minutes_per_paper": 5 if hosted else 20, "papers_at_once": limits.papers_at_once(10_000),
+            "usd_per_paper": round(usd, 2) if usd else None}
 
 
 @bp.route("/api/tables/<table_id>/versions/<int:version>.<fmt>")

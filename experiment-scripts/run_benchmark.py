@@ -13,13 +13,12 @@ Usage:
   python experiment-scripts/run_benchmark.py --system E --docs dev --run mistral_e --preset local_mistral --dry-run
   python experiment-scripts/run_benchmark.py --system B1 --docs "NCT00309985_Sweeney_CHAARTED_NEJM'15" --run smoke_b1
 
-Environment (schedule only; both off by default, so every run up to R4 reproduces exactly):
-  EVISEARCH_STAGE_PARALLEL=1     a document's independent stages run at the same time (E: Arm A with Arm B, then the
-                                 arbiter, which reads both arms' saved results). Stage records, timings and the manifest
-                                 stay as they are; only the wall clock changes.
-  EVISEARCH_STAGE_CONCURRENCY=N  a stage's column batches run N at a time (src/evisearch/pipelines/batch_runner.py).
-Requests in flight on the server are --parallel x stages x batches, and one vLLM instance with --max-num-seqs 8 is the
-ceiling; raising all three at once only lengthens its queue.
+Schedule (never what is sent): the two extraction agents run together, then the Reconciliation Agent, which reads both
+agents' saved results; a stage's column batches and a job's papers run at the same time, as far as
+src/inference/limits.py allows - fully on hosted models, within a local vLLM server's slots otherwise. Overrides:
+  EVISEARCH_STAGE_PARALLEL=0     the stages one after another
+  EVISEARCH_STAGE_CONCURRENCY=N  a stage's column batches N at a time
+  EVISEARCH_MAX_INFLIGHT=N       model calls in flight across the whole run
 
 --docs: all | dev | heldout | comma-separated doc ids from the gold table. heldout is James STAMPEDE IJC'22, Sweeney
 CHAARTED NEJM'15 and Smith ARASENS NEJM'22; dev is the other 7. Running a run name again resumes it (only missing
@@ -477,7 +476,8 @@ def parse_args(argv: Optional[List[str]]) -> argparse.Namespace:
     parser.add_argument("--docs", default="all", help="all | dev | heldout | comma-separated gold doc ids (default: all)")
     parser.add_argument("--run", required=True, help="Run name: results go to results/<doc_id>/runs/<run>/")
     parser.add_argument("--preset", choices=sorted(load_catalog().presets), help="Catalog preset (default: EVISEARCH_PRESET or config.py)")
-    parser.add_argument("--parallel", type=int, default=2, help="Documents processed at the same time (default: 2)")
+    parser.add_argument("--parallel", type=int, default=0,
+                        help="Documents processed at the same time (default: all of them on hosted models, 2 on local GPUs)")
     parser.add_argument("--reuse-a-from", metavar="RUN", help="E only: copy Arm A from this finished B2 run instead of running it")
     parser.add_argument("--dry-run", action="store_true", help="Print what would run without calling any model or writing results")
     args = parser.parse_args(argv)
@@ -485,8 +485,8 @@ def parse_args(argv: Optional[List[str]]) -> argparse.Namespace:
         parser.error("--reuse-a-from only applies to --system E")
     if args.reuse_a_from == args.run:
         parser.error("--reuse-a-from must name another run than --run")
-    if args.parallel < 1:
-        parser.error("--parallel must be at least 1")
+    if args.parallel < 0:
+        parser.error("--parallel must be at least 1 (or 0 for the default)")
     return args
 
 
@@ -512,6 +512,9 @@ def main(argv: Optional[List[str]] = None) -> int:
         print(f"[benchmark] {exc}", file=sys.stderr)
         return 2
 
+    from src.inference import limits
+
+    args.parallel = args.parallel or limits.papers_at_once(len(docs))
     header = run_header(args.system, args.run, args.reuse_a_from, args.parallel)
     try:
         saved = json.loads(manifest_path(args.run).read_text(encoding="utf-8"))

@@ -7,7 +7,9 @@ cached per document and per embedding model, so switching models never mixes vec
 from __future__ import annotations
 
 import hashlib
+import os
 import re
+import threading
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
@@ -51,18 +53,39 @@ def _markdown_sha(doc_id: str) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest() if path.exists() else ""
 
 
+# A paper's page embeddings are read by every search of every batch; with batches running at the same time they are
+# kept in memory once loaded, and computed by one thread while the others wait (per paper and embedding model).
+_memo: Dict[Tuple[str, str], Tuple[List[str], np.ndarray]] = {}
+_memo_lock = threading.Lock()
+_doc_locks: Dict[Tuple[str, str], threading.Lock] = {}
+
+
+def _doc_lock(doc_id: str, model_id: str) -> threading.Lock:
+    with _memo_lock:
+        return _doc_locks.setdefault((doc_id, model_id), threading.Lock())
+
+
 def _load_cache(doc_id: str, model_id: str) -> Optional[Tuple[List[str], np.ndarray]]:
-    path = _cache_path(doc_id, model_id)
     sha = _markdown_sha(doc_id)
-    if not sha or not path.exists():
+    if not sha:
+        return None
+    path = _cache_path(doc_id, model_id)
+    key = (str(path), sha)
+    with _memo_lock:
+        if key in _memo:
+            return _memo[key]
+    if not path.exists():
         return None
     try:
         data = np.load(path, allow_pickle=False)
         if str(data["markdown_sha256"]) != sha:
             return None
-        return [str(c) for c in data["chunk_ids"]], data["embeddings"]
+        loaded = ([str(c) for c in data["chunk_ids"]], data["embeddings"])
     except (OSError, KeyError, ValueError):
         return None
+    with _memo_lock:
+        _memo[key] = loaded
+    return loaded
 
 
 def has_embedding_cache(doc_id: str) -> bool:
@@ -80,21 +103,30 @@ def embed_chunks(doc_id: str, force: bool = False) -> Optional[Tuple[List[str], 
         cached = _load_cache(doc_id, model_id)
         if cached is not None:
             return cached
-
-    texts = [text[:MAX_CHARS_PER_EMBED] for _, _, text in page_chunks]
-    embeddings = get_embedder().embed(texts, kind="document")
-    chunk_ids = [chunk_id for chunk_id, _, _ in page_chunks]
-    path = _cache_path(doc_id, model_id)
-    path.parent.mkdir(parents=True, exist_ok=True)
-    np.savez_compressed(
-        path,
-        chunk_ids=np.array(chunk_ids),
-        embeddings=embeddings,
-        pages=np.array([page for _, page, _ in page_chunks]),
-        markdown_sha256=np.array(_markdown_sha(doc_id)),
-        model_id=np.array(model_id),
-    )
-    return chunk_ids, embeddings
+    with _doc_lock(doc_id, model_id):
+        if not force:  # another batch may have computed them while this one waited
+            cached = _load_cache(doc_id, model_id)
+            if cached is not None:
+                return cached
+        texts = [text[:MAX_CHARS_PER_EMBED] for _, _, text in page_chunks]
+        embeddings = get_embedder().embed(texts, kind="document")
+        chunk_ids = [chunk_id for chunk_id, _, _ in page_chunks]
+        path = _cache_path(doc_id, model_id)
+        path.parent.mkdir(parents=True, exist_ok=True)
+        sha = _markdown_sha(doc_id)
+        tmp = path.with_name(f".{path.stem}.{os.getpid()}.{threading.get_ident()}.npz")
+        np.savez_compressed(
+            tmp,
+            chunk_ids=np.array(chunk_ids),
+            embeddings=embeddings,
+            pages=np.array([page for _, page, _ in page_chunks]),
+            markdown_sha256=np.array(sha),
+            model_id=np.array(model_id),
+        )
+        os.replace(tmp, path)  # a reader in another process never sees a half-written file
+        with _memo_lock:
+            _memo[(str(path), sha)] = (chunk_ids, embeddings)
+        return chunk_ids, embeddings
 
 
 def search_chunks(doc_id: str, query: str, top_k: Optional[int] = None) -> List[Dict[str, Any]]:

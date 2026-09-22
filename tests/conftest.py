@@ -6,6 +6,10 @@ from pathlib import Path
 # The offline tests script their models; they are written against the local preset's model names, whatever preset
 # this machine defaults to (src/config/config.py reads EVISEARCH_PRESET when it is first imported).
 os.environ.setdefault("EVISEARCH_PRESET", "local")
+# Scripted models hand out their replies in order, so the offline tests run one batch and one stage at a time unless a
+# test sets the schedule itself.
+os.environ.setdefault("EVISEARCH_STAGE_CONCURRENCY", "1")
+os.environ.setdefault("EVISEARCH_STAGE_PARALLEL", "0")
 
 import pytest
 
