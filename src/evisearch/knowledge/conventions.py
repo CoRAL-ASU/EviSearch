@@ -61,12 +61,18 @@ def _append(op: str, cid: str, by: str = "", **payload: Any) -> Dict[str, Any]:
     return entry
 
 
-def load_all() -> Dict[str, Dict[str, Any]]:
-    """Current state of every convention, rebuilt from the log."""
+def retired_log_path() -> Path:
+    """Where the log went when the notes tree replaced it (each note's `supersedes` points into it)."""
+    return kb_dir() / "retired" / "conventions.jsonl"
+
+
+def load_all(path: Optional[Path] = None) -> Dict[str, Dict[str, Any]]:
+    """Current state of every convention, rebuilt from the log (the live one unless `path` names another)."""
+    path = path or log_path()
     state: Dict[str, Dict[str, Any]] = {}
-    if not log_path().exists():
+    if not path.exists():
         return state
-    for line in log_path().read_text(encoding="utf-8").splitlines():
+    for line in path.read_text(encoding="utf-8").splitlines():
         if not line.strip():
             continue
         e = json.loads(line)

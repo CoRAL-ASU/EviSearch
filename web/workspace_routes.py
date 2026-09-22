@@ -908,15 +908,25 @@ def api_undo_review(run, doc_id):
 
 
 # ---- knowledge, learning, benchmark ---------------------------------------------------------------------------------
-def run_kb_fingerprint(run: str, docs: List[str]) -> Optional[str]:
-    """The knowledge-base snapshot a run used, as recorded in its stage metadata ("kb:<fingerprint>")."""
+def run_knowledge(run: str, docs: List[str]) -> Optional[Dict[str, str]]:
+    """The knowledge a run used, as recorded in its stage metadata: "kb:<fingerprint>" for the one-line conventions,
+    "notes:<fingerprint>" for the markdown notes, either with ":scoped" when narrow knowledge reached only its own
+    columns' prompts."""
     for doc in docs:
         for folder in ("reconciliation_agent", "agent_extractor", "markdown_baseline"):
             meta = runs_service._read_json(runs_service.base_dir(doc, run) / folder / "extraction_metadata.json")
             rules = (meta or {}).get("extraction_rules") if isinstance(meta, dict) else None
-            if isinstance(rules, str) and rules.startswith("kb:"):
-                return rules[3:]
+            if isinstance(rules, str) and rules.split(":")[0] in ("kb", "notes") and ":" in rules:
+                kind, fp, *rest = rules.split(":")
+                return {"format": "notes" if kind == "notes" else "conventions", "fingerprint": fp,
+                        "delivery": "scoped" if "scoped" in rest else "all"}
     return None
+
+
+def run_kb_fingerprint(run: str, docs: List[str]) -> Optional[str]:
+    """The conventions snapshot a run used (None for a run on the notes or on no knowledge)."""
+    used = run_knowledge(run, docs)
+    return used["fingerprint"] if used and used["format"] == "conventions" else None
 
 
 def _snapshot_ids(fingerprint: str) -> List[str]:
@@ -924,31 +934,86 @@ def _snapshot_ids(fingerprint: str) -> List[str]:
     return [c["id"] for c in data] if isinstance(data, list) else []
 
 
-@bp.route("/api/knowledge")
-def api_knowledge():
-    """Every rule with where it came from and which runs used it."""
-    from src.evisearch.knowledge import conventions as kb
-    from src.evisearch.services import feedback
+# Which prompts read each notes directory: every shared_rules() call in src/evisearch/services. The reconciliation
+# stage's own reading pass is the auditor (role="auditor") and reads the definitions only.
+NOTE_READERS = {
+    "definitions": ["Agent A", "Agent B", "Reconciliation: own reading", "Reconciliation: decision",
+                    "Attribution check", "Document reader", "Markdown baseline"],
+    "extraction": ["Agent A", "Agent B", "Reconciliation: decision", "Attribution check", "Document reader",
+                   "Markdown baseline"],
+}
+NOTE_ROLES = {"definitions": "What a column means", "extraction": "How a value is found and put together"}
 
-    rules = list(kb.load_all().values())
-    events = {e["event_id"]: e for e in feedback.all_events()}
-    used: Dict[str, List[str]] = {}
+
+def _note_title(body: str) -> Optional[str]:
+    for line in body.splitlines():
+        if line.startswith("# "):
+            return line[2:].strip()
+    return None
+
+
+def _note_json(note, replaced: Dict[str, Dict[str, Any]], root: Path) -> Dict[str, Any]:
+    path = root / note.path
+    return {"id": note.id, "title": _note_title(note.body) or note.id, "role": note.role, "scope": note.scope,
+            "families": list(note.families), "columns": list(note.columns), "changed": note.changed, "body": note.body,
+            "path": note.path, "edited_at": datetime.fromtimestamp(path.stat().st_mtime, timezone.utc).isoformat(timespec="seconds")
+            if path.exists() else None,
+            "readers": NOTE_READERS.get(note.role, []),
+            "supersedes": [{"id": cid, "instruction": (replaced.get(cid) or {}).get("instruction", ""),
+                            "status": (replaced.get(cid) or {}).get("status"),
+                            "source": ((replaced.get(cid) or {}).get("source") or {}).get("kind")} for cid in note.supersedes]}
+
+
+@bp.route("/api/knowledge/notes")
+def api_knowledge_notes():
+    """The knowledge notes the prompts read, grouped by who reads them, with the conventions each one replaced and
+    the runs that used them."""
+    from src.evisearch.knowledge import conventions as kb
+    from src.evisearch.knowledge import notes
+
+    try:
+        loaded = notes.load_notes("all")
+    except (ValueError, OSError) as exc:  # a note with broken frontmatter: say which one instead of an empty page
+        return _err(str(exc), 500)
+    current = notes.fingerprint(loaded)
+    replaced = kb.load_all(kb.retired_log_path())
+    root = notes.notes_dir()
+    roles = [{"role": role, "label": NOTE_ROLES[role], "readers": NOTE_READERS[role], "dir": role,
+              "notes": [_note_json(n, replaced, root) for n in loaded if n.role == role]} for role in NOTE_ROLES]
+    runs = []
     for run in runs_service.list_runs():
-        fp = run_kb_fingerprint(run["run"], run["docs"])
-        if not fp:
-            continue
-        for cid in _snapshot_ids(fp):
-            used.setdefault(cid, []).append(run["run"])
-    out = []
-    for rule in rules:
-        source = rule.get("source") or {}
-        event = events.get(str(source.get("event_id") or source.get("feedback") or ""))
-        out.append({**rule, "used_in_runs": sorted(used.get(rule["id"], [])),
-                    "learned": source.get("kind") != "seed",
-                    "source_event": {"doc_id": event.get("doc_id"), "column": event.get("column"), "run": event.get("run"),
-                                     "before": event.get("before"), "after": event.get("after"),
-                                     "reason": event.get("reason")} if event else None})
-    return _ok(conventions=out, fingerprint=kb.fingerprint(), action_types=sorted(kb.ACTION_TYPES), scopes=list(kb.SCOPES))
+        used = run_knowledge(run["run"], run["docs"])
+        if used and used["format"] == "notes":
+            runs.append({"run": run["run"], "papers": len(run["docs"]), "started_at": run.get("started_at"),
+                         **used, "current": used["fingerprint"] == current})
+    runs.sort(key=lambda r: (not r["current"], r["run"]))
+    try:
+        columns = [f["name"] for f in _hand_written_fields()]
+    except OSError:
+        columns = []
+    return _ok(fingerprint=current, roles=roles, runs=runs, columns=columns, dir=str(root),
+               retired=[{"id": c["id"], "instruction": c.get("instruction", ""), "status": c.get("status"),
+                         "scope": (c.get("trigger") or {}).get("scope"), "source": (c.get("source") or {}).get("kind"),
+                         "replaced_by": [n.id for n in loaded if c["id"] in n.supersedes]}
+                        for c in sorted(replaced.values(), key=lambda c: c["id"])])
+
+
+@bp.route("/api/knowledge/notes/for")
+def api_knowledge_notes_for():
+    """The notes one column's prompts receive, per reader, when narrow notes go only to their own columns (scoped
+    delivery). With delivery `all` every note of a role reaches every prompt of that role."""
+    from src.evisearch.knowledge import notes
+
+    column = request.args.get("column", "").strip()
+    if not column:
+        return _err("name a column")
+    everything = notes.load_notes("all")
+    selected = notes.select_for(everything, [column])
+    # the markdown baseline asks for the whole table at once (shared_rules() without columns), so it reads every note
+    readers = [{"reader": reader, "notes": [n.id for n in (everything if reader == "Markdown baseline" else selected)
+                                            if reader in NOTE_READERS.get(n.role, [])]}
+               for reader in NOTE_READERS["definitions"]]
+    return _ok(column=column, notes=[{"id": n.id, "role": n.role, "scope": n.scope} for n in selected], readers=readers)
 
 
 @bp.route("/api/activity")

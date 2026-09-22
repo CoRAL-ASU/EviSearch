@@ -1,94 +1,268 @@
 {% extends "base.html" %}
 {% set active = "knowledge" %}
 {% block title %}Knowledge{% endblock %}
+{% block head %}
+<style>
+    .note-body { max-width: 74ch; line-height: 1.6; }
+    .note-body h3 { font-size: 1rem; font-weight: 600; margin: 1.25rem 0 .4rem; }
+    .note-body h3:first-child { margin-top: 0; }
+    .note-body h4 { font-size: .9rem; font-weight: 600; margin: 1rem 0 .3rem; }
+    .note-body p { margin: .5rem 0; }
+    .note-body ul { list-style: disc; padding-left: 1.25rem; margin: .35rem 0; }
+    .note-body ul ul { list-style: circle; margin: .2rem 0; }
+    .note-body li { margin: .3rem 0; }
+    .note-body li::marker { color: oklch(var(--bc) / .45); }
+    .note-body code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: .85em;
+        background: oklch(var(--b3)); padding: 0 .25rem; border-radius: .2rem; }
+    .note-body strong { font-weight: 600; color: oklch(var(--bc)); }
+    .tree-item { display: flex; flex-direction: column; gap: .1rem; width: 100%; text-align: left; padding: .35rem .5rem;
+        border-radius: .4rem; border-left: 2px solid transparent; }
+    .tree-item:hover { background: oklch(var(--bc) / .06); }
+    .tree-item:focus-visible { outline: 2px solid oklch(var(--p)); outline-offset: 1px; }
+    .tree-item.on { background: oklch(var(--p) / .14); border-left-color: oklch(var(--p)); }
+    .tree-scope { font-size: .68rem; letter-spacing: .06em; text-transform: uppercase; color: oklch(var(--bc) / .5);
+        padding: .5rem .5rem .15rem; }
+    .reads td, .reads th { padding: .3rem .5rem; }
+    .reads td.y { color: oklch(var(--su)); text-align: center; }
+    .reads td.n { color: oklch(var(--bc) / .3); text-align: center; }
+</style>
+{% endblock %}
 {% block content %}
-<main class="max-w-6xl mx-auto p-4 md:p-6 space-y-4">
-    <div>
+<main class="max-w-7xl mx-auto p-4 md:p-6 space-y-4">
+    <div class="space-y-1">
         <h1 class="text-2xl font-bold">Knowledge base</h1>
-        <p class="text-sm text-base-content/70 max-w-4xl">Rules for reading papers, learned from reviews. Every approved rule goes into the prompts of Agent A, Agent B and the
-            arbiter the next time papers are extracted; each extraction freezes the set it used, so approving a rule never changes finished results.</p>
+        <p class="text-sm text-base-content/70 max-w-4xl">The notes the extraction prompts read for this table. Each note is one markdown file on one topic:
+            <span class="mono">definitions/</span> say what a column means, <span class="mono">extraction/</span> say how a value is found and put together.
+            An extraction records the fingerprint of the notes it used, so editing a note never changes finished results.</p>
+        <div id="k-summary" class="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm pt-1"></div>
     </div>
-    <div class="card bg-base-100 shadow"><div class="card-body p-3 flex-row flex-wrap items-center gap-2 text-sm">
-        <div class="join" id="k-status">
-            <button class="btn btn-sm join-item btn-active" data-s="">All</button>
-            <button class="btn btn-sm join-item" data-s="proposed">Waiting</button>
-            <button class="btn btn-sm join-item" data-s="approved">Approved</button>
-            <button class="btn btn-sm join-item" data-s="retired">Retired</button>
-        </div>
-        <label class="label cursor-pointer gap-1 py-0"><input id="k-learned" type="checkbox" class="checkbox checkbox-xs" /> <span>learned from reviews only</span></label>
-        <input id="k-search" class="input input-sm input-bordered w-64" placeholder="Search the rules" />
-        <span id="k-count" class="opacity-60"></span>
-        <div class="flex-1"></div>
-        <span class="text-xs opacity-60" id="k-fp"></span>
-    </div></div>
-    <div id="k-list" class="space-y-3"><div class="skeleton h-24 w-full"></div></div>
+
+    <div class="grid grid-cols-[minmax(0,1fr)] gap-4 lg:grid-cols-[20rem_minmax(0,1fr)] items-start">
+        <aside class="card bg-base-100 shadow min-w-0 lg:sticky lg:top-4">
+            <div class="card-body p-3 gap-2">
+                <label class="sr-only" for="k-search">Search the notes</label>
+                <input id="k-search" class="input input-sm input-bordered w-full" placeholder="Search the notes" autocomplete="off" />
+                <nav id="k-tree" class="text-sm max-h-[70vh] overflow-y-auto -mx-1 px-1"><div class="skeleton h-64 w-full"></div></nav>
+            </div>
+        </aside>
+        <article id="k-note" class="card bg-base-100 shadow min-w-0"><div class="card-body"><div class="skeleton h-72 w-full"></div></div></article>
+    </div>
+
+    <div class="grid grid-cols-[minmax(0,1fr)] gap-4 xl:grid-cols-2 items-start">
+        <section class="card bg-base-100 shadow min-w-0"><div class="card-body p-4 gap-3">
+            <div>
+                <h2 class="font-semibold">Which prompts read which notes</h2>
+                <p class="text-xs text-base-content/70 max-w-prose">The reconciliation stage's own reading pass gets the definitions only, so it reads the paper
+                    without the agents' method and can disagree with them.</p>
+            </div>
+            <div class="overflow-x-auto"><table id="k-reads" class="reads text-sm w-full"></table></div>
+            <div class="border-t border-base-300 pt-3 space-y-2">
+                <label class="text-sm font-medium" for="k-column">What one column receives</label>
+                <input id="k-column" list="k-columns" class="input input-sm input-bordered w-full" placeholder="Type a column, e.g. Region - N (%) | Europe | Treatment" autocomplete="off" />
+                <datalist id="k-columns"></datalist>
+                <div id="k-for" class="text-sm"></div>
+            </div>
+        </div></section>
+        <section class="card bg-base-100 shadow min-w-0"><div class="card-body p-4 gap-3">
+            <div>
+                <h2 class="font-semibold">Runs on these notes</h2>
+                <p class="text-xs text-base-content/70">Every extraction whose stage settings record a notes fingerprint.</p>
+            </div>
+            <div id="k-runs" class="text-sm"></div>
+        </div></section>
+    </div>
 </main>
 {% endblock %}
 {% block scripts %}
 <script>
 (function () {
-    const {$, esc, get, post, toast, needReviewer, when} = EVS;
-    let rules = [], status = '', learnedOnly = false;
+    const {$, esc, get, when} = EVS;
+    const SCOPE_GROUPS = [['Every column', ['global', 'table']], ['A column family', ['family']], ['Named columns', ['column']]];
+    let data = null, byId = {}, current = null;
+
+    // Markdown as the notes use it: # headings, nested - bullets with indented continuation lines, **bold**, `code`.
+    // Escaped first, so a note can never inject markup.
+    function inline(text) {
+        return esc(text).replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>').replace(/`([^`]+)`/g, '<code>$1</code>');
+    }
+    function md(src, skipTitle) {
+        const blocks = [];
+        for (const line of src.split('\n')) {
+            const last = blocks[blocks.length - 1];
+            let m;
+            if (!line.trim()) { blocks.push({t: 'gap'}); continue; }
+            if ((m = line.match(/^(#{1,4})\s+(.*)$/))) { blocks.push({t: 'h', level: m[1].length, text: m[2]}); continue; }
+            if ((m = line.match(/^(\s*)[-*]\s+(.*)$/))) { blocks.push({t: 'li', depth: Math.floor(m[1].length / 2), text: m[2]}); continue; }
+            if (last && (last.t === 'li' || last.t === 'p') && (/^\s/.test(line) || last.t === 'p')) { last.text += ' ' + line.trim(); continue; }
+            blocks.push({t: 'p', text: line.trim()});
+        }
+        if (skipTitle) {
+            const first = blocks.findIndex((b) => b.t !== 'gap');
+            if (first >= 0 && blocks[first].t === 'h' && blocks[first].level === 1) blocks.splice(first, 1);
+        }
+        let html = '', level = -1;
+        const closeLists = () => { while (level >= 0) { html += '</li></ul>'; level--; } };
+        for (const b of blocks) {
+            if (b.t === 'li') {
+                const d = Math.min(b.depth, level + 1);
+                if (d > level) { html += '<ul>'; level = d; }
+                else { while (level > d) { html += '</li></ul>'; level--; } html += '</li>'; }
+                html += '<li>' + inline(b.text);
+                continue;
+            }
+            if (b.t === 'gap') continue;
+            closeLists();
+            html += b.t === 'h' ? `<h${b.level + 2}>${inline(b.text)}</h${b.level + 2}>` : `<p>${inline(b.text)}</p>`;
+        }
+        closeLists();
+        return html;
+    }
+
+    function appliesTo(n) {
+        if (n.scope === 'global') return 'Every column';
+        if (n.scope === 'table') return 'Every column of this table';
+        if (n.scope === 'family') return n.families.map((f) => `the <span class="mono">${esc(f)}</span> columns`).join(', ');
+        return `${n.columns.length} named column${n.columns.length === 1 ? '' : 's'}`;
+    }
+    const scopeBadge = (s) => `<span class="badge badge-sm ${s === 'global' || s === 'table' ? 'badge-ghost' : 'badge-info badge-outline'}">${esc(s)}</span>`;
 
     async function load() {
-        const r = await get('/api/knowledge');
-        if (!r.success) { $('k-list').innerHTML = `<div class="alert alert-error">${esc(r.error)}</div>`; return; }
-        rules = r.conventions;
-        $('k-fp').textContent = `knowledge base ${r.fingerprint} · ${rules.filter((c) => c.status === 'approved').length} active`;
-        draw();
+        const r = await get('/api/knowledge/notes');
+        if (!r.success) {
+            const msg = `<div class="alert alert-error text-sm">Could not read the notes: ${esc(r.error)}</div>`;
+            $('k-tree').innerHTML = ''; $('k-note').innerHTML = `<div class="card-body">${msg}</div>`; return;
+        }
+        data = r;
+        byId = {};
+        r.roles.forEach((g) => g.notes.forEach((n) => { byId[n.id] = n; }));
+        const all = Object.values(byId), inUse = r.runs.filter((x) => x.current);
+        const carried = r.retired.filter((c) => c.replaced_by.length).length;
+        $('k-summary').innerHTML = `
+            <span class="badge badge-primary badge-outline mono" title="content hash of every note; recorded by each run">notes ${esc(r.fingerprint)}</span>
+            <span><b>${all.length}</b> notes: ${r.roles.map((g) => `${g.notes.length} ${esc(g.role)}`).join(', ')}</span>
+            <span><b>${inUse.length}</b> run${inUse.length === 1 ? '' : 's'} used this exact set</span>
+            <span class="text-base-content/60">replaces ${carried} of the ${r.retired.length} earlier one-line conventions</span>`;
+        $('k-columns').innerHTML = r.columns.map((c) => `<option value="${esc(c)}"></option>`).join('');
+        drawReads(); drawRuns(); drawTree();
+        const wanted = decodeURIComponent(location.hash.slice(1));
+        show(byId[wanted] ? wanted : (r.roles[0].notes[0] || {}).id);
+        const column = new URLSearchParams(location.search).get('column');
+        if (column) { $('k-column').value = column; forColumn(); }
     }
-    function draw() {
-        const q = $('k-search').value.toLowerCase();
-        const shown = rules.filter((c) => (!status || c.status === status) && (!learnedOnly || c.learned)
-            && (!q || c.instruction.toLowerCase().includes(q) || (c.trigger.columns || []).join(' ').toLowerCase().includes(q)));
-        const order = {proposed: 0, approved: 1, retired: 2, rejected: 3};
-        shown.sort((a, b) => (order[a.status] ?? 9) - (order[b.status] ?? 9) || a.id.localeCompare(b.id));
-        $('k-count').textContent = `${shown.length} of ${rules.length}`;
-        $('k-list').innerHTML = shown.map(card).join('') || '<div class="alert">No rule matches.</div>';
-        $('k-list').querySelectorAll('button[data-op]').forEach((b) => b.onclick = async () => {
-            const by = needReviewer(); if (!by) return;
-            const what = {approve: 'Approve', reject: 'Reject', retire: 'Retire'}[b.dataset.op];
-            if (!confirm(`${what} ${b.dataset.id}? Approved rules are used by every later extraction.`)) return;
-            const res = await post(`/api/conventions/${encodeURIComponent(b.dataset.id)}/decide`, {op: b.dataset.op, by});
-            toast(res.success ? `${b.dataset.id} ${b.dataset.op}d` : res.error, res.success ? 'success' : 'error');
-            load();
-        });
+
+    function matches(n, q) {
+        if (!q) return true;
+        return [n.id, n.title, n.body, n.changed, ...n.families, ...n.columns].join(' ').toLowerCase().includes(q);
     }
-    function card(c) {
-        const badge = {proposed: 'badge-warning', approved: 'badge-success', retired: 'badge-ghost', rejected: 'badge-error'}[c.status] || '';
-        const t = c.trigger || {}, src = c.source || {};
-        const where = t.scope === 'global' ? 'every column' : t.scope === 'table' ? 'this table' :
-            t.scope === 'family' ? `the ${t.family || 'family'} columns` : `${(t.columns || []).length} column(s)`;
-        return `<div class="card bg-base-100 shadow"><div class="card-body p-4 space-y-2">
-            <div class="flex flex-wrap items-center gap-2">
-                <span class="mono text-xs opacity-60">${esc(c.id)}</span>
-                <span class="badge badge-sm ${badge}">${esc(c.status)}</span>
-                <span class="badge badge-sm badge-outline">${esc(t.scope || '')}: ${esc(where)}</span>
-                <span class="badge badge-sm badge-ghost">${esc((c.action || {}).type || '')}</span>
-                ${c.learned ? '<span class="badge badge-sm badge-info">learned from a review</span>' : '<span class="badge badge-sm">seed rule</span>'}
-                ${c.support > 1 ? `<span class="badge badge-sm">seen ${c.support}×</span>` : ''}
-                <div class="flex-1"></div>
-                ${c.status === 'proposed' ? `<button class="btn btn-xs btn-success" data-op="approve" data-id="${esc(c.id)}">Approve</button>
-                    <button class="btn btn-xs" data-op="reject" data-id="${esc(c.id)}">Reject</button>` : ''}
-                ${c.status === 'approved' ? `<button class="btn btn-xs btn-outline" data-op="retire" data-id="${esc(c.id)}">Retire</button>` : ''}
-            </div>
-            <div class="text-sm whitespace-pre-wrap">${esc(c.instruction)}</div>
-            ${t.condition ? `<div class="text-xs opacity-70">when: ${esc(t.condition)}</div>` : ''}
-            ${(t.columns || []).length && t.scope !== 'global' ? `<div class="text-xs opacity-60">columns: ${esc((t.columns || []).slice(0, 6).join(' · '))}${t.columns.length > 6 ? ' …' : ''}</div>` : ''}
-            <div class="text-xs opacity-70">from ${esc(src.kind || '—')}${src.by ? ' by ' + esc(src.by) : ''}${src.at ? ' · ' + esc(when(src.at)) : ''}
-                ${c.source_event ? ` · ${esc(c.source_event.column || '')} in ${esc(EVS.shortDoc(c.source_event.doc_id))}: “${esc(c.source_event.before)}” → “${esc(c.source_event.after)}”` : ''}</div>
-            ${(c.examples || []).length ? `<details class="text-xs opacity-70"><summary>Examples (${c.examples.length})</summary>
-                ${c.examples.slice(0, 4).map((e) => `<div>${esc(EVS.shortDoc(e.doc || e.doc_id || ''))} · ${esc(e.column || '')}${e.before || e.after ? `: “${esc(e.before || '')}” → “${esc(e.after || e.value || '')}”` : ''}</div>`).join('')}</details>` : ''}
-            ${(c.used_in_runs || []).length ? `<div class="text-xs opacity-70">Used in ${c.used_in_runs.length} extraction${c.used_in_runs.length > 1 ? 's' : ''}</div>`
-                : '<div class="text-xs opacity-50">not used in an extraction yet</div>'}
-        </div></div>`;
+    function drawTree() {
+        const q = $('k-search').value.trim().toLowerCase();
+        let shown = 0;
+        const html = data.roles.map((g) => {
+            const groups = SCOPE_GROUPS.map(([label, scopes]) => {
+                const items = g.notes.filter((n) => scopes.includes(n.scope) && matches(n, q));
+                shown += items.length;
+                if (!items.length) return '';
+                return `<div class="tree-scope">${esc(label)}</div>` + items.map((n) => `
+                    <button type="button" class="tree-item ${n.id === current ? 'on' : ''}" data-id="${esc(n.id)}">
+                        <span class="font-medium leading-snug">${esc(n.title)}</span>
+                        <span class="mono text-xs text-base-content/55 truncate">${esc(n.id)}.md${n.scope === 'family' ? ' · ' + esc(n.families.join(', ')) :
+                            n.scope === 'column' ? ` · ${n.columns.length} columns` : ''}</span>
+                    </button>`).join('');
+            }).join('');
+            return `<div class="mb-3">
+                <div class="px-2 pt-1"><span class="mono font-semibold">${esc(g.dir)}/</span>
+                    <div class="text-xs text-base-content/60">${esc(g.label)} · read by ${g.readers.length} prompts</div></div>
+                ${groups || '<div class="px-2 py-1 text-xs text-base-content/50">No note matches.</div>'}
+            </div>`;
+        }).join('');
+        $('k-tree').innerHTML = html + (q ? `<div class="px-2 text-xs text-base-content/60">${shown} note${shown === 1 ? '' : 's'} match</div>` : '');
+        $('k-tree').querySelectorAll('.tree-item').forEach((b) => b.onclick = () => show(b.dataset.id));
     }
-    document.querySelectorAll('#k-status button').forEach((b) => b.onclick = () => {
-        document.querySelectorAll('#k-status button').forEach((x) => x.classList.remove('btn-active'));
-        b.classList.add('btn-active'); status = b.dataset.s; draw();
-    });
-    $('k-learned').onchange = () => { learnedOnly = $('k-learned').checked; draw(); };
-    $('k-search').addEventListener('input', draw);
+
+    function show(id) {
+        const n = byId[id];
+        if (!n) { $('k-note').innerHTML = '<div class="card-body"><div class="alert text-sm">There are no notes yet.</div></div>'; return; }
+        current = id;
+        try { history.replaceState(null, '', '#' + encodeURIComponent(id)); } catch (e) {}
+        $('k-tree').querySelectorAll('.tree-item').forEach((b) => b.classList.toggle('on', b.dataset.id === id));
+        const auditorSkips = n.role === 'extraction';
+        $('k-note').innerHTML = `<div class="card-body gap-4">
+            <header class="space-y-1">
+                <div class="mono text-xs text-base-content/60 break-all">knowledge/notes/${esc(n.path)}${n.edited_at ? ` · edited ${esc(when(n.edited_at))}` : ''}</div>
+                <h2 class="text-xl font-bold" style="text-wrap: balance">${esc(n.title)}</h2>
+            </header>
+            <dl class="grid gap-x-4 gap-y-2 text-sm sm:grid-cols-[8rem_minmax(0,1fr)]">
+                <dt class="text-base-content/60">Kind</dt>
+                <dd><span class="mono">${esc(n.role)}</span> <span class="text-base-content/60">· ${esc(data.roles.find((g) => g.role === n.role).label.toLowerCase())}</span></dd>
+                <dt class="text-base-content/60">Applies to</dt>
+                <dd class="space-y-1"><div>${scopeBadge(n.scope)} ${appliesTo(n)}</div>
+                    ${n.columns.length ? `<ul class="text-xs mono text-base-content/75 space-y-0.5">${n.columns.map((c) => `<li>${esc(c)}</li>`).join('')}</ul>` : ''}</dd>
+                <dt class="text-base-content/60">Read by</dt>
+                <dd class="flex flex-wrap gap-1">${n.readers.map((x) => `<span class="badge badge-sm badge-outline">${esc(x)}</span>`).join('')}
+                    ${auditorSkips ? '<span class="text-xs text-base-content/60 basis-full">Not by the reconciliation stage\'s own reading: that pass gets the definitions only.</span>' : ''}</dd>
+                ${n.supersedes.length ? `<dt class="text-base-content/60">Replaces</dt>
+                    <dd class="flex flex-wrap gap-1">${n.supersedes.map((c) => `<span class="badge badge-sm badge-ghost mono">${esc(c.id)}</span>`).join('')}</dd>` : ''}
+            </dl>
+            <div class="note-body text-[0.94rem] border-t border-base-300 pt-4">${md(n.body, true)}</div>
+            ${n.changed ? `<div class="rounded-lg bg-base-200 p-3 text-sm space-y-1 max-w-[74ch]">
+                <div class="font-medium">Why it differs from what it replaced</div>
+                <p class="text-base-content/80">${esc(n.changed)}</p></div>` : ''}
+            ${n.supersedes.length ? `<details class="text-sm"><summary class="cursor-pointer text-base-content/70">The earlier convention${n.supersedes.length === 1 ? '' : 's'} this note replaced (${n.supersedes.length})</summary>
+                <div class="mt-2 space-y-2">${n.supersedes.map((c) => `<div class="rounded bg-base-200 p-2">
+                    <div class="text-xs text-base-content/60 mb-1"><span class="mono">${esc(c.id)}</span>${c.source ? ' · from ' + esc(c.source.replace(/_/g, ' ')) : ''}${c.status ? ' · was ' + esc(c.status) : ''}</div>
+                    <div class="whitespace-pre-wrap text-base-content/80">${esc(c.instruction) || '<span class="opacity-50">not in the retired log</span>'}</div></div>`).join('')}</div></details>` : ''}
+        </div>`;
+    }
+
+    function drawReads() {
+        const readers = data.roles[0].readers.slice();
+        data.roles.forEach((g) => g.readers.forEach((x) => { if (!readers.includes(x)) readers.push(x); }));
+        $('k-reads').innerHTML = `<thead><tr class="text-left text-xs text-base-content/60"><th>Prompt</th>
+            ${data.roles.map((g) => `<th class="text-center mono">${esc(g.dir)}/ <span class="font-normal">(${g.notes.length})</span></th>`).join('')}</tr></thead>
+            <tbody>${readers.map((x) => `<tr class="border-t border-base-300"><td>${esc(x)}</td>
+                ${data.roles.map((g) => g.readers.includes(x) ? '<td class="y" aria-label="reads">●</td>' : '<td class="n" aria-label="does not read">—</td>').join('')}</tr>`).join('')}</tbody>`;
+    }
+
+    function drawRuns() {
+        const runs = data.runs;
+        if (!runs.length) { $('k-runs').innerHTML = '<div class="text-base-content/60">No extraction has used the notes yet.</div>'; return; }
+        const scoped = runs.some((x) => x.delivery === 'scoped');
+        const rows = runs.map((x) => `<tr class="border-t border-base-300">
+            <td class="py-1 pr-3 mono">${esc(x.run)}</td>
+            <td class="py-1 pr-3 tabular-nums">${x.papers}</td>
+            <td class="py-1 pr-3">${esc(x.delivery === 'scoped' ? 'own columns only' : 'every note')}</td>
+            <td class="py-1">${x.current ? '<span class="badge badge-sm badge-success badge-outline">these notes</span>'
+                : `<span class="badge badge-sm badge-ghost mono" title="an earlier version of the notes">${esc(x.fingerprint)}</span>`}</td></tr>`).join('');
+        $('k-runs').innerHTML = `<div class="overflow-x-auto"><table class="w-full text-sm">
+            <thead><tr class="text-left text-xs text-base-content/60"><th class="pr-3">Run</th><th class="pr-3">Papers</th><th class="pr-3">Delivery</th><th>Notes</th></tr></thead>
+            <tbody>${rows}</tbody></table></div>
+            ${scoped ? '' : '<p class="text-xs text-base-content/60 pt-2">Every run so far gave each prompt all the notes of its kind, whatever the batch\'s columns. Scoped delivery (EVISEARCH_KB_DELIVERY=scoped) sends a family or column note only to prompts holding those columns, as in the lookup on the left.</p>'}`;
+    }
+
+    let lookup = 0;
+    async function forColumn() {
+        const column = $('k-column').value.trim();
+        if (!column) { $('k-for').innerHTML = ''; return; }
+        if (!data.columns.includes(column)) { $('k-for').innerHTML = '<div class="text-xs text-base-content/60">Pick a column from the list.</div>'; return; }
+        const mine = ++lookup;
+        const r = await get('/api/knowledge/notes/for?column=' + encodeURIComponent(column));
+        if (mine !== lookup) return;
+        if (!r.success) { $('k-for').innerHTML = `<div class="alert alert-error text-sm">${esc(r.error)}</div>`; return; }
+        const narrow = r.notes.filter((n) => n.scope === 'family' || n.scope === 'column');
+        const chip = (id) => `<button type="button" class="badge badge-sm ${byId[id] && byId[id].scope !== 'global' && byId[id].scope !== 'table' ? 'badge-info' : 'badge-outline'} mono" data-id="${esc(id)}">${esc(id)}</button>`;
+        $('k-for').innerHTML = `<p class="text-xs text-base-content/70 mb-2">${narrow.length
+                ? `Besides the notes for every column, this column gets ${narrow.map((n) => chip(n.id)).join(' ')}.`
+                : 'No family or column note covers this column; it gets only the notes for every column.'}</p>
+            <div class="space-y-1">${r.readers.map((x) => `<div class="grid grid-cols-[9.5rem_minmax(0,1fr)] gap-2 items-start">
+                <span class="text-base-content/70">${esc(x.reader)}</span><span class="flex flex-wrap gap-1">${x.notes.map(chip).join('')}</span></div>`).join('')}</div>
+            <p class="text-xs text-base-content/60 pt-2">The markdown baseline reads the whole table in one pass, so it gets every note.</p>`;
+        $('k-for').querySelectorAll('button[data-id]').forEach((b) => b.onclick = () => { show(b.dataset.id); $('k-note').scrollIntoView({behavior: 'smooth', block: 'start'}); });
+    }
+
+    $('k-search').addEventListener('input', drawTree);
+    $('k-column').addEventListener('change', forColumn);
+    $('k-column').addEventListener('input', () => { if (data && data.columns.includes($('k-column').value.trim())) forColumn(); });
+    window.addEventListener('hashchange', () => { const id = decodeURIComponent(location.hash.slice(1)); if (byId[id] && id !== current) show(id); });
     load();
 })();
 </script>
