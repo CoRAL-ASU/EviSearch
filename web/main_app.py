@@ -8,6 +8,7 @@ Provides endpoints for PDF upload, query submission, and result retrieval.
 Run from project root: python web/main_app.py
 Then open http://127.0.0.1:8007
 """
+import hmac
 import json
 import os
 import sys
@@ -60,6 +61,7 @@ from src.config.runtime_paths import (
     RESULTS_ROOT,
     UPLOADS_DIR,
     ensure_runtime_dirs,
+    seed_runtime_dirs,
 )
 from src.documents.pdf_registry import (
     get_registered_document,
@@ -75,9 +77,30 @@ app = Flask(
 )
 app.config['MAX_CONTENT_LENGTH'] = 50 * 1024 * 1024  # 50MB max file size
 ensure_runtime_dirs()
+seed_runtime_dirs()  # a deployment serves the image's outputs from its volume; a no-op locally
 app.config['UPLOAD_FOLDER'] = UPLOADS_DIR
 app.config['UPLOAD_FOLDER'].mkdir(parents=True, exist_ok=True)
 app.config['BOOT_ID'] = str(uuid.uuid4())  # Changes on each app restart; used to invalidate browser session
+
+
+@app.before_request
+def require_demo_password():
+    """HTTP Basic auth for a public deployment; off unless EVISEARCH_DEMO_PASSWORD is set."""
+    password = os.getenv("EVISEARCH_DEMO_PASSWORD", "")
+    if not password or request.endpoint == "healthz":
+        return None
+    user = os.getenv("EVISEARCH_DEMO_USER", "evisearch")
+    auth = request.authorization
+    if (auth is not None and hmac.compare_digest((auth.username or "").encode(), user.encode())
+            and hmac.compare_digest((auth.password or "").encode(), password.encode())):
+        return None
+    return Response("Login required", 401, {"WWW-Authenticate": 'Basic realm="EviSearch demo"'})
+
+
+@app.route('/healthz')
+def healthz():
+    """Unauthenticated liveness check for the hosting platform."""
+    return jsonify({"status": "ok"})
 
 # the pages these blueprints serve: workspace_routes owns /tables, /review, /knowledge, /learning, /benchmark and the
 # redirects from the old page URLs (/schema, /attribution, /extract, /comparison-report, /feedback)

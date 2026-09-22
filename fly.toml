@@ -1,0 +1,42 @@
+# Fly.io config for the EviSearch web demo (https://evisearch.fly.dev). Deploy with shell-scripts/deploy_fly.sh.
+app = "evisearch"
+primary_region = "lax"  # the volume must live in the same region as the machine
+
+[build]
+  dockerfile = "Dockerfile"
+
+[deploy]
+  strategy = "rolling"  # canary/bluegreen don't work with volumes
+
+[env]
+  EVISEARCH_PRESET = "openrouter"   # Fly has no GPUs: the same models, hosted (Qwen3.6-27B, Qwen3-Embedding-8B)
+  EVISEARCH_RUNTIME_ROOT = "/data"  # results, embeddings, schemas, notes, reviews and uploads live on the volume
+  # Secrets (fly secrets set): OPEN_ROUTER_API_KEY, VISION_AGENT_API_KEY (Landing AI, for new uploads),
+  # optionally EVISEARCH_DEMO_PASSWORD (HTTP Basic auth; user "evisearch").
+
+[http_service]
+  internal_port = 8080
+  force_https = true
+  auto_stop_machines = "stop"  # an idle machine stops; the next request starts it again
+  auto_start_machines = true
+  min_machines_running = 0
+
+  [http_service.http_options]
+    idle_timeout = 600  # extraction and Q&A progress streams can go quiet between events
+
+  [[http_service.checks]]
+    grace_period = "60s"  # the first boot of a new image copies its data onto the volume
+    interval = "30s"
+    method = "GET"
+    path = "/healthz"
+    timeout = "5s"
+
+# One machine: the volume attaches to one machine, and running jobs are tracked on it.
+[[mounts]]
+  source = "evisearch_data"
+  destination = "/data"
+  initial_size = "5gb"
+
+[[vm]]
+  size = "shared-cpu-2x"
+  memory = "4gb"  # a job runs every batch of every paper at once: page images for many prompts are in memory together
