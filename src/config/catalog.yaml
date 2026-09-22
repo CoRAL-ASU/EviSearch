@@ -166,8 +166,11 @@ models:
   # Qwen3.6-27B as served by OpenRouter's providers (fp8 on most). `reasoning: {enabled: false}` is the hosted form of
   # thinking: false - without it the model reasons before every answer, which the pipeline neither expects nor pays for.
   # require_parameters routes only to providers that honour every parameter sent (tools, response_format);
-  # data_collection: deny excludes providers that retain or train on prompts. context_tokens matches the local server,
-  # so the tool loops evict old pages at the same point they do locally (providers serve 262k).
+  # data_collection: deny excludes providers that retain or train on prompts; sort: throughput sends each request to
+  # the provider currently decoding fastest instead of the cheapest (measured 2026-09-21: the cheapest provider decoded
+  # at 16 tok/s, and a reconciliation turn - the pipeline's critical path - is several sequential calls; median call
+  # time 13.4 s default vs 7.0 s sorted on a 15k-token prompt). context_tokens matches the local server, so the tool
+  # loops evict old pages at the same point they do locally (providers serve 262k).
   qwen3.6-27b-openrouter:
     kind: chat
     endpoint: openrouter
@@ -176,7 +179,7 @@ models:
     context_tokens: 131072
     image_tokens: {pixels_per_token: 32}
     price_per_1k: {input: 0.0003, output: 0.002}
-    extra_body: {reasoning: {enabled: false}, provider: {require_parameters: true, data_collection: deny}}
+    extra_body: {reasoning: {enabled: false}, provider: {require_parameters: true, data_collection: deny, sort: throughput}}
   qwen3-embedding-8b-openrouter:
     kind: embedding
     endpoint: openrouter
