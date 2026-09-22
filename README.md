@@ -169,6 +169,18 @@ python experiment-analysis/stage_timings.py        # minutes per paper, per stag
 The two comparison systems can be re-run with the same launcher: `--system B1` (the single-pass baseline) and
 `--kb off` (the fixed extraction guidelines instead of the knowledge notes).
 
+## Deploying the demo (Fly.io)
+
+```bash
+shell-scripts/deploy_fly.sh      # needs flyctl logged in; OPEN_ROUTER_API_KEY (and VISION_AGENT_API_KEY) in .env
+```
+
+The image carries this checkout's outputs: both system runs, the page embeddings, the schema and its versions, the
+knowledge notes, the review log, the run headers and the benchmark PDFs (`.dockerignore` says exactly what). The app
+runs the `openrouter` preset on one machine with a volume at `/data`; on the first boot of a new image it moves the
+volume's previous data to `/data/_previous/` and serves the image's, and between deploys it keeps what visitors add.
+Set `EVISEARCH_DEMO_PASSWORD` as a Fly secret to put the site behind HTTP Basic auth.
+
 ## Code map
 
 | Path | What |
