@@ -1,0 +1,1139 @@
+{
+ "run": "schema-mhspc-trials-20260919020503-v4-r2",
+ "system": "E",
+ "description": "PDF Query Agent + Search Agent + Reconciliation Agent",
+ "preset": "local",
+ "models": {
+  "pdf_query": "qwen3.6-27b",
+  "search_agent": "qwen3.6-27b",
+  "reconciliation": "qwen3.6-27b",
+  "qa": "qwen3.6-27b",
+  "judge": "gemini-2.5-flash",
+  "baseline": "qwen3.6-27b",
+  "structurer": "qwen3.6-27b",
+  "embedding": "qwen3-embedding-8b",
+  "reranker": null
+ },
+ "model_names": {
+  "pdf_query": "Qwen/Qwen3.6-27B",
+  "search_agent": "Qwen/Qwen3.6-27B",
+  "reconciliation": "Qwen/Qwen3.6-27B",
+  "qa": "Qwen/Qwen3.6-27B",
+  "judge": "gemini-2.5-flash",
+  "baseline": "Qwen/Qwen3.6-27B",
+  "structurer": "Qwen/Qwen3.6-27B",
+  "embedding": "Qwen/Qwen3-Embedding-8B"
+ },
+ "stage_models": {
+  "agent": "qwen3.6-27b",
+  "search": "qwen3.6-27b",
+  "reconciliation": "qwen3.6-27b"
+ },
+ "input_mode": "markdown_images",
+ "page_image_scale": 2.0,
+ "extraction_rules": "notes:853a2edb7ecd",
+ "reuse_a_from": null,
+ "parallel": 2,
+ "git": {
+  "commit": "43b85422b7462c0e9bf0f74109348bb906ee61e3",
+  "branch": "worktree-kb-notes-arbiter-v2",
+  "dirty": true
+ },
+ "docs": [
+  "NCT00104715_Gravis_GETUG_EU'15",
+  "NCT00268476_Attard_STAMPEDE_Lancet'23",
+  "NCT00268476_James_STAMPEDE_IJC'22",
+  "NCT01809691_Aggarwal_SWOG1216_JCO'22",
+  "NCT02799602_Hussain_ARASENS_JCO'23",
+  "NCT02799602_Smith_ARASENS_NEJM'22",
+  "NCT02446405_Sweeney_ENZAMET_Lancet Onc'23",
+  "NCT00309985_Sweeney_CHAARTED_NEJM'15",
+  "NCT01957436_Fizazi_PEACE1_Lancet'22",
+  "NCT00309985_Kriayako_CHAARTED_JCO'18"
+ ],
+ "invocations": [
+  {
+   "started_at": "2026-09-20T04:12:25.986+00:00",
+   "argv": [
+    "--system",
+    "E",
+    "--docs",
+    "all",
+    "--run",
+    "r4-notes-r2",
+    "--parallel",
+    "2"
+   ],
+   "docs": [
+    "NCT00104715_Gravis_GETUG_EU'15",
+    "NCT00268476_Attard_STAMPEDE_Lancet'23",
+    "NCT00268476_James_STAMPEDE_IJC'22",
+    "NCT01809691_Aggarwal_SWOG1216_JCO'22",
+    "NCT02799602_Hussain_ARASENS_JCO'23",
+    "NCT02799602_Smith_ARASENS_NEJM'22",
+    "NCT02446405_Sweeney_ENZAMET_Lancet Onc'23",
+    "NCT00309985_Sweeney_CHAARTED_NEJM'15",
+    "NCT01957436_Fizazi_PEACE1_Lancet'22",
+    "NCT00309985_Kriayako_CHAARTED_JCO'18"
+   ],
+   "git": {
+    "commit": "43b85422b7462c0e9bf0f74109348bb906ee61e3",
+    "branch": "worktree-kb-notes-arbiter-v2",
+    "dirty": true
+   },
+   "finished_at": "2026-09-20T06:36:16.493+00:00",
+   "duration_s": 8630.508
+  }
+ ],
+ "timings": {
+  "NCT00104715_Gravis_GETUG_EU'15": {
+   "duration_s": 1569.662,
+   "agent": 393.807,
+   "search": 581.231,
+   "reconciliation": 594.047
+  },
+  "NCT00268476_Attard_STAMPEDE_Lancet'23": {
+   "duration_s": 1856.778,
+   "agent": 384.463,
+   "search": 784.193,
+   "reconciliation": 687.543
+  },
+  "NCT00268476_James_STAMPEDE_IJC'22": {
+   "duration_s": 1435.258,
+   "agent": 358.186,
+   "search": 567.807,
+   "reconciliation": 508.674
+  },
+  "NCT01809691_Aggarwal_SWOG1216_JCO'22": {
+   "duration_s": 1590.902,
+   "agent": 391.362,
+   "search": 636.943,
+   "reconciliation": 562.01
+  },
+  "NCT02799602_Hussain_ARASENS_JCO'23": {
+   "duration_s": 2240.167,
+   "agent": 514.333,
+   "search": 806.659,
+   "reconciliation": 918.54
+  },
+  "NCT02799602_Smith_ARASENS_NEJM'22": {
+   "duration_s": 1617.288,
+   "agent": 377.582,
+   "search": 652.213,
+   "reconciliation": 586.918
+  },
+  "NCT02446405_Sweeney_ENZAMET_Lancet Onc'23": {
+   "duration_s": 1706.72,
+   "agent": 372.61,
+   "search": 621.361,
+   "reconciliation": 712.166
+  },
+  "NCT00309985_Sweeney_CHAARTED_NEJM'15": {
+   "duration_s": 1764.5,
+   "agent": 397.672,
+   "search": 598.865,
+   "reconciliation": 767.38
+  },
+  "NCT01957436_Fizazi_PEACE1_Lancet'22": {
+   "duration_s": 1858.808,
+   "agent": 463.56,
+   "search": 721.945,
+   "reconciliation": 672.709
+  },
+  "NCT00309985_Kriayako_CHAARTED_JCO'18": {
+   "duration_s": 1400.189,
+   "agent": 330.821,
+   "search": 520.428,
+   "reconciliation": 548.359
+  }
+ },
+ "failures": [],
+ "check_failures": [],
+ "results": [
+  {
+   "doc_id": "NCT00104715_Gravis_GETUG_EU'15",
+   "system": "E",
+   "run": "r4-notes-r2",
+   "status": "ok",
+   "error": null,
+   "stages": {
+    "agent": {
+     "status": "ok",
+     "duration_s": 393.807,
+     "filled": 61,
+     "total": 133,
+     "usage": {
+      "input_tokens": 343612,
+      "output_tokens": 20348,
+      "api_calls": 11,
+      "total_tokens": 363960,
+      "cached_input_tokens": 271264,
+      "input_images": 77,
+      "model_seconds": 391.285
+     },
+     "fallback_batches": [],
+     "timing": {
+      "started_at": "2026-09-20T04:12:25.990+00:00",
+      "finished_at": "2026-09-20T04:18:59.793+00:00",
+      "duration_s": 393.803,
+      "n_calls": 11,
+      "input_tokens": 343612,
+      "cached_input_tokens": 271264,
+      "output_tokens": 20348,
+      "input_images": 77,
+      "model_seconds": 391.285,
+      "resumed_columns": 0
+     }
+    },
+    "search": {
+     "status": "ok",
+     "duration_s": 581.231,
+     "filled": 65,
+     "total": 133,
+     "usage": {
+      "input_tokens": 905159,
+      "output_tokens": 29359,
+      "api_calls": 58,
+      "total_tokens": 934518,
+      "cached_input_tokens": 775376,
+      "input_images": 0,
+      "model_seconds": 578.253
+     },
+     "timing": {
+      "started_at": "2026-09-20T04:18:59.794+00:00",
+      "finished_at": "2026-09-20T04:28:41.024+00:00",
+      "duration_s": 581.23,
+      "n_calls": 58,
+      "input_tokens": 905159,
+      "cached_input_tokens": 775376,
+      "output_tokens": 29359,
+      "input_images": 0,
+      "model_seconds": 578.253,
+      "resumed_columns": 0
+     }
+    },
+    "reconciliation": {
+     "status": "ok",
+     "duration_s": 594.047,
+     "usage": {
+      "input_tokens": 623980,
+      "output_tokens": 33651,
+      "api_calls": 55,
+      "total_tokens": 657631,
+      "cached_input_tokens": 464128,
+      "input_images": 54,
+      "model_seconds": 652.979
+     },
+     "timing": {
+      "started_at": "2026-09-20T04:28:41.032+00:00",
+      "finished_at": "2026-09-20T04:38:35.071+00:00",
+      "duration_s": 594.039,
+      "n_calls": 55,
+      "input_tokens": 623980,
+      "cached_input_tokens": 464128,
+      "output_tokens": 33651,
+      "input_images": 54,
+      "model_seconds": 652.979,
+      "resumed_columns": 0
+     }
+    }
+   },
+   "check": {
+    "result": "PASS",
+    "exit_code": 0,
+    "summary": "[check_run] PASS: 2423 passed, 3 warnings, 0 failures",
+    "log": "/mnt/data1/nahuja11_home/EviSearch/new_pipeline_outputs/results/NCT00104715_Gravis_GETUG_EU'15/runs/r4-notes-r2/check_run.log"
+   },
+   "started_at": "2026-09-20T04:12:25.986+00:00",
+   "finished_at": "2026-09-20T04:38:35.648+00:00",
+   "duration_s": 1569.662
+  },
+  {
+   "doc_id": "NCT00268476_Attard_STAMPEDE_Lancet'23",
+   "system": "E",
+   "run": "r4-notes-r2",
+   "status": "ok",
+   "error": null,
+   "stages": {
+    "agent": {
+     "status": "ok",
+     "duration_s": 384.463,
+     "filled": 53,
+     "total": 133,
+     "usage": {
+      "input_tokens": 713817,
+      "output_tokens": 19747,
+      "api_calls": 11,
+      "total_tokens": 733564,
+      "cached_input_tokens": 636608,
+      "input_images": 154,
+      "model_seconds": 381.417
+     },
+     "fallback_batches": [],
+     "timing": {
+      "started_at": "2026-09-20T04:12:25.991+00:00",
+      "finished_at": "2026-09-20T04:18:50.449+00:00",
+      "duration_s": 384.458,
+      "n_calls": 11,
+      "input_tokens": 713817,
+      "cached_input_tokens": 636608,
+      "output_tokens": 19747,
+      "input_images": 154,
+      "model_seconds": 381.417,
+      "resumed_columns": 0
+     }
+    },
+    "search": {
+     "status": "ok",
+     "duration_s": 784.193,
+     "filled": 55,
+     "total": 133,
+     "usage": {
+      "input_tokens": 2049594,
+      "output_tokens": 39083,
+      "api_calls": 77,
+      "total_tokens": 2088677,
+      "cached_input_tokens": 1619744,
+      "input_images": 0,
+      "model_seconds": 777.037
+     },
+     "timing": {
+      "started_at": "2026-09-20T04:18:50.450+00:00",
+      "finished_at": "2026-09-20T04:31:54.642+00:00",
+      "duration_s": 784.191,
+      "n_calls": 77,
+      "input_tokens": 2049594,
+      "cached_input_tokens": 1619744,
+      "output_tokens": 39083,
+      "input_images": 0,
+      "model_seconds": 777.037,
+      "resumed_columns": 0
+     }
+    },
+    "reconciliation": {
+     "status": "ok",
+     "duration_s": 687.543,
+     "usage": {
+      "input_tokens": 978799,
+      "output_tokens": 38929,
+      "api_calls": 59,
+      "total_tokens": 1017728,
+      "cached_input_tokens": 700112,
+      "input_images": 123,
+      "model_seconds": 756.623
+     },
+     "timing": {
+      "started_at": "2026-09-20T04:31:54.642+00:00",
+      "finished_at": "2026-09-20T04:43:22.185+00:00",
+      "duration_s": 687.542,
+      "n_calls": 59,
+      "input_tokens": 978799,
+      "cached_input_tokens": 700112,
+      "output_tokens": 38929,
+      "input_images": 123,
+      "model_seconds": 756.623,
+      "resumed_columns": 0
+     }
+    }
+   },
+   "check": {
+    "result": "PASS",
+    "exit_code": 0,
+    "summary": "[check_run] PASS: 2497 passed, 2 warnings, 0 failures",
+    "log": "/mnt/data1/nahuja11_home/EviSearch/new_pipeline_outputs/results/NCT00268476_Attard_STAMPEDE_Lancet'23/runs/r4-notes-r2/check_run.log"
+   },
+   "started_at": "2026-09-20T04:12:25.986+00:00",
+   "finished_at": "2026-09-20T04:43:22.764+00:00",
+   "duration_s": 1856.778
+  },
+  {
+   "doc_id": "NCT00268476_James_STAMPEDE_IJC'22",
+   "system": "E",
+   "run": "r4-notes-r2",
+   "status": "ok",
+   "error": null,
+   "stages": {
+    "agent": {
+     "status": "ok",
+     "duration_s": 358.186,
+     "filled": 58,
+     "total": 133,
+     "usage": {
+      "input_tokens": 559850,
+      "output_tokens": 18265,
+      "api_calls": 11,
+      "total_tokens": 578115,
+      "cached_input_tokens": 555856,
+      "input_images": 143,
+      "model_seconds": 357.206
+     },
+     "fallback_batches": [],
+     "timing": {
+      "started_at": "2026-09-20T04:38:35.650+00:00",
+      "finished_at": "2026-09-20T04:44:33.836+00:00",
+      "duration_s": 358.186,
+      "n_calls": 11,
+      "input_tokens": 559850,
+      "cached_input_tokens": 555856,
+      "output_tokens": 18265,
+      "input_images": 143,
+      "model_seconds": 357.206,
+      "resumed_columns": 0
+     }
+    },
+    "search": {
+     "status": "ok",
+     "duration_s": 567.807,
+     "filled": 58,
+     "total": 133,
+     "usage": {
+      "input_tokens": 1393562,
+      "output_tokens": 28141,
+      "api_calls": 72,
+      "total_tokens": 1421703,
+      "cached_input_tokens": 1194032,
+      "input_images": 0,
+      "model_seconds": 560.776
+     },
+     "timing": {
+      "started_at": "2026-09-20T04:44:33.837+00:00",
+      "finished_at": "2026-09-20T04:54:01.643+00:00",
+      "duration_s": 567.806,
+      "n_calls": 72,
+      "input_tokens": 1393562,
+      "cached_input_tokens": 1194032,
+      "output_tokens": 28141,
+      "input_images": 0,
+      "model_seconds": 560.776,
+      "resumed_columns": 0
+     }
+    },
+    "reconciliation": {
+     "status": "ok",
+     "duration_s": 508.674,
+     "usage": {
+      "input_tokens": 955761,
+      "output_tokens": 28950,
+      "api_calls": 65,
+      "total_tokens": 984711,
+      "cached_input_tokens": 752640,
+      "input_images": 138,
+      "model_seconds": 562.142
+     },
+     "timing": {
+      "started_at": "2026-09-20T04:54:01.643+00:00",
+      "finished_at": "2026-09-20T05:02:30.317+00:00",
+      "duration_s": 508.673,
+      "n_calls": 65,
+      "input_tokens": 955761,
+      "cached_input_tokens": 752640,
+      "output_tokens": 28950,
+      "input_images": 138,
+      "model_seconds": 562.142,
+      "resumed_columns": 0
+     }
+    }
+   },
+   "check": {
+    "result": "PASS",
+    "exit_code": 0,
+    "summary": "[check_run] PASS: 2514 passed, 2 warnings, 0 failures",
+    "log": "/mnt/data1/nahuja11_home/EviSearch/new_pipeline_outputs/results/NCT00268476_James_STAMPEDE_IJC'22/runs/r4-notes-r2/check_run.log"
+   },
+   "started_at": "2026-09-20T04:38:35.650+00:00",
+   "finished_at": "2026-09-20T05:02:30.908+00:00",
+   "duration_s": 1435.258
+  },
+  {
+   "doc_id": "NCT01809691_Aggarwal_SWOG1216_JCO'22",
+   "system": "E",
+   "run": "r4-notes-r2",
+   "status": "ok",
+   "error": null,
+   "stages": {
+    "agent": {
+     "status": "ok",
+     "duration_s": 391.362,
+     "filled": 77,
+     "total": 133,
+     "usage": {
+      "input_tokens": 563546,
+      "output_tokens": 19669,
+      "api_calls": 11,
+      "total_tokens": 583215,
+      "cached_input_tokens": 447664,
+      "input_images": 154,
+      "model_seconds": 390.489
+     },
+     "fallback_batches": [],
+     "timing": {
+      "started_at": "2026-09-20T04:43:22.765+00:00",
+      "finished_at": "2026-09-20T04:49:54.126+00:00",
+      "duration_s": 391.361,
+      "n_calls": 11,
+      "input_tokens": 563546,
+      "cached_input_tokens": 447664,
+      "output_tokens": 19669,
+      "input_images": 154,
+      "model_seconds": 390.489,
+      "resumed_columns": 0
+     }
+    },
+    "search": {
+     "status": "ok",
+     "duration_s": 636.943,
+     "filled": 81,
+     "total": 133,
+     "usage": {
+      "input_tokens": 1154348,
+      "output_tokens": 32077,
+      "api_calls": 65,
+      "total_tokens": 1186425,
+      "cached_input_tokens": 828688,
+      "input_images": 0,
+      "model_seconds": 630.824
+     },
+     "timing": {
+      "started_at": "2026-09-20T04:49:54.127+00:00",
+      "finished_at": "2026-09-20T05:00:31.068+00:00",
+      "duration_s": 636.941,
+      "n_calls": 65,
+      "input_tokens": 1154348,
+      "cached_input_tokens": 828688,
+      "output_tokens": 32077,
+      "input_images": 0,
+      "model_seconds": 630.824,
+      "resumed_columns": 0
+     }
+    },
+    "reconciliation": {
+     "status": "ok",
+     "duration_s": 562.01,
+     "usage": {
+      "input_tokens": 538837,
+      "output_tokens": 30467,
+      "api_calls": 52,
+      "total_tokens": 569304,
+      "cached_input_tokens": 316736,
+      "input_images": 51,
+      "model_seconds": 616.351
+     },
+     "timing": {
+      "started_at": "2026-09-20T05:00:31.070+00:00",
+      "finished_at": "2026-09-20T05:09:53.079+00:00",
+      "duration_s": 562.009,
+      "n_calls": 52,
+      "input_tokens": 538837,
+      "cached_input_tokens": 316736,
+      "output_tokens": 30467,
+      "input_images": 51,
+      "model_seconds": 616.351,
+      "resumed_columns": 0
+     }
+    }
+   },
+   "check": {
+    "result": "PASS",
+    "exit_code": 0,
+    "summary": "[check_run] PASS: 2457 passed, 1 warnings, 0 failures",
+    "log": "/mnt/data1/nahuja11_home/EviSearch/new_pipeline_outputs/results/NCT01809691_Aggarwal_SWOG1216_JCO'22/runs/r4-notes-r2/check_run.log"
+   },
+   "started_at": "2026-09-20T04:43:22.765+00:00",
+   "finished_at": "2026-09-20T05:09:53.666+00:00",
+   "duration_s": 1590.902
+  },
+  {
+   "doc_id": "NCT02799602_Hussain_ARASENS_JCO'23",
+   "system": "E",
+   "run": "r4-notes-r2",
+   "status": "ok",
+   "error": null,
+   "stages": {
+    "agent": {
+     "status": "ok",
+     "duration_s": 514.333,
+     "filled": 61,
+     "total": 133,
+     "usage": {
+      "input_tokens": 874142,
+      "output_tokens": 25170,
+      "api_calls": 11,
+      "total_tokens": 899312,
+      "cached_input_tokens": 698544,
+      "input_images": 198,
+      "model_seconds": 513.311
+     },
+     "fallback_batches": [],
+     "timing": {
+      "started_at": "2026-09-20T05:02:30.910+00:00",
+      "finished_at": "2026-09-20T05:11:05.242+00:00",
+      "duration_s": 514.333,
+      "n_calls": 11,
+      "input_tokens": 874142,
+      "cached_input_tokens": 698544,
+      "output_tokens": 25170,
+      "input_images": 198,
+      "model_seconds": 513.311,
+      "resumed_columns": 0
+     }
+    },
+    "search": {
+     "status": "ok",
+     "duration_s": 806.659,
+     "filled": 78,
+     "total": 133,
+     "usage": {
+      "input_tokens": 1738889,
+      "output_tokens": 39097,
+      "api_calls": 71,
+      "total_tokens": 1777986,
+      "cached_input_tokens": 1242640,
+      "input_images": 0,
+      "model_seconds": 796.274
+     },
+     "timing": {
+      "started_at": "2026-09-20T05:11:05.243+00:00",
+      "finished_at": "2026-09-20T05:24:31.901+00:00",
+      "duration_s": 806.658,
+      "n_calls": 71,
+      "input_tokens": 1738889,
+      "cached_input_tokens": 1242640,
+      "output_tokens": 39097,
+      "input_images": 0,
+      "model_seconds": 796.274,
+      "resumed_columns": 0
+     }
+    },
+    "reconciliation": {
+     "status": "ok",
+     "duration_s": 918.54,
+     "usage": {
+      "input_tokens": 1378890,
+      "output_tokens": 50950,
+      "api_calls": 71,
+      "total_tokens": 1429840,
+      "cached_input_tokens": 1056048,
+      "input_images": 189,
+      "model_seconds": 988.843
+     },
+     "timing": {
+      "started_at": "2026-09-20T05:24:31.902+00:00",
+      "finished_at": "2026-09-20T05:39:50.441+00:00",
+      "duration_s": 918.539,
+      "n_calls": 71,
+      "input_tokens": 1378890,
+      "cached_input_tokens": 1056048,
+      "output_tokens": 50950,
+      "input_images": 189,
+      "model_seconds": 988.843,
+      "resumed_columns": 0
+     }
+    }
+   },
+   "check": {
+    "result": "PASS",
+    "exit_code": 0,
+    "summary": "[check_run] PASS: 2514 passed, 3 warnings, 0 failures",
+    "log": "/mnt/data1/nahuja11_home/EviSearch/new_pipeline_outputs/results/NCT02799602_Hussain_ARASENS_JCO'23/runs/r4-notes-r2/check_run.log"
+   },
+   "started_at": "2026-09-20T05:02:30.910+00:00",
+   "finished_at": "2026-09-20T05:39:51.077+00:00",
+   "duration_s": 2240.167
+  },
+  {
+   "doc_id": "NCT02799602_Smith_ARASENS_NEJM'22",
+   "system": "E",
+   "run": "r4-notes-r2",
+   "status": "ok",
+   "error": null,
+   "stages": {
+    "agent": {
+     "status": "ok",
+     "duration_s": 377.582,
+     "filled": 79,
+     "total": 133,
+     "usage": {
+      "input_tokens": 426684,
+      "output_tokens": 18854,
+      "api_calls": 11,
+      "total_tokens": 445538,
+      "cached_input_tokens": 341824,
+      "input_images": 121,
+      "model_seconds": 376.832
+     },
+     "fallback_batches": [],
+     "timing": {
+      "started_at": "2026-09-20T05:09:53.668+00:00",
+      "finished_at": "2026-09-20T05:16:11.250+00:00",
+      "duration_s": 377.581,
+      "n_calls": 11,
+      "input_tokens": 426684,
+      "cached_input_tokens": 341824,
+      "output_tokens": 18854,
+      "input_images": 121,
+      "model_seconds": 376.832,
+      "resumed_columns": 0
+     }
+    },
+    "search": {
+     "status": "ok",
+     "duration_s": 652.213,
+     "filled": 77,
+     "total": 133,
+     "usage": {
+      "input_tokens": 1129681,
+      "output_tokens": 30767,
+      "api_calls": 68,
+      "total_tokens": 1160448,
+      "cached_input_tokens": 824768,
+      "input_images": 0,
+      "model_seconds": 646.24
+     },
+     "timing": {
+      "started_at": "2026-09-20T05:16:11.250+00:00",
+      "finished_at": "2026-09-20T05:27:03.463+00:00",
+      "duration_s": 652.213,
+      "n_calls": 68,
+      "input_tokens": 1129681,
+      "cached_input_tokens": 824768,
+      "output_tokens": 30767,
+      "input_images": 0,
+      "model_seconds": 646.24,
+      "resumed_columns": 0
+     }
+    },
+    "reconciliation": {
+     "status": "ok",
+     "duration_s": 586.918,
+     "usage": {
+      "input_tokens": 592252,
+      "output_tokens": 34074,
+      "api_calls": 49,
+      "total_tokens": 626326,
+      "cached_input_tokens": 381024,
+      "input_images": 73,
+      "model_seconds": 638.923
+     },
+     "timing": {
+      "started_at": "2026-09-20T05:27:03.464+00:00",
+      "finished_at": "2026-09-20T05:36:50.381+00:00",
+      "duration_s": 586.917,
+      "n_calls": 49,
+      "input_tokens": 592252,
+      "cached_input_tokens": 381024,
+      "output_tokens": 34074,
+      "input_images": 73,
+      "model_seconds": 638.923,
+      "resumed_columns": 0
+     }
+    }
+   },
+   "check": {
+    "result": "PASS",
+    "exit_code": 0,
+    "summary": "[check_run] PASS: 2467 passed, 3 warnings, 0 failures",
+    "log": "/mnt/data1/nahuja11_home/EviSearch/new_pipeline_outputs/results/NCT02799602_Smith_ARASENS_NEJM'22/runs/r4-notes-r2/check_run.log"
+   },
+   "started_at": "2026-09-20T05:09:53.668+00:00",
+   "finished_at": "2026-09-20T05:36:50.956+00:00",
+   "duration_s": 1617.288
+  },
+  {
+   "doc_id": "NCT02446405_Sweeney_ENZAMET_Lancet Onc'23",
+   "system": "E",
+   "run": "r4-notes-r2",
+   "status": "ok",
+   "error": null,
+   "stages": {
+    "agent": {
+     "status": "ok",
+     "duration_s": 372.61,
+     "filled": 71,
+     "total": 133,
+     "usage": {
+      "input_tokens": 560290,
+      "output_tokens": 19287,
+      "api_calls": 11,
+      "total_tokens": 579577,
+      "cached_input_tokens": 444528,
+      "input_images": 132,
+      "model_seconds": 371.677
+     },
+     "fallback_batches": [],
+     "timing": {
+      "started_at": "2026-09-20T05:36:50.958+00:00",
+      "finished_at": "2026-09-20T05:43:03.568+00:00",
+      "duration_s": 372.61,
+      "n_calls": 11,
+      "input_tokens": 560290,
+      "cached_input_tokens": 444528,
+      "output_tokens": 19287,
+      "input_images": 132,
+      "model_seconds": 371.677,
+      "resumed_columns": 0
+     }
+    },
+    "search": {
+     "status": "ok",
+     "duration_s": 621.361,
+     "filled": 71,
+     "total": 133,
+     "usage": {
+      "input_tokens": 1131035,
+      "output_tokens": 31987,
+      "api_calls": 58,
+      "total_tokens": 1163022,
+      "cached_input_tokens": 806736,
+      "input_images": 0,
+      "model_seconds": 616.944
+     },
+     "timing": {
+      "started_at": "2026-09-20T05:43:03.568+00:00",
+      "finished_at": "2026-09-20T05:53:24.928+00:00",
+      "duration_s": 621.36,
+      "n_calls": 58,
+      "input_tokens": 1131035,
+      "cached_input_tokens": 806736,
+      "output_tokens": 31987,
+      "input_images": 0,
+      "model_seconds": 616.944,
+      "resumed_columns": 0
+     }
+    },
+    "reconciliation": {
+     "status": "ok",
+     "duration_s": 712.166,
+     "usage": {
+      "input_tokens": 722515,
+      "output_tokens": 34584,
+      "api_calls": 55,
+      "total_tokens": 757099,
+      "cached_input_tokens": 460992,
+      "input_images": 82,
+      "model_seconds": 817.484
+     },
+     "timing": {
+      "started_at": "2026-09-20T05:53:24.929+00:00",
+      "finished_at": "2026-09-20T06:05:17.095+00:00",
+      "duration_s": 712.165,
+      "n_calls": 55,
+      "input_tokens": 722515,
+      "cached_input_tokens": 460992,
+      "output_tokens": 34584,
+      "input_images": 82,
+      "model_seconds": 817.484,
+      "resumed_columns": 0
+     }
+    }
+   },
+   "check": {
+    "result": "PASS",
+    "exit_code": 0,
+    "summary": "[check_run] PASS: 2428 passed, 0 warnings, 0 failures",
+    "log": "/mnt/data1/nahuja11_home/EviSearch/new_pipeline_outputs/results/NCT02446405_Sweeney_ENZAMET_Lancet Onc'23/runs/r4-notes-r2/check_run.log"
+   },
+   "started_at": "2026-09-20T05:36:50.958+00:00",
+   "finished_at": "2026-09-20T06:05:17.678+00:00",
+   "duration_s": 1706.72
+  },
+  {
+   "doc_id": "NCT00309985_Sweeney_CHAARTED_NEJM'15",
+   "system": "E",
+   "run": "r4-notes-r2",
+   "status": "ok",
+   "error": null,
+   "stages": {
+    "agent": {
+     "status": "ok",
+     "duration_s": 397.672,
+     "filled": 63,
+     "total": 133,
+     "usage": {
+      "input_tokens": 399547,
+      "output_tokens": 20999,
+      "api_calls": 11,
+      "total_tokens": 420546,
+      "cached_input_tokens": 313600,
+      "input_images": 110,
+      "model_seconds": 396.981
+     },
+     "fallback_batches": [],
+     "timing": {
+      "started_at": "2026-09-20T05:39:51.079+00:00",
+      "finished_at": "2026-09-20T05:46:28.751+00:00",
+      "duration_s": 397.672,
+      "n_calls": 11,
+      "input_tokens": 399547,
+      "cached_input_tokens": 313600,
+      "output_tokens": 20999,
+      "input_images": 110,
+      "model_seconds": 396.981,
+      "resumed_columns": 0
+     }
+    },
+    "search": {
+     "status": "ok",
+     "duration_s": 598.865,
+     "filled": 64,
+     "total": 133,
+     "usage": {
+      "input_tokens": 923548,
+      "output_tokens": 29596,
+      "api_calls": 60,
+      "total_tokens": 953144,
+      "cached_input_tokens": 664832,
+      "input_images": 0,
+      "model_seconds": 594.088
+     },
+     "timing": {
+      "started_at": "2026-09-20T05:46:28.751+00:00",
+      "finished_at": "2026-09-20T05:56:27.615+00:00",
+      "duration_s": 598.864,
+      "n_calls": 60,
+      "input_tokens": 923548,
+      "cached_input_tokens": 664832,
+      "output_tokens": 29596,
+      "input_images": 0,
+      "model_seconds": 594.088,
+      "resumed_columns": 0
+     }
+    },
+    "reconciliation": {
+     "status": "ok",
+     "duration_s": 767.38,
+     "usage": {
+      "input_tokens": 978341,
+      "output_tokens": 37718,
+      "api_calls": 74,
+      "total_tokens": 1016059,
+      "cached_input_tokens": 650720,
+      "input_images": 133,
+      "model_seconds": 833.305
+     },
+     "timing": {
+      "started_at": "2026-09-20T05:56:27.616+00:00",
+      "finished_at": "2026-09-20T06:09:14.995+00:00",
+      "duration_s": 767.379,
+      "n_calls": 74,
+      "input_tokens": 978341,
+      "cached_input_tokens": 650720,
+      "output_tokens": 37718,
+      "input_images": 133,
+      "model_seconds": 833.305,
+      "resumed_columns": 0
+     }
+    }
+   },
+   "check": {
+    "result": "PASS",
+    "exit_code": 0,
+    "summary": "[check_run] PASS: 2492 passed, 2 warnings, 0 failures",
+    "log": "/mnt/data1/nahuja11_home/EviSearch/new_pipeline_outputs/results/NCT00309985_Sweeney_CHAARTED_NEJM'15/runs/r4-notes-r2/check_run.log"
+   },
+   "started_at": "2026-09-20T05:39:51.079+00:00",
+   "finished_at": "2026-09-20T06:09:15.579+00:00",
+   "duration_s": 1764.5
+  },
+  {
+   "doc_id": "NCT01957436_Fizazi_PEACE1_Lancet'22",
+   "system": "E",
+   "run": "r4-notes-r2",
+   "status": "ok",
+   "error": null,
+   "stages": {
+    "agent": {
+     "status": "ok",
+     "duration_s": 463.56,
+     "filled": 69,
+     "total": 133,
+     "usage": {
+      "input_tokens": 624805,
+      "output_tokens": 24151,
+      "api_calls": 11,
+      "total_tokens": 648956,
+      "cached_input_tokens": 557424,
+      "input_images": 143,
+      "model_seconds": 462.596
+     },
+     "fallback_batches": [],
+     "timing": {
+      "started_at": "2026-09-20T06:05:17.683+00:00",
+      "finished_at": "2026-09-20T06:13:01.242+00:00",
+      "duration_s": 463.559,
+      "n_calls": 11,
+      "input_tokens": 624805,
+      "cached_input_tokens": 557424,
+      "output_tokens": 24151,
+      "input_images": 143,
+      "model_seconds": 462.596,
+      "resumed_columns": 0
+     }
+    },
+    "search": {
+     "status": "ok",
+     "duration_s": 721.945,
+     "filled": 73,
+     "total": 133,
+     "usage": {
+      "input_tokens": 1154382,
+      "output_tokens": 35878,
+      "api_calls": 57,
+      "total_tokens": 1190260,
+      "cached_input_tokens": 871808,
+      "input_images": 0,
+      "model_seconds": 717.17
+     },
+     "timing": {
+      "started_at": "2026-09-20T06:13:01.243+00:00",
+      "finished_at": "2026-09-20T06:25:03.187+00:00",
+      "duration_s": 721.944,
+      "n_calls": 57,
+      "input_tokens": 1154382,
+      "cached_input_tokens": 871808,
+      "output_tokens": 35878,
+      "input_images": 0,
+      "model_seconds": 717.17,
+      "resumed_columns": 0
+     }
+    },
+    "reconciliation": {
+     "status": "ok",
+     "duration_s": 672.709,
+     "usage": {
+      "input_tokens": 874624,
+      "output_tokens": 41149,
+      "api_calls": 67,
+      "total_tokens": 915773,
+      "cached_input_tokens": 664832,
+      "input_images": 84,
+      "model_seconds": 781.218
+     },
+     "timing": {
+      "started_at": "2026-09-20T06:25:03.187+00:00",
+      "finished_at": "2026-09-20T06:36:15.896+00:00",
+      "duration_s": 672.708,
+      "n_calls": 67,
+      "input_tokens": 874624,
+      "cached_input_tokens": 664832,
+      "output_tokens": 41149,
+      "input_images": 84,
+      "model_seconds": 781.218,
+      "resumed_columns": 0
+     }
+    }
+   },
+   "check": {
+    "result": "PASS",
+    "exit_code": 0,
+    "summary": "[check_run] PASS: 2455 passed, 1 warnings, 0 failures",
+    "log": "/mnt/data1/nahuja11_home/EviSearch/new_pipeline_outputs/results/NCT01957436_Fizazi_PEACE1_Lancet'22/runs/r4-notes-r2/check_run.log"
+   },
+   "started_at": "2026-09-20T06:05:17.683+00:00",
+   "finished_at": "2026-09-20T06:36:16.491+00:00",
+   "duration_s": 1858.808
+  },
+  {
+   "doc_id": "NCT00309985_Kriayako_CHAARTED_JCO'18",
+   "system": "E",
+   "run": "r4-notes-r2",
+   "status": "ok",
+   "error": null,
+   "stages": {
+    "agent": {
+     "status": "ok",
+     "duration_s": 330.821,
+     "filled": 45,
+     "total": 133,
+     "usage": {
+      "input_tokens": 435990,
+      "output_tokens": 17363,
+      "api_calls": 11,
+      "total_tokens": 453353,
+      "cached_input_tokens": 348880,
+      "input_images": 110,
+      "model_seconds": 329.978
+     },
+     "fallback_batches": [],
+     "timing": {
+      "started_at": "2026-09-20T06:09:15.581+00:00",
+      "finished_at": "2026-09-20T06:14:46.402+00:00",
+      "duration_s": 330.821,
+      "n_calls": 11,
+      "input_tokens": 435990,
+      "cached_input_tokens": 348880,
+      "output_tokens": 17363,
+      "input_images": 110,
+      "model_seconds": 329.978,
+      "resumed_columns": 0
+     }
+    },
+    "search": {
+     "status": "ok",
+     "duration_s": 520.428,
+     "filled": 48,
+     "total": 133,
+     "usage": {
+      "input_tokens": 1458367,
+      "output_tokens": 25318,
+      "api_calls": 77,
+      "total_tokens": 1483685,
+      "cached_input_tokens": 1151696,
+      "input_images": 0,
+      "model_seconds": 515.773
+     },
+     "timing": {
+      "started_at": "2026-09-20T06:14:46.402+00:00",
+      "finished_at": "2026-09-20T06:23:26.830+00:00",
+      "duration_s": 520.427,
+      "n_calls": 77,
+      "input_tokens": 1458367,
+      "cached_input_tokens": 1151696,
+      "output_tokens": 25318,
+      "input_images": 0,
+      "model_seconds": 515.773,
+      "resumed_columns": 0
+     }
+    },
+    "reconciliation": {
+     "status": "ok",
+     "duration_s": 548.359,
+     "usage": {
+      "input_tokens": 901835,
+      "output_tokens": 29722,
+      "api_calls": 61,
+      "total_tokens": 931557,
+      "cached_input_tokens": 679728,
+      "input_images": 126,
+      "model_seconds": 594.212
+     },
+     "timing": {
+      "started_at": "2026-09-20T06:23:26.831+00:00",
+      "finished_at": "2026-09-20T06:32:35.189+00:00",
+      "duration_s": 548.358,
+      "n_calls": 61,
+      "input_tokens": 901835,
+      "cached_input_tokens": 679728,
+      "output_tokens": 29722,
+      "input_images": 126,
+      "model_seconds": 594.212,
+      "resumed_columns": 0
+     }
+    }
+   },
+   "check": {
+    "result": "PASS",
+    "exit_code": 0,
+    "summary": "[check_run] PASS: 2474 passed, 2 warnings, 0 failures",
+    "log": "/mnt/data1/nahuja11_home/EviSearch/new_pipeline_outputs/results/NCT00309985_Kriayako_CHAARTED_JCO'18/runs/r4-notes-r2/check_run.log"
+   },
+   "started_at": "2026-09-20T06:09:15.581+00:00",
+   "finished_at": "2026-09-20T06:32:35.770+00:00",
+   "duration_s": 1400.189
+  }
+ ],
+ "stages_from": {
+  "agent": "r4-notes-r2",
+  "search": "r4-notes-r2",
+  "reconciliation": "r5-cite-r2"
+ }
+}
