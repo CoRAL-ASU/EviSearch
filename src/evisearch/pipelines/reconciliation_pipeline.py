@@ -49,21 +49,10 @@ Arm A and Arm B declare nothing: they read the document (parsed markdown, page i
 
 
 def arbiter_module():
-    """The reconciliation implementation this run uses.
+    """The Reconciliation Agent: an independent reading of the contested columns, then adjudication."""
+    from src.evisearch.services import reconciliation_v5
 
-    EVISEARCH_ARBITER=v5 selects the two-phase arbiter (it reads the paper and answers every column before it is shown
-    A's and B's answers). Default v4 is the arbiter every run up to R3 used, kept so those runs stay reproducible and
-    so a knowledge-base change can be measured against the old arbiter before the new one is added.
-    """
-    import os
-
-    if os.getenv("EVISEARCH_ARBITER", "").strip().lower() in {"v5", "own_reading_v5"}:
-        from src.evisearch.services import reconciliation_v5
-
-        return reconciliation_v5
-    from src.evisearch.services import reconciliation
-
-    return reconciliation
+    return reconciliation_v5
 
 
 def run_settings(model_key: str) -> Dict[str, Any]:

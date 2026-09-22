@@ -4,7 +4,7 @@ import sys
 from pathlib import Path
 
 ROOT = Path("/mnt/data1/nahuja11_home/EviSearch/new_pipeline_outputs/results")
-RUNS = sys.argv[1:] or ["schema-mhspc-trials-20260919020503-v4"]
+RUNS = sys.argv[1:] or ["schema-mhspc-trials-20260919020503-v4", "schema-mhspc-trials-20260919020503-v4-r2"]
 STAGES = {"agent_extractor": "Agent A", "search_agent": "Agent B", "reconciliation_agent": "arbiter"}
 
 for run in RUNS:

@@ -167,7 +167,7 @@ def test_a_note_edit_reaches_only_the_columns_its_note_governs(api, tmp_path, mo
     assert "presentation" in governed
     assert "presentation" not in {n.id for n in notes_kb.governing([names[2]])}  # a different family
     assert "not evidence of presentation" in (kb / "notes" / "definitions" / "presentation.md").read_text()
-    assert api.get("/static/js/rule_scope.js").status_code == 200
+    assert api.get("/static/js/note_edit.js").status_code == 200 and api.get("/static/js/rule_scope.js").status_code == 404
 
 
 def test_a_revise_that_rewrites_nothing_is_reported_as_no_change(api, monkeypatch):

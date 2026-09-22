@@ -370,11 +370,11 @@ def api_stats():
             with_page += sum(1 for c in reported if c["evidence"])
             flagged += sum(1 for c in doc_cells.values() if c["flagged"])
             reviewed += reviews.counts(doc, run, _machine(doc, run, doc_cells))["reviewed"]
-    rules = kb.load_all().values()
+    from src.evisearch.knowledge import notes as notes_kb
+
     return _ok(demo_table=table, showcase_run=run, papers=len(papers), reported_values=cells, with_page=with_page,
                flagged=flagged, reviewed=reviewed, tables=len(store.list_schemas()),
-               rules_learned=sum(1 for c in rules if c["status"] == "approved" and (c.get("source") or {}).get("kind") in ("schema_review", "extraction_review")),
-               rules_total=sum(1 for c in rules if c["status"] == "approved"))
+               rules_learned=_learned_count(), rules_total=len(notes_kb.load_notes("all")))
 
 
 @bp.route("/api/tables")
@@ -597,8 +597,9 @@ def unique_run_name(base: str) -> str:
     return f"{base}-r{k}"
 
 
-def start_extraction(table_id: str, docs: List[str], *, version: Optional[int] = None, system: str = "E", kb: str = "on",
-                     by: str = "", preset: Optional[str] = None) -> Dict[str, Any]:
+def start_extraction(table_id: str, docs: List[str], *, version: Optional[int] = None, by: str = "",
+                     preset: Optional[str] = None) -> Dict[str, Any]:
+    """Extract papers under a locked schema version with the EviSearch pipeline and the current knowledge notes."""
     schema = store.load(table_id)
     locked = schema.get("locked_versions") or []
     if not locked:
@@ -606,21 +607,17 @@ def start_extraction(table_id: str, docs: List[str], *, version: Optional[int] =
     version = int(version or max(locked))
     if version not in locked:
         raise ValueError(f"v{version} is not a locked version (locked: {locked})")
-    if system not in ("E", "B1", "B2") or kb not in ("on", "off"):
-        raise ValueError("system must be E, B1 or B2 and kb on or off")
     for doc in docs:
         runs_service.check_doc(doc)
     running = [j for j in jobs.list_jobs(kind="extract") if j["status"] == "running"]
     if running:
         raise RuntimeError(f"run {running[0].get('run')} is still running; one extraction at a time")
-    base = store.run_name(table_id, version) + ("" if kb == "on" else "-kboff") + ("" if system == "E" else f"-{system.lower()}")
-    run = unique_run_name(base)
+    run = unique_run_name(store.run_name(table_id, version))
     log = runs_service.headers_dir() / f"{run}.driver.log"
     cmd = [sys.executable, str(PROJECT_ROOT / "experiment-scripts" / "run_schema.py"), "--schema", table_id, "--version", str(version),
-           "--system", system, "--docs", ",".join(docs), "--kb", kb, "--run", run]
+           "--docs", ",".join(docs), "--run", run]
     env = {"EVISEARCH_PRESET": preset} if preset else None
-    return jobs.run_process("extract", cmd, log, by=by, env=env, table=table_id, run=run, docs=docs, version=version,
-                            system=system, kb=kb)
+    return jobs.run_process("extract", cmd, log, by=by, env=env, table=table_id, run=run, docs=docs, version=version)
 
 
 @bp.route("/api/tables/<table_id>/runs", methods=["POST"])
@@ -632,8 +629,7 @@ def api_start_run(table_id):
     if not docs:
         return _err("pick at least one paper")
     try:
-        job = start_extraction(table_id, [str(d).strip() for d in docs], version=body.get("version"), system=str(body.get("system", "E")),
-                               kb=str(body.get("kb", "on")), by=str(body.get("by", "")))
+        job = start_extraction(table_id, [str(d).strip() for d in docs], version=body.get("version"), by=str(body.get("by", "")))
     except FileNotFoundError as exc:
         return _err(str(exc), 404)
     except RuntimeError as exc:
@@ -874,50 +870,87 @@ def api_undo_review(run, doc_id):
 
 
 # ---- knowledge, learning, benchmark ---------------------------------------------------------------------------------
-def run_kb_fingerprint(run: str, docs: List[str]) -> Optional[str]:
-    """The knowledge-base snapshot a run used, as recorded in its stage metadata ("kb:<fingerprint>")."""
+def run_knowledge(run: str, docs: List[str]) -> Optional[Dict[str, str]]:
+    """The knowledge notes a run read, as recorded in its stage metadata ("notes:<fingerprint>")."""
     for doc in docs:
-        for folder in ("reconciliation_agent", "agent_extractor", "markdown_baseline"):
+        for folder in ("reconciliation_agent", "agent_extractor"):
             meta = runs_service._read_json(runs_service.base_dir(doc, run) / folder / "extraction_metadata.json")
             rules = (meta or {}).get("extraction_rules") if isinstance(meta, dict) else None
-            if isinstance(rules, str) and rules.startswith("kb:"):
-                return rules[3:]
+            if isinstance(rules, str) and rules.startswith("notes:"):
+                return {"fingerprint": rules.split(":")[1]}
     return None
 
 
 def _snapshot_ids(fingerprint: str) -> List[str]:
-    data = runs_service._read_json(runtime_paths.KNOWLEDGE_DIR / "snapshots" / f"{fingerprint}.json")
-    return [c["id"] for c in data] if isinstance(data, list) else []
+    """The note ids of the frozen notes a run read (knowledge/note_snapshots/<fingerprint>.json)."""
+    data = runs_service._read_json(runtime_paths.KNOWLEDGE_DIR / "note_snapshots" / f"{fingerprint}.json")
+    return [n["id"] for n in data] if isinstance(data, list) else []
 
 
-@bp.route("/api/knowledge")
-def api_knowledge():
-    """The knowledge notes, with where each edit came from and which runs read them.
+# Which prompts read each notes directory: every shared_rules() call in src/evisearch/services. The reconciliation
+# stage's own reading pass is the auditor (role="auditor") and reads the definitions only.
+NOTE_READERS = {
+    "definitions": ["Agent A", "Agent B", "Reconciliation: own reading", "Reconciliation: decision", "Attribution check"],
+    "extraction": ["Agent A", "Agent B", "Reconciliation: decision", "Attribution check"],
+}
+NOTE_ROLES = {"definitions": "What a column means", "extraction": "How a value is found and put together"}
 
-    One format now: markdown notes. `edits` is notes_log.jsonl, the append-only record that replaced the conventions
-    log - each entry names the note, the text, who asked and why, and the tree fingerprint that resulted, which is the
-    same fingerprint a run records. That is the whole audit chain from a reviewer's correction to a cell.
-    """
-    from src.evisearch.knowledge import notes as notes_kb
-    from src.evisearch.services import feedback
 
-    events = {e["event_id"]: e for e in feedback.all_events()}
-    used: Dict[str, List[str]] = {}
+def _note_title(body: str) -> Optional[str]:
+    for line in body.splitlines():
+        if line.startswith("# "):
+            return line[2:].strip()
+    return None
+
+
+def _note_json(note, root: Path) -> Dict[str, Any]:
+    path = root / note.path
+    return {"id": note.id, "title": _note_title(note.body) or note.id, "role": note.role, "scope": note.scope,
+            "families": list(note.families), "columns": list(note.columns), "body": note.body,
+            "path": note.path, "edited_at": datetime.fromtimestamp(path.stat().st_mtime, timezone.utc).isoformat(timespec="seconds")
+            if path.exists() else None,
+            "readers": NOTE_READERS.get(note.role, [])}
+
+
+@bp.route("/api/knowledge/notes")
+def api_knowledge_notes():
+    """The knowledge notes the prompts read, grouped by who reads them, and the runs that read them."""
+    from src.evisearch.knowledge import notes
+
+    try:
+        loaded = notes.load_notes("all")
+    except (ValueError, OSError) as exc:  # a note with broken frontmatter: say which one instead of an empty page
+        return _err(str(exc), 500)
+    current = notes.fingerprint(loaded)
+    root = notes.notes_dir()
+    roles = [{"role": role, "label": NOTE_ROLES[role], "readers": NOTE_READERS[role], "dir": role,
+              "notes": [_note_json(n, root) for n in loaded if n.role == role]} for role in NOTE_ROLES]
+    runs = []
     for run in runs_service.list_runs():
-        fp = run_kb_fingerprint(run["run"], run["docs"])
-        if fp:
-            used.setdefault(str(fp), []).append(run["run"])
-    edits = []
-    for entry in notes_kb.log_entries():
-        event = events.get(str(entry.get("event") or ""))
-        edits.append({**entry, "used_in_runs": sorted(used.get(str(entry.get("fingerprint")), [])),
-                      "source_event": {"doc_id": event.get("doc_id"), "column": event.get("column"),
-                                       "run": event.get("run"), "before": event.get("before"),
-                                       "after": event.get("after"), "reason": event.get("reason")} if event else None})
-    notes_out = [{"id": n.id, "role": n.role, "scope": n.scope, "family": n.family, "columns": list(n.columns),
-                  "supersedes": list(n.supersedes), "body": n.body} for n in notes_kb.load_notes("all")]
-    return _ok(notes=notes_out, edits=edits, fingerprint=notes_kb.fingerprint(),
-               roles=["definitions", "extraction"], scopes=list(notes_kb.SCOPES))
+        used = run_knowledge(run["run"], run["docs"])
+        if used:
+            runs.append({"run": run["run"], "papers": len(run["docs"]), "started_at": run.get("started_at"),
+                         **used, "current": used["fingerprint"] == current})
+    runs.sort(key=lambda r: (not r["current"], r["run"]))
+    try:
+        columns = [f["name"] for f in _hand_written_fields()]
+    except OSError:
+        columns = []
+    return _ok(fingerprint=current, roles=roles, runs=runs, columns=columns, dir=str(root))
+
+
+@bp.route("/api/knowledge/notes/for")
+def api_knowledge_notes_for():
+    """The notes that govern one column (global and table notes, its family's, its own), and which prompts read each."""
+    from src.evisearch.knowledge import notes
+
+    column = request.args.get("column", "").strip()
+    if not column:
+        return _err("name a column")
+    selected = notes.select_for(notes.load_notes("all"), [column])
+    readers = [{"reader": reader, "notes": [n.id for n in selected if reader in NOTE_READERS.get(n.role, [])]}
+               for reader in NOTE_READERS["definitions"]]
+    return _ok(column=column, notes=[{"id": n.id, "role": n.role, "scope": n.scope} for n in selected], readers=readers)
 
 
 @bp.route("/api/activity")
@@ -966,15 +999,16 @@ def api_learning():
     rows = []
     for run in table_runs:
         s = run_summary(run, active=active)
-        fp = run_kb_fingerprint(run["run"], run["docs"])
-        ids = _snapshot_ids(fp) if fp else []
+        used = run_knowledge(run["run"], run["docs"])
+        ids = _snapshot_ids(used["fingerprint"]) if used else []
         rows.append({"run": run["run"], "version": run.get("version"), "variant": run.get("variant"), "started_at": run.get("started_at"),
                      "papers": len(s["papers"]), "done": s["done"], "flagged": s["flagged"], "reviewed": s["reviewed"],
                      "corrected": s["corrected"], "status": s["status"], "kb": len(ids),
                      "kb_learned": sum(1 for cid in ids if cid not in _SEED_IDS()), "cells": sum(p["cells"] for p in s["papers"])})
-    # cumulative series over time: rules approved, and cells reviewed
-    rules_at = [c["history"][-1]["at"] for c in kb.load_all().values()
-                if c["status"] == "approved" and (c.get("source") or {}).get("kind") != "seed" and c.get("history")]
+    # cumulative series over time: note edits a reviewer made, and cells reviewed
+    from src.evisearch.knowledge import notes as notes_kb
+
+    rules_at = [e["at"] for e in notes_kb.log_entries() if e.get("by") and e.get("at")]
     reviews_at = [e["timestamp"] for e in feedback.all_events()
                   if e.get("event") == "cell_correct" and (not table or e.get("schema_id") in (None, table))]
     # by the hour: this work happens over days, and a per-day line would be a single point

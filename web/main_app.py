@@ -1287,9 +1287,9 @@ def _api_qa_ask_full(doc_id: str, question: str, history: list):
         yield f"data: {json.dumps({'type': 'stage', 'stage': 'search_done', 'value': s_val, 'reasoning': s_reason})}\n\n"
 
         yield f"data: {json.dumps({'type': 'stage', 'stage': 'reconciling', 'message': 'Reconciling…'})}\n\n"
-        from src.evisearch.services.reconciliation import run_reconciliation_agent
+        from src.evisearch.pipelines.reconciliation_pipeline import arbiter_module
 
-        rec_result, _ = run_reconciliation_agent(
+        rec_result, _ = arbiter_module().run_reconciliation_agent(
             doc_id=doc_id,
             batch_columns=batch,
             definitions_map=definitions_map,

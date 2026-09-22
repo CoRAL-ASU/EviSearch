@@ -1,42 +1,32 @@
-"""The reconciliation stage, in two phases: a third extraction, then an adjudication over three answers.
+"""The Reconciliation Agent, in two phases: an independent extraction, then an adjudication over three answers.
 
-  phase 1  Agent C. The columns are answered from the paper with A's and B's answers hidden, so what this stage
-           brings to the decision is a reading of its own rather than a preference between two it has already seen.
+  phase 1  The columns the two extraction agents disagree on, or both leave empty, are answered from the paper with
+           A's and B's answers hidden, so what this stage brings to the decision is a reading of its own rather than
+           a preference between two it has already seen. Columns the agents agree on go straight to phase 2.
   phase 2  A's and B's answers are revealed alongside it. The stage decides each column and reports a verdict on
            all three answers, its own included.
 
-What it reads with. The stage reads with Agent B's search - `search_chunks`, whole pages, the same `pages_sent`
-bookkeeping - plus one tool Agent B does not have: `get_pages`, which returns a page's text *and* its rendered
-image, the only way to read a value printed inside a figure or a table captured as a picture. The first R4 runs gave
-this stage a search returning four query-matching lines per page, no way to open a page by number, and an
-`ask_document` that was Arm A under another name: 664 of phase 1's 1700 calls went to the very agent it was judging,
-and it answered a quarter of the columns it read. Both of those tools are gone.
+What it reads with: Agent B's search (`search_chunks`, whole pages) and `get_pages`, which returns a page's text and
+its rendered image, the only way to read a value printed inside a figure or a table captured as a picture.
 
-What verify_attribution is for. A second reader opens the pages a value cites, writes the column's answer itself,
-and returns that answer with the page, the quote and the modality. Those three fields are what the viewer highlights
-on the PDF - 674 of 695 shipped values in R4 carried a citation, and every one of them came from a check. So the
-stage's submission gate is provenance, not correctness: a value ships once it has been read on its page, whether or
-not that second reading agreed, and a disagreement sends the cell to a reviewer instead of blocking it. The earlier
-gate, which accepted only values the second reading endorsed, dropped 25 correct values across two runs to save 22
-wrong ones, and its refusals were the route by which six cells were silently blanked.
+What verify_attribution is for: a second reader opens the pages a value cites, writes the column's answer itself, and
+returns it with the page, the quotation and the modality. Those fields are what the viewer highlights on the PDF. So
+the submission gate is provenance, not agreement: a value is admitted once it has been read on its page, and when the
+second reading does not reproduce it the value is admitted with the extracting agent's own quotation, marked, and
+routed to review rather than dropped (Appendix B of the paper measures the agreement-gated alternative).
 
-An absence is an answer, and needs a reason: "Not reported" ships when the stage says which pages it read and what
-they state instead. The earlier condition - that no extraction's value stand unchecked - made *checking* a correct
-value the cheapest way to blank its cell.
-
-v4 stays in `reconciliation.py`, unchanged and selectable, so R3 remains reproducible and the knowledge-notes change
-can be measured against the old arbiter before this one is added.
+An absence is an answer and needs a basis: "Not reported" is admitted when the stage names the pages it read and what
+they state instead.
 """
 from __future__ import annotations
 
-import os
 from pathlib import Path
 from typing import Any, Callable, Dict, List, Optional, Set, Tuple
 
 from src.config.catalog import ConfigError
 from src.config.config import (AGENT_MAX_TOOL_CALLS, AGENT_MAX_TURNS, MAX_TOKENS, PAGE_IMAGE_SCALE,
                                RECONCILIATION_MAX_PAGE_IMAGES, SELECTION)
-from src.evisearch.columns import NOT_REPORTED, column_names, is_no_value
+from src.evisearch.columns import column_names, is_no_value
 from src.evisearch.pipelines.results_store import write_json
 from src.evisearch.services import page_images
 from src.evisearch.services.extraction_rules import shared_rules
@@ -55,39 +45,9 @@ from src.inference import ImagePart, InferenceError, Tool, ToolOutput, ToolSpec,
 from src.retrieval import embedding_retriever as retriever
 
 def own_reading_scope() -> str:
-    """EVISEARCH_OWN_READING=all | contested | both_silent: which columns phase 1 answers for itself.
-
-    `contested` is the frozen choice: the columns the two agents disagree on, plus the ones both left empty. Over two
-    runs with the absence guard it scored 92.31 and 92.73, the best mean of R4, against the v4 arbiter's 91.97 and
-    92.48 on identical agent outputs. Without the guard the same scope scored 92.07 and 91.97 - so the guard is worth
-    about +0.50 here, and it is the guard rather than the scope that carries the gain.
-
-    `both_silent` reads only the columns both agents left empty and scored 92.46 and 92.50, statistically level with
-    `contested` (0.04 apart against a 0.42 within-configuration spread) and steadier. Note the absence guard is inert
-    under it: the guard fires only when phase 1 read a column and found nothing while an agent had stated a value, and
-    under this scope the stage reads only columns where nobody stated anything. Verified in the transcripts - 0 of 110
-    batches in each run, against 4 and 1 under `contested`.
-
-    Why reading more than the contested set hurt: `all` scored 91.80 and 90.56 at twice the GPU. Every column the
-    stage forms an opinion about risks displacing a better answer, and at the time those runs were made its reading was
-    thinner than Agent B's on the same retrieval - its search returned at most SEARCH_LINES_PER_PAGE lines per page
-    where Agent B's returned the whole page, and it could not open a page by number at all. That gap is now closed
-    (see the tool note in the module docstring), so every number in this docstring predates the change and the scope
-    has to be measured again before any of it is trusted.
-
-    `all` (the default) reads every column. `contested` reads only the columns where the two agents disagree or both
-    abstain, and lets the agreed ones go straight to phase 2.
-
-    The case for `contested` is in the R3 numbers: where both agents agree and are right the v4 arbiter already scores
-    99.9%, so there is nothing to win there and something to lose (it replaced one unanimous correct value with
-    "Not reported"). The cells that decide the arbiter's fate are the 12% where the agents disagree, plus the ones
-    where both abstain. Reading only those costs roughly an eighth of the phase-1 tokens.
-    The case for `all` is the other pot: cells where the agents agree and are both wrong, which only an independent
-    reading can reach. The PDF audit put 23% of that pot within reach of a re-read, so `all` has the higher ceiling
-    and the higher variance. Which one ships is an experiment, not a preference.
-    """
-    value = os.getenv("EVISEARCH_OWN_READING", "").strip().lower()
-    return value if value in {"contested", "both_silent"} else "all"
+    """Which columns phase 1 answers for itself: `contested`, the columns the two agents disagree on plus the ones both
+    left empty. Where both agents agree the stage adjudicates without a reading of its own."""
+    return "contested"
 
 
 def needs_own_reading(name: str, source_a: Dict[str, Any], source_b: Dict[str, Any], scope: str) -> bool:
@@ -113,10 +73,8 @@ def _squash(value: str) -> str:
     return " ".join(str(value or "").split()).strip().lower().rstrip(".").replace("%", "")
 
 
-# Part of the run settings, so results made with a different reading scope are never resumed into each other. Computed
-# at import because the scope comes from the environment the run was launched with.
-_SCOPE = own_reading_scope()
-RECONCILER_VERSION = "own_reading_v5" + ("" if _SCOPE == "all" else f"_{_SCOPE}")
+# Part of the run settings, so saved results made by another reconciler are never resumed into a run.
+RECONCILER_VERSION = "own_reading_v5_contested"
 
 # what phase 2 says about each of the three answers it now holds
 VERDICTS = ("correct", "incomplete", "wrong", "no_answer")
@@ -658,7 +616,7 @@ def run_reconciliation_agent(
     log_path: Optional[Path] = None,
     model: Optional[str] = None,
 ) -> Tuple[Dict[str, Dict[str, Any]], Dict[str, int]]:
-    """Reconcile one batch in two phases. Same signature as v4, so the pipeline can select either."""
+    """Reconcile one batch in two phases. Returns ({column: result}, usage)."""
     names = column_names(batch_columns)
     try:
         chat = get_chat("reconciliation", model)

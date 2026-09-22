@@ -315,7 +315,7 @@ servers:
     args: [--runner, pooling, --dtype, bfloat16, --hf-overrides, '{"architectures": ["Qwen3ForSequenceClassification"], "classifier_from_token": ["no", "yes"], "is_original_qwen3_reranker": true}', --chat-template, src/config/templates/qwen3_reranker.jinja]
 
 presets:
-  # Agents, retrieval, reranking and the parsed-markdown baseline (B1) on local GPUs; the legacy LLM judge stays on
+  # Agents, retrieval and the parsed-markdown baseline (B1) on local GPUs; retrieval is embedding-only in every preset; the legacy LLM judge stays on
   # Gemini. The PDF-upload baselines need a PDF-capable model: pass --model gemini-2.5-flash to those scripts.
   local:
     pdf_query: qwen3.6-27b
@@ -326,18 +326,7 @@ presets:
     baseline: qwen3.6-27b
     structurer: qwen3.6-27b
     embedding: qwen3-embedding-8b
-    reranker: qwen3-reranker-8b
-  # `local` with Mistral Small 3.2 in every agent role and the B1 baseline (retrieval and judge unchanged).
-  local_mistral:
-    pdf_query: mistral-small-3.2-24b
-    search_agent: mistral-small-3.2-24b
-    reconciliation: mistral-small-3.2-24b
-    qa: mistral-small-3.2-24b
-    judge: gemini-2.5-flash
-    baseline: mistral-small-3.2-24b
-    structurer: mistral-small-3.2-24b
-    embedding: qwen3-embedding-8b
-    reranker: qwen3-reranker-8b
+    reranker: null
   # `local` with the three agent stages moved to a serverless open-weight host, for concurrency the shared local GPU
   # cannot give. Retrieval stays on the local GPU (same pages, same ranking as `local`, so a comparison changes one
   # thing), and the judge stays where `local` has it. Before using either preset: set the API key and the model id
@@ -354,7 +343,7 @@ presets:
     baseline: novita-vlm
     structurer: novita-vlm
     embedding: qwen3-embedding-8b
-    reranker: qwen3-reranker-8b
+    reranker: null
   together:
     pdf_query: together-vlm
     search_agent: together-vlm
@@ -364,7 +353,7 @@ presets:
     baseline: together-vlm
     structurer: together-vlm
     embedding: qwen3-embedding-8b
-    reranker: qwen3-reranker-8b
+    reranker: null
   # Everything on local GPUs; no cloud credentials needed.
   offline:
     pdf_query: qwen3.6-27b
@@ -375,7 +364,7 @@ presets:
     baseline: qwen3.6-27b
     structurer: qwen3.6-27b
     embedding: qwen3-embedding-8b
-    reranker: qwen3-reranker-8b
+    reranker: null
   # Cloud APIs only (the setup the repository used before local models): Gemini agents, OpenAI embeddings.
   cloud:
     pdf_query: gemini-2.5-flash

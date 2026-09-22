@@ -10,7 +10,7 @@ from src.config.config import CATALOG, GOLD_TABLE_JSON_PATH, MAX_TOKENS
 from src.evisearch.knowledge.preferences import load_extraction_preferences
 from src.evisearch.pipelines.batching import build_batches, load_groups
 
-LOCAL_PRESETS = ("local", "local_mistral")  # Qwen3.6-27B and Mistral Small 3.2, both with a 131072-token context
+LOCAL_PRESETS = ("local",)  # Qwen3.6-27B, 131072-token context
 
 
 def benchmark_doc_ids():

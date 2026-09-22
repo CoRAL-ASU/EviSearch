@@ -19,7 +19,7 @@ CATALOG = load_catalog()
 
 # ============== INFERENCE ==============
 # novita | together move the agent stages to a serverless open-weight host and need a model id set in .env first.
-PRESET = env("EVISEARCH_PRESET", "local")  # local | local_mistral | offline | cloud | cloud_openai | novita | together
+PRESET = env("EVISEARCH_PRESET", "local")  # local | offline | cloud | cloud_openai | novita | together
 
 # Per-role model overrides on top of the preset (role -> model key from the catalog).
 # Environment: EVISEARCH_ROLE_<ROLE>=<model key>, e.g. EVISEARCH_ROLE_JUDGE=gemini-2.5-pro
@@ -32,7 +32,7 @@ OPTIONS = {
     # Arm A input, identical for every provider (the PDF file itself is never sent to a model).
     "pdf_query_input": env("EVISEARCH_PDF_QUERY_INPUT", "markdown_images"),  # markdown_images | markdown
     "reconciliation_page_images": env("EVISEARCH_RECONCILIATION_PAGE_IMAGES", "auto"),  # auto | never
-    "extraction_rules": env("EVISEARCH_EXTRACTION_RULES", "v2"),  # v2 | v5 | v4 | v3 | v1 | none (the E0 prompts)
+    "extraction_rules": env("EVISEARCH_EXTRACTION_RULES", "v5"),  # fixed guidelines, used only with the knowledge base off
 }
 
 # Output token budget per role

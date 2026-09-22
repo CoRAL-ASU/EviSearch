@@ -7,7 +7,7 @@
     let queue = [], items = [], current = null;   // current = {doc_id, column}
     const cellsCache = new Map();                  // doc -> {columns, schema_id, definitions}
     const viewer = new PdfViewer($('pdf'));
-    const ruleState = {record: null};
+    let noteEdit = null;
     let ruleContext = null;
 
     const draftKey = (doc, col) => `cell.${run}.${doc}.${col}`;
@@ -129,7 +129,7 @@
             <div class="grid gap-2 md:grid-cols-3">
                 ${armBlock('Agent A · reads the paper', cell.a, cell.a_reasoning, cell.a_evidence)}
                 ${armBlock('Agent B · searches it', cell.b, cell.b_reasoning, cell.b_evidence)}
-                ${armBlock('Arbiter · checked the page', cell.value, cell.reasoning, cell.evidence,
+                ${armBlock('Reconciliation Agent · checked the page', cell.value, cell.reasoning, cell.evidence,
                     `<span class="text-xs">${cell.verified === true ? '✓ verified' : cell.verified === false ? 'not verified' : ''}${cell.decided_by ? ' · ' + esc(cell.decided_by) : ''}</span>`)}
             </div>
             <div class="text-xs opacity-60">The page below opens at the cited page; click any p· button above to jump to another one.</div>
@@ -221,7 +221,7 @@
         const rv = cell.review && cell.review.value !== null ? cell.review : null;
         ruleContext = {column: cell.column, definition: cell.definition, schema_id: cellsCache.get(current.doc_id).schema_id || TABLE,
             doc_id: current.doc_id, kind: 'extraction_review', before: cell.value, after: rv ? rv.value : '', reason: rv ? rv.reason : ''};
-        ruleState.record = null;
+        noteEdit = null;
         $('rule-col').textContent = `${cell.column} — ${shortDoc(current.doc_id)}`;
         $('rule-note').value = rv && rv.note ? rv.note : '';
         $('rule-out').innerHTML = '';
@@ -230,16 +230,15 @@
     }
     $('rule-draft').onclick = async () => {
         const by = needReviewer(); if (!by) return;
-        if (!$('rule-note').value.trim()) return toast('Say what the rule should be', 'warning');
-        $('rule-out').textContent = 'Drafting the rule and checking the knowledge base…';
-        const r = await post('/api/conventions/propose', {...ruleContext, feedback: $('rule-note').value, by});
-        if (!r.success) { $('rule-out').textContent = r.error; return; }
-        if (!r.is_convention) { $('rule-out').innerHTML = `<div class="alert">Not a rule for every paper: ${esc(r.why_not)}. The correction alone is saved.</div>`; return; }
-        RuleScope.show($('rule-out'), r, ruleState, ruleContext.schema_id, (v) => { $('rule-add').disabled = v === 'blocked' || v === 'checking'; });
+        if (!$('rule-note').value.trim()) return toast('Say what the extractor should do in general', 'warning');
+        $('rule-add').disabled = true;
+        noteEdit = await NoteEdit.draft($('rule-out'), ruleContext, $('rule-note').value, by);
+        $('rule-add').disabled = !noteEdit;
     };
     $('rule-add').onclick = async () => {
-        const r = await post('/api/conventions', {record: ruleState.record, by: needReviewer()});
-        $('rule-out').insertAdjacentHTML('beforeend', `<div class="alert mt-2">${r.success ? (r.merged_into ? 'Merged into ' + esc(r.merged_into) : 'Stored as ' + esc(r.convention.id) + ' — approve it on the Knowledge page to use it in later extractions') : esc(r.error)}</div>`);
+        const by = needReviewer(); if (!by || !noteEdit) return;
+        const r = await NoteEdit.apply(noteEdit, {by, schema_id: ruleContext.schema_id});
+        $('rule-out').insertAdjacentHTML('beforeend', `<div class="alert mt-2 text-sm">${NoteEdit.done(r)}</div>`);
         $('rule-add').disabled = true;
     };
 

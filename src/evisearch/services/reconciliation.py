@@ -1,27 +1,18 @@
 """
-Reconciliation agent: decide each column from Arm A (agent_extractor) and Arm B (search_agent), and verify the
-attribution of every final value before it is accepted.
+The Reconciliation Agent's shared machinery: the session that holds a batch's two extractions, its tools, and the
+submission bookkeeping. The agent itself - the two-phase reading and adjudication - is `reconciliation_v5`, which
+subclasses the session here.
 
-The agent's own context holds the column definitions and both arms' values, reasoning and cited evidence; the paper
-itself stays out of it. It reads the paper through tools:
-- ask_document: questions answered by a separate model call that has the whole paper (services/document_reader.py).
-- search_pages: semantic search over the pages (embedding + reranker), returning the best pages and their most
-  relevant lines.
-- verify_attribution: a separate model call checks claimed values against one page, text and image
-  (services/evidence_check.py): supported / partial / not_supported, with what the page states.
-- submit_verification: final values, under a decision policy enforced here rather than left to the prompt:
-  - a value is accepted when verify_attribution found it supported on its source page; a partial one only with
-    review=true; a value the verifier rejected (not_supported) is never accepted, even with review=true;
-  - "Not reported" is refused while a value for the column is supported or partial on the pages, and while an extracted
-    value has not been checked (unless review=true); once every extracted value failed the check it is accepted and
-    flagged for a human reviewer.
-Columns left unsubmitted get their verified value if one exists (decided_by auto_submit); otherwise the last attempt,
-flagged, or "Not reported" (flagged) when that attempt failed the check.
+Tools defined on the session:
+- verify_attribution: a separate model call reads claimed values on their cited pages, text and image
+  (services/evidence_check.py), writes the column's answer itself, and returns the page, quotation and modality the
+  viewer highlights: supported / partial / not_supported.
+- submit_verification: final values, with the admission policy enforced in code rather than left to the prompt.
 
 Per column output: value, reasoning, verification (both_correct | A_correct_B_wrong | B_correct_A_wrong | both_wrong:
 which source had the final value), source {page, modality, verbatim_quote}, attribution (checked entries), verified,
 needs_review, review_reason, decided_by (agent | auto_submit | unsubmitted), checks (verifier records for the column).
-The model comes from the "reconciliation" role in src/config/config.py; the reader and verifier use the same model.
+The model comes from the "reconciliation" role in src/config/config.py; the verifier uses the same model.
 """
 from __future__ import annotations
 
@@ -29,69 +20,20 @@ import re
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
-from src.config.catalog import ConfigError
-from src.config.config import AGENT_MAX_TOOL_CALLS, AGENT_MAX_TURNS, MAX_TOKENS, PAGE_IMAGE_SCALE, SELECTION
 from src.evisearch.columns import MODALITIES, NOT_REPORTED, column_names, is_no_value
-from src.evisearch.pipelines.results_store import write_json
 from src.evisearch.services import document_reader
 from src.evisearch.services.evidence_check import MAX_CLAIM_PAGES, Claim, as_pages, normalize_value, verify_claims
-from src.evisearch.services.extraction_rules import shared_rules
 from src.evisearch.services.highlight import resolve_pdf_path
 from src.evisearch.tool_args import decode_items
-from src.inference import InferenceError, Tool, ToolOutput, ToolSpec, Usage, get_chat, run_tool_loop
+from src.inference import ToolOutput, ToolSpec, Usage
 from src.retrieval import embedding_retriever as retriever
 
-RECONCILER_VERSION = "verified_tools_v4"  # part of the run settings: results of other versions are not resumed
 VERIFICATIONS = ("A_correct_B_wrong", "B_correct_A_wrong", "both_correct", "both_wrong")
 VERIFY_MAX_CLAIMS = 30  # per verify_attribution call; split into one verifier call per page
 REASONING_CHARS = 2000  # of each arm's reasoning shown to the agent
 SEARCH_LINES_PER_PAGE = 4
 CONTINUED_RE = re.compile(r"\bcontinue[sd]?\b.{0,20}\b(next|following) page|\(\s*continued\s*\)|\bcont(?:inued|'d)\.?\s*\)|table \d+[^.\n]{0,20}\bcontinued", re.I)
 
-SYSTEM_PROMPT = """You decide the final value of clinical trial columns. For each column you get its definition and two
-independent extractions of the same paper (A and B): the value, the reasoning, and the pages and evidence they cite.
-You do not have the paper in front of you. Use your tools:
-- ask_document: a reader that has the whole paper (every page's text and image) answers your questions with the
-  answer, the pages and the evidence. Ask about several columns in one call.
-- search_pages: semantic search over the paper; returns the best matching pages with their most relevant lines.
-- verify_attribution: a checker reads the page(s) (text and image), writes the column's answer itself, and says whether
-  the claimed value IS that answer (supported / partial / not_supported), with what the pages state and a reason tag.
-  Send many claims in one call.
-- submit_verification: final values. A value is accepted only after verify_attribution found it supported on the page
-  given as its source. A value the checker rejected is never accepted.
-
-Deciding a column:
-1. Read the definition first: population or subgroup, arm, timepoint, unit, and every part it asks for. The column's
-   statistic governs: a rate column takes a rate the paper states, an "N (%)" column a count with its percentage, a
-   "(mo)" column a duration. A statistic that compares arms (hazard ratio, p value) never goes into a per-arm column.
-   A value the paper does not state (a rate computed from event counts, a number estimated from a curve, "Not
-   reached" the paper does not say) is not an answer.
-2. A and B agree: verify the value on its cited page and submit it.
-3. A and B differ: check scope first (right population, arm, timepoint), then completeness. Answers that are compatible
-   at different levels of detail (a drug class and the drug, a count and the same count with its percentage) are
-   merged into the complete value the definition asks for. A different label for the same quantity, or a named subtype
-   of the requested measure, is not absence. When the column asks for an endpoint and the paper reports it only under
-   named variants (for example biochemical and radiographic PFS), submit every variant with its label, together.
-4. When the verifier does not support a value, read its reason tag and page_value. If the value may be right, find the
-   page(s) that show it (ask the reader where the paper reports it; several pages together if it combines them, or a
-   table that continues on the next page) and verify it there. For a value derived from printed numbers (subgroups
-   added up, a percentage from a count and the arm size), put the derivation in the claim's evidence, e.g.
-   "349 + 113 = 462; 462 / 654 = 70.6%". If it answers a different question ([statistic], [endpoint], [population],
-   [arm], [timepoint]), drop it. A partial value may be completed from page_value (verify the completed value).
-5. Both say "Not reported": accept it, unless either reasoning mentions a candidate (a number with %, months or n/N;
-   "not reached"; "all patients" or a value fixed by the design; enrolment in one country or region). Then ask the
-   reader and verify what it finds.
-6. Verify the value you choose on the page(s) that show it, then submit it with those pages. When every extracted
-   value fails the check and the reader finds no other value the verifier supports, submit "Not reported": it is
-   flagged for a human reviewer automatically. "Not reported", and "No" in a yes/no column, claim absence: they need
-   no verification, but they are refused while a value for the column is supported on the pages.
-
-verification says which source had the final value: both_correct (A and B both), A_correct_B_wrong,
-B_correct_A_wrong, both_wrong (neither). Work in few calls: verify the cited values of all columns together, ask the
-reader about all open questions together, and submit settled columns together. Columns rejected by
-submit_verification must be fixed and submitted again."""
-
-FOLLOW_UP = "Continue. Fix rejected columns, verify what you still need, and submit every remaining column."
 
 
 def _page(raw: Any) -> Optional[int]:
@@ -566,73 +508,6 @@ class _ReconciliationSession:
             name: {**self.submitted[name], "checks": [_compact(r) for key, r in self.checks.items() if key[0] == name]}
             for name in self.names
         }
-
-
-def run_reconciliation_agent(
-    doc_id: str,
-    batch_columns: List[Dict[str, Any]],
-    definitions_map: Dict[str, str],
-    source_a_data: Dict[str, Dict[str, Any]],
-    source_b_data: Dict[str, Dict[str, Any]],
-    log_path: Optional[Path] = None,
-    model: Optional[str] = None,
-) -> Tuple[Dict[str, Dict[str, Any]], Dict[str, int]]:
-    """Reconcile one batch. Returns ({column: result}, usage), usage including the reader and verifier calls."""
-    names = column_names(batch_columns)
-    try:
-        chat = get_chat("reconciliation", model)
-    except (ConfigError, InferenceError) as exc:
-        return {name: _not_run(f"reconciliation not run: {exc}") for name in names}, Usage().to_dict()
-
-    use_images = SELECTION.option("reconciliation_page_images") == "auto" and chat.capabilities.images
-    session = _ReconciliationSession(
-        chat, doc_id, batch_columns, definitions_map, source_a_data, source_b_data, PAGE_IMAGE_SCALE if use_images else None
-    )
-    specs = {spec.name: spec for spec in tool_specs(names)}
-    loop = run_tool_loop(
-        chat,
-        system=SYSTEM_PROMPT + shared_rules(columns=names),
-        user=session.user_prompt(),
-        tools=[
-            Tool(specs["ask_document"], session.ask_document),
-            Tool(specs["search_pages"], session.search_pages),
-            Tool(specs["verify_attribution"], session.verify_attribution),
-            Tool(specs["submit_verification"], session.submit_verification),
-        ],
-        max_turns=AGENT_MAX_TURNS,
-        max_tool_calls=AGENT_MAX_TOOL_CALLS,
-        max_tokens=MAX_TOKENS["reconciliation"],
-        follow_up=FOLLOW_UP,
-        is_done=session.done,
-        finish_tool="submit_verification",
-    )
-    reason = f"reconciler did not submit ({loop.stopped_by}{': ' + loop.error if loop.error else ''})"
-    for name in names:
-        if name not in session.submitted:
-            session.submitted[name] = session.unsubmitted(name, reason)
-    usage = Usage().add(loop.usage).add(session.tool_usage)
-    results = session.results()
-
-    if log_path:
-        write_json(
-            log_path.with_name(log_path.stem + "_conversation.json"),
-            {
-                "doc_id": doc_id,
-                "model": chat.key,
-                "reconciler": RECONCILER_VERSION,
-                "stopped_by": loop.stopped_by,
-                "error": loop.error,
-                "reader_calls": session.reader_calls,
-                "verifier_calls": session.verifier_calls,
-                "checks": list(session.checks.values()),
-                "tool_calls_sequence": [{"name": e["name"], "args": e["args"]} for e in loop.transcript if e["role"] == "tool"],
-                "conversation": loop.transcript,
-                "calls": loop.calls,
-                "tool_usage": session.tool_usage.to_dict(),
-                "results": results,
-            },
-        )
-    return results, usage.to_dict()
 
 
 def _not_run(reason: str) -> Dict[str, Any]:

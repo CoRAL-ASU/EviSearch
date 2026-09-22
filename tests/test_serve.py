@@ -39,32 +39,6 @@ def test_auto_placement_puts_all_local_servers_on_the_least_used_free_gpu():
     assert placement == {"qwen36_27b": [1], "qwen3_embed_8b": [1], "qwen3_rerank_8b": [1]}
 
 
-def test_mistral_preset_places_mistral_with_embedding_and_reranker_on_one_gpu():
-    selection = CATALOG.resolve("local_mistral", gpu_pool=[4, 5, 6, 7])
-    servers = selection.servers_needed()
-    assert servers == ["mistral_small_24b", "qwen3_embed_8b", "qwen3_rerank_8b"]
-    idle = 1 / 140
-    assert sum(CATALOG.servers[server].gpu_memory_utilization for server in servers) + idle <= 0.95
-
-    placement = plan_placement(selection, servers, _gpus(0, 0, 0, 0, 30, 1, 1, 1), max_fraction=0.95)
-    assert placement == {"mistral_small_24b": [5], "qwen3_embed_8b": [5], "qwen3_rerank_8b": [5]}
-
-
-def test_mistral_server_command_loads_mistral_format_weights():
-    selection = CATALOG.resolve("local_mistral", gpu_pool=[0])
-    command = build_command(selection, "mistral_small_24b", "vllm")
-    spec = CATALOG.servers["mistral_small_24b"]
-    assert command[2] == spec.model_path and spec.port not in (8002, 8003, 8004, 8005, 8007)
-    assert command[command.index("--served-model-name") + 1] == "mistralai/Mistral-Small-3.2-24B-Instruct-2506"
-    for flag in ("--tokenizer-mode", "--config-format", "--load-format", "--tool-call-parser"):
-        assert command[command.index(flag) + 1] == "mistral", flag
-    assert command[command.index("--max-model-len") + 1] == str(CATALOG.models["mistral-small-3.2-24b"].context_tokens)
-    assert "--enable-auto-tool-choice" in command and "--enable-prompt-tokens-details" in command
-    shim = PROJECT_ROOT / "src" / "inference" / "vllm_compat"
-    assert serve.catalog_env(selection, "mistral_small_24b") == {"VLLM_USE_FLASHINFER_SAMPLER": "0", "PYTHONPATH": str(shim)}
-    assert server_env("vllm", [4], serve.catalog_env(selection, "mistral_small_24b"))["PYTHONPATH"] == str(shim)
-
-
 def test_vllm_compat_gives_a_module_raising_stand_ins_for_names_it_lacks(tmp_path, monkeypatch):
     spec = importlib.util.spec_from_file_location("vllm_compat_shim", PROJECT_ROOT / "src/inference/vllm_compat/sitecustomize.py")
     shim = importlib.util.module_from_spec(spec)

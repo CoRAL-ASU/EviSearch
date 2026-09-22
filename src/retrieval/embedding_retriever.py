@@ -18,18 +18,12 @@ from src.config.runtime_paths import CHUNK_EMBEDDINGS_DIR, RESULTS_ROOT
 from src.inference.factory import embedding_model_id, get_embedder, get_reranker
 from src.inference.types import InferenceError
 
-PROJECT_ROOT = Path(__file__).resolve().parents[2]
-PARSED_MARKDOWN_BASELINES = PROJECT_ROOT / "experiment-scripts" / "baselines_landing_ai_new_results"
 EMBEDDINGS_CACHE = CHUNK_EMBEDDINGS_DIR
 MAX_CHARS_PER_EMBED = 30000
 
 
 def parsed_markdown_path(doc_id: str) -> Path:
-    """results/<doc_id>/chunking/parsed_markdown.md, falling back to the LandingAI baseline copy."""
-    for base in (RESULTS_ROOT / doc_id / "chunking", PARSED_MARKDOWN_BASELINES / doc_id):
-        path = base / "parsed_markdown.md"
-        if path.exists():
-            return path
+    """results/<doc_id>/chunking/parsed_markdown.md: the paper's text as parsed by Landing AI, one file per paper."""
     return RESULTS_ROOT / doc_id / "chunking" / "parsed_markdown.md"
 
 

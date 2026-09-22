@@ -444,9 +444,9 @@ def describe_doc(doc_id: str, system: str, run: str, reuse_a_from: Optional[str]
             continue
         existing = results_store.load_columns(doc_id, stage)
         if stage == "baseline":
-            from src.evisearch.services.markdown_baseline import PARSED_MARKDOWN_ROOT
+            from src.retrieval.embedding_retriever import parsed_markdown_path
 
-            markdown = PARSED_MARKDOWN_ROOT / doc_id / "parsed_markdown.md"
+            markdown = parsed_markdown_path(doc_id)
             size = f"{markdown.stat().st_size} bytes" if markdown.exists() else "MISSING"
             failed = sum(1 for cell in existing.values() if isinstance(cell, dict) and cell.get("value") == "Extraction error")
             lines.append(f"baseline: model={model} markdown={markdown} ({size}); {len(existing) - failed} columns already done")

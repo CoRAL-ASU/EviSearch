@@ -33,7 +33,6 @@ def embedder(tmp_path, monkeypatch):
     (chunk_dir / "parsed_markdown.md").write_text(MARKDOWN, encoding="utf-8")
     fake = KeywordEmbedder()
     monkeypatch.setattr(retriever, "RESULTS_ROOT", tmp_path / "results")
-    monkeypatch.setattr(retriever, "PARSED_MARKDOWN_BASELINES", tmp_path / "baselines")
     monkeypatch.setattr(retriever, "EMBEDDINGS_CACHE", tmp_path / "cache")
     monkeypatch.setattr(retriever, "get_embedder", lambda: fake)
     monkeypatch.setattr(retriever, "get_reranker", lambda: None)

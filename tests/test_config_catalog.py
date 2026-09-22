@@ -18,15 +18,13 @@ def test_every_preset_resolves(catalog):
 
 
 def test_local_preset_needs_local_servers_and_cloud_needs_none(catalog):
-    assert catalog.resolve("local", gpu_pool=[0]).servers_needed() == ["qwen36_27b", "qwen3_embed_8b", "qwen3_rerank_8b"]
+    assert catalog.resolve("local", gpu_pool=[0]).servers_needed() == ["qwen36_27b", "qwen3_embed_8b"]  # no reranker
     assert catalog.resolve("cloud", gpu_pool=[0]).servers_needed() == []
 
 
-def test_mistral_preset_swaps_only_the_qwen_chat_roles(catalog):
-    local, mistral = catalog.presets["local"], catalog.presets["local_mistral"]
-    assert set(local) == set(mistral)
-    for role, model in local.items():
-        assert mistral[role] == ("mistral-small-3.2-24b" if model == "qwen3.6-27b" else model), role
+def test_every_preset_retrieves_by_embedding_alone(catalog):
+    """The configuration the paper reports: no reranker in any preset."""
+    assert all(assignment.get("reranker") is None for assignment in catalog.presets.values())
 
 
 def test_image_token_cost_per_model(catalog):
@@ -47,7 +45,7 @@ def test_serverless_presets_move_only_the_agent_roles_off_the_gpu(catalog):
             expected = provider_model if local_model == "qwen3.6-27b" else local_model
             assert assignment[role] == expected, (preset, role)
         # retrieval still runs on the local GPU, so page sets and ranking match a `local` run
-        assert catalog.resolve(preset, gpu_pool=[0]).servers_needed() == ["qwen3_embed_8b", "qwen3_rerank_8b"]
+        assert catalog.resolve(preset, gpu_pool=[0]).servers_needed() == ["qwen3_embed_8b"]
         # and the served id is never hardcoded: it comes from the environment
         assert catalog.models[provider_model].name_env
         assert catalog.models[provider_model].price_per_1k.input == 0.0  # no invented provider prices

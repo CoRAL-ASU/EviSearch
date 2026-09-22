@@ -1,23 +1,27 @@
-# EviSearch (CoRal-Map-Make)
+# EviSearch
 
-Extracts a 133-column clinical-trial table from research papers with two independent extraction arms,
-reconciles their answers, attributes every value to the page it came from, and scores the result against
-a gold table. Every model call goes through one inference layer, so the same code runs on **local models
-served by vLLM on the H200s** or on **Gemini / OpenAI**, selected by configuration.
+Extracts a clinical-trial evidence table (133 columns) from research papers with three agents, cites every value to
+the page it came from, and learns from the curator's reviews through a knowledge base of markdown notes. The agents
+run on open-weight models served locally by vLLM, so the agentic system is entirely offline; layout parsing is one
+Landing AI call per document.
 
 ```mermaid
 flowchart LR
-    PDF --> Prep["Prepare: LandingAI parse"]
+    PDF --> Prep["Parse: Landing AI<br/>(one call per paper)"]
     Prep --> MD[parsed_markdown.md]
     Prep --> PJ[landing_ai_parse_output.json]
-    MD --> A["Arm A: pdf_query<br/>(whole document, one call per batch)"]
-    MD --> Emb["page embeddings<br/>(+ reranker)"]
-    Emb --> B["Arm B: search_agent<br/>tools: search_chunks, get_chunks_by_page, submit_extraction"]
-    A --> R["reconciliation<br/>tools: get_page, submit_verification"]
+    MD --> A["PDF Query Agent (A)<br/>whole paper, text + page images"]
+    MD --> Emb["page embeddings"]
+    Emb --> B["Search Agent (B)<br/>search_chunks, get_chunks_by_page"]
+    KB["knowledge notes<br/>(definitions, extraction)"] --> A
+    KB --> B
+    KB --> R
+    A --> R["Reconciliation Agent<br/>reads contested columns itself,<br/>verify_attribution, submit_verification"]
     B --> R
-    R --> Attr["attribution + web UI"]
-    PJ --> Attr
-    R --> Eval["evaluator_v2 (judge)"]
+    R --> Loc["evidence locator<br/>(boxes on the PDF)"]
+    PJ --> Loc
+    Loc --> UI["web app: review queue,<br/>corrections, knowledge edits"]
+    UI -. "a reviewer's edit" .-> KB
 ```
 
 ## Quick start
@@ -43,24 +47,24 @@ Three files, three jobs:
 
 Code never names a provider or model; it asks for a role (`get_chat("search_agent")`, `get_embedder()`,
 `get_reranker()`). Roles: `pdf_query`, `search_agent`, `reconciliation`, `qa`, `judge`, `baseline`,
-`structurer`, `embedding`, `reranker`.
+`structurer`, `embedding`, `reranker` (no preset selects one).
 
 ### Presets
 
-| Preset | Agents (A, B, reconciliation, QA) | Embeddings / reranker | Judge + baselines | Needs |
-|---|---|---|---|---|
-| `local` (default) | Qwen3.6-27B on vLLM | Qwen3-Embedding-8B / Qwen3-Reranker-8B on vLLM | Gemini 2.5 Flash (scores stay comparable) | vLLM servers + Vertex auth |
-| `local_mistral` | Mistral Small 3.2 24B on vLLM | Qwen3 embedding / reranker | Gemini 2.5 Flash | vLLM servers + Vertex auth |
-| `offline` | Qwen3.6-27B | Qwen3 embedding / reranker | Qwen3.6-27B | vLLM servers only |
-| `cloud` | Gemini 2.5 Flash | OpenAI text-embedding-3-large / none | Gemini 2.5 Flash | Vertex auth + `OPENAI_API_KEY` |
+| Preset | Agents (A, B, reconciliation, QA) | Embeddings | Needs |
+|---|---|---|---|
+| `local` (default) | Qwen3.6-27B on vLLM | Qwen3-Embedding-8B on vLLM | vLLM servers |
+| `offline` | Qwen3.6-27B | Qwen3-Embedding-8B | vLLM servers only |
+| `novita`, `together` | the provider's served open-weight model | Qwen3-Embedding-8B on vLLM | the provider's API key and model id |
+| `cloud_openai` | an OpenAI chat model | OpenAI text-embedding-3-large | `OPENAI_API_KEY` |
+
+Retrieval is by embedding alone in every preset.
 
 ### Switching without editing files
 
 ```bash
 EVISEARCH_PRESET=cloud python experiment-scripts/run_search_agent.py "<doc_id>"
-EVISEARCH_ROLE_JUDGE=gemini-2.5-pro python -m src.evaluation.evaluator_v2 ...   # override one role
-EVISEARCH_ROLE_RERANKER=none ...                                              # disable reranking
-EVISEARCH_PDF_QUERY_INPUT=markdown ...     # Arm A without page images (default markdown_images: each page's text + image)
+EVISEARCH_PDF_QUERY_INPUT=markdown ...     # PDF Query Agent without page images (default markdown_images: each page's text + image)
 EVISEARCH_RUN=qwen_md_images ...           # keep this run's results apart: results/<doc_id>/runs/qwen_md_images/
 EVISEARCH_RECONCILIATION_PAGE_IMAGES=never ...
 EVISEARCH_VLLM_CHAT_URL=http://gpu-box:8002/v1 ...   # use a vLLM server running elsewhere
@@ -102,70 +106,66 @@ python -m src.inference.serve --only qwen36_27b
 |---|---|---|---|---|
 | `qwen36_27b` | Qwen/Qwen3.6-27B | 8002 | 0.90 of one GPU | `--tool-call-parser qwen3_coder --reasoning-parser qwen3`, thinking off, 131k context, up to 32 images per prompt, cached-token counts in usage (`--enable-prompt-tokens-details`), PyTorch sampler (`VLLM_USE_FLASHINFER_SAMPLER=0`: FlashInfer's JIT kernels cannot be built with the pip CUDA wheels) |
 | `qwen3_embed_8b` | Qwen/Qwen3-Embedding-8B | 8005 | 0.40 | `--runner pooling` (8003 is used by another group's server on this machine) |
-| `qwen3_rerank_8b` | Qwen/Qwen3-Reranker-8B | 8004 | 0.40 | pooling + `hf_overrides`, template in `src/config/templates/` |
 | `qwen3_8b` | Qwen/Qwen3-8B | 8006 | 0.40 | optional small chat model |
-| `mistral_small_24b` | mistralai/Mistral-Small-3.2-24B-Instruct-2506 | 8009 | 0.60 | `local_mistral`; mistral-format weights (`--tokenizer-mode/--config-format/--load-format mistral`), `--tool-call-parser mistral`, 131k context, 32 images per prompt; `src/inference/vllm_compat` works around vLLM 0.29 + transformers 5.17 failing to import Pixtral |
 
 **GPUs** are chosen in `config.py`: `GPU_POOL` lists the GPUs the project may use and `GPUS` pins a server
 to indices or `"auto"` (least-used pool GPUs). Before starting, the launcher reads `nvidia-smi` and refuses
 a GPU whose used memory plus the server's `gpu_memory_utilization` would exceed `GPU_MAX_MEMORY_FRACTION`
 (servers can share a GPU when they fit). Environment: `EVISEARCH_GPU_POOL="0,1,2,3"`,
-`EVISEARCH_GPUS="qwen36_27b=0;qwen3_embed_8b=1;qwen3_rerank_8b=1"`. Logs go to `.cache/serve/`.
+`EVISEARCH_GPUS="qwen36_27b=0;qwen3_embed_8b=1"`. Logs go to `.cache/serve/`.
 
 Agents on models with a finite context window drop their oldest tool outputs (and let the model re-fetch
 those pages) when a conversation would not fit.
 
 ## Running the pipeline
 
-All CLIs share flags: `--groups "A,B"`, `--no-resume`, `--max-batches N`, `--model <catalog key>`, `--run <name>`, `--dry-run`.
-Resuming refuses results made with a different model, input or image scale; use `--no-resume` or another `--run`.
-
-Arm A sends every provider the same input: the parsed markdown page by page, each page followed by its image rendered
-at `PAGE_IMAGE_SCALE` (the PDF file itself is never uploaded). If a document would not fit the model's context, images
-are limited to pages with figures or tables, then dropped; the metadata records it and the CLI warns.
-`--dry-run` shows whether a document fits.
+The web app runs extractions for you: lock a schema version, pick papers on the table's Papers tab, and press Extract.
+The same run from the command line:
 
 ```bash
-python experiment-scripts/run_pdf_query_agent.py "<doc_id>"            # Arm A  (--input markdown_images|markdown)
-python experiment-scripts/run_search_agent.py "<doc_id>"               # Arm B
-python experiment-scripts/run_reconciliation_agent.py "<doc_id>"       # needs both arms' results
-shell-scripts/run_benchmarks.sh full [--resume] [--max-batches 1]      # all benchmark trials
+python experiment-scripts/run_schema.py --schema <table id> --docs "<doc_id>,<doc_id>"   # latest locked version
 ```
 
-**Benchmark systems** over the 10 gold papers (`--docs all|dev|heldout|<ids>`), with timings, `check_run.py` per paper
-and manifests (`results/<doc_id>/runs/<run>/benchmark_manifest.json`, `new_pipeline_outputs/benchmark_runs/<run>.json`):
+Each run reads the knowledge notes as they are at launch (frozen under `knowledge/note_snapshots/`, and recorded in
+every stage's metadata as `notes:<fingerprint>`), so editing a note never changes a run in flight. Results go to
+`new_pipeline_outputs/results/<doc_id>/runs/schema-<table>-v<N>[-rK]/`, and resuming refuses saved results made with
+another model, input, reconciler or set of notes.
+
+The stages can also be run one at a time (shared flags `--groups`, `--no-resume`, `--max-batches N`, `--model`,
+`--run`, `--dry-run`):
 
 ```bash
-python experiment-scripts/run_benchmark.py --system B1 --run gemini_b1                  # parsed-markdown baseline (`baseline` role)
-python experiment-scripts/run_benchmark.py --system B2 --run qwen_b2                    # Arm A alone, markdown_images
-python experiment-scripts/run_benchmark.py --system E --run qwen_e --reuse-a-from qwen_b2   # A (copied from B2) + B + reconciliation
-python experiment-scripts/run_benchmark.py --system E --run mistral_e --preset local_mistral --dry-run
+python experiment-scripts/run_pdf_query_agent.py "<doc_id>"            # PDF Query Agent
+python experiment-scripts/run_search_agent.py "<doc_id>"               # Search Agent
+python experiment-scripts/run_reconciliation_agent.py "<doc_id>"       # needs both agents' results
 ```
 
-Every stage's `extraction_metadata.json` has a `timing` block (start, end, duration, calls, input/cached/output tokens,
-images), and every model call's log records its start time and duration.
+Documents are parsed first (Landing AI → `results/<doc_id>/chunking/parsed_markdown.md`); the web app does this when a
+paper is added, and the benchmark papers ship parsed.
 
-Documents must be prepared first (LandingAI parse → `parsed_markdown.md`); the web app does this from
-the extract and QA pages, and the benchmark papers already have parsed markdown.
+**Web app:** `shell-scripts/start_web_interface.sh` (or `python web/main_app.py`) → `http://127.0.0.1:8007`: Tables
+(schema design and review, papers, runs), Review (the flagged-cell queue beside the PDF), Knowledge (the notes the
+prompts read), Learning (what reviews changed), Benchmark (the reference table), Ask (questions over one paper).
 
-**Web app:** `shell-scripts/start_web_interface.sh` (or `python web/main_app.py`) →
-`http://127.0.0.1:8007` with `/extract`, `/qa`, `/attribution`, `/comparison-report`,
-`/method-comparison-report`.
+## Reproducing the paper's numbers
 
-## Evaluation and baselines
+Every number in the paper comes from a script in `experiment-analysis/` over saved runs and the judge's rubric labels
+(`experiment-scripts/scoring/`); none calls a model. `experiment-analysis/paper_runs.py` says where each run lives:
+the system's two runs in `new_pipeline_outputs/results/`, the comparisons that are not the system (the single-pass
+baseline, the agreement-gated admission variant, the knowledge-off schema ladder) in `new_pipeline_outputs/paper_runs/`.
 
 ```bash
-python -m src.evaluation.evaluator_v2 <extraction_metadata.json> "<doc_id>" <output_dir> [--model gemini-2.5-pro]
-python experiment-scripts/evaluate_reconciliation_output.py [--doc "<doc_id>"]
-python experiment-scripts/baseline_landing_ai_w_gemini.py --trial "<doc_id>" --model gemini-2.5-flash
-python experiment-scripts/baseline_landing_ai_w_gpt4.py --trial "<doc_id>" --model gpt-4.1
-python experiment-scripts/baseline_file_search_gemini_native.py --pdf "dataset/<doc_id>.pdf" --model gemini-2.5-flash
-python experiment-scripts/baseline_file_search_free_form.py --pdf "dataset/<doc_id>.pdf" --model gpt-4.1
-shell-scripts/run_baselines.sh
+python experiment-analysis/paper_numbers.py        # Table 1, Table 2, Figure 2 (refuses to report unjudged cells)
+python experiment-analysis/provenance.py <run> ... # citation coverage and corroboration
+python experiment-analysis/evidence_locations.py audit <run> ...   # how often the value itself is highlighted
+python experiment-analysis/triage.py <run>         # review queue: share of errors inside it, precision
+python experiment-analysis/gate_ablation.py        # Appendix B: agreement- vs provenance-gated admission
+python experiment-analysis/reference_audit.py      # Appendix A: reference values contradicting their page
+python experiment-analysis/stage_timings.py        # minutes per paper, per stage
 ```
 
-Baseline `--model` values are catalog keys; results are written per model under
-`experiment-scripts/<baseline>/results/<model>/<doc_id>/`.
+The two comparison systems can be re-run with the same launcher: `--system B1` (the single-pass baseline) and
+`--kb off` (the fixed extraction guidelines instead of the knowledge notes).
 
 ## Code map
 
@@ -173,12 +173,14 @@ Baseline `--model` values are catalog keys; results are written per model under
 |---|---|
 | `src/config/` | catalog, selection (`config.py`), runtime paths, `python -m src.config` |
 | `src/inference/` | `types.py` (messages, tools, results), `openai_compat.py` (OpenAI + vLLM chat/embeddings), `gemini.py`, `rerank.py`, `factory.py` (roles → models, credential/health checks, cost), `tool_loop.py`, `serve.py` (vLLM launcher) |
-| `src/retrieval/` | `embedding_retriever.py` (page embeddings cached per model, reranking), `markdown_preprocessor.py` |
-| `src/evisearch/services/` | `pdf_query.py` (Arm A), `search.py` (Arm B), `reconciliation.py`, `preparation.py` (LandingAI), attribution, highlight, reports, baselines |
+| `src/retrieval/` | `embedding_retriever.py` (page embeddings cached per model), `markdown_preprocessor.py` |
+| `src/evisearch/services/` | `pdf_query.py` (PDF Query Agent), `search.py` (Search Agent), `reconciliation_v5.py` (Reconciliation Agent, on the shared session in `reconciliation.py`), `evidence_check.py` (the attribution verifier), `evidence_locator.py` (boxes on the PDF), `preparation.py` (Landing AI), `markdown_baseline.py` (the single-pass baseline) |
+| `src/evisearch/knowledge/` | `notes.py` (the notes tree, snapshots, edit log), `proposer.py` (a reviewer's correction → a proposed note edit) |
 | `src/evisearch/pipelines/` | batch runners + CLIs for each arm, `unified_extraction.py` (web), shared `batching.py` and `results_store.py` |
 | `src/evaluation/` | `evaluator_v2.py` (judge role), Excel export |
 | `web/main_app.py`, `apps/web/frontend/` | Flask app and templates |
-| `experiment-scripts/` | thin CLIs, baselines, analysis scripts |
+| `experiment-scripts/` | the launcher (`run_schema.py` → `run_benchmark.py`), per-stage CLIs, `check_run.py`, the judge's rubric |
+| `experiment-analysis/` | the scripts behind every number in the paper |
 | `tests/` | offline tests (scripted models, mocked HTTP) |
 
 ### Using the inference layer
@@ -203,11 +205,14 @@ API requires. Structured output uses `response_format: json_schema` (OpenAI/vLLM
 
 ```text
 new_pipeline_outputs/
-├── results/<doc_id>/                 (a named run keeps its arm folders under runs/<run>/)
+├── results/<doc_id>/
 │   ├── chunking/            parsed_markdown.md, landing_ai_parse_output.json
-│   ├── agent_extractor/     extraction_results.json, extraction_metadata.json, raw_llm_responses/
-│   ├── search_agent/        extraction_results.json, extraction_metadata.json, verification_logs/
-│   └── reconciliation_agent/ reconciled_results.json, extraction_metadata.json, verification_logs/, evaluation/
+│   └── runs/<run>/
+│       ├── agent_extractor/     extraction_results.json, extraction_metadata.json, raw_llm_responses/
+│       ├── search_agent/        extraction_results.json, extraction_metadata.json
+│       └── reconciliation_agent/ reconciled_results.json, evidence_locations.json, extraction_metadata.json
+├── paper_runs/              the paper's comparison runs (same layout), not shown in the web app
+├── knowledge/               notes/{definitions,extraction}/*.md, note_snapshots/, notes_log.jsonl
 ├── chunk_embeddings/        <doc_id>_<embedding model>_markdown.npz
 └── feedback/
 ```

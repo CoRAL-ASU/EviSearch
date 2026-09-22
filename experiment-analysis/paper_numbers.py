@@ -18,10 +18,8 @@ from pathlib import Path
 
 sys.path.insert(0, "/mnt/data1/nahuja11_home/EviSearch")
 from src.evaluation import claude_scoring as cs  # noqa: E402
+from paper_runs import BASELINE_RUNS, LADDER, SYSTEM_RUNS, root_of  # noqa: E402
 
-ROOT = Path("/mnt/data1/nahuja11_home/EviSearch/new_pipeline_outputs/results")
-SYSTEM_RUNS = ("r5-cite-r1", "r5-cite-r2")
-BASELINE_RUNS = ("r4-notes-b1",)
 N = lambda v: " ".join(str(v if v is not None else "").split()).strip()
 SQ = lambda v: N(v).lower().rstrip(".").replace("%", "")
 NR = lambda v: (not N(v)) or N(v).lower().startswith(("not reported", "not found", "n/a", "not applicable"))
@@ -31,7 +29,7 @@ docs = cs.select_docs("all", gold)
 
 
 def scored(run, stage):
-    rows, missing = cs.score(list(cs.cells(cs.System.parse(f"X={run}/{stage}"), docs, gold=gold)), labels)
+    rows, missing = cs.score(list(cs.cells(cs.System.parse(f"X={run}/{stage}"), docs, root_of(run), gold=gold)), labels)
     if missing:
         raise SystemExit(f"{run}/{stage}: {len(missing)} cells unjudged - judge them before reporting")
     return {(r.cell.doc, r.cell.column): (r.score, N(r.cell.pred)) for r in rows}
@@ -59,7 +57,7 @@ for r in SYSTEM_RUNS:
     values = cited = agreed = 0
     flags[r] = set()
     for doc in docs:
-        cols = json.loads((ROOT / doc / "runs" / r / "reconciliation_agent" / "reconciled_results.json").read_text())["columns"]
+        cols = json.loads((root_of(r) / doc / "runs" / r / "reconciliation_agent" / "reconciled_results.json").read_text())["columns"]
         for col, e in cols.items():
             if e.get("needs_review"):
                 flags[r].add((doc, col))
@@ -116,9 +114,6 @@ out["tier2_frac"], out["tier2_acc"] = triage[2]
 out["queue_cells"] = mean([len(flags[r]) for r in SYSTEM_RUNS]) / len(docs)
 
 # ---- Table 2 -----------------------------------------------------------------------------------------------------
-S = "schema-mhspc-trials-20260919020503"
-LADDER = [("draft", (f"{S}-v0draft", f"{S}-v0draft-r2")), ("rev", (f"{S}-v3-kboff", f"{S}-v3-kboff-r2")),
-          ("revfour", (f"{S}-v4-kboff", f"{S}-v4-kboff-r2")), ("kb", ("r4-notes-r1", "r4-notes-r2"))]
 ladder = {}
 print("\nTABLE 2")
 for key, runs in LADDER:

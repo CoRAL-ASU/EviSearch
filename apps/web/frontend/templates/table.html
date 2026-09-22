@@ -72,8 +72,6 @@
             </div>
         </div></div>
         <div id="s-job" class="text-sm"></div>
-        <div id="s-pending" class="card bg-base-100 shadow hidden"><div class="card-body p-3">
-            <h3 class="font-semibold text-sm">Rules waiting for approval</h3><div id="s-pending-list" class="space-y-2 text-sm"></div></div></div>
         <div id="s-diff" class="card bg-base-100 shadow hidden"><div class="card-body p-3 text-sm" id="s-diff-body"></div></div>
         <div id="s-rows" class="card bg-base-100 shadow divide-y divide-base-300"></div>
     </section>
@@ -124,10 +122,6 @@
     <h3 class="font-bold text-lg">Extract papers</h3>
     <div class="grid grid-cols-2 gap-3 text-sm">
         <label class="form-control"><span class="label-text">Schema version</span><select id="rd-version" class="select select-sm select-bordered"></select></label>
-        <label class="form-control"><span class="label-text">System</span><select id="rd-system" class="select select-sm select-bordered">
-            <option value="E">EviSearch: Agent A + Agent B + arbiter</option><option value="B1">Baseline: one call over the parsed text</option></select></label>
-        <label class="label cursor-pointer justify-start gap-2 col-span-2"><input id="rd-kb" type="checkbox" class="toggle toggle-sm" checked />
-            <span>Use the knowledge base (rules learned from reviews)</span></label>
     </div>
     <div class="text-sm font-semibold">Papers</div>
     <div class="flex gap-2 text-xs"><button class="btn btn-xs" id="rd-all">All parsed</button><button class="btn btn-xs" id="rd-none">None</button></div>
@@ -138,16 +132,16 @@
 
 <!-- propose rule (schema review) -->
 <dialog id="rule-dlg" class="modal"><div class="modal-box max-w-3xl space-y-3">
-    <h3 class="font-bold text-lg">Propose a rule</h3>
-    <p class="text-sm text-base-content/70">A rule applies to <em>every</em> paper of this table, not only one. The agent turns your note into a structured rule; the gate checks it against the knowledge base for duplicates and conflicts. You can widen or narrow where it applies.</p>
+    <h3 class="font-bold text-lg">Teach the knowledge base</h3>
+    <p class="text-sm text-base-content/70">Knowledge applies to <em>every</em> paper of this table, not only one. The agent drafts an edit to the note that governs this column; you can rewrite it before adding it, and every later extraction reads it.</p>
     <div class="mono text-xs" id="rule-col"></div>
     <textarea id="rule-note" class="textarea textarea-bordered w-full" rows="3" placeholder="e.g. When a paper reports PFS only as bPFS and rPFS, give both with their labels"></textarea>
-    <button id="rule-draft" class="btn btn-sm">Draft the rule</button>
+    <button id="rule-draft" class="btn btn-sm">Draft the edit</button>
     <div id="rule-out" class="text-sm space-y-2"></div>
     <div class="modal-action"><button id="rule-add" class="btn btn-primary btn-sm" disabled>Add to the knowledge base</button><form method="dialog"><button class="btn btn-sm">Close</button></form></div>
 </div></dialog>
 {% endblock %}
 {% block scripts %}
-<script src="/static/js/rule_scope.js"></script>
+<script src="/static/js/note_edit.js"></script>
 <script src="/static/js/table.js"></script>
 {% endblock %}

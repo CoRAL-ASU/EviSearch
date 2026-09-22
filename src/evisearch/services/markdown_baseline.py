@@ -25,9 +25,6 @@ from src.inference import Message, Usage, cost_usd, get_chat
 
 PROJECT_ROOT = Path(__file__).resolve().parents[3]
 DEFINITIONS_PATH = "src/table_definitions/Definitions_with_eval_category.csv"
-PARSED_MARKDOWN_ROOT = (
-    PROJECT_ROOT / "experiment-scripts" / "baselines_landing_ai_new_results"
-)
 GROUND_TRUTH_FILE = "dataset/Manual_Benchmark_GoldTable_cleaned.json"
 
 REASONING_DESCRIPTION = (
@@ -422,180 +419,6 @@ def build_label_groups(definitions: Dict[str, Dict[str, Any]]) -> OrderedDict:
     return OrderedDict(label_groups)
 
 
-def run_markdown_baseline(
-    *,
-    provider_factory: Callable[[str], Any],
-    provider_name: str,
-    method_name: str,
-    title: str,
-    default_model: str,
-    results_root: Path,
-    parsed_markdown_root: Path = PARSED_MARKDOWN_ROOT,
-    definitions_path: str = DEFINITIONS_PATH,
-    ground_truth_file: str = GROUND_TRUTH_FILE,
-    argv: List[str] | None = None,
-) -> None:
-    parser = argparse.ArgumentParser(title)
-    parser.add_argument(
-        "--trial",
-        required=True,
-        help="Trial id/folder, e.g. NCT02799602_Hussain_ARASENS_JCO'23",
-    )
-    parser.add_argument("--model", default=default_model, help="Model name")
-    parser.add_argument(
-        "--workers",
-        type=int,
-        default=10,
-        help="Parallel label-group workers",
-    )
-    parser.add_argument("--skip-eval", action="store_true", help="Skip evaluation")
-    parser.add_argument(
-        "--run-eval-only",
-        action="store_true",
-        help="Skip extraction and run evaluation only on existing extraction_metadata.json",
-    )
-    parser.add_argument(
-        "--reliability-runs",
-        type=int,
-        default=1,
-        help="Number of extraction runs for reliability (default 1)",
-    )
-    args = parser.parse_args(argv)
-
-    trial_name = normalize_trial(args.trial)
-    parsed_md_path = parsed_markdown_root / trial_name / "parsed_markdown.md"
-    if not parsed_md_path.exists():
-        raise FileNotFoundError(f"Parsed markdown not found: {parsed_md_path}")
-
-    output_dir = results_root / args.model / trial_name
-    output_dir.mkdir(parents=True, exist_ok=True)
-
-    definitions = load_definitions_with_metadata(definitions_path)
-    label_groups = build_label_groups(definitions)
-
-    print(f"\n{'=' * 70}")
-    print(title)
-    print(f"Trial: {trial_name}")
-    print(f"Model: {args.model}")
-    print(f"Parsed markdown: {parsed_md_path}")
-    print(f"Output: {output_dir}")
-    print(f"Loaded {len(definitions)} columns in {len(label_groups)} label groups")
-    if args.reliability_runs > 1:
-        print(f"Reliability runs: {args.reliability_runs}")
-    print(f"{'=' * 70}\n")
-
-    if args.run_eval_only:
-        extraction_file = output_dir / "extraction_metadata.json"
-        if not extraction_file.exists():
-            sys.exit(
-                "run-eval-only: extraction_metadata.json not found at "
-                f"{extraction_file}. Run extraction first."
-            )
-        print("Run-eval-only: skipping extraction, running evaluation...")
-        try:
-            results = run_evaluation(
-                extraction_file=str(extraction_file),
-                document_name=f"{trial_name}.pdf",
-                output_dir=str(output_dir),
-                ground_truth_file=ground_truth_file,
-                definitions_file=definitions_path,
-            )
-            if results and "overall" in results:
-                print(
-                    "Summary: Correctness = {:.3f}, Completeness = {:.3f}, Overall = {:.3f}".format(
-                        results["overall"]["avg_correctness"],
-                        results["overall"]["avg_completeness"],
-                        results["overall"]["avg_overall"],
-                    )
-                )
-        except Exception as e:
-            print(f"Evaluation failed: {e}")
-            sys.exit(1)
-        print(f"\nDone. Results: {output_dir}/")
-        return
-
-    markdown_text = parsed_md_path.read_text(encoding="utf-8")
-    if not markdown_text.strip():
-        raise ValueError(f"Parsed markdown is empty: {parsed_md_path}")
-
-    started = time.time()
-    provider = provider_factory(args.model)
-
-    if args.reliability_runs > 1:
-        reliability_summary = run_reliability_test(
-            provider=provider,
-            markdown_text=markdown_text,
-            label_groups=label_groups,
-            definitions=definitions,
-            base_dir=output_dir,
-            trial_name=trial_name,
-            n_runs=args.reliability_runs,
-            workers=args.workers,
-            source=provider_name,
-            ground_truth_file=ground_truth_file,
-            definitions_path=definitions_path,
-        )
-        total_in = reliability_summary["total_tokens"]["input"]
-        total_out = reliability_summary["total_tokens"]["output"]
-    else:
-        _, _, total_in, total_out = extract_once(
-            provider=provider,
-            markdown_text=markdown_text,
-            label_groups=label_groups,
-            definitions=definitions,
-            output_dir=output_dir,
-            workers=args.workers,
-            source=provider_name,
-        )
-        if not args.skip_eval:
-            print("\nPhase 2: Evaluation")
-            extraction_file = output_dir / "extraction_metadata.json"
-            try:
-                results = run_evaluation(
-                    extraction_file=str(extraction_file),
-                    document_name=f"{trial_name}.pdf",
-                    output_dir=str(output_dir),
-                    ground_truth_file=ground_truth_file,
-                    definitions_file=definitions_path,
-                )
-                if results and "overall" in results:
-                    print(
-                        "\nSummary: Correctness = {:.3f}, Completeness = {:.3f}, Overall = {:.3f}".format(
-                            results["overall"]["avg_correctness"],
-                            results["overall"]["avg_completeness"],
-                            results["overall"]["avg_overall"],
-                        )
-                    )
-            except Exception as e:
-                print(f"Evaluation failed: {e}")
-
-    input_cost = cost_usd(args.model, total_in, 0)
-    output_cost = cost_usd(args.model, 0, total_out)
-    total_cost = input_cost + output_cost
-    cost_metrics = {
-        "provider": provider_name.split("_")[0],
-        "method": method_name,
-        "model": args.model,
-        "trial": trial_name,
-        "tokens": {"input": total_in, "output": total_out, "total": total_in + total_out},
-        "cost_usd": {
-            "input": round(input_cost, 4),
-            "output": round(output_cost, 4),
-            "total": round(total_cost, 4),
-        },
-    }
-    if isinstance(getattr(provider, "usage", None), Usage):
-        from src.evisearch.pipelines.batching import stage_timing
-
-        cost_metrics["timing"] = stage_timing(started, provider.usage.to_dict())  # wall clock includes evaluation
-    cost_file = output_dir / "cost_metrics.json"
-    with open(cost_file, "w", encoding="utf-8") as f:
-        json.dump(cost_metrics, f, indent=2, ensure_ascii=False)
-
-    print(f"\nCost ({args.model}): input={total_in}, output={total_out}, total=${total_cost:.4f}")
-    print(f"Done. Results: {output_dir}/")
-
-
 def baseline_columns(raw_parsed: Dict[str, Any], label_groups: OrderedDict) -> Dict[str, Dict[str, str]]:
     """{column: {"value", "reasoning"}} from the per-group replies, with extract_once's value rules: "not found" when a
     column is missing or empty, "Extraction error" (reasoning = the error) when its group's call failed."""
@@ -624,7 +447,7 @@ def run_baseline_stage(
     model: Optional[str] = None,
     workers: int = 10,
     resume: bool = True,
-    parsed_markdown_root: Path = PARSED_MARKDOWN_ROOT,
+    parsed_markdown_root: Optional[Path] = None,
 ) -> Dict[str, Any]:
     """Benchmark system B1 for one document with the `baseline` role model (or `model`), without evaluation.
 
@@ -643,7 +466,9 @@ def run_baseline_stage(
     settings = {"model": model_key, **rules_setting()}
     if resume:
         results_store.check_resume(trial, "baseline", settings)
-    markdown_path = Path(parsed_markdown_root) / trial / "parsed_markdown.md"
+    from src.retrieval.embedding_retriever import parsed_markdown_path
+
+    markdown_path = Path(parsed_markdown_root) / trial / "parsed_markdown.md" if parsed_markdown_root else parsed_markdown_path(trial)
     if not markdown_path.exists():
         raise FileNotFoundError(f"Parsed markdown not found: {markdown_path}")
     markdown_text = markdown_path.read_text(encoding="utf-8")
@@ -686,27 +511,3 @@ def run_baseline_stage(
         "calls": provider.calls,
     })
     return {"columns": columns, "usage": usage, "failed_groups": failed}
-
-
-def run_gemini_markdown_baseline(argv: List[str] | None = None) -> None:
-    run_markdown_baseline(
-        provider_factory=ChatMarkdownProvider,
-        provider_name="landing_ai_w_gemini",
-        method_name="baseline_landing_ai_w_gemini",
-        title="BASELINE: Landing-AI parsed markdown + Gemini (native JSON)",
-        default_model="gemini-2.5-flash",
-        results_root=PROJECT_ROOT / "experiment-scripts" / "baseline_landing_ai_w_gemini" / "results",
-        argv=argv,
-    )
-
-
-def run_gpt4_markdown_baseline(argv: List[str] | None = None) -> None:
-    run_markdown_baseline(
-        provider_factory=ChatMarkdownProvider,
-        provider_name="landing_ai_w_gpt4",
-        method_name="baseline_landing_ai_w_gpt4",
-        title="BASELINE: Landing-AI parsed markdown + GPT-4.1 (native JSON)",
-        default_model="gpt-4.1",
-        results_root=PROJECT_ROOT / "experiment-scripts" / "baseline_landing_ai_w_gpt4" / "results",
-        argv=argv,
-    )

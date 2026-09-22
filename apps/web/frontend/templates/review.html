@@ -45,16 +45,16 @@
 </main>
 
 <dialog id="rule-dlg" class="modal"><div class="modal-box max-w-3xl space-y-3">
-    <h3 class="font-bold text-lg">Propose a rule from this correction</h3>
-    <p class="text-sm text-base-content/70">A rule applies to every paper of this table. The agent drafts it from your correction; the gate checks it against the knowledge base and shows which columns it would affect.</p>
+    <h3 class="font-bold text-lg">Teach the knowledge base</h3>
+    <p class="text-sm text-base-content/70">When a correction reflects how this column should be read in every paper, say so here. The agent drafts an edit to the knowledge note that governs the column; you can rewrite it before adding it, and every later extraction reads it.</p>
     <div class="mono text-xs" id="rule-col"></div>
     <textarea id="rule-note" class="textarea textarea-bordered w-full" rows="3" placeholder="What should the extractor do, in general?"></textarea>
-    <button id="rule-draft" class="btn btn-sm">Draft the rule</button>
+    <button id="rule-draft" class="btn btn-sm">Draft the edit</button>
     <div id="rule-out" class="text-sm space-y-2"></div>
     <div class="modal-action"><button id="rule-add" class="btn btn-primary btn-sm" disabled>Add to the knowledge base</button><form method="dialog"><button class="btn btn-sm">Close</button></form></div>
 </div></dialog>
 {% endblock %}
 {% block scripts %}
-<script src="/static/js/rule_scope.js"></script>
+<script src="/static/js/note_edit.js"></script>
 <script src="/static/js/review.js"></script>
 {% endblock %}

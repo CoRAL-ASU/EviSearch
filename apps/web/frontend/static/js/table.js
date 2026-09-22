@@ -9,7 +9,7 @@
     let viewing = 'current'; // 'current' or a version number
     let filter = 'all';
     const open = new Set();  // expanded schema rows
-    const ruleState = {record: null};
+    let noteEdit = null;
     let ruleContext = null;
 
     // ---------- loading ----------
@@ -93,7 +93,6 @@
         const go = $('d-go');
         if (go) go.onclick = () => showDiff($('d-a').value, $('d-b').value);
         await loadSchema('current');
-        renderPending();
     }
     function versionOptions(locked, selected) {
         return ['current', ...locked.slice().reverse()].map((v) => `<option value="${v}" ${String(v) === String(selected) ? 'selected' : ''}>${v === 'current' ? 'current' : 'v' + v}</option>`).join('');
@@ -228,7 +227,7 @@
         }));
         row.querySelector('.rule').onclick = () => {
             ruleContext = {column: f.name, definition: ta.value, schema_id: TABLE, doc_id: T.table.example_doc, kind: 'schema_review'};
-            ruleState.record = null;
+            noteEdit = null;
             $('rule-col').textContent = f.name;
             $('rule-note').value = row.querySelector('.note').value;
             $('rule-out').innerHTML = '';
@@ -239,36 +238,17 @@
 
     $('rule-draft').onclick = async () => {
         const by = needReviewer(); if (!by) return;
-        if (!$('rule-note').value.trim()) return toast('Write what the rule should say', 'warning');
-        $('rule-out').textContent = 'Drafting the rule and checking it against the knowledge base…';
-        const r = await post('/api/conventions/propose', {...ruleContext, feedback: $('rule-note').value, by});
-        if (!r.success) { $('rule-out').textContent = r.error; return; }
-        if (!r.is_convention) { $('rule-out').innerHTML = `<div class="alert">Not a rule for every paper: ${esc(r.why_not)}. Edit the definition instead.</div>`; return; }
-        RuleScope.show($('rule-out'), r, ruleState, TABLE, (verdict) => { $('rule-add').disabled = verdict === 'blocked' || verdict === 'checking'; });
+        if (!$('rule-note').value.trim()) return toast('Write what the knowledge should say', 'warning');
+        $('rule-add').disabled = true;
+        noteEdit = await NoteEdit.draft($('rule-out'), ruleContext, $('rule-note').value, by);
+        $('rule-add').disabled = !noteEdit;
     };
     $('rule-add').onclick = async () => {
-        const r = await post('/api/conventions', {record: ruleState.record, by: needReviewer()});
-        $('rule-out').insertAdjacentHTML('beforeend', `<div class="alert mt-2">${r.success ? (r.merged_into ? 'Merged into ' + esc(r.merged_into) : 'Stored as ' + esc(r.convention.id) + ' (proposed; approve it below or on the Knowledge page to use it)') : esc(r.error)}</div>`);
+        const by = needReviewer(); if (!by || !noteEdit) return;
+        const r = await NoteEdit.apply(noteEdit, {by, schema_id: TABLE});
+        $('rule-out').insertAdjacentHTML('beforeend', `<div class="alert mt-2 text-sm">${NoteEdit.done(r)}</div>`);
         $('rule-add').disabled = true;
-        renderPending();
     };
-
-    async function renderPending() {
-        const r = await get('/api/conventions?status=proposed');
-        const pending = r.conventions || [];
-        $('s-pending').classList.toggle('hidden', pending.length === 0);
-        $('s-pending-list').innerHTML = pending.map((c) => `<div class="flex flex-wrap gap-2 items-start border-b border-base-300 pb-2">
-            <span class="mono text-xs">${esc(c.id)}</span><span class="flex-1">${esc(c.instruction)}</span>
-            <button class="btn btn-xs btn-success" data-c="${esc(c.id)}" data-op="approve">Approve</button>
-            <button class="btn btn-xs" data-c="${esc(c.id)}" data-op="reject">Reject</button></div>`).join('');
-        $('s-pending-list').querySelectorAll('button').forEach((b) => b.onclick = async () => {
-            const by = needReviewer(); if (!by) return;
-            if (!confirm(`${b.dataset.op === 'approve' ? 'Approve' : 'Reject'} rule ${b.dataset.c}? Approved rules go into every later extraction's prompts.`)) return;
-            const res = await post(`/api/conventions/${enc(b.dataset.c)}/decide`, {op: b.dataset.op, by});
-            toast(res.success ? `Rule ${b.dataset.c} ${b.dataset.op}d` : res.error, res.success ? 'success' : 'error');
-            renderPending();
-        });
-    }
 
     $('s-revise').onclick = async () => {
         const by = needReviewer(); if (!by) return;
@@ -406,7 +386,7 @@
         const paper = (j) => `${j.docs.length} paper${j.docs.length > 1 ? 's' : ''}`;
         $('x-jobs').innerHTML = [...active, ...recent].map((j) => `<div class="card bg-base-100 shadow"><div class="card-body p-3 text-sm space-y-1">
             <div class="flex flex-wrap items-center gap-2"><b>${j.status === 'running' || j.status === 'queued' ? 'Extracting' : 'Extraction'}</b>${stateChip(j.status === 'done' ? 'ok' : j.status)}
-                <span class="opacity-60">${esc(paper(j))} · definitions v${esc(j.version)} · ${esc(j.system === 'B1' ? 'baseline' : 'EviSearch')} · knowledge base ${esc(j.kb)} · started ${esc(when(j.started))} by ${esc(j.by || '—')}</span>
+                <span class="opacity-60">${esc(paper(j))} · definitions v${esc(j.version)} · started ${esc(when(j.started))} by ${esc(j.by || '—')}</span>
                 ${j.status === 'running' ? `<button class="btn btn-xs btn-error btn-outline cancel" data-id="${esc(j.id)}">Stop</button>` : ''}
                 <button class="btn btn-xs logb" data-id="${esc(j.id)}">Log</button></div>
             ${j.error ? `<div class="text-error">${esc(j.error)}</div>` : ''}
@@ -432,7 +412,7 @@
         if (!rec) return '';
         return `<div class="space-y-1">${rec.papers.map((p) => `<div class="flex flex-wrap gap-2 items-center text-xs">
             <span class="w-72 truncate" title="${esc(p.doc_id)}">${esc(shortDoc(p.name))}</span>${stateChip(p.status)}
-            ${Object.entries(p.stages || {}).map(([k, st]) => `<span class="badge badge-sm badge-outline">${esc({agent: 'Agent A', search: 'Agent B', reconciliation: 'arbiter', baseline: 'baseline'}[k] || k)}: ${st.batches_done !== undefined ? `${st.batches_done}/${st.batches}` : esc(st.status)}${st.duration_s ? ' · ' + Math.round(st.duration_s / 60) + ' min' : ''}</span>`).join('')}
+            ${Object.entries(p.stages || {}).map(([k, st]) => `<span class="badge badge-sm badge-outline">${esc({agent: 'Agent A', search: 'Agent B', reconciliation: 'Reconciliation'}[k] || k)}: ${st.batches_done !== undefined ? `${st.batches_done}/${st.batches}` : esc(st.status)}${st.duration_s ? ' · ' + Math.round(st.duration_s / 60) + ' min' : ''}</span>`).join('')}
             ${p.flagged ? `<span class="badge badge-warning badge-sm">${p.flagged} flagged</span>` : ''}${p.reviewed ? `<span class="badge badge-info badge-sm">${p.reviewed} reviewed</span>` : ''}
             ${p.error ? `<span class="text-error">${esc(p.error)}</span>` : ''}</div>`).join('')}</div>`;
     }
@@ -445,10 +425,9 @@
         $('rd-papers').innerHTML = T.papers.map((p) => `<label class="flex items-center gap-2 ${p.parsed ? '' : 'opacity-50'}">
             <input type="checkbox" class="checkbox checkbox-xs rd-p" value="${esc(p.doc_id)}" ${p.parsed ? '' : 'disabled'} />
             <span>${esc(shortDoc(p.name))}</span>${p.gold ? '<span class="badge badge-outline badge-xs">gold</span>' : ''}${p.parsed ? '' : '<span class="text-xs">(parse it above first)</span>'}</label>`).join('');
-        const est = () => { const n = document.querySelectorAll('.rd-p:checked').length; const per = $('rd-system').value === 'E' ? 42 : 7;
+        const est = () => { const n = document.querySelectorAll('.rd-p:checked').length; const per = 28;
             $('rd-est').textContent = n ? `${n} paper${n > 1 ? 's' : ''}: about ${Math.round(n * per / 2)} min on the local GPU (2 papers at a time; ~${per} min each). Cloud models vary.` : 'Pick the papers to extract.'; };
         document.querySelectorAll('.rd-p').forEach((c) => c.onchange = est);
-        $('rd-system').onchange = est;
         $('rd-all').onclick = () => { document.querySelectorAll('.rd-p:not(:disabled)').forEach((c) => c.checked = true); est(); };
         $('rd-none').onclick = () => { document.querySelectorAll('.rd-p').forEach((c) => c.checked = false); est(); };
         est();
@@ -459,7 +438,7 @@
         const docs = [...document.querySelectorAll('.rd-p:checked')].map((c) => c.value);
         if (!docs.length) return toast('Pick at least one paper', 'warning');
         $('rd-go').disabled = true;
-        const r = await post(api('/runs'), {docs, version: Number($('rd-version').value), system: $('rd-system').value, kb: $('rd-kb').checked ? 'on' : 'off', by});
+        const r = await post(api('/runs'), {docs, version: Number($('rd-version').value), by});
         $('rd-go').disabled = false;
         if (!r.success) return toast(r.error, 'error', 7000);
         $('run-dlg').close();

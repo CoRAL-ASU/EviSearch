@@ -154,3 +154,55 @@ def test_the_pages_never_put_a_run_in_front_of_the_reviewer(ws):
 
     learning = ws.get("/learning").get_data(as_text=True)
     assert 'id="l-runs"' not in learning and 'id="l-go"' not in learning  # no run list, no pick-two-runs form
+
+
+def _note(root, role, name, front, body):
+    path = root / "notes" / role / f"{name}.md"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(f"---\n{front}\n---\n{body}\n", encoding="utf-8")
+
+
+def test_the_knowledge_page_shows_the_notes_who_reads_them_and_the_runs_on_them(ws, tmp_path, monkeypatch):
+    from src.evisearch.knowledge import notes
+
+    kb = tmp_path / "kb"
+    monkeypatch.setattr(runtime_paths, "KNOWLEDGE_DIR", kb)
+    _note(kb, "definitions", "regions", "id: regions\nscope: family\nfamily: Region",
+          "# Region columns\n\n- A continent is the **sum** of its countries,\n  counted once.\n  - nested")
+    _note(kb, "extraction", "medians", f"id: medians\nscope: column\ncolumns: ['{COLS[0]}']", "# Arm medians\n\n- Never combine medians.")
+    _note(kb, "extraction", "figures", "id: figures\nscope: global", "# Figures\n\n- Read the panel.")
+    fp = notes.fingerprint()
+    root = runtime_paths.RESULTS_ROOT
+    _write(root / DOC / "runs" / "r1" / "agent_extractor" / "extraction_metadata.json", {"extraction_rules": f"notes:{fp}"})
+    _write(root / DOC / "runs" / "r2" / "agent_extractor" / "extraction_metadata.json", {"extraction_rules": "notes:0123456789ab"})
+
+    r = ws.get("/api/knowledge/notes").get_json()
+    assert r["fingerprint"] == fp
+    by_role = {g["role"]: g for g in r["roles"]}
+    assert [n["id"] for n in by_role["definitions"]["notes"]] == ["regions"]
+    assert sorted(n["id"] for n in by_role["extraction"]["notes"]) == ["figures", "medians"]
+    region = by_role["definitions"]["notes"][0]
+    assert region["title"] == "Region columns" and region["families"] == ["Region"] and region["path"] == "definitions/regions.md"
+    # the reconciliation stage's own reading gets the definitions only
+    assert "Reconciliation: own reading" in by_role["definitions"]["readers"]
+    assert "Reconciliation: own reading" not in by_role["extraction"]["readers"]
+    runs = {x["run"]: x for x in r["runs"]}
+    assert runs["r1"]["current"]
+    assert not runs["r2"]["current"] and runs["r2"]["fingerprint"] == "0123456789ab"
+    assert "retired" not in r and "supersedes" not in region
+
+    got = ws.get("/api/knowledge/notes/for", query_string={"column": COLS[0]}).get_json()
+    readers = {x["reader"]: x["notes"] for x in got["readers"]}
+    assert sorted(readers["Agent A"]) == ["figures", "medians"]      # the column note, not the region note
+    assert readers["Reconciliation: own reading"] == []
+    assert "Markdown baseline" not in readers and "Document reader" not in readers
+    assert ws.get("/api/knowledge/notes/for").status_code == 400
+
+    page = ws.get("/knowledge").get_data(as_text=True)
+    assert 'id="k-tree"' in page and 'id="k-note"' in page and "/api/knowledge/notes" in page
+    assert 'id="k-status"' not in page and "/decide" not in page     # the old rule list and its approve buttons are gone
+    assert ws.get("/api/knowledge").status_code == 404
+
+    _note(kb, "definitions", "broken", "id: broken\nscope: everywhere", "# Broken")
+    bad = ws.get("/api/knowledge/notes")
+    assert bad.status_code == 500 and "broken.md" in bad.get_json()["error"]

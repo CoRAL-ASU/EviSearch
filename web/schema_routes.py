@@ -12,7 +12,7 @@ Pages: /schema, /feedback. APIs (JSON, {"success": ...} envelope like the rest o
   POST /api/notes/apply                     {note, text, heading?, by, why?, role?}: write it and record it
   POST /api/schemas/<id>/revise             the agent rewrites the definitions that got answers or notes; returns a job
   POST /api/schemas/<id>/lock               snapshot as the next version
-  POST /api/schemas/<id>/extract            {docs, system?, kb?} runs experiment-scripts/run_schema.py in a child process
+  POST /api/schemas/<id>/extract            {docs, version?} runs experiment-scripts/run_schema.py in a child process
   GET  /api/schemas/<id>/extractions        runs under the schema's versions and their papers
   GET  /api/feedback/events                 feedback log (?source=&schema_id=&doc_id=&event=&limit=)
   GET  /api/jobs/<job_id>                   status of a long-running job
@@ -184,8 +184,7 @@ def api_extract(schema_id):
     from web.workspace_routes import start_extraction  # one launcher: job registry, unique run names, one run at a time
 
     try:
-        job = start_extraction(schema_id, docs, version=body.get("version"), system=str(body.get("system", "E")),
-                               kb=str(body.get("kb", "on")), by=str(body.get("by", "")))
+        job = start_extraction(schema_id, docs, version=body.get("version"), by=str(body.get("by", "")))
     except FileNotFoundError as exc:
         return _err(str(exc), 404)
     except RuntimeError as exc:

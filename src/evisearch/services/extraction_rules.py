@@ -136,15 +136,8 @@ def rules_version() -> str:
 
 
 def knowledge_base_on() -> bool:
-    """EVISEARCH_KB=on|notes|1|true: the prompts get the knowledge notes (KNOWLEDGE_DIR/notes) instead of a fixed
-    rules text. There is one knowledge format now; `on` is kept as a synonym so older launch scripts still work."""
+    """EVISEARCH_KB=on: the prompts get the knowledge notes (KNOWLEDGE_DIR/notes); off, the fixed guidelines text."""
     return os.getenv("EVISEARCH_KB", "").strip().lower() in {"1", "on", "true", "yes", "notes"}
-
-
-def kb_delivery() -> str:
-    """EVISEARCH_KB_DELIVERY=scoped: a column or family convention reaches only the prompts whose batch holds its columns.
-    Default `all`: every convention in every prompt, as in every run before scoped delivery."""
-    return "scoped" if os.getenv("EVISEARCH_KB_DELIVERY", "").strip().lower() == "scoped" else "all"
 
 
 def _kb_notes():
@@ -158,33 +151,25 @@ def _kb_notes():
 def shared_rules(version: Optional[str] = None, columns: Optional[Iterable[str]] = None, role: str = "agent") -> str:
     """The knowledge text for a prompt.
 
-    `columns` (the batch's column names) selects the scoped knowledge; without columns everything is included.
-    `role` decides which notes the caller may read: `agent` gets the definition and extraction notes, `auditor` gets
+    Every prompt receives all the notes its role may read, whatever the batch's columns (`columns` is accepted for the
+    callers' convenience and does not narrow the notes). `role` decides which notes the caller may read: `agent` gets the definition and extraction notes, `auditor` gets
     the definition notes only, so the reconciliation stage's own reading pass does not inherit the agents' method and
     can disagree with them.
     """
     if version is None and knowledge_base_on():
         from src.evisearch.knowledge import notes
 
-        selected = notes.for_role(_kb_notes(), role)
-        if columns is not None and kb_delivery() == "scoped":
-            selected = notes.select_for(selected, columns)
-        return notes.render(selected)
+        return notes.render(notes.for_role(_kb_notes(), role))
     return RULES[version or rules_version()]
 
 
 def rules_setting(version: Optional[str] = None) -> Dict[str, Optional[str]]:
     """Run-settings entry for resume and reuse checks. `none` is recorded as None, which also matches results saved
     before the option existed (no key), while v1 and none results can never be mixed in either direction. With the
-    knowledge base on, its fingerprint is recorded instead, so results made with different notes never mix.
-
-    Runs made before the conventions format was removed recorded `kb:<fingerprint>`, which no longer matches anything
-    this code can produce. That is deliberate: those results stay readable and stay scored, and they can never be
-    silently resumed into or compared against a notes run."""
+    knowledge base on, its fingerprint is recorded instead, so results made with different notes never mix."""
     if version is None and knowledge_base_on():
-        scoped = ":scoped" if kb_delivery() == "scoped" else ""
         from src.evisearch.knowledge import notes
 
-        return {"extraction_rules": f"notes:{notes.fingerprint(_kb_notes())}{scoped}"}
+        return {"extraction_rules": f"notes:{notes.fingerprint(_kb_notes())}"}
     version = version or rules_version()
     return {"extraction_rules": None if version == "none" else version}
