@@ -1,34 +1,25 @@
-<!DOCTYPE html>
-<html lang="en" data-theme="dark">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Evidence-based PDF Q&A — Ask a question</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.14/dist/full.min.css" rel="stylesheet" />
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
-    <style>
-        .answer-box { max-height: 200px; overflow-y: auto; }
-        .highlight-box { transition: opacity 0.2s, border-width 0.2s; }
-    </style>
-</head>
-<body class="min-h-screen bg-base-200">
-    <div class="navbar bg-base-300 shadow-lg">
-        <div class="flex-1">
-            <a href="/" class="btn btn-ghost font-semibold">Home</a>
-            <a href="/qa" class="btn btn-ghost font-semibold">Ask a question</a>
-            <a href="/extract" class="btn btn-ghost">Extract full table</a>
-            <a href="/attribution" class="btn btn-ghost">Attribution</a>
-            <a href="/schema" class="btn btn-ghost">Schema</a>
-            <a href="/feedback" class="btn btn-ghost">Feedback</a>
-            <a href="/comparison-report" class="btn btn-ghost" target="_blank">Report</a>
-        </div>
-        <div class="flex-none">
-            <h1 class="text-xl font-bold text-primary px-4">Evidence-based PDF Q&A</h1>
-        </div>
+{% extends "base.html" %}
+{% set active = "ask" %}
+{% block title %}Ask{% endblock %}
+{% block head %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<style>
+    .answer-box { max-height: 200px; overflow-y: auto; }
+    .highlight-box { transition: opacity 0.2s, border-width 0.2s; }
+    /* The source viewer fills the screen height and scrolls on its own, both ways, without scrolling the page. */
+    /* The scrollbar's space is reserved so the fit-to-width scale does not change when the pages arrive. */
+    #pdf-wrapper { height: 75vh; min-height: 320px; overflow: auto; overscroll-behavior: contain; scrollbar-gutter: stable; }
+    @media (min-width: 1024px) { #pdf-wrapper { height: calc(100vh - 15rem); } }
+</style>
+{% endblock %}
+{% block content %}
+<main class="max-w-screen-2xl mx-auto p-4 md:p-6 space-y-4">
+    <div class="flex flex-wrap items-baseline gap-3">
+        <h1 class="text-2xl font-bold">Ask</h1>
+        <span class="text-sm text-base-content/60">Ask a question about one paper and see the source of the answer in the PDF.</span>
     </div>
 
-    <main class="flex flex-col lg:flex-row gap-6 p-6 max-w-7xl mx-auto min-h-0">
+    <div class="flex flex-col lg:flex-row gap-6 min-h-0">
         <!-- Left: Document + Chat -->
         <div class="flex-1 min-w-0 flex flex-col gap-6">
             <div class="card bg-base-100 shadow-xl">
@@ -93,13 +84,21 @@
         </div>
 
         <!-- Right: PDF viewer with attribution (side-by-side on desktop, below on mobile) -->
-        <div class="lg:w-[420px] xl:w-[480px] 2xl:w-[540px] shrink-0">
+        <div class="lg:w-[52%] shrink-0 min-w-0">
             <div class="card bg-base-100 shadow-xl lg:sticky lg:top-4">
-                <div class="card-body">
-                    <h2 class="card-title text-lg">Attribution — source in PDF</h2>
+                <div class="card-body p-4 md:p-6">
+                    <div class="flex flex-wrap items-center justify-between gap-2">
+                        <h2 class="card-title text-lg">Attribution — source in PDF</h2>
+                        <div id="pdf-toolbar" class="flex items-center gap-1" style="display: none;">
+                            <button type="button" id="zoom-out" class="btn btn-xs btn-outline" title="Zoom out">−</button>
+                            <button type="button" id="zoom-fit" class="btn btn-xs btn-outline" title="Fit the page width to the box">Fit width</button>
+                            <button type="button" id="zoom-in" class="btn btn-xs btn-outline" title="Zoom in">+</button>
+                            <span id="zoom-label" class="text-xs text-base-content/60 mono w-12 text-right"></span>
+                        </div>
+                    </div>
                     <p class="text-base-content/70 text-sm" id="attribution-hint"></p>
-                    <div id="pdf-wrapper" class="overflow-x-auto overflow-y-auto rounded-lg bg-base-200 max-h-[70vh] min-h-[280px]" style="display: none;">
-                        <div id="pdf-pages" class="inline-block min-w-max"></div>
+                    <div id="pdf-wrapper" class="overflow-auto rounded-lg bg-base-200" style="display: none;">
+                        <div id="pdf-pages" class="w-max min-w-full"></div>
                     </div>
                     <div id="pdf-empty" class="flex items-center justify-center rounded-lg border-2 border-dashed border-base-300 text-base-content/60 min-h-[200px]">
                         Select a document and click Prepare to view the PDF
@@ -113,6 +112,7 @@
                 </div>
             </div>
         </div>
+    </div>
 
         <!-- Feedback modal -->
         <dialog id="feedback-modal" class="modal">
@@ -131,8 +131,10 @@
             </div>
             <form method="dialog" class="modal-backdrop"><button>close</button></form>
         </dialog>
-    </main>
+</main>
+{% endblock %}
 
+{% block scripts %}
     <script>
         const API = {
             sessionInfo: () => fetch('/api/qa/session-info').then(r => r.json()),
@@ -352,9 +354,12 @@
             }
             if (pdfWrapper) pdfWrapper.style.display = 'none';
             if (chunkNav) chunkNav.style.display = 'none';
+            document.getElementById('pdf-toolbar').style.display = 'none';
             if (hint) hint.textContent = '';
             pdfDoc = null;
+            pdfRenderToken++;
             currentHighlights = [];
+            pdfHighlightsByPage = {};
         }
 
         document.getElementById('doc-select').addEventListener('change', (e) => {
@@ -659,6 +664,10 @@
         let pdfDoc = null;
         let currentHighlights = [];
         let currentChunkIndex = 0;
+        let pdfHighlightsByPage = {};  // page -> highlight boxes drawn on it
+        let pdfZoom = 1;               // 1 = the page width fits the box; the buttons scale from there
+        let pdfRenderToken = 0;        // a newer render (resize, zoom, another answer) supersedes a running one
+        let pdfRenderedWidth = 0;
 
         function goToChunk(idx) {
             const n = currentHighlights.length;
@@ -686,9 +695,17 @@
         }
 
         function scrollToCurrentChunk() {
+            // Centre the active highlight inside the viewer (both directions) without scrolling the page itself.
             const hl = currentHighlights[currentChunkIndex];
-            if (!hl || !hl.pageEl) return;
-            hl.pageEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            const wrapper = document.getElementById('pdf-wrapper');
+            if (!hl || !hl.pageEl || !wrapper) return;
+            const target = hl.pageEl.querySelector(`.highlight-box[data-chunk-index="${currentChunkIndex}"]`) || hl.pageEl;
+            const w = wrapper.getBoundingClientRect(), t = target.getBoundingClientRect();
+            wrapper.scrollTo({
+                top: wrapper.scrollTop + (t.top - w.top) - (wrapper.clientHeight - t.height) / 2,
+                left: wrapper.scrollLeft + (t.left - w.left) - (wrapper.clientWidth - t.width) / 2,
+                behavior: 'smooth',
+            });
         }
 
         async function showAttribution(chunkIds) {
@@ -696,82 +713,122 @@
             await loadPdfAndHighlights(docId, chunkIds);
         }
 
-        async function loadPdfOnly(docId) {
-            const wrapper = document.getElementById('pdf-wrapper');
-            const pagesEl = document.getElementById('pdf-pages');
-            const empty = document.getElementById('pdf-empty');
-            const nav = document.getElementById('chunk-nav');
-            const hint = document.getElementById('attribution-hint');
-
-            if (!pdfDoc || pdfDoc._docId !== docId) {
-                pdfDoc = null;
-                const pdfjs = window['pdfjs-dist/build/pdf'];
-                if (pdfjs?.GlobalWorkerOptions) pdfjs.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
-                try {
-                    pdfDoc = await pdfjs.getDocument(API.pdf(docId)).promise;
-                    pdfDoc._docId = docId;
-                } catch (err) {
-                    if (empty) { empty.textContent = 'Could not load PDF'; empty.style.display = 'flex'; }
-                    if (wrapper) wrapper.style.display = 'none';
-                    if (nav) nav.style.display = 'none';
-                    if (hint) hint.textContent = '';
-                    return;
-                }
-            }
-
-            currentHighlights = [];
-            if (nav) nav.style.display = 'none';
-            if (empty) empty.style.display = 'none';
-            if (wrapper) wrapper.style.display = 'block';
-            if (hint) hint.textContent = "Click \"View attribution\" on an answer to see highlighted source.";
-            if (pagesEl) pagesEl.innerHTML = '';
-
-            const scale = 1.2;
-            const numPages = pdfDoc.numPages;
-            for (let p = 1; p <= numPages; p++) {
-                const page = await pdfDoc.getPage(p);
-                const viewport = page.getViewport({ scale });
-                const pageBlock = document.createElement('div');
-                pageBlock.className = 'flex flex-col items-center py-4 border-b border-base-300 last:border-0 pdf-page-block';
-                pageBlock.dataset.page = p;
-                const pageLabel = document.createElement('div');
-                pageLabel.className = 'text-xs text-base-content/60 mb-2';
-                pageLabel.textContent = `Page ${p}`;
-                const inner = document.createElement('div');
-                inner.className = 'relative';
-                const canvas = document.createElement('canvas');
-                canvas.height = viewport.height;
-                canvas.width = viewport.width;
-                inner.appendChild(canvas);
-                pageBlock.appendChild(pageLabel);
-                pageBlock.appendChild(inner);
-                pagesEl.appendChild(pageBlock);
-                const ctx = canvas.getContext('2d');
-                await page.render({ canvasContext: ctx, viewport }).promise;
+        async function openPdf(docId) {
+            if (pdfDoc && pdfDoc._docId === docId) return true;
+            pdfDoc = null;
+            const pdfjs = window['pdfjs-dist/build/pdf'];
+            if (pdfjs?.GlobalWorkerOptions) pdfjs.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+            try {
+                pdfDoc = await pdfjs.getDocument(API.pdf(docId)).promise;
+                pdfDoc._docId = docId;
+                pdfZoom = 1;
+                return true;
+            } catch (err) {
+                const empty = document.getElementById('pdf-empty');
+                if (empty) { empty.textContent = 'Could not load PDF'; empty.style.display = 'flex'; }
+                ['pdf-wrapper', 'pdf-toolbar', 'chunk-nav'].forEach((id) => { const el = document.getElementById(id); if (el) el.style.display = 'none'; });
+                const hint = document.getElementById('attribution-hint');
+                if (hint) hint.textContent = '';
+                return false;
             }
         }
 
-        async function loadPdfAndHighlights(docId, chunkIds) {
+        function showViewer() {
+            const empty = document.getElementById('pdf-empty');
+            if (empty) empty.style.display = 'none';
+            document.getElementById('pdf-wrapper').style.display = 'block';
+            document.getElementById('pdf-toolbar').style.display = 'flex';
+            document.getElementById('pdf-pages').innerHTML = '';
+        }
+
+        function highlightBox(hl, pageWidth, pageHeight, viewport) {
+            const box = hl.box || {};
+            const l = box.left || 0, t = box.top || 0, r = box.right || 1, b = box.bottom || 1;
+            const rect = viewport.convertToViewportRectangle([l * pageWidth, (1 - b) * pageHeight, r * pageWidth, (1 - t) * pageHeight]);
+            const div = document.createElement('div');
+            div.className = 'absolute bg-primary/30 border-2 border-primary/60 rounded highlight-box transition';
+            div.dataset.chunkIndex = String(hl.chunkIndex);
+            div.style.left = Math.min(rect[0], rect[2]) + 'px';
+            div.style.top = Math.min(rect[1], rect[3]) + 'px';
+            div.style.width = Math.abs(rect[2] - rect[0]) + 'px';
+            div.style.height = Math.abs(rect[3] - rect[1]) + 'px';
+            return div;
+        }
+
+        async function renderPdfPages() {
+            // Draw every page at the scale that fits its width to the viewer (times the zoom), sharp on high-DPI screens.
             const wrapper = document.getElementById('pdf-wrapper');
             const pagesEl = document.getElementById('pdf-pages');
-            const empty = document.getElementById('pdf-empty');
-            const nav = document.getElementById('chunk-nav');
+            if (!pdfDoc || !wrapper || !pagesEl) return;
+            const token = ++pdfRenderToken;
+            pdfRenderedWidth = wrapper.clientWidth;
+            const available = Math.max(160, wrapper.clientWidth - 26);  // the page block's side padding and shadow
+            const dpr = window.devicePixelRatio || 1;
+            const firstDraw = !pagesEl.childElementCount;  // first draw: show pages as they come; redraw: swap when done
+            const target = firstDraw ? pagesEl : document.createElement('div');
+            const scrollRatio = wrapper.scrollHeight > wrapper.clientHeight ? wrapper.scrollTop / wrapper.scrollHeight : 0;
+            const blocks = {};
+            let shownScale = 1;
+            for (let p = 1; p <= pdfDoc.numPages; p++) {
+                const page = await pdfDoc.getPage(p);
+                if (token !== pdfRenderToken) return;
+                const natural = page.getViewport({ scale: 1 });
+                const scale = (available / natural.width) * pdfZoom;
+                if (p === 1) shownScale = scale;
+                const viewport = page.getViewport({ scale });
+                const highlights = pdfHighlightsByPage[p] || [];
 
-            if (!pdfDoc || pdfDoc._docId !== docId) {
-                pdfDoc = null;
-                const pdfjs = window['pdfjs-dist/build/pdf'];
-                if (pdfjs?.GlobalWorkerOptions) pdfjs.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
-                try {
-                    pdfDoc = await pdfjs.getDocument(API.pdf(docId)).promise;
-                    pdfDoc._docId = docId;
-                } catch (err) {
-                    if (empty) { empty.textContent = 'Could not load PDF'; empty.style.display = 'flex'; }
-                    if (wrapper) wrapper.style.display = 'none';
-                    if (nav) nav.style.display = 'none';
-                    return;
-                }
+                const pageBlock = document.createElement('div');
+                pageBlock.className = 'flex flex-col items-center py-4 px-3 border-b border-base-300 last:border-0 pdf-page-block';
+                pageBlock.dataset.page = p;
+                const pageLabel = document.createElement('div');
+                pageLabel.className = 'text-xs text-base-content/60 mb-2';
+                pageLabel.textContent = `Page ${p}${highlights.length ? ' • ' + highlights.length + ' highlight(s)' : ''}`;
+                const inner = document.createElement('div');
+                inner.className = 'relative shadow';
+                const canvas = document.createElement('canvas');
+                canvas.width = Math.floor(viewport.width * dpr);
+                canvas.height = Math.floor(viewport.height * dpr);
+                canvas.style.width = viewport.width + 'px';
+                canvas.style.height = viewport.height + 'px';
+                canvas.style.display = 'block';
+                const overlay = document.createElement('div');
+                overlay.className = 'absolute left-0 top-0 pointer-events-none';
+                overlay.style.width = viewport.width + 'px';
+                overlay.style.height = viewport.height + 'px';
+                highlights.forEach((hl) => overlay.appendChild(highlightBox(hl, natural.width, natural.height, viewport)));
+
+                inner.appendChild(canvas);
+                inner.appendChild(overlay);
+                pageBlock.appendChild(pageLabel);
+                pageBlock.appendChild(inner);
+                target.appendChild(pageBlock);
+                blocks[p] = pageBlock;
+                await page.render({ canvasContext: canvas.getContext('2d'), viewport, transform: dpr === 1 ? null : [dpr, 0, 0, dpr, 0, 0] }).promise;
+                if (token !== pdfRenderToken) return;
             }
+            if (!firstDraw) {
+                pagesEl.replaceChildren(...target.childNodes);
+                wrapper.scrollTop = scrollRatio * wrapper.scrollHeight;
+            }
+            currentHighlights.forEach((h) => { h.pageEl = blocks[h.page]; });
+            document.getElementById('zoom-label').textContent = `${Math.round(shownScale * 100)}%`;
+            updateChunkUI();
+        }
 
+        async function loadPdfOnly(docId) {
+            if (!await openPdf(docId)) return;
+            currentHighlights = [];
+            pdfHighlightsByPage = {};
+            document.getElementById('chunk-nav').style.display = 'none';
+            const hint = document.getElementById('attribution-hint');
+            if (hint) hint.textContent = "Click \"View attribution\" on an answer to see highlighted source.";
+            showViewer();
+            await renderPdfPages();
+        }
+
+        async function loadPdfAndHighlights(docId, chunkIds) {
+            if (!await openPdf(docId)) return;
             const res = await API.highlights(docId, chunkIds);
             const success = res?.success && res?.highlights?.length > 0;
             if (!success) {
@@ -785,89 +842,44 @@
                 const h = res.highlights.find(x => x.chunk_id === cid);
                 return h ? { chunk_id: cid, page: h.page, box: h.box, index: i } : null;
             }).filter(Boolean);
+            pdfHighlightsByPage = {};
+            res.highlights.forEach((hl) => {
+                (pdfHighlightsByPage[hl.page] = pdfHighlightsByPage[hl.page] || []).push({ ...hl, chunkIndex: chunkIds.indexOf(hl.chunk_id) });
+            });
 
             const hint = document.getElementById('attribution-hint');
             if (hint) hint.textContent = '';
-            if (empty) empty.style.display = 'none';
-            if (wrapper) wrapper.style.display = 'block';
-            if (pagesEl) pagesEl.innerHTML = '';
-            if (nav) nav.style.display = 'flex';
-
-            const scale = 1.2;
-            const numPages = pdfDoc.numPages;
-            const highlightsByPage = {};
-            res.highlights.forEach((hl) => {
-                const chunkIdx = chunkIds.indexOf(hl.chunk_id);
-                const p = hl.page;
-                if (!highlightsByPage[p]) highlightsByPage[p] = [];
-                highlightsByPage[p].push({ ...hl, chunkIndex: chunkIdx });
-            });
-
-            const pageBlocks = {};
-
-            for (let p = 1; p <= numPages; p++) {
-                const page = await pdfDoc.getPage(p);
-                const viewport = page.getViewport({ scale });
-                const pageWidth = page.getViewport({ scale: 1 }).width;
-                const pageHeight = page.getViewport({ scale: 1 }).height;
-
-                const pageBlock = document.createElement('div');
-                pageBlock.className = 'flex flex-col items-center py-4 border-b border-base-300 last:border-0 pdf-page-block';
-                pageBlock.dataset.page = p;
-                pageBlocks[p] = pageBlock;
-
-                const pageLabel = document.createElement('div');
-                pageLabel.className = 'text-xs text-base-content/60 mb-2';
-                pageLabel.textContent = `Page ${p}${(highlightsByPage[p] || []).length ? ' • ' + highlightsByPage[p].length + ' highlight(s)' : ''}`;
-                const inner = document.createElement('div');
-                inner.className = 'relative';
-                const canvas = document.createElement('canvas');
-                canvas.height = viewport.height;
-                canvas.width = viewport.width;
-                const overlay = document.createElement('div');
-                overlay.className = 'absolute left-0 top-0 pointer-events-none';
-                overlay.style.width = viewport.width + 'px';
-                overlay.style.height = viewport.height + 'px';
-
-                inner.appendChild(canvas);
-                inner.appendChild(overlay);
-                pageBlock.appendChild(pageLabel);
-                pageBlock.appendChild(inner);
-                pagesEl.appendChild(pageBlock);
-
-                const ctx = canvas.getContext('2d');
-                await page.render({ canvasContext: ctx, viewport }).promise;
-
-                (highlightsByPage[p] || []).forEach((hl) => {
-                    const box = hl.box || {};
-                    const l = box.left || 0, t = box.top || 0, r = box.right || 1, b = box.bottom || 1;
-                    const xMin = l * pageWidth, xMax = r * pageWidth;
-                    const yMin = (1 - b) * pageHeight, yMax = (1 - t) * pageHeight;
-                    const rect = viewport.convertToViewportRectangle([xMin, yMin, xMax, yMax]);
-                    const x = Math.min(rect[0], rect[2]), y = Math.min(rect[1], rect[3]);
-                    const w = Math.abs(rect[2] - rect[0]), boxH = Math.abs(rect[3] - rect[1]);
-                    const div = document.createElement('div');
-                    div.className = 'absolute bg-primary/30 border-2 border-primary/60 rounded highlight-box transition';
-                    div.dataset.chunkIndex = String(hl.chunkIndex);
-                    div.style.left = x + 'px';
-                    div.style.top = y + 'px';
-                    div.style.width = w + 'px';
-                    div.style.height = boxH + 'px';
-                    overlay.appendChild(div);
-                });
-            }
-
-            currentHighlights.forEach(h => { h.pageEl = pageBlocks[h.page]; });
+            showViewer();
+            document.getElementById('chunk-nav').style.display = 'flex';
+            await renderPdfPages();
             currentChunkIndex = 0;
             updateChunkUI();
             requestAnimationFrame(() => { requestAnimationFrame(() => scrollToCurrentChunk()); });
         }
+
+        function setZoom(zoom) {
+            pdfZoom = Math.max(0.5, Math.min(4, zoom));
+            renderPdfPages().then(() => scrollToCurrentChunk());
+        }
+        document.getElementById('zoom-in').addEventListener('click', () => setZoom(pdfZoom * 1.25));
+        document.getElementById('zoom-out').addEventListener('click', () => setZoom(pdfZoom / 1.25));
+        document.getElementById('zoom-fit').addEventListener('click', () => setZoom(1));
+
+        // Redraw at the new width when the viewer is resized (window resize, layout change between phone and desktop).
+        let pdfResizeTimer = null;
+        new ResizeObserver(() => {
+            const wrapper = document.getElementById('pdf-wrapper');
+            if (!pdfDoc || wrapper.style.display === 'none' || Math.abs(wrapper.clientWidth - pdfRenderedWidth) < 8) return;
+            clearTimeout(pdfResizeTimer);
+            pdfResizeTimer = setTimeout(() => renderPdfPages().then(() => { if (currentHighlights.length) scrollToCurrentChunk(); }), 200);
+        }).observe(document.getElementById('pdf-wrapper'));
 
         document.getElementById('chunk-first').addEventListener('click', () => goToChunk(0));
         document.getElementById('chunk-prev').addEventListener('click', () => goToChunk(currentChunkIndex - 1));
         document.getElementById('chunk-next').addEventListener('click', () => goToChunk(currentChunkIndex + 1));
         document.addEventListener('keydown', (e) => {
             if (currentHighlights.length === 0) return;
+            if (e.target.closest('input, textarea, select, [contenteditable]')) return;  // typing a question moves the caret, not the chunk
             if (e.key === 'Home') { e.preventDefault(); goToChunk(0); }
             if (e.key === 'End') { e.preventDefault(); goToChunk(currentHighlights.length - 1); }
             if (currentHighlights.length <= 1) return;
@@ -1066,5 +1078,4 @@
             updateState();
         });
     </script>
-</body>
-</html>
+{% endblock %}
