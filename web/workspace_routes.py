@@ -294,24 +294,19 @@ def _recently_written(run: str, minutes: int = 30) -> bool:
 
 def _steps(schema: Dict[str, Any], summaries: List[Dict[str, Any]], learned: int, table_id: str) -> Tuple[List[Dict[str, Any]], Dict[str, Any]]:
     fields = schema.get("fields", [])
-    reviewed = sum(1 for f in fields if f["x-evisearch"]["review"]["state"] != "proposed")
-    open_q = sum(1 for f in fields for q in f["x-evisearch"].get("questions", []) if not q.get("answer"))
     locked = schema.get("locked_versions") or []
     latest = summaries[-1] if summaries else None
     steps = [
-        {"key": "draft", "label": "Schema drafted", "done": bool(fields), "detail": f"{len(fields)} columns"},
-        {"key": "review", "label": "Schema reviewed", "done": bool(fields) and reviewed == len(fields) and open_q == 0,
-         "detail": f"{reviewed}/{len(fields)} reviewed · {open_q} open questions"},
-        {"key": "lock", "label": "Version locked", "done": bool(locked),
-         "detail": f"v{max(locked)}" + (" · draft has unsaved changes" if schema.get("status") == "draft" and locked else "") if locked else "not locked"},
+        {"key": "lock", "label": "Definitions locked", "done": bool(locked),
+         "detail": (f"{len(fields)} columns · v{max(locked)}"
+                    + (" · unsaved changes" if schema.get("status") == "draft" else "")) if locked else "not locked",},
         {"key": "extract", "label": "Papers extracted", "done": bool(latest) and latest["status"] == "ok",
          "detail": f"{latest['done']}/{len(latest['papers'])} papers" if latest else "not extracted yet"},
         {"key": "cells", "label": "Flagged cells reviewed", "done": bool(latest) and latest["status"] == "ok" and latest["reviewed"] >= latest["flagged"],
          "detail": f"{latest['reviewed']} reviewed · {latest['flagged']} flagged" if latest else "—"},
         {"key": "learn", "label": "Rules learned", "done": learned > 0, "detail": f"{learned} approved from reviews"},
     ]
-    targets = {"draft": ("Create the schema", f"/tables/{table_id}#schema"), "review": ("Review the schema", f"/tables/{table_id}#schema"),
-               "lock": ("Lock a version", f"/tables/{table_id}#schema"), "extract": ("Extract the papers", f"/tables/{table_id}#papers"),
+    targets = {"lock": ("Lock a version", f"/tables/{table_id}#schema"), "extract": ("Extract the papers", f"/tables/{table_id}#papers"),
                "cells": ("Review flagged cells", f"/tables/{table_id}/review" + (f"?run={latest['run']}" if latest else "")),
                "learn": ("See the knowledge base", "/knowledge")}
     first = next((s for s in steps if not s["done"]), None)

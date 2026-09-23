@@ -7,7 +7,6 @@
     let T = null;            // /api/tables/<id>: table, papers, runs, steps, next_action
     let schema = null;       // the schema being shown (current draft or a locked version)
     let viewing = 'current'; // 'current' or a version number
-    let filter = 'all';
     const open = new Set();  // expanded schema rows
     let noteEdit = null;
     let ruleContext = null;
@@ -22,7 +21,7 @@
         const locked = r.table.locked_versions || [];
         $('t-status').textContent = r.table.status === 'locked' ? `locked v${Math.max(...locked)}` : (locked.length ? `draft (after v${Math.max(...locked)})` : 'draft');
         $('t-status').className = 'badge ' + (r.table.status === 'locked' ? 'badge-success' : 'badge-warning');
-        $('t-meta').textContent = `${r.table.fields} columns · ${r.papers.length} papers · example paper ${shortDoc(r.table.example_doc)}`;
+        $('t-meta').textContent = `${r.table.fields} columns · ${r.papers.length} papers`;
         if (r.table.description) { $('t-desc').textContent = r.table.description; $('t-desc').classList.remove('hidden'); }
         return true;
     }
@@ -83,7 +82,7 @@
     async function renderSchemaTab() {
         const locked = T.table.locked_versions || [];
         $('s-version').innerHTML = `<option value="current">Current (${T.table.status === 'locked' ? 'same as v' + Math.max(...locked) : 'draft'})</option>` +
-            locked.slice().reverse().map((v) => `<option value="${v}">v${v} (locked)</option>`).join('');
+            locked.slice().reverse().map((v) => `<option value="${v}">v${v}${v === 1 ? ' · definitions the owner locked' : ' (locked)'}</option>`).join('');
         $('s-dl').innerHTML = locked.length ? `<div class="font-semibold">Download a locked version</div>
             ${locked.slice().reverse().map((v) => `<div>v${v}: <a class="link" href="${api(`/versions/${v}.csv`)}">CSV</a> · <a class="link" href="${api(`/versions/${v}.xlsx`)}">Excel</a></div>`).join('')}
             <div class="font-semibold pt-2">Compare versions</div>
@@ -106,31 +105,16 @@
         viewing = v;
         try { schema = await fetchSchema(v); } catch (e) { $('s-rows').innerHTML = `<div class="p-4 text-error">${esc(e.message)}</div>`; return; }
         const ro = v !== 'current';
-        ['s-revise', 's-lock'].forEach((id) => $(id).disabled = ro);
+        $('s-lock').disabled = ro;
         renderRows();
     }
     $('s-version').addEventListener('change', () => loadSchema($('s-version').value));
-    document.querySelectorAll('#s-filter button').forEach((b) => b.addEventListener('click', () => {
-        document.querySelectorAll('#s-filter button').forEach((x) => x.classList.remove('btn-active'));
-        b.classList.add('btn-active'); filter = b.dataset.f; renderRows();
-    }));
     $('s-search').addEventListener('input', () => schema && renderRows());
 
     const draftKey = (col) => `draft.${TABLE}.${col}`;
-    const normDef = (t) => String(t == null ? '' : t).split(/\s+/).join(' ').trim();
-    // "Changed" means the definition no longer reads as the agent's draft — not the review state, which an
-    // owner's later "accept" overwrites. The first history entry that recorded a `before` holds the draft text.
-    function changedFromDraft(f) {
-        const first = (f['x-evisearch'].history || []).find((e) => e.before !== undefined);
-        return !!first && normDef(first.before) !== normDef(f.description);
-    }
     function matches(f) {
-        const x = f['x-evisearch'], q = $('s-search').value.toLowerCase();
-        if (q && !f.name.toLowerCase().includes(q) && !f.description.toLowerCase().includes(q)) return false;
-        if (filter === 'todo') return x.review.state === 'proposed';
-        if (filter === 'questions') return (x.questions || []).some((qq) => !qq.answer);
-        if (filter === 'changed') return changedFromDraft(f);
-        return true;
+        const q = $('s-search').value.toLowerCase();
+        return !q || f.name.toLowerCase().includes(q) || f.description.toLowerCase().includes(q);
     }
     function renderRows() {
         const shown = schema.fields.filter(matches);
@@ -138,47 +122,24 @@
         $('s-rows').innerHTML = shown.map((f) => `<div class="srow" data-col="${esc(f.name)}"></div>`).join('') || '<div class="p-4 opacity-60">No column matches.</div>';
         $('s-rows').querySelectorAll('.srow').forEach((row) => renderRow(row, schema.fields.find((f) => f.name === row.dataset.col)));
     }
-    function stateBadgeField(state) {
-        const cls = {proposed: 'badge-warning', accepted: 'badge-success', edited: 'badge-info', revised: 'badge-info', answered: 'badge-ghost'}[state] || 'badge-ghost';
-        return `<span class="badge badge-sm ${cls}">${esc(state === 'proposed' ? 'to review' : state)}</span>`;
-    }
-    function grounding(g, value) {
-        if (!value) return '<span class="opacity-50">empty in the example row</span>';
-        g = g || {};
-        const label = {found: `found on page ${(g.pages || []).join(', ')}`, not_in_paper: 'not printed in the paper', short: 'short answer'}[g.status] || g.status || '';
-        const snip = (g.snippets || [])[0];
-        return `<span class="mono">${esc(value)}</span> ${label ? `<span class="badge badge-sm ${g.status === 'not_in_paper' ? 'badge-warning' : 'badge-ghost'}">${esc(label)}</span>` : ''}
-            ${snip ? `<div class="text-xs opacity-60 mt-1 whitespace-pre-wrap">p${snip.page}: ${esc(snip.text)}</div>` : ''}`;
-    }
     function renderRow(row, f) {
         const x = f['x-evisearch'], fx = x.facets || {}, ro = viewing !== 'current';
         const draft = ro ? null : store.get(draftKey(f.name));
         const isOpen = open.has(f.name);
-        const openQ = (x.questions || []).filter((q) => !q.answer).length;
         row.innerHTML = `<div class="row-head flex items-center gap-2 px-3 py-2 hover:bg-base-200">
                 <span class="opacity-50 w-3">${isOpen ? '▾' : '▸'}</span>
                 <span class="mono text-sm font-semibold min-w-[14rem] max-w-[22rem] truncate" title="${esc(f.name)}">${esc(f.name)}</span>
-                ${stateBadgeField(x.review.state)}${openQ ? `<span class="badge badge-sm badge-warning">${openQ} question${openQ > 1 ? 's' : ''}</span>` : ''}
-                ${changedFromDraft(f) && !['edited', 'revised'].includes(x.review.state)
-                    ? '<span class="badge badge-sm badge-info" title="the definition differs from the agent&#39;s draft; you accepted it afterwards">definition changed</span>' : ''}
                 ${draft ? '<span class="badge badge-sm badge-accent">unsaved draft</span>' : ''}
                 <span class="def-1 text-sm opacity-70 flex-1">${esc(f.description)}</span></div>
             ${isOpen ? `<div class="px-8 pb-4 space-y-2">
                 <div class="flex flex-wrap gap-1">${['characteristic', 'statistic', 'unit', 'subgroup', 'arm', 'category'].filter((k) => fx[k]).map((k) => `<span class="badge badge-sm badge-outline">${k}: ${esc(fx[k])}</span>`).join(' ')}
                     ${fx.cryptic && fx.cryptic.length ? `<span class="badge badge-sm badge-warning">unclear header: ${esc(fx.cryptic.join(', '))}</span>` : ''}
                     <span class="badge badge-sm badge-ghost">group: ${esc(x.group || '—')}</span></div>
-                <div class="text-sm"><span class="opacity-60">Example:</span> ${grounding((x.example || {}).grounding, (x.example || {}).value)}</div>
-                ${x.reading ? `<div class="text-xs opacity-60">Agent's reading: ${esc(x.reading)}</div>` : ''}
                 ${ro ? `<div class="text-sm whitespace-pre-wrap border border-base-300 rounded p-2">${esc(f.description)}</div>`
                      : `<textarea class="textarea textarea-bordered w-full text-sm def" rows="3">${esc(draft ? draft.text : f.description)}</textarea>
                         ${draft ? `<div class="text-xs text-accent">Restored your unsaved text from ${esc(when(draft.at))}. Save it or discard it.</div>` : ''}`}
                 <div class="text-xs opacity-60">Answer format: ${esc(x.answer_format || '—')} · scoring: ${esc(x.eval_category || '—')} · “Not reported” when: ${esc(x.nr_policy || '—')} · confidence ${esc(x.confidence || '—')}</div>
-                ${(x.questions || []).map((q) => `<div class="border border-base-300 rounded p-2 text-sm"><div>${esc(q.question)}</div>
-                    ${q.answer ? `<div class="mt-1">Answer: <b>${esc(q.answer)}</b> <span class="opacity-50 text-xs">${esc(q.answered_by || '')}</span></div>` : ro ? '<div class="opacity-60 mt-1">unanswered</div>' : `<div class="flex flex-wrap gap-1 mt-1">
-                        ${(q.options || []).map((o) => `<button class="btn btn-xs ans" data-q="${esc(q.id)}" data-a="${esc(o)}">${esc(o)}</button>`).join('')}
-                        <input class="input input-xs input-bordered ans-free w-64" data-q="${esc(q.id)}" placeholder="other answer, then Enter" /></div>`}</div>`).join('')}
                 ${ro ? '' : `<div class="flex flex-wrap gap-2 items-center">
-                    <button class="btn btn-xs btn-success acc" ${draft ? 'disabled title="Save or discard your edit first"' : ''}>Accept as is</button>
                     <select class="select select-xs select-bordered why"><option value="">why you edit it (required)…</option>
                         <option>wrong statistic</option><option>wrong population or subgroup</option><option>wrong arm</option>
                         <option>missing convention</option><option>unit or format</option><option>wording</option></select>
@@ -186,8 +147,6 @@
                     <button class="btn btn-xs btn-primary sav" ${draft ? '' : 'disabled'}>Save edit</button>
                     <button class="btn btn-xs dis" ${draft ? '' : 'disabled'}>Discard</button>
                     <button class="btn btn-xs btn-outline rule">Propose rule…</button></div>`}
-                ${(x.history || []).length ? `<details class="text-xs opacity-70"><summary>History (${x.history.length})</summary>${x.history.slice(-8).reverse().map((h) =>
-                    `<div>${esc(when(h.at))} · ${esc(h.by || '—')} · ${esc(h.action)}${h.reason ? ' (' + esc(h.reason) + ')' : ''}${h.note ? ': ' + esc(h.note) : ''}${h.answer ? ' → ' + esc(h.answer) : ''}</div>`).join('')}</details>` : ''}
             </div>` : ''}`;
         row.querySelector('.row-head').onclick = () => { isOpen ? open.delete(f.name) : open.add(f.name); renderRow(row, f); };
         if (!isOpen || ro) return;
@@ -196,8 +155,6 @@
             const changed = ta.value !== f.description;
             if (changed) { store.set(draftKey(f.name), {text: ta.value, at: new Date().toISOString()}); dirty.add('schema:' + f.name); }
             else { store.del(draftKey(f.name)); dirty.delete('schema:' + f.name); }
-            row.querySelector('.acc').disabled = changed;
-            row.querySelector('.acc').title = changed ? 'Save or discard your edit first' : '';
             row.querySelector('.sav').disabled = !changed;
             row.querySelector('.dis').disabled = !changed;
         };
@@ -211,20 +168,15 @@
             schema.fields[i] = r.field;
             if (body.action === 'edit') { store.del(draftKey(f.name)); dirty.delete('schema:' + f.name); }
             renderRow(row, r.field);
-            toast(body.action === 'accept' ? 'Accepted' : body.action === 'edit' ? 'Definition saved' : 'Answer saved', 'success', 2000);
+            toast('Definition saved', 'success', 2000);
             T.table.status = 'draft';
         };
-        row.querySelector('.acc').onclick = (e) => act({action: 'accept'}, e.target);
         row.querySelector('.sav').onclick = (e) => {
             const reason = row.querySelector('.why').value;
             if (!reason) return toast('Pick why you edited the definition', 'warning');
             act({action: 'edit', definition: ta.value, reason, note: row.querySelector('.note').value}, e.target);
         };
         row.querySelector('.dis').onclick = () => { store.del(draftKey(f.name)); dirty.delete('schema:' + f.name); renderRow(row, f); };
-        row.querySelectorAll('.ans').forEach((b) => b.onclick = () => act({action: 'answer', question_id: b.dataset.q, answer: b.dataset.a}, b));
-        row.querySelectorAll('.ans-free').forEach((inp) => inp.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter' && inp.value.trim()) act({action: 'answer', question_id: inp.dataset.q, answer: inp.value.trim()});
-        }));
         row.querySelector('.rule').onclick = () => {
             ruleContext = {column: f.name, definition: ta.value, schema_id: TABLE, doc_id: T.table.example_doc, kind: 'schema_review'};
             noteEdit = null;
@@ -250,25 +202,10 @@
         $('rule-add').disabled = true;
     };
 
-    $('s-revise').onclick = async () => {
-        const by = needReviewer(); if (!by) return;
-        if (!confirm('The agent rewrites every definition that received answers or notes since its last revision. Continue?')) return;
-        const r = await post(`/api/schemas/${enc(TABLE)}/revise`, {by});
-        if (!r.success) return toast(r.error, 'error');
-        const job = await waitJob(r.job_id, $('s-job'), 'Revising definitions');
-        if (job.status === 'done') {
-            const n = (job.result.changed || job.result.revised).length, looked = job.result.revised.length;
-            toast(n ? `Rewrote ${n} of ${looked} definitions — review them (filter “Changed”)`
-                    : `Read ${looked} definitions and left every one as it was`, n ? 'success' : 'info', 6000);
-            await loadTable(); loadSchema('current');
-        }
-    };
 
     $('s-lock').onclick = async () => {
         const locked = T.table.locked_versions || [];
         const fields = schema.fields;
-        const unreviewed = fields.filter((f) => f['x-evisearch'].review.state === 'proposed').length;
-        const openQ = fields.reduce((n, f) => n + (f['x-evisearch'].questions || []).filter((q) => !q.answer).length, 0);
         let changed = fields.length;
         if (locked.length) {
             const last = await fetchSchema(Math.max(...locked));
@@ -279,8 +216,6 @@
         $('lock-body').innerHTML = `<p>Locking saves the current definitions as <b>v${next}</b>. Papers are always extracted under a locked version, so results stay traceable.</p>
             <ul class="list-disc ml-5">
                 <li>${changed} definition${changed === 1 ? '' : 's'} ${locked.length ? `changed since v${Math.max(...locked)}` : 'in this first version'}</li>
-                <li class="${unreviewed ? 'text-warning' : ''}">${unreviewed} column${unreviewed === 1 ? '' : 's'} not reviewed yet</li>
-                <li class="${openQ ? 'text-warning' : ''}">${openQ} open question${openQ === 1 ? '' : 's'}</li>
             </ul>${locked.length && !changed ? `<div class="alert alert-info text-sm">Nothing changed since v${Math.max(...locked)}; there is nothing to lock.</div>` : ''}`;
         $('lock-go').disabled = locked.length > 0 && changed === 0;
         $('lock-dlg').showModal();
@@ -342,7 +277,7 @@
         const statusIn = (doc) => { const p = latest && latest.papers.find((x) => x.doc_id === doc); return p ? p.status : null; };
         $('pp-table').innerHTML = `<thead><tr><th>Paper</th><th>Role</th><th>PDF</th><th>Parsed</th><th>Extracted</th><th></th></tr></thead><tbody>` +
             T.papers.map((p) => `<tr><td><div class="font-medium">${esc(shortDoc(p.name))}</div><div class="mono text-xs opacity-60">${esc(p.doc_id)}</div></td>
-                <td>${p.role === 'example' ? '<span class="badge badge-accent badge-sm">example row</span>' : 'paper'}${p.gold ? ' <span class="badge badge-outline badge-sm" title="Has expert gold values (benchmark)">gold</span>' : ''}</td>
+                <td>${p.role === 'example' ? '<span class="badge badge-accent badge-sm">example paper</span>' : 'paper'}${p.gold ? ' <span class="badge badge-outline badge-sm" title="Has expert gold values (benchmark)">gold</span>' : ''}</td>
                 <td>${p.pdf ? `<a class="link" target="_blank" href="/api/documents/${enc(p.doc_id)}/pdf">open</a>` : '<span class="text-error">missing</span>'}</td>
                 <td>${p.parsed ? '✓' : '<span class="badge badge-warning badge-sm">not yet</span>'}</td>
                 <td>${statusIn(p.doc_id) ? stateChip(statusIn(p.doc_id)) : '<span class="opacity-50">—</span>'}</td>
