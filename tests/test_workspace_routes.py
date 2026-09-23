@@ -162,7 +162,7 @@ def _note(root, role, name, front, body):
     path.write_text(f"---\n{front}\n---\n{body}\n", encoding="utf-8")
 
 
-def test_the_knowledge_page_shows_the_notes_who_reads_them_and_the_runs_on_them(ws, tmp_path, monkeypatch):
+def test_the_knowledge_page_shows_the_notes_and_who_reads_them(ws, tmp_path, monkeypatch):
     from src.evisearch.knowledge import notes
 
     kb = tmp_path / "kb"
@@ -172,9 +172,6 @@ def test_the_knowledge_page_shows_the_notes_who_reads_them_and_the_runs_on_them(
     _note(kb, "extraction", "medians", f"id: medians\nscope: column\ncolumns: ['{COLS[0]}']", "# Arm medians\n\n- Never combine medians.")
     _note(kb, "extraction", "figures", "id: figures\nscope: global", "# Figures\n\n- Read the panel.")
     fp = notes.fingerprint()
-    root = runtime_paths.RESULTS_ROOT
-    _write(root / DOC / "runs" / "r1" / "agent_extractor" / "extraction_metadata.json", {"extraction_rules": f"notes:{fp}"})
-    _write(root / DOC / "runs" / "r2" / "agent_extractor" / "extraction_metadata.json", {"extraction_rules": "notes:0123456789ab"})
 
     r = ws.get("/api/knowledge/notes").get_json()
     assert r["fingerprint"] == fp
@@ -186,20 +183,14 @@ def test_the_knowledge_page_shows_the_notes_who_reads_them_and_the_runs_on_them(
     # the reconciliation stage's own reading gets the definitions only
     assert "Reconciliation: own reading" in by_role["definitions"]["readers"]
     assert "Reconciliation: own reading" not in by_role["extraction"]["readers"]
-    runs = {x["run"]: x for x in r["runs"]}
-    assert runs["r1"]["current"]
-    assert not runs["r2"]["current"] and runs["r2"]["fingerprint"] == "0123456789ab"
     assert "retired" not in r and "supersedes" not in region
-
-    got = ws.get("/api/knowledge/notes/for", query_string={"column": COLS[0]}).get_json()
-    readers = {x["reader"]: x["notes"] for x in got["readers"]}
-    assert sorted(readers["Agent A"]) == ["figures", "medians"]      # the column note, not the region note
-    assert readers["Reconciliation: own reading"] == []
-    assert "Markdown baseline" not in readers and "Document reader" not in readers
-    assert ws.get("/api/knowledge/notes/for").status_code == 400
+    # the page shows the notes themselves: no run list, no per-column lookup, no reader matrix
+    assert "runs" not in r and "columns" not in r
+    assert ws.get("/api/knowledge/notes/for", query_string={"column": COLS[0]}).status_code == 404
 
     page = ws.get("/knowledge").get_data(as_text=True)
     assert 'id="k-tree"' in page and 'id="k-note"' in page and "/api/knowledge/notes" in page
+    assert 'id="k-reads"' not in page and 'id="k-runs"' not in page and 'id="k-column"' not in page
     assert 'id="k-status"' not in page and "/decide" not in page     # the old rule list and its approve buttons are gone
     assert ws.get("/api/knowledge").status_code == 404
 

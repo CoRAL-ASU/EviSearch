@@ -945,43 +945,17 @@ def _note_json(note, root: Path) -> Dict[str, Any]:
 
 @bp.route("/api/knowledge/notes")
 def api_knowledge_notes():
-    """The knowledge notes the prompts read, grouped by who reads them, and the runs that read them."""
+    """The knowledge notes the prompts read, grouped by the role each is addressed to."""
     from src.evisearch.knowledge import notes
 
     try:
         loaded = notes.load_notes("all")
     except (ValueError, OSError) as exc:  # a note with broken frontmatter: say which one instead of an empty page
         return _err(str(exc), 500)
-    current = notes.fingerprint(loaded)
     root = notes.notes_dir()
     roles = [{"role": role, "label": NOTE_ROLES[role], "readers": NOTE_READERS[role], "dir": role,
               "notes": [_note_json(n, root) for n in loaded if n.role == role]} for role in NOTE_ROLES]
-    runs = []
-    for run in runs_service.list_runs():
-        used = run_knowledge(run["run"], run["docs"])
-        if used:
-            runs.append({"run": run["run"], "papers": len(run["docs"]), "started_at": run.get("started_at"),
-                         **used, "current": used["fingerprint"] == current})
-    runs.sort(key=lambda r: (not r["current"], r["run"]))
-    try:
-        columns = [f["name"] for f in _hand_written_fields()]
-    except OSError:
-        columns = []
-    return _ok(fingerprint=current, roles=roles, runs=runs, columns=columns, dir=str(root))
-
-
-@bp.route("/api/knowledge/notes/for")
-def api_knowledge_notes_for():
-    """The notes that govern one column (global and table notes, its family's, its own), and which prompts read each."""
-    from src.evisearch.knowledge import notes
-
-    column = request.args.get("column", "").strip()
-    if not column:
-        return _err("name a column")
-    selected = notes.select_for(notes.load_notes("all"), [column])
-    readers = [{"reader": reader, "notes": [n.id for n in selected if reader in NOTE_READERS.get(n.role, [])]}
-               for reader in NOTE_READERS["definitions"]]
-    return _ok(column=column, notes=[{"id": n.id, "role": n.role, "scope": n.scope} for n in selected], readers=readers)
+    return _ok(fingerprint=notes.fingerprint(loaded), roles=roles, dir=str(root))
 
 
 @bp.route("/api/activity")

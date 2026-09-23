@@ -22,9 +22,6 @@
     .tree-item.on { background: oklch(var(--p) / .14); border-left-color: oklch(var(--p)); }
     .tree-scope { font-size: .68rem; letter-spacing: .06em; text-transform: uppercase; color: oklch(var(--bc) / .5);
         padding: .5rem .5rem .15rem; }
-    .reads td, .reads th { padding: .3rem .5rem; }
-    .reads td.y { color: oklch(var(--su)); text-align: center; }
-    .reads td.n { color: oklch(var(--bc) / .3); text-align: center; }
 </style>
 {% endblock %}
 {% block content %}
@@ -48,28 +45,6 @@
         <article id="k-note" class="card bg-base-100 shadow min-w-0"><div class="card-body"><div class="skeleton h-72 w-full"></div></div></article>
     </div>
 
-    <div class="grid grid-cols-[minmax(0,1fr)] gap-4 xl:grid-cols-2 items-start">
-        <section class="card bg-base-100 shadow min-w-0"><div class="card-body p-4 gap-3">
-            <div>
-                <h2 class="font-semibold">Which prompts read which notes</h2>
-                <p class="text-xs text-base-content/70 max-w-prose">The reconciliation stage's own reading pass gets the definitions only, so it reads the paper
-                    without the agents' method and can disagree with them.</p>
-            </div>
-            <div class="overflow-x-auto"><table id="k-reads" class="reads text-sm w-full"></table></div>
-            <div class="border-t border-base-300 pt-3 space-y-2">
-                <label class="text-sm font-medium" for="k-column">What one column receives</label>
-                <input id="k-column" list="k-columns" class="input input-sm input-bordered w-full" placeholder="Type a column, e.g. Region - N (%) | Europe | Treatment" autocomplete="off" />
-                <datalist id="k-columns"></datalist>
-                <div id="k-for" class="text-sm"></div>
-            </div>
-        </div></section>
-        <section class="card bg-base-100 shadow min-w-0"><div class="card-body p-4 gap-3">
-            <div>
-                <h2 class="font-semibold">Runs on these notes</h2>
-                <p class="text-xs text-base-content/70">Every extraction whose stage settings record a notes fingerprint.</p>
-            </div>
-            <div id="k-runs" class="text-sm"></div>
-        </div></section>
     </div>
 </main>
 {% endblock %}
@@ -135,17 +110,13 @@
         data = r;
         byId = {};
         r.roles.forEach((g) => g.notes.forEach((n) => { byId[n.id] = n; }));
-        const all = Object.values(byId), inUse = r.runs.filter((x) => x.current);
+        const all = Object.values(byId);
         $('k-summary').innerHTML = `
             <span class="badge badge-primary badge-outline mono" title="content hash of every note; recorded by each run">notes ${esc(r.fingerprint)}</span>
-            <span><b>${all.length}</b> notes: ${r.roles.map((g) => `${g.notes.length} ${esc(g.role)}`).join(', ')}</span>
-            <span><b>${inUse.length}</b> run${inUse.length === 1 ? '' : 's'} used this exact set</span>`;
-        $('k-columns').innerHTML = r.columns.map((c) => `<option value="${esc(c)}"></option>`).join('');
-        drawReads(); drawRuns(); drawTree();
+            <span><b>${all.length}</b> notes: ${r.roles.map((g) => `${g.notes.length} ${esc(g.role)}`).join(', ')}</span>`;
+        drawTree();
         const wanted = decodeURIComponent(location.hash.slice(1));
         show(byId[wanted] ? wanted : (r.roles[0].notes[0] || {}).id);
-        const column = new URLSearchParams(location.search).get('column');
-        if (column) { $('k-column').value = column; forColumn(); }
     }
 
     function matches(n, q) {
@@ -203,51 +174,7 @@
         </div>`;
     }
 
-    function drawReads() {
-        const readers = data.roles[0].readers.slice();
-        data.roles.forEach((g) => g.readers.forEach((x) => { if (!readers.includes(x)) readers.push(x); }));
-        $('k-reads').innerHTML = `<thead><tr class="text-left text-xs text-base-content/60"><th>Prompt</th>
-            ${data.roles.map((g) => `<th class="text-center mono">${esc(g.dir)}/ <span class="font-normal">(${g.notes.length})</span></th>`).join('')}</tr></thead>
-            <tbody>${readers.map((x) => `<tr class="border-t border-base-300"><td>${esc(x)}</td>
-                ${data.roles.map((g) => g.readers.includes(x) ? '<td class="y" aria-label="reads">●</td>' : '<td class="n" aria-label="does not read">—</td>').join('')}</tr>`).join('')}</tbody>`;
-    }
-
-    function drawRuns() {
-        const runs = data.runs;
-        if (!runs.length) { $('k-runs').innerHTML = '<div class="text-base-content/60">No extraction has used the notes yet.</div>'; return; }
-        const rows = runs.map((x) => `<tr class="border-t border-base-300">
-            <td class="py-1 pr-3 mono">${esc(x.run)}</td>
-            <td class="py-1 pr-3 tabular-nums">${x.papers}</td>
-            <td class="py-1">${x.current ? '<span class="badge badge-sm badge-success badge-outline">these notes</span>'
-                : `<span class="badge badge-sm badge-ghost mono" title="an earlier version of the notes">${esc(x.fingerprint)}</span>`}</td></tr>`).join('');
-        $('k-runs').innerHTML = `<div class="overflow-x-auto"><table class="w-full text-sm">
-            <thead><tr class="text-left text-xs text-base-content/60"><th class="pr-3">Run</th><th class="pr-3">Papers</th><th>Notes</th></tr></thead>
-            <tbody>${rows}</tbody></table></div>`;
-    }
-
-    let lookup = 0;
-    async function forColumn() {
-        const column = $('k-column').value.trim();
-        if (!column) { $('k-for').innerHTML = ''; return; }
-        if (!data.columns.includes(column)) { $('k-for').innerHTML = '<div class="text-xs text-base-content/60">Pick a column from the list.</div>'; return; }
-        const mine = ++lookup;
-        const r = await get('/api/knowledge/notes/for?column=' + encodeURIComponent(column));
-        if (mine !== lookup) return;
-        if (!r.success) { $('k-for').innerHTML = `<div class="alert alert-error text-sm">${esc(r.error)}</div>`; return; }
-        const narrow = r.notes.filter((n) => n.scope === 'family' || n.scope === 'column');
-        const chip = (id) => `<button type="button" class="badge badge-sm ${byId[id] && byId[id].scope !== 'global' && byId[id].scope !== 'table' ? 'badge-info' : 'badge-outline'} mono" data-id="${esc(id)}">${esc(id)}</button>`;
-        $('k-for').innerHTML = `<p class="text-xs text-base-content/70 mb-2">${narrow.length
-                ? `Besides the notes for every column, this column gets ${narrow.map((n) => chip(n.id)).join(' ')}.`
-                : 'No family or column note covers this column; it gets only the notes for every column.'}</p>
-            <div class="space-y-1">${r.readers.map((x) => `<div class="grid grid-cols-[9.5rem_minmax(0,1fr)] gap-2 items-start">
-                <span class="text-base-content/70">${esc(x.reader)}</span><span class="flex flex-wrap gap-1">${x.notes.map(chip).join('')}</span></div>`).join('')}</div>
-            <p class="text-xs text-base-content/60 pt-2">The markdown baseline reads the whole table in one pass, so it gets every note.</p>`;
-        $('k-for').querySelectorAll('button[data-id]').forEach((b) => b.onclick = () => { show(b.dataset.id); $('k-note').scrollIntoView({behavior: 'smooth', block: 'start'}); });
-    }
-
     $('k-search').addEventListener('input', drawTree);
-    $('k-column').addEventListener('change', forColumn);
-    $('k-column').addEventListener('input', () => { if (data && data.columns.includes($('k-column').value.trim())) forColumn(); });
     window.addEventListener('hashchange', () => { const id = decodeURIComponent(location.hash.slice(1)); if (byId[id] && id !== current) show(id); });
     load();
 })();
