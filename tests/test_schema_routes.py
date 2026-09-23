@@ -138,7 +138,8 @@ def test_the_old_page_urls_redirect_into_the_workspace(client):
     """/schema, /feedback and the other old pages are now tabs of the table workspace (or Learning)."""
     # with no table yet they land on the table list; with one they land on its matching tab
     for path, target in [("/schema", "/tables"), ("/extract", "/tables"), ("/comparison-report", "/tables"),
-                         ("/attribution", "/tables"), ("/feedback", "/learning"), ("/method-comparison-report", "/benchmark")]:
+                         ("/attribution", "/tables"), ("/feedback", "/learning"), ("/method-comparison-report", "/tables"),
+                         ("/benchmark", "/tables")]:
         response = client.get(path)
         assert response.status_code == 302, path
         assert response.headers["Location"].startswith(target), (path, response.headers["Location"])

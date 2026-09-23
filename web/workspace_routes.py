@@ -4,7 +4,7 @@ Pages
   /tables                         all tables
   /tables/<id>                    workspace: Overview, Schema, Papers, Runs, Table
   /tables/<id>/review             cell review, flagged cells first (?run=&doc=&column=)
-  /knowledge  /learning  /benchmark
+  /knowledge  /learning
 APIs (JSON, {"success": ...} envelope)
   GET  /api/tables                               tables with counts
   GET  /api/tables/<id>                          table, papers, runs, steps, next action
@@ -26,7 +26,6 @@ from __future__ import annotations
 import csv
 import io
 import json
-import re
 import sys
 import time
 from datetime import datetime, timezone
@@ -126,8 +125,10 @@ def extract_redirect():
 
 
 @bp.route("/method-comparison-report")
-def method_report_redirect():
-    return redirect("/benchmark")
+@bp.route("/benchmark")
+def benchmark_redirect():
+    """The old Benchmark page is gone; the expert gold table ships with the code (dataset/)."""
+    return redirect("/tables")
 
 
 @bp.route("/feedback")
@@ -144,11 +145,6 @@ def knowledge_page():
 @bp.route("/learning")
 def learning_page():
     return render_template("learning.html")
-
-
-@bp.route("/benchmark")
-def benchmark_page():
-    return render_template("benchmark.html")
 
 
 # ---- definitions ---------------------------------------------------------------------------------------------------
@@ -904,7 +900,7 @@ def api_undo_review(run, doc_id):
     return _ok(event=event, review=review, state=cell_state(cell, review) if cell else None)
 
 
-# ---- knowledge, learning, benchmark ---------------------------------------------------------------------------------
+# ---- knowledge, learning ---------------------------------------------------------------------------------------------
 def run_knowledge(run: str, docs: List[str]) -> Optional[Dict[str, str]]:
     """The knowledge notes a run read, as recorded in its stage metadata ("notes:<fingerprint>")."""
     for doc in docs:
@@ -1070,123 +1066,6 @@ def _SEED_IDS() -> set:
 
     edited = {e.get("note") for e in notes_kb.log_entries() if e.get("by")}
     return {n.id for n in notes_kb.load_notes("all") if n.id not in edited}
-
-
-@bp.route("/api/benchmark")
-def api_benchmark():
-    """The expert gold table released with the paper: its papers (with DOIs), its values, and how it was made."""
-    from src.config.config import GOLD_TABLE_JSON_PATH
-
-    data = runs_service._read_json(Path(GOLD_TABLE_JSON_PATH))
-    rows = (data or {}).get("data") or []
-    papers, values = [], []
-    dois = _doi_index([r["Document Name"]["value"].removesuffix(".pdf") for r in rows])
-    for row in rows:
-        doc = row["Document Name"]["value"].removesuffix(".pdf")
-        get = lambda key: str((row.get(key) or {}).get("value") or "")
-        papers.append({"doc_id": doc, "name": _doc_name(doc), "nct": get("NCT"), "trial": get("Trial Name"), "author": get("Author"),
-                       "year": get("Year"), "pmid": get("PubMed ID"), "doi": dois.get(doc, ""), **_prepared(doc)})
-        values.append({"doc_id": doc, "cells": {k: {"v": str((v or {}).get("value") or ""), "loc": str((v or {}).get("location") or "")}
-                                                for k, v in row.items() if k != "Document Name"}})
-    columns = [c for c in (rows[0].keys() if rows else []) if c != "Document Name"]
-    # "values" = cells the experts filled with a real value; "Not reported" and blanks are not values
-    filled = sum(1 for row in values for c in row["cells"].values() if not runs_service.is_not_reported(c["v"]))
-    return _ok(papers=papers, columns=columns, rows=values, filled=filled, cells=len(papers) * len(columns),
-               license="Released for academic, non-commercial use with the paper.",
-               protocol="Built by the study's authors: domain experts annotated every trial by hand, one row per paper. "
-                        "Gold values are authoritative; cells the team disputes are listed in the paper's appendix.")
-
-
-@bp.route("/api/benchmark/download.<fmt>")
-def api_benchmark_download(fmt):
-    """The gold table as released: CSV (one row per paper) or the annotated JSON with each value's location."""
-    from src.config.config import GOLD_TABLE_JSON_PATH
-
-    raw = Path(GOLD_TABLE_JSON_PATH).read_text(encoding="utf-8")
-    if fmt == "json":
-        return Response(raw, mimetype="application/json",
-                        headers={"Content-Disposition": 'attachment; filename="evisearch-gold-table.json"'})
-    if fmt == "csv":
-        rows = json.loads(raw)["data"]
-        columns = list(rows[0].keys()) if rows else []
-        buf = io.StringIO()
-        writer = csv.writer(buf)
-        writer.writerow(columns)
-        for row in rows:
-            writer.writerow([str((row.get(c) or {}).get("value") or "") for c in columns])
-        return Response(buf.getvalue(), mimetype="text/csv",
-                        headers={"Content-Disposition": 'attachment; filename="evisearch-gold-table.csv"'})
-    return _err("format must be csv or json", 404)
-
-
-_DOI_RE = re.compile(r"10\.\d{4,9}/[A-Za-z0-9._;:()/+-]*[A-Za-z0-9)]")
-# "…2119115Copyright©2022" and "…75.3657DOI:" -> cut where the DOI runs into the words printed after it
-_RUNS_INTO_TEXT = re.compile(r"(?<=[a-z0-9])(?=[A-Z][a-z]{2,})|(?<=[0-9])(?=[A-Z]{2,})")
-
-
-def _clean_doi(candidate: str) -> str:
-    """Trim a DOI that ran into the words printed after it, and balance trailing brackets."""
-    doi = _RUNS_INTO_TEXT.split(candidate, maxsplit=1)[0]
-    while doi and doi.count("(") < doi.count(")"):
-        doi = doi[:-1]
-    return doi.rstrip(".,;:")
-
-
-def _doi_from_pdf(pdf: Optional[Path]) -> str:
-    """The paper's DOI, from a doi.org link or a printed DOI on its first pages. Journals break DOIs across lines and
-    add trailing punctuation, so the text is joined up before matching."""
-    if not pdf or not Path(pdf).exists():
-        return ""
-    import fitz
-
-    try:
-        with fitz.open(str(pdf)) as handle:
-            pages = [handle[p].get_text() for p in range(min(3, len(handle)))]
-            links = [l.get("uri", "") for p in range(min(3, len(handle))) for l in handle[p].get_links() if l.get("uri")]
-    except Exception:
-        return ""
-    text = "\n".join(pages)
-    candidates: List[Tuple[int, str]] = []
-    for start in (m.start() for m in re.finditer(r"10\.\d{4,9}/", text)):
-        tail = text[start:start + 160]
-        line = tail.split("\n", 1)[0]  # a DOI is printed on one line; the next line is other text (ISSN, copyright…)
-        m = _DOI_RE.match(line)
-        doi = _clean_doi(m.group(0)) if m else ""
-        # broken across lines: unbalanced bracket, a trailing hyphen, or the line ending in the DOI's own dot
-        # ("DOI: 10.1200/JCO.2017." then "77.4315"). A line that simply ends (ISSN printed underneath) is left alone.
-        if doi and (doi.count("(") > doi.count(")") or doi.endswith("-") or line[m.end():].strip() == "."):
-            joined = _DOI_RE.match(re.sub(r"-?\n\s*", "", tail))
-            doi = _clean_doi(joined.group(0)) if joined else doi
-        if len(doi) <= 12:  # "10.1200/JCO" alone is a prefix, not a DOI
-            continue
-        # the paper's own DOI is printed on a "DOI:" line of its front matter; DOIs inside sentences cite other papers
-        before = text[max(0, start - 40):start]
-        labelled = re.search(r"(?im)^\s*(?:article\s+)?doi:?\s*(?:https?://(?:dx\.)?doi\.org/)?$", before)
-        candidates.append((0 if labelled else (2 if re.search(r"doi\.org/$", before, re.I) else 3), doi))
-    for uri in links:  # a first-page link is usually the paper's own, but a reference list also links out
-        m = _DOI_RE.search(uri.replace("%2F", "/"))
-        if m:
-            candidates.append((1, _clean_doi(m.group(0))))
-    return min(candidates, key=lambda c: c[0])[1] if candidates else ""
-
-
-def _doi_index(doc_ids: List[str]) -> Dict[str, str]:
-    """DOIs read off the papers' own first pages (the gold sheet has none), cached next to the results."""
-    cache_path = runtime_paths.RESULTS_ROOT / "_registry" / "dois.json"
-    cache = runs_service._read_json(cache_path) or {}
-    missing = [d for d in doc_ids if d not in cache]
-    if missing:
-        from src.evisearch.services.highlight import resolve_pdf_path
-        import fitz
-
-        for doc in missing:
-            cache[doc] = _doi_from_pdf(resolve_pdf_path(doc))
-        try:
-            cache_path.parent.mkdir(parents=True, exist_ok=True)
-            cache_path.write_text(json.dumps(cache, indent=1), encoding="utf-8")
-        except OSError:
-            pass
-    return cache
 
 
 @bp.route("/api/runs/compare")

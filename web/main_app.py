@@ -102,8 +102,8 @@ def healthz():
     """Unauthenticated liveness check for the hosting platform."""
     return jsonify({"status": "ok"})
 
-# the pages these blueprints serve: workspace_routes owns /tables, /review, /knowledge, /learning, /benchmark and the
-# redirects from the old page URLs (/schema, /attribution, /extract, /comparison-report, /feedback)
+# the pages these blueprints serve: workspace_routes owns /tables, /review, /knowledge, /learning and the
+# redirects from the old page URLs (/schema, /attribution, /extract, /comparison-report, /feedback, /benchmark)
 from web.schema_routes import bp as schema_layer_bp  # noqa: E402  (schema generation, conventions, feedback log)
 from web.workspace_routes import bp as workspace_bp  # noqa: E402  (table workspace, runs, reviews per run, jobs)
 
