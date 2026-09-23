@@ -3,7 +3,7 @@
     const {$, esc, enc, get, post, toast, store, needReviewer, dirty, stateBadge, when, shortDoc, PdfViewer} = EVS;
     const TABLE = $('page').dataset.table;
     const params = new URLSearchParams(location.search);
-    let runs = [], run = params.get('run') || '', docFilter = params.get('doc') || '', kind = 'flagged', unrevOnly = true;
+    let runs = [], run = params.get('run') || '', docFilter = params.get('doc') || '', kind = 'flagged';
     let queue = [], items = [], current = null;   // current = {doc_id, column}
     const cellsCache = new Map();                  // doc -> {columns, schema_id, definitions}
     const viewer = new PdfViewer($('pdf'));
@@ -35,33 +35,34 @@
         $('doc').innerHTML = '<option value="">All papers</option>' + r.docs.map((d) =>
             `<option value="${esc(d.doc_id)}" ${d.doc_id === docFilter ? 'selected' : ''}>${esc(shortDoc(d.name))}</option>`).join('');
         const c = r.counts;
-        $('progress').innerHTML = `flagged <b>${c.flagged.reviewed}/${c.flagged.total}</b> reviewed · A ≠ B <b>${c.disputed.reviewed}/${c.disputed.total}</b> · other <b>${c.other.reviewed}/${c.other.total}</b>`;
+        const all = ['flagged', 'disputed', 'other'].reduce((s, k) => ({reviewed: s.reviewed + c[k].reviewed, total: s.total + c[k].total}), {reviewed: 0, total: 0});
+        $('progress').innerHTML = `flagged <b>${c.flagged.reviewed}/${c.flagged.total}</b> reviewed · all cells <b>${all.reviewed}/${all.total}</b> reviewed`;
         if (!keep && !current) chooseView();
         renderQueue(keep);
     }
 
-    const pick = (k, unrev) => queue.filter((it) => (k === 'all' || it.kind === k) && (!docFilter || it.doc_id === docFilter) && (!unrev || !it.reviewed));
+    // Flagged = the cells to review: those still open first, the reviewed ones after them. All cells = the whole table.
+    const pick = (k) => {
+        const cells = queue.filter((it) => (k === 'all' || it.kind === k) && (!docFilter || it.doc_id === docFilter));
+        return k === 'flagged' ? [...cells.filter((it) => !it.reviewed), ...cells.filter((it) => it.reviewed)] : cells;
+    };
+    function setKind(k) {
+        kind = k;
+        document.querySelectorAll('#kind button').forEach((x) => x.classList.toggle('btn-active', x.dataset.k === k));
+    }
     function chooseView() {
-        // open on the first view that has something: cells still to review, else the same cells already reviewed
-        for (const [k, unrev] of [['flagged', true], ['disputed', true], ['flagged', false], ['disputed', false], ['all', true], ['all', false]]) {
-            if (pick(k, unrev).length) {
-                kind = k; unrevOnly = unrev;
-                $('unrev').checked = unrev;
-                document.querySelectorAll('#kind button').forEach((x) => x.classList.toggle('btn-active', x.dataset.k === k));
-                return;
-            }
-        }
+        setKind(pick('flagged').length ? 'flagged' : 'all');
     }
 
     function renderQueue(keep) {
-        items = pick(kind, unrevOnly);
+        items = pick(kind);
         $('queue').innerHTML = items.length ? items.map((it, i) => `<div class="qi p-2 flex gap-2 items-start" data-i="${i}">
                 <span class="dot mt-1 s-${it.state} border border-base-content/30" title="${esc((EVS.STATE[it.state] || [it.state])[0])}"></span>
                 <div class="min-w-0 flex-1">
                     <div class="truncate" title="${esc(it.column)}">${esc(it.column)}</div>
                     <div class="text-xs opacity-60 truncate">${esc(shortDoc(it.doc_id))} · ${esc(it.value || '—')}</div>
                 </div>${it.reviewed ? '<span class="badge badge-xs badge-info">reviewed</span>' : ''}</div>`).join('')
-            : '<div class="p-4 opacity-60">Nothing left in this filter. Switch to “All cells” or turn off “to review only”.</div>';
+            : '<div class="p-4 opacity-60">No flagged cells here. Switch to “All cells” to see every cell.</div>';
         $('queue').querySelectorAll('.qi').forEach((el) => el.onclick = () => select(items[Number(el.dataset.i)]));
         const keepIt = keep && items.find((it) => it.doc_id === keep.doc_id && it.column === keep.column);
         if (keepIt) markSelected(keepIt); else if (items.length && !current) select(items[0]);
@@ -197,6 +198,10 @@
         store.del(draftKey(current.doc_id, current.column));
         dirty.delete('cell');
         const saved = {...current};
+        // in Flagged, move on to the next cell still to review (the reviewed one drops below the open ones)
+        const at = items.findIndex((x) => x.doc_id === saved.doc_id && x.column === saved.column);
+        const open = (x) => !x.reviewed && !(x.doc_id === saved.doc_id && x.column === saved.column);
+        const nextOpen = kind === 'flagged' ? (items.slice(at + 1).find(open) || items.find(open)) : null;
         const eventId = r.event.event_id;
         toast(r.state === 'accepted' ? 'Confirmed' : 'Correction saved', 'success', 8000, {label: 'Undo', run: async () => {
             const u = await post(`/api/runs/${enc(run)}/docs/${enc(saved.doc_id)}/undo`, {event_id: eventId, by});
@@ -206,8 +211,8 @@
             toast('Review undone', 'success', 2500);
         }});
         await refreshCell();
-        const next = items[items.findIndex((x) => x.doc_id === saved.doc_id && x.column === saved.column) + 1];
-        if (next && unrevOnly) select(next);
+        const next = nextOpen && items.find((x) => x.doc_id === nextOpen.doc_id && x.column === nextOpen.column);
+        if (next) select(next);
     }
 
     async function refreshCell() {
@@ -247,7 +252,6 @@
         document.querySelectorAll('#kind button').forEach((x) => x.classList.remove('btn-active'));
         b.classList.add('btn-active'); kind = b.dataset.k; renderQueue(current);
     });
-    $('unrev').onchange = () => { unrevOnly = $('unrev').checked; renderQueue(current); };
     $('doc').onchange = () => { docFilter = $('doc').value; renderQueue(current); };
 
     // j / k move through the queue, but never while typing
@@ -262,9 +266,7 @@
     start().then(() => {
         const col = params.get('column');
         if (col && docFilter) {
-            kind = 'all'; unrevOnly = false;
-            $('unrev').checked = false;
-            document.querySelectorAll('#kind button').forEach((x) => x.classList.toggle('btn-active', x.dataset.k === 'all'));
+            setKind('all');
             renderQueue();
             select({doc_id: docFilter, column: col});
         }
