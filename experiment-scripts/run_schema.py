@@ -39,6 +39,7 @@ def main() -> int:
     parser.add_argument("--run", help="run name (default: schema-<id>-v<N>, with -kboff / -b1 suffixes when they apply)")
     parser.add_argument("--parallel", type=int, default=0, help="papers at once (default: run_benchmark's)")
     parser.add_argument("--dry-run", action="store_true")
+    parser.add_argument("--check-warnings", action="store_true", help="passed to run_benchmark (see there)")
     args = parser.parse_args()
 
     schema = store.load(args.schema)
@@ -63,6 +64,8 @@ def main() -> int:
            "--run", run] + (["--parallel", str(args.parallel)] if args.parallel else [])
     if args.dry_run:
         cmd.append("--dry-run")
+    if args.check_warnings:
+        cmd.append("--check-warnings")
     print(f"[run_schema] schema {args.schema} v{version} ({csv_path}) kb={args.kb} -> run {run}", flush=True)
     if args.dry_run:  # nothing runs, so nothing goes into the feedback log
         return subprocess.call(cmd, cwd=ROOT, env=env)

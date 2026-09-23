@@ -480,6 +480,9 @@ def parse_args(argv: Optional[List[str]]) -> argparse.Namespace:
                         help="Documents processed at the same time (default: all of them on hosted models, 2 on local GPUs)")
     parser.add_argument("--reuse-a-from", metavar="RUN", help="E only: copy Arm A from this finished B2 run instead of running it")
     parser.add_argument("--dry-run", action="store_true", help="Print what would run without calling any model or writing results")
+    parser.add_argument("--check-warnings", action="store_true",
+                        help="a paper whose stages all finished counts as done even if its check fails (the web app's "
+                             "extractions); the check stays in check_run.log and the manifest")
     args = parser.parse_args(argv)
     if args.reuse_a_from and args.system != "E":
         parser.error("--reuse-a-from only applies to --system E")
@@ -488,6 +491,14 @@ def parse_args(argv: Optional[List[str]]) -> argparse.Namespace:
     if args.parallel < 0:
         parser.error("--parallel must be at least 1 (or 0 for the default)")
     return args
+
+
+def outcome(records: List[Dict[str, Any]], check_warnings: bool) -> Tuple[List[str], List[str]]:
+    """(papers that failed the run, papers that ran but failed their check). A failed check fails the run unless
+    `check_warnings`, where it is only reported."""
+    check_failed = [r["doc_id"] for r in records if r["status"] == "ok" and (r.get("check") or {}).get("result") == "FAIL"]
+    failed = [r["doc_id"] for r in records if r["status"] != "ok"] + ([] if check_warnings else check_failed)
+    return failed, check_failed
 
 
 def main(argv: Optional[List[str]] = None) -> int:
@@ -560,8 +571,12 @@ def main(argv: Optional[List[str]] = None) -> int:
     path = write_run_manifest(header, invocation, records, gold)
 
     print_summary(records)
-    failed = [record["doc_id"] for record in records if record["status"] != "ok" or (record.get("check") or {}).get("result") == "FAIL"]
-    print(f"\n[benchmark] {len(records) - len(failed)}/{len(records)} documents ran and passed their check; manifest: {path}")
+    failed, check_failed = outcome(records, args.check_warnings)
+    if args.check_warnings and check_failed:
+        print(f"\n[benchmark] {len(records) - len(failed)}/{len(records)} documents ran; {len(check_failed)} with check warnings "
+              f"(check_run.log); manifest: {path}")
+    else:
+        print(f"\n[benchmark] {len(records) - len(failed)}/{len(records)} documents ran and passed their check; manifest: {path}")
     return 1 if failed else 0
 
 

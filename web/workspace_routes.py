@@ -641,7 +641,7 @@ def start_extraction(table_id: str, docs: List[str], *, version: Optional[int] =
     run = unique_run_name(store.run_name(table_id, version))
     log = runs_service.headers_dir() / f"{run}.driver.log"
     cmd = [sys.executable, str(PROJECT_ROOT / "experiment-scripts" / "run_schema.py"), "--schema", table_id, "--version", str(version),
-           "--docs", ",".join(docs), "--run", run]
+           "--docs", ",".join(docs), "--run", run, "--check-warnings"]  # a finished paper is done; its check is a warning here
     env = {"EVISEARCH_PRESET": preset} if preset else None
     return jobs.run_process("extract", cmd, log, by=by, env=env, table=table_id, run=run, docs=docs, version=version)
 
