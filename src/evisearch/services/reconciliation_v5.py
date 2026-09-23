@@ -20,6 +20,7 @@ they state instead.
 """
 from __future__ import annotations
 
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Callable, Dict, List, Optional, Set, Tuple
 
@@ -607,6 +608,58 @@ class _ReconcileSession(_PaperSession):
         return out
 
 
+@dataclass
+class OwnReading:
+    """Phase 1 run ahead of time, for the columns in `columns` (see read_on_its_own)."""
+    columns: List[str]
+    session: Any
+    loop: Any
+
+
+def _read_on_its_own(chat, doc_id: str, to_read: List[Dict[str, Any]], definitions_map: Dict[str, str], scale,
+                     specs: Dict[str, ToolSpec]) -> Tuple["_FindingsSession", Any]:
+    """Phase 1: answer `to_read` from the paper, with no access to A or B."""
+    read_names = column_names(to_read)
+    reading = _FindingsSession(chat, doc_id, to_read, definitions_map, scale)
+    loop = run_tool_loop(
+        chat,
+        system=FINDINGS_PROMPT + shared_rules(columns=read_names, role="auditor"),
+        user=reading.user_prompt(),
+        tools=[
+            Tool(specs["search_chunks"], reading.search_chunks),
+            Tool(specs["get_pages"], reading.get_pages),
+            Tool(specs["verify_attribution"], reading.verify_attribution),
+            Tool(findings_spec(read_names), reading.submit_findings),
+        ],
+        max_turns=AGENT_MAX_TURNS,
+        max_tool_calls=AGENT_MAX_TOOL_CALLS,
+        max_tokens=MAX_TOKENS["reconciliation"],
+        follow_up=FINDINGS_FOLLOW_UP,
+        is_done=reading.done,
+        finish_tool="submit_findings",
+    )
+    return reading, loop
+
+
+def _setup(batch_columns: List[Dict[str, Any]], model: Optional[str]):
+    names = column_names(batch_columns)
+    chat = get_chat("reconciliation", model)
+    use_images = SELECTION.option("reconciliation_page_images") == "auto" and chat.capabilities.images
+    scale = PAGE_IMAGE_SCALE if use_images else None
+    specs = {spec.name: spec for spec in list(tool_specs(names)) + paper_tool_specs()}
+    return names, chat, scale, specs
+
+
+def read_on_its_own(doc_id: str, batch_columns: List[Dict[str, Any]], definitions_map: Dict[str, str],
+                    model: Optional[str] = None) -> OwnReading:
+    """Phase 1 for every column of the batch, started before A and B have answered (the Ask page runs it alongside
+    them). It never sees A or B, so starting it early changes nothing it reads or says; run_reconciliation_agent uses
+    it only where it would have made this reading itself, and otherwise it is simply not used."""
+    _, chat, scale, specs = _setup(batch_columns, model)
+    session, loop = _read_on_its_own(chat, doc_id, batch_columns, definitions_map, scale, specs)
+    return OwnReading(columns=column_names(batch_columns), session=session, loop=loop)
+
+
 def run_reconciliation_agent(
     doc_id: str,
     batch_columns: List[Dict[str, Any]],
@@ -615,17 +668,14 @@ def run_reconciliation_agent(
     source_b_data: Dict[str, Dict[str, Any]],
     log_path: Optional[Path] = None,
     model: Optional[str] = None,
+    own_reading: Optional[OwnReading] = None,
 ) -> Tuple[Dict[str, Dict[str, Any]], Dict[str, int]]:
-    """Reconcile one batch in two phases. Returns ({column: result}, usage)."""
-    names = column_names(batch_columns)
+    """Reconcile one batch in two phases. Returns ({column: result}, usage). `own_reading`, from read_on_its_own,
+    stands in for phase 1 when it covers exactly the columns phase 1 would read."""
     try:
-        chat = get_chat("reconciliation", model)
+        names, chat, scale, specs = _setup(batch_columns, model)
     except (ConfigError, InferenceError) as exc:
-        return {name: _not_run(f"reconciliation not run: {exc}") for name in names}, Usage().to_dict()
-
-    use_images = SELECTION.option("reconciliation_page_images") == "auto" and chat.capabilities.images
-    scale = PAGE_IMAGE_SCALE if use_images else None
-    specs = {spec.name: spec for spec in list(tool_specs(names)) + paper_tool_specs()}
+        return {name: _not_run(f"reconciliation not run: {exc}") for name in column_names(batch_columns)}, Usage().to_dict()
     usage = Usage()
 
     # ---- phase 1: the stage's own reading, with no access to A or B ------------------------------------------
@@ -646,25 +696,10 @@ def run_reconciliation_agent(
     }
     phase1 = None
     if to_read:
-        read_names = column_names(to_read)
-        reading = _FindingsSession(chat, doc_id, to_read, definitions_map, scale)
-        phase1 = run_tool_loop(
-            chat,
-            system=FINDINGS_PROMPT + shared_rules(columns=read_names, role="auditor"),
-            user=reading.user_prompt(),
-            tools=[
-                Tool(specs["search_chunks"], reading.search_chunks),
-                Tool(specs["get_pages"], reading.get_pages),
-                Tool(specs["verify_attribution"], reading.verify_attribution),
-                Tool(findings_spec(read_names), reading.submit_findings),
-            ],
-            max_turns=AGENT_MAX_TURNS,
-            max_tool_calls=AGENT_MAX_TOOL_CALLS,
-            max_tokens=MAX_TOKENS["reconciliation"],
-            follow_up=FINDINGS_FOLLOW_UP,
-            is_done=reading.done,
-            finish_tool="submit_findings",
-        )
+        if own_reading is not None and own_reading.columns == column_names(to_read):
+            reading, phase1 = own_reading.session, own_reading.loop  # made while A and B were still answering
+        else:
+            reading, phase1 = _read_on_its_own(chat, doc_id, to_read, definitions_map, scale, specs)
         own = {**not_read, **reading.findings()}
         usage.add(phase1.usage).add(reading.tool_usage)
     else:  # every column in this batch was agreed: there is no reading pass to make

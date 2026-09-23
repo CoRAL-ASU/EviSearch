@@ -1264,61 +1264,71 @@ Answer:"""
 
 
 def _api_qa_ask_full(doc_id: str, question: str, history: list):
-    """Full mode: Arm A (pdf_query) + Arm B (search agent) + reconciliation, with attribution."""
+    """Full mode: Arm A (pdf_query) + Arm B (search agent) + reconciliation, with attribution.
+
+    A, B and the Reconciliation Agent's own reading (its phase 1, which never sees A or B) start together; each agent's
+    answer is streamed as soon as it arrives, and the own reading is used exactly where the reconciler would have made
+    it (A and B differ, or both are empty), so the answer is the same as running the stages one after another."""
     def generate():
+        import queue
         import threading
+        from src.evisearch.pipelines.reconciliation_pipeline import arbiter_module
         from src.evisearch.services.pdf_query import run_pdf_query
         from src.evisearch.services.qa import build_definition_with_context
         from src.evisearch.services.search import run_search_agent
 
+        reconciler = arbiter_module()
         col_name = "qa_query"
         definition = build_definition_with_context(question, history)
         batch = [{"column_name": col_name, "definition": definition}]
         definitions_map = {col_name: definition}
+        failed = lambda e: {col_name: {"value": "Not reported", "reasoning": str(e), "found": False, "attribution": []}}
 
-        agent_result = {}
-        search_result = {}
+        done: "queue.Queue[str]" = queue.Queue()
+        results: Dict[str, Any] = {}
 
-        def run_agent():
-            nonlocal agent_result
+        def run(name, work, on_error):
             try:
-                agent_result, _ = run_pdf_query(doc_id, batch)
-            except Exception as e:
-                agent_result = {col_name: {"value": "Not reported", "reasoning": str(e), "found": False, "attribution": []}}
+                results[name] = work()
+            except Exception as e:  # noqa: BLE001 - an arm that fails answers "Not reported" with the error as its reason
+                results[name] = on_error(e)
+            done.put(name)
 
-        def run_search():
-            nonlocal search_result
-            try:
-                search_result, _ = run_search_agent(doc_id, batch, definitions_map, log_path=None)
-            except Exception as e:
-                search_result = {col_name: {"value": "Not reported", "reasoning": str(e), "found": False, "attribution": []}}
+        workers = {
+            "A": threading.Thread(target=run, args=("A", lambda: run_pdf_query(doc_id, batch)[0], failed), daemon=True),
+            "B": threading.Thread(target=run, args=("B", lambda: run_search_agent(doc_id, batch, definitions_map, log_path=None)[0], failed), daemon=True),
+            "own": threading.Thread(target=run, args=("own", lambda: reconciler.read_on_its_own(doc_id, batch, definitions_map), lambda e: None), daemon=True),
+        }
+        yield f"data: {json.dumps({'type': 'stage', 'stage': 'reading', 'message': 'Reading the paper…'})}\n\n"
+        for worker in workers.values():
+            worker.start()
 
-        yield f"data: {json.dumps({'type': 'stage', 'stage': 'direct_pdf', 'message': 'Extracting from the full document…'})}\n\n"
-        t_agent = threading.Thread(target=run_agent)
-        t_search = threading.Thread(target=run_search)
-        t_agent.start()
-        t_search.start()
-        t_agent.join()
-        t_search.join()
-
+        stage_of = {"A": "direct_pdf_done", "B": "search_done"}
+        waiting = {"A", "B"}
+        while waiting:
+            name = done.get()
+            if name in waiting:
+                waiting.discard(name)
+                col = results[name].get(col_name) or {}
+                yield f"data: {json.dumps({'type': 'stage', 'stage': stage_of[name], 'value': col.get('value', 'Not reported'), 'reasoning': col.get('reasoning', '')})}\n\n"
+        agent_result, search_result = results["A"], results["B"]
         a_val = (agent_result.get(col_name) or {}).get("value", "Not reported")
-        a_reason = (agent_result.get(col_name) or {}).get("reasoning", "")
-        yield f"data: {json.dumps({'type': 'stage', 'stage': 'direct_pdf_done', 'value': a_val, 'reasoning': a_reason})}\n\n"
-
         s_val = (search_result.get(col_name) or {}).get("value", "Not reported")
-        s_reason = (search_result.get(col_name) or {}).get("reasoning", "")
-        yield f"data: {json.dumps({'type': 'stage', 'stage': 'search_done', 'value': s_val, 'reasoning': s_reason})}\n\n"
 
-        yield f"data: {json.dumps({'type': 'stage', 'stage': 'reconciling', 'message': 'Reconciling…'})}\n\n"
-        from src.evisearch.pipelines.reconciliation_pipeline import arbiter_module
+        own_reading = None
+        if reconciler.contested(col_name, agent_result, search_result):  # the reconciler reads this cell itself
+            workers["own"].join()
+            own_reading = results.get("own")  # None if it failed: the reconciler then makes the reading itself
 
-        rec_result, _ = arbiter_module().run_reconciliation_agent(
+        yield f"data: {json.dumps({'type': 'stage', 'stage': 'reconciling', 'message': 'Checking the source…'})}\n\n"
+        rec_result, _ = reconciler.run_reconciliation_agent(
             doc_id=doc_id,
             batch_columns=batch,
             definitions_map=definitions_map,
             source_a_data=agent_result,
             source_b_data=search_result,
             log_path=None,
+            own_reading=own_reading,
         )
         rec_col = rec_result.get(col_name, {})
         rec_val = rec_col.get("value", "Not reported")

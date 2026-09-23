@@ -918,9 +918,11 @@
 
             const placeholder = document.createElement('div');
             placeholder.className = 'chat chat-start';
+            // the agents' answers appear here as each arrives; the checked answer replaces the bubble when it is ready
             placeholder.innerHTML = `
-                <div class="chat-bubble chat-bubble-secondary">
-                    <span class="loading loading-dots loading-sm"></span> ${apiMode === 'quick' ? 'Generating…' : 'Direct PDF… then Search… then Reconciling…'}
+                <div class="chat-bubble chat-bubble-secondary max-w-2xl">
+                    <div><span class="loading loading-dots loading-sm"></span> <span class="qa-stage">${apiMode === 'quick' ? 'Generating…' : 'Reading the paper…'}</span></div>
+                    <div class="qa-early space-y-1 mt-1 text-sm"></div>
                 </div>
             `;
             document.getElementById('chat-messages').appendChild(placeholder);
@@ -946,10 +948,13 @@
                             const obj = JSON.parse(line.slice(6));
                             if (obj.type === 'stage') {
                                 lastStage = obj.stage || obj.message || '';
-                                if (obj.stage === 'direct_pdf_done') {
-                                    placeholder.querySelector('.chat-bubble').innerHTML = '<span class="loading loading-dots loading-sm"></span> Search-Based…';
-                                } else if (obj.stage === 'search_done') {
-                                    placeholder.querySelector('.chat-bubble').innerHTML = '<span class="loading loading-dots loading-sm"></span> Reconciling…';
+                                if (obj.stage === 'direct_pdf_done' || obj.stage === 'search_done') {
+                                    const line = document.createElement('div');
+                                    line.innerHTML = `<span class="opacity-70">${obj.stage === 'direct_pdf_done' ? 'PDF Query Agent' : 'Search Agent'}:</span> ${escapeHtml(obj.value || 'Not reported')}`;
+                                    placeholder.querySelector('.qa-early').appendChild(line);
+                                    placeholder.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                                } else if (obj.message) {
+                                    placeholder.querySelector('.qa-stage').textContent = obj.message;
                                 }
                             } else if (obj.type === 'done') {
                                 placeholder.remove();
