@@ -14,7 +14,7 @@ fixed number of sequence slots shared with other tenants, so there the defaults 
   EVISEARCH_STAGE_CONCURRENCY   a stage's column batches at once           hosted: all of them, local 3
   EVISEARCH_STAGE_PARALLEL      the two extraction agents at the same time on (0 turns it off)
   EVISEARCH_VERIFIER_WORKERS    attribution checks of one call at once     hosted 16, local 4
-  papers at once                run_benchmark --parallel                   hosted: all of the job's, local 2
+  EVISEARCH_PAPERS_AT_ONCE      a job's papers at once (run_benchmark)     hosted: all of the job's, local 2
 
 Queueing for the cap is not model time: ChatModel.chat takes its timings inside the cap, so a stage's model_seconds
 still measure the model.
@@ -69,7 +69,7 @@ def verifier_workers() -> int:
 
 
 def papers_at_once(n_papers: int) -> int:
-    return max(1, min(n_papers, _defaults()["papers"]))
+    return max(1, min(n_papers, _env_int("EVISEARCH_PAPERS_AT_ONCE") or _defaults()["papers"]))
 
 
 def stage_parallel() -> bool:

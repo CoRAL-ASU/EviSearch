@@ -102,6 +102,18 @@ def healthz():
     """Unauthenticated liveness check for the hosting platform."""
     return jsonify({"status": "ok"})
 
+
+def _jobs_busy() -> bool:
+    from src.evisearch.services import jobs
+
+    return any(j.get("status") in ("queued", "running") for j in jobs.list_jobs())
+
+
+# on-demand hosting (EVISEARCH_IDLE_STOP_MINUTES, set in fly.toml): stop once idle with no job running
+from web import idle_stop  # noqa: E402
+
+idle_stop.install(app, _jobs_busy)
+
 # the pages these blueprints serve: workspace_routes owns /tables, /review, /knowledge, /learning and the
 # redirects from the old page URLs (/schema, /attribution, /extract, /comparison-report, /feedback, /benchmark)
 from web.schema_routes import bp as schema_layer_bp  # noqa: E402  (schema generation, conventions, feedback log)

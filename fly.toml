@@ -11,13 +11,17 @@ primary_region = "lax"  # the volume must live in the same region as the machine
 [env]
   EVISEARCH_PRESET = "openrouter"   # Fly has no GPUs: the same models, hosted (Qwen3.6-27B, Qwen3-Embedding-8B)
   EVISEARCH_RUNTIME_ROOT = "/data"  # results, embeddings, schemas, notes, reviews and uploads live on the volume
+  EVISEARCH_PAPERS_AT_ONCE = "1"    # a job extracts its papers one after another: one paper peaks at ~0.6 GB
+  EVISEARCH_IDLE_STOP_MINUTES = "15"  # on demand: the app stops the machine after 15 minutes unused with no job running
   # Secrets (fly secrets set): OPEN_ROUTER_API_KEY, VISION_AGENT_API_KEY (Landing AI, for new uploads),
   # optionally EVISEARCH_DEMO_PASSWORD (HTTP Basic auth; user "evisearch").
 
 [http_service]
   internal_port = 8080
   force_https = true
-  auto_stop_machines = "stop"  # an idle machine stops; the next request starts it again
+  # On demand: a stopped machine starts on the next request, and the app stops it when idle (web/idle_stop.py). The
+  # proxy's own auto-stop stays off because it counts only HTTP traffic and would stop a machine mid-extraction.
+  auto_stop_machines = "off"
   auto_start_machines = true
   min_machines_running = 0
 
@@ -39,4 +43,4 @@ primary_region = "lax"  # the volume must live in the same region as the machine
 
 [[vm]]
   size = "shared-cpu-2x"
-  memory = "4gb"  # a job runs every batch of every paper at once: page images for many prompts are in memory together
+  memory = "2gb"  # measured: the server peaks at ~0.23 GB answering questions, one paper's extraction at ~0.61 GB
