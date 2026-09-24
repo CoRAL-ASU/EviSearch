@@ -7,6 +7,7 @@ Pages
   /knowledge  /learning
 APIs (JSON, {"success": ...} envelope)
   GET  /api/tables                               tables with counts
+  POST /api/tables                               {name, description?, columns: [{name, definition}], by} a table typed in by hand
   GET  /api/tables/<id>                          table, papers, runs, steps, next action
   POST /api/tables/<id>/papers                   add a paper (JSON {doc_id} or multipart file); starts a prepare job if needed
   GET  /api/tables/<id>/runs                     runs of the table with per-paper progress and review counts
@@ -376,6 +377,18 @@ def api_tables():
         out.append({**s, "runs": len(table_runs), "last_run": table_runs[-1]["run"] if table_runs else None,
                     "papers": len({d for r in table_runs for d in r["docs"]})})
     return _ok(tables=out)
+
+
+@bp.route("/api/tables", methods=["POST"])
+def api_create_table():
+    """A table typed in by hand: {name, description?, columns: [{name, definition}], by}. It starts as a draft."""
+    body = request.get_json(silent=True) or {}
+    try:
+        schema = store.create_typed(body.get("name", ""), body.get("columns") or [], description=str(body.get("description", "")),
+                                    by=str(body.get("by", "")))
+    except ValueError as exc:
+        return _err(str(exc))
+    return _ok(table_id=schema["id"], fields=len(schema["fields"]))
 
 
 @bp.route("/api/tables/<table_id>")

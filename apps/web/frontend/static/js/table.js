@@ -67,6 +67,7 @@
             case 'definition_edit': return `edited${col}${e.reason ? ' (' + e.reason + ')' : ''}`;
             case 'definition_answer': return `answered a question on${col}: ${e.answer}`;
             case 'definition_revise': return `agent revised${col}`;
+            case 'schema_draft': return `created the table with ${e.fields} column${e.fields === 1 ? '' : 's'}`;
             case 'schema_lock': return `locked v${e.version}`;
             case 'cell_correct': return `${e.state === 'accepted' || e.before === e.after ? 'confirmed' : 'corrected'}${col} in ${shortDoc(e.doc_id)}${e.reason ? ' (' + e.reason + ')' : ''}`;
             case 'cell_undo': return `undid a review of${col}`;

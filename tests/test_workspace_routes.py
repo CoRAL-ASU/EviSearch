@@ -197,3 +197,31 @@ def test_the_knowledge_page_shows_the_notes_and_who_reads_them(ws, tmp_path, mon
     _note(kb, "definitions", "broken", "id: broken\nscope: everywhere", "# Broken")
     bad = ws.get("/api/knowledge/notes")
     assert bad.status_code == 500 and "broken.md" in bad.get_json()["error"]
+
+
+def test_a_table_typed_in_by_hand_needs_a_name_and_a_definition_per_column(ws):
+    """The Tables page's "New table": a name, then a name and a definition for every column; blank rows are skipped."""
+    bad = ws.post("/api/tables", json={"name": "Heart failure", "by": "rev", "columns": [
+        {"name": "Trial Name", "definition": "The trial's acronym."}, {"name": "", "definition": "orphan definition"},
+        {"name": "Year", "definition": ""}, {"name": "trial name", "definition": "again"}, {"name": "", "definition": ""}]}).get_json()
+    assert not bad["success"]
+    assert "column 2 has no name" in bad["error"] and "column 3 (Year) has no definition" in bad["error"]
+    assert "column 4 (trial name) has the same name as column 1" in bad["error"]
+    assert not ws.post("/api/tables", json={"name": " ", "columns": [{"name": "A", "definition": "a"}]}).get_json()["success"]
+    assert not ws.post("/api/tables", json={"name": "Empty", "columns": [{"name": "", "definition": ""}]}).get_json()["success"]
+    assert ws.get("/api/tables").get_json()["tables"] == []  # the refused requests created nothing
+
+    made = ws.post("/api/tables", json={"name": "Heart failure trials", "description": "One row per paper", "by": "rev", "columns": [
+        {"name": "Trial Name", "definition": "The trial's acronym."},
+        {"name": "Median OS (mo) | Treatment", "definition": "Median overall survival in months, treatment arm."},
+        {"name": "", "definition": ""}]}).get_json()
+    assert made["success"] and made["fields"] == 2
+    table = ws.get(f"/api/tables/{made['table_id']}").get_json()
+    assert table["table"]["name"] == "Heart failure trials" and table["table"]["status"] == "draft"
+    assert table["table"]["description"] == "One row per paper"
+    schema = ws.get(f"/api/schemas/{made['table_id']}").get_json()["schema"]
+    assert [f["name"] for f in schema["fields"]] == ["Trial Name", "Median OS (mo) | Treatment"]
+    assert schema["fields"][1]["x-evisearch"]["group"] == "Median OS (mo)"  # grouped like a drafted column
+    assert all(f["x-evisearch"]["review"]["state"] == "accepted" for f in schema["fields"])  # its owner wrote it
+    locked = ws.post(f"/api/schemas/{made['table_id']}/lock", json={"by": "rev"}).get_json()
+    assert locked["success"] and locked["version"] == 1

@@ -1,25 +1,61 @@
 {% extends "base.html" %}
 {% set active = "tables" %}
 {% block title %}Tables{% endblock %}
+{% block head %}
+<style>
+    .n-row { display: grid; gap: .5rem; grid-template-columns: 1fr; align-items: start; }
+    /* on a phone each column is its own bordered block, with its remove button in the corner */
+    @media (max-width: 639px) {
+        #n-cols .n-row { position: relative; border: 1px solid hsl(var(--bc) / .15); border-radius: .5rem; padding: 2.25rem .5rem .5rem; }
+        #n-cols .n-del { position: absolute; top: .25rem; right: .25rem; }
+    }
+    @media (min-width: 640px) { .n-row { grid-template-columns: minmax(0, 15rem) minmax(0, 1fr) auto; } }
+</style>
+{% endblock %}
 {% block content %}
-<main class="max-w-4xl mx-auto p-4 md:p-6">
-    <section class="space-y-3">
-        <h1 class="text-2xl font-bold">Tables</h1>
-        <p class="text-sm text-base-content/70">A table is a set of column definitions plus the papers extracted under them, their reviews and the knowledge learned from them.</p>
-        <div id="list" class="space-y-3"><div class="skeleton h-24 w-full"></div></div>
+<main class="max-w-4xl mx-auto p-4 md:p-6 space-y-3">
+    <div class="flex flex-wrap items-center gap-3">
+        <h1 class="text-2xl font-bold flex-1">Tables</h1>
+        <button id="new-btn" class="btn btn-primary btn-sm">New table</button>
+    </div>
+    <p class="text-sm text-base-content/70">A table is a set of column definitions plus the papers extracted under them, their reviews and the knowledge learned from them.</p>
+
+    <section id="new" class="card bg-base-100 shadow" hidden>
+        <div class="card-body p-4 space-y-3">
+            <div class="flex items-center gap-2">
+                <h2 class="card-title text-base flex-1">New table</h2>
+                <button id="n-close" class="btn btn-ghost btn-xs">Cancel</button>
+            </div>
+            <p class="text-xs text-base-content/70">Name the table, then give every column a name and a definition: what the value is and
+                how to report it. The table starts as a draft; lock it on its Schema tab, then add papers and extract.</p>
+            <div class="grid gap-2 sm:grid-cols-2">
+                <input id="n-name" class="input input-sm input-bordered w-full" maxlength="80" placeholder="Table name, e.g. Heart failure trials" />
+                <input id="n-desc" class="input input-sm input-bordered w-full" maxlength="200" placeholder="What the table is for (optional)" />
+            </div>
+            <div class="n-row text-xs font-semibold opacity-70 max-sm:hidden"><span>Column name</span><span>Definition</span><span class="w-8"></span></div>
+            <div id="n-cols" class="space-y-2"></div>
+            <div class="flex flex-wrap items-center gap-2">
+                <button id="n-add" class="btn btn-outline btn-sm">+ Add column</button>
+                <span id="n-count" class="text-xs opacity-60"></span>
+                <div class="flex-1"></div>
+                <button id="n-go" class="btn btn-primary btn-sm">Create table</button>
+            </div>
+            <div id="n-err" class="text-sm text-error" role="alert"></div>
+        </div>
     </section>
 
+    <div id="list" class="space-y-3"><div class="skeleton h-24 w-full"></div></div>
 </main>
 {% endblock %}
 {% block scripts %}
 <script>
 (function () {
-    const {$, esc, enc, get, when} = EVS;
+    const {$, esc, enc, get, post, needReviewer, when} = EVS;
 
     async function load() {
         const r = await get('/api/tables');
         if (!r.success) { $('list').innerHTML = `<div class="alert alert-error">${esc(r.error)}</div>`; return; }
-        if (!r.tables.length) { $('list').innerHTML = '<div class="alert">No table yet.</div>'; return; }
+        if (!r.tables.length) { $('list').innerHTML = '<div class="alert">No table yet. Start one with “New table”.</div>'; return; }
         $('list').innerHTML = r.tables.map((t) => `<a href="/tables/${enc(t.id)}" class="card bg-base-100 shadow hover:shadow-lg transition block">
             <div class="card-body p-4">
                 <div class="flex flex-wrap items-center gap-2"><h2 class="text-lg font-semibold">${esc(t.name)}</h2>
@@ -30,6 +66,81 @@
             </div></a>`).join('');
     }
 
+    // ---------- a new table, typed in: a name, then a name and a definition per column ----------
+    function addRow(focus) {
+        const row = document.createElement('div');
+        row.className = 'n-row';
+        row.innerHTML = `<input class="input input-sm input-bordered w-full n-col" maxlength="200" placeholder="Column name, e.g. Median OS (mo) | Treatment" />
+            <textarea class="textarea textarea-bordered textarea-sm w-full n-def" rows="2"
+                placeholder="Definition, e.g. Median overall survival in months in the treatment arm. Use 'Not reported' if missing."></textarea>
+            <button type="button" class="btn btn-ghost btn-sm n-del" title="Remove this column" aria-label="Remove this column">✕</button>`;
+        row.querySelector('.n-del').onclick = () => { row.remove(); if (!$('n-cols').children.length) addRow(); count(); };
+        row.querySelectorAll('input, textarea').forEach((el) => el.addEventListener('input', () => {
+            el.classList.remove('input-error', 'textarea-error'); count();
+        }));
+        $('n-cols').appendChild(row);
+        if (focus) row.querySelector('.n-col').focus();
+        count();
+    }
+
+    function rows() {
+        return [...$('n-cols').querySelectorAll('.n-row')].map((row) => ({
+            row, name: row.querySelector('.n-col'), def: row.querySelector('.n-def'),
+        }));
+    }
+
+    function count() {
+        const n = rows().filter((r) => r.name.value.trim() && r.def.value.trim()).length;
+        $('n-count').textContent = `${n} column${n === 1 ? '' : 's'} ready`;
+    }
+
+    // Every column needs a name and a definition, and no two columns share a name; rows left entirely blank are skipped.
+    function check() {
+        const problems = [], seen = new Map(), columns = [];
+        rows().forEach((r) => {
+            const name = r.name.value.trim().replace(/\s+/g, ' '), def = r.def.value.trim();
+            if (!name && !def) return;
+            const label = `column ${columns.length + 1}${name ? ` (${name})` : ''}`;
+            if (!name) { r.name.classList.add('input-error'); problems.push(`${label} has no name`); }
+            if (!def) { r.def.classList.add('textarea-error'); problems.push(`${label} has no definition`); }
+            if (name && seen.has(name.toLowerCase())) {
+                r.name.classList.add('input-error');
+                problems.push(`${label} has the same name as column ${seen.get(name.toLowerCase())}`);
+            }
+            if (name) seen.set(name.toLowerCase(), seen.get(name.toLowerCase()) || columns.length + 1);
+            columns.push({name, definition: def});
+        });
+        if (!columns.length) problems.push('add at least one column with a name and a definition');
+        return {columns, problems};
+    }
+
+    function open() {
+        $('new').hidden = false;
+        if (!$('n-cols').children.length) { addRow(); addRow(); addRow(); }
+        $('n-name').focus();
+    }
+
+    $('new-btn').onclick = open;
+    $('n-close').onclick = () => { $('new').hidden = true; $('n-err').textContent = ''; };
+    $('n-add').onclick = () => addRow(true);
+    $('n-name').addEventListener('input', () => $('n-name').classList.remove('input-error'));
+
+    $('n-go').onclick = async () => {
+        $('n-err').textContent = '';
+        count();
+        const name = $('n-name').value.trim();
+        const {columns, problems} = check();
+        if (!name) { $('n-name').classList.add('input-error'); problems.unshift('give the table a name'); }
+        if (problems.length) { $('n-err').textContent = problems.join(' · '); return; }
+        const by = needReviewer(); if (!by) return;
+        $('n-go').disabled = true;
+        const r = await post('/api/tables', {name, description: $('n-desc').value.trim(), columns, by});
+        $('n-go').disabled = false;
+        if (!r.success) { $('n-err').textContent = r.error; return; }
+        location.href = `/tables/${enc(r.table_id)}#schema`;
+    };
+
+    if (location.hash === '#new') open();
     load();
 })();
 </script>

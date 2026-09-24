@@ -62,6 +62,60 @@ def create(name: str, fields: List[Dict[str, Any]], *, source: Dict[str, Any], b
     return schema
 
 
+def typed_field(name: str, definition: str, by: str = "") -> Dict[str, Any]:
+    """A column its owner typed in: the name and the definition they wrote, so it is reviewed already, with no example
+    row behind it."""
+    from src.evisearch.schema.facets import parse_header
+
+    facets = parse_header(name)
+    return {
+        "name": name,
+        "title": name,
+        "description": definition,
+        "type": "string",
+        "x-evisearch": {
+            "group": facets["family"],
+            "facets": {k: facets.get(k, "") for k in ("characteristic", "statistic", "unit", "subgroup", "arm", "category", "cryptic")},
+            "answer_format": "",
+            "eval_category": "structured_text",
+            "nr_policy": "",
+            "example": {"doc": None, "value": "", "grounding": None},
+            "reading": "",
+            "questions": [],
+            "confidence": "",
+            "conventions": [],
+            "review": {"state": "accepted", "by": by or None, "at": _now()},
+            "history": [],
+        },
+    }
+
+
+def create_typed(name: str, columns: List[Dict[str, Any]], *, description: str = "", by: str = "") -> Dict[str, Any]:
+    """A table typed in by hand: its name, and a name and a definition for every column; rows left entirely blank are
+    ignored. Raises ValueError saying what is missing. The table starts as a draft, to be locked before extraction."""
+    name = " ".join(str(name or "").split())
+    if not name:
+        raise ValueError("give the table a name")
+    rows = [(" ".join(str((c or {}).get("name") or "").split()), str((c or {}).get("definition") or "").strip())
+            for c in columns or [] if isinstance(c, dict)]
+    rows = [row for row in rows if row[0] or row[1]]
+    if not rows:
+        raise ValueError("add at least one column with a name and a definition")
+    problems, seen = [], {}
+    for i, (column, definition) in enumerate(rows, 1):
+        if not column:
+            problems.append(f"column {i} has no name")
+        if not definition:
+            problems.append(f"column {i}{f' ({column})' if column else ''} has no definition")
+        if column and column.lower() in seen:
+            problems.append(f"column {i} ({column}) has the same name as column {seen[column.lower()]}")
+        seen.setdefault(column.lower(), i)
+    if problems:
+        raise ValueError("; ".join(problems))
+    return create(name, [typed_field(column, definition, by) for column, definition in rows],
+                  source={"kind": "typed", "description": " ".join(str(description or "").split())}, by=by)
+
+
 def save(schema: Dict[str, Any]) -> Path:
     folder = schema_dir(schema["id"])
     folder.mkdir(parents=True, exist_ok=True)
